@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questionario-Criação de perfil</title>
+
+    <!--Tem css mas é um basico só para vc ter uma base na hora de programar, deletar esse comentario apos a mudança-->
+    <style>
+        .bolinha{
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #ccc;
+            margin: 15px 0;
+        }
+        .bolinha.ativa{
+            background-color: #4CAF50;
+        }
+    </style>
+
+</head>
+<body>
+    <div id="barra">
+        <div id="progresso">
+            <div class="bolinha"></div>
+            <div class="bolinha"></div>
+            <div class="bolinha"></div>
+            <div class="bolinha"></div>
+            <div class="bolinha"></div>
+            <div class="bolinha"></div>
+            <div class="bolinha"></div>
+            <div class="bolinha"></div>
+        </div>
+    </div>
+
+    <form>
+
+        <div class="pergunta">
+        <h2>1. Prefiro fazer coisas com outras pessoas do que sozinho(a).</h2>
+        <br>
+        <label> <input type="radio" name="q1">Concordo plenamente</label>
+        <br>
+        <label> <input type="radio" name="q1">Concordo um pouco</label>
+        <br>
+        <label> <input type="radio" name="q1">Discordo plenamente</label>
+        <br>
+        <label> <input type="radio" name="q1">Discordo um pouco</label>
+        <br>
+        </div>
+
+        <div class="pergunta">
+            <h2>2. Prefiro fazer as coisas sempre da mesma maneira.</h2>
+            <br>
+            <label> <input type="radio" name="q2">Concordo plenamente</label>
+            <br>
+            <label> <input type="radio" name="q2">Concordo um pouco</label>
+            <br>
+            <label> <input type="radio" name="q2">Discordo plenamente</label>
+            <br>
+            <label> <input type="radio" name="q2">Discordo um pouco</label>
+            <br>
+        </div>
+
+        <div class="pergunta">
+            <h2>3. Tenho facilidade em imaginar coisas.</h2>
+            <br>
+            <label> <input type="radio" name="q3">Concordo plenamente</label>
+            <br>
+            <label> <input type="radio" name="q3">Concordo um pouco</label>
+            <br>
+            <label> <input type="radio" name="q3">Discordo plenamente</label>
+            <br>
+            <label> <input type="radio" name="q3">Discordo um pouco</label>
+            <br>
+        </div>
+
+        <div class="pergunta">
+            <h2>4. Fico tão concentrado que esqueço o resto.</h2>
+            <br>
+            <label> <input type="radio" name="q4">Concordo plenamente</label>
+            <br>
+            <label> <input type="radio" name="q4">Concordo um pouco</label>
+            <br>
+            <label> <input type="radio" name="q4">Discordo plenamente</label>
+            <br>
+            <label> <input type="radio" name="q4">Discordo um pouco</label>
+            <br>
+        </div>
+
+        <div class="pergunta">
+            <h2>5. Percebo pequenos sons facilmente.</h2>
+            <br>
+            <label> <input type="radio" name="q5">Concordo plenamente</label>
+            <br>
+            <label> <input type="radio" name="q5">Concordo um pouco</label>
+            <br>
+            <label> <input type="radio" name="q5">Discordo plenamente</label>
+            <br>
+            <label> <input type="radio" name="q5">Discordo um pouco</label>
+            <br><br>
+        </div>
+
+        <button type="submit" onclick="window.location.href='home.html'">Enviar</button>
+
+    </form>
+
+    <script>
+        function atualizarProgresso(){
+            const perguntas = document.querySelectorAll('.pergunta') //seleciona tudo com a class de pergunta
+            let respondidas = 0;//quantidade de perguntas respondidas 
+
+            perguntas.forEach(p=> {
+                if(p.querySelector('input:checked')){// vou contar quantas perguntas foram respondidas e vou adicionar em respondidas.
+                    respondidas++;
+                }
+            });
+
+            const bolinhas = document.querySelectorAll('.bolinha');//vou selecionar todas as bolinhas
+
+            bolinhas.forEach((bolinha,index)=>{
+                if(index < respondidas){
+                    bolinha.classList.add('ativa');
+                } else {
+                    bolinha.classList.remove('ativa')
+                }
+            });
+            
+        }
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', atualizarProgresso);//vai atualizar a barrinha de progresso sozinho
+        });
+    </script>
+
+</body>
+</html>

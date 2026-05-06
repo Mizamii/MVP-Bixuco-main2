@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Home</title>
+</head>
+
+<body>
+<header>
+  <img src="imagem de perfil" width="50">
+  <span>Início</span>
+  <span>Relatórios</span>
+  <span>Sobre</span>
+</header>
+
+<div style="display: flex;"> <!--esse é a area que vai ficar na parte esquerda-->
+
+  <div style="width: 70%; padding: 20px;">
+
+    <h3>Dicas para o dia-a-dia</h3>
+
+    <div id="dicasContainer" style="display: flex; overflow-x: auto; gap: 10px;">
+
+    </div>
+
+    <h3>Resumo dos últimos dias em gráficos</h3>
+
+
+    <div style="display: flex; gap: 20px;"> <!--aq estao onde seria os graficos-->
+
+      <img src="grafico1" />
+      <img src="grafico2" />
+      <img src="grafico3" />
+
+    </div>
+
+  </div>
+
+
+  <div style="width: 30%; padding: 20px;">
+
+    <h3>Calendário</h3>
+
+    <img src="foto de calendario">
+
+    <br><br>
+
+    <button>Fazer relatório de hoje</button>
+
+    <h3>Resumo do último dia</h3>
+
+    <div>
+      <p>1. Como foi o dia?</p>
+      <p>Difícil</p>
+
+      <p>2. Houve estresse?</p>
+      <p>Moderado</p>
+
+      <p>3. Possível causa</p>
+      <p>Toque/roupas</p>
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+
+const dicas = [
+  "Dica 1",
+  "Dica 2",
+  "Dica 3",
+  "Dica 4",
+  "Dica 5",
+  "Dica 6"
+];
+
+const container = document.getElementById("dicasContainer");
+
+
+dicas.forEach(dica => {
+  const div = document.createElement("div");
+
+  div.innerText = dica;
+  div.style.background = "green";
+  div.style.color = "white";
+  div.style.padding = "20px";
+  div.style.minWidth = "120px";
+
+  container.appendChild(div);
+});
+
+</script>
+
+</body>
+</html>

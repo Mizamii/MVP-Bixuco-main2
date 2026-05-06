@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco tela inicial</title>
+    
+    <style>
+        .cabecalho{
+            background-color: black;
+            color: white;
+            padding: 0px!important;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin: 0 auto;
+            overflow-x: hidden;
+        }
+        .logotxt{
+            height: 75px;
+            margin-right: 60px;
+            margin-left: 40px;
+        }
+        .btn-entrar{
+            height: 45px;
+            margin-left: 60px;
+            margin-right: 40px;
+            background-color: #79D836; 
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 20px; 
+            border: none; 
+            padding: 0 80px; 
+            
+        }
+        .btn-entrar:hover {
+            background-color: #32C26D;
+            cursor: pointer;
+            transform: scale(1.0);
+            transition: all 0.3s ease;
+        }
+        body{
+            margin: 0 auto;
+            padding: 0px;
+            overflow-x: hidden;
+        }
+        .container{
+            background-color: #0AB7FB;
+            color: white;             
+            display: flex;            
+            align-items: center;       
+            justify-content: space-between; 
+            padding: 20px 10%;         
+            font-family: 'Nunito', sans-serif;
+        } 
+        .titulodest{
+            font-size: 36px;
+            font-weight: 700;
+            margin-top: 0px;
+            margin-bottom: 20px;
+        }
+        .texto{
+            font-size: 20px;
+            font-weight: 400;
+            font-family: 'Nunito', sans-serif;
+            max-width: 90%;
+            line-height: 1.8;
+            text-align: left;
+        }
+        .celular{
+            height: 30%;
+        }
+        .branco{
+            background-color: white;
+            padding: 20px 10%;
+            font-family: 'Nunito', sans-serif;
+            background-color: white;
+            display: flex;             
+            align-items: center;       
+            justify-content: center;   
+            padding: 50px 10%;         
+            gap: 30px;
+        }
+        .logo-gato{
+            max-width: 300px;         
+            height: auto;
+        }
+        .rodape{
+            background-color: #1D8EC9;
+            color: white;
+            padding: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            margin: 0 auto;
+            overflow-x: hidden;
+            gap: 105px;
+        }
+
+    </style>
+</head>
+<body>
+    <header class="cabecalho">
+        <img src="../static/img/Logo_nome.png" alt="Logo" class="logotxt">
+         <button class="btn-entrar" onclick="window.location.href='logar.html'">Entrar</button>
+    </header>
+
+    <div class="container">
+    <div class="bloco-texto">
+        <h1 class="titulodest">Informações sobre o app</h1>
+        <p class="texto">
+            O Bixuco é um aplicativo que auxilia pais no acompanhamento do bem-estar de crianças com hipersensibilidade sensorial (TPS).
+            Integrado a uma pelúcia com sensores, o app identifica possíveis sinais de estresse a partir das interações da criança e organiza essas informações de forma simples e visual.
+            <br><br>
+            Os responsáveis podem registrar o dia da criança, acompanhar relatórios, visualizar gráficos e identificar padrões de comportamento. Também é possível compartilhar esses dados com terapeutas, facilitando o acompanhamento profissional.
+        </p>
+    </div>
+        <img class="celular" src="../static/img/foto_cell.png"  alt="celular">
+    </div> 
+
+
+    <div class="branco">
+        <img class="logo-gato" src="../static/img/Logo_Gato.png" alt="">
+        <div class="bloco-texto">
+        <h1 class="titulodest">Informações sobre o Bixuco</h1>
+        <p class="texto">A Bixuco é uma startup de tecnologia focada no bem-estar infantil, criada para ajudar famílias a compreender melhor crianças com hipersensibilidade sensorial.
+
+            A empresa une uma pelúcia sensorizada com plataformas digitais, oferecendo uma solução completa para acompanhamento do comportamento infantil.
+            
+            Seu objetivo é melhorar a comunicação entre crianças e responsáveis, promovendo mais segurança e qualidade de vida, sem substituir o acompanhamento profissional.
+        </p>
+    </div>
+    </div>
+
+
+
+    <footer class="rodape">
+    <p>Política de privacidade</p>
+    <span>|</span>
+    <p>Termos de uso</p>
+    <span>|</span>
+    <p>Sobre nós</p>
+</footer>
+</body>
+</html>

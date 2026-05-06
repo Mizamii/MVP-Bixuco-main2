@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <title>Metodo de logar</title>
+    <style>
+        .logo{
+        margin-right: 60px;
+        margin-left: 40px;
+        height: 75px;   
+        }
+        body {
+        font-family: 'Inter', sans-serif;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh; 
+        margin: 0;
+        }
+        .texto {
+        font-family: 'Inter', sans-serif; 
+        margin-top: 100px;
+        margin-left: 200px;
+        margin-right: 200px;
+        text-align: center;
+        }
+        .titulodest {
+        font-family: 'Inter', sans-serif; 
+        font-size: 36px;               
+        font-weight: 700;                 
+        }
+        .subtitulo {
+        font-family: 'Inter', sans-serif; 
+        font-size: 24px;               
+        font-weight: 700;                 
+        }
+        .rodape{
+            background-color: #1D8EC9;
+            color: white;
+            padding: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            margin: 0 auto;
+            overflow-x: hidden;
+            gap: 105px;
+            margin-top: auto;
+        }
+        .btn {
+            height: 45px;
+            margin-left: 60px;
+            margin-right: 60px;
+            background-color: #79D836; 
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 20px;  
+            border: none; 
+            padding: 0 100px;
+            
+        }
+        .btn:hover {
+            background-color: #32C26D;
+            cursor: pointer;
+            transform: scale(1.0);
+            transition: all 0.3s ease;
+        }
+        .divisor {
+            display: flex;
+            align-items: center; 
+            justify-content: center;
+            width: 320px;       
+            margin: 20px auto;  
+            color: #000000;
+        }
+
+        .divisor::before,
+        .divisor::after {
+            content: "";
+            flex: 1;            
+            border-bottom: 1px solid #ccc; 
+        }   
+        .divisor span {
+            padding: 0 15px;    
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .btn-google {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 75px;
+        padding: 0 40px;
+        font-weight: 700;
+        cursor: pointer;
+        margin: 0 auto;
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <img class="logo" src="../static/img/Logo_nome.png" alt="">
+    </header>
+    <div class="texto">
+        <h1 class="titulodest">Já possui uma conta</h1>
+        
+        <h2 class="subtitulo">Sim, quero logar</h2>
+        <button class="btn"  onclick="window.location.href='ContaExistente.html'">Fazer login</button>
+
+        <h2 class="subtitulo">Não, irei criar agora </h2>
+        <button class="btn"  onclick="window.location.href='CriarContaS.html'">Criar agora</button>
+
+        <div class="divisor">
+        <span>Ou</span>
+    </div>
+
+        <img class="btn-google" src="../static/img/googlelog.png" height="80px" alt="">
+    </div>
+
+   <footer class="rodape">
+    <p>Política de privacidade</p>
+    <span>|</span>
+    <p>Termos de uso</p>
+    <span>|</span>
+    <p>Sobre nós</p>
+</footer>
+</body>
+</html>
