@@ -1,136 +1,254 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Questionario-Criação de perfil</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Questionario-Criação de perfil</title>
 
-    <!--Tem css mas é um basico só para vc ter uma base na hora de programar, deletar esse comentario apos a mudança-->
-    <style>
-        .bolinha{
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            background: #ccc;
-            margin: 15px 0;
-        }
-        .bolinha.ativa{
-            background-color: #4CAF50;
-        }
-    </style>
+<style>
+
+
+:root{
+    --verde-claro: #79D836;
+    --verde-escuro: #32C26D;
+    --azul-claro: #0AB7FB;
+    --azul-escuro: #1D8EC9;
+    --cinza-linha: #D9D9D9;
+}
+
+
+body{
+    display: flex;
+    font-family: Arial;
+    margin: 0;
+}
+
+
+#barra{
+    width: 160px;
+    height: 100vh;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    padding-left: 25px;
+}
+
+
+#linha{
+    position: absolute;
+    width: 6px;
+    height: 100%;
+    background: var(--cinza-linha);
+    border-radius: 10px;
+}
+
+
+#linha-progresso{
+    position: absolute;
+    width: 6px;
+    height: 0%;
+    border-radius: 10px;
+    background: linear-gradient(
+        to bottom,
+        var(--verde-claro),
+        var(--verde-escuro),
+        var(--azul-claro),
+        var(--azul-escuro)
+    );
+    transition: 0.4s;
+}
+
+
+#progresso{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 95%;
+    z-index: 1;
+}
+
+
+.bolinha{
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--cinza-linha);
+    border: 4px solid white;
+}
+
+
+.bolinha.ativa:nth-child(1){ background: var(--verde-claro); }
+.bolinha.ativa:nth-child(2){ background: var(--verde-claro); }
+.bolinha.ativa:nth-child(3){ background: var(--verde-escuro); }
+.bolinha.ativa:nth-child(4){ background: var(--azul-claro); }
+.bolinha.ativa:nth-child(5){ background: var(--azul-escuro); }
+
+
+form{
+    padding: 40px;
+    width: 100%;
+}
+
+
+.pergunta{
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--cinza-linha);
+}
+
+
+input[type="radio"]{
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border: 3px solid #444;
+    border-radius: 50%;
+    margin-right: 10px;
+    position: relative;
+    cursor: pointer;
+}
+
+
+input[type="radio"]:checked::before{
+    content: "";
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+
+label:nth-of-type(1) input:checked::before{ background: var(--verde-claro); }
+label:nth-of-type(2) input:checked::before{ background: var(--verde-escuro); }
+label:nth-of-type(3) input:checked::before{ background: var(--azul-claro); }
+label:nth-of-type(4) input:checked::before{ background: var(--azul-escuro); }
+
+label{
+    display: block;
+    margin: 10px 0;
+    cursor: pointer;
+}
+
+
+button{
+    display: block;
+    width: 90%;
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 16px;
+    border: none;
+    border-radius: 30px;
+    background: var(--azul-claro);
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+button:hover{
+    background: var(--azul-escuro);
+}
+
+</style>
 
 </head>
+
 <body>
-    <div id="barra">
-        <div id="progresso">
-            <div class="bolinha"></div>
-            <div class="bolinha"></div>
-            <div class="bolinha"></div>
-            <div class="bolinha"></div>
-            <div class="bolinha"></div>
-            <div class="bolinha"></div>
-            <div class="bolinha"></div>
-            <div class="bolinha"></div>
-        </div>
+
+<div id="barra">
+    <div id="linha"></div>
+    <div id="linha-progresso"></div>
+
+    <div id="progresso">
+        <div class="bolinha"></div>
+        <div class="bolinha"></div>
+        <div class="bolinha"></div>
+        <div class="bolinha"></div>
+        <div class="bolinha"></div>
+    </div>
+</div>
+
+<form>
+
+    <div class="pergunta">
+    <h2>1. Prefiro fazer coisas com outras pessoas do que sozinho(a).</h2>
+    <label><input type="radio" name="q1">Concordo plenamente</label>
+    <label><input type="radio" name="q1">Concordo um pouco</label>
+    <label><input type="radio" name="q1">Discordo plenamente</label>
+    <label><input type="radio" name="q1">Discordo um pouco</label>
     </div>
 
-    <form>
+    <div class="pergunta">
+    <h2>2. Prefiro fazer as coisas sempre da mesma maneira.</h2>
+    <label><input type="radio" name="q2">Concordo plenamente</label>
+    <label><input type="radio" name="q2">Concordo um pouco</label>
+    <label><input type="radio" name="q2">Discordo plenamente</label>
+    <label><input type="radio" name="q2">Discordo um pouco</label>
+    </div>
 
-        <div class="pergunta">
-        <h2>1. Prefiro fazer coisas com outras pessoas do que sozinho(a).</h2>
-        <br>
-        <label> <input type="radio" name="q1">Concordo plenamente</label>
-        <br>
-        <label> <input type="radio" name="q1">Concordo um pouco</label>
-        <br>
-        <label> <input type="radio" name="q1">Discordo plenamente</label>
-        <br>
-        <label> <input type="radio" name="q1">Discordo um pouco</label>
-        <br>
-        </div>
+    <div class="pergunta">
+    <h2>3. Tenho facilidade em imaginar coisas.</h2>
+    <label><input type="radio" name="q3">Concordo plenamente</label>
+    <label><input type="radio" name="q3">Concordo um pouco</label>
+    <label><input type="radio" name="q3">Discordo plenamente</label>
+    <label><input type="radio" name="q3">Discordo um pouco</label>
+    </div>
 
-        <div class="pergunta">
-            <h2>2. Prefiro fazer as coisas sempre da mesma maneira.</h2>
-            <br>
-            <label> <input type="radio" name="q2">Concordo plenamente</label>
-            <br>
-            <label> <input type="radio" name="q2">Concordo um pouco</label>
-            <br>
-            <label> <input type="radio" name="q2">Discordo plenamente</label>
-            <br>
-            <label> <input type="radio" name="q2">Discordo um pouco</label>
-            <br>
-        </div>
+    <div class="pergunta">
+    <h2>4. Fico tão concentrado que esqueço o resto.</h2>
+    <label><input type="radio" name="q4">Concordo plenamente</label>
+    <label><input type="radio" name="q4">Concordo um pouco</label>
+    <label><input type="radio" name="q4">Discordo plenamente</label>
+    <label><input type="radio" name="q4">Discordo um pouco</label>
+    </div>
 
-        <div class="pergunta">
-            <h2>3. Tenho facilidade em imaginar coisas.</h2>
-            <br>
-            <label> <input type="radio" name="q3">Concordo plenamente</label>
-            <br>
-            <label> <input type="radio" name="q3">Concordo um pouco</label>
-            <br>
-            <label> <input type="radio" name="q3">Discordo plenamente</label>
-            <br>
-            <label> <input type="radio" name="q3">Discordo um pouco</label>
-            <br>
-        </div>
+    <div class="pergunta">
+    <h2>5. Percebo pequenos sons facilmente.</h2>
+    <label><input type="radio" name="q5">Concordo plenamente</label>
+    <label><input type="radio" name="q5">Concordo um pouco</label>
+    <label><input type="radio" name="q5">Discordo plenamente</label>
+    <label><input type="radio" name="q5">Discordo um pouco</label>
+    </div>
 
-        <div class="pergunta">
-            <h2>4. Fico tão concentrado que esqueço o resto.</h2>
-            <br>
-            <label> <input type="radio" name="q4">Concordo plenamente</label>
-            <br>
-            <label> <input type="radio" name="q4">Concordo um pouco</label>
-            <br>
-            <label> <input type="radio" name="q4">Discordo plenamente</label>
-            <br>
-            <label> <input type="radio" name="q4">Discordo um pouco</label>
-            <br>
-        </div>
+    <button type="button" onclick="window.location.href='home.html'" required >Enviar</button>
 
-        <div class="pergunta">
-            <h2>5. Percebo pequenos sons facilmente.</h2>
-            <br>
-            <label> <input type="radio" name="q5">Concordo plenamente</label>
-            <br>
-            <label> <input type="radio" name="q5">Concordo um pouco</label>
-            <br>
-            <label> <input type="radio" name="q5">Discordo plenamente</label>
-            <br>
-            <label> <input type="radio" name="q5">Discordo um pouco</label>
-            <br><br>
-        </div>
+</form>
 
-        <button type="submit" onclick="window.location.href='home.html'">Enviar</button>
+<script>
 
-    </form>
+function atualizarProgresso(){
+    const perguntas = document.querySelectorAll('.pergunta') //seleciona tudo com a class de pergunta
+    let respondidas = 0;//quantidade de perguntas respondidas 
 
-    <script>
-        function atualizarProgresso(){
-            const perguntas = document.querySelectorAll('.pergunta') //seleciona tudo com a class de pergunta
-            let respondidas = 0;//quantidade de perguntas respondidas 
-
-            perguntas.forEach(p=> {
-                if(p.querySelector('input:checked')){// vou contar quantas perguntas foram respondidas e vou adicionar em respondidas.
-                    respondidas++;
-                }
-            });
-
-            const bolinhas = document.querySelectorAll('.bolinha');//vou selecionar todas as bolinhas
-
-            bolinhas.forEach((bolinha,index)=>{
-                if(index < respondidas){
-                    bolinha.classList.add('ativa');
-                } else {
-                    bolinha.classList.remove('ativa')
-                }
-            });
-            
+    perguntas.forEach(p=> {
+        if(p.querySelector('input:checked')){
+            respondidas++;
         }
-        document.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', atualizarProgresso);//vai atualizar a barrinha de progresso sozinho
-        });
-    </script>
+    });
+
+    const bolinhas = document.querySelectorAll('.bolinha');//vou selecionar todas as bolinhas
+
+    bolinhas.forEach((bolinha,index)=>{
+        if(index < respondidas){
+            bolinha.classList.add('ativa');
+        } else {
+            bolinha.classList.remove('ativa')
+        }
+    });
+
+    
+    const total = perguntas.length;
+    const porcentagem = (respondidas / total) * 100;
+    document.getElementById("linha-progresso").style.height = porcentagem + "%";
+}
+
+document.querySelectorAll('input[type="radio"]').forEach(radio => {
+    radio.addEventListener('change', atualizarProgresso);//vai atualizar a barrinha de progresso sozinho
+});
+
+</script>
 
 </body>
 </html>

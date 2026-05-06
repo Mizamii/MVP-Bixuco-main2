@@ -3,53 +3,189 @@
 <head>
 <meta charset="UTF-8">
 <title>Home</title>
+
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+  }
+
+  body {
+    background: #f2f2f2;
+  }
+
+  
+  header {
+    background: #79D836;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 30px;
+  }
+
+  .menu {
+    display: flex;
+    gap: 40px;
+  }
+
+  .menu span {
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+  }
+
+  .menu span:hover {
+    color: white;
+  }
+
+  .config {
+    font-size: 20px;
+    cursor: pointer;
+  }
+
+  
+  .container {
+    display: flex;
+  }
+
+  .left {
+    width: 70%;
+    padding: 20px;
+  }
+
+  .right {
+    width: 30%;
+    padding: 20px;
+  }
+
+  h3 {
+    margin-bottom: 15px;
+  }
+
+  
+  .dicas-container {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+  }
+
+  .dica-card {
+    min-width: 130px;
+    height: 130px;
+    background: #32C26D;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+  }
+
+  
+  .graficos {
+    display: flex;
+    gap: 20px;
+  }
+
+  .graficos img {
+    width: 220px;      
+    height: 220px;     
+    border-radius: 10px;
+  }
+
+  
+  .calendario-img {
+    width: 220px;      
+    height: 220px;    
+    border-radius: 10px;
+  }
+
+  
+  button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 25px;
+    background: #0AB7FB;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+
+  button:hover {
+    background: #1D8EC9;
+  }
+
+  
+  .resumo {
+    background: #1D8EC9;
+    color: white;
+    padding: 20px;
+    border-radius: 15px;
+  }
+
+  .resumo p {
+    margin-bottom: 8px;
+  }
+
+</style>
+
 </head>
 
 <body>
+
 <header>
-  <img src="imagem de perfil" width="50">
-  <span>Início</span>
-  <span>Relatórios</span>
-  <span>Sobre</span>
+  <img src="../static/img/perfil.png" width="50">
+
+  <div class="menu">
+    <span>Início</span>
+    <span>Relatórios</span>
+    <span>Sobre</span>
+  </div>
+
+  <i class="fa-solid fa-gear config"></i>
 </header>
 
-<div style="display: flex;"> <!--esse é a area que vai ficar na parte esquerda-->
+<div class="container"> <!--esse é a area que vai ficar na parte esquerda-->
 
-  <div style="width: 70%; padding: 20px;">
+  <div class="left">
 
     <h3>Dicas para o dia-a-dia</h3>
 
-    <div id="dicasContainer" style="display: flex; overflow-x: auto; gap: 10px;">
+    <div id="dicasContainer" class="dicas-container"></div>
 
-    </div>
+    <h3 style="margin-top:20px;">Resumo dos últimos dias em gráficos</h3>
 
-    <h3>Resumo dos últimos dias em gráficos</h3>
-
-
-    <div style="display: flex; gap: 20px;"> <!--aq estao onde seria os graficos-->
-
-      <img src="grafico1" />
-      <img src="grafico2" />
-      <img src="grafico3" />
-
+    <div class="graficos"> <!--aq estao onde seria os graficos-->
+      <img src="../static/img/grafico de pizza.png" />
+      <img src="../static/img/grafico de pizza.png" />
+      <img src="../static/img/grafico de pizza.png" />
     </div>
 
   </div>
 
 
-  <div style="width: 30%; padding: 20px;">
+  <div class="right">
 
     <h3>Calendário</h3>
 
-    <img src="foto de calendario">
-
-    <br><br>
+    
+    <img src="../static/img/calendorio.png" class="calendario-img">
 
     <button>Fazer relatório de hoje</button>
 
     <h3>Resumo do último dia</h3>
 
-    <div>
+    <div class="resumo">
       <p>1. Como foi o dia?</p>
       <p>Difícil</p>
 
@@ -67,27 +203,22 @@
 
 <script>
 
-
 const dicas = [
-  "Dica 1",
-  "Dica 2",
-  "Dica 3",
-  "Dica 4",
-  "Dica 5",
-  "Dica 6"
+  "Alimentação",
+  "Tecidos",
+  "Rotina",
+  "Sono",
+  "Ambiente",
+  "Comunicação"
 ];
 
 const container = document.getElementById("dicasContainer");
 
-
 dicas.forEach(dica => {
   const div = document.createElement("div");
 
+  div.classList.add("dica-card");
   div.innerText = dica;
-  div.style.background = "green";
-  div.style.color = "white";
-  div.style.padding = "20px";
-  div.style.minWidth = "120px";
 
   container.appendChild(div);
 });
