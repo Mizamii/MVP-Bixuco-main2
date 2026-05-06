@@ -7,7 +7,7 @@ const { cpf } = require('cpf-cnpj-validator');
 const app = express();
 
 // arquivos estáticos
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'static')));
 
 // pegar dados do formulário
 app.use(express.urlencoded({ extended: true }));
@@ -16,9 +16,8 @@ app.use(express.json());
 
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'templates', 'index.html'));
 });
-
 
 
 const db = new Client({
