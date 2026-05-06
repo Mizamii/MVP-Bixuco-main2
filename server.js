@@ -1,34 +1,46 @@
 const express = require('express');
-const mysql = require('mysql2');
+const path = require('path');
+const { Client } = require('pg');
 const bcrypt = require('bcrypt');
 const { cpf } = require('cpf-cnpj-validator');
 
 const app = express();
 
-// arquivos do HTML, CSS e JS
-app.use(express.static('public'));
+// arquivos estáticos
+app.use(express.static(path.join(__dirname, 'public')));
 
-// necessário pra pegar dados do form
+// pegar dados do formulário
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
-// conectar com o banco
-const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'Yasmin@07', // depois muda isso por segurançaa
-  database: 'mvp_bixuco'
+
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-db.connect(err => {
-  if (err) {
-    console.error('Erro ao conectar:', err);
-  } else {
-    console.log('Conectado ao MySQL! ');
+
+
+const db = new Client({
+  connectionString: 'postgresql://mvp_r7wd_user:bJ9M5LHkUhjvNNymFJG9FHAADs9ofeCN@dpg-d7ts34dckfvc73ebqv80-a.oregon-postgres.render.com/mvp_r7wd',
+
+  ssl: {
+    rejectUnauthorized: false
   }
 });
 
+db.connect()
+  .then(() => {
+    console.log('Conectado ao PostgreSQL! 🚀');
+  })
+  .catch(err => {
+    console.error('Erro ao conectar:', err);
+  });
+
+
+
 app.post('/cadastro-pai', async (req, res) => {
-  console.log(req.body);
+
   const { nome, email, cpfUser, senha, dataNascimento } = req.body;
 
   // validar CPF
@@ -47,51 +59,56 @@ app.post('/cadastro-pai', async (req, res) => {
   }
 
   try {
+
     // criptografar senha
     const senhaHash = await bcrypt.hash(senha, 10);
 
     // verificar se já existe
-    const checkSql = "SELECT * FROM usuarios WHERE email = ? OR cpf = ?";
+    const checkSql = `
+      SELECT * FROM usuarios 
+      WHERE email = $1 OR cpf = $2
+    `;
 
-    db.query(checkSql, [email, cpfUser], (err, results) => {
-      if (err) {
-        console.log(err);
-        return res.send("Erro no servidor");
-      }
+    const resultado = await db.query(checkSql, [email, cpfUser]);
 
-      if (results.length > 0) {
-        return res.send("Email ou CPF já cadastrado");
-      }
+    if (resultado.rows.length > 0) {
+      return res.send("Email ou CPF já cadastrado");
+    }
 
-      //inserir usuário
-      const insertSql = `
-        INSERT INTO usuarios (nome, email, cpf, senha, data_nascimento, tipo)
-        VALUES (?, ?, ?, ?, ?, 'pai')
-      `;
+    // inserir usuário
+    const insertSql = `
+      INSERT INTO usuarios
+      (nome, email, cpf, senha, data_nascimento, tipo)
+      VALUES ($1, $2, $3, $4, $5, 'pai')
+    `;
 
-      db.query(insertSql, [nome, email, cpfUser, senhaHash, dataNascimento], (err) => {
-        if (err) {
-          console.log(err);
-          return res.send("Erro ao cadastrar");
-        }
+    await db.query(insertSql, [
+      nome,
+      email,
+      cpfUser,
+      senhaHash,
+      dataNascimento
+    ]);
 
-        res.send("Usuário (responsável) cadastrado com sucesso");
-      });
-    });
+    res.send("Usuário (responsável) cadastrado com sucesso");
 
   } catch (error) {
+
     console.log(error);
     res.send("Erro interno");
+
   }
+
 });
 
-// validação simples de CRP, tipo nao existe nenhuma biblioteca publica para validar o CRP entao para o mvp usei uma validação mais sobre o formato doq sobre se existe ou nao
+
 function validarCRP(crp) {
   return /^CRP-\d{2}\/\d{4,6}$/.test(crp);
 }
 
+
 app.post('/cadastro-psicologo', async (req, res) => {
-  console.log(req.body);
+
   const { nome, email, crp, senha, dataNascimento } = req.body;
 
   // validar CRP
@@ -110,82 +127,122 @@ app.post('/cadastro-psicologo', async (req, res) => {
   }
 
   try {
+
     // criptografar senha
     const senhaHash = await bcrypt.hash(senha, 10);
 
     // verificar se já existe
-    const checkSql = "SELECT * FROM usuarios WHERE email = ? OR crp = ?";
+    const checkSql = `
+      SELECT * FROM usuarios 
+      WHERE email = $1 OR crp = $2
+    `;
 
-    db.query(checkSql, [email, crp], (err, results) => {
-      if (err) {
-        console.log(err);
-        return res.send("Erro no servidor");
-      }
+    const resultado = await db.query(checkSql, [email, crp]);
 
-      if (results.length > 0) {
-        return res.send("Email ou CRP já cadastrado");
-      }
+    if (resultado.rows.length > 0) {
+      return res.send("Email ou CRP já cadastrado");
+    }
 
-      //inserir usuário
-      const insertSql = `
-        INSERT INTO usuarios (nome, email, crp, senha, data_nascimento, tipo)
-        VALUES (?, ?, ?, ?, ?, 'psicologo')
-      `;
+    // inserir usuário
+    const insertSql = `
+      INSERT INTO usuarios
+      (nome, email, crp, senha, data_nascimento, tipo)
+      VALUES ($1, $2, $3, $4, $5, 'psicologo')
+    `;
 
-      db.query(insertSql, [nome, email, crp, senhaHash, dataNascimento], (err) => {
-        if (err) {
-          console.log(err);
-          return res.send("Erro ao cadastrar");
-        }
+    await db.query(insertSql, [
+      nome,
+      email,
+      crp,
+      senhaHash,
+      dataNascimento
+    ]);
 
-        res.send("Usuário (psicólogo) cadastrado com sucesso");
-      });
-    });
+    res.send("Usuário (psicólogo) cadastrado com sucesso");
 
   } catch (error) {
+
     console.log(error);
     res.send("Erro interno");
+
   }
+
 });
 
 
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
+
   const { email, senha } = req.body;
 
-  const sql = "SELECT * FROM usuarios WHERE email = ?";
+  try {
 
-  db.query(sql, [email], async (err, results) => {
-    if (err) {
-      console.log(err);
-      return res.send("Erro no servidor");
-    }
+    const sql = `
+      SELECT * FROM usuarios
+      WHERE email = $1
+    `;
 
-    if (results.length === 0) {
+    const resultado = await db.query(sql, [email]);
+
+    if (resultado.rows.length === 0) {
       return res.send("Usuário não encontrado");
     }
 
-    const usuario = results[0];
+    const usuario = resultado.rows[0];
 
-    // vai comparar as senhas
-    const senhaValida = await bcrypt.compare(senha, usuario.senha);
+    // comparar senha
+    const senhaValida = await bcrypt.compare(
+      senha,
+      usuario.senha
+    );
 
     if (!senhaValida) {
       return res.send("Senha incorreta");
     }
 
-    // identifica tipo de usuário
+    // identificar tipo
     if (usuario.tipo === 'pai') {
       return res.send("Login realizado como responsável 👨‍👩‍👧");
-    } else if (usuario.tipo === 'psicologo') {
+    }
+
+    if (usuario.tipo === 'psicologo') {
       return res.send("Login realizado como psicólogo 🧠");
     }
 
     res.send("Login realizado com sucesso 🚀");
-  });
+
+  } catch (error) {
+
+    console.log(error);
+    res.send("Erro no servidor");
+
+  }
+
 });
 
 
-//iniciar servidor
-app.listen(3000, () => {
-  console.log('Servidor rodando em http://localhost:3000');
+app.get('/usuarios', async (req, res) => {
+
+  try {
+
+    const resultado = await db.query(`
+      SELECT id, nome, email, tipo
+      FROM usuarios
+    `);
+
+    res.json(resultado.rows);
+
+  } catch (error) {
+
+    console.log(error);
+    res.send("Erro ao buscar usuários");
+
+  }
+
+});
+
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
