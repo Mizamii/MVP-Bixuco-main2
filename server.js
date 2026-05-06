@@ -19,6 +19,38 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'templates', 'index.html'));
 });
 
+app.get('/logar', (req, res) => {
+  res.sendFile(path.join(__dirname, 'templates', 'logar.html'));
+});
+
+app.get('/ContaExistente', (req, res) => {
+  res.sendFile(path.join(__dirname, 'templates', 'ContaExistente.html'));
+});
+
+app.get('/CriarContaS', (req, res) => {
+  res.sendFile(path.join(__dirname, 'templates', 'CriarContaS.html'));
+});
+
+app.get('/CriarContaP', (req, res) => {
+  res.sendFile(path.join(__dirname, 'templates', 'CriarContaP.html'));
+});
+
+app.get('/CriarContaG', (req, res) => {
+  res.sendFile(path.join(__dirname, 'templates', 'CriarContaG.html'));
+});
+
+app.get('/QuestionarioP', (req, res) => {
+  res.sendFile(path.join(__dirname, 'templates', 'QuestionarioP.html'));
+});
+
+app.get('/EsqueceuSenha', (req, res) => {
+  res.sendFile(path.join(__dirname, 'templates', 'EsqueceuSenha.html'));
+});
+
+app.get('/home', (req, res) => {
+  res.sendFile(path.join(__dirname, 'templates', 'home.html'));
+});
+
 
 const db = new Client({
   connectionString: 'postgresql://mvp_r7wd_user:bJ9M5LHkUhjvNNymFJG9FHAADs9ofeCN@dpg-d7ts34dckfvc73ebqv80-a.oregon-postgres.render.com/mvp_r7wd',
