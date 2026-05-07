@@ -256,94 +256,12 @@ app.get('/usuarios', async (req, res) => {
   try {
 
     const resultado = await db.query(`
-      SELECT 
-        id,
-        nome,
-        email,
-        cpf,
-        crp,
-        senha,
-        tipo,
-        data_nascimento,
-        created_at
+      SELECT *
       FROM usuarios
       ORDER BY id ASC
     `);
 
-    res.send(`
-      <html>
-      <head>
-        <title>Banco de Dados</title>
-
-        <style>
-          body{
-            font-family: Arial;
-            background:#f4f4f4;
-            padding:40px;
-          }
-
-          table{
-            width:100%;
-            border-collapse: collapse;
-            background:white;
-          }
-
-          th, td{
-            border:1px solid #ccc;
-            padding:12px;
-            text-align:left;
-          }
-
-          th{
-            background:#79D836;
-            color:black;
-          }
-
-          tr:nth-child(even){
-            background:#f9f9f9;
-          }
-
-          h1{
-            margin-bottom:20px;
-          }
-        </style>
-      </head>
-
-      <body>
-
-        <h1>Usuários cadastrados</h1>
-
-        <table>
-
-          <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Email</th>
-            <th>CPF</th>
-            <th>CRP</th>
-            <th>Senha Criptografada</th>
-            <th>Tipo</th>
-            <th>Nascimento</th>
-          </tr>
-
-          ${resultado.rows.map(usuario => `
-            <tr>
-              <td>${usuario.id}</td>
-              <td>${usuario.nome}</td>
-              <td>${usuario.email}</td>
-              <td>${usuario.cpf || '-'}</td>
-              <td>${usuario.crp || '-'}</td>
-              <td>${usuario.senha}</td>
-              <td>${usuario.tipo}</td>
-              <td>${usuario.data_nascimento}</td>
-            </tr>
-          `).join('')}
-
-        </table>
-
-      </body>
-      </html>
-    `);
+    res.json(resultado.rows);
 
   } catch (error) {
 
