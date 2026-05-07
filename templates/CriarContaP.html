@@ -184,8 +184,7 @@
             }
 
             // Se chegou até aqui, os dados estão válidos
-            window.location.href = 'home.html';
-            return false; // Retornamos false para evitar que o formulário tente recarregar a página antes de redirecionar
+            return true; // Retornamos false para evitar que o formulário tente recarregar a página antes de redirecionar
         }
 
         function maiorIdade(data){
