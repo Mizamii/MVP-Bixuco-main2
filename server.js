@@ -232,11 +232,11 @@ app.post('/login', async (req, res) => {
 
     // identificar tipo
     if (usuario.tipo === 'pai') {
-      return res.send('/home');
+      return res.redirect('/home');
     }
 
     if (usuario.tipo === 'psicologo') {
-      return res.send('/home');
+      return res.redirect('/home');
     }
 
     res.send("Login realizado com sucesso");
