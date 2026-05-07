@@ -189,7 +189,7 @@ app.post('/cadastro-psicologo', async (req, res) => {
       dataNascimento
     ]);
 
-    res.send("/home");
+    res.redirect('/home');
 
   } catch (error) {
 
@@ -232,11 +232,11 @@ app.post('/login', async (req, res) => {
 
     // identificar tipo
     if (usuario.tipo === 'pai') {
-      return res.send("/CriarContaG");
+      return res.send('/CriarContaG');
     }
 
     if (usuario.tipo === 'psicologo') {
-      return res.send("/CriarContaP");
+      return res.send('/CriarContaP');
     }
 
     res.send("Login realizado com sucesso");
