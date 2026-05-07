@@ -62,7 +62,7 @@ const db = new Client({
 
 db.connect()
   .then(() => {
-    console.log('Conectado ao PostgreSQL! 🚀');
+    console.log('Conectado ao PostgreSQL! ');
   })
   .catch(err => {
     console.error('Erro ao conectar:', err);
@@ -121,7 +121,7 @@ app.post('/cadastro-pai', async (req, res) => {
       dataNascimento
     ]);
 
-    res.send("Usuário (responsável) cadastrado com sucesso");
+    res.redirect('/QuestionarioP');
 
   } catch (error) {
 
@@ -189,7 +189,7 @@ app.post('/cadastro-psicologo', async (req, res) => {
       dataNascimento
     ]);
 
-    res.send("Usuário (psicólogo) cadastrado com sucesso");
+    res.send("/home");
 
   } catch (error) {
 
@@ -232,14 +232,14 @@ app.post('/login', async (req, res) => {
 
     // identificar tipo
     if (usuario.tipo === 'pai') {
-      return res.send("Login realizado como responsável 👨‍👩‍👧");
+      return res.send("/CriarContaG");
     }
 
     if (usuario.tipo === 'psicologo') {
-      return res.send("Login realizado como psicólogo 🧠");
+      return res.send("/CriarContaP");
     }
 
-    res.send("Login realizado com sucesso 🚀");
+    res.send("Login realizado com sucesso");
 
   } catch (error) {
 
