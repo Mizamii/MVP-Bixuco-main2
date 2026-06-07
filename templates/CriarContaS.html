@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seleção de login</title>
+
+    <style>
+        .logo{
+        margin-right: 60px;
+        margin-left: 40px;
+        height: 75px;   
+        }
+        body {
+        font-family: 'Inter', sans-serif;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh; 
+        margin: 0;
+        }
+        .texto {
+        font-family: 'Inter', sans-serif; 
+        margin-top: 100px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        }
+        .opcoes {
+            display: flex;
+            gap: 40px;
+            margin-top: 30px;
+        }
+        .opcao-btn {
+            width: 300px;
+            background-color: #79D836;
+            color: white;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        .opcao-btn img {
+            width: 150px;
+            height: auto;
+            margin-bottom: 15px;
+        }
+        .opcao-btn p {
+            margin: 0;
+            font-size: 20px;
+        }
+        .opcao-btn:hover {
+            background-color: #32C26D;
+            transform: scale(1.05);
+        }
+        .rodape{
+            background-color: #1D8EC9;
+            color: white;
+            padding: 40px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            margin: 0 auto;
+            overflow-x: hidden;
+            gap: 105px;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <img class="logo" src="/img/Logo_nome.png" alt="">
+    </header>
+    
+    <div class="texto">
+        <h1 class="titulomed">Deseja criar conta como: </h1>
+        <div class="opcoes">
+            <div class="opcao-btn" onclick="window.location.href='/CriarContaP'">
+                <img src="/img/terapeuta.png" alt="terapeuta.png">
+                <p>Psicólogo</p>
+            </div>
+
+            <div class="opcao-btn" onclick="window.location.href='/CriarContaG'">
+                <img src="/img/pais.png" alt="pais.png">
+                <p>Responsáveis</p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="rodape">
+    <p>Política de privacidade</p>
+    <span>|</span>
+    <p>Termos de uso</p>
+    <span>|</span>
+    <p>Sobre nós</p>
+</footer>
+</body>
+</html>
