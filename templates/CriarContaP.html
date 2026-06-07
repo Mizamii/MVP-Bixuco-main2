@@ -137,6 +137,18 @@
             <p class="subtitulo">Data de nascimento</p>
             <input type="date" id="dataNascimento" name="dataNascimento" required>
 
+            <p class="subtitulo">CEP</p>
+            <input type="text" id="cep" name="cep" placeholder="Digite seu CEP" maxlength="8" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value.length === 8) buscarCep(this.value)" required>
+
+            <p class="subtitulo">Cidade</p>
+            <input type="text" id="cidade" name="cidade" placeholder="Preenchido automaticamente" readonly>
+
+            <p class="subtitulo">Estado</p>
+            <input type="text" id="estado" name="estado" placeholder="Preenchido automaticamente" readonly>
+
+            <p class="subtitulo">Bairro</p>
+            <input type="text" id="bairro" name="bairro" placeholder="Preenchido automaticamente" readonly>
+
             <button class="btn" type="submit" required >Criar conta</button>
         </form>
     </div>
@@ -149,6 +161,24 @@
         <p>Sobre nós</p>
     </footer>
     <script>
+        async function buscarCep(cep) {
+            try {
+                const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                const data = await res.json();
+
+                if (data.erro) {
+                    alert("CEP não encontrado!");
+                    return;
+                }
+
+                document.getElementById("cidade").value = data.localidade;
+                document.getElementById("estado").value = data.uf;
+                document.getElementById("bairro").value = data.bairro;
+
+            } catch (err) {
+                alert("Erro ao buscar CEP. Tente novamente.");
+            }
+        }
         function validarCadastro(){
             const email = document.getElementById("email").value.trim();
             const senha = document.getElementById("senha").value;

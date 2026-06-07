@@ -69,7 +69,7 @@ db.connect()
 
 app.post('/cadastro-pai', async (req, res) => {
 
-  const { nome, email, cpfUser, senha, dataNascimento } = req.body;
+  const { nome, email, cpfUser, senha, dataNascimento, cep, cidade, estado, bairro } = req.body;
 
   // validar CPF
   if (!cpf.isValid(cpfUser)) {
@@ -106,8 +106,8 @@ app.post('/cadastro-pai', async (req, res) => {
     // inserir usuário
     const insertSql = `
       INSERT INTO usuarios
-      (nome, email, cpf, senha, data_nascimento, tipo)
-      VALUES ($1, $2, $3, $4, $5, 'pai')
+      (nome, email, cpf, senha, data_nascimento, tipo, cep, cidade, estado, bairro)
+      VALUES ($1, $2, $3, $4, $5, 'pai', $6, $7, $8, $9)
     `;
 
     await db.query(insertSql, [
@@ -115,7 +115,11 @@ app.post('/cadastro-pai', async (req, res) => {
       email,
       cpfUser,
       senhaHash,
-      dataNascimento
+      dataNascimento,
+      cep,
+      cidade,
+      estado,
+      bairro
     ]);
 
     res.redirect('/QuestionarioP');
@@ -137,7 +141,7 @@ function validarCRP(crp) {
 
 app.post('/cadastro-psicologo', async (req, res) => {
 
-  const { nome, email, crp, senha, dataNascimento } = req.body;
+  const { nome, email, crp, senha, dataNascimento, cep, cidade, estado, bairro } = req.body;
 
   // validar CRP
   if (!validarCRP(crp)) {
@@ -174,8 +178,8 @@ app.post('/cadastro-psicologo', async (req, res) => {
     // inserir usuário
     const insertSql = `
       INSERT INTO usuarios
-      (nome, email, crp, senha, data_nascimento, tipo)
-      VALUES ($1, $2, $3, $4, $5, 'psicologo')
+      (nome, email, crp, senha, data_nascimento, tipo, cep, cidade, estado, bairro)
+      VALUES ($1, $2, $3, $4, $5, 'psicologo', $6, $7, $8, $9)
     `;
 
     await db.query(insertSql, [
@@ -183,7 +187,11 @@ app.post('/cadastro-psicologo', async (req, res) => {
       email,
       crp,
       senhaHash,
-      dataNascimento
+      dataNascimento,
+      cep,
+      cidade,
+      estado,
+      bairro
     ]);
 
     res.redirect('/home');
