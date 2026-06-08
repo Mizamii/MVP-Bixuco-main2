@@ -1,229 +1,386 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<title>Home</title>
-
-
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-
-<style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-  }
-
-  body {
-    background: #f2f2f2;
-  }
-
-  
-  header {
-    background: #79D836;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 30px;
-  }
-
-  .menu {
-    display: flex;
-    gap: 40px;
-  }
-
-  .menu span {
-    cursor: pointer;
-    font-weight: bold;
-    transition: 0.3s;
-  }
-
-  .menu span:hover {
-    color: white;
-  }
-
-  .config {
-    font-size: 20px;
-    cursor: pointer;
-  }
-
-  
-  .container {
-    display: flex;
-  }
-
-  .left {
-    width: 70%;
-    padding: 20px;
-  }
-
-  .right {
-    width: 30%;
-    padding: 20px;
-  }
-
-  h3 {
-    margin-bottom: 15px;
-  }
-
-  
-  .dicas-container {
-    display: flex;
-    gap: 15px;
-    overflow-x: auto;
-    padding-bottom: 10px;
-  }
-
-  .dica-card {
-    min-width: 130px;
-    height: 130px;
-    background: #32C26D;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-    text-align: center;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-  }
-
-  
-  .graficos {
-    display: flex;
-    gap: 20px;
-  }
-
-  .graficos img {
-    width: 220px;      
-    height: 220px;     
-    border-radius: 10px;
-  }
-
-  
-  .calendario-img {
-    width: 220px;      
-    height: 220px;    
-    border-radius: 10px;
-  }
-
-  
-  button {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 25px;
-    background: #0AB7FB;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    margin-bottom: 20px;
-  }
-
-  button:hover {
-    background: #1D8EC9;
-  }
-
-  
-  .resumo {
-    background: #1D8EC9;
-    color: white;
-    padding: 20px;
-    border-radius: 15px;
-  }
-
-  .resumo p {
-    margin-bottom: 8px;
-  }
-
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Início</title>
+    <!-- icones temporarios -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-
 <body>
 
-<header>
-  <img src="/img/perfil.png" width="50">
+    <!-- calendario recolhido por padrao, exibindo apenas a semana atual.
+      se clicar ou arrastar para cima, mostra o calendario do mes completo. -->
+    <section class="calendario" id="calendario">
 
-  <div class="menu">
-    <span>Início</span>
-    <span>Relatórios</span>
-    <span>Sobre</span>
-  </div>
+        <!-- Alça para arrastar/clicar e expandir -->
+        <div class="calendario__alca" id="calendarioAlca">
+            <div class="calendario__alca-barra"></div>
+        </div>
 
-  <i class="fa-solid fa-gear config"></i>
-</header>
+        <!-- cabecalho do calendario: mes/ano + seta sequencia -->
+        <div class="calendario__cabecalho">
+            <div class="calendario__mes-ano">
+                <button class="calendario__nav calendario__nav--anterior" id="btnMesAnterior">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <span class="calendario__titulo" id="calendarioTitulo">Junho 2026</span>
+                <button class="calendario__nav calendario__nav--proximo" id="btnMesProximo">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+            <!-- contador de sequencia (estilo Duolingo) -->
+            <div class="calendario__sequencia">
+                <i class="fa-solid fa-fire calendario__sequencia-icone"></i>
+                <span class="calendario__sequencia-numero" id="sequenciaDias">12</span>
+                <span class="calendario__sequencia-texto">dias</span>
+            </div>
+        </div>
 
-<div class="container"> <!--esse é a area que vai ficar na parte esquerda-->
+        <!-- cabecalho dos dias da semana -->
+        <div class="calendario__dias-semana">
+            <span>D</span>
+            <span>S</span>
+            <span>T</span>
+            <span>Q</span>
+            <span>Q</span>
+            <span>S</span>
+            <span>S</span>
+        </div>
 
-  <div class="left">
+        <!-- dicas geradas pelo js -->
+        <div class="calendario__grid" id="calendarioGrid">
+            <!-- dias injetados pelo JS -->
+        </div>
 
-    <h3>Dicas para o dia-a-dia</h3>
-
-    <div id="dicasContainer" class="dicas-container"></div>
-
-    <h3 style="margin-top:20px;">Resumo dos últimos dias em gráficos</h3>
-
-    <div class="graficos"> <!--aq estao onde seria os graficos-->
-      <img src="/img/grafico de pizza.png" />
-      <img src="/img/grafico de pizza.png" />
-      <img src="/img/grafico de pizza.png" />
-    </div>
-
-  </div>
-
-
-  <div class="right">
-
-    <h3>Calendário</h3>
-
-    
-    <img src="/img/calendorio.png" class="calendario-img">
-
-    <button>Fazer relatório de hoje</button>
-
-    <h3>Resumo do último dia</h3>
-
-    <div class="resumo">
-      <p>1. Como foi o dia?</p>
-      <p>Difícil</p>
-
-      <p>2. Houve estresse?</p>
-      <p>Moderado</p>
-
-      <p>3. Possível causa</p>
-      <p>Toque/roupas</p>
-    </div>
-
-  </div>
-
-</div>
+    </section>
 
 
-<script>
+    <!-- rolavel -->
+    <main class="conteudo-principal" id="conteudoPrincipal">
 
-const dicas = [
-  "Alimentação",
-  "Tecidos",
-  "Rotina",
-  "Sono",
-  "Ambiente",
-  "Comunicação"
-];
+        <!-- ola nome aleatorio -->
+        <div class="saudacao">
+            <h1 class="saudacao__titulo" id="saudacaoNome">Olá, Lucas</h1>
+            <p class="saudacao__data" id="saudacaoData">Quarta, 4 de junho</p>
+        </div>
 
-const container = document.getElementById("dicasContainer");
+        <!-- neste quadrado vai ter:
+             - loc do bixuco (mapa)
+             - nome do bixuco
+             - status (ativo/inativo)
+             - mapa placeholder (grade verde)
+             - ultima atualizacao-->
+        <section class="bixuco-localizacao">
+            <h2 class="bixuco-localizacao__titulo">Localização do Bixuco</h2>
 
-dicas.forEach(dica => {
-  const div = document.createElement("div");
+            <div class="bixuco-localizacao__card">
 
-  div.classList.add("dica-card");
-  div.innerText = dica;
+                <div class="bixuco-localizacao__info">
+                    <!-- nome do bixuco -->
+                    <span class="bixuco-localizacao__nome" id="bixucoNome">Algodãozinho</span>
 
-  container.appendChild(div);
-});
+                    <!-- alterar o status via JS depois -->
+                    <div class="bixuco-localizacao__status" id="bixucoStatus">
+                        <span class="bixuco-localizacao__status-bolinha"></span>
+                        <span class="bixuco-localizacao__status-texto" id="bixucoStatusTexto">Ativo agora</span>
+                    </div>
+                </div>
 
-</script>
+                <!-- mapa -->
+                <!-- colocar a api de localização depois -->
+                <div class="bixuco-localizacao__mapa" id="bixucoMapa">
+                    <div class="bixuco-localizacao__mapa-placeholder">
+                        <!-- ponto do mapa que fica pi pi pi pi-->
+                        <div class="bixuco-localizacao__mapa-ponto"></div>
+                        <p class="bixuco-localizacao__mapa-texto">[ Mapa do Bixuco ]</p>
+                    </div>
+                </div>
+
+                <!-- ultima atualizacao -->
+                <p class="bixuco-localizacao__atualizacao" id="bixucoAtualizacao">Atualizado agora</p>
+
+            </div>
+        </section>
+
+
+        <!-- os cards de dicas seguem o seguinte estilo:
+             - cards horizontais roláveis (estilo Flo)
+             - cards são dicas com imagem + título
+             - imagens serão fornecidas posteriormente (placeholder por enquanto)-->
+        <section class="dicas">
+            <h2 class="dicas__titulo">Dicas de hoje</h2>
+
+            <div class="dicas__container" id="dicasContainer">
+
+                <!-- card de dicas-->
+                <button class="dicas__card dicas__card--adicionar" onclick="irParaRelatorio()">
+                    <i class="fa-solid fa-plus dicas__card-icone-adicionar"></i>
+                    <span class="dicas__card-texto-adicionar">Registre o dia de hoje</span>
+                </button>
+
+                <!-- os cads das dicas , sao feitos no script -->
+                
+
+            </div>
+        </section>
+
+
+        <!-- botao de relatorio diario-->
+        <div class="relatorio-botao-container">
+            <button class="relatorio-botao" onclick="irParaRelatorio()">
+                <i class="fa-solid fa-clipboard-list relatorio-botao__icone"></i>
+                Fazer relatório de hoje
+            </button>
+        </div>
+        
+
+    </main>
+
+
+    <!-- rodape -->
+    <nav class="nav-inferior" role="navigation" aria-label="Navegação principal">
+
+        <a href="/home" class="nav__item nav__item--ativo" aria-label="Início">
+            <i class="fa-solid fa-house nav__item-icone"></i>
+            <span class="nav__item-texto">Início</span>
+        </a>
+
+        <a href="/configuracoes" class="nav__item" aria-label="Configurações">
+            <i class="fa-solid fa-gear nav__item-icone"></i>
+            <span class="nav__item-texto">Config.</span>
+        </a>
+
+        <a href="/relatorios" class="nav__item" aria-label="Relatórios">
+            <i class="fa-solid fa-chart-bar nav__item-icone"></i>
+            <span class="nav__item-texto">Relatórios</span>
+        </a>
+
+        <a href="/sobre" class="nav__item" aria-label="Sobre">
+            <i class="fa-solid fa-circle-info nav__item-icone"></i>
+            <span class="nav__item-texto">Sobre</span>
+        </a>
+
+        <a href="/perfil" class="nav__item" aria-label="Perfil">
+            <i class="fa-solid fa-user nav__item-icone"></i>
+            <span class="nav__item-texto">Perfil</span>
+        </a>
+
+    </nav>
+
+
+    <script>
+
+        // pré feito para a api
+        const dadosUsuario = {
+            nome: "Lucas",
+            sequencia: 12,
+            bixucoNome: "Algodãozinho",
+            bixucoAtivo: true,
+            bixucoAtualizacao: "Agora"
+        };
+
+        const dicasHoje = [
+            { titulo: "Dicas sobre\nAlimentação",   imagem: "/img/dica-alimentacao.png" },
+            { titulo: "Dica sobre\nTecidos",         imagem: "/img/dica-tecidos.png"    },
+            { titulo: "Dica sobre\nRotina",          imagem: "/img/dica-rotina.png"     },
+            { titulo: "Dica sobre\nSono",            imagem: "/img/dica-sono.png"       },
+            { titulo: "Dica sobre\nAmbiente",        imagem: "/img/dica-ambiente.png"   },
+        ];
+
+        // calendario
+
+        let mesAtual   = new Date().getMonth();
+        let anoAtual   = new Date().getFullYear();
+        let expandido  = false;
+
+        const nomesMeses = [
+            "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+            "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
+        ];
+
+        // dias que já têm relatório (simulado — substituir por dados da API)
+        const diasComRelatorio = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+
+        function gerarCalendario(mes, ano, modoExpandido) {
+            const grid      = document.getElementById("calendarioGrid");
+            const titulo    = document.getElementById("calendarioTitulo");
+            const hoje      = new Date();
+            const diaHoje   = hoje.getDate();
+            const mesHoje   = hoje.getMonth();
+            const anoHoje   = hoje.getFullYear();
+
+            titulo.textContent = `${nomesMeses[mes]} ${ano}`;
+            grid.innerHTML = "";
+
+            const primeiroDia     = new Date(ano, mes, 1).getDay();
+            const totalDias       = new Date(ano, mes + 1, 0).getDate();
+
+            // encontrar início e fim da semana atual
+            const diaAtual        = (mes === mesHoje && ano === anoHoje) ? diaHoje : 1;
+            const dataAtual       = new Date(ano, mes, diaAtual);
+            const diaSemanaAtual  = dataAtual.getDay();
+            const inicioSemana    = diaAtual - diaSemanaAtual;
+            const fimSemana       = inicioSemana + 6;
+
+            // espaços vazios antes do dia 1
+            for (let i = 0; i < primeiroDia; i++) {
+                const vazio = document.createElement("div");
+                vazio.classList.add("calendario__dia", "calendario__dia--vazio");
+                grid.appendChild(vazio);
+            }
+
+            // dias do mês
+            for (let dia = 1; dia <= totalDias; dia++) {
+                const el = document.createElement("div");
+                el.classList.add("calendario__dia");
+                el.textContent = dia;
+
+                // dia de hoje
+                if (dia === diaHoje && mes === mesHoje && ano === anoHoje) {
+                    el.classList.add("calendario__dia--hoje");
+                }
+
+                // dia com relatório registrado
+                if (diasComRelatorio.includes(dia)) {
+                    el.classList.add("calendario__dia--com-relatorio");
+                }
+
+                // na versão recolhida, esconder dias fora da semana atual
+                if (!modoExpandido) {
+                    const dentroSemana = dia >= inicioSemana && dia <= fimSemana;
+                    if (!dentroSemana || dia < 1) {
+                        el.classList.add("calendario__dia--oculto");
+                    }
+                }
+
+                grid.appendChild(el);
+            }
+        }
+
+        // expandir e recolher calendário
+        function toggleCalendario() {
+            expandido = !expandido;
+            const calendario = document.getElementById("calendario");
+            if (expandido) {
+                calendario.classList.add("calendario--expandido");
+            } else {
+                calendario.classList.remove("calendario--expandido");
+            }
+            gerarCalendario(mesAtual, anoAtual, expandido);
+        }
+
+        document.getElementById("calendarioAlca").addEventListener("click", toggleCalendario);
+
+        // navegar entre meses (só disponível quando expandido)
+        document.getElementById("btnMesAnterior").addEventListener("click", () => {
+            if (!expandido) return;
+            mesAtual--;
+            if (mesAtual < 0) { mesAtual = 11; anoAtual--; }
+            gerarCalendario(mesAtual, anoAtual, expandido);
+        });
+
+        document.getElementById("btnMesProximo").addEventListener("click", () => {
+            if (!expandido) return;
+            mesAtual++;
+            if (mesAtual > 11) { mesAtual = 0; anoAtual++; }
+            gerarCalendario(mesAtual, anoAtual, expandido);
+        });
+
+
+        // o negocio do ola (pessoa que logou)
+
+        function preencherSaudacao() {
+            document.getElementById("saudacaoNome").textContent = `Olá, ${dadosUsuario.nome}`;
+            document.getElementById("sequenciaDias").textContent = dadosUsuario.sequencia;
+
+            const hoje   = new Date();
+            const opcoes = { weekday: "long", day: "numeric", month: "long" };
+            let dataFormatada = hoje.toLocaleDateString("pt-BR", opcoes);
+            dataFormatada = dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1);
+            document.getElementById("saudacaoData").textContent = dataFormatada;
+        }
+
+
+        // informações do bixuco
+
+        function preencherBixuco() {
+            document.getElementById("bixucoNome").textContent    = dadosUsuario.bixucoNome;
+            document.getElementById("bixucoAtualizacao").textContent = `Atualizado: ${dadosUsuario.bixucoAtualizacao}`;
+
+            const statusEl   = document.getElementById("bixucoStatus");
+            const statusTexto = document.getElementById("bixucoStatusTexto");
+
+            if (dadosUsuario.bixucoAtivo) {
+                statusEl.classList.add("bixuco-localizacao__status--ativo");
+                statusTexto.textContent = "Ativo agora";
+            } else {
+                statusEl.classList.add("bixuco-localizacao__status--inativo");
+                statusTexto.textContent = "Inativo";
+            }
+        }
+
+
+        // area das dicas (pegar inspiração do app do flo)
+
+        function gerarDicas() {
+            const container = document.getElementById("dicasContainer");
+
+            dicasHoje.forEach(dica => {
+                const card = document.createElement("div");
+                card.classList.add("dicas__card");
+
+                // substituir as imagens
+                const img = document.createElement("img");
+                img.classList.add("dicas__card-imagem");
+                img.src = dica.imagem;
+                img.alt = dica.titulo;
+                // info de erro caso a imagem não carregue (ex: caminho errado)
+                img.onerror = function() {
+                    this.style.display = "none";
+                    const placeholder = document.createElement("div");
+                    placeholder.classList.add("dicas__card-imagem-placeholder");
+                    placeholder.textContent = "[ Imagem ]";
+                    card.insertBefore(placeholder, this);
+                };
+
+                const titulo = document.createElement("span");
+                titulo.classList.add("dicas__card-titulo");
+                titulo.textContent = dica.titulo;
+
+                card.appendChild(img);
+                card.appendChild(titulo);
+                container.appendChild(card);
+            });
+        }
+
+
+        // cara n entendi muito nao mas a ia recomendou para funcionar melhor
+
+        function irParaRelatorio() {
+            window.location.href = "/relatorios";
+        }
+
+        function marcarAbaAtiva() {
+            const path = window.location.pathname;
+            document.querySelectorAll(".nav__item").forEach(item => {
+                item.classList.remove("nav__item--ativo");
+                if (item.getAttribute("href") === path) {
+                    item.classList.add("nav__item--ativo");
+                }
+            });
+        }
+
+
+        // iniciar os bagui
+
+        gerarCalendario(mesAtual, anoAtual, false);
+        preencherSaudacao();
+        preencherBixuco();
+        gerarDicas();
+        marcarAbaAtiva();
+
+    </script>
 
 </body>
 </html>
