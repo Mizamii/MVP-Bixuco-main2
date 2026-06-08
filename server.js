@@ -13,7 +13,10 @@ const transporter = nodemailer.createTransport({
     auth: {
         user: process.env.EMAIL_USER || 'mizaminina@gmail.com',
         pass: process.env.EMAIL_PASS || 'ypof xvar yqkt csqs'
-    }
+    },
+    connectionTimeout: 5000,  // 5 segundos pra conectar
+    greetingTimeout: 5000,    // 5 segundos pra cumprimento
+    socketTimeout: 10000      // 10 segundos pra enviar
 });
 
 // arquivos estáticos
@@ -74,7 +77,6 @@ app.post('/esqueceu-senha', async (req, res) => {
     const { email } = req.body;
  
     try {
-        // verifica se o email existe no banco
         const resultado = await db.query(
             'SELECT id, nome FROM usuarios WHERE email = $1',
             [email]
@@ -86,53 +88,53 @@ app.post('/esqueceu-senha', async (req, res) => {
  
         const usuario = resultado.rows[0];
  
-        // gera token unico e define prazo de 1 hora
         const token  = crypto.randomBytes(32).toString('hex');
-        const expira = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
+        const expira = new Date(Date.now() + 60 * 60 * 1000);
  
-        // salva o token no banco
         await db.query(
             'UPDATE usuarios SET reset_token = $1, reset_token_expira = $2 WHERE id = $3',
             [token, expira, usuario.id]
         );
  
-        // monta o link de redefinição
         const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
         const link    = `${baseUrl}/redefinir-senha?token=${token}`;
  
-        // envia o email
-        await transporter.sendMail({
-            from:    '"Bixuco" <mizaminina@gmail.com>',
-            to:      email,
-            subject: 'Redefinir sua senha — Bixuco',
-            html: `
-                <h2>Olá, ${usuario.nome}!</h2>
-                <p>Recebemos uma solicitação para redefinir sua senha.</p>
-                <p>Clique no botão abaixo para criar uma nova senha. O link expira em 1 hora.</p>
-                <a href="${link}" style="
-                    background:#0AB7FB;
-                    color:white;
-                    padding:12px 24px;
-                    border-radius:8px;
-                    text-decoration:none;
-                    font-weight:bold;
-                    display:inline-block;
-                    margin:16px 0;
-                ">Redefinir senha</a>
-                <p style="color:#999;font-size:12px;">
-                    Se você não solicitou isso, pode ignorar este email.
-                </p>
-            `
-        });
- 
+        
+        try {
+            await transporter.sendMail({
+                from: '"Bixuco" <mizaminina@gmail.com>',
+                to: email,
+                subject: 'Redefinir sua senha — Bixuco',
+                html: `
+                    <h2>Olá, ${usuario.nome}!</h2>
+                    <p>Recebemos uma solicitação para redefinir sua senha.</p>
+                    <p>Clique no botão abaixo para criar uma nova senha. O link expira em 1 hora.</p>
+                    <a href="${link}" style="
+                        background:#0AB7FB;
+                        color:white;
+                        padding:12px 24px;
+                        border-radius:8px;
+                        text-decoration:none;
+                        font-weight:bold;
+                        display:inline-block;
+                        margin:16px 0;
+                    ">Redefinir senha</a>
+                    <p style="color:#999;font-size:12px;">
+                        Se você não solicitou isso, pode ignorar este email.
+                    </p>
+                `
+            });
+        } catch (emailError) {
+            console.error('Erro ao enviar email:', emailError);
+        }
+
         res.redirect('/EsqueceuSenha?status=enviado');
- 
+
     } catch (error) {
-        console.error('Erro ao enviar email:', error);
+        console.error('Erro geral:', error);
         res.redirect('/EsqueceuSenha?status=erro');
     }
 });
-
 //pagina do redefinir senha
 app.get('/redefinir-senha', async (req, res) => {
     const { token } = req.query;
