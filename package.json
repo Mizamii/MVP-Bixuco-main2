@@ -4,8 +4,11 @@
     "cors": "^2.8.6",
     "cpf-cnpj-validator": "^2.1.0",
     "express": "^5.2.1",
+    "express-session": "^1.19.0",
     "mysql2": "^3.22.3",
     "nodemailer": "^8.0.10",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
     "pg": "^8.20.0"
   }
 }
