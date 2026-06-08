@@ -59,24 +59,6 @@
             return true;
         }
  
-        // erros e sucesso vindos do servidor via ?status=
-        const params = new URLSearchParams(window.location.search);
-        const status = params.get("status");
- 
-        if (status === "enviado") {
-            document.getElementById("msg-sucesso").style.display = "block";
-        }
-        if (status === "nao-encontrado") {
-            const erro = document.getElementById("erro-email");
-            erro.textContent   = "Este email nao esta cadastrado.";
-            erro.style.display = "block";
-        }
-        if (status === "erro") {
-            const erro = document.getElementById("erro-email");
-            erro.textContent   = "Ocorreu um erro. Tente novamente.";
-            erro.style.display = "block";
-        }
- 
     </script>
  
 </body>
