@@ -81,23 +81,17 @@
             <p class="subtitulo">Bairro</p>
             <input type="text" id="bairro" name="bairro" placeholder="Preenchido automaticamente" readonly>
 
+            <button class="btn" type="submit" required >Criar conta</button>
+
             <p>
                 Ao criar sua conta voce concorda com nossos
                 <a href="/termos">Termos de uso</a> e
                 <a href="/privacidade">Politica de privacidade</a>.
             </p>
 
-            <button class="btn" type="submit" required >Criar conta</button>
         </form>
     </div>
-    
-    <footer class="rodape">
-        <p>Política de privacidade</p>
-        <span>|</span>
-        <p>Termos de uso</p>
-        <span>|</span>
-        <p>Sobre nós</p>
-    </footer>
+
     <script>
         function mascaraCEP(input) {
             let v = input.value.replace(/\D/g, "").slice(0, 8);
@@ -189,7 +183,7 @@
                 icone.classList.replace("fa-eye-slash", "fa-eye");
             }
         }
-        
+
         function mostrarErro(inputId, erroId, mensagem) {
             const input = document.getElementById(inputId);
             const erro  = document.getElementById(erroId);
