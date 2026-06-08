@@ -3,8 +3,8 @@ const path = require('path');
 const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
 const { cpf } = require('cpf-cnpj-validator');
-const crypto       = require('crypto');     
-const nodemailer   = require('nodemailer'); 
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 
 const app = express();
 
@@ -67,9 +67,7 @@ const db = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
-db.connect()
-  .then(() => console.log('Conectado ao PostgreSQL!'))
-  .catch(err => console.error('Erro ao conectar:', err));
+
 
 //bagui para o esqueceu a senha
 app.post('/esqueceu-senha', async (req, res) => {
