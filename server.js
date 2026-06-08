@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const { Client } = require('pg');
+const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
 const { cpf } = require('cpf-cnpj-validator');
 const crypto       = require('crypto');     
@@ -62,18 +62,14 @@ app.get('/home', (req, res) => {
 });
 
 
-const db = new Client({
+const db = new Pool({
   connectionString: 'postgresql://neondb_owner:npg_7dAgQi9wVomv@ep-tiny-truth-apsty8fo.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require',
   ssl: { rejectUnauthorized: false }
 });
 
 db.connect()
-  .then(() => {
-    console.log('Conectado ao PostgreSQL! ');
-  })
-  .catch(err => {
-    console.error('Erro ao conectar:', err);
-  });
+  .then(() => console.log('Conectado ao PostgreSQL!'))
+  .catch(err => console.error('Erro ao conectar:', err));
 
 //bagui para o esqueceu a senha
 app.post('/esqueceu-senha', async (req, res) => {
