@@ -3,130 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    <title>Metodo de logar</title>
-    <style>
-        .logo{
-        margin-right: 60px;
-        margin-left: 40px;
-        height: 75px;   
-        }
-        body {
-        font-family: 'Inter', sans-serif;
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh; 
-        margin: 0;
-        }
-        .texto {
-        font-family: 'Inter', sans-serif; 
-        margin-top: 100px;
-        margin-left: 200px;
-        margin-right: 200px;
-        text-align: center;
-        }
-        .titulodest {
-        font-family: 'Inter', sans-serif; 
-        font-size: 36px;               
-        font-weight: 700;                 
-        }
-        .subtitulo {
-        font-family: 'Inter', sans-serif; 
-        font-size: 24px;               
-        font-weight: 700;                 
-        }
-        .rodape{
-            background-color: #1D8EC9;
-            color: white;
-            padding: 20px 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            margin: 0 auto;
-            overflow-x: hidden;
-            gap: 105px;
-            margin-top: auto;
-        }
-        .btn {
-            height: 45px;
-            margin-left: 60px;
-            margin-right: 60px;
-            background-color: #79D836; 
-            font-size: 16px;
-            font-weight: 700;
-            border-radius: 20px;  
-            border: none; 
-            padding: 0 100px;
-            
-        }
-        .btn:hover {
-            background-color: #32C26D;
-            cursor: pointer;
-            transform: scale(1.0);
-            transition: all 0.3s ease;
-        }
-        .divisor {
-            display: flex;
-            align-items: center; 
-            justify-content: center;
-            width: 320px;       
-            margin: 20px auto;  
-            color: #000000;
-        }
-
-        .divisor::before,
-        .divisor::after {
-            content: "";
-            flex: 1;            
-            border-bottom: 1px solid #ccc; 
-        }   
-        .divisor span {
-            padding: 0 15px;    
-            font-size: 18px;
-            font-weight: 700;
-        }
-        .btn-google {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 75px;
-        padding: 0 40px;
-        font-weight: 700;
-        cursor: pointer;
-        margin: 0 auto;
-        }
-
-    </style>
+    <title>Bixuco — Login</title>
+    <!-- icones temp -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-    <header>
-        <img class="logo" src="/img/Logo_nome.png" alt="">
-    </header>
-    <div class="texto">
-        <h1 class="titulodest">Já possui uma conta</h1>
+
+    <!-- pagina inteira dividida em dois lados: esquerdo (foto) e direito (formulario) -->
+    <div class="pagina-login">
+
+
+        <!-- lado esquerdo: imagem de fundo com texto
+             a foto de fundo e temporaria, vai ser trocada depois
+             o texto fica por cima da foto com uma camada escura atras-->
+        <div class="login-esquerda">
+
+            <!-- camada escura semi-transparente por cima da foto para o texto ficar legivel -->
+            <div class="login-esquerda__overlay"></div>
+
+            <!-- foto de fundo temporaria — trocar pelo caminho real depois -->
+            <img
+                class="login-esquerda__foto"
+                src="/img/foto-bebe-pelucia.jpg"
+                alt="Crianca segurando a pelucia Bixuco"
+            >
+
+            <!-- texto centralizado por cima da foto -->
+            <div class="login-esquerda__conteudo">
+                <h1 class="login-esquerda__titulo">Bem vindo a Bixuco</h1>
+                <p class="login-esquerda__slogan">"Quando as palavras faltam, o Bixuco fala"</p>
+            </div>
+
+        </div>
+
+
+        <!-- lado direito: formulario de login
+             logo no topo, campos, botao google e link para criar conta-->
+        <div class="login-direita">
+
+            <!-- logo da bixuco centralizada no topo do formulario -->
+            <div class="login-direita__logo-container">
+                <img
+                    class="login-direita__logo"
+                    src="/img/Logo_Gato.png"
+                    alt="Logo Bixuco"
+                >
+            </div>
+
+            <!-- formulario de login -->
+            <form class="login-form" action="/login" method="POST" onsubmit="return validarLogin()">
+
+                <!-- campo de email -->
+                <div class="login-form__campo">
+                    <label class="login-form__label" for="email">Email ou telefone</label>
+                    <div class="login-form__input-wrapper">
+                        <input
+                            class="login-form__input"
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder=""
+                            autocomplete="email"
+                            required
+                        >
+                    </div>
+                    <!-- mensagem de erro aparece aqui se o email for invalido -->
+                    <span class="login-form__erro" id="erro-email"></span>
+                </div>
+
+                <!-- campo de senha com link "esqueci a senha" no canto direito -->
+                <div class="login-form__campo">
+                    <div class="login-form__senha-cabecalho">
+                        <label class="login-form__label" for="senha">Senha</label>
+                        <a class="login-form__esqueci-senha" href="/EsqueceuSenha">Esqueci a senha</a>
+                    </div>
+                    <div class="login-form__input-wrapper">
+                        <input
+                            class="login-form__input"
+                            type="password"
+                            id="senha"
+                            name="senha"
+                            placeholder=""
+                            autocomplete="current-password"
+                            required
+                        >
+                        <!-- botao de mostrar/esconder senha -->
+                        <button
+                            type="button"
+                            class="login-form__toggle-senha"
+                            onclick="toggleSenha()"
+                            aria-label="Mostrar ou esconder senha"
+                        >
+                            <i class="fa-solid fa-eye" id="iconeSenha"></i>
+                        </button>
+                    </div>
+                    <!-- mensagem de erro aparece aqui se a senha estiver errada -->
+                    <span class="login-form__erro" id="erro-senha"></span>
+                </div>
+
+                <!-- botao principal de entrar -->
+                <button class="login-form__btn-entrar" type="submit">
+                    Entrar
+                </button>
+
+            </form>
+
+
+            <!-- divisor "ou" entre o formulario e o botao do google -->
+            <div class="login-divisor">
+                <span class="login-divisor__linha"></span>
+                <span class="login-divisor__texto">ou</span>
+                <span class="login-divisor__linha"></span>
+            </div>
+
+
+            <!-- botao de continuar com o google
+                 por enquanto so redireciona para /auth/google
+                 a integracao real do google vai ser feita depois -->
+            <button class="login-google" onclick="loginGoogle()">
+                <!-- logo do google em svg para nao precisar de imagem externa (nao entendi esses numeros loucos ai)-->
+                <svg class="login-google__icone" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20px" height="20px">
+                    <path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.6 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 2.9l5.7-5.7C34.5 6.5 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.9z"/>
+                    <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.6 19 12 24 12c3.1 0 5.8 1.1 8 2.9l5.7-5.7C34.5 6.5 29.5 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
+                    <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.3 35.2 26.8 36 24 36c-5.2 0-9.7-3.3-11.3-8H6.1C9.5 35.6 16.3 44 24 44z"/>
+                    <path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.3 5.6l6.2 5.2C41 35.5 44 30.2 44 24c0-1.3-.1-2.7-.4-3.9z"/>
+                </svg>
+                <span class="login-google__texto">Continuar com o Google</span>
+            </button>
+
+
+            <!-- link para criar conta nova -->
+            <p class="login-criar-conta">
+                Nao tem conta?
+                <a class="login-criar-conta__link" href="/CriarContaS">Criar agora</a>
+            </p>
+
+        </div>
         
-        <h2 class="subtitulo">Sim, quero logar</h2>
-        <button class="btn"  onclick="window.location.href='/ContaExistente'">Fazer login</button>
 
-        <h2 class="subtitulo">Não, irei criar agora </h2>
-        <button class="btn"  onclick="window.location.href='/CriarContaS'">Criar agora</button>
 
-        <div class="divisor">
-        <span>Ou</span>
     </div>
+    <script>
 
-        <img class="btn-google" src="/img/googlelog.png" height="80px" alt="">
-    </div>
+        // mostra ou esconde a senha quando clicar no olhinho
+        function toggleSenha() {
+            const input = document.getElementById("senha");
+            const icone = document.getElementById("iconeSenha");
 
-   <footer class="rodape">
-    <p>Política de privacidade</p>
-    <span>|</span>
-    <p>Termos de uso</p>
-    <span>|</span>
-    <p>Sobre nós</p>
-</footer>
+            if (input.type === "password") {
+                input.type = "text";
+                icone.classList.remove("fa-eye");
+                icone.classList.add("fa-eye-slash");
+            } else {
+                input.type = "password";
+                icone.classList.remove("fa-eye-slash");
+                icone.classList.add("fa-eye");
+            }
+        }
+
+        // mostra mensagem de erro embaixo do campo sem sair da pagina
+        // o campo treme para chamar atencao (adicionar animacao no css) SIM , FAÇA ISSO ARTHUR 
+        function mostrarErro(inputId, erroId, mensagem) {
+            const input = document.getElementById(inputId);
+            const erro  = document.getElementById(erroId);
+
+            input.classList.add("login-form__input--erro");
+            erro.textContent = mensagem;
+            erro.style.display = "block";
+
+            // remove a classe de tremida depois da animacao terminar
+            setTimeout(() => input.classList.remove("login-form__input--erro"), 500);
+        }
+
+        function limparErros() {
+            ["email", "senha"].forEach(id => {
+                const input = document.getElementById(id);
+                const erro  = document.getElementById("erro-" + id);
+                if (input) input.classList.remove("login-form__input--erro");
+                if (erro)  erro.style.display = "none";
+            });
+        }
+
+        // validacao basica antes de enviar o formulario
+        // erros mais detalhados (senha errada, usuario nao existe) vem do servidor
+        function validarLogin() {
+            limparErros();
+            let valido = true;
+
+            const email = document.getElementById("email").value.trim();
+            const senha = document.getElementById("senha").value;
+
+            if (!email || !/\S+@\S+\.\S+/.test(email)) {
+                mostrarErro("email", "erro-email", "Digite um email valido.");
+                valido = false;
+            }
+
+            if (!senha || senha.length < 6) {
+                mostrarErro("senha", "erro-senha", "A senha deve ter pelo menos 6 caracteres.");
+                valido = false;
+            }
+
+            return valido;
+        }
+
+        // redireciona para a rota de autenticacao do google
+        function loginGoogle() {
+            window.location.href = "/auth/google";
+        }
+
+    </script>
+
 </body>
 </html>
