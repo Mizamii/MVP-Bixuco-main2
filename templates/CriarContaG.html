@@ -34,14 +34,13 @@
                     alt="Logo Bixuco"
                 >
             </div>
+
+            
             <div class="criar-direita__cabecalho">
                 <h2 class="criar-direita__titulo">Criar conta</h2>
             </div>
 
             <div class="texto">
-                <h1 class="titulomed">Bem-vindo</h1>
-                <h2 class="subtitulo-topo">Criar conta</h2>
-
                 <form action="/cadastro-pai" method="POST" onsubmit="return validarCadastro()">
                     
                     <p class="subtitulo">Nome Completo:</p>
@@ -157,7 +156,6 @@
             let valido = true;
             const nome      = document.getElementById("nome").value.trim();
             const email     = document.getElementById("email").value.trim();
-            const tel       = document.getElementById("telefone").value.replace(/\D/g, "");
             const dataNasc  = document.getElementById("dataNascimento").value;
             const senha     = document.getElementById("senha").value;
             const confirmar = document.getElementById("senhaConfirmar").value;
