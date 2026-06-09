@@ -9,154 +9,176 @@
     <link rel="stylesheet" href="/css/home.css">
 </head>
 <body>
-
-    <!-- calendario recolhido por padrao, exibindo apenas a semana atual.
-      se clicar ou arrastar para cima, mostra o calendario do mes completo. -->
-    <section class="calendario" id="calendario">
-
-        <!-- Alça para arrastar/clicar e expandir -->
-        <div class="calendario__alca" id="calendarioAlca">
-            <div class="calendario__alca-barra"></div>
-        </div>
-
-        <!-- cabecalho do calendario: mes/ano + seta sequencia -->
-        <div class="calendario__cabecalho">
-            <div class="calendario__mes-ano">
-                <button class="calendario__nav calendario__nav--anterior" id="btnMesAnterior">
-                    <i class="fa-solid fa-chevron-left"></i>
-                </button>
-                <span class="calendario__titulo" id="calendarioTitulo">Junho 2026</span>
-                <button class="calendario__nav calendario__nav--proximo" id="btnMesProximo">
-                    <i class="fa-solid fa-chevron-right"></i>
-                </button>
-            </div>
-            <!-- contador de sequencia (estilo Duolingo) -->
-            <div class="calendario__sequencia">
-                <i class="fa-solid fa-fire calendario__sequencia-icone"></i>
-                <span class="calendario__sequencia-numero" id="sequenciaDias">12</span>
-                <span class="calendario__sequencia-texto">dias</span>
-            </div>
-        </div>
-
-        <!-- cabecalho dos dias da semana -->
-        <div class="calendario__dias-semana">
-            <span>D</span>
-            <span>S</span>
-            <span>T</span>
-            <span>Q</span>
-            <span>Q</span>
-            <span>S</span>
-            <span>S</span>
-        </div>
-
-        <!-- dicas geradas pelo js -->
-        <div class="calendario__grid" id="calendarioGrid">
-            <!-- dias injetados pelo JS -->
-        </div>
-
-    </section>
-
-
+ 
     <!-- rolavel -->
     <main class="conteudo-principal" id="conteudoPrincipal">
-
-        <!-- ola nome aleatorio -->
-        <div class="saudacao">
-            <h1 class="saudacao__titulo" id="saudacaoNome">Olá, Lucas</h1>
-            <p class="saudacao__data" id="saudacaoData">Quarta, 4 de junho</p>
-        </div>
-
-        <section class="bixuco-localizacao">
-            <h2 class="bixuco-localizacao__titulo">Localização do Bixuco</h2>
-
-            <div class="bixuco-localizacao__card">
-
-                <div class="bixuco-localizacao__info">
-                    <!-- nome do bixuco -->
-                    <span class="bixuco-localizacao__nome" id="bixucoNome">Algodãozinho</span>
-
-                    <!-- alterar o status via JS depois -->
-                    <div class="bixuco-localizacao__status" id="bixucoStatus">
-                        <span class="bixuco-localizacao__status-bolinha"></span>
-                        <span class="bixuco-localizacao__status-texto" id="bixucoStatusTexto">Ativo agora</span>
+ 
+        <!-- Coluna esquerda -->
+        <div class="coluna-esquerda">
+ 
+            <!-- Calendário -->
+            <section class="calendario" id="calendario">
+ 
+                <!-- cabecalho do calendario: mes/ano + seta sequencia -->
+                <div class="calendario__cabecalho">
+                    <div class="calendario__mes-ano">
+                        <button class="calendario__nav calendario__nav--anterior" id="btnMesAnterior">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <span class="calendario__titulo" id="calendarioTitulo">Junho 2026</span>
+                        <button class="calendario__nav calendario__nav--proximo" id="btnMesProximo">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    <!-- contador de sequencia (estilo Duolingo) -->
+                    <div class="calendario__sequencia">
+                        <i class="fa-solid fa-fire calendario__sequencia-icone"></i>
+                        <span class="calendario__sequencia-numero" id="sequenciaDias">12</span>
+                        <span class="calendario__sequencia-texto">dias</span>
                     </div>
                 </div>
-
-                <!-- mapa -->
-                <!-- colocar a api de localização depois -->
-                <div class="bixuco-localizacao__mapa" id="bixucoMapa">
-                    <div class="bixuco-localizacao__mapa-placeholder">
-                        <!-- ponto do mapa que fica pi pi pi pi-->
-                        <div class="bixuco-localizacao__mapa-ponto"></div>
-                        <p class="bixuco-localizacao__mapa-texto">[ Mapa do Bixuco ]</p>
+ 
+                <!-- cabecalho dos dias da semana -->
+                <div class="calendario__dias-semana">
+                    <span>Dom</span>
+                    <span>Seg</span>
+                    <span>Ter</span>
+                    <span>Qua</span>
+                    <span>Qui</span>
+                    <span>Sex</span>
+                    <span>Sáb</span>
+                </div>
+ 
+                <!-- dias gerados pelo js -->
+                <div class="calendario__grid" id="calendarioGrid">
+                    <!-- dias injetados pelo JS -->
+                </div>
+ 
+                <!-- Botão de expandir/recolher -->
+                <div class="calendario__toggle">
+                    <button class="calendario__toggle-btn" id="btnToggleCalendario">
+                        Mostrar mais
+                    </button>
+                </div>
+ 
+            </section>
+ 
+            <!-- ola nome aleatorio -->
+            <div class="saudacao">
+                <h1 class="saudacao__titulo" id="saudacaoNome">Olá, Lucas</h1>
+                <p class="saudacao__data" id="saudacaoData">Quarta, 4 de junho</p>
+ 
+                <div class="sequencia-card">
+                    <div class="sequencia-card__icone">
+                        <i class="fa-solid fa-fire-flame-curved"></i>
+                    </div>
+                    <div class="sequencia-card__info">
+                        <div class="sequencia-card__numero" id="sequenciaCardNumero">12 dias seguidos!</div>
+                        <div class="sequencia-card__texto">Continue fazendo relatórios diários</div>
                     </div>
                 </div>
-
-                <!-- ultima atualizacao -->
-                <p class="bixuco-localizacao__atualizacao" id="bixucoAtualizacao">Atualizado agora</p>
-
             </div>
-        </section>
-
-        <section class="dicas">
-            <h2 class="dicas__titulo">Dicas de hoje</h2>
-
-            <div class="dicas__container" id="dicasContainer">
-
-                <button class="dicas__card dicas__card--adicionar" onclick="irParaRelatorio()">
-                    <i class="fa-solid fa-plus dicas__card-icone-adicionar"></i>
-                    <span class="dicas__card-texto-adicionar">Registre o dia de hoje</span>
+ 
+            <!-- botão de relatório diario -->
+            <div class="relatorio-botao-container">
+                <button class="relatorio-botao" onclick="irParaRelatorio()">
+                    <i class="fa-solid fa-clipboard-list relatorio-botao__icone"></i>
+                    Fazer relatório de hoje
                 </button>
-
-                
-
             </div>
-        </section>
-
-        <div class="relatorio-botao-container">
-            <button class="relatorio-botao" onclick="irParaRelatorio()">
-                <i class="fa-solid fa-clipboard-list relatorio-botao__icone"></i>
-                Fazer relatório de hoje
-            </button>
+ 
         </div>
-        
-
+ 
+        <!-- Coluna direita -->
+        <div class="coluna-direita">
+ 
+            <section class="bixuco-localizacao">
+                <h2 class="bixuco-localizacao__titulo">Localização do Bixuco</h2>
+ 
+                <div class="bixuco-localizacao__card">
+ 
+                    <div class="bixuco-localizacao__info">
+                        <!-- nome do bixuco -->
+                        <span class="bixuco-localizacao__nome" id="bixucoNome">Algodãozinho</span>
+ 
+                        <!-- alterar o status via JS depois -->
+                        <div class="bixuco-localizacao__status" id="bixucoStatus">
+                            <span class="bixuco-localizacao__status-bolinha"></span>
+                            <span class="bixuco-localizacao__status-texto" id="bixucoStatusTexto">Ativo agora</span>
+                        </div>
+                    </div>
+ 
+                    <!-- mapa -->
+                    <!-- colocar a api de localização depois -->
+                    <div class="bixuco-localizacao__mapa" id="bixucoMapa">
+                        <div class="bixuco-localizacao__mapa-placeholder">
+                            <!-- ponto do mapa que fica pi pi pi pi-->
+                            <div class="bixuco-localizacao__mapa-ponto">
+                                <i class="fa-solid fa-paw"></i>
+                            </div>
+                        </div>
+                    </div>
+ 
+                    <!-- localização e última atualização -->
+                    <div class="bixuco-localizacao__local">
+                        <span>Rua das Flores, 142 — Quarto</span>
+                        <span class="bixuco-localizacao__atualizacao" id="bixucoAtualizacao">Atualizado agora</span>
+                    </div>
+ 
+                </div>
+            </section>
+ 
+            <section class="dicas">
+                <h2 class="dicas__titulo">Dicas de hoje</h2>
+ 
+                <div class="dicas__container" id="dicasContainer">
+ 
+                    <button class="dicas__card dicas__card--adicionar" onclick="irParaRelatorio()">
+                        <i class="fa-solid fa-plus dicas__card-icone-adicionar"></i>
+                        <span class="dicas__card-texto-adicionar">Registre o dia de hoje</span>
+                    </button>
+ 
+                </div>
+            </section>
+ 
+        </div>
+ 
     </main>
-
-
+ 
+ 
     <!-- rodape -->
     <nav class="nav-inferior" role="navigation" aria-label="Navegação principal">
-
+ 
         <a href="/home" class="nav__item nav__item--ativo" aria-label="Início">
             <i class="fa-solid fa-house nav__item-icone"></i>
             <span class="nav__item-texto">Início</span>
         </a>
-
+ 
         <a href="/configuracoes" class="nav__item" aria-label="Configurações">
             <i class="fa-solid fa-gear nav__item-icone"></i>
             <span class="nav__item-texto">Config.</span>
         </a>
-
+ 
         <a href="/relatorios" class="nav__item" aria-label="Relatórios">
             <i class="fa-solid fa-chart-bar nav__item-icone"></i>
             <span class="nav__item-texto">Relatórios</span>
         </a>
-
+ 
         <a href="/sobre" class="nav__item" aria-label="Sobre">
             <i class="fa-solid fa-circle-info nav__item-icone"></i>
             <span class="nav__item-texto">Sobre</span>
         </a>
-
+ 
         <a href="/perfil" class="nav__item" aria-label="Perfil">
             <i class="fa-solid fa-user nav__item-icone"></i>
             <span class="nav__item-texto">Perfil</span>
         </a>
-
+ 
     </nav>
-
-
+ 
+ 
     <script>
-
+ 
         // pré feito para a api
         const dadosUsuario = {
             nome: "Lucas",
@@ -165,7 +187,7 @@
             bixucoAtivo: true,
             bixucoAtualizacao: "Agora"
         };
-
+ 
         const dicasHoje = [
             { titulo: "Dicas sobre\nAlimentação",   imagem: "/img/dica-alimentacao.png" },
             { titulo: "Dica sobre\nTecidos",         imagem: "/img/dica-tecidos.png"    },
@@ -173,65 +195,66 @@
             { titulo: "Dica sobre\nSono",            imagem: "/img/dica-sono.png"       },
             { titulo: "Dica sobre\nAmbiente",        imagem: "/img/dica-ambiente.png"   },
         ];
-
+ 
         // calendario
-
-        let mesAtual   = new Date().getMonth();
-        let anoAtual   = new Date().getFullYear();
-        let expandido  = false;
-
+ 
+        let mesAtual  = new Date().getMonth();
+        let anoAtual  = new Date().getFullYear();
+        let expandido = false; // começa recolhido, mostrando apenas a semana atual
+ 
         const nomesMeses = [
             "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
             "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
         ];
-
+ 
         // dias que já têm relatório (simulado — substituir por dados da API)
         const diasComRelatorio = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-
+ 
         function gerarCalendario(mes, ano, modoExpandido) {
             const grid      = document.getElementById("calendarioGrid");
             const titulo    = document.getElementById("calendarioTitulo");
+            const btnToggle = document.getElementById("btnToggleCalendario");
             const hoje      = new Date();
             const diaHoje   = hoje.getDate();
             const mesHoje   = hoje.getMonth();
             const anoHoje   = hoje.getFullYear();
-
+ 
             titulo.textContent = `${nomesMeses[mes]} ${ano}`;
             grid.innerHTML = "";
-
-            const primeiroDia     = new Date(ano, mes, 1).getDay();
-            const totalDias       = new Date(ano, mes + 1, 0).getDate();
-
+ 
+            const primeiroDia = new Date(ano, mes, 1).getDay();
+            const totalDias   = new Date(ano, mes + 1, 0).getDate();
+ 
             // encontrar início e fim da semana atual
-            const diaAtual        = (mes === mesHoje && ano === anoHoje) ? diaHoje : 1;
-            const dataAtual       = new Date(ano, mes, diaAtual);
-            const diaSemanaAtual  = dataAtual.getDay();
-            const inicioSemana    = diaAtual - diaSemanaAtual;
-            const fimSemana       = inicioSemana + 6;
-
+            const diaAtual       = (mes === mesHoje && ano === anoHoje) ? diaHoje : 1;
+            const dataAtual      = new Date(ano, mes, diaAtual);
+            const diaSemanaAtual = dataAtual.getDay();
+            const inicioSemana   = diaAtual - diaSemanaAtual;
+            const fimSemana      = inicioSemana + 6;
+ 
             // espaços vazios antes do dia 1
             for (let i = 0; i < primeiroDia; i++) {
                 const vazio = document.createElement("div");
                 vazio.classList.add("calendario__dia", "calendario__dia--vazio");
                 grid.appendChild(vazio);
             }
-
+ 
             // dias do mês
             for (let dia = 1; dia <= totalDias; dia++) {
                 const el = document.createElement("div");
                 el.classList.add("calendario__dia");
                 el.textContent = dia;
-
+ 
                 // dia de hoje
                 if (dia === diaHoje && mes === mesHoje && ano === anoHoje) {
                     el.classList.add("calendario__dia--hoje");
                 }
-
+ 
                 // dia com relatório registrado
                 if (diasComRelatorio.includes(dia)) {
                     el.classList.add("calendario__dia--com-relatorio");
                 }
-
+ 
                 // na versão recolhida, esconder dias fora da semana atual
                 if (!modoExpandido) {
                     const dentroSemana = dia >= inicioSemana && dia <= fimSemana;
@@ -239,64 +262,58 @@
                         el.classList.add("calendario__dia--oculto");
                     }
                 }
-
+ 
                 grid.appendChild(el);
             }
+ 
+            // atualizar texto do botão
+            btnToggle.textContent = modoExpandido ? "Mostrar menos" : "Mostrar mais";
         }
-
-        // expandir e recolher calendário
-        function toggleCalendario() {
+ 
+        // toggle expandir/recolher calendário (via botão, igual ao colega)
+        document.getElementById("btnToggleCalendario").addEventListener("click", () => {
             expandido = !expandido;
-            const calendario = document.getElementById("calendario");
-            if (expandido) {
-                calendario.classList.add("calendario--expandido");
-            } else {
-                calendario.classList.remove("calendario--expandido");
-            }
             gerarCalendario(mesAtual, anoAtual, expandido);
-        }
-
-        document.getElementById("calendarioAlca").addEventListener("click", toggleCalendario);
-
-        // navegar entre meses (só disponível quando expandido)
+        });
+ 
+        // navegar entre meses (livre, sem precisar estar expandido)
         document.getElementById("btnMesAnterior").addEventListener("click", () => {
-            if (!expandido) return;
             mesAtual--;
             if (mesAtual < 0) { mesAtual = 11; anoAtual--; }
             gerarCalendario(mesAtual, anoAtual, expandido);
         });
-
+ 
         document.getElementById("btnMesProximo").addEventListener("click", () => {
-            if (!expandido) return;
             mesAtual++;
             if (mesAtual > 11) { mesAtual = 0; anoAtual++; }
             gerarCalendario(mesAtual, anoAtual, expandido);
         });
-
-
+ 
+ 
         // o negocio do ola (pessoa que logou)
-
+ 
         function preencherSaudacao() {
             document.getElementById("saudacaoNome").textContent = `Olá, ${dadosUsuario.nome}`;
             document.getElementById("sequenciaDias").textContent = dadosUsuario.sequencia;
-
+            document.getElementById("sequenciaCardNumero").textContent = `${dadosUsuario.sequencia} dias seguidos!`;
+ 
             const hoje   = new Date();
             const opcoes = { weekday: "long", day: "numeric", month: "long" };
             let dataFormatada = hoje.toLocaleDateString("pt-BR", opcoes);
             dataFormatada = dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1);
             document.getElementById("saudacaoData").textContent = dataFormatada;
         }
-
-
+ 
+ 
         // informações do bixuco
-
+ 
         function preencherBixuco() {
-            document.getElementById("bixucoNome").textContent    = dadosUsuario.bixucoNome;
+            document.getElementById("bixucoNome").textContent        = dadosUsuario.bixucoNome;
             document.getElementById("bixucoAtualizacao").textContent = `Atualizado: ${dadosUsuario.bixucoAtualizacao}`;
-
-            const statusEl   = document.getElementById("bixucoStatus");
+ 
+            const statusEl    = document.getElementById("bixucoStatus");
             const statusTexto = document.getElementById("bixucoStatusTexto");
-
+ 
             if (dadosUsuario.bixucoAtivo) {
                 statusEl.classList.add("bixuco-localizacao__status--ativo");
                 statusTexto.textContent = "Ativo agora";
@@ -305,17 +322,17 @@
                 statusTexto.textContent = "Inativo";
             }
         }
-
-
+ 
+ 
         // area das dicas (pegar inspiração do app do flo)
-
+ 
         function gerarDicas() {
             const container = document.getElementById("dicasContainer");
-
+ 
             dicasHoje.forEach(dica => {
                 const card = document.createElement("div");
                 card.classList.add("dicas__card");
-
+ 
                 // substituir as imagens
                 const img = document.createElement("img");
                 img.classList.add("dicas__card-imagem");
@@ -329,24 +346,24 @@
                     placeholder.textContent = "[ Imagem ]";
                     card.insertBefore(placeholder, this);
                 };
-
+ 
                 const titulo = document.createElement("span");
                 titulo.classList.add("dicas__card-titulo");
                 titulo.textContent = dica.titulo;
-
+ 
                 card.appendChild(img);
                 card.appendChild(titulo);
                 container.appendChild(card);
             });
         }
-
-
+ 
+ 
         // cara n entendi muito nao mas a ia recomendou para funcionar melhor
-
+ 
         function irParaRelatorio() {
             window.location.href = "/relatorios";
         }
-
+ 
         function marcarAbaAtiva() {
             const path = window.location.pathname;
             document.querySelectorAll(".nav__item").forEach(item => {
@@ -356,17 +373,17 @@
                 }
             });
         }
-
-
+ 
+ 
         // iniciar os bagui
-
+ 
         gerarCalendario(mesAtual, anoAtual, false);
         preencherSaudacao();
         preencherBixuco();
         gerarDicas();
         marcarAbaAtiva();
-
+ 
     </script>
-
+ 
 </body>
 </html>
