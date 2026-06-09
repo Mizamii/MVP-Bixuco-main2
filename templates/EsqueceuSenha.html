@@ -4,7 +4,199 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Esqueci a senha</title>
-    <link rel="stylesheet" href="/static/css/esqueceu-senha.css">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --verde-escuro:  #32C26D;
+            --verde-claro:   #79D836;
+            --azul-claro:    #0AB7FB;
+            --azul-escuro:   #1D8EC9;
+            --branco:        #F8FAFD;
+            --cinza-claro:   #D9D9D9;
+            --cinza-escuro:  #5A5A5A;
+            --preto:         #1a1a1a;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            display: flex;
+            flex-direction: row;
+            min-height: 100vh;
+        }
+
+        /* LADO ESQUERDO */
+        .lado-esquerdo {
+            position: relative;
+            width: 50%;
+            min-height: 100vh;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .lado-esquerdo__foto {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            position: absolute;
+            inset: 0;
+        }
+
+        .lado-esquerdo__overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.15);
+            z-index: 1;
+        }
+
+        .lado-esquerdo__logo {
+            position: absolute;
+            bottom: 40px;
+            left: 40px;
+            z-index: 2;
+        }
+
+        .lado-esquerdo__logo img {
+            height: 60px;
+        }
+
+        /* LADO DIREITO */
+        .lado-direito {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--branco);
+            min-height: 100vh;
+        }
+
+        .lado-direito__titulo-topo {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--preto);
+            text-align: center;
+            padding: 24px 0 20px;
+        }
+
+        .lado-direito__divisor {
+            border: none;
+            border-top: 1px solid var(--cinza-claro);
+        }
+
+        .formulario-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 60px;
+        }
+
+        .formulario__titulo {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--preto);
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .formulario__descricao {
+            font-size: 13px;
+            color: var(--cinza-escuro);
+            text-align: center;
+            margin-bottom: 32px;
+            max-width: 380px;
+            line-height: 1.5;
+        }
+
+        form {
+            width: 100%;
+            max-width: 380px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .formulario__label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--preto);
+            margin-bottom: 8px;
+        }
+
+        .formulario__input {
+            width: 100%;
+            height: 48px;
+            border: 1.5px solid var(--cinza-claro);
+            border-radius: 12px;
+            padding: 0 16px;
+            font-size: 14px;
+            color: var(--preto);
+            background: var(--branco);
+            outline: none;
+            transition: border-color 0.2s;
+            margin-bottom: 8px;
+        }
+
+        .formulario__input:focus {
+            border-color: var(--verde-escuro);
+        }
+
+        .formulario__erro {
+            display: none;
+            font-size: 12px;
+            color: #e53e3e;
+            margin-bottom: 8px;
+        }
+
+        .formulario__btn {
+            width: 100%;
+            max-width: 380px;
+            height: 52px;
+            border-radius: 26px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, transform 0.15s;
+        }
+
+        .formulario__btn--principal {
+            background: var(--branco);
+            border: 2px solid var(--verde-escuro);
+            color: var(--preto);
+            margin-top: 16px;
+            margin-bottom: 12px;
+        }
+
+        .formulario__btn--principal:hover {
+            background: rgba(50, 194, 109, 0.06);
+            transform: translateY(-1px);
+        }
+
+        .formulario__btn--secundario {
+            background: var(--branco);
+            border: 2px solid var(--azul-claro);
+            color: var(--preto);
+        }
+
+        .formulario__btn--secundario:hover {
+            background: rgba(10, 183, 251, 0.05);
+            transform: translateY(-1px);
+        }
+    </style>
 </head>
 <body>
 
@@ -44,9 +236,7 @@
 
     </div>
 
-
     <script>
-
         function validarEmail() {
             const email = document.getElementById("email").value.trim();
             const erro  = document.getElementById("erro-email");
@@ -61,7 +251,6 @@
             }
             return true;
         }
-
     </script>
 
 </body>
