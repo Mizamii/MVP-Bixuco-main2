@@ -3,7 +3,7 @@
     margin: 0;
     padding: 0;
 }
-
+ 
 :root {
     /* Paleta oficial Bixuco */
     --verde-escuro:      #32C26D;
@@ -13,7 +13,7 @@
     --branco:            #F8FAFD;
     --cinza-claro:       #D9D9D9;
     --cinza-escuro:      #5A5A5A;
-
+ 
     /* Aliases semânticos */
     --verde-primario:    var(--verde-escuro);
     --verde-medio:       rgba(121, 216, 54, 0.2);
@@ -27,7 +27,7 @@
     --radius-btn:        10px;
     --nav-altura:        70px;
 }
-
+ 
 html, body {
     height: 100%;
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -36,12 +36,12 @@ html, body {
     font-size: 14px;
     -webkit-font-smoothing: antialiased;
 }
-
+ 
 body {
     display: flex;
     flex-direction: column;
 }
-
+ 
 /* Layout principal dividido ao meio */
 .conteudo-principal {
     flex: 1;
@@ -54,23 +54,23 @@ body {
     margin: 0 auto;
     width: 100%;
 }
-
+ 
 /* Coluna esquerda */
 .coluna-esquerda {
     display: flex;
     flex-direction: column;
     gap: 16px;
 }
-
+ 
 /* Coluna direita */
 .coluna-direita {
     display: flex;
     flex-direction: column;
     gap: 16px;
 }
-
+ 
 /* =============================================
-   CALENDÁRIO (agora é um card)
+   CALENDÁRIO
    ============================================= */
 .calendario {
     background-color: var(--branco);
@@ -79,7 +79,7 @@ body {
     box-shadow: var(--sombra-card);
     border: 1px solid #e8e8e8;
 }
-
+ 
 /* Cabeçalho: mês/ano + sequência */
 .calendario__cabecalho {
     display: flex;
@@ -87,19 +87,19 @@ body {
     align-items: center;
     margin-bottom: 12px;
 }
-
+ 
 .calendario__mes-ano {
     display: flex;
     align-items: center;
     gap: 8px;
 }
-
+ 
 .calendario__titulo {
     font-size: 15px;
     font-weight: 600;
     color: var(--preto);
 }
-
+ 
 .calendario__nav {
     background: none;
     border: none;
@@ -110,35 +110,35 @@ body {
     border-radius: 6px;
     transition: background 0.15s, color 0.15s;
 }
-
+ 
 .calendario__nav:hover {
     background: var(--verde-fundo);
     color: var(--verde-escuro);
 }
-
+ 
 /* Sequência (fogo) */
 .calendario__sequencia {
     display: flex;
     align-items: center;
     gap: 5px;
 }
-
+ 
 .calendario__sequencia-icone {
     color: var(--verde-escuro);
     font-size: 13px;
 }
-
+ 
 .calendario__sequencia-numero {
     font-size: 14px;
     font-weight: 700;
     color: var(--verde-escuro);
 }
-
+ 
 .calendario__sequencia-texto {
     font-size: 12px;
     color: var(--verde-escuro);
 }
-
+ 
 /* Dias da semana */
 .calendario__dias-semana {
     display: grid;
@@ -149,7 +149,7 @@ body {
     color: var(--cinza-texto);
     margin-bottom: 8px;
 }
-
+ 
 /* Grid de dias */
 .calendario__grid {
     display: grid;
@@ -157,7 +157,7 @@ body {
     gap: 8px;
     text-align: center;
 }
-
+ 
 .calendario__dia {
     width: 40px;
     height: 40px;
@@ -171,42 +171,44 @@ body {
     color: var(--preto);
     margin: 0 auto;
 }
-
+ 
 .calendario__dia:hover:not(.calendario__dia--vazio) {
     background: var(--verde-fundo);
 }
-
+ 
 .calendario__dia--vazio {
     pointer-events: none;
 }
-
+ 
 .calendario__dia--hoje {
     background-color: var(--verde-primario);
     color: var(--branco);
     font-weight: 700;
 }
-
+ 
+/* MODIFICADO: fundo verde sólido com texto branco (igual à foto 2) */
 .calendario__dia--com-relatorio {
-    background-color: var(--verde-medio);
-    color: var(--verde-escuro);
+    background-color: var(--verde-escuro);
+    color: var(--branco);
     font-weight: 600;
 }
-
+ 
+/* hoje + com relatório: mantém o verde escuro */
 .calendario__dia--hoje.calendario__dia--com-relatorio {
     background-color: var(--verde-primario);
     color: var(--branco);
 }
-
+ 
 .calendario__dia--oculto {
     display: none;
 }
-
+ 
 /* Botão de expandir calendário */
 .calendario__toggle {
     margin-top: 12px;
     text-align: center;
 }
-
+ 
 .calendario__toggle-btn {
     background: var(--verde-fundo);
     border: none;
@@ -218,13 +220,13 @@ body {
     cursor: pointer;
     transition: background 0.15s;
 }
-
+ 
 .calendario__toggle-btn:hover {
     background: var(--verde-medio);
 }
-
+ 
 /* =============================================
-   SAUDAÇÃO (agora com card de sequência)
+   SAUDAÇÃO
    ============================================= */
 .saudacao {
     background: var(--branco);
@@ -233,20 +235,20 @@ body {
     box-shadow: var(--sombra-card);
     border: 1px solid #e8e8e8;
 }
-
+ 
 .saudacao__titulo {
     font-size: 18px;
     font-weight: 700;
     color: var(--preto);
     margin-bottom: 4px;
 }
-
+ 
 .saudacao__data {
     font-size: 13px;
     color: var(--cinza-texto);
     margin-bottom: 16px;
 }
-
+ 
 /* Card de sequência dentro da saudação */
 .sequencia-card {
     display: flex;
@@ -256,7 +258,7 @@ body {
     border-radius: 12px;
     padding: 16px;
 }
-
+ 
 .sequencia-card__icone {
     width: 50px;
     height: 50px;
@@ -268,23 +270,23 @@ body {
     font-size: 28px;
     color: var(--verde-escuro);
 }
-
+ 
 .sequencia-card__info {
     flex: 1;
 }
-
+ 
 .sequencia-card__numero {
     font-size: 18px;
     font-weight: 800;
     color: var(--verde-escuro);
 }
-
+ 
 .sequencia-card__texto {
     font-size: 13px;
     color: var(--verde-escuro);
     font-weight: 500;
 }
-
+ 
 /* =============================================
    LOCALIZAÇÃO DO BIXUCO
    ============================================= */
@@ -293,13 +295,13 @@ body {
     flex-direction: column;
     gap: 8px;
 }
-
+ 
 .bixuco-localizacao__titulo {
     font-size: 15px;
     font-weight: 700;
     color: var(--preto);
 }
-
+ 
 .bixuco-localizacao__card {
     background: var(--branco);
     border-radius: var(--radius-card);
@@ -307,7 +309,7 @@ body {
     box-shadow: var(--sombra-card);
     border: 1px solid #e8e8e8;
 }
-
+ 
 /* Nome + status */
 .bixuco-localizacao__info {
     display: flex;
@@ -315,51 +317,51 @@ body {
     align-items: center;
     padding: 10px 14px;
 }
-
+ 
 .bixuco-localizacao__nome {
     font-size: 14px;
     font-weight: 600;
     color: var(--preto);
 }
-
+ 
 .bixuco-localizacao__status {
     display: flex;
     align-items: center;
     gap: 5px;
 }
-
+ 
 .bixuco-localizacao__status-bolinha {
     width: 7px;
     height: 7px;
     border-radius: 50%;
     background-color: var(--cinza-borda);
 }
-
+ 
 .bixuco-localizacao__status--ativo .bixuco-localizacao__status-bolinha {
     background-color: var(--verde-escuro);
     box-shadow: 0 0 0 3px rgba(50, 194, 109, 0.25);
-    animation: pulsar 2s infinite;
+    animation: pulsar-bolinha 2s infinite;
 }
-
-@keyframes pulsar {
+ 
+@keyframes pulsar-bolinha {
     0%, 100% { box-shadow: 0 0 0 3px rgba(50, 194, 109, 0.25); }
     50%       { box-shadow: 0 0 0 6px rgba(50, 194, 109, 0.1);  }
 }
-
+ 
 .bixuco-localizacao__status--inativo .bixuco-localizacao__status-bolinha {
     background-color: var(--cinza-claro);
 }
-
+ 
 .bixuco-localizacao__status-texto {
     font-size: 11px;
     color: var(--cinza-texto);
 }
-
+ 
 .bixuco-localizacao__status--ativo .bixuco-localizacao__status-texto {
     color: var(--verde-escuro);
     font-weight: 500;
 }
-
+ 
 /* Mapa */
 .bixuco-localizacao__mapa {
     width: 100%;
@@ -367,15 +369,14 @@ body {
     overflow: hidden;
     background: var(--verde-fundo);
 }
-
-/* Se usar uma <img> no lugar do placeholder, ela preenche o espaço */
+ 
 .bixuco-localizacao__mapa img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
 }
-
+ 
 /* Placeholder enquanto não há API */
 .bixuco-localizacao__mapa-placeholder {
     width: 100%;
@@ -401,24 +402,48 @@ body {
     background-color: var(--verde-fundo);
     position: relative;
 }
-
+ 
+/* MODIFICADO: ponto com anel externo translúcido suave (igual à foto 2) */
 .bixuco-localizacao__mapa-ponto {
-    width: 60px;
-    height: 60px;
-    background: var(--verde-medio);
-    border: 4px solid var(--verde-escuro);
+    width: 52px;
+    height: 52px;
+    background: rgba(50, 194, 109, 0.25);
+    border: 3px solid var(--verde-escuro);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    animation: pulsar 2s infinite;
-    font-size: 20px;
+    font-size: 18px;
+    color: var(--verde-escuro);
+    position: relative;
+    animation: pulsar-ponto 2s infinite;
 }
-
+ 
+/* Anel externo translúcido */
+.bixuco-localizacao__mapa-ponto::before {
+    content: '';
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: rgba(50, 194, 109, 0.15);
+    animation: pulsar-anel 2s infinite;
+}
+ 
+@keyframes pulsar-ponto {
+    0%, 100% { box-shadow: 0 0 0 4px rgba(50, 194, 109, 0.2); }
+    50%       { box-shadow: 0 0 0 8px rgba(50, 194, 109, 0.08); }
+}
+ 
+@keyframes pulsar-anel {
+    0%, 100% { transform: scale(1);   opacity: 0.6; }
+    50%       { transform: scale(1.1); opacity: 0.3; }
+}
+ 
 .bixuco-localizacao__mapa-texto {
     display: none;
 }
-
+ 
 /* Localização texto */
 .bixuco-localizacao__local {
     padding: 8px 14px;
@@ -429,11 +454,11 @@ body {
     justify-content: space-between;
     align-items: center;
 }
-
+ 
 .bixuco-localizacao__atualizacao {
     font-size: 11px;
 }
-
+ 
 /* =============================================
    DICAS DE HOJE
    ============================================= */
@@ -442,19 +467,19 @@ body {
     flex-direction: column;
     gap: 8px;
 }
-
+ 
 .dicas__titulo {
     font-size: 15px;
     font-weight: 700;
     color: var(--preto);
 }
-
+ 
 .dicas__container {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 12px;
 }
-
+ 
 /* Card de dica padrão */
 .dicas__card {
     aspect-ratio: 1;
@@ -472,12 +497,12 @@ body {
     position: relative;
     transition: transform 0.15s, box-shadow 0.15s;
 }
-
+ 
 .dicas__card:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
 }
-
+ 
 .dicas__card-imagem {
     position: absolute;
     inset: 0;
@@ -485,7 +510,7 @@ body {
     height: 100%;
     object-fit: cover;
 }
-
+ 
 .dicas__card-imagem-placeholder {
     position: absolute;
     inset: 0;
@@ -496,7 +521,7 @@ body {
     font-size: 11px;
     color: var(--cinza-texto);
 }
-
+ 
 .dicas__card-titulo {
     position: relative;
     z-index: 1;
@@ -506,43 +531,53 @@ body {
     white-space: pre-line;
     line-height: 1.35;
 }
-
+ 
 /* =============================================
    BOTÃO RELATÓRIO DIÁRIO
+   MODIFICADO: estilo card como na foto 2
    ============================================= */
 .relatorio-botao-container {
     display: flex;
     justify-content: center;
 }
-
+ 
 .relatorio-botao {
     width: 100%;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 10px;
+    justify-content: flex-start;
+    gap: 14px;
     background: var(--branco);
-    border: 2px solid var(--azul-claro);
-    border-radius: var(--radius-btn);
-    padding: 12px 20px;
+    border: 1.5px solid var(--cinza-borda);
+    border-radius: 16px;
+    padding: 14px 20px;
     font-size: 14px;
     font-weight: 600;
-    color: var(--azul-escuro);
+    color: var(--preto);
     cursor: pointer;
     box-shadow: var(--sombra-card);
     transition: background 0.15s, transform 0.15s;
 }
-
+ 
 .relatorio-botao:hover {
-    background: rgba(10, 183, 251, 0.05);
+    background: var(--verde-fundo);
     transform: translateY(-1px);
 }
-
+ 
+/* Ícone com fundo verde arredondado */
 .relatorio-botao__icone {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    background: var(--verde-fundo);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 18px;
-    color: var(--azul-escuro);
+    color: var(--verde-escuro);
 }
-
+ 
 /* =============================================
    NAV INFERIOR
    ============================================= */
@@ -560,7 +595,7 @@ body {
     z-index: 200;
     padding: 0 8px;
 }
-
+ 
 .nav__item {
     display: flex;
     flex-direction: column;
@@ -575,20 +610,20 @@ body {
     transition: color 0.15s, background 0.15s;
     min-width: 60px;
 }
-
+ 
 .nav__item:hover {
     color: var(--verde-escuro);
     background: var(--verde-fundo);
 }
-
+ 
 .nav__item--ativo {
     color: var(--verde-escuro);
 }
-
+ 
 .nav__item-icone {
     font-size: 22px;
 }
-
+ 
 .nav__item-texto {
     display: block;
 }
