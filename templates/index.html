@@ -1,147 +1,399 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bixuco tela inicial</title>
-    
-    <style>
-        .cabecalho{
-            background-color: black;
-            color: white;
-            padding: 0px!important;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            margin: 0 auto;
-            overflow-x: hidden;
-        }
-        .logotxt{
-            height: 75px;
-            margin-right: 60px;
-            margin-left: 40px;
-        }
-        .btn-entrar{
-            height: 45px;
-            margin-left: 60px;
-            margin-right: 40px;
-            background-color: #79D836; 
-            font-size: 16px;
-            font-weight: 700;
-            border-radius: 20px; 
-            border: none; 
-            padding: 0 80px; 
-            
-        }
-        .btn-entrar:hover {
-            background-color: #32C26D;
-            cursor: pointer;
-            transform: scale(1.0);
-            transition: all 0.3s ease;
-        }
-        body{
-            margin: 0 auto;
-            padding: 0px;
-            overflow-x: hidden;
-        }
-        .container{
-            background-color: #0AB7FB;
-            color: white;             
-            display: flex;            
-            align-items: center;       
-            justify-content: space-between; 
-            padding: 20px 10%;         
-            font-family: 'Nunito', sans-serif;
-        } 
-        .titulodest{
-            font-size: 36px;
-            font-weight: 700;
-            margin-top: 0px;
-            margin-bottom: 20px;
-        }
-        .texto{
-            font-size: 20px;
-            font-weight: 400;
-            font-family: 'Nunito', sans-serif;
-            max-width: 90%;
-            line-height: 1.8;
-            text-align: left;
-        }
-        .celular{
-            height: 30%;
-        }
-        .branco{
-            background-color: white;
-            padding: 20px 10%;
-            font-family: 'Nunito', sans-serif;
-            background-color: white;
-            display: flex;             
-            align-items: center;       
-            justify-content: center;   
-            padding: 50px 10%;         
-            gap: 30px;
-        }
-        .logo-gato{
-            max-width: 300px;         
-            height: auto;
-        }
-        .rodape{
-            background-color: #1D8EC9;
-            color: white;
-            padding: 20px 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            margin: 0 auto;
-            overflow-x: hidden;
-            gap: 105px;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    </style>
+<title>Bixuco</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<link rel="stylesheet" href="/css/index.css">
 </head>
+
 <body>
-    <header class="cabecalho">
-        <img src="/img/Logo_nome.png" alt="Logo" class="logotxt">
-         <button class="btn-entrar" onclick="window.location.href='/logar'">Entrar</button>
-    </header>
 
-    <div class="container">
-    <div class="bloco-texto">
-        <h1 class="titulodest">Informações sobre o app</h1>
-        <p class="texto">
-            O Bixuco é um aplicativo que auxilia pais no acompanhamento do bem-estar de crianças com hipersensibilidade sensorial (TPS).
-            Integrado a uma pelúcia com sensores, o app identifica possíveis sinais de estresse a partir das interações da criança e organiza essas informações de forma simples e visual.
-            <br><br>
-            Os responsáveis podem registrar o dia da criança, acompanhar relatórios, visualizar gráficos e identificar padrões de comportamento. Também é possível compartilhar esses dados com terapeutas, facilitando o acompanhamento profissional.
+<header class="navbar">
+
+    <img
+    src="/img/Logo_nome.png"
+    class="logo"
+    alt="Bixuco">
+
+    <nav class="menu">
+
+        <a href="#funciona">
+            Como funciona
+        </a>
+
+        <a href="#beneficios">
+            Benefícios
+        </a>
+
+        <a href="#app">
+            Aplicativo
+        </a>
+
+    </nav>
+
+    <div class="acoes">
+
+        <a href="/logar" class="btn-link">
+            Entrar
+        </a>
+
+        <a href="/CriarContaS" class="btn-primario">
+            Criar conta
+        </a>
+
+    </div>
+
+</header>
+
+<!-- HERO -->
+
+<section class="hero">
+
+    <div class="hero__texto">
+
+        <span class="hero__tag">
+            Tecnologia + Carinho
+        </span>
+
+        <h1>
+            Entenda os sinais do seu filho
+            antes que eles virem crises.
+        </h1>
+
+        <p>
+
+            O Bixuco ajuda famílias a identificar
+            padrões sensoriais através de uma
+            pelúcia inteligente integrada ao aplicativo.
+
         </p>
+
+        <div class="hero__botoes">
+
+            <a href="/CriarContaS"
+               class="btn-primario">
+
+                Começar agora
+
+            </a>
+
+            <a href="#funciona"
+               class="btn-secundario">
+
+                Como funciona
+
+            </a>
+
+        </div>
+
     </div>
-        <img class="celular" src="/img/Foto_cell.png"  alt="celular">
-    </div> 
 
+    <div class="hero__imagem">
 
-    <div class="branco">
-        <img class="logo-gato" src="/img/Logo_Gato.png" alt="">
-        <div class="bloco-texto">
-        <h1 class="titulodest">Informações sobre o Bixuco</h1>
-        <p class="texto">A Bixuco é uma startup de tecnologia focada no bem-estar infantil, criada para ajudar famílias a compreender melhor crianças com hipersensibilidade sensorial.
+        <img
+        src="/img/Foto_cell.png"
+        alt="Aplicativo">
 
-            A empresa une uma pelúcia sensorizada com plataformas digitais, oferecendo uma solução completa para acompanhamento do comportamento infantil.
-            
-            Seu objetivo é melhorar a comunicação entre crianças e responsáveis, promovendo mais segurança e qualidade de vida, sem substituir o acompanhamento profissional.
+    </div>
+
+</section>
+
+<!-- COMO FUNCIONA -->
+
+<section
+id="funciona"
+class="funciona">
+
+<h2>Como funciona</h2>
+
+<div class="funciona-grid">
+
+    <div class="funciona-card">
+
+        <i class="fa-solid fa-child"></i>
+
+        <h3>Interação</h3>
+
+        <p>
+            A criança utiliza o Bixuco
+            normalmente durante sua rotina.
         </p>
+
     </div>
+
+    <div class="funciona-card">
+
+        <i class="fa-solid fa-mobile-screen"></i>
+
+        <h3>Registro</h3>
+
+        <p>
+            O aplicativo organiza os dados
+            e gera relatórios automáticos.
+        </p>
+
     </div>
 
+    <div class="funciona-card">
 
+        <i class="fa-solid fa-chart-line"></i>
 
-    <footer class="rodape">
-    <p>Política de privacidade</p>
-    <span>|</span>
-    <p>Termos de uso</p>
-    <span>|</span>
-    <p>Sobre nós</p>
+        <h3>Acompanhamento</h3>
+
+        <p>
+            Pais e profissionais podem
+            acompanhar a evolução da criança.
+        </p>
+
+    </div>
+
+</div>
+
+</section>
+
+<!-- BENEFICIOS -->
+
+<section
+id="beneficios"
+class="beneficios">
+
+<h2>
+Benefícios para toda a família
+</h2>
+
+<div class="beneficios-grid">
+
+    <div class="beneficio">
+
+        <i class="fa-solid fa-shield-heart"></i>
+
+        <h3>Mais segurança</h3>
+
+        <p>
+            Informações organizadas e protegidas.
+        </p>
+
+    </div>
+
+    <div class="beneficio">
+
+        <i class="fa-solid fa-heart"></i>
+
+        <h3>Mais conexão</h3>
+
+        <p>
+            Entenda melhor as necessidades da criança.
+        </p>
+
+    </div>
+
+    <div class="beneficio">
+
+        <i class="fa-solid fa-file-lines"></i>
+
+        <h3>Relatórios</h3>
+
+        <p>
+            Histórico visual simples e intuitivo.
+        </p>
+
+    </div>
+
+    <div class="beneficio">
+
+        <i class="fa-solid fa-user-doctor"></i>
+
+        <h3>Profissionais</h3>
+
+        <p>
+            Compartilhe informações com terapeutas.
+        </p>
+
+    </div>
+
+</div>
+
+</section>
+
+<!-- APP -->
+
+<section
+id="app"
+class="app">
+
+<div class="app__imagem">
+
+    <img
+    src="/img/Foto_cell.png"
+    alt="App">
+
+</div>
+
+<div class="app__texto">
+
+    <span class="app-tag">
+
+        Aplicativo Bixuco
+
+    </span>
+
+    <h2>
+
+        Tudo o que você precisa
+        na palma da sua mão.
+
+    </h2>
+
+    <ul>
+
+        <li>Calendário inteligente</li>
+
+        <li>Relatórios diários</li>
+
+        <li>Localização do Bixuco</li>
+
+        <li>Dicas personalizadas</li>
+
+        <li>Acompanhamento profissional</li>
+
+    </ul>
+
+</div>
+
+</section>
+
+<!-- CTA -->
+
+<section class="cta">
+
+    <h2>
+
+        Pronto para começar?
+
+    </h2>
+
+    <p>
+
+        Crie sua conta gratuitamente
+        e conheça o Bixuco.
+
+    </p>
+
+    <a href="/CriarContaS"
+       class="btn-branco">
+
+        Criar conta
+
+    </a>
+
+</section>
+
+<footer class="footer">
+
+    <img
+    src="/img/Logo_nome.png"
+    alt="Bixuco">
+
+    <div>
+
+        <a href="#">
+            Política de Privacidade
+        </a>
+
+        |
+
+        <a href="#">
+            Termos de Uso
+        </a>
+
+    </div>
+
 </footer>
+
+<script>
+
+document
+.querySelectorAll('a[href^="#"]')
+.forEach(link => {
+
+    link.addEventListener("click", e => {
+
+        e.preventDefault();
+
+        const destino =
+        document.querySelector(
+            link.getAttribute("href")
+        );
+
+        if(!destino) return;
+
+        destino.scrollIntoView({
+
+            behavior:"smooth"
+
+        });
+
+    });
+
+});
+
+window.addEventListener("scroll", () => {
+
+    const navbar =
+    document.querySelector(".navbar");
+
+    if(window.scrollY > 20){
+
+        navbar.classList.add(
+            "navbar-scroll"
+        );
+
+    } else {
+
+        navbar.classList.remove(
+            "navbar-scroll"
+        );
+
+    }
+
+});
+
+/* animação */
+
+const observer =
+new IntersectionObserver(entries => {
+
+    entries.forEach(entry => {
+
+        if(entry.isIntersecting){
+
+            entry.target.classList.add(
+                "aparecer"
+            );
+
+        }
+
+    });
+
+});
+
+document
+.querySelectorAll(
+'.funciona-card,.beneficio,.app'
+)
+.forEach(el => {
+
+    observer.observe(el);
+
+});
+
+</script>
+
 </body>
 </html>
