@@ -12,128 +12,112 @@
         }
 
         :root {
-            --verde-escuro:  #32C26D;
-            --verde-claro:   #79D836;
-            --azul-claro:    #0AB7FB;
-            --azul-escuro:   #1D8EC9;
-            --branco:        #F8FAFD;
-            --cinza-claro:   #D9D9D9;
-            --cinza-escuro:  #5A5A5A;
-            --preto:         #1a1a1a;
+            --verde-escuro: #32C26D;
+            --azul-claro:   #0AB7FB;
+            --branco:       #F8FAFD;
+            --cinza-claro:  #D9D9D9;
+            --cinza-escuro: #5A5A5A;
+            --preto:        #1a1a1a;
         }
 
         html, body {
             height: 100%;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            -webkit-font-smoothing: antialiased;
+            font-family: 'Segoe UI', system-ui, sans-serif;
         }
 
-        body {
-            display: flex;
-            flex-direction: row;
-            min-height: 100vh;
-        }
-
-        /* LADO ESQUERDO */
-        .lado-esquerdo {
-            position: relative;
+        /* ── FOTO FIXADA NA METADE ESQUERDA ── */
+        .foto-lateral {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 50%;
-            min-height: 100vh;
-            flex-shrink: 0;
-            overflow: hidden;
+            height: 100%;
+            z-index: 0;
         }
 
-        .lado-esquerdo__foto {
+        .foto-lateral img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             display: block;
+        }
+
+        .foto-lateral__overlay {
             position: absolute;
             inset: 0;
+            background: rgba(0,0,0,0.15);
         }
 
-        .lado-esquerdo__overlay {
+        .foto-lateral__logo {
             position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.15);
-            z-index: 1;
+            bottom: 36px;
+            left: 36px;
         }
 
-        .lado-esquerdo__logo {
-            position: absolute;
-            bottom: 40px;
-            left: 40px;
-            z-index: 2;
+        .foto-lateral__logo img {
+            height: 56px;
         }
 
-        .lado-esquerdo__logo img {
-            height: 60px;
-        }
-
-        /* LADO DIREITO */
-        .lado-direito {
-            flex: 1;
+        /* ── FORMULÁRIO NA METADE DIREITA ── */
+        .pagina {
+            margin-left: 50%;
+            min-height: 100vh;
+            background: var(--branco);
             display: flex;
             flex-direction: column;
-            background: var(--branco);
-            min-height: 100vh;
         }
 
-        .lado-direito__titulo-topo {
+        .topo {
+            padding: 22px 0;
+            text-align: center;
             font-size: 16px;
             font-weight: 700;
             color: var(--preto);
-            text-align: center;
-            padding: 24px 0 20px;
+            border-bottom: 1px solid var(--cinza-claro);
         }
 
-        .lado-direito__divisor {
-            border: none;
-            border-top: 1px solid var(--cinza-claro);
-        }
-
-        .formulario-container {
+        .centro {
             flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 48px 60px;
+            padding: 48px 40px;
         }
 
-        .formulario__titulo {
+        .centro__titulo {
             font-size: 22px;
             font-weight: 700;
             color: var(--preto);
-            text-align: center;
             margin-bottom: 10px;
+            text-align: center;
         }
 
-        .formulario__descricao {
+        .centro__descricao {
             font-size: 13px;
             color: var(--cinza-escuro);
             text-align: center;
+            line-height: 1.6;
             margin-bottom: 32px;
-            max-width: 380px;
-            line-height: 1.5;
+            max-width: 360px;
         }
 
-        form {
+        .campo {
             width: 100%;
             max-width: 380px;
             display: flex;
             flex-direction: column;
+            margin-bottom: 4px;
         }
 
-        .formulario__label {
+        .campo label {
             font-size: 13px;
             font-weight: 600;
             color: var(--preto);
             margin-bottom: 8px;
         }
 
-        .formulario__input {
-            width: 100%;
+        .campo input {
             height: 48px;
             border: 1.5px solid var(--cinza-claro);
             border-radius: 12px;
@@ -143,21 +127,21 @@
             background: var(--branco);
             outline: none;
             transition: border-color 0.2s;
-            margin-bottom: 8px;
         }
 
-        .formulario__input:focus {
+        .campo input:focus {
             border-color: var(--verde-escuro);
         }
 
-        .formulario__erro {
+        .erro {
             display: none;
             font-size: 12px;
             color: #e53e3e;
-            margin-bottom: 8px;
+            margin-top: 4px;
+            margin-bottom: 4px;
         }
 
-        .formulario__btn {
+        .btn {
             width: 100%;
             max-width: 380px;
             height: 52px;
@@ -173,64 +157,66 @@
             transition: background 0.2s, transform 0.15s;
         }
 
-        .formulario__btn--principal {
+        .btn--verde {
             background: var(--branco);
             border: 2px solid var(--verde-escuro);
             color: var(--preto);
-            margin-top: 16px;
+            margin-top: 20px;
             margin-bottom: 12px;
         }
 
-        .formulario__btn--principal:hover {
-            background: rgba(50, 194, 109, 0.06);
+        .btn--verde:hover {
+            background: rgba(50,194,109,0.06);
             transform: translateY(-1px);
         }
 
-        .formulario__btn--secundario {
+        .btn--azul {
             background: var(--branco);
             border: 2px solid var(--azul-claro);
             color: var(--preto);
         }
 
-        .formulario__btn--secundario:hover {
-            background: rgba(10, 183, 251, 0.05);
+        .btn--azul:hover {
+            background: rgba(10,183,251,0.05);
             transform: translateY(-1px);
         }
     </style>
 </head>
 <body>
 
-    <!-- lado esquerdo: foto + logo -->
-    <div class="lado-esquerdo">
-        <div class="lado-esquerdo__overlay"></div>
-        <img class="lado-esquerdo__foto" src="/img/FotoUrso.jpg" alt="Criança segurando a pelúcia Bixuco">
-        <div class="lado-esquerdo__logo">
+    <!-- foto fixada na esquerda -->
+    <div class="foto-lateral">
+        <img src="/img/FotoUrso.jpg" alt="Criança segurando a pelúcia Bixuco">
+        <div class="foto-lateral__overlay"></div>
+        <div class="foto-lateral__logo">
             <img src="/img/Logo_nome.png" alt="Logo Bixuco">
         </div>
     </div>
 
-    <!-- lado direito: formulário -->
-    <div class="lado-direito">
+    <!-- conteúdo da direita -->
+    <div class="pagina">
 
-        <h2 class="lado-direito__titulo-topo">Recuperar senha</h2>
-        <hr class="lado-direito__divisor">
+        <div class="topo">Recuperar senha</div>
 
-        <div class="formulario-container">
+        <div class="centro">
 
-            <h1 class="formulario__titulo">Esqueceu a senha?</h1>
-            <p class="formulario__descricao">Informe seu email e enviaremos um link para criar uma nova senha.</p>
+            <h1 class="centro__titulo">Esqueceu a senha?</h1>
+            <p class="centro__descricao">Informe seu email e enviaremos um link para criar uma nova senha.</p>
 
-            <form action="/esqueceu-senha" method="POST" onsubmit="return validarEmail()">
+            <form style="width:100%;max-width:380px;display:flex;flex-direction:column;"
+                  action="/esqueceu-senha" method="POST" onsubmit="return validarEmail()">
 
-                <label class="formulario__label" for="email">Email Cadastrado</label>
-                <input class="formulario__input" type="email" id="email" name="email" placeholder="" required>
-                <span class="formulario__erro" id="erro-email"></span>
+                <div class="campo">
+                    <label for="email">Email Cadastrado</label>
+                    <input type="email" id="email" name="email" placeholder="" required>
+                    <span class="erro" id="erro-email"></span>
+                </div>
 
-                <button class="formulario__btn formulario__btn--principal" type="submit">Enviar link</button>
+                <button class="btn btn--verde" type="submit">Enviar link</button>
 
             </form>
 
-            <a class="formulario__btn formulario__btn--secundario" href="/logar">Voltar para a tela do login</a>
+            <a class="btn btn--azul" href="/logar">Voltar para a tela do login</a>
 
         </div>
 
