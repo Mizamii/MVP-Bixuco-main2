@@ -4,58 +4,65 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Esqueci a senha</title>
+    <link rel="stylesheet" href="/static/css/esqueceu-senha.css">
 </head>
 <body>
- 
-    <div><!-- lado esquerdo: foto + logo -->
-        <div></div><!-- overlay -->
-        <img src="/img/FotoUrso.jpg" alt="Crianca segurando a pelucia Bixuco">
-        <div>
+
+    <!-- lado esquerdo: foto + logo -->
+    <div class="lado-esquerdo">
+        <div class="lado-esquerdo__overlay"></div>
+        <img class="lado-esquerdo__foto" src="/img/FotoUrso.jpg" alt="Criança segurando a pelúcia Bixuco">
+        <div class="lado-esquerdo__logo">
             <img src="/img/Logo_nome.png" alt="Logo Bixuco">
         </div>
     </div>
- 
-    <div><!-- lado direito -->
- 
-        <img src="/img/Logo_gato_sem_fundo.png" alt="Logo Bixuco">
- 
-        <h2>Recuperar senha</h2>
- 
-        <h1>Esqueceu a senha?</h1>
-        <p>Informe seu email e enviaremos um link para criar uma nova senha.</p>
- 
- 
-        <form action="/esqueceu-senha" method="POST" onsubmit="return validarEmail()">
-            <label for="email">Email cadastrado</label>
-            <input type="email" id="email" name="email" placeholder="email@exemplo.com" required>
-            <span class="erro" id="erro-email"></span>
- 
-            <button type="submit">Enviar email</button>
-        </form>
- 
-        <a href="/logar">Voltar para o login</a>
- 
+
+    <!-- lado direito: formulário -->
+    <div class="lado-direito">
+
+        <h2 class="lado-direito__titulo-topo">Recuperar senha</h2>
+        <hr class="lado-direito__divisor">
+
+        <div class="formulario-container">
+
+            <h1 class="formulario__titulo">Esqueceu a senha?</h1>
+            <p class="formulario__descricao">Informe seu email e enviaremos um link para criar uma nova senha.</p>
+
+            <form action="/esqueceu-senha" method="POST" onsubmit="return validarEmail()">
+
+                <label class="formulario__label" for="email">Email Cadastrado</label>
+                <input class="formulario__input" type="email" id="email" name="email" placeholder="" required>
+                <span class="formulario__erro" id="erro-email"></span>
+
+                <button class="formulario__btn formulario__btn--principal" type="submit">Enviar link</button>
+
+            </form>
+
+            <a class="formulario__btn formulario__btn--secundario" href="/logar">Voltar para a tela do login</a>
+
+        </div>
+
     </div>
- 
- 
+
+
     <script>
- 
+
         function validarEmail() {
             const email = document.getElementById("email").value.trim();
             const erro  = document.getElementById("erro-email");
- 
+
             erro.style.display = "none";
             erro.textContent   = "";
- 
+
             if (!/\S+@\S+\.\S+/.test(email)) {
-                erro.textContent   = "Digite um email valido.";
+                erro.textContent   = "Digite um email válido.";
                 erro.style.display = "block";
                 return false;
             }
             return true;
         }
- 
+
     </script>
- 
+
 </body>
 </html>
