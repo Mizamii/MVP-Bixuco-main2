@@ -113,30 +113,6 @@ passport.deserializeUser(async (id, done) => {
     }
 });
 
-app.post('/questionario-pai', async (req, res) => {
-
-    try {
-
-        const { respostas } = req.body;
-
-        console.log("Respostas recebidas:");
-        console.log(respostas);
-
-        res.status(200).json({
-            sucesso: true
-        });
-
-    } catch (erro) {
-
-        console.error(erro);
-
-        res.status(500).json({
-            sucesso: false
-        });
-
-    }
-
-});
 
 app.get('/auth/google',
     passport.authenticate('google', { scope: ['profile', 'email'] })

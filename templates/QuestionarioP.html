@@ -161,27 +161,11 @@
                 perguntaAtual++;
                 renderizarPergunta();
             } else {
-                enviarRespostas();
+                window.location.href = "/home";
             }
         }
  
-        async function enviarRespostas() {
-            try {
-                const res = await fetch("/questionario-pai", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ respostas })
-                });
-                if (res.ok) {
-                    window.location.href = "/home";
-                } else {
-                    alert("Erro ao salvar respostas. Tente novamente.");
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Erro de conexão. Tente novamente.");
-            }
-        }
+        
  
         
         montarBarra();
