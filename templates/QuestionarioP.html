@@ -1,254 +1,317 @@
+
+Claude está respondendo
+Bem-vindo(a), Bixuco! Sou o Claude.
+Traga qualquer coisa—um problema difícil, uma ideia meio formada, algo que você precisa escrever. Vamos resolver juntos.
+
+Por onde você quer começar?
+
+1781031222797_image.png
+
+const express = require('express'); const path = require('path'); const { Pool } = require('pg'); const bcrypt = require('bcrypt'); const { cpf } = require('cpf-cnpj-validator'); const passport = require('passport'); const GoogleStrategy = require('passport-google-oauth20').Strategy; const se
+
+pasted
+
+
+{ "name": "MVP-Bixuco-main2-main", "lockfileVersion": 3, "requires": true, "packages": { "": { "dependencies": { "bcrypt": "^6.0.0", "cors": "^2.8.6", "cpf-cnpj-validator": "^2.1.0", "express": "^5.2.1", "express-session": "^1.19.0
+
+pasted
+
+
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Cadastro - Psicólogo</title> </head> <body> <div class="criar-esquerda"> <!-- camada escura por cima da foto -->
+
+pasted
+
+olha esses sao os codigos do meu site: o server.js e o package json  e esta é a tela que preciso fazer, aq esta uma tela semelhante para vc ver
+
+15:54
+Vou criar a página "Adicionar criança" seguindo o mesmo padrão visual do seu site (split-layout com foto à esquerda e formulário à direita), igual às outras telas como CriarContaP.html.
+
+A resposta do Claude foi interrompida.
+espera, pode me fazer somente o html e o js desta pagina, faça no mesmo estilo do outro
+
+15:54
+Vou analisar o HTML do CriarContaS.html que você compartilhou para seguir o mesmo padrão.
+
+
+Criou um arquivo, leu um arquivo
+Criou um arquivo, leu um arquivo
+Aqui está o AdicionarCrianca.html. Segui exatamente o padrão do seu projeto:
+
+Estrutura igual às outras páginas:
+
+Mesmo split-layout com .criar-esquerda (foto + overlay + logo) e .texto (formulário)
+Mesmas classes: subtitulo, btn, erro, input-erro
+Mesmo sistema de erros via query string (?erro=...)
+Campos do formulário:
+
+Foto da criança com preview ao selecionar
+Nome da criança
+Data de nascimento (com validação: não pode ser no futuro)
+Sexo (select)
+Nome da pelúcia (opcional)
+Para o backend, você vai precisar adicionar no server.js uma rota POST /adicionar-crianca com multer para lidar com o upload da foto, e uma tabela criancas no banco com os campos nome, data_nascimento, sexo, nome_pelucia, foto e id_pai (FK para usuarios).
+
+
+Adicionarcrianca
+Código · HTML 
+no codigo vc colocou q n pode ter duas crianças com o mesmo nome?
+
+15:58
+Não, o erro "crianca-existente" que coloquei é só um placeholder genérico para erros vindos do servidor — ele não implementa nenhuma lógica de verificação de nome duplicado. É apenas o sistema de exibir mensagens de erro via query string (?erro=crianca-existente), igual ao que já existe nas outras páginas do seu projeto.
+
+A validação real de duplicatas dependeria de uma query no banco que você faria no server.js, e aí você decidiria se quer ou não bloquear isso. Faz sentido um pai ter dois filhos com o mesmo nome? Provavelmente não vale a pena bloquear.
+
+1781031696105_image.png
+Alô Cláudia, eu vou ter que criar uma página de questionário e vou mandar pra você como é o exemplo. Só que, e tem um problema, eu não sei se eu crio cada cada página vai ter uma pergunta, ou se numa página vai ter uma pergunta só que ela vai recarregar assim eu clicar no próximo vai limpar a página e vai aparecer a pergunta nessa mesma página,sabe ? e essa barrinha em cima começa cinza e vai ficando colorido conforme for respondendo as questões
+
+16:02
+Boa pergunta! A segunda opção é bem melhor: uma página só que atualiza a pergunta sem recarregar. Os motivos:
+
+Mais rápido e fluido para o usuário
+Não precisa criar dezenas de rotas no server.js
+Mais fácil de salvar todas as respostas de uma vez só no banco no final
+A barrinha de progresso fica muito mais fácil de animar
+Como funcionaria:
+
+Um array com todas as perguntas e opções no JavaScript
+Uma variável perguntaAtual que controla qual está sendo exibida
+Ao clicar em "Próxima pergunta", troca o conteúdo e atualiza a barra
+No final, envia todas as respostas de uma vez via fetch para o backend
+Sobre a barra: começa toda cinza, e cada bolinha vai ficando colorida (verde → azul como no seu design) conforme avança.
+
+Quer que eu faça o HTML+JS assim? Se sim, me manda as perguntas e opções do questionário, ou posso colocar perguntas de exemplo para você substituir depois.
+
+1781031760017_image.png
+1781031795963_image.png
+1781031804620_image.png
+1781031811776_image.png
+1781031820036_image.png
+1781031830909_image.png
+aq esta as fases da barrinha como exemplo , atualmente tem as seguintes perguntas: pode fazer o html + js?
+
+16:04
+
+Criou um arquivo, leu um arquivo
+Criou um arquivo, leu um arquivo
+Pronto! O QuestionarioP.html está feito. Aqui está o que foi implementado:
+
+Barra de progresso: 5 bolinhas conectadas por linhas, começa tudo cinza e vai colorindo conforme avança — verde → teal → azul, exatamente como nas imagens que você mandou.
+
+Funcionamento:
+
+Clica numa opção → ela fica marcada e o botão "Próxima pergunta" habilita
+Avança → a pergunta troca sem recarregar a página
+Na última pergunta o botão vira "Finalizar"
+Ao finalizar, envia todas as 5 respostas de uma vez via fetch para /questionario-pai e redireciona para /home
+Para o backend, você vai precisar adicionar uma rota POST /questionario-pai no server.js que receba o JSON com as respostas e salve no banco.
+
+
+Questionariop
+Código · HTML 
+pode fazer o js do server ai por favor
+
+16:06
+Claro! Vou adicionar a rota no seu server.js existente.
+
+
+Quer ser notificado quando Claude responder?
+
+
+
+Claude é uma IA e pode cometer erros. Por favor, verifique as respostas.
+
+
+raw
+Questionariop · HTML
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Questionario-Criação de perfil</title>
-
-<style>
-
-
-:root{
-    --verde-claro: #79D836;
-    --verde-escuro: #32C26D;
-    --azul-claro: #0AB7FB;
-    --azul-escuro: #1D8EC9;
-    --cinza-linha: #D9D9D9;
-}
-
-
-body{
-    display: flex;
-    font-family: Arial;
-    margin: 0;
-}
-
-
-#barra{
-    width: 160px;
-    height: 100vh;
-    position: relative;
-    display: flex;
-    justify-content: center;
-    padding-left: 25px;
-}
-
-
-#linha{
-    position: absolute;
-    width: 6px;
-    height: 100%;
-    background: var(--cinza-linha);
-    border-radius: 10px;
-}
-
-
-#linha-progresso{
-    position: absolute;
-    width: 6px;
-    height: 0%;
-    border-radius: 10px;
-    background: linear-gradient(
-        to bottom,
-        var(--verde-claro),
-        var(--verde-escuro),
-        var(--azul-claro),
-        var(--azul-escuro)
-    );
-    transition: 0.4s;
-}
-
-
-#progresso{
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 95%;
-    z-index: 1;
-}
-
-
-.bolinha{
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    background: var(--cinza-linha);
-    border: 4px solid white;
-}
-
-
-.bolinha.ativa:nth-child(1){ background: var(--verde-claro); }
-.bolinha.ativa:nth-child(2){ background: var(--verde-claro); }
-.bolinha.ativa:nth-child(3){ background: var(--verde-escuro); }
-.bolinha.ativa:nth-child(4){ background: var(--azul-claro); }
-.bolinha.ativa:nth-child(5){ background: var(--azul-escuro); }
-
-
-form{
-    padding: 40px;
-    width: 100%;
-}
-
-
-.pergunta{
-    margin-bottom: 40px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid var(--cinza-linha);
-}
-
-
-input[type="radio"]{
-    appearance: none;
-    width: 22px;
-    height: 22px;
-    border: 3px solid #444;
-    border-radius: 50%;
-    margin-right: 10px;
-    position: relative;
-    cursor: pointer;
-}
-
-
-input[type="radio"]:checked::before{
-    content: "";
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-
-label:nth-of-type(1) input:checked::before{ background: var(--verde-claro); }
-label:nth-of-type(2) input:checked::before{ background: var(--verde-escuro); }
-label:nth-of-type(3) input:checked::before{ background: var(--azul-claro); }
-label:nth-of-type(4) input:checked::before{ background: var(--azul-escuro); }
-
-label{
-    display: block;
-    margin: 10px 0;
-    cursor: pointer;
-}
-
-
-button{
-    display: block;
-    width: 90%;
-    max-width: 600px;
-    margin: 50px auto;
-    padding: 16px;
-    border: none;
-    border-radius: 30px;
-    background: var(--azul-claro);
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-button:hover{
-    background: var(--azul-escuro);
-}
-
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil Sensorial</title>
 </head>
-
 <body>
-
-<div id="barra">
-    <div id="linha"></div>
-    <div id="linha-progresso"></div>
-
-    <div id="progresso">
-        <div class="bolinha"></div>
-        <div class="bolinha"></div>
-        <div class="bolinha"></div>
-        <div class="bolinha"></div>
-        <div class="bolinha"></div>
+ 
+    <div class="criar-esquerda">
+        <div class="criar-esquerda__overlay"></div>
+        <img
+            class="criar-esquerda__foto"
+            src="/img/foto-bebe-pelucia.jpg"
+            alt="Crianca segurando a pelucia Bixuco"
+        >
+        <div class="criar-esquerda__conteudo">
+            <img src="/img/Logo_nome.png" alt="Logo Bixuco" class="logo">
+        </div>
     </div>
-</div>
-
-<form>
-
-    <div class="pergunta">
-    <h2>1. Prefiro fazer coisas com outras pessoas do que sozinho(a).</h2>
-    <label><input type="radio" name="q1">Concordo plenamente</label>
-    <label><input type="radio" name="q1">Concordo um pouco</label>
-    <label><input type="radio" name="q1">Discordo plenamente</label>
-    <label><input type="radio" name="q1">Discordo um pouco</label>
+ 
+    <div class="texto">
+ 
+        <h1 class="titulo">Perfil sensorial</h1>
+ 
+        <!-- barra de progresso -->
+        <div class="barra-progresso" id="barra-progresso"></div>
+ 
+        <!-- pergunta -->
+        <p class="pergunta-texto" id="pergunta-texto"></p>
+ 
+        <!-- opções -->
+        <div class="opcoes" id="opcoes"></div>
+ 
+        <!-- botão -->
+        <button class="btn" id="btn-proximo" onclick="proximaPergunta()" disabled>
+            Próxima pergunta
+        </button>
+ 
     </div>
-
-    <div class="pergunta">
-    <h2>2. Prefiro fazer as coisas sempre da mesma maneira.</h2>
-    <label><input type="radio" name="q2">Concordo plenamente</label>
-    <label><input type="radio" name="q2">Concordo um pouco</label>
-    <label><input type="radio" name="q2">Discordo plenamente</label>
-    <label><input type="radio" name="q2">Discordo um pouco</label>
-    </div>
-
-    <div class="pergunta">
-    <h2>3. Tenho facilidade em imaginar coisas.</h2>
-    <label><input type="radio" name="q3">Concordo plenamente</label>
-    <label><input type="radio" name="q3">Concordo um pouco</label>
-    <label><input type="radio" name="q3">Discordo plenamente</label>
-    <label><input type="radio" name="q3">Discordo um pouco</label>
-    </div>
-
-    <div class="pergunta">
-    <h2>4. Fico tão concentrado que esqueço o resto.</h2>
-    <label><input type="radio" name="q4">Concordo plenamente</label>
-    <label><input type="radio" name="q4">Concordo um pouco</label>
-    <label><input type="radio" name="q4">Discordo plenamente</label>
-    <label><input type="radio" name="q4">Discordo um pouco</label>
-    </div>
-
-    <div class="pergunta">
-    <h2>5. Percebo pequenos sons facilmente.</h2>
-    <label><input type="radio" name="q5">Concordo plenamente</label>
-    <label><input type="radio" name="q5">Concordo um pouco</label>
-    <label><input type="radio" name="q5">Discordo plenamente</label>
-    <label><input type="radio" name="q5">Discordo um pouco</label>
-    </div>
-
-    <button type="button" onclick="window.location.href='/home'" required >Enviar</button>
-
-</form>
-
-<script>
-
-function atualizarProgresso(){
-    const perguntas = document.querySelectorAll('.pergunta') //seleciona tudo com a class de pergunta
-    let respondidas = 0;//quantidade de perguntas respondidas 
-
-    perguntas.forEach(p=> {
-        if(p.querySelector('input:checked')){
-            respondidas++;
+ 
+    <script>
+        const perguntas = [
+            "Com que frequência sua criança fica incomodada com barulhos altos ou inesperados?",
+            "Ela demonstra desconforto com texturas de roupas ou alimentos?",
+            "Fica agitada em ambientes com muitas pessoas?",
+            "Tem dificuldade em se concentrar com distrações ao redor?",
+            "Reage de forma intensa a luzes fortes ou piscantes?"
+        ];
+ 
+        const opcoes = ["Sempre", "Quase sempre", "Raramente", "Nunca"];
+ 
+        let perguntaAtual = 0;
+        let respostas = [];
+ 
+        const total = perguntas.length;
+ 
+        // ---- monta a barra de bolinhas ----
+        function montarBarra() {
+            const barra = document.getElementById("barra-progresso");
+            barra.innerHTML = "";
+ 
+            for (let i = 0; i < total; i++) {
+                // linha antes da bolinha (exceto na primeira)
+                if (i > 0) {
+                    const linha = document.createElement("div");
+                    linha.className = "barra-linha";
+                    linha.id = `linha-${i}`;
+                    barra.appendChild(linha);
+                }
+ 
+                const bolinha = document.createElement("div");
+                bolinha.className = "barra-bolinha";
+                bolinha.id = `bolinha-${i}`;
+                barra.appendChild(bolinha);
+            }
+ 
+            atualizarBarra();
         }
-    });
-
-    const bolinhas = document.querySelectorAll('.bolinha');//vou selecionar todas as bolinhas
-
-    bolinhas.forEach((bolinha,index)=>{
-        if(index < respondidas){
-            bolinha.classList.add('ativa');
-        } else {
-            bolinha.classList.remove('ativa')
+ 
+        // verde #5bc94a → teal #3ab88a → azul #29a8e0
+        function corBolinha(indice) {
+            const meio = Math.floor(total / 2);
+            if (indice < meio) {
+                // interpola verde → teal
+                const t = indice / Math.max(meio - 1, 1);
+                return interpolarCor([91,201,74], [58,184,138], t);
+            } else {
+                // interpola teal → azul
+                const t = (indice - meio) / Math.max(total - 1 - meio, 1);
+                return interpolarCor([58,184,138], [41,168,224], t);
+            }
         }
-    });
-
-    
-    const total = perguntas.length;
-    const porcentagem = (respondidas / total) * 100;
-    document.getElementById("linha-progresso").style.height = porcentagem + "%";
-}
-
-document.querySelectorAll('input[type="radio"]').forEach(radio => {
-    radio.addEventListener('change', atualizarProgresso);//vai atualizar a barrinha de progresso sozinho
-});
-
-</script>
-
+ 
+        function interpolarCor(a, b, t) {
+            const r = Math.round(a[0] + (b[0]-a[0])*t);
+            const g = Math.round(a[1] + (b[1]-a[1])*t);
+            const bl= Math.round(a[2] + (b[2]-a[2])*t);
+            return `rgb(${r},${g},${bl})`;
+        }
+ 
+        function atualizarBarra() {
+            for (let i = 0; i < total; i++) {
+                const bolinha = document.getElementById(`bolinha-${i}`);
+                const linha   = document.getElementById(`linha-${i}`);
+ 
+                if (i < perguntaAtual) {
+                    // já respondida
+                    bolinha.style.backgroundColor = corBolinha(i);
+                    bolinha.style.borderColor      = corBolinha(i);
+                    if (linha) {
+                        linha.style.backgroundColor = corBolinha(i);
+                    }
+                } else if (i === perguntaAtual) {
+                    // atual
+                    bolinha.style.backgroundColor = corBolinha(i);
+                    bolinha.style.borderColor      = corBolinha(i);
+                } else {
+                    // futura
+                    bolinha.style.backgroundColor = "#ccc";
+                    bolinha.style.borderColor      = "#ccc";
+                    if (linha) linha.style.backgroundColor = "#ccc";
+                }
+            }
+        }
+ 
+        // ---- renderiza pergunta ----
+        function renderizarPergunta() {
+            document.getElementById("pergunta-texto").textContent = perguntas[perguntaAtual];
+ 
+            const container = document.getElementById("opcoes");
+            container.innerHTML = "";
+ 
+            opcoes.forEach((opcao, i) => {
+                const btn = document.createElement("button");
+                btn.className = "opcao-btn";
+                btn.textContent = opcao;
+                btn.onclick = () => selecionarOpcao(i, btn);
+                container.appendChild(btn);
+            });
+ 
+            const btnProximo = document.getElementById("btn-proximo");
+            const ehUltima   = perguntaAtual === total - 1;
+            btnProximo.textContent = ehUltima ? "Finalizar" : "Próxima pergunta";
+            btnProximo.disabled    = true;
+ 
+            atualizarBarra();
+        }
+ 
+        function selecionarOpcao(indice, btnClicado) {
+            // remove seleção anterior
+            document.querySelectorAll(".opcao-btn").forEach(b => b.classList.remove("selecionada"));
+            btnClicado.classList.add("selecionada");
+ 
+            respostas[perguntaAtual] = { pergunta: perguntas[perguntaAtual], resposta: opcoes[indice] };
+            document.getElementById("btn-proximo").disabled = false;
+        }
+ 
+        function proximaPergunta() {
+            if (perguntaAtual < total - 1) {
+                perguntaAtual++;
+                renderizarPergunta();
+            } else {
+                enviarRespostas();
+            }
+        }
+ 
+        async function enviarRespostas() {
+            try {
+                const res = await fetch("/questionario-pai", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ respostas })
+                });
+                if (res.ok) {
+                    window.location.href = "/home";
+                } else {
+                    alert("Erro ao salvar respostas. Tente novamente.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Erro de conexão. Tente novamente.");
+            }
+        }
+ 
+        
+        montarBarra();
+        renderizarPergunta();
+    </script>
+ 
 </body>
 </html>

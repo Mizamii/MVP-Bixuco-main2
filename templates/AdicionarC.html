@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adicionar Criança</title>
+</head>
+<body>
+ 
+    <div class="criar-esquerda">
+ 
+        <!-- camada escura por cima da foto -->
+        <div class="criar-esquerda__overlay"></div>
+ 
+        <!-- foto temporaria — trocar depois -->
+        <img
+            class="criar-esquerda__foto"
+            src="/img/foto-bebe-pelucia.jpg"
+            alt="Crianca segurando a pelucia Bixuco"
+        >
+ 
+        <!-- texto por cima da foto -->
+        <div class="criar-esquerda__conteudo">
+            <img src="/img/Logo_nome.png" alt="Logo Bixuco" class="logo">
+        </div>
+ 
+    </div>
+ 
+    <div class="texto">
+ 
+        <h1 class="titulo">Adicionar criança</h1>
+        <p class="descricao">Cadastre o(a) filho(a) que você vai acompanhar.</p>
+ 
+        <form action="/adicionar-crianca" method="POST" onsubmit="return validarCadastro()" enctype="multipart/form-data">
+ 
+            <!-- foto da criança -->
+            <div class="fotoacarregar" onclick="document.getElementById('fotoCrianca').click()">
+                <img id="preverafoto" src="" alt="" style="display:none">
+                <i class="icone-camera" id="icone-camera">📷</i>
+                <input
+                    type="file"
+                    id="fotoCrianca"
+                    name="fotoCrianca"
+                    accept="image/*"
+                    style="display:none"
+                    onchange="previewFoto(this)"
+                >
+            </div>
+ 
+            <p class="subtitulo">Nome da criança</p>
+            <input type="text" id="nomeCrianca" name="nomeCrianca" placeholder="Nome da criança" required>
+            <span class="erro" id="erro-nomeCrianca"></span>
+ 
+            <p class="subtitulo">Data de nascimento</p>
+            <input type="date" id="dataNascimento" name="dataNascimento" required>
+            <span class="erro" id="erro-dataNascimento"></span>
+ 
+            <p class="subtitulo">Sexo</p>
+            <select id="sexo" name="sexo" required>
+                <option value="" disabled selected>Selecione</option>
+                <option value="masculino">Masculino</option>
+                <option value="feminino">Feminino</option>
+                <option value="outro">Prefiro não informar</option>
+            </select>
+            <span class="erro" id="erro-sexo"></span>
+ 
+            <p class="subtitulo">Nome da pelúcia (opcional)</p>
+            <input type="text" id="nomePelucia" name="nomePelucia" placeholder="Ex: Bixuco">
+ 
+            <button class="btn" type="submit">Ir para o Perfil sensorial</button>
+ 
+        </form>
+ 
+    </div>
+ 
+    <script>
+        function previewFoto(input) {
+            const preview = document.getElementById("preverafoto");
+            const icone   = document.getElementById("icone-camera");
+ 
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = "block";
+                    icone.style.display   = "none";
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+ 
+        function validarCadastro() {
+            limparTodosErros();
+            let valido = true;
+ 
+            const nome  = document.getElementById("nomeCrianca").value.trim();
+            const data  = document.getElementById("dataNascimento").value;
+            const sexo  = document.getElementById("sexo").value;
+ 
+            if (nome.length < 2) {
+                mostrarErro("nomeCrianca", "erro-nomeCrianca", "Digite o nome da criança.");
+                valido = false;
+            }
+ 
+            if (!data) {
+                mostrarErro("dataNascimento", "erro-dataNascimento", "Informe a data de nascimento.");
+                valido = false;
+            } else if (dataNoFuturo(data)) {
+                mostrarErro("dataNascimento", "erro-dataNascimento", "A data não pode ser no futuro.");
+                valido = false;
+            }
+ 
+            if (!sexo) {
+                mostrarErro("sexo", "erro-sexo", "Selecione o sexo.");
+                valido = false;
+            }
+ 
+            return valido;
+        }
+ 
+        function dataNoFuturo(data) {
+            return new Date(data) > new Date();
+        }
+ 
+        function mostrarErro(inputId, erroId, mensagem) {
+            const input = document.getElementById(inputId);
+            const erro  = document.getElementById(erroId);
+            if (input) input.classList.add("input-erro");
+            if (erro)  { erro.textContent = mensagem; erro.style.display = "block"; }
+            if (input) setTimeout(() => input.classList.remove("input-erro"), 500);
+        }
+ 
+        function limparErro(inputId, erroId) {
+            const input = document.getElementById(inputId);
+            const erro  = document.getElementById(erroId);
+            if (input) input.classList.remove("input-erro");
+            if (erro)  erro.style.display = "none";
+        }
+ 
+        function limparTodosErros() {
+            ["nomeCrianca", "dataNascimento", "sexo"]
+                .forEach(id => limparErro(id, "erro-" + id));
+        }
+ 
+        // erros vindos do servidor 
+        const mensagensServidor = {
+            "crianca-existente": { campo: "nomeCrianca", msg: "Essa criança já foi cadastrada." },
+            "erro-interno":      { campo: "nomeCrianca", msg: "Ocorreu um erro. Tente novamente." }
+        };
+ 
+        const params  = new URLSearchParams(window.location.search);
+        const erroUrl = params.get("erro");
+        if (erroUrl && mensagensServidor[erroUrl]) {
+            const { campo, msg } = mensagensServidor[erroUrl];
+            mostrarErro(campo, "erro-" + campo, msg);
+        }
+    </script>
+ 
+</body>
+</html>
