@@ -1,95 +1,307 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro - Psicólogo</title>
+    <title>Bixuco - Criar conta - Terapeuta</title>
+    <!-- icones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --verde-escuro:      #32C26D;
+            --verde-claro:       #79D836;
+            --azul-claro:        #0AB7FB;
+            --azul-escuro:       #1D8EC9;
+            --branco:            #F8FAFD;
+            --cinza-claro:       #D9D9D9;
+            --cinza-escuro:      #5A5A5A;
+        }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background: var(--branco);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .pagina-criar-conta {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+        }
+
+        /* Lado esquerdo: foto */
+        .criar-esquerda {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .criar-esquerda__overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            z-index: 5;
+        }
+
+        .criar-esquerda__foto {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .criar-esquerda__logo {
+            position: absolute;
+            width: 70%;
+            max-width: 400px;
+            z-index: 10;
+        }
+
+        /* Lado direito: conteúdo */
+        .criar-direita {
+            flex: 1;
+            background: var(--branco);
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            overflow-y: auto;
+        }
+
+        .criar-direita__cabecalho-topo {
+            padding: 2rem 3rem;
+            text-align: center;
+            border-bottom: 1px solid var(--cinza-claro);
+        }
+
+        .criar-direita__titulo {
+            font-size: 1.8rem;
+            color: var(--cinza-escuro);
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .criar-direita__conteudo {
+            padding: 2rem 3rem;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* Formulário */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--cinza-escuro);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--cinza-claro);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: var(--azul-claro);
+            box-shadow: 0 0 0 3px rgba(10, 183, 251, 0.1);
+        }
+
+        .form-input.input-erro {
+            border-color: #e74c3c;
+        }
+
+        .password-group {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--cinza-escuro);
+            font-size: 1rem;
+            padding: 0;
+        }
+
+        .erro {
+            display: none;
+            color: #e74c3c;
+            font-size: 0.8rem;
+            margin-top: 0.35rem;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 0.8rem;
+            background: white;
+            color: black;
+            border: 2px solid var(--verde-escuro);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+        }
+
+        .btn-submit:hover {
+            background: var(--cinza-claro);
+            color: black;
+        }
+
+        .terms-text {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--cinza-escuro);
+            margin-top: 1.5rem;
+        }
+
+        .terms-text a {
+            color: var(--azul-escuro);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .terms-text a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 900px) {
+            .pagina-criar-conta {
+                flex-direction: column;
+            }
+
+            .criar-esquerda {
+                height: 30vh;
+            }
+
+            .criar-direita {
+                flex: 1;
+            }
+
+            .criar-direita__conteudo {
+                padding: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
 
-    <div class="criar-esquerda">
+    <div class="pagina-criar-conta">
 
-        <!-- camada escura por cima da foto -->
-        <div class="criar-esquerda__overlay"></div>
-
-        <!-- foto temporaria — trocar depois -->
-        <img
-            class="criar-esquerda__foto"
-            src="/img/foto-bebe-pelucia.jpg"
-            alt="Crianca segurando a pelucia Bixuco"
-        >
-
-        <!-- texto por cima da foto -->
-        <div class="criar-esquerda__conteudo">
-            <img src="/img/Logo_nome.png" alt="Logo Bixuco" class="logo">
+        <!-- Lado esquerdo: foto -->
+        <div class="criar-esquerda">
+            <img
+                class="criar-esquerda__foto"
+                src="../static/img/FotoUrso.jpg"
+                alt="Criança segurando a pelúcia Bixuco"
+            >
+            <div class="criar-esquerda__overlay"></div>
+            <img
+                class="criar-esquerda__logo"
+                src="../static/img/Logo_nome.png"
+                alt="Logo Bixuco"
+            >
         </div>
 
-    </div>
+        <!-- Lado direito: conteúdo -->
+        <div class="criar-direita">
 
-    <div class="texto">
-
-        <form action="/cadastro-psicologo" method="POST" onsubmit="return validarCadastro()">
-            
-            <p class="subtitulo">Email</p>
-            <input type="email" id="email" placeholder="email@exemplo.com" name="email" required>
-            <span class="erro" id="erro-email"></span>
-
-            <p class="subtitulo">Nome Completo</p>
-            <input type="text" id="nome_completo" placeholder="Nome completo" name="nome" required>
-            <span class="erro" id="erro-nome"></span>
-
-            <p class="subtitulo">CRP</p>
-            <input type="text" name="crp" id="crp" placeholder="Digite apenas números" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
-
-            <p class="subtitulo">Senha</p>
-            <div>
-                <input type="password" id="senha" minlength="6" name="senha" required>
-                <button type="button" onclick="toggleSenha('senha','icone-senha')" aria-label="Mostrar ou esconder senha">
-                    <i class="olhovidente" id="icone-senha"></i>
-                </button>
+            <!-- Título com divisão -->
+            <div class="criar-direita__cabecalho-topo">
+                <h2 class="criar-direita__titulo">Criar conta</h2>
             </div>
-            <span class="erro" id="erro-senha"></span>
 
-            <p class="subtitulo">Confirmar senha</p>
-            <div>
-                <input type="password" id="senhaConfirmar" minlength="6" required>
-                <button type="button" onclick="toggleSenha('senhaConfirmar','icone-senhaConfirmar')" aria-label="Mostrar ou esconder senha">
-                    <i class="olhovidente" id="icone-senhaConfirmar"></i>
-                </button>
+            <div class="criar-direita__conteudo">
+                <form action="/cadastro-psicologo" method="POST" onsubmit="return validarCadastro()">
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="nome_completo">Nome completo</label>
+                        <input type="text" id="nome_completo" class="form-input" placeholder="Digite seu nome completo" name="nome" required>
+                        <span class="erro" id="erro-nome"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="email">Email</label>
+                        <input type="email" id="email" class="form-input" placeholder="email@exemplo.com" name="email" required>
+                        <span class="erro" id="erro-email"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="telefone">Telefone</label>
+                        <input type="text" id="telefone" class="form-input" placeholder="(00) 00000-0000" name="telefone">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="dataNascimento">Data de nascimento</label>
+                        <input type="date" id="dataNascimento" class="form-input" name="dataNascimento" required>
+                        <span class="erro" id="erro-dataNascimento"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="senha">Senha</label>
+                        <div class="password-group">
+                            <input type="password" id="senha" class="form-input" minlength="6" name="senha" required>
+                            <button type="button" class="password-toggle" onclick="toggleSenha('senha','icone-senha')" aria-label="Mostrar ou esconder senha">
+                                <i class="fa-solid fa-eye" id="icone-senha"></i>
+                            </button>
+                        </div>
+                        <span class="erro" id="erro-senha"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="senhaConfirmar">Confirmar senha</label>
+                        <div class="password-group">
+                            <input type="password" id="senhaConfirmar" class="form-input" minlength="6" required>
+                            <button type="button" class="password-toggle" onclick="toggleSenha('senhaConfirmar','icone-senhaConfirmar')" aria-label="Mostrar ou esconder senha">
+                                <i class="fa-solid fa-eye" id="icone-senhaConfirmar"></i>
+                            </button>
+                        </div>
+                        <span class="erro" id="erro-senhaConfirmar"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="crp">CRP</label>
+                        <input type="text" name="crp" id="crp" class="form-input" placeholder="Digite apenas números" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+                    </div>
+
+                    <button class="btn-submit" type="submit">Continuar</button>
+
+                    <p class="terms-text">
+                        Ao criar sua conta você concorda com nossos
+                        <a href="/termos">Termos de uso</a> e
+                        <a href="/privacidade">Política de privacidade</a>.
+                    </p>
+
+                </form>
             </div>
-            <span class="erro" id="erro-senhaConfirmar"></span>
 
-            <p class="subtitulo">Data de nascimento</p>
-            <input type="date" id="dataNascimento" name="dataNascimento" required>
-            <span class="erro" id="erro-dataNascimento"></span>
+        </div>
 
-            <p class="subtitulo">CEP</p>
-            <div><!-- mascara do CEP e negocio para carregar a busca -->
-                <input type="text" id="cep" name="cep" placeholder="XXXXX-XXX" inputmode="numeric" maxlength="9" oninput="mascaraCEP(this)" required>
-                <i class="carregamento" id="cep-carregamento" style="display:none"></i>
-            </div>
-            <span class="erro" id="erro-cep"></span>
-            <span id="cep-ok" style="display:none"></span>
-
-            <p class="subtitulo">Cidade</p>
-            <input type="text" id="cidade" name="cidade" placeholder="Preenchido automaticamente" readonly>
-
-            <p class="subtitulo">Estado</p>
-            <input type="text" id="estado" name="estado" placeholder="Preenchido automaticamente" readonly>
-
-            <p class="subtitulo">Bairro</p>
-            <input type="text" id="bairro" name="bairro" placeholder="Preenchido automaticamente" readonly>
-
-            <button class="btn" type="submit" required >Criar conta</button>
-
-            <p>
-                Ao criar sua conta voce concorda com nossos
-                <a href="/termos">Termos de uso</a> e
-                <a href="/privacidade">Politica de privacidade</a>.
-            </p>
-
-        </form>
     </div>
 
     <script>
@@ -128,27 +340,26 @@
         function validarCadastro() {
             limparTodosErros();
             let valido = true;
-            const nome      = document.getElementById("nome").value.trim();
+            const nome      = document.getElementById("nome_completo").value.trim();
             const email     = document.getElementById("email").value.trim();
             const dataNasc  = document.getElementById("dataNascimento").value;
             const senha     = document.getElementById("senha").value;
             const confirmar = document.getElementById("senhaConfirmar").value;
             const crp = document.getElementById("crp").value.trim();
-            const cidade    = document.getElementById("cidade").value;
  
             if (nome.split(" ").filter(p => p).length < 2) {
-                mostrarErro("nome", "erro-nome", "Digite seu nome completo.");
+                mostrarErro("nome_completo", "erro-nome", "Digite seu nome completo.");
                 valido = false;
             }
             if (!/\S+@\S+\.\S+/.test(email)) {
-                mostrarErro("email", "erro-email", "Digite um email valido.");
+                mostrarErro("email", "erro-email", "Digite um email válido.");
                 valido = false;
             }
             if (!dataNasc) {
                 mostrarErro("dataNascimento", "erro-dataNascimento", "Informe sua data de nascimento.");
                 valido = false;
             } else if (!maiorIdade(dataNasc)) {
-                mostrarErro("dataNascimento", "erro-dataNascimento", "Voce precisa ter pelo menos 18 anos.");
+                mostrarErro("dataNascimento", "erro-dataNascimento", "Você precisa ter pelo menos 18 anos.");
                 valido = false;
             }
             if (senha.length < 6) {
@@ -156,7 +367,7 @@
                 valido = false;
             }
             if (senha !== confirmar) {
-                mostrarErro("senhaConfirmar", "erro-senhaConfirmar", "As senhas nao coincidem.");
+                mostrarErro("senhaConfirmar", "erro-senhaConfirmar", "As senhas não coincidem.");
                 valido = false;
             }
             const regexCRP = /^\d+$/;
@@ -165,10 +376,6 @@
                 return false;
             }
 
-            if (!cidade) {
-                mostrarErro("cep", "erro-cep", "Informe um CEP valido.");
-                valido = false;
-            }
             return valido;
         }
 
@@ -200,16 +407,15 @@
         }
 
         function limparTodosErros() {
-            ["nome","email","telefone","dataNascimento","senha","senhaConfirmar","cpf","cep"]
-                .forEach(id => limparErro(id, "erro-" + id));
+            ["nome_completo","email","dataNascimento","senha","senhaConfirmar"]
+                .forEach(id => limparErro(id, "erro-" + id.replace("nome_completo", "nome")));
         }
 
         const mensagensServidor = {
-            "cpf-invalido":  { campo: "cpf",   msg: "CPF invalido." },
-            "email-invalido":{ campo: "email",  msg: "Email invalido." },
+            "email-invalido":{ campo: "email",  msg: "Email inválido." },
             "senha-curta":   { campo: "senha",  msg: "A senha deve ter pelo menos 6 caracteres." },
-            "ja-cadastrado": { campo: "email",  msg: "Este email ou CPF ja esta cadastrado." },
-            "erro-interno":  { campo: "nome",   msg: "Ocorreu um erro. Tente novamente." }
+            "ja-cadastrado": { campo: "email",  msg: "Este email já está cadastrado." },
+            "erro-interno":  { campo: "nome_completo",   msg: "Ocorreu um erro. Tente novamente." }
         };
 
 
@@ -218,7 +424,7 @@
         const erroUrl = params.get("erro");
         if (erroUrl && mensagensServidor[erroUrl]) {
             const { campo, msg } = mensagensServidor[erroUrl];
-            mostrarErro(campo, "erro-" + campo, msg);
+            mostrarErro(campo, "erro-" + campo.replace("nome_completo", "nome"), msg);
         }
         function maiorIdade(data){
             const hoje = new Date();

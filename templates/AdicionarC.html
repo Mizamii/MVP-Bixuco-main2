@@ -3,81 +3,307 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adicionar Criança</title>
+    <title>Bixuco - Adicionar Criança</title>
+    <!-- icones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --verde-escuro:      #32C26D;
+            --verde-claro:       #79D836;
+            --azul-claro:        #0AB7FB;
+            --azul-escuro:       #1D8EC9;
+            --branco:            #F8FAFD;
+            --cinza-claro:       #D9D9D9;
+            --cinza-escuro:      #5A5A5A;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background: var(--branco);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .pagina-criar-conta {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+        }
+
+        /* Lado esquerdo: foto */
+        .criar-esquerda {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .criar-esquerda__overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            z-index: 5;
+        }
+
+        .criar-esquerda__foto {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .criar-esquerda__logo {
+            position: absolute;
+            width: 70%;
+            max-width: 400px;
+            z-index: 10;
+        }
+
+        /* Lado direito: conteúdo */
+        .criar-direita {
+            flex: 1;
+            background: var(--branco);
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            overflow-y: auto;
+        }
+
+        .criar-direita__cabecalho-topo {
+            padding: 1.5rem 4.5rem;
+            text-align: center;
+            border-bottom: 1px solid var(--cinza-claro);
+        }
+
+        .criar-direita__titulo {
+            font-size: 1.8rem;
+            color: var(--cinza-escuro);
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .criar-direita__conteudo {
+            padding: 1.5rem 4.5rem;
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .criar-direita__descricao {
+            font-size: 1rem;
+            color: var(--cinza-escuro);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        /* Formulário */
+        .form-group {
+            margin-bottom: 1rem;
+            width: 100%;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--cinza-escuro);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 2px solid var(--cinza-claro);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            outline: none;
+            background: white;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            border-color: var(--azul-claro);
+            box-shadow: 0 0 0 3px rgba(10, 183, 251, 0.1);
+        }
+
+        .form-input.input-erro,
+        .form-select.input-erro {
+            border-color: #e74c3c;
+        }
+
+        .fotoacarregar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 2px dashed var(--cinza-claro);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin: 0 auto 1.5rem;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #preverafoto {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .icone-camera {
+            font-size: 2rem;
+            color: var(--cinza-claro);
+        }
+
+        .erro {
+            display: none;
+            color: #e74c3c;
+            font-size: 0.8rem;
+            margin-top: 0.35rem;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 0.8rem;
+            background: white;
+            color: black;
+            border: 2px solid var(--verde-escuro);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+        }
+
+        .btn-submit:hover {
+            background: var(--cinza-claro);
+            color: black;
+        }
+
+        @media (max-width: 900px) {
+            .pagina-criar-conta {
+                flex-direction: column;
+            }
+
+            .criar-esquerda {
+                height: 30vh;
+            }
+
+            .criar-direita {
+                flex: 1;
+            }
+
+            .criar-direita__conteudo {
+                padding: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
- 
-    <div class="criar-esquerda">
- 
-        <!-- camada escura por cima da foto -->
-        <div class="criar-esquerda__overlay"></div>
- 
-        <!-- foto temporaria — trocar depois -->
-        <img
-            class="criar-esquerda__foto"
-            src="/img/foto-bebe-pelucia.jpg"
-            alt="Crianca segurando a pelucia Bixuco"
-        >
- 
-        <!-- texto por cima da foto -->
-        <div class="criar-esquerda__conteudo">
-            <img src="/img/Logo_nome.png" alt="Logo Bixuco" class="logo">
+
+    <div class="pagina-criar-conta">
+
+        <!-- Lado esquerdo: foto -->
+        <div class="criar-esquerda">
+            <img
+                class="criar-esquerda__foto"
+                src="../static/img/FotoUrso.jpg"
+                alt="Criança segurando a pelúcia Bixuco"
+            >
+            <div class="criar-esquerda__overlay"></div>
+            <img
+                class="criar-esquerda__logo"
+                src="../static/img/Logo_nome.png"
+                alt="Logo Bixuco"
+            >
         </div>
- 
-    </div>
- 
-    <div class="texto">
- 
-        <h1 class="titulo">Adicionar criança</h1>
-        <p class="descricao">Cadastre o(a) filho(a) que você vai acompanhar.</p>
- 
-        <form action="/adicionar-crianca" method="POST" onsubmit="return validarCadastro()" enctype="multipart/form-data">
- 
-            <!-- foto da criança -->
-            <div class="fotoacarregar" onclick="document.getElementById('fotoCrianca').click()">
-                <img id="preverafoto" src="" alt="" style="display:none">
-                <i class="icone-camera" id="icone-camera">📷</i>
-                <input
-                    type="file"
-                    id="fotoCrianca"
-                    name="fotoCrianca"
-                    accept="image/*"
-                    style="display:none"
-                    onchange="previewFoto(this)"
-                >
+
+        <!-- Lado direito: conteúdo -->
+        <div class="criar-direita">
+
+            <!-- Título com divisão -->
+            <div class="criar-direita__cabecalho-topo">
+                <h2 class="criar-direita__titulo">Adicionar criança</h2>
             </div>
- 
-            <p class="subtitulo">Nome da criança</p>
-            <input type="text" id="nomeCrianca" name="nomeCrianca" placeholder="Nome da criança" required>
-            <span class="erro" id="erro-nomeCrianca"></span>
- 
-            <p class="subtitulo">Data de nascimento</p>
-            <input type="date" id="dataNascimento" name="dataNascimento" required>
-            <span class="erro" id="erro-dataNascimento"></span>
- 
-            <p class="subtitulo">Sexo</p>
-            <select id="sexo" name="sexo" required>
-                <option value="" disabled selected>Selecione</option>
-                <option value="masculino">Masculino</option>
-                <option value="feminino">Feminino</option>
-                <option value="outro">Prefiro não informar</option>
-            </select>
-            <span class="erro" id="erro-sexo"></span>
- 
-            <p class="subtitulo">Nome da pelúcia (opcional)</p>
-            <input type="text" id="nomePelucia" name="nomePelucia" placeholder="Ex: Bixuco">
- 
-            <button class="btn" type="submit">Ir para o Perfil sensorial</button>
- 
-        </form>
- 
+
+            <div class="criar-direita__conteudo">
+                <p class="criar-direita__descricao">Cadastre o(a) filho(a) que você vai acompanhar.</p>
+
+                <form action="/adicionar-crianca" method="POST" onsubmit="return validarCadastro()" enctype="multipart/form-data">
+
+                    <!-- foto da criança -->
+                    <div class="fotoacarregar" onclick="document.getElementById('fotoCrianca').click()">
+                        <img id="preverafoto" src="" alt="" style="display:none">
+                        <i class="fa-solid fa-camera icone-camera" id="icone-camera"></i>
+                        <input
+                            type="file"
+                            id="fotoCrianca"
+                            name="fotoCrianca"
+                            accept="image/*"
+                            style="display:none"
+                            onchange="previewFoto(this)"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="nomeCrianca">Nome da criança</label>
+                        <input type="text" id="nomeCrianca" name="nomeCrianca" class="form-input" placeholder="Nome da criança" required>
+                        <span class="erro" id="erro-nomeCrianca"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="dataNascimento">Data de nascimento</label>
+                        <input type="date" id="dataNascimento" name="dataNascimento" class="form-input" required>
+                        <span class="erro" id="erro-dataNascimento"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="sexo">Sexo</label>
+                        <select id="sexo" name="sexo" class="form-select" required>
+                            <option value="" disabled selected>Selecione</option>
+                            <option value="masculino">Masculino</option>
+                            <option value="feminino">Feminino</option>
+                            <option value="outro">Prefiro não informar</option>
+                        </select>
+                        <span class="erro" id="erro-sexo"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="nomePelucia">Nome da pelúcia (opcional)</label>
+                        <input type="text" id="nomePelucia" name="nomePelucia" class="form-input" placeholder="Ex: Bixuco">
+                    </div>
+
+                    <button class="btn-submit" type="submit">Ir para o Perfil sensorial</button>
+
+                </form>
+
+            </div>
+
+        </div>
+
     </div>
- 
+
     <script>
         function previewFoto(input) {
             const preview = document.getElementById("preverafoto");
             const icone   = document.getElementById("icone-camera");
- 
+
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -88,20 +314,20 @@
                 reader.readAsDataURL(input.files[0]);
             }
         }
- 
+
         function validarCadastro() {
             limparTodosErros();
             let valido = true;
- 
+
             const nome  = document.getElementById("nomeCrianca").value.trim();
             const data  = document.getElementById("dataNascimento").value;
             const sexo  = document.getElementById("sexo").value;
- 
+
             if (nome.length < 2) {
                 mostrarErro("nomeCrianca", "erro-nomeCrianca", "Digite o nome da criança.");
                 valido = false;
             }
- 
+
             if (!data) {
                 mostrarErro("dataNascimento", "erro-dataNascimento", "Informe a data de nascimento.");
                 valido = false;
@@ -109,19 +335,19 @@
                 mostrarErro("dataNascimento", "erro-dataNascimento", "A data não pode ser no futuro.");
                 valido = false;
             }
- 
+
             if (!sexo) {
                 mostrarErro("sexo", "erro-sexo", "Selecione o sexo.");
                 valido = false;
             }
- 
+
             return valido;
         }
- 
+
         function dataNoFuturo(data) {
             return new Date(data) > new Date();
         }
- 
+
         function mostrarErro(inputId, erroId, mensagem) {
             const input = document.getElementById(inputId);
             const erro  = document.getElementById(erroId);
@@ -129,25 +355,25 @@
             if (erro)  { erro.textContent = mensagem; erro.style.display = "block"; }
             if (input) setTimeout(() => input.classList.remove("input-erro"), 500);
         }
- 
+
         function limparErro(inputId, erroId) {
             const input = document.getElementById(inputId);
             const erro  = document.getElementById(erroId);
             if (input) input.classList.remove("input-erro");
             if (erro)  erro.style.display = "none";
         }
- 
+
         function limparTodosErros() {
             ["nomeCrianca", "dataNascimento", "sexo"]
                 .forEach(id => limparErro(id, "erro-" + id));
         }
- 
+
         // erros vindos do servidor 
         const mensagensServidor = {
             "crianca-existente": { campo: "nomeCrianca", msg: "Essa criança já foi cadastrada." },
             "erro-interno":      { campo: "nomeCrianca", msg: "Ocorreu um erro. Tente novamente." }
         };
- 
+
         const params  = new URLSearchParams(window.location.search);
         const erroUrl = params.get("erro");
         if (erroUrl && mensagensServidor[erroUrl]) {
@@ -155,6 +381,7 @@
             mostrarErro(campo, "erro-" + campo, msg);
         }
     </script>
- 
+
 </body>
 </html>
+
