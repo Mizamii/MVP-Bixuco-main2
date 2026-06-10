@@ -63,6 +63,10 @@ app.get('/home', (req, res) => {
   res.sendFile(path.join(__dirname, 'templates', 'home.html'));
 });
 
+app.get('/AdicionarC', (req, res) => {
+  res.sendFile(path.join(__dirname, 'templates', 'AdicionarC.html'));
+});
+
 
 const db = new Pool({
   connectionString: 'postgresql://neondb_owner:npg_7dAgQi9wVomv@ep-tiny-truth-apsty8fo.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require',
