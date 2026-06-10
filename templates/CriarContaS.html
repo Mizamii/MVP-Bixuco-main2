@@ -6,77 +6,224 @@
     <title>Bixuco — Criar conta</title>
     <!-- icones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-8px); } 
-    75% { transform: translateX(8px); }
-}
-.login-form__input--erro {
-    border-color: #ff4444 !important;
-    animation: shake 0.4s ease-in-out !important;
-}
+ <style>
+        /* Reset básico */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-/* Reset básico para começar limpo */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+        /* Container principal */
+        .pagina-criar-conta {
+            display: flex;
+            height: 100vh;
+        }
 
-* {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+        /* Lado esquerdo - Foto */
+        .criar-esquerda {
+            width: 50%;
+            position: relative;
+            overflow: hidden;
+        }
 
-/* Container principal da página */
-.pagina-login {
-    display: flex;
-    height: 100vh;
-}
+        .criar-esquerda__foto {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
 
-/* Lado esquerdo - Foto do urso */
-.login-esquerda {
-    width: 50%;
-    position: relative;
-}
+        .criar-esquerda__overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+        }
 
-/* Foto do urso */
-.login-esquerda__foto {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
+        .criar-esquerda__conteudo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            text-align: center;
+            width: 80%;
+        }
 
-/* Overlay escuro para o texto ficar legível */
-.login-esquerda__overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.4);
-}
+        .criar-esquerda__titulo {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
 
-/* Texto centralizado na foto */
-.login-esquerda__conteudo {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    text-align: center;
-}
+        .criar-esquerda__slogan {
+            font-size: 1.3rem;
+        }
 
-.login-esquerda__titulo {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-}
+        /* Lado direito - Conteúdo */
+        .criar-direita {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            background-color: #fff;
+        }
 
-.login-esquerda__slogan {
-    font-size: 1.3rem;
-}
+        .criar-direita__logo-container {
+            margin-bottom: 2rem;
+        }
 
+        .criar-direita__logo {
+            width: 120px;
+            height: auto;
+        }
+
+        .criar-direita__cabecalho {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .criar-direita__titulo {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .criar-direita__subtitulo {
+            color: #666;
+        }
+
+        /* Container dos Cards */
+        .tipo-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .tipo-card {
+            display: flex;
+            align-items: center;
+            padding: 1.5rem;
+            border: 2px solid #eee;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            width: 100%;
+        }
+
+        .tipo-card:hover {
+            border-color: #79D836;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .tipo-card--selecionado {
+            border-color: #79D836;
+            background-color: #f9fff4;
+        }
+
+        .tipo-card__icone-wrapper {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .tipo-card__icone-wrapper--responsavel {
+            background-color: #ffeef2;
+            color: #ff4d6d;
+        }
+
+        .tipo-card__icone-wrapper--psicologo {
+            background-color: #eef7ff;
+            color: #0077ff;
+        }
+
+        .tipo-card__texto {
+            flex: 1;
+        }
+
+        .tipo-card__titulo {
+            display: block;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .tipo-card__descricao {
+            display: block;
+            font-size: 0.9rem;
+            color: #777;
+            margin-top: 0.2rem;
+        }
+
+        .tipo-card__seta {
+            color: #ccc;
+            font-size: 1rem;
+        }
+
+        /* Aviso CRP */
+        .criar-aviso {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: #fff9e6;
+            border-left: 4px solid #ffcc00;
+            border-radius: 4px;
+            display: none;
+            align-items: center;
+            gap: 0.8rem;
+            max-width: 450px;
+        }
+
+        .criar-aviso--visivel {
+            display: flex;
+        }
+
+        .criar-aviso__icone {
+            color: #ffcc00;
+        }
+
+        .criar-aviso__texto {
+            font-size: 0.85rem;
+            color: #665500;
+        }
+
+        .criar-ja-tenho-conta {
+            margin-top: 2rem;
+            font-size: 0.95rem;
+            color: #666;
+        }
+
+        .criar-ja-tenho-conta__link {
+            color: #79D836;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .criar-ja-tenho-conta__link:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .pagina-criar-conta { flex-direction: column; }
+            .criar-esquerda { display: none; }
+            .criar-direita { width: 100%; height: 100vh; }
+        }
+    </style>
 /* FIM DO LADO ESQUERDO */
     </style>
 </head>
