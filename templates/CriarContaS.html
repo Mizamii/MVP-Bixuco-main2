@@ -6,168 +6,352 @@
     <title>Bixuco — Criar conta</title>
     <!-- icones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --verde-escuro:      #32C26D;
+            --verde-claro:       #79D836;
+            --azul-claro:        #0AB7FB;
+            --azul-escuro:       #1D8EC9;
+            --branco:            #F8FAFD;
+            --cinza-claro:       #D9D9D9;
+            --cinza-escuro:      #5A5A5A;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background: var(--branco);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .pagina-criar-conta {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+        }
+
+        /* Lado esquerdo: foto */
+        .criar-esquerda {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .criar-esquerda__overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            z-index: 5;
+        }
+
+        .criar-esquerda__foto {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .criar-esquerda__logo {
+            position: absolute;
+            width: 70%;
+            max-width: 400px;
+            z-index: 10;
+        }
+
+        /* Lado direito: conteúdo */
+        .criar-direita {
+            flex: 1;
+            background: var(--branco);
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            overflow-y: auto;
+        }
+
+        .criar-direita__cabecalho-topo {
+            padding: 2.5rem 3rem;
+            text-align: center;
+            border-bottom: 1px solid var(--cinza-claro);
+        }
+
+        .criar-direita__titulo {
+            font-size: 1.8rem;
+            color: var(--cinza-escuro);
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .criar-direita__conteudo {
+            padding: 2.5rem 3rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .criar-direita__subtitulo {
+            color: var(--cinza-escuro);
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .criar-direita__ajuda {
+            font-size: 0.8rem;
+            color: var(--cinza-claro);
+            text-align: center;
+            margin-bottom: 3.5rem;
+        }
+
+        .tipo-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .tipo-card {
+            background: white;
+            border: 2px solid var(--cinza-claro);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tipo-card:hover {
+            border-color: var(--azul-claro);
+        }
+
+        .tipo-card--selecionado {
+            border-color: var(--azul-claro);
+            background: rgba(10, 183, 251, 0.05);
+        }
+
+        .tipo-card__titulo {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--cinza-escuro);
+        }
+
+        .tipo-card__descricao {
+            font-size: 0.85rem;
+            color: var(--cinza-escuro);
+            opacity: 0.85;
+        }
+
+        .tipo-card__seta {
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--cinza-claro);
+            font-size: 0.9rem;
+        }
+
+        .tipo-card__aviso {
+            display: none;
+            padding: 0.75rem 1rem;
+            margin-top: 0.75rem;
+            background: rgba(10, 183, 251, 0.1);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: var(--cinza-escuro);
+            align-items: center;
+            gap: 0.5rem;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .tipo-card:hover .tipo-card__aviso {
+            display: flex;
+        }
+
+        .tipo-card__aviso--psicologo {
+            background: rgba(10, 183, 251, 0.1);
+        }
+
+        .tipo-card__aviso--responsavel {
+            background: rgba(50, 194, 109, 0.1);
+        }
+
+        .tipo-card__aviso-icone {
+            font-size: 0.85rem;
+        }
+
+        .tipo-card__aviso--psicologo .tipo-card__aviso-icone {
+            color: var(--azul-escuro);
+        }
+
+        .tipo-card__aviso--responsavel .tipo-card__aviso-icone {
+            color: var(--verde-escuro);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .criar-ja-tenho-conta {
+            margin-top: auto;
+            text-align: center;
+            color: var(--cinza-escuro);
+            font-size: 0.9rem;
+            padding-top: 2rem;
+        }
+
+        .criar-ja-tenho-conta__link {
+            color: var(--azul-escuro);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .criar-ja-tenho-conta__link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 900px) {
+            .pagina-criar-conta {
+                flex-direction: column;
+            }
+
+            .criar-esquerda {
+                height: 30vh;
+            }
+
+            .criar-direita {
+                flex: 1;
+                padding: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
 
-    <!-- pagina dividida igual ao login: esquerda (foto) e direita (conteudo) -->
     <div class="pagina-criar-conta">
 
-
-        <!-- =============================================
-             lado esquerdo: foto de fundo com texto
-             mesma estrutura do login para manter consistencia visual
-        ============================================= -->
+        <!-- Lado esquerdo: foto -->
         <div class="criar-esquerda">
-
-            <!-- camada escura por cima da foto -->
-            <div class="criar-esquerda__overlay"></div>
-
-            <!-- foto temporaria — trocar depois -->
             <img
                 class="criar-esquerda__foto"
-                src="/img/foto-bebe-pelucia.jpg"
-                alt="Crianca segurando a pelucia Bixuco"
+                src="../static/img/FotoUrso.jpg"
+                alt="Criança segurando a pelúcia Bixuco"
             >
-
-            <!-- texto por cima da foto -->
-            <div class="criar-esquerda__conteudo">
-                <h1 class="criar-esquerda__titulo">Vamos comecar juntos</h1>
-                <p class="criar-esquerda__slogan">"Quando as palavras faltam, o Bixuco fala"</p>
-            </div>
-
+            <div class="criar-esquerda__overlay"></div>
+            <img
+                class="criar-esquerda__logo"
+                src="../static/img/Logo_nome.png"
+                alt="Logo Bixuco"
+            >
         </div>
 
+        <!-- Lado direito: conteúdo -->
         <div class="criar-direita">
 
-            <!-- logo no topo -->
-            <div class="criar-direita__logo-container">
-                <img
-                    class="criar-direita__logo"
-                    src="/img/Logo_gato_sem_fundo.png"
-                    alt="Logo Bixuco"
-                >
-            </div>
-
-            <!-- titulo e subtitulo -->
-            <div class="criar-direita__cabecalho">
+            <!-- Título com divisão -->
+            <div class="criar-direita__cabecalho-topo">
                 <h2 class="criar-direita__titulo">Criar conta</h2>
-                <p class="criar-direita__subtitulo">Como voce quer se cadastrar?</p>
             </div>
 
+            <div class="criar-direita__conteudo">
+                <!-- Subtítulo -->
+                <p class="criar-direita__subtitulo">Como você vai utilizar o Bixuco?</p>
+                <p class="criar-direita__ajuda">Isso vai nos ajudar a personalizar a sua experiência</p>
 
-            <!-- =========================================
-                 cards de selecao de tipo de conta
-                 cada card tem: icone, titulo, descricao curta e seta
-                 ao clicar, redireciona para a tela de cadastro correspondente
-                 o card selecionado ganha a classe "tipo-card--selecionado" por um instante antes de redirecionar
-            ========================================= -->
-            <div class="tipo-container">
+                <!-- Cards de seleção -->
+                <div class="tipo-container">
 
-                <!-- opcao: responsavel -->
+                <!-- Responsável -->
                 <button
                     class="tipo-card"
                     id="cardResponsavel"
                     onclick="selecionarTipo('responsavel')"
-                    aria-label="Criar conta como responsavel"
+                    aria-label="Criar conta como responsável"
                 >
-                    <div class="tipo-card__icone-wrapper tipo-card__icone-wrapper--responsavel">
-                        <i class="fa-solid fa-heart tipo-card__icone"></i>
+                    <span class="tipo-card__titulo">Sou responsável</span>
+                    <span class="tipo-card__descricao">Acompanho o desenvolvimento do meu filho(a)</span>
+                    <div class="tipo-card__aviso tipo-card__aviso--responsavel">
+                        <i class="fa-solid fa-circle-info tipo-card__aviso-icone"></i>
+                        Você poderá registar o desenvolvimento do seu filho(a)
                     </div>
-
-                    <div class="tipo-card__texto">
-                        <span class="tipo-card__titulo">Sou responsavel</span>
-                        <span class="tipo-card__descricao">Pai, mae ou tutor de uma crianca com TPS</span>
-                    </div>
-
                     <i class="fa-solid fa-chevron-right tipo-card__seta"></i>
                 </button>
 
-                <!-- opcao: psicologo / terapeuta -->
+                <!-- Terapeuta -->
                 <button
-                    class="tipo-card"
+                    class="tipo-card tipo-card--selecionado"
                     id="cardPsicologo"
                     onclick="selecionarTipo('psicologo')"
-                    aria-label="Criar conta como psicologo"
+                    aria-label="Criar conta como terapeuta"
                 >
-                    <div class="tipo-card__icone-wrapper tipo-card__icone-wrapper--psicologo">
-                        <i class="fa-solid fa-stethoscope tipo-card__icone"></i>
+                    <span class="tipo-card__titulo">Sou terapeuta</span>
+                    <span class="tipo-card__descricao">Acompanho pacientes profissionalmente</span>
+                    <div class="tipo-card__aviso tipo-card__aviso--psicologo">
+                        <i class="fa-solid fa-circle-info tipo-card__aviso-icone"></i>
+                        Para criar conta como terapeuta você vai precisar do seu número de CRP
                     </div>
-
-                    <div class="tipo-card__texto">
-                        <span class="tipo-card__titulo">Sou psicologo</span>
-                        <span class="tipo-card__descricao">Terapeuta que acompanha criancas com TPS</span>
-                    </div>
-
                     <i class="fa-solid fa-chevron-right tipo-card__seta"></i>
                 </button>
 
+                </div>
+
+                <!-- Link para login -->
+                <p class="criar-ja-tenho-conta">
+                    Já tem conta?
+                    <a class="criar-ja-tenho-conta__link" href="/logar">Fazer login</a>
+                </p>
+
             </div>
-            <!-- fim: cards de selecao -->
-
-
-            <!-- aviso de que o psicologo precisa do CRP
-                 aparece so quando o card de psicologo e clicado
-                 fica escondido por padrao (display none via css)
-            -->
-            <div class="criar-aviso" id="avisoCRP">
-                <i class="fa-solid fa-circle-info criar-aviso__icone"></i>
-                <span class="criar-aviso__texto">Para criar conta como psicologo voce vai precisar do seu numero de CRP.</span>
-            </div>
-
-
-            <!-- link para quem ja tem conta -->
-            <p class="criar-ja-tenho-conta">
-                Ja tem conta?
-                <a class="criar-ja-tenho-conta__link" href="/logar">Fazer login</a>
-            </p>
 
         </div>
-
 
     </div>
 
     <script>
-
-        // guarda qual tipo foi selecionado
-        let tipoSelecionado = null;
-
-        // destinos de cada tipo
         const destinos = {
             responsavel: "/CriarContaG",
             psicologo:   "/CriarContaP"
         };
 
-        // quando o usuario clica num card:
-        // 1. marca o card visualmente como selecionado
-        // 2. mostra o aviso do CRP se for psicologo
-        // 3. redireciona apos um pequeno delay para dar feedback visual
         function selecionarTipo(tipo) {
-            tipoSelecionado = tipo;
-
-            // remove selecao anterior se houver
+            // Remove seleção anterior
             document.querySelectorAll(".tipo-card").forEach(card => {
                 card.classList.remove("tipo-card--selecionado");
             });
 
-            // marca o card clicado
+            // Marca o card clicado
             const idCard = tipo === "responsavel" ? "cardResponsavel" : "cardPsicologo";
             document.getElementById(idCard).classList.add("tipo-card--selecionado");
 
-            // mostra aviso de CRP so para psicologo
-            const aviso = document.getElementById("avisoCRP");
-            if (tipo === "psicologo") {
-                aviso.classList.add("criar-aviso--visivel");
-            } else {
-                aviso.classList.remove("criar-aviso--visivel");
-            }
-
-            // pequeno delay antes de redirecionar para o usuario ver o feedback
+            // Redireciona
             setTimeout(() => {
                 window.location.href = destinos[tipo];
             }, 300);
         }
-
     </script>
 
 </body>
 </html>
+
