@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esqueci a senha</title>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --verde-escuro: #32C26D;
+            --azul-claro:   #0AB7FB;
+            --branco:       #F8FAFD;
+            --cinza-claro:  #D9D9D9;
+            --cinza-escuro: #5A5A5A;
+            --preto:        #1a1a1a;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        /* ── FOTO FIXADA NA METADE ESQUERDA ── */
+        .foto-lateral {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 50%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .foto-lateral img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .foto-lateral__overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.15);
+        }
+
+        .foto-lateral__logo {
+            position: absolute;
+            bottom: 36px;
+            left: 36px;
+        }
+
+        .foto-lateral__logo img {
+            height: 56px;
+        }
+
+        /* ── FORMULÁRIO NA METADE DIREITA ── */
+        .pagina {
+            margin-left: 50%;
+            min-height: 100vh;
+            background: var(--branco);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topo {
+            padding: 22px 0;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--preto);
+            border-bottom: 1px solid var(--cinza-claro);
+        }
+
+        .centro {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 40px;
+        }
+
+        .centro__titulo {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--preto);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .centro__descricao {
+            font-size: 13px;
+            color: var(--cinza-escuro);
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 32px;
+            max-width: 360px;
+        }
+
+        .campo {
+            width: 100%;
+            max-width: 380px;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 4px;
+        }
+
+        .campo label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--preto);
+            margin-bottom: 8px;
+        }
+
+        .campo input {
+            height: 48px;
+            border: 1.5px solid var(--cinza-claro);
+            border-radius: 12px;
+            padding: 0 16px;
+            font-size: 14px;
+            color: var(--preto);
+            background: var(--branco);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .campo input:focus {
+            border-color: var(--verde-escuro);
+        }
+
+        .erro {
+            display: none;
+            font-size: 12px;
+            color: #e53e3e;
+            margin-top: 4px;
+            margin-bottom: 4px;
+        }
+
+        .btn {
+            width: 100%;
+            max-width: 380px;
+            height: 52px;
+            border-radius: 26px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, transform 0.15s;
+        }
+
+        .btn--verde {
+            background: var(--branco);
+            border: 2px solid var(--verde-escuro);
+            color: var(--preto);
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+
+        .btn--verde:hover {
+            background: rgba(50,194,109,0.06);
+            transform: translateY(-1px);
+        }
+
+        .btn--azul {
+            background: var(--branco);
+            border: 2px solid var(--azul-claro);
+            color: var(--preto);
+        }
+
+        .btn--azul:hover {
+            background: rgba(10,183,251,0.05);
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- foto fixada na esquerda -->
+    <div class="foto-lateral">
+        <img src="/img/FotoUrso.jpg" alt="Criança segurando a pelúcia Bixuco">
+        <div class="foto-lateral__overlay"></div>
+        <div class="foto-lateral__logo">
+            <img src="/img/Logo_nome.png" alt="Logo Bixuco">
+        </div>
+    </div>
+
+    <!-- conteúdo da direita -->
+    <div class="pagina">
+
+        <div class="topo">Recuperar senha</div>
+
+        <div class="centro">
+
+            <h1 class="centro__titulo">Esqueceu a senha?</h1>
+            <p class="centro__descricao">Informe seu email e enviaremos um link para criar uma nova senha.</p>
+
+            <form style="width:100%;max-width:380px;display:flex;flex-direction:column;"
+                  action="/esqueceu-senha" method="POST" onsubmit="return validarEmail()">
+
+                <div class="campo">
+                    <label for="email">Email Cadastrado</label>
+                    <input type="email" id="email" name="email" placeholder="" required>
+                    <span class="erro" id="erro-email"></span>
+                </div>
+
+                <button class="btn btn--verde" type="submit">Enviar link</button>
+
+            </form>
+
+            <a class="btn btn--azul" href="/logar">Voltar para a tela do login</a>
+
+        </div>
+
+    </div>
+
+    <script>
+        function validarEmail() {
+            const email = document.getElementById("email").value.trim();
+            const erro  = document.getElementById("erro-email");
+
+            erro.style.display = "none";
+            erro.textContent   = "";
+
+            if (!/\S+@\S+\.\S+/.test(email)) {
+                erro.textContent   = "Digite um email válido.";
+                erro.style.display = "block";
+                return false;
+            }
+            return true;
+        }
+    </script>
+
+</body>
+</html>

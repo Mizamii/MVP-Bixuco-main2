@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil Sensorial</title>
+</head>
+<body>
+ 
+    <div class="criar-esquerda">
+        <div class="criar-esquerda__overlay"></div>
+        <img
+            class="criar-esquerda__foto"
+            src="/img/FotoUrso.jpg"
+            alt="Crianca segurando a pelucia Bixuco"
+        >
+        <div class="criar-esquerda__conteudo">
+            <img src="/img/Logo_nome.png" alt="Logo Bixuco" class="logo">
+        </div>
+    </div>
+ 
+    <div class="texto">
+ 
+        <h1 class="titulo">Perfil sensorial</h1>
+ 
+        <!-- barra de progresso -->
+        <div class="barra-progresso" id="barra-progresso"></div>
+ 
+        <!-- pergunta -->
+        <p class="pergunta-texto" id="pergunta-texto"></p>
+ 
+        <!-- opções -->
+        <div class="opcoes" id="opcoes"></div>
+ 
+        <!-- botão -->
+        <button class="btn" id="btn-proximo" onclick="proximaPergunta()" disabled>
+            Próxima pergunta
+        </button>
+ 
+    </div>
+ 
+    <script>
+        const perguntas = [
+            "Com que frequência sua criança fica incomodada com barulhos altos ou inesperados?",
+            "Ela demonstra desconforto com texturas de roupas ou alimentos?",
+            "Fica agitada em ambientes com muitas pessoas?",
+            "Tem dificuldade em se concentrar com distrações ao redor?",
+            "Reage de forma intensa a luzes fortes ou piscantes?"
+        ];
+ 
+        const opcoes = ["Sempre", "Quase sempre", "Raramente", "Nunca"];
+ 
+        let perguntaAtual = 0;
+        let respostas = [];
+ 
+        const total = perguntas.length;
+ 
+        // ---- monta a barra de bolinhas ----
+        function montarBarra() {
+            const barra = document.getElementById("barra-progresso");
+            barra.innerHTML = "";
+ 
+            for (let i = 0; i < total; i++) {
+                // linha antes da bolinha (exceto na primeira)
+                if (i > 0) {
+                    const linha = document.createElement("div");
+                    linha.className = "barra-linha";
+                    linha.id = `linha-${i}`;
+                    barra.appendChild(linha);
+                }
+ 
+                const bolinha = document.createElement("div");
+                bolinha.className = "barra-bolinha";
+                bolinha.id = `bolinha-${i}`;
+                barra.appendChild(bolinha);
+            }
+ 
+            atualizarBarra();
+        }
+ 
+        // verde #5bc94a → teal #3ab88a → azul #29a8e0
+        function corBolinha(indice) {
+            const meio = Math.floor(total / 2);
+            if (indice < meio) {
+                // interpola verde → teal
+                const t = indice / Math.max(meio - 1, 1);
+                return interpolarCor([91,201,74], [58,184,138], t);
+            } else {
+                // interpola teal → azul
+                const t = (indice - meio) / Math.max(total - 1 - meio, 1);
+                return interpolarCor([58,184,138], [41,168,224], t);
+            }
+        }
+ 
+        function interpolarCor(a, b, t) {
+            const r = Math.round(a[0] + (b[0]-a[0])*t);
+            const g = Math.round(a[1] + (b[1]-a[1])*t);
+            const bl= Math.round(a[2] + (b[2]-a[2])*t);
+            return `rgb(${r},${g},${bl})`;
+        }
+ 
+        function atualizarBarra() {
+            for (let i = 0; i < total; i++) {
+                const bolinha = document.getElementById(`bolinha-${i}`);
+                const linha   = document.getElementById(`linha-${i}`);
+ 
+                if (i < perguntaAtual) {
+                    // já respondida
+                    bolinha.style.backgroundColor = corBolinha(i);
+                    bolinha.style.borderColor      = corBolinha(i);
+                    if (linha) {
+                        linha.style.backgroundColor = corBolinha(i);
+                    }
+                } else if (i === perguntaAtual) {
+                    // atual
+                    bolinha.style.backgroundColor = corBolinha(i);
+                    bolinha.style.borderColor      = corBolinha(i);
+                } else {
+                    // futura
+                    bolinha.style.backgroundColor = "#ccc";
+                    bolinha.style.borderColor      = "#ccc";
+                    if (linha) linha.style.backgroundColor = "#ccc";
+                }
+            }
+        }
+ 
+        // ---- renderiza pergunta ----
+        function renderizarPergunta() {
+            document.getElementById("pergunta-texto").textContent = perguntas[perguntaAtual];
+ 
+            const container = document.getElementById("opcoes");
+            container.innerHTML = "";
+ 
+            opcoes.forEach((opcao, i) => {
+                const btn = document.createElement("button");
+                btn.className = "opcao-btn";
+                btn.textContent = opcao;
+                btn.onclick = () => selecionarOpcao(i, btn);
+                container.appendChild(btn);
+            });
+ 
+            const btnProximo = document.getElementById("btn-proximo");
+            const ehUltima   = perguntaAtual === total - 1;
+            btnProximo.textContent = ehUltima ? "Finalizar" : "Próxima pergunta";
+            btnProximo.disabled    = true;
+ 
+            atualizarBarra();
+        }
+ 
+        function selecionarOpcao(indice, btnClicado) {
+            // remove seleção anterior
+            document.querySelectorAll(".opcao-btn").forEach(b => b.classList.remove("selecionada"));
+            btnClicado.classList.add("selecionada");
+ 
+            respostas[perguntaAtual] = { pergunta: perguntas[perguntaAtual], resposta: opcoes[indice] };
+            document.getElementById("btn-proximo").disabled = false;
+        }
+ 
+        function proximaPergunta() {
+            if (perguntaAtual < total - 1) {
+                perguntaAtual++;
+                renderizarPergunta();
+            } else {
+                window.location.href = "/home";
+            }
+        }
+ 
+        
+ 
+        
+        montarBarra();
+        renderizarPergunta();
+    </script>
+ 
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Criar conta</title>
+    <!-- icones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- pagina dividida igual ao login: esquerda (foto) e direita (conteudo) -->
+    <div class="pagina-criar-conta">
+
+
+        <!-- =============================================
+             lado esquerdo: foto de fundo com texto
+             mesma estrutura do login para manter consistencia visual
+        ============================================= -->
+        <div class="criar-esquerda">
+
+            <!-- camada escura por cima da foto -->
+            <div class="criar-esquerda__overlay"></div>
+
+            <!-- foto temporaria — trocar depois -->
+            <img
+                class="criar-esquerda__foto"
+                src="/img/foto-bebe-pelucia.jpg"
+                alt="Crianca segurando a pelucia Bixuco"
+            >
+
+            <!-- texto por cima da foto -->
+            <div class="criar-esquerda__conteudo">
+                <h1 class="criar-esquerda__titulo">Vamos comecar juntos</h1>
+                <p class="criar-esquerda__slogan">"Quando as palavras faltam, o Bixuco fala"</p>
+            </div>
+
+        </div>
+
+        <div class="criar-direita">
+
+            <!-- logo no topo -->
+            <div class="criar-direita__logo-container">
+                <img
+                    class="criar-direita__logo"
+                    src="/img/Logo_gato_sem_fundo.png"
+                    alt="Logo Bixuco"
+                >
+            </div>
+
+            <!-- titulo e subtitulo -->
+            <div class="criar-direita__cabecalho">
+                <h2 class="criar-direita__titulo">Criar conta</h2>
+                <p class="criar-direita__subtitulo">Como voce quer se cadastrar?</p>
+            </div>
+
+
+            <!-- =========================================
+                 cards de selecao de tipo de conta
+                 cada card tem: icone, titulo, descricao curta e seta
+                 ao clicar, redireciona para a tela de cadastro correspondente
+                 o card selecionado ganha a classe "tipo-card--selecionado" por um instante antes de redirecionar
+            ========================================= -->
+            <div class="tipo-container">
+
+                <!-- opcao: responsavel -->
+                <button
+                    class="tipo-card"
+                    id="cardResponsavel"
+                    onclick="selecionarTipo('responsavel')"
+                    aria-label="Criar conta como responsavel"
+                >
+                    <div class="tipo-card__icone-wrapper tipo-card__icone-wrapper--responsavel">
+                        <i class="fa-solid fa-heart tipo-card__icone"></i>
+                    </div>
+
+                    <div class="tipo-card__texto">
+                        <span class="tipo-card__titulo">Sou responsavel</span>
+                        <span class="tipo-card__descricao">Pai, mae ou tutor de uma crianca com TPS</span>
+                    </div>
+
+                    <i class="fa-solid fa-chevron-right tipo-card__seta"></i>
+                </button>
+
+                <!-- opcao: psicologo / terapeuta -->
+                <button
+                    class="tipo-card"
+                    id="cardPsicologo"
+                    onclick="selecionarTipo('psicologo')"
+                    aria-label="Criar conta como psicologo"
+                >
+                    <div class="tipo-card__icone-wrapper tipo-card__icone-wrapper--psicologo">
+                        <i class="fa-solid fa-stethoscope tipo-card__icone"></i>
+                    </div>
+
+                    <div class="tipo-card__texto">
+                        <span class="tipo-card__titulo">Sou psicologo</span>
+                        <span class="tipo-card__descricao">Terapeuta que acompanha criancas com TPS</span>
+                    </div>
+
+                    <i class="fa-solid fa-chevron-right tipo-card__seta"></i>
+                </button>
+
+            </div>
+            <!-- fim: cards de selecao -->
+
+
+            <!-- aviso de que o psicologo precisa do CRP
+                 aparece so quando o card de psicologo e clicado
+                 fica escondido por padrao (display none via css)
+            -->
+            <div class="criar-aviso" id="avisoCRP">
+                <i class="fa-solid fa-circle-info criar-aviso__icone"></i>
+                <span class="criar-aviso__texto">Para criar conta como psicologo voce vai precisar do seu numero de CRP.</span>
+            </div>
+
+
+            <!-- link para quem ja tem conta -->
+            <p class="criar-ja-tenho-conta">
+                Ja tem conta?
+                <a class="criar-ja-tenho-conta__link" href="/logar">Fazer login</a>
+            </p>
+
+        </div>
+
+
+    </div>
+
+    <script>
+
+        // guarda qual tipo foi selecionado
+        let tipoSelecionado = null;
+
+        // destinos de cada tipo
+        const destinos = {
+            responsavel: "/CriarContaG",
+            psicologo:   "/CriarContaP"
+        };
+
+        // quando o usuario clica num card:
+        // 1. marca o card visualmente como selecionado
+        // 2. mostra o aviso do CRP se for psicologo
+        // 3. redireciona apos um pequeno delay para dar feedback visual
+        function selecionarTipo(tipo) {
+            tipoSelecionado = tipo;
+
+            // remove selecao anterior se houver
+            document.querySelectorAll(".tipo-card").forEach(card => {
+                card.classList.remove("tipo-card--selecionado");
+            });
+
+            // marca o card clicado
+            const idCard = tipo === "responsavel" ? "cardResponsavel" : "cardPsicologo";
+            document.getElementById(idCard).classList.add("tipo-card--selecionado");
+
+            // mostra aviso de CRP so para psicologo
+            const aviso = document.getElementById("avisoCRP");
+            if (tipo === "psicologo") {
+                aviso.classList.add("criar-aviso--visivel");
+            } else {
+                aviso.classList.remove("criar-aviso--visivel");
+            }
+
+            // pequeno delay antes de redirecionar para o usuario ver o feedback
+            setTimeout(() => {
+                window.location.href = destinos[tipo];
+            }, 300);
+        }
+
+    </script>
+
+</body>
+</html>
