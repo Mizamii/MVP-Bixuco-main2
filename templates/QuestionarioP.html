@@ -1,10 +1,18 @@
+O problema é que o botão está com `onclick="finalizar()"` fixo e não existe uma lista de perguntas no JavaScript. Vou ajustar para você:
+
+1.  Criar um **array com 5 perguntas**
+2.  Controlar qual pergunta está sendo exibida (`perguntaAtual`)
+3.  O botão agora chama `proximaEtapa()`: ele avança a barra, carrega a próxima pergunta e só na última vira "Finalizar" e redireciona para `/home`.
+
+Aqui está o seu código completo e funcionando:
+
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bixuco - Perfil Sensorial</title>
-    <!-- icones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         :root {
@@ -101,7 +109,7 @@
             justify-content: center;
         }
 
-        /* Barra de progresso - 5 bolas conectadas como enfeite */
+        /* Barra de progresso */
         .barra-progresso {
             display: flex;
             align-items: center;
@@ -210,130 +218,152 @@
 <body>
 
     <div class="pagina-criar-conta">
-
         <!-- Lado esquerdo: foto -->
         <div class="criar-esquerda">
-            <img
-                class="criar-esquerda__foto"
-                src="/img/FotoUrso.jpg"
-                alt="Criança segurando a pelúcia Bixuco"
-            >
+            <img class="criar-esquerda__foto" src="/img/FotoUrso.jpg" alt="Criança segurando a pelúcia Bixuco">
             <div class="criar-esquerda__overlay"></div>
-            <img
-                class="criar-esquerda__logo"
-                src="/img/Logo_nome.png"
-                alt="Logo Bixuco"
-            >
+            <img class="criar-esquerda__logo" src="/img/Logo_nome.png" alt="Logo Bixuco">
         </div>
 
         <!-- Lado direito: conteúdo -->
         <div class="criar-direita">
-
-            <!-- Título com divisor -->
             <div class="criar-direita__cabecalho-topo">
                 <h2 class="criar-direita__titulo">Perfil sensorial</h2>
             </div>
 
             <div class="criar-direita__conteudo">
-                
-                <!-- Barra de progresso - 5 bolas conectadas como enfeite -->
+                <!-- Barra de progresso -->
                 <div class="barra-progresso" id="barra-progresso"></div>
 
                 <!-- Pergunta -->
-                <p class="pergunta-texto" id="pergunta-texto">Com que frequência sua criança fica incomodada com barulhos altos ou inesperados?</p>
+                <p class="pergunta-texto" id="pergunta-texto">Carregando...</p>
 
                 <!-- Opções -->
                 <div class="opcoes" id="opcoes">
-                    <button class="opcao-btn" onclick="selecionarOpcao(this)">Sempre</button>
-                    <button class="opcao-btn" onclick="selecionarOpcao(this)">Quase sempre</button>
-                    <button class="opcao-btn" onclick="selecionarOpcao(this)">Raramente</button>
-                    <button class="opcao-btn" onclick="selecionarOpcao(this)">Nunca</button>
+                    <!-- Preenchido via JS -->
                 </div>
 
                 <!-- Botão -->
-                <button class="btn-submit" id="btn-proximo" onclick="finalizar()" disabled>
-                    Finalizar
+                <button class="btn-submit" id="btn-proximo" onclick="proximaEtapa()" disabled>
+                    Próxima pergunta
                 </button>
-
             </div>
-
         </div>
-
     </div>
 
     <script>
-        let progressoAtual = 0; // começa sem nenhuma resposta
-        // Cores oficiais da paleta Bixuco para as bolas
-        const coresBolas = [
-            "#79D836",
-            "#79D836",
-            "#32C26D",
-            "#32C26D",
-            "#0AB7FB",
-            "#0AB7FB",
-            "#1D8EC9",
-            "#1D8EC9"
+        // ===== CONFIGURAÇÃO =====
+        const perguntas = [
+            "Com que frequência sua criança fica incomodada com barulhos altos ou inesperados?",
+            "Sua criança evita certas texturas de alimentos ou tecidos?",
+            "Ela demonstra sensibilidade excessiva à luz ou movimentos rápidos?",
+            "A criança busca atividades com movimento intenso (pular, balançar, girar)?",
+            "Ela tem dificuldade em manter a atenção em tarefas do dia a dia?"
         ];
 
-        function avancarProgresso() {
-            if (progressoAtual < coresBolas.length) {
-                progressoAtual++;
-                montarBarra();
-            }
-        }
+        const coresBolas = [
+            "#79D836", // verde-claro
+            "#79D836", // verde-claro
+            "#32C26D", // verde-escuro
+            "#0AB7FB", // azul-claro
+            "#1D8EC9"  // azul-escuro
+        ];
 
-        // Monta a barra com 5 bolas conectadas
+        let perguntaAtual = 0;
+        let progressoAtual = 0; // quantas já foram respondidas
+
+        // ===== BARRA DE PROGRESSO =====
         function montarBarra() {
             const barra = document.getElementById("barra-progresso");
             barra.innerHTML = "";
+            const total = perguntas.length;
 
-            for (let i = 0; i < 8; i++) {
-
-                // Linha antes da bolinha
+            for (let i = 0; i < total; i++) {
+                // Linha antes da bolinha (exceto na primeira)
                 if (i > 0) {
                     const linha = document.createElement("div");
                     linha.className = "barra-linha";
-
-                    if (i <= progressoAtual) {
+                    // A linha fica colorida se a bolinha ANTERIOR já foi completada
+                    if (i < progressoAtual) {
                         linha.style.backgroundColor = coresBolas[i - 1];
                     } else {
-                        linha.style.backgroundColor = "#D9D9D9";
+                        linha.style.backgroundColor = "var(--cinza-claro)";
                     }
-
                     barra.appendChild(linha);
                 }
 
+                // Bolinha
                 const bolinha = document.createElement("div");
                 bolinha.className = "barra-bolinha";
-
                 if (i < progressoAtual) {
                     bolinha.style.backgroundColor = coresBolas[i];
                     bolinha.style.borderColor = coresBolas[i];
                 } else {
-                    bolinha.style.backgroundColor = "#D9D9D9";
-                    bolinha.style.borderColor = "#D9D9D9";
+                    bolinha.style.backgroundColor = "var(--cinza-claro)";
+                    bolinha.style.borderColor = "var(--cinza-claro)";
                 }
-
                 barra.appendChild(bolinha);
             }
         }
 
+        // ===== CARREGAR PERGUNTA =====
+        function carregarPergunta() {
+            // Atualiza texto
+            document.getElementById("pergunta-texto").textContent = perguntas[perguntaAtual];
+
+            // Recria as opções (para limpar seleção anterior)
+            const container = document.getElementById("opcoes");
+            container.innerHTML = `
+                <button class="opcao-btn" onclick="selecionarOpcao(this)">Sempre</button>
+                <button class="opcao-btn" onclick="selecionarOpcao(this)">Quase sempre</button>
+                <button class="opcao-btn" onclick="selecionarOpcao(this)">Raramente</button>
+                <button class="opcao-btn" onclick="selecionarOpcao(this)">Nunca</button>
+            `;
+
+            // Atualiza botão
+            const btn = document.getElementById("btn-proximo");
+            btn.disabled = true;
+
+            if (perguntaAtual === perguntas.length - 1) {
+                btn.textContent = "Finalizar";
+            } else {
+                btn.textContent = "Próxima pergunta";
+            }
+        }
+
+        // ===== SELECIONAR OPÇÃO =====
         function selecionarOpcao(btnClicado) {
-            // Remove seleção anterior
             document.querySelectorAll(".opcao-btn").forEach(b => b.classList.remove("selecionada"));
             btnClicado.classList.add("selecionada");
-            
-            // Habilita o botão
             document.getElementById("btn-proximo").disabled = false;
+        }
+
+        // ===== AVANÇAR / FINALIZAR =====
+        function proximaEtapa() {
+            // Marca que a pergunta atual foi respondida
+            if (progressoAtual <= perguntaAtual) {
+                progressoAtual = perguntaAtual + 1;
+            }
+
+            // Se ainda houver próxima pergunta
+            if (perguntaAtual < perguntas.length - 1) {
+                perguntaAtual++;
+                carregarPergunta();
+                montarBarra();
+            } else {
+                // Última pergunta: finaliza
+                finalizar();
+            }
         }
 
         function finalizar() {
             window.location.href = "/home";
         }
 
+        // ===== INICIALIZAÇÃO =====
         montarBarra();
+        carregarPergunta();
     </script>
 
 </body>
 </html>
-
