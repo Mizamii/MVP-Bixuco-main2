@@ -262,33 +262,58 @@
     </div>
 
     <script>
+        let progressoAtual = 0; // começa sem nenhuma resposta
         // Cores oficiais da paleta Bixuco para as bolas
         const coresBolas = [
-            "#32C26D", // verde-escuro
-            "#79D836", // verde-claro
-            "#0AB7FB", // azul-claro
-            "#1D8EC9", // azul-escuro
-            "#32C26D"  // verde-escuro de novo
+            "#79D836",
+            "#79D836",
+            "#32C26D",
+            "#32C26D",
+            "#0AB7FB",
+            "#0AB7FB",
+            "#1D8EC9",
+            "#1D8EC9"
         ];
+
+        function avancarProgresso() {
+            if (progressoAtual < coresBolas.length) {
+                progressoAtual++;
+                montarBarra();
+            }
+        }
 
         // Monta a barra com 5 bolas conectadas
         function montarBarra() {
             const barra = document.getElementById("barra-progresso");
             barra.innerHTML = "";
 
-            for (let i = 0; i < 5; i++) {
-                // Linha antes da bolinha (exceto na primeira)
+            for (let i = 0; i < 8; i++) {
+
+                // Linha antes da bolinha
                 if (i > 0) {
                     const linha = document.createElement("div");
                     linha.className = "barra-linha";
-                    linha.style.backgroundColor = coresBolas[i-1];
+
+                    if (i <= progressoAtual) {
+                        linha.style.backgroundColor = coresBolas[i - 1];
+                    } else {
+                        linha.style.backgroundColor = "#D9D9D9";
+                    }
+
                     barra.appendChild(linha);
                 }
 
                 const bolinha = document.createElement("div");
                 bolinha.className = "barra-bolinha";
-                bolinha.style.backgroundColor = coresBolas[i];
-                bolinha.style.borderColor = coresBolas[i];
+
+                if (i < progressoAtual) {
+                    bolinha.style.backgroundColor = coresBolas[i];
+                    bolinha.style.borderColor = coresBolas[i];
+                } else {
+                    bolinha.style.backgroundColor = "#D9D9D9";
+                    bolinha.style.borderColor = "#D9D9D9";
+                }
+
                 barra.appendChild(bolinha);
             }
         }
