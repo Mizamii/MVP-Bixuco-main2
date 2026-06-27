@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco — Login</title>
+
+    <!-- Biblioteca de ícones -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <!-- CSS da página -->
+    <link
+        rel="stylesheet"
+        href="/css/login.css"
+    >
+
+</head>
+<body>
+
+    <main class="login">
+        <!-- parte do lado esquerdo -->
+
+        <section>
+            <!-- parte do texto do lado esquerdo -->
+            <div>
+
+                <!-- Logo branca -->
+                <img
+                    src="/img/Logo_Branca.png"
+                    alt="Logo Bixuco"
+                >
+
+                <!-- Título -->
+                <h1>
+                    Acompanhamento
+                    <br>
+                    infantil
+                    <span>inteligente.</span>
+                </h1>
+
+                <!-- Texto -->
+                <p>
+                    Mais organização, mais conexão e mais cuidado
+                    para famílias e terapeutas.
+                </p>
+            </div>
+
+            <!-- Imagem ilustrativa -->
+            <div>
+                <img
+                    src="/img/login-urso.png"
+                    alt="foto da criança com o bixuco">
+            </div>
+        </section>
+
+        <!-- lado direito -->
+        <section>
+
+            <!-- Logo colorida do gatinho bixuco-->
+            <img
+                src="/img/Logo_Gato.png"
+                alt="Logo Bixuco"
+            >
+
+            <!-- Titulo de bem vindo de volta-->
+            <h2>
+                Bem-vindo
+                <span>de volta!</span>
+            </h2>
+
+            <!-- Texto -->
+            <p>
+                Acesse sua conta para continuar
+            </p>
+
+            <!-- formulario -->
+            <form action="/login" method="POST" onsubmit="return validarLogin()">
+
+                <!-- email -->
+                <div>
+                    <label for="email">
+                        Email
+                    </label>
+
+                    <div>
+
+                        <input
+                            class="login-form__input"
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Digite seu e-mail"
+                            autocomplete="email"
+                            required
+                        >
+
+                    </div>
+
+                    <span
+                        class="login-form__erro"
+                        id="erro-email">
+                    </span>
+                </div>
+
+                <!-- Campo da senha -->
+                <div>
+                    <div>
+                        <label
+                            for="senha">
+                            Senha
+                        </label>
+                    </div>
+
+                    <div>
+                        <input
+                            class="login-form__input"
+                            type="password"
+                            id="senha"
+                            name="senha"
+                            placeholder="Digite sua senha"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="login-form__toggle-senha"
+                            onclick="toggleSenha()"
+                            aria-label="Mostrar senha">
+                            <i
+                                class="fa-solid fa-eye"
+                                id="iconeSenha">
+                            </i>
+                        </button>
+
+                    </div>
+
+                    <span
+                        class="login-form__erro"
+                        id="erro-senha">
+                    </span>
+                </div>
+
+                <!-- Grupo de opções -->
+                <div>
+                    <label>
+
+                        <input type="checkbox" id="lembrar">
+                        <span>Lembrar de mim</span>
+
+                    </label>
+
+                    <a href="/EsqueceuSenha">
+                        Esqueci minha senha
+                    </a>
+
+                </div>
+
+                <button type="submit" href="/home">
+                    Entrar
+                </button>
+                
+            </form>
+
+            <div>
+                <span></span>
+                <p>ou</p>
+                <span></span>
+            </div>
+
+            <button onclick="loginGoogle()">
+                <img
+                    src="/img/google.png"
+                    alt="Google"
+                >
+                <span>Continuar com Google</span>
+            </button>
+
+            <div>
+                <p>
+                    Não tem conta?
+                </p>
+                <a href="/CriarContaS">
+                    Criar conta
+                </a>
+            </div>
+        </section>
+    
+    </main>
+
+    <script>
+
+        function toggleSenha(){
+            const senha = document.getElementById("senha");
+            const icone = document.getElementById("iconeSenha");
+            if(senha.type === "password"){
+                senha.type = "text";
+                icone.classList.remove("fa-eye");
+                icone.classList.add("fa-eye-slash");
+            }
+            else{
+                senha.type = "password";
+                icone.classList.remove("fa-eye-slash");
+                icone.classList.add("fa-eye");
+            }
+        }
+
+        function mostrarErro(inputId,erroId,mensagem){
+            const input = document.getElementById(inputId);
+            const erro = document.getElementById(erroId);
+            input.classList.add("input-erro");
+            erro.innerHTML = mensagem;
+            erro.style.display = "block";
+            setTimeout(()=>{
+                input.classList.remove("input-erro");
+            },500);
+        }
+
+        function limparErros(){
+            const campos = ["email","senha"];
+            campos.forEach(id=>{
+                document.getElementById(id).classList.remove("input-erro");
+                document.getElementById("erro-"+id).style.display="none";
+            });
+        }
+
+        function validarLogin(){
+            limparErros();
+            let valido = true;
+            const email = document.getElementById("email").value.trim();
+            const senha = document.getElementById("senha").value;
+            const regexEmail = /\S+@\S+\.\S+/;
+            if(!regexEmail.test(email)){
+                mostrarErro(
+                    "email",
+                    "erro-email",
+                    "Digite um e-mail válido."
+                );
+                valido = false;
+            }
+            if(senha.length < 6){
+                mostrarErro(
+                    "senha",
+                    "erro-senha",
+                    "A senha deve possuir pelo menos 6 caracteres."
+                );
+                valido = false;
+            }
+            return valido;
+        }
+
+        function loginGoogle(){
+            window.location.href="/auth/google";
+        }
+
+    </script>
+</body>
+</html>
