@@ -1,263 +1,197 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Esqueci a senha</title>
-    <style>
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        :root {
-            --verde-escuro: #32C26D;
-            --verde-claro:  #79D836;
-            --azul-claro:   #0AB7FB;
-            --azul-escuro:  #1D8EC9;
-            --branco:       #F8FAFD;
-            --cinza-claro:  #D9D9D9;
-            --cinza-escuro: #5A5A5A;
-            --preto:        #1a1a1a;
-        }
-
-        html, body {
-            height: 100%;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-        }
-
-        /* ── FOTO FIXADA NA METADE ESQUERDA ── */
-        .foto-lateral {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 50%;
-            height: 100%;
-            z-index: 0;
-        }
-
-        .foto-lateral img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-
-        .foto-lateral__overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.35);
-        }
-
-        .foto-lateral__logo {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10;
-        }
-
-        .foto-lateral__logo img {
-            width: 70%;
-            max-width: 400px;
-        }
-
-        /* ── FORMULÁRIO NA METADE DIREITA ── */
-        .pagina {
-            margin-left: 50%;
-            min-height: 100vh;
-            background: var(--branco);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .topo {
-            padding: 1.5rem 0;
-            text-align: center;
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--cinza-escuro);
-            border-bottom: 1px solid var(--cinza-claro);
-        }
-
-        .centro {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem 4.5rem;
-        }
-
-        .centro__titulo {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--cinza-escuro);
-            margin-bottom: 0.5rem;
-            text-align: center;
-        }
-
-        .centro__descricao {
-            font-size: 0.9rem;
-            color: var(--cinza-escuro);
-            text-align: center;
-            line-height: 1.6;
-            margin-bottom: 2rem;
-            max-width: 380px;
-        }
-
-        .campo {
-            width: 100%;
-            max-width: 380px;
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 0.5rem;
-        }
-
-        .campo label {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--cinza-escuro);
-            margin-bottom: 0.5rem;
-        }
-
-        .campo input {
-            height: 48px;
-            border: 2px solid var(--cinza-claro);
-            border-radius: 8px;
-            padding: 0 1.25rem;
-            font-size: 0.95rem;
-            color: var(--cinza-escuro);
-            background: white;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        .campo input:focus {
-            border-color: var(--azul-claro);
-        }
-
-        .erro {
-            display: none;
-            font-size: 0.8rem;
-            color: #e53e3e;
-            margin-top: 0.25rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .btn {
-            width: 100%;
-            max-width: 380px;
-            padding: 0.8rem;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.3s, color 0.3s;
-        }
-
-        .btn--verde {
-            background: white;
-            border: 2px solid var(--verde-escuro);
-            color: black;
-            margin-top: 1.25rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .btn--verde:hover {
-            background: var(--cinza-claro);
-            color: black;
-        }
-
-        .btn--azul {
-            background: white;
-            border: 2px solid var(--azul-claro);
-            color: black;
-        }
-
-        .btn--azul:hover {
-            background: var(--cinza-claro);
-            color: black;
-        }
-
-        @media (max-width: 900px) {
-            .pagina {
-                margin-left: 0;
-            }
-            .foto-lateral {
-                position: relative;
-                width: 100%;
-                height: 30vh;
-            }
-            .centro, .topo {
-                padding: 1.5rem;
-            }
-        }
-    </style>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+    <title>Bixuco — Recuperar senha</title>
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+    <link
+        rel="stylesheet"
+        href="/css/esqueceusenha.css"
+    >
 </head>
 <body>
+    <main>
 
-    <!-- foto fixada na esquerda -->
-    <div class="foto-lateral">
-        <img src="/img/FotoUrso.jpg" alt="Criança segurando a pelúcia Bixuco">
-        <div class="foto-lateral__overlay"></div>
-        <div class="foto-lateral__logo">
-            <img src="/img/Logo_nome.png" alt="Logo Bixuco">
-        </div>
-    </div>
+        <!--lado esquerdo-->
 
-    <!-- conteúdo da direita -->
-    <div class="pagina">
+        <section>
 
-        <div class="topo">Recuperar senha</div>
+            <div>
+                <!-- Logo branca -->
+                <img
+                    src="/img/Logo_Branca.png"
+                    alt="Logo Bixuco"
+                >
 
-        <div class="centro">
+                <h1>
+                    Acompanhamento
+                    <br>
+                    infantil
+                    <span>inteligente.</span>
+                </h1>
 
-            <h1 class="centro__titulo">Esqueceu a senha?</h1>
-            <p class="centro__descricao">Informe seu email e enviaremos um link para criar uma nova senha.</p>
+                <p>
+                    Mais organização, mais conexão e mais cuidado
+                    para famílias e terapeutas.
+                </p>
+            </div>
 
-            <form style="width:100%;max-width:380px;display:flex;flex-direction:column;"
-                  action="/esqueceu-senha" method="POST" onsubmit="return validarEmail()">
+            <div>
+                <img
+                    src="/img/login-urso.png"
+                    alt="Criança abraçando o Bixuco"
+                >
+            </div>
 
-                <div class="campo">
-                    <label for="email">Email Cadastrado</label>
-                    <input type="email" id="email" name="email" placeholder="" required>
-                    <span class="erro" id="erro-email"></span>
+        </section>
+
+        <!--lado direito-->
+
+        <section>
+
+            <!-- Logo colorida -->
+            <img
+                src="/img/Logo_Gato.png"
+                alt="Logo Bixuco"
+            >
+
+            <!-- Título -->
+            <h2>
+                Recuperar senha
+            </h2>
+
+            <!-- Subtítulo -->
+            <h3>
+                Esqueceu sua senha?
+            </h3>
+
+            <!-- Texto explicativo -->
+            <p>
+                Informe o e-mail cadastrado em sua conta.
+                Enviaremos um link para que você possa criar
+                uma nova senha com segurança.
+            </p>
+
+            <!-- formulario de recuperacao -->
+
+            <form
+                action="/esqueceu-senha"
+                method="POST"
+                onsubmit="return validarEmail()"
+            >
+
+            <!-- campo de email -->
+                <div>
+                    <label
+                        for="email"
+                    >
+                        Email cadastrado
+                    </label>
+
+                    <div>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Digite seu e-mail"
+                            autocomplete="email"
+                            required
+                        >
+                    </div>
+
+                    <!-- mensagem de erro -->
+                    <span
+                        class="recuperar-form__erro"
+                        id="erro-email"
+                    >
+                    </span>
+
                 </div>
 
-                <button class="btn btn--verde" type="submit">Enviar link</button>
-
+                <!-- botao para enviar o link -->
+                <button
+                    type="submit"
+                >
+                    Enviar link de recuperação
+                </button>
             </form>
 
-            <a class="btn btn--azul" href="/logar">Voltar para a tela do login</a>
+            <!-- botao para voltar ao login -->
+            <a
+                href="/logar"
+            >
+                Voltar para o login
+            </a>
 
-        </div>
+        </section>
 
-    </div>
+    </main>
 
     <script>
-        function validarEmail() {
-            const email = document.getElementById("email").value.trim();
-            const erro  = document.getElementById("erro-email");
 
+        // mostra uma mensagem de erro abaixo do campo
+        function mostrarErro(inputId, erroId, mensagem) {
+
+            const input = document.getElementById(inputId);
+            const erro = document.getElementById(erroId);
+
+            input.classList.add("input-erro");
+            erro.textContent = mensagem;
+            erro.style.display = "block";
+
+            setTimeout(() => {
+                input.classList.remove("input-erro");
+            }, 500);
+
+        }
+
+        // limpa as mensagens de erro
+        function limparErros() {
+
+            const input = document.getElementById("email");
+            const erro = document.getElementById("erro-email");
+
+            input.classList.remove("input-erro");
             erro.style.display = "none";
-            erro.textContent   = "";
+            erro.textContent = "";
 
-            if (!/\S+@\S+\.\S+/.test(email)) {
-                erro.textContent   = "Digite um email válido.";
-                erro.style.display = "block";
-                return false;
+        }
+
+        // valida o email antes de enviar o formulario
+        function validarEmail() {
+
+            limparErros();
+
+            let valido = true;
+
+            const email = document.getElementById("email").value.trim();
+
+            // expressao regular para validar email
+            const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            // verifica se o email foi preenchido corretamente
+            if (!regexEmail.test(email)) {
+
+                mostrarErro(
+                    "email",
+                    "erro-email",
+                    "Digite um e-mail válido."
+                );
+
+                valido = false;
+
             }
-            return true;
+            return valido;
         }
     </script>
 
 </body>
 </html>
-
