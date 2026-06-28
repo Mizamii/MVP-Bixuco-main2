@@ -288,6 +288,25 @@
 
     <script>
 
+        document.getElementById("crp").addEventListener("input", function(){
+
+            let valor = this.value
+                .toUpperCase()
+                .replace(/[^0-9]/g, "");
+
+            if(valor.length > 2){
+
+                valor = valor.replace(
+                    /^(\d{2})(\d+)/,
+                    "$1/$2"
+                );
+
+            }
+
+            this.value = "CRP-" + valor;
+
+        });
+
         // máscara do telefone
         document.getElementById("telefone").addEventListener("input", function(){
 
@@ -383,6 +402,14 @@
 
         }
 
+        function validarCRP(crp){
+
+            const regex = /^CRP-\d{2}\/\d{4,6}$/;
+
+            return regex.test(crp);
+
+        }
+
 
         // valida formulário
         function validarCadastro(){
@@ -465,12 +492,12 @@
             }
 
 
-            if(!/^\d+$/.test(crp)){
+            if(!validarCRP(crp)){
 
                 mostrarErro(
                     "crp",
                     "erro-crp",
-                    "Digite apenas números."
+                    "Digite um CRP válido. Ex: CRP-06/12345"
                 );
 
                 valido = false;
