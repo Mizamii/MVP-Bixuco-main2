@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco — Criar conta</title>
+
+    <!-- Biblioteca de ícones -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <!-- CSS da página -->
+    <link
+        rel="stylesheet"
+        href="/css/criarcontasenha.css"
+    >
+
+</head>
+
+<body>
+
+    <main>
+
+        <!-- lado esquerdo -->
+
+        <section>
+
+            <div>
+
+                <!-- Logo branca -->
+
+                <img
+                    src="/img/Logo_Branca.png"
+                    alt="Logo Bixuco"
+                >
+
+                <!-- titulo -->
+
+                <h1>
+                    Crie sua conta
+                </h1>
+
+                <!-- texto -->
+
+                <p>
+                    Pais e terapeutas juntos pelo
+                    bem-estar da criança.
+                </p>
+
+            </div>
+
+            <!-- ilustração -->
+
+            <div>
+
+                <img
+                    src="/img/familia-bixuco.png"
+                    alt="Família utilizando o Bixuco"
+                >
+
+            </div>
+
+        </section>
+
+
+        <!-- lado direito -->
+
+        <section>
+
+            <header>
+
+                <h2>
+                    Criar conta
+                </h2>
+
+            </header>
+
+            <div>
+
+                <!-- barra de progresso -->
+
+                <div class="cadastro-progresso">
+
+                    <span class="ativo"></span>
+                    <span class="ativo"></span>
+                    <span class="ativo"></span>
+
+                </div>
+
+                <!-- titulo -->
+
+                <h3>
+                    Sobre sua segurança
+                </h3>
+
+                <!-- formulario -->
+
+                <form
+                    action="/cadastro-finalizar"
+                    method="POST"
+                    onsubmit="return validarCadastro()"
+                >
+                    <!-- Campo da senha -->
+
+                    <div class="cadastro-form__grupo">
+
+                        <label
+                            for="senha"
+                        >
+                            Senha
+                        </label>
+
+                        <div>
+
+                            <input
+                                type="password"
+                                id="senha"
+                                name="senha"
+                                placeholder="Digite sua senha"
+                                autocomplete="new-password"
+                                minlength="6"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="cadastro-form__toggle-senha"
+                                onclick="toggleSenha('senha','iconeSenha')"
+                                aria-label="Mostrar senha"
+                            >
+
+                                <i
+                                    class="fa-solid fa-eye"
+                                    id="iconeSenha"
+                                >
+                                </i>
+
+                            </button>
+
+                        </div>
+
+                        <span
+                            class="cadastro-form__erro"
+                            id="erro-senha"
+                        >
+                        </span>
+
+                    </div>
+
+
+                    <!-- Confirmar senha -->
+
+                    <div class="cadastro-form__grupo">
+
+                        <label
+                            for="confirmarSenha"
+                        >
+                            Confirmar senha
+                        </label>
+
+                        <div>
+
+                            <input
+                                type="password"
+                                id="confirmarSenha"
+                                name="confirmarSenha"
+                                placeholder="Confirme sua senha"
+                                autocomplete="new-password"
+                                minlength="6"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="cadastro-form__toggle-senha"
+                                onclick="toggleSenha('confirmarSenha','iconeConfirmarSenha')"
+                                aria-label="Mostrar senha"
+                            >
+
+                                <i
+                                    class="fa-solid fa-eye"
+                                    id="iconeConfirmarSenha"
+                                >
+                                </i>
+
+                            </button>
+
+                        </div>
+
+                        <span
+                            class="cadastro-form__erro"
+                            id="erro-confirmarSenha"
+                        >
+                        </span>
+
+                    </div>
+
+
+                    <!-- Botão -->
+
+                    <button
+                        type="submit"
+                    >
+                        Continuar
+                    </button>
+
+                </form>
+
+
+                <!-- Termos -->
+
+                <p>
+
+                    Ao criar sua conta você concorda com nossos
+
+                    <a href="/termos">
+                        Termos de uso
+                    </a>
+
+                    e
+
+                    <a href="/privacidade">
+                        Política de privacidade.
+                    </a>
+
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+        
+        // mostra ou esconde a senha
+        function toggleSenha(inputId, iconeId){
+
+            const input = document.getElementById(inputId);
+            const icone = document.getElementById(iconeId);
+
+            if(input.type === "password"){
+
+                input.type = "text";
+
+                icone.classList.remove("fa-eye");
+                icone.classList.add("fa-eye-slash");
+
+            }
+            else{
+
+                input.type = "password";
+
+                icone.classList.remove("fa-eye-slash");
+                icone.classList.add("fa-eye");
+
+            }
+
+        }
+
+        // mostra mensagem de erro
+        function mostrarErro(inputId, erroId, mensagem){
+
+            const input = document.getElementById(inputId);
+            const erro = document.getElementById(erroId);
+
+            input.classList.add("input-erro");
+
+            erro.textContent = mensagem;
+            erro.style.display = "block";
+
+            setTimeout(()=>{
+
+                input.classList.remove("input-erro");
+
+            },500);
+
+        }
+
+        // limpa mensagens de erro
+        function limparErros(){
+
+            [
+                "senha",
+                "confirmarSenha"
+            ].forEach(id=>{
+
+                const campo = document.getElementById(id);
+                const erro = document.getElementById("erro-"+id);
+
+                if(campo){
+
+                    campo.classList.remove("input-erro");
+
+                }
+
+                if(erro){
+
+                    erro.style.display = "none";
+                    erro.textContent = "";
+
+                }
+
+            });
+
+        }
+
+        // valida formulario
+        function validarCadastro(){
+
+            limparErros();
+
+            let valido = true;
+
+            const senha = document.getElementById("senha").value;
+            const confirmarSenha = document.getElementById("confirmarSenha").value;
+
+            if(senha.length < 6){
+
+                mostrarErro(
+                    "senha",
+                    "erro-senha",
+                    "A senha deve possuir pelo menos 6 caracteres."
+                );
+
+                valido = false;
+
+            }
+
+            if(senha !== confirmarSenha){
+
+                mostrarErro(
+                    "confirmarSenha",
+                    "erro-confirmarSenha",
+                    "As senhas não coincidem."
+                );
+
+                valido = false;
+
+            }
+
+            return valido;
+
+        }
+
+        // mensagens vindas do servidor
+
+        const mensagensServidor = {
+
+            "senha-curta":{
+
+                campo:"senha",
+                msg:"A senha deve possuir pelo menos 6 caracteres."
+
+            },
+
+            "senhas-diferentes":{
+
+                campo:"confirmarSenha",
+                msg:"As senhas não coincidem."
+
+            },
+
+            "erro-interno":{
+
+                campo:"senha",
+                msg:"Ocorreu um erro. Tente novamente."
+
+            }
+
+        };
+
+        const params = new URLSearchParams(window.location.search);
+
+        const erro = params.get("erro");
+
+        if(
+            erro &&
+            mensagensServidor[erro]
+        ){
+
+            mostrarErro(
+
+                mensagensServidor[erro].campo,
+                "erro-"+mensagensServidor[erro].campo,
+                mensagensServidor[erro].msg
+
+            );
+
+        }
+
+    </script>
+
+</body>
+</html>
