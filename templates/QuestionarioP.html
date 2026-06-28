@@ -1,360 +1,347 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bixuco - Perfil Sensorial</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        :root {
-            --verde-escuro:      #32C26D;
-            --verde-claro:       #79D836;
-            --azul-claro:        #0AB7FB;
-            --azul-escuro:       #1D8EC9;
-            --branco:            #F8FAFD;
-            --cinza-claro:       #D9D9D9;
-            --cinza-escuro:      #5A5A5A;
-        }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-        }
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-        body {
-            background: var(--branco);
-            height: 100vh;
-            overflow: hidden;
-        }
+    <title>
+        Bixuco — Perfil sensorial
+    </title>
 
-        .pagina-criar-conta {
-            display: flex;
-            height: 100vh;
-            width: 100%;
-        }
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
 
-        /* Lado esquerdo: foto */
-        .criar-esquerda {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+    <link
+        rel="stylesheet"
+        href="/css/questionariop.css"
+    >
 
-        .criar-esquerda__overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.35);
-            z-index: 5;
-        }
-
-        .criar-esquerda__foto {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .criar-esquerda__logo {
-            position: absolute;
-            width: 70%;
-            max-width: 400px;
-            z-index: 10;
-        }
-
-        /* Lado direito: conteúdo */
-        .criar-direita {
-            flex: 1;
-            background: var(--branco);
-            display: flex;
-            flex-direction: column;
-            padding: 0;
-            overflow-y: auto;
-        }
-
-        .criar-direita__cabecalho-topo {
-            padding: 1.5rem 4.5rem;
-            text-align: center;
-            border-bottom: 1px solid var(--cinza-claro);
-        }
-
-        .criar-direita__titulo {
-            font-size: 1.8rem;
-            color: var(--cinza-escuro);
-            font-weight: 700;
-            margin: 0;
-        }
-
-        .criar-direita__conteudo {
-            padding: 1.5rem 4.5rem;
-            flex: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        /* Barra de progresso */
-        .barra-progresso {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 2rem;
-            gap: 0;
-        }
-
-        .barra-linha {
-            width: 3rem;
-            height: 5px;
-            background: var(--cinza-claro);
-            border-radius: 3px;
-            transition: background 0.3s ease;
-        }
-
-        .barra-bolinha {
-            width: 2.25rem;
-            height: 2.25rem;
-            border-radius: 50%;
-            border: 4px solid;
-            transition: all 0.3s ease;
-            z-index: 2;
-        }
-
-        /* Pergunta */
-        .pergunta-texto {
-            font-size: 1.1rem;
-            color: var(--cinza-escuro);
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        /* Opções */
-        .opcoes {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .opcao-btn {
-            width: 100%;
-            padding: 1rem 1.25rem;
-            background: white;
-            border: 2px solid var(--cinza-claro);
-            border-radius: 8px;
-            font-size: 0.95rem;
-            color: var(--cinza-escuro);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: left;
-        }
-
-        .opcao-btn:hover {
-            border-color: var(--azul-claro);
-        }
-
-        .opcao-btn.selecionada {
-            border-color: var(--azul-claro);
-            background: rgba(10, 183, 251, 0.05);
-        }
-
-        /* Botão */
-        .btn-submit {
-            width: 100%;
-            padding: 0.8rem;
-            background: white;
-            color: black;
-            border: 2px solid var(--verde-escuro);
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 0.5rem;
-        }
-
-        .btn-submit:hover:not(:disabled) {
-            background: var(--cinza-claro);
-            color: black;
-        }
-
-        .btn-submit:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        @media (max-width: 900px) {
-            .pagina-criar-conta {
-                flex-direction: column;
-            }
-
-            .criar-esquerda {
-                height: 30vh;
-            }
-
-            .criar-direita__cabecalho-topo,
-            .criar-direita__conteudo {
-                padding: 1.5rem;
-            }
-        }
-    </style>
 </head>
+
 <body>
 
-    <div class="pagina-criar-conta">
-        <!-- Lado esquerdo: foto -->
-        <div class="criar-esquerda">
-            <img class="criar-esquerda__foto" src="/img/FotoUrso.jpg" alt="Criança segurando a pelúcia Bixuco">
-            <div class="criar-esquerda__overlay"></div>
-            <img class="criar-esquerda__logo" src="/img/Logo_nome.png" alt="Logo Bixuco">
-        </div>
+    <main>
 
-        <!-- Lado direito: conteúdo -->
-        <div class="criar-direita">
-            <div class="criar-direita__cabecalho-topo">
-                <h2 class="criar-direita__titulo">Perfil sensorial</h2>
+        <!-- lado esquerdo -->
+
+        <section>
+
+            <div>
+
+                <!-- logo -->
+                <img
+                    src="/img/Logo_Branca.png"
+                    alt="Logo Bixuco"
+                >
+
+                <!-- titulo -->
+                <h1>
+
+                    Acompanhamento
+                    <br>
+
+                    infantil
+                    <span>inteligente.</span>
+
+                </h1>
+
+                <!-- texto -->
+                <p>
+
+                    Mais organização,
+                    mais conexão e mais cuidado
+                    para famílias e terapeutas.
+
+                </p>
+
             </div>
 
-            <div class="criar-direita__conteudo">
-                <!-- Barra de progresso -->
-                <div class="barra-progresso" id="barra-progresso"></div>
+            <div>
 
-                <!-- Pergunta -->
-                <p class="pergunta-texto" id="pergunta-texto">Carregando...</p>
+                <img
+                    src="/img/questionario-menino.png"
+                    alt="Criança abraçando o Bixuco"
+                >
 
-                <!-- Opções -->
-                <div class="opcoes" id="opcoes">
-                    <!-- Preenchido via JS -->
+            </div>
+
+        </section>
+
+        <!-- lado direito -->
+
+        <section>
+
+            <header>
+
+                <h2>
+
+                    Perfil sensorial
+
+                </h2>
+
+            </header>
+
+            <div>
+
+                <!-- barra de progresso -->
+
+                <div class="questionario-progresso">
+
+                    <span id="texto-progresso">
+
+                        Pergunta 1 de 10
+
+                    </span>
+
+                    <div
+                        class="questionario-progresso__barra"
+                        id="barra-progresso"
+                    >
+
+                    </div>
+
                 </div>
 
-                <!-- Botão -->
-                <button class="btn-submit" id="btn-proximo" onclick="proximaEtapa()" disabled>
+                <!-- pergunta -->
+
+                <h3
+                    id="pergunta-texto"
+                >
+
+                    Carregando...
+
+                </h3>
+
+                <!-- alternativas -->
+
+                <form
+                    id="form-pergunta"
+                >
+
+                    <div
+                        id="opcoes"
+                    >
+
+                        <!-- preenchido pelo javascript -->
+
+                    </div>
+
+                </form>
+
+                <!-- botão -->
+
+                <button
+                    id="btn-proximo"
+                    onclick="proximaPergunta()"
+                    disabled
+                >
+
                     Próxima pergunta
+
                 </button>
+
             </div>
-        </div>
-    </div>
+
+        </section>
+
+    </main>
 
     <script>
-        // ===== CONFIGURAÇÃO =====
+
+        // perguntas
+
         const perguntas = [
+
             "Com que frequência sua criança fica incomodada com barulhos altos ou inesperados?",
+
             "Sua criança evita certas texturas de alimentos ou tecidos?",
+
             "Ela demonstra sensibilidade excessiva à luz ou movimentos rápidos?",
-            "A criança busca atividades com movimento intenso (pular, balançar, girar)?",
-            "Ela tem dificuldade em manter a atenção em tarefas do dia a dia?"
+
+            "Sua criança procura atividades com bastante movimento, como girar ou pular?",
+
+            "Sua criança se distrai facilmente durante atividades?",
+
+            "Ela se incomoda quando alguém encosta nela inesperadamente?",
+
+            "Sua criança gosta de observar objetos girando ou luzes?",
+
+            "Ela evita lugares muito movimentados ou cheios de pessoas?",
+
+            "Sua criança gosta de cheirar objetos frequentemente?",
+
+            "Ela apresenta dificuldade para dormir devido aos estímulos do ambiente?"
+
         ];
 
-        const coresBolas = [
-            "#79D836", // verde-claro
-            "#79D836", // verde-claro
-            "#32C26D", // verde-escuro
-            "#0AB7FB", // azul-claro
-            "#1D8EC9"  // azul-escuro
+        // alternativas
+
+        const alternativas = [
+
+            "Sempre",
+
+            "Quase sempre",
+
+            "Raramente",
+
+            "Nunca"
+
         ];
 
         let perguntaAtual = 0;
-        let progressoAtual = 0; // quantas já foram respondidas
 
-        // ===== BARRA DE PROGRESSO =====
-        function montarBarra() {
-            const barra = document.getElementById("barra-progresso");
-            barra.innerHTML = "";
-            const total = perguntas.length;
+        let respostaSelecionada = null;
 
-            for (let i = 0; i < total; i++) {
-                // Linha antes da bolinha (exceto na primeira)
-                if (i > 0) {
-                    const linha = document.createElement("div");
-                    linha.className = "barra-linha";
-                    // A linha fica colorida se a bolinha ANTERIOR já foi completada
-                    if (i < progressoAtual) {
-                        linha.style.backgroundColor = coresBolas[i - 1];
-                    } else {
-                        linha.style.backgroundColor = "var(--cinza-claro)";
-                    }
-                    barra.appendChild(linha);
-                }
+        // inicia
 
-                // Bolinha
-                const bolinha = document.createElement("div");
-                bolinha.className = "barra-bolinha";
-                if (i < progressoAtual) {
-                    bolinha.style.backgroundColor = coresBolas[i];
-                    bolinha.style.borderColor = coresBolas[i];
-                } else {
-                    bolinha.style.backgroundColor = "var(--cinza-claro)";
-                    bolinha.style.borderColor = "var(--cinza-claro)";
-                }
-                barra.appendChild(bolinha);
+        atualizarPergunta();
+
+        atualizarBarra();
+
+        // atualiza pergunta
+
+        function atualizarPergunta(){
+
+            document.getElementById("pergunta-texto").textContent =
+
+                perguntas[perguntaAtual];
+
+            document.getElementById("texto-progresso").textContent =
+
+                `Pergunta ${perguntaAtual + 1} de ${perguntas.length}`;
+
+            const opcoes = document.getElementById("opcoes");
+
+            opcoes.innerHTML = "";
+
+            alternativas.forEach(opcao=>{
+
+                const botao = document.createElement("button");
+
+                botao.type = "button";
+
+                botao.className = "opcao";
+
+                botao.textContent = opcao;
+
+                botao.onclick = ()=>selecionarOpcao(botao,opcao);
+
+                opcoes.appendChild(botao);
+
+            });
+
+            respostaSelecionada = null;
+
+            document.getElementById("btn-proximo").disabled = true;
+
+            if(perguntaAtual === perguntas.length - 1){
+
+                document.getElementById("btn-proximo").textContent =
+
+                    "Finalizar";
+
             }
+
+            else{
+
+                document.getElementById("btn-proximo").textContent =
+
+                    "Próxima pergunta";
+
+            }
+
         }
 
-        // ===== CARREGAR PERGUNTA =====
-        function carregarPergunta() {
-            // Atualiza texto
-            document.getElementById("pergunta-texto").textContent = perguntas[perguntaAtual];
+        // seleciona alternativa
 
-            // Recria as opções (para limpar seleção anterior)
-            const container = document.getElementById("opcoes");
-            container.innerHTML = `
-                <button class="opcao-btn" onclick="selecionarOpcao(this)">Sempre</button>
-                <button class="opcao-btn" onclick="selecionarOpcao(this)">Quase sempre</button>
-                <button class="opcao-btn" onclick="selecionarOpcao(this)">Raramente</button>
-                <button class="opcao-btn" onclick="selecionarOpcao(this)">Nunca</button>
-            `;
+        function selecionarOpcao(botao,resposta){
 
-            // Atualiza botão
-            const btn = document.getElementById("btn-proximo");
-            btn.disabled = true;
+            document.querySelectorAll(".opcao").forEach(op=>{
 
-            if (perguntaAtual === perguntas.length - 1) {
-                btn.textContent = "Finalizar";
-            } else {
-                btn.textContent = "Próxima pergunta";
-            }
-        }
+                op.classList.remove("selecionada");
 
-        // ===== SELECIONAR OPÇÃO =====
-        function selecionarOpcao(btnClicado) {
-            document.querySelectorAll(".opcao-btn").forEach(b => b.classList.remove("selecionada"));
-            btnClicado.classList.add("selecionada");
+            });
+
+            botao.classList.add("selecionada");
+
+            respostaSelecionada = resposta;
+
             document.getElementById("btn-proximo").disabled = false;
+
         }
 
-        // ===== AVANÇAR / FINALIZAR =====
-        function proximaEtapa() {
-            // Marca que a pergunta atual foi respondida
-            if (progressoAtual <= perguntaAtual) {
-                progressoAtual = perguntaAtual + 1;
+        // barra de progresso
+
+        function atualizarBarra(){
+
+            const barra = document.getElementById("barra-progresso");
+
+            barra.innerHTML = "";
+
+            for(let i = 0; i < perguntas.length; i++){
+
+                const ponto = document.createElement("span");
+
+                if(i < perguntaAtual){
+
+                    ponto.className = "ativo";
+
+                }
+
+                else if(i === perguntaAtual){
+
+                    ponto.className = "atual";
+
+                    ponto.textContent = i + 1;
+
+                }
+
+                barra.appendChild(ponto);
+
             }
 
-            // Se ainda houver próxima pergunta
-            if (perguntaAtual < perguntas.length - 1) {
+        }
+        // próxima pergunta
+
+        function proximaPergunta(){
+
+            if(respostaSelecionada == null){
+
+                return;
+
+            }
+
+            // aqui você pode salvar a resposta futuramente
+
+            if(perguntaAtual < perguntas.length - 1){
+
                 perguntaAtual++;
-                carregarPergunta();
-                montarBarra();
-            } else {
-                // Última pergunta: finaliza
-                finalizar();
+
+                atualizarPergunta();
+
+                atualizarBarra();
+
             }
+
+            else{
+
+                window.location.href = "/home";
+
+            }
+
         }
 
-        function finalizar() {
-            window.location.href = "/home";
-        }
-
-        // ===== INICIALIZAÇÃO =====
-        montarBarra();
-        carregarPergunta();
     </script>
 
 </body>
+
 </html>
+
