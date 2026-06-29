@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco — Relatórios</title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/css/transicao2.css"
+    >
+
+</head>
+
+<body>
+
+    <main id="conteudo">
+
+        <!-- Pular -->
+
+        <a
+            href="/home"
+            class="pular"
+        >
+            Pular
+        </a>
+
+        <!-- Conteúdo -->
+
+        <section>
+
+            <img
+                src="/img/relatorios.png"
+                alt="Relatórios"
+            >
+
+            <h1>
+
+                Relatórios diários
+
+            </h1>
+
+            <p>
+
+                Registre como foi o dia e veja
+                padrões de comportamento ao
+                longo do tempo.
+
+            </p>
+
+        </section>
+
+        <!-- Indicadores -->
+
+        <div>
+
+            <span></span>
+
+            <span class="ativo"></span>
+
+            <span></span>
+
+        </div>
+
+        <!-- Botão voltar -->
+
+        <button
+            onclick="voltar()"
+            aria-label="Voltar"
+        >
+
+            <i class="fa-solid fa-chevron-left"></i>
+
+        </button>
+
+        <!-- Botão avançar -->
+
+        <button
+            onclick="proximo()"
+            aria-label="Próximo"
+        >
+
+            <i class="fa-solid fa-chevron-right"></i>
+
+        </button>
+
+    </main>
+
+    <script>
+
+        // arrastar para o lado celular e pc
+
+        let inicioX = 0;
+        let fimX = 0;
+        let arrastando = false;
+
+        function verificarSwipe(){
+
+            const distancia = fimX - inicioX;
+
+            // voltou para a tela 1
+            if(distancia > 80){
+
+                window.location.href = "/Transicao1";
+
+            }
+
+            // foi para a tela 3
+            if(distancia < -80){
+
+                window.location.href = "/Transicao3";
+
+            }
+
+        }
+
+        //celular
+
+        document.addEventListener("touchstart",(e)=>{
+
+            inicioX = e.touches[0].clientX;
+
+        });
+
+        document.addEventListener("touchmove",(e)=>{
+
+            fimX = e.touches[0].clientX;
+
+        });
+
+        document.addEventListener("touchend",()=>{
+
+            verificarSwipe();
+
+        });
+
+        // pc
+
+        document.addEventListener("mousedown",(e)=>{
+
+            arrastando = true;
+            inicioX = e.clientX;
+
+        });
+
+        document.addEventListener("mousemove",(e)=>{
+
+            if(!arrastando) return;
+
+            fimX = e.clientX;
+
+        });
+
+        document.addEventListener("mouseup",()=>{
+
+            if(!arrastando) return;
+
+            arrastando = false;
+
+            verificarSwipe();
+
+        });
+
+        // caso solte o mouse fora da janela
+        document.addEventListener("mouseleave",()=>{
+
+            arrastando = false;
+
+        });
+
+    </script>
+
+</body>
+
+</html>
