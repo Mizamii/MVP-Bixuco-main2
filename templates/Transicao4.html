@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco — Relatório salvo</title>
+
+    <link
+        rel="stylesheet"
+        href="/css/RelatorioSalvo.css"
+    >
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Imagem -->
+
+    <img
+
+        src="/img/BixucoFeliz.png"
+
+        alt="Bixuco feliz"
+
+        class="bixuco"
+
+    >
+
+
+    <!-- Título -->
+
+    <h1>
+
+        Relatório salvo!
+
+    </h1>
+
+
+    <!-- Texto -->
+
+    <p class="descricao">
+
+        Ótimo trabalho!
+
+        Você registrou o dia de
+
+        <strong id="nomeCrianca">
+
+            sua criança
+
+        </strong>.
+
+        <br>
+
+        Continue assim para ver os padrões ao longo do tempo.
+
+    </p>
+
+
+    <!-- Card de sequência -->
+
+    <div class="card-sequencia">
+
+        <div class="icone">
+
+            🔥
+
+        </div>
+
+        <div class="texto-sequencia">
+
+            <h3>
+
+                <span id="diasSeguidos">
+
+                    1
+
+                </span>
+
+                <span id="textoDias">
+
+                    dia seguido!
+
+                </span>
+
+            </h3>
+
+            <p>
+
+                Sua sequência aumentou
+
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- Botão -->
+
+    <button
+
+        id="btnInicio"
+
+        type="button"
+
+    >
+
+        Voltar ao início
+
+    </button>
+
+</div>
+
+
+
+<script>
+
+// ===========================
+// Buscar dados
+// ===========================
+
+async function carregarDados(){
+
+    try{
+
+        const resposta =
+        await fetch("/dados-home");
+
+        if(!resposta.ok){
+
+            throw new Error();
+
+        }
+
+        const dados =
+        await resposta.json();
+
+        // Nome da criança
+
+        if(dados.nomeCrianca){
+
+            document.getElementById("nomeCrianca").textContent =
+            dados.nomeCrianca;
+
+        }
+
+        // Dias consecutivos
+
+        let dias =
+        dados.diasConsecutivos || 1;
+
+        document.getElementById("diasSeguidos").textContent =
+        dias;
+
+        if(dias == 1){
+
+            document.getElementById("textoDias").textContent =
+            "dia seguido!";
+
+        }
+
+        else{
+
+            document.getElementById("textoDias").textContent =
+            "dias seguidos!";
+
+        }
+
+    }
+
+    catch(erro){
+
+        console.log(erro);
+
+    }
+
+}
+
+
+
+// ===========================
+// Botão
+// ===========================
+
+document
+.getElementById("btnInicio")
+.addEventListener("click",()=>{
+
+    window.location.href="/home";
+
+});
+
+
+
+// ===========================
+// Iniciar
+// ===========================
+
+carregarDados();
+
+</script>
+
+</body>
+
+</html>
