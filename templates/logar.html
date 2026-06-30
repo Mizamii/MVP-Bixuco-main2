@@ -21,13 +21,12 @@
         rel="stylesheet"
         href="/css/login.css"
     >
-
 </head>
+
 <body>
 
     <main class="login">
         <!-- parte do lado esquerdo -->
-
         <section>
             <!-- parte do texto do lado esquerdo -->
             <div>
@@ -57,20 +56,21 @@
             <div>
                 <img
                     src="/img/login-urso.png"
-                    alt="foto da criança com o bixuco">
+                    alt="Foto da criança com o Bixuco"
+                >
             </div>
         </section>
 
         <!-- lado direito -->
         <section>
 
-            <!-- Logo colorida do gatinho bixuco-->
+            <!-- Logo colorida do gatinho bixuco -->
             <img
                 src="/img/Logo_Gato.png"
                 alt="Logo Bixuco"
             >
 
-            <!-- Titulo de bem vindo de volta-->
+            <!-- Título de bem vindo de volta -->
             <h2>
                 Bem-vindo
                 <span>de volta!</span>
@@ -81,8 +81,8 @@
                 Acesse sua conta para continuar
             </p>
 
-            <!-- formulario -->
-            <form action="/login" method="POST" onsubmit="return validarLogin()">
+            <!-- formulário -->
+            <form action="/login" method="POST" onsubmit="return validarLogin()" novalidate>
 
                 <!-- email -->
                 <div>
@@ -91,30 +91,27 @@
                     </label>
 
                     <div>
-
                         <input
                             class="login-form__input"
                             type="email"
                             id="email"
                             name="email"
                             placeholder="Digite seu e-mail"
-                            autocomplete="email"
+                            autocomplete="username"
                             required
                         >
-
                     </div>
 
                     <span
                         class="login-form__erro"
-                        id="erro-email">
-                    </span>
+                        id="erro-email"
+                    ></span>
                 </div>
 
                 <!-- Campo da senha -->
                 <div>
                     <div>
-                        <label
-                            for="senha">
+                        <label for="senha">
                             Senha
                         </label>
                     </div>
@@ -134,40 +131,36 @@
                             type="button"
                             class="login-form__toggle-senha"
                             onclick="toggleSenha()"
-                            aria-label="Mostrar senha">
+                            aria-label="Mostrar senha"
+                        >
                             <i
                                 class="fa-solid fa-eye"
-                                id="iconeSenha">
-                            </i>
+                                id="iconeSenha"
+                            ></i>
                         </button>
-
                     </div>
 
                     <span
                         class="login-form__erro"
-                        id="erro-senha">
-                    </span>
+                        id="erro-senha"
+                    ></span>
                 </div>
 
                 <!-- Grupo de opções -->
                 <div>
                     <label>
-
-                        <input type="checkbox" id="lembrar">
+                        <input type="checkbox" id="lembrar" name="lembrar" value="1">
                         <span>Lembrar de mim</span>
-
                     </label>
 
                     <a href="/EsqueceuSenha">
                         Esqueci minha senha
                     </a>
-
                 </div>
 
-                <button type="submit" href="/home">
+                <button type="submit">
                     Entrar
                 </button>
-                
             </form>
 
             <div>
@@ -176,7 +169,7 @@
                 <span></span>
             </div>
 
-            <button onclick="loginGoogle()">
+            <button type="button" onclick="loginGoogle()">
                 <img
                     src="/img/google.png"
                     alt="Google"
@@ -193,52 +186,63 @@
                 </a>
             </div>
         </section>
-    
     </main>
 
     <script>
-
-        function toggleSenha(){
+        function toggleSenha() {
             const senha = document.getElementById("senha");
             const icone = document.getElementById("iconeSenha");
-            if(senha.type === "password"){
+            const botao = icone.closest("button");
+
+            if (senha.type === "password") {
                 senha.type = "text";
                 icone.classList.remove("fa-eye");
                 icone.classList.add("fa-eye-slash");
-            }
-            else{
+                if (botao) botao.setAttribute("aria-label", "Esconder senha");
+            } else {
                 senha.type = "password";
                 icone.classList.remove("fa-eye-slash");
                 icone.classList.add("fa-eye");
+                if (botao) botao.setAttribute("aria-label", "Mostrar senha");
             }
         }
 
-        function mostrarErro(inputId,erroId,mensagem){
+        function mostrarErro(inputId, erroId, mensagem) {
             const input = document.getElementById(inputId);
             const erro = document.getElementById(erroId);
+
+            if (!input || !erro) return;
+
             input.classList.add("input-erro");
-            erro.innerHTML = mensagem;
+            erro.textContent = mensagem;
             erro.style.display = "block";
-            setTimeout(()=>{
+
+            setTimeout(() => {
                 input.classList.remove("input-erro");
-            },500);
+            }, 500);
         }
 
-        function limparErros(){
-            const campos = ["email","senha"];
-            campos.forEach(id=>{
-                document.getElementById(id).classList.remove("input-erro");
-                document.getElementById("erro-"+id).style.display="none";
+        function limparErros() {
+            const campos = ["email", "senha"];
+
+            campos.forEach(id => {
+                const input = document.getElementById(id);
+                const erro = document.getElementById("erro-" + id);
+
+                if (input) input.classList.remove("input-erro");
+                if (erro) erro.style.display = "none";
             });
         }
 
-        function validarLogin(){
+        function validarLogin() {
             limparErros();
             let valido = true;
+
             const email = document.getElementById("email").value.trim();
             const senha = document.getElementById("senha").value;
             const regexEmail = /\S+@\S+\.\S+/;
-            if(!regexEmail.test(email)){
+
+            if (!regexEmail.test(email)) {
                 mostrarErro(
                     "email",
                     "erro-email",
@@ -246,7 +250,8 @@
                 );
                 valido = false;
             }
-            if(senha.length < 6){
+
+            if (senha.length < 6) {
                 mostrarErro(
                     "senha",
                     "erro-senha",
@@ -254,13 +259,14 @@
                 );
                 valido = false;
             }
+
             return valido;
         }
 
-        function loginGoogle(){
-            window.location.href="/auth/google";
+        function loginGoogle() {
+            window.location.href = "/auth/google";
         }
-
     </script>
+
 </body>
 </html>
