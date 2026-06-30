@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco — Relatórios</title>
+
+    <!-- Font Awesome -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <!-- Chart.js -->
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- CSS -->
+
+    <link
+        rel="stylesheet"
+        href="/css/Relatorios.css"
+    >
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- ========================= -->
+        <!-- MENU LATERAL -->
+        <!-- ========================= -->
+
+        <aside class="sidebar">
+
+            <!-- Logo -->
+
+            <div class="logo">
+
+                <img
+
+                    src="/img/Logo_Colorida.png"
+
+                    alt="Logo Bixuco"
+
+                >
+
+            </div>
+
+
+            <!-- Menu -->
+
+            <nav>
+
+                <a href="/home">
+
+                    <i class="fa-solid fa-house"></i>
+
+                    <span>
+
+                        Início
+
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="/Relatorios"
+                    class="ativo"
+                >
+
+                    <i class="fa-solid fa-chart-line"></i>
+
+                    <span>
+
+                        Relatórios
+
+                    </span>
+
+                </a>
+
+
+                <a href="/Configuracoes">
+
+                    <i class="fa-solid fa-gear"></i>
+
+                    <span>
+
+                        Configurações
+
+                    </span>
+
+                </a>
+
+
+                <a href="/Sobre">
+
+                    <i class="fa-solid fa-circle-info"></i>
+
+                    <span>
+
+                        Sobre
+
+                    </span>
+
+                </a>
+
+            </nav>
+
+
+
+            <!-- Botão relatório diário -->
+
+            <button
+
+                class="btn-relatorio"
+
+                onclick="window.location='/RelatorioDiario'"
+
+            >
+
+                Relatório diário
+
+            </button>
+
+
+
+            <!-- Tema -->
+
+            <div class="tema">
+
+                <button
+
+                    id="temaClaro"
+
+                    class="ativo"
+
+                >
+
+                    <i class="fa-regular fa-sun"></i>
+
+                    Claro
+
+                </button>
+
+
+                <button id="temaEscuro">
+
+                    <i class="fa-regular fa-moon"></i>
+
+                    Escuro
+
+                </button>
+
+            </div>
+
+
+
+            <!-- Sair -->
+
+            <a
+
+                href="/logout"
+
+                class="logout"
+
+            >
+
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+
+                <span>
+
+                    Sair
+
+                </span>
+
+            </a>
+
+        </aside>
+
+
+
+        <!-- ========================= -->
+        <!-- CONTEÚDO -->
+        <!-- ========================= -->
+
+        <main class="conteudo">
+
+            <!-- Cabeçalho -->
+
+            <header class="topo">
+
+                <button
+
+                    class="tradutor"
+
+                    type="button"
+
+                >
+
+                    <i class="fa-solid fa-language"></i>
+
+                    Traduzir para inglês
+
+                </button>
+
+
+
+                <div class="usuario">
+
+                    <button
+
+                        class="notificacao"
+
+                        type="button"
+
+                    >
+
+                        <i class="fa-regular fa-bell"></i>
+
+                    </button>
+
+
+
+                    <img
+
+                        id="fotoUsuario"
+
+                        src="/img/perfilPadrao.png"
+
+                        alt="Perfil"
+
+                    >
+
+
+
+                    <div>
+
+                        <h3 id="nomeUsuario">
+
+                            Carregando...
+
+                        </h3>
+
+                        <span id="tipoConta">
+
+                            ...
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+
+
+            <!-- Cabeçalho da página -->
+
+            <section class="cabecalho">
+
+                <div>
+
+                    <h1>
+
+                        Relatórios
+
+                    </h1>
+
+                </div>
+
+
+
+                <img
+
+                    src="/img/BixucoRelatorios.png"
+
+                    alt="Bixuco"
+
+                    class="bixuco"
+
+                >
+
+            </section>
+
+
+
+            <!-- Abas -->
+
+            <section class="abas">
+
+                <button
+
+                    id="abaGeral"
+
+                    class="aba ativa"
+
+                >
+
+                    Visão geral
+
+                </button>
+
+
+                <button
+
+                    id="abaDiario"
+
+                    class="aba"
+
+                >
+
+                    Diário
+
+                </button>
+
+            </section>
+
+
+
+            <!-- Conteúdo da visão geral -->
+
+            <section
+
+                id="conteudoGeral"
+
+                class="conteudo-abas"
+
+            >
+                <!-- ========================= -->
+                <!-- CARDS SUPERIORES -->
+                <!-- ========================= -->
+
+                <div class="cards-superiores">
+
+                    <!-- Alertas -->
+
+                    <div class="card">
+
+                        <h2>
+
+                            Alertas de estresse
+
+                        </h2>
+
+                        <div class="valor positivo">
+
+                            <i class="fa-solid fa-arrow-down"></i>
+
+                            <span id="alertasEstresse">
+
+                                18
+
+                            </span>
+
+                        </div>
+
+                        <p>
+
+                            <span id="comparacaoAlertas">
+
+                                2
+
+                            </span>
+
+                            comparado à semana passada
+
+                        </p>
+
+                    </div>
+
+
+
+                    <!-- Tempo -->
+
+                    <div class="card">
+
+                        <h2>
+
+                            Tempo de estresse
+
+                        </h2>
+
+                        <div class="valor negativo">
+
+                            <i class="fa-solid fa-arrow-up"></i>
+
+                            <span id="tempoEstresse">
+
+                                120 min
+
+                            </span>
+
+                        </div>
+
+                        <p>
+
+                            <span id="comparacaoTempo">
+
+                                1 min
+
+                            </span>
+
+                            comparado à semana passada
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- ========================= -->
+                <!-- GRÁFICOS DO MEIO -->
+                <!-- ========================= -->
+
+                <div class="graficos-meio">
+
+                    <!-- Barras -->
+
+                    <div class="card-grafico">
+
+                        <div class="titulo-card">
+
+                            <h3>
+
+                                Estresse — últimos 7 dias
+
+                            </h3>
+
+                            <i class="fa-solid fa-chart-column"></i>
+
+                        </div>
+
+                        <canvas
+
+                            id="graficoBarras"
+
+                        ></canvas>
+
+                    </div>
+
+
+
+                    <!-- Pizza -->
+
+                    <div class="card-grafico">
+
+                        <div class="titulo-card">
+
+                            <h3>
+
+                                Principais gatilhos — últimos 7 dias
+
+                            </h3>
+
+                            <i class="fa-solid fa-chart-pie"></i>
+
+                        </div>
+
+                        <canvas
+
+                            id="graficoPizza"
+
+                        ></canvas>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- ========================= -->
+                <!-- EVOLUÇÃO -->
+                <!-- ========================= -->
+
+                <div class="card-grafico grande">
+
+                    <div class="titulo-card">
+
+                        <h3>
+
+                            Evolução do estresse — últimos 7 dias
+
+                        </h3>
+
+                        <i class="fa-solid fa-chart-line"></i>
+
+                    </div>
+
+                    <canvas
+
+                        id="graficoLinha"
+
+                    ></canvas>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- ========================= -->
+            <!-- ABA DIÁRIO -->
+            <!-- ========================= -->
+
+            <section
+
+                id="conteudoDiario"
+
+                class="conteudo-abas"
+
+                style="display:none;"
+
+            >
+
+                <div class="card-diario">
+
+                    <h2>
+
+                        Relatórios diários
+
+                    </h2>
+
+                    <p>
+
+                        Aqui aparecerão todos os relatórios preenchidos pelo responsável.
+
+                    </p>
+
+                    <table class="tabela-relatorios">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+
+                                    Data
+
+                                </th>
+
+                                <th>
+
+                                    Criança
+
+                                </th>
+
+                                <th>
+
+                                    Situação
+
+                                </th>
+
+                                <th>
+
+                                    Ações
+
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="listaRelatorios">
+
+                            <!-- JavaScript irá preencher -->
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <script>
+    // ===============================
+    // TROCA DE ABAS
+    // ===============================
+
+    const abaGeral = document.getElementById("abaGeral");
+    const abaDiario = document.getElementById("abaDiario");
+
+    const conteudoGeral = document.getElementById("conteudoGeral");
+    const conteudoDiario = document.getElementById("conteudoDiario");
+
+    abaGeral.onclick = () => {
+
+        abaGeral.classList.add("ativa");
+        abaDiario.classList.remove("ativa");
+
+        conteudoGeral.style.display = "block";
+        conteudoDiario.style.display = "none";
+
+    };
+
+    abaDiario.onclick = () => {
+
+        abaDiario.classList.add("ativa");
+        abaGeral.classList.remove("ativa");
+
+        conteudoDiario.style.display = "block";
+        conteudoGeral.style.display = "none";
+
+    };
+
+    // ===============================
+    // TEMA
+    // ===============================
+
+    document.getElementById("temaClaro").onclick = ()=>{
+
+        document.body.classList.remove("escuro");
+
+        document.getElementById("temaClaro").classList.add("ativo");
+
+        document.getElementById("temaEscuro").classList.remove("ativo");
+
+    };
+
+    document.getElementById("temaEscuro").onclick = ()=>{
+
+        document.body.classList.add("escuro");
+
+        document.getElementById("temaEscuro").classList.add("ativo");
+
+        document.getElementById("temaClaro").classList.remove("ativo");
+
+    };
+
+    // ===============================
+    // DADOS DO USUÁRIO
+    // ===============================
+
+    async function carregarUsuario(){
+
+        try{
+
+            const resposta = await fetch("/dados-usuario");
+
+            if(!resposta.ok){
+
+                return;
+
+            }
+
+            const usuario = await resposta.json();
+
+            document.getElementById("nomeUsuario").textContent =
+                usuario.nome;
+
+            document.getElementById("tipoConta").textContent =
+                usuario.tipo;
+
+            if(usuario.foto){
+
+                document.getElementById("fotoUsuario").src =
+                    usuario.foto;
+
+            }
+
+        }
+
+        catch(erro){
+
+            console.log(erro);
+
+        }
+
+    }
+
+    // ===============================
+    // GRÁFICO DE BARRAS
+    // ===============================
+
+    new Chart(
+
+        document.getElementById("graficoBarras"),
+
+        {
+
+            type:"bar",
+
+            data:{
+
+                labels:[
+                    "Sex",
+                    "Sáb",
+                    "Dom",
+                    "Seg",
+                    "Ter",
+                    "Qua",
+                    "Qui"
+                ],
+
+                datasets:[{
+
+                    data:[2,4,2,8,7,3,1],
+
+                    borderWidth:0,
+
+                    borderRadius:8,
+
+                    backgroundColor:[
+                        "#7ED957",
+                        "#FDBA12",
+                        "#7ED957",
+                        "#FF3B3B",
+                        "#FF8A26",
+                        "#FDBA12",
+                        "#7ED957"
+                    ]
+
+                }]
+
+            },
+
+            options:{
+
+                responsive:true,
+
+                plugins:{
+
+                    legend:{
+                        display:false
+                    }
+
+                },
+
+                scales:{
+
+                    y:{
+                        beginAtZero:true,
+                        display:false
+                    }
+
+                }
+
+            }
+
+        }
+
+    );
+
+    // ===============================
+    // GRÁFICO DE PIZZA
+    // ===============================
+
+    new Chart(
+
+        document.getElementById("graficoPizza"),
+
+        {
+
+            type:"doughnut",
+
+            data:{
+
+                labels:[
+
+                    "Ambientes barulhentos",
+
+                    "Locais lotados",
+
+                    "Mudanças de rotina",
+
+                    "Texturas"
+
+                ],
+
+                datasets:[{
+
+                    data:[42,28,18,12],
+
+                    backgroundColor:[
+
+                        "#34C759",
+
+                        "#2DA7F5",
+
+                        "#2E86C1",
+
+                        "#D9D9D9"
+
+                    ],
+
+                    borderWidth:0
+
+                }]
+
+            },
+
+            options:{
+
+                responsive:true,
+
+                plugins:{
+
+                    legend:{
+
+                        position:"right"
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    );
+
+    // ===============================
+    // GRÁFICO DE LINHA
+    // ===============================
+
+    new Chart(
+
+        document.getElementById("graficoLinha"),
+
+        {
+
+            type:"line",
+
+            data:{
+
+                labels:[
+
+                    "Sex",
+
+                    "Sáb",
+
+                    "Dom",
+
+                    "Seg",
+
+                    "Ter",
+
+                    "Qua",
+
+                    "Qui"
+
+                ],
+
+                datasets:[{
+
+                    data:[2,3,2,4,8,5,2],
+
+                    borderColor:"#7ED957",
+
+                    backgroundColor:"rgba(126,217,87,.20)",
+
+                    fill:true,
+
+                    tension:.4,
+
+                    pointRadius:4,
+
+                    pointHoverRadius:6
+
+                }]
+
+            },
+
+            options:{
+
+                responsive:true,
+
+                plugins:{
+
+                    legend:{
+                        display:false
+                    }
+
+                }
+
+            }
+
+        }
+
+    );
+
+    // ===============================
+    // TABELA
+    // ===============================
+
+    async function carregarRelatorios(){
+
+        try{
+
+            const resposta = await fetch("/listar-relatorios");
+
+            if(!resposta.ok){
+
+                return;
+
+            }
+
+            const lista = await resposta.json();
+
+            const tbody =
+            document.getElementById("listaRelatorios");
+
+            tbody.innerHTML="";
+
+            lista.forEach(relatorio=>{
+
+                tbody.innerHTML += `
+
+                <tr>
+
+                    <td>
+
+                        ${relatorio.data}
+
+                    </td>
+
+                    <td>
+
+                        ${relatorio.crianca}
+
+                    </td>
+
+                    <td>
+
+                        ${relatorio.status}
+
+                    </td>
+
+                    <td>
+
+                        <button>
+
+                            Ver
+
+                        </button>
+
+                    </td>
+
+                </tr>
+
+                `;
+
+            });
+
+        }
+
+        catch(erro){
+
+            console.log(erro);
+
+        }
+
+    }
+
+    // ===============================
+    // INICIAR
+    // ===============================
+
+    carregarUsuario();
+
+    carregarRelatorios();
+
+    </script>
+
+</body>
+</html>
