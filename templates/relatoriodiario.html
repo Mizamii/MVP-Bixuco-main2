@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco — Relatório diário</title>
+
+    <!-- Ícones -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <!-- CSS -->
+
+    <link
+        rel="stylesheet"
+        href="/css/relatoriodiario.css"
+    >
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- ========================= -->
+    <!-- MENU LATERAL -->
+    <!-- ========================= -->
+
+    <aside class="sidebar">
+
+        <!-- Logo -->
+
+        <div class="logo">
+
+            <img
+                src="/img/Logo_Colorida.png"
+                alt="Logo Bixuco"
+            >
+
+        </div>
+
+
+        <!-- Menu -->
+
+        <nav>
+
+            <a href="/home">
+
+                <i class="fa-solid fa-house"></i>
+
+                <span>
+                    Início
+                </span>
+
+            </a>
+
+
+            <a href="/Relatorios">
+
+                <i class="fa-solid fa-chart-line"></i>
+
+                <span>
+                    Relatórios
+                </span>
+
+            </a>
+
+
+            <a href="/Configuracoes">
+
+                <i class="fa-solid fa-gear"></i>
+
+                <span>
+                    Configurações
+                </span>
+
+            </a>
+
+
+            <a href="/Sobre">
+
+                <i class="fa-solid fa-circle-info"></i>
+
+                <span>
+                    Sobre
+                </span>
+
+            </a>
+
+        </nav>
+
+
+
+        <!-- Botão principal -->
+
+        <button
+            class="btn-relatorio ativo"
+            type="button"
+        >
+
+            Relatório diário
+
+        </button>
+
+
+
+        <!-- Tema -->
+
+        <div class="tema">
+
+            <button
+                id="temaClaro"
+                class="ativo"
+            >
+
+                <i class="fa-regular fa-sun"></i>
+
+                Claro
+
+            </button>
+
+            <button id="temaEscuro">
+
+                <i class="fa-regular fa-moon"></i>
+
+                Escuro
+
+            </button>
+
+        </div>
+
+
+
+        <!-- Sair -->
+
+        <a
+            href="/logout"
+            class="logout"
+        >
+
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+
+            <span>
+                Sair
+            </span>
+
+        </a>
+
+    </aside>
+
+
+
+    <!-- ========================= -->
+    <!-- CONTEÚDO -->
+    <!-- ========================= -->
+
+    <main class="conteudo">
+
+        <!-- Cabeçalho -->
+
+        <header class="topo">
+
+            <button
+                class="tradutor"
+                type="button"
+            >
+
+                <i class="fa-solid fa-language"></i>
+
+                Traduzir para inglês
+
+            </button>
+
+
+
+            <div class="usuario">
+
+                <button
+                    class="notificacao"
+                    type="button"
+                >
+
+                    <i class="fa-regular fa-bell"></i>
+
+                </button>
+
+
+
+                <img
+
+                    id="fotoUsuario"
+
+                    src="/img/perfilPadrao.png"
+
+                    alt="Perfil"
+
+                >
+
+
+
+                <div>
+
+                    <h3 id="nomeUsuario">
+
+                        Carregando...
+
+                    </h3>
+
+                    <span id="tipoConta">
+
+                        ...
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- Título -->
+
+        <section class="cabecalho-relatorio">
+
+            <div>
+
+                <h1>
+
+                    Relatório diário
+
+                </h1>
+
+                <p>
+
+                    Ajude-nos a acompanhar o desenvolvimento
+                    da sua criança de forma personalizada.
+
+                </p>
+
+            </div>
+
+
+            <img
+
+                src="/img/BixucoRelatorio.png"
+
+                alt="Mascote"
+
+            >
+
+        </section>
+
+
+
+        <!-- Card principal -->
+
+        <section class="card-relatorio">
+
+            <!-- Barra superior -->
+
+            <div class="topo-card">
+
+                <span id="contadorPergunta">
+
+                    Pergunta 1 de 10
+
+                </span>
+
+
+                <span
+                    id="porcentagem"
+                    class="porcentagem"
+                >
+
+                    10% concluído
+
+                </span>
+
+            </div>
+
+
+
+            <!-- Barra de progresso -->
+
+            <div
+                class="barra-progresso"
+                id="barraProgresso"
+            >
+
+                <!-- O JavaScript irá criar os círculos -->
+
+            </div>
+
+
+
+            <!-- Pergunta -->
+
+            <h2 id="textoPergunta">
+
+                Carregando pergunta...
+
+            </h2>
+
+
+
+            <!-- Respostas -->
+
+            <div
+                id="listaRespostas"
+                class="lista-respostas"
+            >
+                <!-- Pergunta -->
+
+                <section class="relatorio-card">
+
+                    <!-- Barra superior -->
+
+                    <div class="relatorio-topo">
+
+                        <span id="contadorPergunta">
+
+                            Pergunta 1 de 10
+
+                        </span>
+
+                        <span id="porcentagem">
+
+                            10% concluído
+
+                        </span>
+
+                    </div>
+
+                    <!-- Barra de progresso -->
+
+                    <div class="barra-perguntas">
+
+                        <div class="barra-linha"></div>
+
+                        <div
+                            class="barra-preenchida"
+                            id="barraPreenchida"
+                        ></div>
+
+                        <div
+                            class="bolinha ativa"
+                            data-numero="1"
+                        ></div>
+
+                        <div
+                            class="bolinha"
+                            data-numero="2"
+                        ></div>
+
+                        <div
+                            class="bolinha"
+                            data-numero="3"
+                        ></div>
+
+                        <div
+                            class="bolinha"
+                            data-numero="4"
+                        ></div>
+
+                        <div
+                            class="bolinha"
+                            data-numero="5"
+                        ></div>
+
+                        <div
+                            class="bolinha"
+                            data-numero="6"
+                        ></div>
+
+                        <div
+                            class="bolinha"
+                            data-numero="7"
+                        ></div>
+
+                        <div
+                            class="bolinha"
+                            data-numero="8"
+                        ></div>
+
+                        <div
+                            class="bolinha"
+                            data-numero="9"
+                        ></div>
+
+                        <div
+                            class="bolinha"
+                            data-numero="10"
+                        ></div>
+
+                    </div>
+
+                    <!-- Pergunta -->
+
+                    <h2 id="textoPergunta">
+
+                        Carregando...
+
+                    </h2>
+
+                    <!-- Respostas -->
+
+                    <div
+                        class="respostas"
+                        id="respostas"
+                    >
+
+                    </div>
+
+                    <!-- Botão -->
+
+                    <button
+                        id="btnProxima"
+                        disabled
+                    >
+
+                        Próxima pergunta
+
+                    </button>
+
+                </section>
+
+            </main>
+
+        </div>
+
+        <!-- JavaScript -->
+
+<script>
+
+// ==========================
+// Perguntas do relatório
+// ==========================
+
+const perguntas = [
+
+{
+    pergunta: "Ela demonstra desconforto com texturas de roupas ou alimentos?",
+    respostas: [
+        "Sempre",
+        "Quase sempre",
+        "Raramente",
+        "Nunca"
+    ]
+},
+
+{
+    pergunta: "Hoje ela evitou contato visual?",
+    respostas: [
+        "Sempre",
+        "Quase sempre",
+        "Raramente",
+        "Nunca"
+    ]
+},
+
+{
+    pergunta: "Como foi a comunicação hoje?",
+    respostas: [
+        "Muito boa",
+        "Boa",
+        "Pouca",
+        "Nenhuma"
+    ]
+},
+
+{
+    pergunta: "Como estava o humor durante o dia?",
+    respostas: [
+        "Muito calmo",
+        "Calmo",
+        "Agitado",
+        "Muito agitado"
+    ]
+},
+
+{
+    pergunta: "Apresentou crises sensoriais?",
+    respostas:[
+        "Sim, várias",
+        "Algumas",
+        "Poucas",
+        "Nenhuma"
+    ]
+},
+
+{
+    pergunta: "Dormiu bem?",
+    respostas:[
+        "Muito bem",
+        "Bem",
+        "Pouco",
+        "Muito pouco"
+    ]
+},
+
+{
+    pergunta: "Como foi a alimentação?",
+    respostas:[
+        "Muito boa",
+        "Boa",
+        "Regular",
+        "Ruim"
+    ]
+},
+
+{
+    pergunta: "Realizou atividades propostas?",
+    respostas:[
+        "Todas",
+        "Quase todas",
+        "Poucas",
+        "Nenhuma"
+    ]
+},
+
+{
+    pergunta: "Como foi a interação social?",
+    respostas:[
+        "Excelente",
+        "Boa",
+        "Pouca",
+        "Nenhuma"
+    ]
+},
+
+{
+    pergunta: "Como você avaliaria o dia de hoje?",
+    respostas:[
+        "Excelente",
+        "Bom",
+        "Regular",
+        "Difícil"
+    ]
+}
+
+];
+
+// ==========================
+// Controle
+// ==========================
+
+let perguntaAtual = 0;
+
+const respostasUsuario = [];
+
+// ==========================
+// Atualiza tela
+// ==========================
+
+function carregarPergunta(){
+
+    const atual = perguntas[perguntaAtual];
+
+    document.getElementById("tituloPergunta").textContent =
+        atual.pergunta;
+
+    document.getElementById("numeroPergunta").innerHTML =
+        `Pergunta <strong>${perguntaAtual+1}</strong> de ${perguntas.length}`;
+
+    document.getElementById("porcentagem").textContent =
+        `${Math.round(((perguntaAtual)/perguntas.length)*100)}% concluído`;
+
+    atualizarBarra();
+
+    const opcoes = document.getElementById("opcoes");
+
+    opcoes.innerHTML = "";
+
+    atual.respostas.forEach(resposta=>{
+
+        const botao = document.createElement("button");
+
+        botao.type = "button";
+
+        botao.className = "opcao";
+
+        botao.textContent = resposta;
+
+        botao.onclick = ()=>selecionarResposta(resposta);
+
+        opcoes.appendChild(botao);
+
+    });
+
+}
+
+// ==========================
+// Barra
+// ==========================
+
+function atualizarBarra(){
+
+    const barra = document.getElementById("barra");
+
+    barra.innerHTML="";
+
+    perguntas.forEach((p,index)=>{
+
+        const bolinha = document.createElement("span");
+
+        if(index < perguntaAtual){
+
+            bolinha.className="respondida";
+
+        }
+
+        else if(index===perguntaAtual){
+
+            bolinha.className="atual";
+
+        }
+
+        else{
+
+            bolinha.className="futura";
+
+        }
+
+        barra.appendChild(bolinha);
+
+    });
+
+}
+
+// ==========================
+// Escolha
+// ==========================
+
+function selecionarResposta(resposta){
+
+    respostasUsuario[perguntaAtual]=resposta;
+
+    perguntaAtual++;
+
+    if(perguntaAtual>=perguntas.length){
+
+        finalizarRelatorio();
+
+        return;
+
+    }
+
+    carregarPergunta();
+
+}
+
+// ==========================
+// Finalizar
+// ==========================
+
+async function finalizarRelatorio(){
+
+    try{
+
+        const resposta = await fetch("/salvar-relatorio",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify({
+
+                respostas:respostasUsuario,
+
+                data:new Date()
+
+            })
+
+        });
+
+        if(!resposta.ok){
+
+            throw new Error();
+
+        }
+
+        window.location.href="/home";
+
+    }
+
+    catch{
+
+        alert("Erro ao salvar relatório.");
+
+    }
+
+}
+
+// ==========================
+// Iniciar
+// ==========================
+
+carregarPergunta();
+
+</script>
