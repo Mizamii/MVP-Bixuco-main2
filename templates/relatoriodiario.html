@@ -30,685 +30,669 @@
 
 <body>
 
-<div class="container">
+    <div class="container">
 
-    <!-- ========================= -->
-    <!-- MENU LATERAL -->
-    <!-- ========================= -->
+        <!-- ========================= -->
+        <!-- MENU LATERAL -->
+        <!-- ========================= -->
 
-    <aside class="sidebar">
+        <aside class="sidebar">
 
-        <!-- Logo -->
+            <div class="logo">
 
-        <div class="logo">
+                <img
+                    src="/img/Logo_Colorida.png"
+                    alt="Logo Bixuco"
+                >
 
-            <img
-                src="/img/Logo_Colorida.png"
-                alt="Logo Bixuco"
-            >
+            </div>
 
-        </div>
+            <nav>
 
+                <a href="/home">
 
-        <!-- Menu -->
+                    <i class="fa-solid fa-house"></i>
 
-        <nav>
+                    <span>Início</span>
 
-            <a href="/home">
+                </a>
 
-                <i class="fa-solid fa-house"></i>
+                <a href="/Relatorios">
 
-                <span>
-                    Início
-                </span>
+                    <i class="fa-solid fa-chart-line"></i>
 
-            </a>
+                    <span>Relatórios</span>
 
+                </a>
 
-            <a href="/Relatorios">
+                <a href="/Configuracoes">
 
-                <i class="fa-solid fa-chart-line"></i>
+                    <i class="fa-solid fa-gear"></i>
 
-                <span>
-                    Relatórios
-                </span>
+                    <span>Configurações</span>
 
-            </a>
+                </a>
 
+                <a href="/Sobre">
 
-            <a href="/Configuracoes">
+                    <i class="fa-solid fa-circle-info"></i>
 
-                <i class="fa-solid fa-gear"></i>
+                    <span>Sobre</span>
 
-                <span>
-                    Configurações
-                </span>
+                </a>
 
-            </a>
-
-
-            <a href="/Sobre">
-
-                <i class="fa-solid fa-circle-info"></i>
-
-                <span>
-                    Sobre
-                </span>
-
-            </a>
-
-        </nav>
-
-
-
-        <!-- Botão principal -->
-
-        <button
-            class="btn-relatorio ativo"
-            type="button"
-        >
-
-            Relatório diário
-
-        </button>
-
-
-
-        <!-- Tema -->
-
-        <div class="tema">
+            </nav>
 
             <button
-                id="temaClaro"
-                class="ativo"
-            >
-
-                <i class="fa-regular fa-sun"></i>
-
-                Claro
-
-            </button>
-
-            <button id="temaEscuro">
-
-                <i class="fa-regular fa-moon"></i>
-
-                Escuro
-
-            </button>
-
-        </div>
-
-
-
-        <!-- Sair -->
-
-        <a
-            href="/logout"
-            class="logout"
-        >
-
-            <i class="fa-solid fa-arrow-right-from-bracket"></i>
-
-            <span>
-                Sair
-            </span>
-
-        </a>
-
-    </aside>
-
-
-
-    <!-- ========================= -->
-    <!-- CONTEÚDO -->
-    <!-- ========================= -->
-
-    <main class="conteudo">
-
-        <!-- Cabeçalho -->
-
-        <header class="topo">
-
-            <button
-                class="tradutor"
+                class="btn-relatorio ativo"
                 type="button"
             >
 
-                <i class="fa-solid fa-language"></i>
-
-                Traduzir para inglês
+                Relatório diário
 
             </button>
 
-
-
-            <div class="usuario">
+            <div class="tema">
 
                 <button
-                    class="notificacao"
-                    type="button"
+                    id="temaClaro"
+                    class="ativo"
                 >
 
-                    <i class="fa-regular fa-bell"></i>
+                    <i class="fa-regular fa-sun"></i>
+
+                    Claro
 
                 </button>
 
+                <button id="temaEscuro">
+
+                    <i class="fa-regular fa-moon"></i>
+
+                    Escuro
+
+                </button>
+
+            </div>
+
+            <a
+                href="/logout"
+                class="logout"
+            >
+
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+
+                <span>Sair</span>
+
+            </a>
+
+        </aside>
 
 
-                <img
 
-                    id="fotoUsuario"
+        <!-- ========================= -->
+        <!-- CONTEÚDO -->
+        <!-- ========================= -->
 
-                    src="/img/perfilPadrao.png"
+        <main class="conteudo">
 
-                    alt="Perfil"
+            <!-- Cabeçalho -->
 
+            <header class="topo">
+
+                <button
+                    class="tradutor"
+                    type="button"
                 >
 
+                    <i class="fa-solid fa-language"></i>
 
+                    Traduzir para inglês
+
+                </button>
+
+                <div class="usuario">
+
+                    <button
+                        class="notificacao"
+                        type="button"
+                    >
+
+                        <i class="fa-regular fa-bell"></i>
+
+                    </button>
+
+                    <img
+                        id="fotoUsuario"
+                        src="/img/perfilPadrao.png"
+                        alt="Perfil"
+                    >
+
+                    <div>
+
+                        <h3 id="nomeUsuario">
+
+                            Carregando...
+
+                        </h3>
+
+                        <span id="tipoConta">
+
+                            ...
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+
+
+            <!-- Cabeçalho da página -->
+
+            <section class="cabecalho-relatorio">
 
                 <div>
 
-                    <h3 id="nomeUsuario">
+                    <h1>
 
-                        Carregando...
+                        Relatório diário
 
-                    </h3>
+                    </h1>
 
-                    <span id="tipoConta">
+                    <p>
 
-                        ...
+                        Ajude-nos a acompanhar o desenvolvimento
+                        da sua criança de forma personalizada.
+
+                    </p>
+
+                </div>
+
+                <img
+                    src="/img/BixucoRelatorio.png"
+                    alt="Mascote"
+                >
+
+            </section>
+
+
+
+            <!-- ========================= -->
+            <!-- CARD DO RELATÓRIO -->
+            <!-- ========================= -->
+
+            <section class="card-relatorio">
+
+                <!-- Topo -->
+
+                <div class="topo-card">
+
+                    <span id="contadorPergunta">
+
+                        Pergunta 1 de 10
+
+                    </span>
+
+                    <span
+                        id="porcentagem"
+                        class="porcentagem"
+                    >
+
+                        10% concluído
 
                     </span>
 
                 </div>
 
-            </div>
-
-        </header>
 
 
+                <!-- Barra -->
 
-        <!-- Título -->
-
-        <section class="cabecalho-relatorio">
-
-            <div>
-
-                <h1>
-
-                    Relatório diário
-
-                </h1>
-
-                <p>
-
-                    Ajude-nos a acompanhar o desenvolvimento
-                    da sua criança de forma personalizada.
-
-                </p>
-
-            </div>
-
-
-            <img
-
-                src="/img/BixucoRelatorio.png"
-
-                alt="Mascote"
-
-            >
-
-        </section>
-
-
-
-        <!-- Card principal -->
-
-        <section class="card-relatorio">
-
-            <!-- Barra superior -->
-
-            <div class="topo-card">
-
-                <span id="contadorPergunta">
-
-                    Pergunta 1 de 10
-
-                </span>
-
-
-                <span
-                    id="porcentagem"
-                    class="porcentagem"
+                <div
+                    id="barraProgresso"
+                    class="barra-progresso"
                 >
 
-                    10% concluído
+                    <!-- Criada pelo JavaScript -->
 
-                </span>
-
-            </div>
+                </div>
 
 
 
-            <!-- Barra de progresso -->
-
-            <div
-                class="barra-progresso"
-                id="barraProgresso"
-            >
-
-                <!-- O JavaScript irá criar os círculos -->
-
-            </div>
-
-
-
-            <!-- Pergunta -->
-
-            <h2 id="textoPergunta">
-
-                Carregando pergunta...
-
-            </h2>
-
-
-
-            <!-- Respostas -->
-
-            <div
-                id="listaRespostas"
-                class="lista-respostas"
-            >
                 <!-- Pergunta -->
 
-                <section class="relatorio-card">
+                <h2 id="textoPergunta">
+
+                    Carregando pergunta...
+
+                </h2>
+
+
+
+                <!-- Opções -->
+
+                <div
+                    id="listaRespostas"
+                    class="lista-respostas"
+                >
+
+                    <!-- Criadas pelo JavaScript -->
+
+                </div>
+
+
+
+                <!-- Botão -->
+
+                <button
+                    id="btnProxima"
+                    disabled
+                >
+
+                    Próxima pergunta
+
+                </button>
+            </section>
+
+        </main>
+
+    </div>
+
+    <script>
+
+    // ==========================
+    // DADOS DO RELATÓRIO
+    // ==========================
+
+    const perguntas = [
+
+        {
+            pergunta: "Ela demonstra desconforto com texturas de roupas ou alimentos?",
+            respostas: [
+                "Sempre",
+                "Quase sempre",
+                "Raramente",
+                "Nunca"
+            ]
+        },
+
+        {
+            pergunta: "Hoje ela evitou contato visual?",
+            respostas: [
+                "Sempre",
+                "Quase sempre",
+                "Raramente",
+                "Nunca"
+            ]
+        },
+
+        {
+            pergunta: "Como foi a comunicação hoje?",
+            respostas: [
+                "Muito boa",
+                "Boa",
+                "Pouca",
+                "Nenhuma"
+            ]
+        },
+
+        {
+            pergunta: "Como estava o humor durante o dia?",
+            respostas: [
+                "Muito calmo",
+                "Calmo",
+                "Agitado",
+                "Muito agitado"
+            ]
+        },
+
+        {
+            pergunta: "Apresentou crises sensoriais?",
+            respostas: [
+                "Sim, várias",
+                "Algumas",
+                "Poucas",
+                "Nenhuma"
+            ]
+        },
 
-                    <!-- Barra superior -->
+        {
+            pergunta: "Dormiu bem?",
+            respostas: [
+                "Muito bem",
+                "Bem",
+                "Pouco",
+                "Muito pouco"
+            ]
+        },
 
-                    <div class="relatorio-topo">
+        {
+            pergunta: "Como foi a alimentação?",
+            respostas: [
+                "Muito boa",
+                "Boa",
+                "Regular",
+                "Ruim"
+            ]
+        },
 
-                        <span id="contadorPergunta">
+        {
+            pergunta: "Realizou atividades propostas?",
+            respostas: [
+                "Todas",
+                "Quase todas",
+                "Poucas",
+                "Nenhuma"
+            ]
+        },
 
-                            Pergunta 1 de 10
+        {
+            pergunta: "Como foi a interação social?",
+            respostas: [
+                "Excelente",
+                "Boa",
+                "Pouca",
+                "Nenhuma"
+            ]
+        },
 
-                        </span>
+        {
+            pergunta: "Como você avaliaria o dia de hoje?",
+            respostas: [
+                "Excelente",
+                "Bom",
+                "Regular",
+                "Difícil"
+            ]
+        }
 
-                        <span id="porcentagem">
+    ];
 
-                            10% concluído
+        // ==========================
+        // VARIÁVEIS
+        // ==========================
 
-                        </span>
+        let perguntaAtual = 0;
 
-                    </div>
+        let respostaSelecionada = null;
 
-                    <!-- Barra de progresso -->
+        const respostasUsuario = [];
 
-                    <div class="barra-perguntas">
+        const textoPergunta =
+        document.getElementById("textoPergunta");
 
-                        <div class="barra-linha"></div>
+        const listaRespostas =
+        document.getElementById("listaRespostas");
 
-                        <div
-                            class="barra-preenchida"
-                            id="barraPreenchida"
-                        ></div>
+        const contador =
+        document.getElementById("contadorPergunta");
 
-                        <div
-                            class="bolinha ativa"
-                            data-numero="1"
-                        ></div>
+        const porcentagem =
+        document.getElementById("porcentagem");
 
-                        <div
-                            class="bolinha"
-                            data-numero="2"
-                        ></div>
+        const barra =
+        document.getElementById("barraProgresso");
 
-                        <div
-                            class="bolinha"
-                            data-numero="3"
-                        ></div>
+        const btnProxima =
+        document.getElementById("btnProxima");
 
-                        <div
-                            class="bolinha"
-                            data-numero="4"
-                        ></div>
+        // ==========================
+        // CRIAR BARRA
+        // ==========================
 
-                        <div
-                            class="bolinha"
-                            data-numero="5"
-                        ></div>
+        function atualizarBarra(){
 
-                        <div
-                            class="bolinha"
-                            data-numero="6"
-                        ></div>
+            barra.innerHTML = "";
 
-                        <div
-                            class="bolinha"
-                            data-numero="7"
-                        ></div>
+            perguntas.forEach((item,index)=>{
 
-                        <div
-                            class="bolinha"
-                            data-numero="8"
-                        ></div>
+                const bolinha =
+                document.createElement("span");
 
-                        <div
-                            class="bolinha"
-                            data-numero="9"
-                        ></div>
+                bolinha.classList.add("bolinha");
 
-                        <div
-                            class="bolinha"
-                            data-numero="10"
-                        ></div>
+                if(index < perguntaAtual){
 
-                    </div>
+                    bolinha.classList.add("respondida");
 
-                    <!-- Pergunta -->
+                }
 
-                    <h2 id="textoPergunta">
+                else if(index === perguntaAtual){
 
-                        Carregando...
+                    bolinha.classList.add("ativa");
 
-                    </h2>
+                }
 
-                    <!-- Respostas -->
+                barra.appendChild(bolinha);
 
-                    <div
-                        class="respostas"
-                        id="respostas"
-                    >
-
-                    </div>
-
-                    <!-- Botão -->
-
-                    <button
-                        id="btnProxima"
-                        disabled
-                    >
-
-                        Próxima pergunta
-
-                    </button>
-
-                </section>
-
-            </main>
-
-        </div>
-
-        <!-- JavaScript -->
-
-<script>
-
-// ==========================
-// Perguntas do relatório
-// ==========================
-
-const perguntas = [
-
-{
-    pergunta: "Ela demonstra desconforto com texturas de roupas ou alimentos?",
-    respostas: [
-        "Sempre",
-        "Quase sempre",
-        "Raramente",
-        "Nunca"
-    ]
-},
-
-{
-    pergunta: "Hoje ela evitou contato visual?",
-    respostas: [
-        "Sempre",
-        "Quase sempre",
-        "Raramente",
-        "Nunca"
-    ]
-},
-
-{
-    pergunta: "Como foi a comunicação hoje?",
-    respostas: [
-        "Muito boa",
-        "Boa",
-        "Pouca",
-        "Nenhuma"
-    ]
-},
-
-{
-    pergunta: "Como estava o humor durante o dia?",
-    respostas: [
-        "Muito calmo",
-        "Calmo",
-        "Agitado",
-        "Muito agitado"
-    ]
-},
-
-{
-    pergunta: "Apresentou crises sensoriais?",
-    respostas:[
-        "Sim, várias",
-        "Algumas",
-        "Poucas",
-        "Nenhuma"
-    ]
-},
-
-{
-    pergunta: "Dormiu bem?",
-    respostas:[
-        "Muito bem",
-        "Bem",
-        "Pouco",
-        "Muito pouco"
-    ]
-},
-
-{
-    pergunta: "Como foi a alimentação?",
-    respostas:[
-        "Muito boa",
-        "Boa",
-        "Regular",
-        "Ruim"
-    ]
-},
-
-{
-    pergunta: "Realizou atividades propostas?",
-    respostas:[
-        "Todas",
-        "Quase todas",
-        "Poucas",
-        "Nenhuma"
-    ]
-},
-
-{
-    pergunta: "Como foi a interação social?",
-    respostas:[
-        "Excelente",
-        "Boa",
-        "Pouca",
-        "Nenhuma"
-    ]
-},
-
-{
-    pergunta: "Como você avaliaria o dia de hoje?",
-    respostas:[
-        "Excelente",
-        "Bom",
-        "Regular",
-        "Difícil"
-    ]
-}
-
-];
-
-// ==========================
-// Controle
-// ==========================
-
-let perguntaAtual = 0;
-
-const respostasUsuario = [];
-
-// ==========================
-// Atualiza tela
-// ==========================
-
-function carregarPergunta(){
-
-    const atual = perguntas[perguntaAtual];
-
-    document.getElementById("tituloPergunta").textContent =
-        atual.pergunta;
-
-    document.getElementById("numeroPergunta").innerHTML =
-        `Pergunta <strong>${perguntaAtual+1}</strong> de ${perguntas.length}`;
-
-    document.getElementById("porcentagem").textContent =
-        `${Math.round(((perguntaAtual)/perguntas.length)*100)}% concluído`;
-
-    atualizarBarra();
-
-    const opcoes = document.getElementById("opcoes");
-
-    opcoes.innerHTML = "";
-
-    atual.respostas.forEach(resposta=>{
-
-        const botao = document.createElement("button");
-
-        botao.type = "button";
-
-        botao.className = "opcao";
-
-        botao.textContent = resposta;
-
-        botao.onclick = ()=>selecionarResposta(resposta);
-
-        opcoes.appendChild(botao);
-
-    });
-
-}
-
-// ==========================
-// Barra
-// ==========================
-
-function atualizarBarra(){
-
-    const barra = document.getElementById("barra");
-
-    barra.innerHTML="";
-
-    perguntas.forEach((p,index)=>{
-
-        const bolinha = document.createElement("span");
-
-        if(index < perguntaAtual){
-
-            bolinha.className="respondida";
+            });
 
         }
 
-        else if(index===perguntaAtual){
+        // ==========================
+        // CARREGAR PERGUNTA
+        // ==========================
 
-            bolinha.className="atual";
+        function carregarPergunta(){
+
+            respostaSelecionada = null;
+
+            btnProxima.disabled = true;
+
+            const atual = perguntas[perguntaAtual];
+
+            textoPergunta.textContent =
+            atual.pergunta;
+
+            contador.textContent =
+            `Pergunta ${perguntaAtual+1} de ${perguntas.length}`;
+
+            porcentagem.textContent =
+            `${Math.round((perguntaAtual/perguntas.length)*100)}% concluído`;
+
+            atualizarBarra();
+
+            listaRespostas.innerHTML = "";
+
+            atual.respostas.forEach(opcao=>{
+
+                const botao =
+                document.createElement("button");
+
+                botao.type = "button";
+
+                botao.className = "opcao";
+
+                botao.textContent = opcao;
+
+                botao.onclick = ()=>{
+
+                    document
+                    .querySelectorAll(".opcao")
+                    .forEach(btn=>{
+
+                        btn.classList.remove("selecionada");
+
+                    });
+
+                    botao.classList.add("selecionada");
+
+                    respostaSelecionada = opcao;
+
+                    btnProxima.disabled = false;
+
+                };
+
+                listaRespostas.appendChild(botao);
+
+            });
 
         }
+        // ==========================
+        // BOTÃO PRÓXIMA
+        // ==========================
 
-        else{
+        btnProxima.addEventListener("click", ()=>{
 
-            bolinha.className="futura";
+            if(respostaSelecionada === null){
 
-        }
+                return;
 
-        barra.appendChild(bolinha);
+            }
 
-    });
+            respostasUsuario.push({
 
-}
+                pergunta: perguntas[perguntaAtual].pergunta,
 
-// ==========================
-// Escolha
-// ==========================
+                resposta: respostaSelecionada
 
-function selecionarResposta(resposta){
+            });
 
-    respostasUsuario[perguntaAtual]=resposta;
+            perguntaAtual++;
 
-    perguntaAtual++;
+            if(perguntaAtual >= perguntas.length){
 
-    if(perguntaAtual>=perguntas.length){
+                finalizarRelatorio();
 
-        finalizarRelatorio();
+                return;
 
-        return;
+            }
 
-    }
-
-    carregarPergunta();
-
-}
-
-// ==========================
-// Finalizar
-// ==========================
-
-async function finalizarRelatorio(){
-
-    try{
-
-        const resposta = await fetch("/salvar-relatorio",{
-
-            method:"POST",
-
-            headers:{
-                "Content-Type":"application/json"
-            },
-
-            body:JSON.stringify({
-
-                respostas:respostasUsuario,
-
-                data:new Date()
-
-            })
+            carregarPergunta();
 
         });
 
-        if(!resposta.ok){
+        // ==========================
+        // FINALIZAR
+        // ==========================
 
-            throw new Error();
+        async function finalizarRelatorio(){
+
+            try{
+
+                const resposta = await fetch(
+
+                    "/salvar-relatorio",
+
+                    {
+
+                        method:"POST",
+
+                        headers:{
+
+                            "Content-Type":"application/json"
+
+                        },
+
+                        body:JSON.stringify({
+
+                            respostas: respostasUsuario,
+
+                            data: new Date()
+
+                        })
+
+                    }
+
+                );
+
+                if(!resposta.ok){
+
+                    throw new Error();
+
+                }
+
+                window.location.href="/home";
+
+            }
+
+            catch(erro){
+
+                console.log(erro);
+
+                alert("Erro ao salvar o relatório.");
+
+            }
 
         }
 
-        window.location.href="/home";
+        // ==========================
+        // DADOS DO USUÁRIO
+        // ==========================
 
-    }
+        async function carregarUsuario(){
 
-    catch{
+            try{
 
-        alert("Erro ao salvar relatório.");
+                const resposta = await fetch("/dados-usuario");
 
-    }
+                if(!resposta.ok){
 
-}
+                    return;
 
-// ==========================
-// Iniciar
-// ==========================
+                }
 
-carregarPergunta();
+                const usuario = await resposta.json();
 
-</script>
+                document.getElementById("nomeUsuario").textContent =
+                    usuario.nome;
+
+                document.getElementById("tipoConta").textContent =
+                    usuario.tipo;
+
+                if(usuario.foto){
+
+                    document.getElementById("fotoUsuario").src =
+                        usuario.foto;
+
+                }
+
+            }
+
+            catch(erro){
+
+                console.log(erro);
+
+            }
+
+        }
+
+        // ==========================
+        // TEMA
+        // ==========================
+
+        document.getElementById("temaClaro").onclick = ()=>{
+
+            document.body.classList.remove("escuro");
+
+            document.getElementById("temaClaro").classList.add("ativo");
+
+            document.getElementById("temaEscuro").classList.remove("ativo");
+
+        };
+
+        document.getElementById("temaEscuro").onclick = ()=>{
+
+            document.body.classList.add("escuro");
+
+            document.getElementById("temaEscuro").classList.add("ativo");
+
+            document.getElementById("temaClaro").classList.remove("ativo");
+
+        };
+
+        // ==========================
+        // INICIAR
+        // ==========================
+
+        carregarUsuario();
+
+        carregarPergunta();
+
+        </script>
+
+</body>
+</html>
