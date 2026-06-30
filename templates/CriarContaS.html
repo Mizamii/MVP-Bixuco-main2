@@ -3,16 +3,15 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bixuco — Criar conta</title>
+
     <!-- Biblioteca de ícones -->
     <link
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
     >
+
     <!-- CSS da página -->
     <link
         rel="stylesheet"
@@ -23,8 +22,7 @@
 <body>
     <main>
 
-        <!-- lado esquerdo-->
-
+        <!-- lado esquerdo -->
         <section>
 
             <div>
@@ -33,16 +31,18 @@
                     src="/img/Logo_Branca.png"
                     alt="Logo Bixuco"
                 >
+
                 <!-- Título -->
                 <h1>
                     Crie sua conta
                 </h1>
+
                 <!-- Texto -->
                 <p>
-                    Pais e terapeutas juntos
-                    pelo bem-estar da criança.
+                    Pais e terapeutas juntos pelo bem-estar da criança.
                 </p>
             </div>
+
             <!-- Ilustração -->
             <div>
                 <img
@@ -52,9 +52,8 @@
             </div>
         </section>
 
-        <!-- lado direito-->
-
-        <section >
+        <!-- lado direito -->
+        <section>
 
             <img
                 src="/img/Logo_Gato.png"
@@ -66,16 +65,11 @@
             </h2>
 
             <!-- Barra de progresso -->
-            <div class="progresso">
-
+            <div class="progresso" aria-label="Etapas de criação de conta">
                 <span class="progresso__item progresso__item--ativo"></span>
-
                 <span class="progresso__item"></span>
-
                 <span class="progresso__item"></span>
-
             </div>
-
 
             <h3>
                 Como você vai utilizar o Bixuco?
@@ -83,44 +77,46 @@
 
             <!-- Texto auxiliar -->
             <p>
-                Isso vai nos ajudar
-                a personalizar sua experiência.
+                Isso vai nos ajudar a personalizar sua experiência.
             </p>
 
             <!-- Cards -->
             <div class="tipo-container">
 
-                <!-- card responsavel-->
-
+                <!-- Card responsável -->
                 <button
                     id="cardResponsavel"
+                    class="tipo-card"
                     type="button"
                     onclick="selecionarTipo('responsavel')"
+                    aria-pressed="false"
                 >
                     <div>
                         <h4>
                             Sou responsável
                         </h4>
+
                         <p>
-                            Acompanho o desenvolvimento
-                            do meu filho(a).
+                            Acompanho o desenvolvimento do meu filho(a).
                         </p>
                     </div>
                 </button>
 
-                <!-- card terapeuta-->
+                <!-- Card terapeuta -->
                 <button
                     id="cardPsicologo"
+                    class="tipo-card"
                     type="button"
                     onclick="selecionarTipo('psicologo')"
+                    aria-pressed="false"
                 >
                     <div>
                         <h4>
                             Sou terapeuta
                         </h4>
+
                         <p>
-                            Acompanho pacientes
-                            profissionalmente.
+                            Acompanho pacientes profissionalmente.
                         </p>
 
                         <div>
@@ -150,71 +146,54 @@
     </main>
 
     <script>
-
         // guarda o tipo selecionado
         let tipoSelecionado = null;
 
         // seleciona um dos cards
-        function selecionarTipo(tipo){
-
+        function selecionarTipo(tipo) {
             tipoSelecionado = tipo;
 
             // remove seleção anterior
-            document
-                .querySelectorAll(".tipo-card")
-                .forEach(card=>{
-
-                    card.classList.remove("tipo-card--ativo");
-
-                });
+            document.querySelectorAll(".tipo-card").forEach(card => {
+                card.classList.remove("tipo-card--ativo");
+                card.setAttribute("aria-pressed", "false");
+            });
 
             // adiciona seleção ao card clicado
-            if(tipo==="responsavel"){
-
+            if (tipo === "responsavel") {
                 document
                     .getElementById("cardResponsavel")
                     .classList.add("tipo-card--ativo");
 
-            }
-
-            else{
-
+                document
+                    .getElementById("cardResponsavel")
+                    .setAttribute("aria-pressed", "true");
+            } else if (tipo === "psicologo") {
                 document
                     .getElementById("cardPsicologo")
                     .classList.add("tipo-card--ativo");
 
+                document
+                    .getElementById("cardPsicologo")
+                    .setAttribute("aria-pressed", "true");
             }
-
         }
+
         // verifica se o usuário selecionou um tipo
-        function continuar(){
-
-            if(tipoSelecionado===null){
-
+        function continuar() {
+            if (tipoSelecionado === null) {
                 alert("Selecione como deseja utilizar o Bixuco.");
-
                 return;
-
             }
 
             // redireciona para a próxima etapa
-            if(tipoSelecionado==="responsavel"){
-
-                window.location.href="/CriarContaG";
-
+            if (tipoSelecionado === "responsavel") {
+                window.location.href = "/CriarContaG";
+            } else if (tipoSelecionado === "psicologo") {
+                window.location.href = "/CriarContaP";
             }
-
-            else if(tipoSelecionado==="psicologo"){
-
-                window.location.href="/CriarContaP";
-
-            }
-
         }
-
     </script>
 
 </body>
-
 </html>
-                
