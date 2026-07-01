@@ -57,7 +57,7 @@
 
                 </a>
 
-                <a href="/Relatorios">
+                <a href="/relatorios">
 
                     <i class="fa-solid fa-chart-line"></i>
 
@@ -65,7 +65,7 @@
 
                 </a>
 
-                <a href="/Configuracoes">
+                <a href="/configuracoes">
 
                     <i class="fa-solid fa-gear"></i>
 
@@ -73,7 +73,7 @@
 
                 </a>
 
-                <a href="/Sobre">
+                <a href="/sobre">
 
                     <i class="fa-solid fa-circle-info"></i>
 
@@ -94,9 +94,14 @@
 
             <div class="tema">
 
+                <!-- 🔧 FIX 1: IDs padronizados para btnClaro/btnEscuro -->
+                <!-- Antes eram temaClaro/temaEscuro, diferente da home -->
+                <!-- Agora todas as páginas usam os mesmos IDs -->
+
                 <button
-                    id="temaClaro"
+                    id="btnClaro"
                     class="ativo"
+                    type="button"
                 >
 
                     <i class="fa-regular fa-sun"></i>
@@ -105,7 +110,10 @@
 
                 </button>
 
-                <button id="temaEscuro">
+                <button
+                    id="btnEscuro"
+                    type="button"
+                >
 
                     <i class="fa-regular fa-moon"></i>
 
@@ -127,8 +135,6 @@
             </a>
 
         </aside>
-
-
 
         <!-- ========================= -->
         <!-- CONTEÚDO -->
@@ -188,8 +194,6 @@
 
             </header>
 
-
-
             <!-- Cabeçalho da página -->
 
             <section class="cabecalho-relatorio">
@@ -218,8 +222,6 @@
 
             </section>
 
-
-
             <!-- ========================= -->
             <!-- CARD DO RELATÓRIO -->
             <!-- ========================= -->
@@ -247,8 +249,6 @@
 
                 </div>
 
-
-
                 <!-- Barra -->
 
                 <div
@@ -260,8 +260,6 @@
 
                 </div>
 
-
-
                 <!-- Pergunta -->
 
                 <h2 id="textoPergunta">
@@ -269,8 +267,6 @@
                     Carregando pergunta...
 
                 </h2>
-
-
 
                 <!-- Opções -->
 
@@ -283,18 +279,18 @@
 
                 </div>
 
-
-
                 <!-- Botão -->
 
                 <button
                     id="btnProxima"
+                    type="button"
                     disabled
                 >
 
                     Próxima pergunta
 
                 </button>
+
             </section>
 
         </main>
@@ -303,113 +299,113 @@
 
     <script>
 
-    // ==========================
-    // DADOS DO RELATÓRIO
-    // ==========================
+        // ==========================
+        // DADOS DO RELATÓRIO
+        // ==========================
 
-    const perguntas = [
+        const perguntas = [
 
-        {
-            pergunta: "Ela demonstra desconforto com texturas de roupas ou alimentos?",
-            respostas: [
-                "Sempre",
-                "Quase sempre",
-                "Raramente",
-                "Nunca"
-            ]
-        },
+            {
+                pergunta: "Ela demonstra desconforto com texturas de roupas ou alimentos?",
+                respostas: [
+                    "Sempre",
+                    "Quase sempre",
+                    "Raramente",
+                    "Nunca"
+                ]
+            },
 
-        {
-            pergunta: "Hoje ela evitou contato visual?",
-            respostas: [
-                "Sempre",
-                "Quase sempre",
-                "Raramente",
-                "Nunca"
-            ]
-        },
+            {
+                pergunta: "Hoje ela evitou contato visual?",
+                respostas: [
+                    "Sempre",
+                    "Quase sempre",
+                    "Raramente",
+                    "Nunca"
+                ]
+            },
 
-        {
-            pergunta: "Como foi a comunicação hoje?",
-            respostas: [
-                "Muito boa",
-                "Boa",
-                "Pouca",
-                "Nenhuma"
-            ]
-        },
+            {
+                pergunta: "Como foi a comunicação hoje?",
+                respostas: [
+                    "Muito boa",
+                    "Boa",
+                    "Pouca",
+                    "Nenhuma"
+                ]
+            },
 
-        {
-            pergunta: "Como estava o humor durante o dia?",
-            respostas: [
-                "Muito calmo",
-                "Calmo",
-                "Agitado",
-                "Muito agitado"
-            ]
-        },
+            {
+                pergunta: "Como estava o humor durante o dia?",
+                respostas: [
+                    "Muito calmo",
+                    "Calmo",
+                    "Agitado",
+                    "Muito agitado"
+                ]
+            },
 
-        {
-            pergunta: "Apresentou crises sensoriais?",
-            respostas: [
-                "Sim, várias",
-                "Algumas",
-                "Poucas",
-                "Nenhuma"
-            ]
-        },
+            {
+                pergunta: "Apresentou crises sensoriais?",
+                respostas: [
+                    "Sim, várias",
+                    "Algumas",
+                    "Poucas",
+                    "Nenhuma"
+                ]
+            },
 
-        {
-            pergunta: "Dormiu bem?",
-            respostas: [
-                "Muito bem",
-                "Bem",
-                "Pouco",
-                "Muito pouco"
-            ]
-        },
+            {
+                pergunta: "Dormiu bem?",
+                respostas: [
+                    "Muito bem",
+                    "Bem",
+                    "Pouco",
+                    "Muito pouco"
+                ]
+            },
 
-        {
-            pergunta: "Como foi a alimentação?",
-            respostas: [
-                "Muito boa",
-                "Boa",
-                "Regular",
-                "Ruim"
-            ]
-        },
+            {
+                pergunta: "Como foi a alimentação?",
+                respostas: [
+                    "Muito boa",
+                    "Boa",
+                    "Regular",
+                    "Ruim"
+                ]
+            },
 
-        {
-            pergunta: "Realizou atividades propostas?",
-            respostas: [
-                "Todas",
-                "Quase todas",
-                "Poucas",
-                "Nenhuma"
-            ]
-        },
+            {
+                pergunta: "Realizou atividades propostas?",
+                respostas: [
+                    "Todas",
+                    "Quase todas",
+                    "Poucas",
+                    "Nenhuma"
+                ]
+            },
 
-        {
-            pergunta: "Como foi a interação social?",
-            respostas: [
-                "Excelente",
-                "Boa",
-                "Pouca",
-                "Nenhuma"
-            ]
-        },
+            {
+                pergunta: "Como foi a interação social?",
+                respostas: [
+                    "Excelente",
+                    "Boa",
+                    "Pouca",
+                    "Nenhuma"
+                ]
+            },
 
-        {
-            pergunta: "Como você avaliaria o dia de hoje?",
-            respostas: [
-                "Excelente",
-                "Bom",
-                "Regular",
-                "Difícil"
-            ]
-        }
+            {
+                pergunta: "Como você avaliaria o dia de hoje?",
+                respostas: [
+                    "Excelente",
+                    "Bom",
+                    "Regular",
+                    "Difícil"
+                ]
+            }
 
-    ];
+        ];
 
         // ==========================
         // VARIÁVEIS
@@ -422,45 +418,42 @@
         const respostasUsuario = [];
 
         const textoPergunta =
-        document.getElementById("textoPergunta");
+            document.getElementById("textoPergunta");
 
         const listaRespostas =
-        document.getElementById("listaRespostas");
+            document.getElementById("listaRespostas");
 
         const contador =
-        document.getElementById("contadorPergunta");
+            document.getElementById("contadorPergunta");
 
         const porcentagem =
-        document.getElementById("porcentagem");
+            document.getElementById("porcentagem");
 
         const barra =
-        document.getElementById("barraProgresso");
+            document.getElementById("barraProgresso");
 
         const btnProxima =
-        document.getElementById("btnProxima");
+            document.getElementById("btnProxima");
 
         // ==========================
         // CRIAR BARRA
         // ==========================
 
-        function atualizarBarra(){
+        function atualizarBarra() {
 
             barra.innerHTML = "";
 
-            perguntas.forEach((item,index)=>{
+            perguntas.forEach((item, index) => {
 
-                const bolinha =
-                document.createElement("span");
+                const bolinha = document.createElement("span");
 
                 bolinha.classList.add("bolinha");
 
-                if(index < perguntaAtual){
+                if (index < perguntaAtual) {
 
                     bolinha.classList.add("respondida");
 
-                }
-
-                else if(index === perguntaAtual){
+                } else if (index === perguntaAtual) {
 
                     bolinha.classList.add("ativa");
 
@@ -476,7 +469,7 @@
         // CARREGAR PERGUNTA
         // ==========================
 
-        function carregarPergunta(){
+        function carregarPergunta() {
 
             respostaSelecionada = null;
 
@@ -484,23 +477,21 @@
 
             const atual = perguntas[perguntaAtual];
 
-            textoPergunta.textContent =
-            atual.pergunta;
+            textoPergunta.textContent = atual.pergunta;
 
             contador.textContent =
-            `Pergunta ${perguntaAtual+1} de ${perguntas.length}`;
+                `Pergunta ${perguntaAtual + 1} de ${perguntas.length}`;
 
             porcentagem.textContent =
-            `${Math.round((perguntaAtual/perguntas.length)*100)}% concluído`;
+                `${Math.round((perguntaAtual / perguntas.length) * 100)}% concluído`;
 
             atualizarBarra();
 
             listaRespostas.innerHTML = "";
 
-            atual.respostas.forEach(opcao=>{
+            atual.respostas.forEach(opcao => {
 
-                const botao =
-                document.createElement("button");
+                const botao = document.createElement("button");
 
                 botao.type = "button";
 
@@ -508,15 +499,13 @@
 
                 botao.textContent = opcao;
 
-                botao.onclick = ()=>{
+                botao.onclick = () => {
 
                     document
-                    .querySelectorAll(".opcao")
-                    .forEach(btn=>{
-
-                        btn.classList.remove("selecionada");
-
-                    });
+                        .querySelectorAll(".opcao")
+                        .forEach(btn => {
+                            btn.classList.remove("selecionada");
+                        });
 
                     botao.classList.add("selecionada");
 
@@ -531,32 +520,27 @@
             });
 
         }
+
         // ==========================
         // BOTÃO PRÓXIMA
         // ==========================
 
-        btnProxima.addEventListener("click", ()=>{
+        btnProxima.addEventListener("click", () => {
 
-            if(respostaSelecionada === null){
-
+            if (respostaSelecionada === null) {
                 return;
-
             }
 
             respostasUsuario.push({
-
                 pergunta: perguntas[perguntaAtual].pergunta,
-
                 resposta: respostaSelecionada
-
             });
 
             perguntaAtual++;
 
-            if(perguntaAtual >= perguntas.length){
+            if (perguntaAtual >= perguntas.length) {
 
                 finalizarRelatorio();
-
                 return;
 
             }
@@ -569,51 +553,57 @@
         // FINALIZAR
         // ==========================
 
-        async function finalizarRelatorio(){
+        async function finalizarRelatorio() {
 
-            try{
+            // Desabilita o botão para evitar duplo envio enquanto salva
+            btnProxima.disabled = true;
+            btnProxima.textContent = "Salvando...";
 
-                const resposta = await fetch(
+            try {
 
-                    "/salvar-relatorio",
+                // 🔧 FIX 2: Rota corrigida de /salvar-relatorio para /api/relatorio
+                // A rota antiga não existia no server.js
+                // 🔧 FIX 3: data enviada como toISOString() em vez de new Date()
+                // new Date() vira string ISO automaticamente no JSON.stringify,
+                // mas toISOString() é explícito e garante o formato correto
+                const resposta = await fetch("/api/relatorio", {
 
-                    {
+                    method: "POST",
 
-                        method:"POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
 
-                        headers:{
+                    body: JSON.stringify({
+                        respostas: respostasUsuario,
+                        data: new Date().toISOString()
+                    })
 
-                            "Content-Type":"application/json"
+                });
 
-                        },
-
-                        body:JSON.stringify({
-
-                            respostas: respostasUsuario,
-
-                            data: new Date()
-
-                        })
-
-                    }
-
-                );
-
-                if(!resposta.ok){
-
-                    throw new Error();
-
+                // 🔧 FIX 4: Verifica se o servidor retornou 401 (não autenticado)
+                // e redireciona para login em vez de mostrar erro genérico
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
                 }
 
-                window.location.href="/home";
+                if (!resposta.ok) {
+                    throw new Error("Resposta do servidor com erro");
+                }
 
-            }
+                // Relatório salvo com sucesso — volta para a home
+                window.location.href = "/home";
 
-            catch(erro){
+            } catch (erro) {
 
-                console.log(erro);
+                console.log("Erro ao salvar relatório:", erro);
 
-                alert("Erro ao salvar o relatório.");
+                // Reabilita o botão para o usuário tentar de novo
+                btnProxima.disabled = false;
+                btnProxima.textContent = "Próxima pergunta";
+
+                alert("Erro ao salvar o relatório. Tente novamente.");
 
             }
 
@@ -623,38 +613,41 @@
         // DADOS DO USUÁRIO
         // ==========================
 
-        async function carregarUsuario(){
+        async function carregarUsuario() {
 
-            try{
+            try {
 
-                const resposta = await fetch("/dados-usuario");
+                // 🔧 FIX 5: Rota corrigida de /dados-usuario para /api/home
+                // /dados-usuario nunca existiu no server.js
+                // /api/home já existe e retorna os dados necessários
+                const resposta = await fetch("/api/home");
 
-                if(!resposta.ok){
-
+                // 🔧 FIX 6: Redireciona para login se não autenticado
+                // Antes a página abria normalmente mesmo sem login
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
                     return;
+                }
 
+                if (!resposta.ok) {
+                    return;
                 }
 
                 const usuario = await resposta.json();
 
                 document.getElementById("nomeUsuario").textContent =
-                    usuario.nome;
+                    usuario.nome || "Usuário";
 
                 document.getElementById("tipoConta").textContent =
-                    usuario.tipo;
+                    usuario.tipoConta || "Responsável";
 
-                if(usuario.foto){
-
-                    document.getElementById("fotoUsuario").src =
-                        usuario.foto;
-
+                if (usuario.fotoPerfil) {
+                    document.getElementById("fotoUsuario").src = usuario.fotoPerfil;
                 }
 
-            }
+            } catch (erro) {
 
-            catch(erro){
-
-                console.log(erro);
+                console.log("Erro ao carregar usuário:", erro);
 
             }
 
@@ -664,35 +657,40 @@
         // TEMA
         // ==========================
 
-        document.getElementById("temaClaro").onclick = ()=>{
+        // 🔧 FIX 7: Tema agora persiste com localStorage
+        // igual ao que foi feito na home — antes o tema resetava ao trocar de página
+        function aplicarTema(tema) {
 
-            document.body.classList.remove("escuro");
+            document.body.classList.remove("tema-claro", "tema-escuro");
+            document.body.classList.add(`tema-${tema}`);
 
-            document.getElementById("temaClaro").classList.add("ativo");
+            document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
+            document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
 
-            document.getElementById("temaEscuro").classList.remove("ativo");
+            localStorage.setItem("tema", tema);
 
-        };
+        }
 
-        document.getElementById("temaEscuro").onclick = ()=>{
+        document.getElementById("btnClaro").addEventListener("click", () => {
+            aplicarTema("claro");
+        });
 
-            document.body.classList.add("escuro");
-
-            document.getElementById("temaEscuro").classList.add("ativo");
-
-            document.getElementById("temaClaro").classList.remove("ativo");
-
-        };
+        document.getElementById("btnEscuro").addEventListener("click", () => {
+            aplicarTema("escuro");
+        });
 
         // ==========================
         // INICIAR
         // ==========================
 
-        carregarUsuario();
+        // Aplica o tema salvo ao carregar a página
+        const temaSalvo = localStorage.getItem("tema") || "claro";
+        aplicarTema(temaSalvo);
 
+        carregarUsuario();
         carregarPergunta();
 
-        </script>
+    </script>
 
 </body>
 </html>

@@ -196,12 +196,21 @@
     </div>
 
     <script>
+
         // =========================
         // CARREGAR DADOS DO USUÁRIO
         // =========================
         async function carregarDadosUsuario() {
             try {
+                // Chama a rota /api/home que agora existe no backend
                 const resposta = await fetch("/api/home");
+
+                // 🔧 FIX: Se o servidor retornar 401, usuário não está logado
+                // Redireciona para a tela de login
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
+                }
 
                 if (!resposta.ok) {
                     throw new Error("Falha ao carregar dados do usuário");
@@ -223,12 +232,13 @@
                     document.getElementById("fotoUsuario").src = dados.fotoPerfil;
                 }
 
-                // Mensagem da sequência
+                // Mensagem dinâmica baseada na sequência de dias
                 atualizarTextoSequencia(dados.diasConsecutivos ?? 0);
 
             } catch (erro) {
                 console.log("Erro ao carregar dados:", erro);
 
+                // Fallback: valores padrão caso a requisição falhe
                 document.getElementById("nomeUsuario").textContent = "Usuário";
                 document.getElementById("primeiroNome").textContent = "Usuário";
                 document.getElementById("nomeBixuco").textContent = "Bixuco";
@@ -255,10 +265,39 @@
             }
         }
 
-        // =========================
+
         // CALENDÁRIO
-        // =========================
+        
         let dataAtual = new Date();
+
+        // 🔧 FIX: diasComRelatorio agora é preenchido pelo backend
+        // Antes estava sempre vazio, então nenhum dia ficava verde no calendário
+        let diasComRelatorio = [];
+
+        async function carregarDiasRelatorio() {
+            try {
+                const mes = dataAtual.getMonth() + 1; // getMonth() começa em 0
+                const ano = dataAtual.getFullYear();
+
+                // Chama a nova rota do backend que retorna os dias com relatório
+                const resposta = await fetch(`/api/relatorios/dias?mes=${mes}&ano=${ano}`);
+
+                if (!resposta.ok) {
+                    throw new Error("Falha ao carregar dias de relatório");
+                }
+
+                const dados = await resposta.json();
+
+                // Salva os dias e redesenha o calendário com os círculos corretos
+                diasComRelatorio = dados.dias || [];
+                atualizarCalendario();
+
+            } catch (erro) {
+                console.log("Erro ao carregar dias de relatório:", erro);
+                diasComRelatorio = [];
+                atualizarCalendario();
+            }
+        }
 
         function atualizarCalendario() {
             const titulo = document.getElementById("tituloCalendario");
@@ -285,7 +324,7 @@
                 0
             ).getDate();
 
-            // espaços vazios antes do primeiro dia do mês
+            // Espaços vazios antes do primeiro dia do mês
             for (let i = 0; i < primeiroDia; i++) {
                 const vazio = document.createElement("div");
                 dias.appendChild(vazio);
@@ -293,12 +332,13 @@
 
             const hoje = new Date();
 
-            // dias do mês
+            // Dias do mês
             for (let dia = 1; dia <= ultimoDia; dia++) {
                 const botao = document.createElement("button");
                 botao.type = "button";
                 botao.textContent = dia;
 
+                // Marca o dia de hoje
                 if (
                     dia === hoje.getDate() &&
                     dataAtual.getMonth() === hoje.getMonth() &&
@@ -307,58 +347,72 @@
                     botao.classList.add("hoje");
                 }
 
+                // 🔧 FIX: Marca os dias que têm relatório com classe "com-relatorio"
+                // Antes nenhum dia ficava verde pois diasComRelatorio estava sempre vazio
+                if (diasComRelatorio.includes(dia)) {
+                    botao.classList.add("com-relatorio");
+                }
+
                 dias.appendChild(botao);
             }
         }
 
-        // =========================
-        // TEMAS
-        // =========================
+
+        // 🔧 FIX: Tema agora persiste usando localStorage
+        // Antes ao trocar de página o tema voltava para claro sempre
+        function aplicarTema(tema) {
+            document.body.classList.remove("tema-claro", "tema-escuro");
+            document.body.classList.add(`tema-${tema}`);
+
+            document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
+            document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
+
+            localStorage.setItem("tema", tema);
+        }
+
         document.getElementById("btnClaro").addEventListener("click", () => {
-            document.getElementById("btnClaro").classList.add("ativo");
-            document.getElementById("btnEscuro").classList.remove("ativo");
-            // aqui depois vocês podem salvar a preferência no backend
+            aplicarTema("claro");
         });
 
         document.getElementById("btnEscuro").addEventListener("click", () => {
-            document.getElementById("btnEscuro").classList.add("ativo");
-            document.getElementById("btnClaro").classList.remove("ativo");
-            // aqui depois vocês podem salvar a preferência no backend
+            aplicarTema("escuro");
         });
 
-        // =========================
-        // AÇÕES
-        // =========================
         document.getElementById("btnTraduzir").addEventListener("click", () => {
-            // futuramente conectar com tradução do site
+            // Futuramente conectar com tradução do site
             alert("Função de tradução ainda será implementada.");
         });
 
         document.getElementById("btnNotificacoes").addEventListener("click", () => {
-            // futuramente abrir a mini aba de notificações
+            // Futuramente abrir a mini aba de notificações
             alert("Abrir notificações.");
         });
 
         document.getElementById("btnMapa").addEventListener("click", () => {
-            // futuramente abrir a tela/mapa de localização do Bixuco
+            // Futuramente abrir a tela/mapa de localização do Bixuco
             alert("Abrir localização do Bixuco.");
         });
 
         document.getElementById("mesAnterior").onclick = () => {
             dataAtual.setMonth(dataAtual.getMonth() - 1);
-            atualizarCalendario();
+            // Recarrega os dias de relatório do mês anterior
+            carregarDiasRelatorio();
         };
 
         document.getElementById("proximoMes").onclick = () => {
             dataAtual.setMonth(dataAtual.getMonth() + 1);
-            atualizarCalendario();
+            // Recarrega os dias de relatório do próximo mês
+            carregarDiasRelatorio();
         };
 
-        // =========================
-        // INICIALIZAÇÃO
-        // =========================
+        // Aplica o tema salvo ao carregar a página
+        const temaSalvo = localStorage.getItem("tema") || "claro";
+        aplicarTema(temaSalvo);
+
+        // Carrega os dados do usuário e o calendário
         carregarDadosUsuario();
-        atualizarCalendario();
+        carregarDiasRelatorio();
+
     </script>
 
 </body>

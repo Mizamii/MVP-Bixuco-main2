@@ -17,11 +17,13 @@
         href="/css/esqueceusenha.css"
     >
 </head>
+
 <body>
     <main>
 
-        <!--lado esquerdo-->
-
+        <!-- ========================= -->
+        <!-- LADO ESQUERDO -->
+        <!-- ========================= -->
         <section>
 
             <div>
@@ -53,8 +55,9 @@
 
         </section>
 
-        <!--lado direito-->
-
+        <!-- ========================= -->
+        <!-- LADO DIREITO -->
+        <!-- ========================= -->
         <section>
 
             <!-- Logo colorida -->
@@ -80,19 +83,18 @@
                 uma nova senha com segurança.
             </p>
 
-            <!-- formulario de recuperacao -->
+            <!-- ========================= -->
+            <!-- FORMULÁRIO -->
+            <!-- ========================= -->
 
-            <form
-                action="/esqueceu-senha"
-                method="POST"
-                onsubmit="return validarEmail()"
-            >
+            <!-- 🔧 FIX 1: Removido action e method do form -->
+            <!-- O envio agora é feito via fetch igual ao login -->
+            <!-- Assim conseguimos mostrar erros e sucesso sem recarregar a página -->
+            <form id="formRecuperar" novalidate>
 
-            <!-- campo de email -->
+                <!-- Campo de e-mail -->
                 <div>
-                    <label
-                        for="email"
-                    >
+                    <label for="email">
                         Email cadastrado
                     </label>
 
@@ -107,28 +109,35 @@
                         >
                     </div>
 
-                    <!-- mensagem de erro -->
+                    <!-- Mensagem de erro do campo -->
                     <span
                         class="recuperar-form__erro"
                         id="erro-email"
-                    >
-                    </span>
-
+                    ></span>
                 </div>
 
-                <!-- botao para enviar o link -->
+                <!-- 🔧 FIX 2: Área de feedback do servidor -->
+                <!-- Mostra tanto erros ("E-mail não encontrado") -->
+                <!-- quanto sucesso ("Link enviado!") sem recarregar a página -->
+                <span
+                    id="feedback-geral"
+                    class="recuperar-form__feedback"
+                ></span>
+
+                <!-- 🔧 FIX 3: Botão com estado de carregamento -->
+                <!-- Desabilita enquanto envia para evitar cliques duplos -->
                 <button
                     type="submit"
+                    id="btnEnviar"
                 >
                     Enviar link de recuperação
                 </button>
+
             </form>
 
-            <!-- botao para voltar ao login -->
-            <a
-                href="/logar"
-            >
-                Voltar para o login
+            <!-- Botão para voltar ao login -->
+            <a href="/logar">
+                Voltar para a tela do login
             </a>
 
         </section>
@@ -137,7 +146,10 @@
 
     <script>
 
-        // mostra uma mensagem de erro abaixo do campo
+        // ==========================
+        // EXIBIR / LIMPAR ERROS
+        // ==========================
+
         function mostrarErro(inputId, erroId, mensagem) {
 
             const input = document.getElementById(inputId);
@@ -153,20 +165,28 @@
 
         }
 
-        // limpa as mensagens de erro
         function limparErros() {
 
             const input = document.getElementById("email");
             const erro = document.getElementById("erro-email");
+            const feedback = document.getElementById("feedback-geral");
 
             input.classList.remove("input-erro");
             erro.style.display = "none";
             erro.textContent = "";
 
+            // Limpa também o feedback geral do servidor
+            feedback.style.display = "none";
+            feedback.textContent = "";
+            feedback.className = "recuperar-form__feedback";
+
         }
 
-        // valida o email antes de enviar o formulario
-        function validarEmail() {
+        // ==========================
+        // VALIDAÇÃO LOCAL
+        // ==========================
+
+        function validarCampos() {
 
             limparErros();
 
@@ -174,10 +194,9 @@
 
             const email = document.getElementById("email").value.trim();
 
-            // expressao regular para validar email
+            // Expressão regular para validar e-mail
             const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-            // verifica se o email foi preenchido corretamente
             if (!regexEmail.test(email)) {
 
                 mostrarErro(
@@ -189,8 +208,89 @@
                 valido = false;
 
             }
+
             return valido;
+
         }
+
+        // ==========================
+        // ENVIO DO FORMULÁRIO
+        // ==========================
+
+        // 🔧 FIX 1 + 2 + 3: Envio via fetch
+        // Antes o form fazia POST direto e o usuário não via nenhum retorno
+        // — nem confirmação de envio nem mensagem de erro do servidor
+        document.getElementById("formRecuperar").addEventListener("submit", async (evento) => {
+
+            evento.preventDefault();
+
+            if (!validarCampos()) {
+                return;
+            }
+
+            const btnEnviar = document.getElementById("btnEnviar");
+            const feedback = document.getElementById("feedback-geral");
+            const email = document.getElementById("email").value.trim();
+
+            // 🔧 FIX 3: Desabilita botão enquanto o servidor processa
+            btnEnviar.disabled = true;
+            btnEnviar.textContent = "Enviando...";
+
+            try {
+
+                // Chama a rota do backend que envia o e-mail via Nodemailer
+                const resposta = await fetch("/esqueceu-senha", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ email })
+                });
+
+                const dados = await resposta.json();
+
+                if (resposta.ok) {
+
+                    // 🔧 FIX 2: Mostra mensagem de sucesso na tela
+                    // e desabilita o formulário para evitar reenvio
+                    feedback.textContent = "✅ " + dados.mensagem;
+                    feedback.classList.add("recuperar-form__feedback--sucesso");
+                    feedback.style.display = "block";
+
+                    // Limpa o campo de e-mail e desabilita após sucesso
+                    document.getElementById("email").value = "";
+                    document.getElementById("email").disabled = true;
+                    btnEnviar.disabled = true;
+                    btnEnviar.textContent = "Link enviado!";
+
+                } else {
+
+                    // 🔧 FIX 2: Mostra o erro do servidor na tela
+                    feedback.textContent = "❌ " + (dados.erro || "Erro ao enviar. Tente novamente.");
+                    feedback.classList.add("recuperar-form__feedback--erro");
+                    feedback.style.display = "block";
+
+                    // Reabilita o botão para tentar novamente
+                    btnEnviar.disabled = false;
+                    btnEnviar.textContent = "Enviar link de recuperação";
+
+                }
+
+            } catch (erro) {
+
+                console.log("Erro na requisição:", erro);
+
+                feedback.textContent = "❌ Erro de conexão. Verifique sua internet e tente novamente.";
+                feedback.classList.add("recuperar-form__feedback--erro");
+                feedback.style.display = "block";
+
+                btnEnviar.disabled = false;
+                btnEnviar.textContent = "Enviar link de recuperação";
+
+            }
+
+        });
+
     </script>
 
 </body>

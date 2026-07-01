@@ -26,11 +26,13 @@
 <body>
 
     <main class="login">
-        <!-- parte do lado esquerdo -->
-        <section>
-            <!-- parte do texto do lado esquerdo -->
-            <div>
 
+        <!-- ========================= -->
+        <!-- LADO ESQUERDO -->
+        <!-- ========================= -->
+        <section>
+
+            <div>
                 <!-- Logo branca -->
                 <img
                     src="/img/Logo_Branca.png"
@@ -59,9 +61,12 @@
                     alt="Foto da criança com o Bixuco"
                 >
             </div>
+
         </section>
 
-        <!-- lado direito -->
+        <!-- ========================= -->
+        <!-- LADO DIREITO -->
+        <!-- ========================= -->
         <section>
 
             <!-- Logo colorida do gatinho bixuco -->
@@ -81,10 +86,17 @@
                 Acesse sua conta para continuar
             </p>
 
-            <!-- formulário -->
-            <form action="/login" method="POST" onsubmit="return validarLogin()" novalidate>
+            <!-- ========================= -->
+            <!-- FORMULÁRIO -->
+            <!-- ========================= -->
 
-                <!-- email -->
+            <!-- 🔧 FIX 1: Removido action e method do form -->
+            <!-- O envio agora é feito via fetch no JavaScript -->
+            <!-- Isso permite exibir os erros do servidor na tela -->
+            <!-- sem redirecionar ou recarregar a página -->
+            <form id="formLogin" novalidate>
+
+                <!-- Email -->
                 <div>
                     <label for="email">
                         Email
@@ -149,7 +161,12 @@
                 <!-- Grupo de opções -->
                 <div>
                     <label>
-                        <input type="checkbox" id="lembrar" name="lembrar" value="1">
+                        <input
+                            type="checkbox"
+                            id="lembrar"
+                            name="lembrar"
+                            value="1"
+                        >
                         <span>Lembrar de mim</span>
                     </label>
 
@@ -158,9 +175,23 @@
                     </a>
                 </div>
 
-                <button type="submit">
+                <!-- 🔧 FIX 2: Área de erro geral do servidor -->
+                <!-- Exibe mensagens como "Senha incorreta" vindas do backend -->
+                <!-- Antes o usuário não via nada quando o servidor retornava erro -->
+                <span
+                    class="login-form__erro login-form__erro--geral"
+                    id="erro-geral"
+                ></span>
+
+                <!-- 🔧 FIX 3: Botão com estado de carregamento -->
+                <!-- Antes o usuário podia clicar várias vezes enquanto o servidor processava -->
+                <button
+                    type="submit"
+                    id="btnEntrar"
+                >
                     Entrar
                 </button>
+
             </form>
 
             <div>
@@ -182,13 +213,19 @@
                     Não tem conta?
                 </p>
                 <a href="/CriarContaS">
-                    Criar conta
+                    Criar agora
                 </a>
             </div>
+
         </section>
     </main>
 
     <script>
+
+        // ==========================
+        // MOSTRAR / ESCONDER SENHA
+        // ==========================
+
         function toggleSenha() {
             const senha = document.getElementById("senha");
             const icone = document.getElementById("iconeSenha");
@@ -207,6 +244,10 @@
             }
         }
 
+        // ==========================
+        // EXIBIR / LIMPAR ERROS
+        // ==========================
+
         function mostrarErro(inputId, erroId, mensagem) {
             const input = document.getElementById(inputId);
             const erro = document.getElementById(erroId);
@@ -217,6 +258,7 @@
             erro.textContent = mensagem;
             erro.style.display = "block";
 
+            // Remove a borda de erro após meio segundo (efeito visual)
             setTimeout(() => {
                 input.classList.remove("input-erro");
             }, 500);
@@ -232,9 +274,17 @@
                 if (input) input.classList.remove("input-erro");
                 if (erro) erro.style.display = "none";
             });
+
+            // Limpa também o erro geral do servidor
+            const erroGeral = document.getElementById("erro-geral");
+            if (erroGeral) erroGeral.style.display = "none";
         }
 
-        function validarLogin() {
+        // ==========================
+        // VALIDAÇÃO LOCAL
+        // ==========================
+
+        function validarCampos() {
             limparErros();
             let valido = true;
 
@@ -263,9 +313,85 @@
             return valido;
         }
 
+        // ==========================
+        // ENVIO DO FORMULÁRIO
+        // ==========================
+
+        // 🔧 FIX 1 + 2 + 3: Intercepta o submit e envia via fetch
+        // Antes o form fazia POST direto e o browser redirecionava
+        // sem mostrar os erros JSON do servidor na tela
+        document.getElementById("formLogin").addEventListener("submit", async (evento) => {
+
+            // Impede o comportamento padrão do form (recarregar a página)
+            evento.preventDefault();
+
+            // Valida os campos antes de enviar para o servidor
+            if (!validarCampos()) {
+                return;
+            }
+
+            const btnEntrar = document.getElementById("btnEntrar");
+            const erroGeral = document.getElementById("erro-geral");
+
+            // 🔧 FIX 3: Desabilita o botão e muda o texto enquanto processa
+            // Evita que o usuário clique várias vezes e envie múltiplas requisições
+            btnEntrar.disabled = true;
+            btnEntrar.textContent = "Entrando...";
+
+            try {
+
+                const resposta = await fetch("/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        email: document.getElementById("email").value.trim(),
+                        senha: document.getElementById("senha").value
+                    })
+                });
+
+                // 🔧 FIX 2: Login bem-sucedido — o backend redireciona para /home
+                // Como usamos fetch, precisamos tratar o redirect manualmente
+                // Se a resposta for um redirect (status 3xx), seguimos para /home
+                if (resposta.redirected) {
+                    window.location.href = resposta.url;
+                    return;
+                }
+
+                // Se chegou aqui, o servidor retornou um erro (4xx ou 5xx)
+                const dados = await resposta.json();
+
+                // 🔧 FIX 2: Exibe a mensagem de erro do servidor na tela
+                // Antes o usuário não via nada — agora aparece abaixo dos campos
+                erroGeral.textContent = dados.erro || "Erro ao fazer login. Tente novamente.";
+                erroGeral.style.display = "block";
+
+            } catch (erro) {
+
+                console.log("Erro na requisição de login:", erro);
+
+                erroGeral.textContent = "Erro de conexão. Verifique sua internet e tente novamente.";
+                erroGeral.style.display = "block";
+
+            } finally {
+
+                // Reabilita o botão independente do resultado
+                btnEntrar.disabled = false;
+                btnEntrar.textContent = "Entrar";
+
+            }
+
+        });
+
+        // ==========================
+        // LOGIN COM GOOGLE
+        // ==========================
+
         function loginGoogle() {
             window.location.href = "/auth/google";
         }
+
     </script>
 
 </body>

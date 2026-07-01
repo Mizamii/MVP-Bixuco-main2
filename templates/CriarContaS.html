@@ -22,7 +22,9 @@
 <body>
     <main>
 
-        <!-- lado esquerdo -->
+        <!-- ========================= -->
+        <!-- LADO ESQUERDO -->
+        <!-- ========================= -->
         <section>
 
             <div>
@@ -50,9 +52,12 @@
                     alt="Família utilizando o Bixuco"
                 >
             </div>
+
         </section>
 
-        <!-- lado direito -->
+        <!-- ========================= -->
+        <!-- LADO DIREITO -->
+        <!-- ========================= -->
         <section>
 
             <img
@@ -80,7 +85,7 @@
                 Isso vai nos ajudar a personalizar sua experiência.
             </p>
 
-            <!-- Cards -->
+            <!-- Cards de seleção -->
             <div class="tipo-container">
 
                 <!-- Card responsável -->
@@ -119,17 +124,33 @@
                             Acompanho pacientes profissionalmente.
                         </p>
 
-                        <div>
+                        <div class="tag-crp">
                             Requer validação de CRP
                         </div>
                     </div>
                 </button>
+
             </div>
 
-            <!-- Botão para continuar -->
+            <!-- 🔧 FIX 1: Mensagem inline em vez de alert() -->
+            <!-- Aparece só se o usuário clicar em Continuar sem selecionar nada -->
+            <!-- Padrão igual às outras páginas do projeto -->
+            <span
+                id="erro-selecao"
+                class="erro-selecao"
+                style="display: none;"
+            >
+                Selecione como deseja utilizar o Bixuco.
+            </span>
+
+            <!-- 🔧 FIX 2: Botão começa desabilitado -->
+            <!-- Fica ativo apenas quando um card é selecionado -->
+            <!-- Evita o usuário clicar sem ter feito nenhuma escolha -->
             <button
                 type="button"
+                id="btnContinuar"
                 onclick="continuar()"
+                disabled
             >
                 Continuar
             </button>
@@ -141,58 +162,73 @@
                     Fazer login
                 </a>
             </p>
+
         </section>
 
     </main>
 
     <script>
-        // guarda o tipo selecionado
+
+        // Guarda o tipo selecionado pelo usuário
         let tipoSelecionado = null;
 
-        // seleciona um dos cards
+        // ==========================
+        // SELECIONAR TIPO
+        // ==========================
+
         function selecionarTipo(tipo) {
+
             tipoSelecionado = tipo;
 
-            // remove seleção anterior
+            // 🔧 FIX 5: aria-pressed simplificado — atualiza todos os cards de uma vez
+            // antes estava sendo setado em dois lugares separados, duplicando código
             document.querySelectorAll(".tipo-card").forEach(card => {
                 card.classList.remove("tipo-card--ativo");
                 card.setAttribute("aria-pressed", "false");
             });
 
-            // adiciona seleção ao card clicado
-            if (tipo === "responsavel") {
-                document
-                    .getElementById("cardResponsavel")
-                    .classList.add("tipo-card--ativo");
+            // Marca o card clicado como ativo
+            const cardSelecionado = tipo === "responsavel"
+                ? document.getElementById("cardResponsavel")
+                : document.getElementById("cardPsicologo");
 
-                document
-                    .getElementById("cardResponsavel")
-                    .setAttribute("aria-pressed", "true");
-            } else if (tipo === "psicologo") {
-                document
-                    .getElementById("cardPsicologo")
-                    .classList.add("tipo-card--ativo");
+            cardSelecionado.classList.add("tipo-card--ativo");
+            cardSelecionado.setAttribute("aria-pressed", "true");
 
-                document
-                    .getElementById("cardPsicologo")
-                    .setAttribute("aria-pressed", "true");
-            }
+            // 🔧 FIX 2: Habilita o botão ao selecionar um card
+            document.getElementById("btnContinuar").disabled = false;
+
+            // 🔧 FIX 1: Esconde a mensagem de erro se estava aparecendo
+            const erroSelecao = document.getElementById("erro-selecao");
+            erroSelecao.style.display = "none";
+
         }
 
-        // verifica se o usuário selecionou um tipo
+        // ==========================
+        // CONTINUAR
+        // ==========================
+
         function continuar() {
+
+            // 🔧 FIX 1 + 2: Segurança extra — mesmo com botão desabilitado,
+            // valida novamente caso o JS seja chamado diretamente
             if (tipoSelecionado === null) {
-                alert("Selecione como deseja utilizar o Bixuco.");
+
+                const erroSelecao = document.getElementById("erro-selecao");
+                erroSelecao.style.display = "block";
                 return;
+
             }
 
-            // redireciona para a próxima etapa
+            // Redireciona para a próxima etapa conforme o tipo escolhido
             if (tipoSelecionado === "responsavel") {
                 window.location.href = "/CriarContaG";
             } else if (tipoSelecionado === "psicologo") {
                 window.location.href = "/CriarContaP";
             }
+
         }
+
     </script>
 
 </body>
