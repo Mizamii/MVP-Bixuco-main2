@@ -272,6 +272,7 @@ app.post("/continuar-cadastro-pai", (req, res) => {
     const {
         nome,
         email,
+        telefone,
         cpfUser,
         dataNascimento,
         cep,
@@ -280,12 +281,14 @@ app.post("/continuar-cadastro-pai", (req, res) => {
         bairro
     } = req.body;
 
+    // Salva os dados na sessão para usar na etapa final do cadastro
     req.session.cadastro = {
 
         tipo: "pai",
 
         nome,
         email,
+        telefone,
         cpfUser,
         dataNascimento,
         cep,
@@ -295,41 +298,12 @@ app.post("/continuar-cadastro-pai", (req, res) => {
 
     };
 
+    // Como o frontend usa fetch e trata resposta.redirected,
+    // o redirect funciona normalmente aqui
     res.redirect("/CriarContaSenha");
 
 });
 
-app.post("/continuar-cadastro-psicologo", (req, res) => {
-
-    const {
-        nome,
-        email,
-        crp,
-        dataNascimento,
-        cep,
-        cidade,
-        estado,
-        bairro
-    } = req.body;
-
-    req.session.cadastro = {
-
-        tipo: "psicologo",
-
-        nome,
-        email,
-        crp,
-        dataNascimento,
-        cep,
-        cidade,
-        estado,
-        bairro
-
-    };
-
-    res.redirect("/CriarContaSenha");
-
-});
 
 
 // Serve a página de redefinição de senha
@@ -845,6 +819,345 @@ app.post('/login', async (req, res) => {
     }
 
 });
+
+/* ==================================================
+   ROTAS DO PERFIL — adicione no seu server.js
+   ================================================== */
+
+/* ==========================
+   ROTA GET — PÁGINA DO PERFIL
+========================== */
+
+// 🔧 FIX 7: Rota GET /perfil que não existia no server.js
+app.get("/perfil", estaLogado, (req, res) => {
+
+    res.sendFile(path.join(__dirname, "templates", "perfil.html"));
+
+});
+
+/* ==================================================
+   ROTAS DE CONFIGURAÇÕES — adicione no seu server.js
+   ================================================== */
+
+/* ==========================
+   ROTA GET — PÁGINA DE CONFIGURAÇÕES
+========================== */
+
+// 🔧 Rota GET /configuracoes que não existia no server.js
+app.get("/configuracoes", estaLogado, (req, res) => {
+
+    res.sendFile(path.join(__dirname, "templates", "configuracoes.html"));
+
+});
+
+/* ==========================
+   ROTA POST — SALVAR NOTIFICAÇÕES
+========================== */
+
+// 🔧 FIX 2: Rota /api/configuracoes/notificacoes que o frontend chamava
+// mas nunca existiu no server.js
+app.post("/api/configuracoes/notificacoes", estaLogado, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        const { lembrete, novidades } = req.body;
+
+        // Atualiza as preferências de notificação do usuário
+        // Ajuste o nome da tabela/colunas conforme o seu banco
+        // Se não tiver tabela de preferências ainda, crie:
+        // CREATE TABLE preferencias_usuario (
+        //     usuario_id INTEGER PRIMARY KEY REFERENCES usuarios(id),
+        //     notif_lembrete BOOLEAN DEFAULT TRUE,
+        //     notif_novidades BOOLEAN DEFAULT FALSE
+        // );
+
+        if (lembrete !== undefined) {
+
+            await db.query(
+                `INSERT INTO preferencias_usuario (usuario_id, notif_lembrete)
+                 VALUES ($1, $2)
+                 ON CONFLICT (usuario_id)
+                 DO UPDATE SET notif_lembrete = $2`,
+                [usuarioId, lembrete]
+            );
+
+        }
+
+        if (novidades !== undefined) {
+
+            await db.query(
+                `INSERT INTO preferencias_usuario (usuario_id, notif_novidades)
+                 VALUES ($1, $2)
+                 ON CONFLICT (usuario_id)
+                 DO UPDATE SET notif_novidades = $2`,
+                [usuarioId, novidades]
+            );
+
+        }
+
+        return res.status(200).json({ mensagem: "Preferências salvas." });
+
+    } catch (erro) {
+
+        console.log("Erro ao salvar notificações:", erro);
+        res.status(500).json({ erro: "Erro interno ao salvar preferências." });
+
+    }
+
+});
+
+/* ==========================
+   ROTA DELETE — EXCLUIR CONTA
+========================== */
+
+// 🔧 FIX 3: Rota /api/excluir-conta que o frontend chamava
+// mas nunca existiu no server.js
+app.delete("/api/excluir-conta", estaLogado, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        // Remove os dados vinculados ao usuário antes de deletar a conta
+        // A ordem importa para não violar chaves estrangeiras no banco
+
+        // Remove relatórios
+        await db.query(
+            "DELETE FROM relatorios WHERE usuario_id = $1",
+            [usuarioId]
+        );
+
+        // Remove vínculos com terapeutas
+        await db.query(
+            "DELETE FROM vinculos WHERE responsavel_id = $1 OR terapeuta_id = $1",
+            [usuarioId]
+        );
+
+        // Remove tokens de recuperação de senha
+        await db.query(
+            "DELETE FROM tokens_recuperacao WHERE usuario_id = $1",
+            [usuarioId]
+        );
+
+        // Remove preferências
+        await db.query(
+            "DELETE FROM preferencias_usuario WHERE usuario_id = $1",
+            [usuarioId]
+        );
+
+        // Remove o usuário em si
+        await db.query(
+            "DELETE FROM usuarios WHERE id = $1",
+            [usuarioId]
+        );
+
+        // Encerra a sessão após excluir a conta
+        req.session.destroy((err) => {
+            if (err) console.log("Erro ao destruir sessão:", err);
+        });
+
+        return res.status(200).json({ mensagem: "Conta excluída com sucesso." });
+
+    } catch (erro) {
+
+        console.log("Erro ao excluir conta:", erro);
+        res.status(500).json({ erro: "Erro interno ao excluir conta." });
+
+    }
+
+});
+
+
+/* ==========================
+   ROTA GET — DADOS DO PERFIL (API)
+========================== */
+
+// 🔧 FIX 1: Rota /api/perfil que o frontend chamava como /dados-usuario
+// Retorna todos os dados necessários para montar a página de perfil
+app.get("/api/perfil", estaLogado, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        // Busca os dados do usuário
+        const resultadoUsuario = await db.query(
+            `SELECT id, nome, email, tipo, foto_perfil,
+                    EXTRACT(YEAR FROM criado_em) AS ano_cadastro
+             FROM usuarios
+             WHERE id = $1`,
+            [usuarioId]
+        );
+
+        if (resultadoUsuario.rows.length === 0) {
+            return res.status(404).json({ erro: "Usuário não encontrado." });
+        }
+
+        const usuario = resultadoUsuario.rows[0];
+
+        // Busca a criança vinculada ao responsável
+        // Ajuste o nome da tabela conforme o seu banco
+        const resultadoCrianca = await db.query(
+            `SELECT nome, data_nascimento
+             FROM criancas
+             WHERE usuario_id = $1
+             LIMIT 1`,
+            [usuarioId]
+        );
+
+        // Calcula a idade da criança a partir da data de nascimento
+        let criancaDados = null;
+
+        if (resultadoCrianca.rows.length > 0) {
+
+            const crianca = resultadoCrianca.rows[0];
+
+            const nascimento = new Date(crianca.data_nascimento);
+            const hoje = new Date();
+            const idade = hoje.getFullYear() - nascimento.getFullYear();
+
+            criancaDados = {
+                nome: crianca.nome,
+                idade
+            };
+
+        }
+
+        // Busca o terapeuta vinculado ao responsável
+        // Ajuste o nome das tabelas conforme o seu banco
+        const resultadoTerapeuta = await db.query(
+            `SELECT u.nome, u.crp
+             FROM vinculos v
+             JOIN usuarios u ON u.id = v.terapeuta_id
+             WHERE v.responsavel_id = $1
+             AND v.ativo = TRUE
+             LIMIT 1`,
+            [usuarioId]
+        );
+
+        let terapeutaDados = null;
+
+        if (resultadoTerapeuta.rows.length > 0) {
+            terapeutaDados = resultadoTerapeuta.rows[0];
+        }
+
+        // Busca o plano ativo do usuário
+        // Ajuste o nome da tabela conforme o seu banco
+        const resultadoPlano = await db.query(
+            `SELECT nome_plano
+             FROM assinaturas
+             WHERE usuario_id = $1
+             AND ativo = TRUE
+             ORDER BY criado_em DESC
+             LIMIT 1`,
+            [usuarioId]
+        );
+
+        const plano = resultadoPlano.rows.length > 0
+            ? resultadoPlano.rows[0].nome_plano
+            : "Plano gratuito";
+
+        // Busca dias consecutivos de relatório
+        const resultadoDias = await db.query(
+            `SELECT COUNT(*) AS total
+             FROM relatorios
+             WHERE usuario_id = $1
+             AND data >= CURRENT_DATE - INTERVAL '30 days'`,
+            [usuarioId]
+        );
+
+        const tipoConta = usuario.tipo === "pai"
+            ? "Responsável"
+            : "Terapeuta";
+
+        // Monta e retorna o JSON completo para o frontend
+        res.json({
+            nome: usuario.nome,
+            tipoConta,
+            fotoPerfil: usuario.foto_perfil || null,
+            anoCadastro: usuario.ano_cadastro || new Date().getFullYear(),
+            diasConsecutivos: parseInt(resultadoDias.rows[0].total) || 0,
+            plano,
+            crianca: criancaDados,
+            terapeuta: terapeutaDados
+        });
+
+    } catch (erro) {
+
+        console.log("Erro na rota /api/perfil:", erro);
+        res.status(500).json({ erro: "Erro interno do servidor." });
+
+    }
+
+});
+
+/* ==========================
+   ROTA POST — REMOVER TERAPEUTA
+========================== */
+
+// 🔧 FIX 2: Rota /api/remover-terapeuta que não existia no server.js
+app.post("/api/remover-terapeuta", estaLogado, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        // Desativa o vínculo entre o responsável e o terapeuta
+        // Usa ativo = FALSE em vez de deletar para manter histórico
+        const resultado = await db.query(
+            `UPDATE vinculos
+             SET ativo = FALSE
+             WHERE responsavel_id = $1
+             AND ativo = TRUE`,
+            [usuarioId]
+        );
+
+        if (resultado.rowCount === 0) {
+            return res.status(404).json({ erro: "Nenhum terapeuta vinculado encontrado." });
+        }
+
+        return res.status(200).json({ mensagem: "Terapeuta removido com sucesso." });
+
+    } catch (erro) {
+
+        console.log("Erro ao remover terapeuta:", erro);
+        res.status(500).json({ erro: "Erro interno ao remover terapeuta." });
+
+    }
+
+});
+
+
+/* ==================================================
+   ROTA DO SOBRE — adicione no seu server.js
+   ================================================== */
+
+// 🔧 Rota GET /sobre que não existia no server.js
+// Protegida com estaLogado para manter padrão das outras páginas
+app.get("/sobre", estaLogado, (req, res) => {
+
+    res.sendFile(path.join(__dirname, "templates", "sobre.html"));
+
+});
+
 
 /* ==========================
    LOGOUT

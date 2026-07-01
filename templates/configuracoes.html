@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco — Configurações</title>
+
+    <!-- Font Awesome -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <!-- CSS -->
+
+    <link
+        rel="stylesheet"
+        href="/css/configuracoes.css"
+    >
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- ========================= -->
+    <!-- MENU LATERAL -->
+    <!-- ========================= -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <img
+                src="/img/Logo_Colorida.png"
+                alt="Logo"
+            >
+
+        </div>
+
+        <nav>
+
+            <a href="/home">
+
+                <i class="fa-solid fa-house"></i>
+
+                <span>Início</span>
+
+            </a>
+
+            <!-- 🔧 FIX 7: /Relatorios → /relatorios (minúsculo, consistente) -->
+
+            <a href="/relatorios">
+
+                <i class="fa-solid fa-chart-line"></i>
+
+                <span>Relatórios</span>
+
+            </a>
+
+            <!-- 🔧 FIX 7: /Configuracoes → /configuracoes -->
+
+            <a
+                href="/configuracoes"
+                class="ativo"
+            >
+
+                <i class="fa-solid fa-gear"></i>
+
+                <span>Configurações</span>
+
+            </a>
+
+            <!-- 🔧 FIX 7: /Sobre → /sobre -->
+
+            <a href="/sobre">
+
+                <i class="fa-solid fa-circle-info"></i>
+
+                <span>Sobre</span>
+
+            </a>
+
+        </nav>
+
+        <!-- 🔧 FIX 9: type="button" adicionado -->
+
+        <button
+            class="btn-relatorio"
+            type="button"
+            onclick="location.href='/RelatorioDiario'"
+        >
+
+            Relatório diário
+
+        </button>
+
+        <div class="tema">
+
+            <!-- 🔧 FIX 6: IDs padronizados btnClaro/btnEscuro igual a todas as páginas -->
+
+            <button
+                id="btnClaro"
+                class="ativo"
+                type="button"
+            >
+
+                <i class="fa-regular fa-sun"></i>
+
+                Claro
+
+            </button>
+
+            <button
+                id="btnEscuro"
+                type="button"
+            >
+
+                <i class="fa-regular fa-moon"></i>
+
+                Escuro
+
+            </button>
+
+        </div>
+
+        <a
+            href="/logout"
+            class="logout"
+        >
+
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+
+            <span>Sair</span>
+
+        </a>
+
+    </aside>
+
+    <!-- ========================= -->
+    <!-- CONTEÚDO -->
+    <!-- ========================= -->
+
+    <main class="conteudo">
+
+        <!-- Topo -->
+
+        <header class="topo">
+
+            <button
+                class="tradutor"
+                type="button"
+            >
+
+                <i class="fa-solid fa-language"></i>
+
+                Traduzir para inglês
+
+            </button>
+
+            <div class="usuario">
+
+                <button
+                    class="notificacao"
+                    type="button"
+                >
+
+                    <i class="fa-regular fa-bell"></i>
+
+                </button>
+
+                <img
+                    id="fotoUsuario"
+                    src="/img/perfilPadrao.png"
+                    alt="Perfil"
+                >
+
+                <div>
+
+                    <h3 id="nomeUsuario">
+
+                        Carregando...
+
+                    </h3>
+
+                    <span id="tipoConta">
+
+                        ...
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <!-- Cabeçalho -->
+
+        <section class="cabecalho">
+
+            <div>
+
+                <h1>
+
+                    Configurações
+
+                </h1>
+
+                <p>
+
+                    Gerencie suas preferências e mantenha sua conta segura.
+
+                </p>
+
+            </div>
+
+            <img
+                src="/img/BixucoConfiguracoes.png"
+                alt="Mascote"
+            >
+
+        </section>
+
+        <!-- ========================= -->
+        <!-- Primeira linha -->
+        <!-- ========================= -->
+
+        <section class="linha">
+
+            <!-- Card Notificações -->
+
+            <div class="card notificacoes">
+
+                <h2>Notificações</h2>
+
+                <div class="item-config">
+
+                    <div class="icone verde">
+
+                        <i class="fa-regular fa-bell"></i>
+
+                    </div>
+
+                    <div class="texto">
+
+                        <h3>Lembrete do relatório</h3>
+
+                    </div>
+
+                    <!-- 🔧 FIX 5: ID corrigido para notifRelatorio (igual ao HTML) -->
+
+                    <label class="switch">
+
+                        <input
+                            type="checkbox"
+                            id="notifRelatorio"
+                            checked
+                        >
+
+                        <span class="slider"></span>
+
+                    </label>
+
+                </div>
+
+                <div class="item-config">
+
+                    <div class="icone azul">
+
+                        <i class="fa-regular fa-envelope"></i>
+
+                    </div>
+
+                    <div class="texto">
+
+                        <h3>Novidades e dicas</h3>
+
+                    </div>
+
+                    <!-- 🔧 FIX 5: ID corrigido para notifNovidades (igual ao HTML) -->
+
+                    <label class="switch">
+
+                        <input
+                            type="checkbox"
+                            id="notifNovidades"
+                        >
+
+                        <span class="slider"></span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+            <!-- Card Compartilhamento -->
+
+            <div class="card compartilhamento">
+
+                <h2>
+
+                    Compartilhamento
+
+                </h2>
+
+                <!-- 🔧 FIX 5: Removido onclick inline, agora controlado pelo JS -->
+                <!-- com ID correto para o addEventListener funcionar -->
+
+                <button
+                    class="config-btn"
+                    type="button"
+                    id="btnCompartilhar"
+                >
+
+                    <div class="icone verde">
+
+                        <i class="fa-solid fa-share-nodes"></i>
+
+                    </div>
+
+                    <div class="texto">
+
+                        <h3>
+
+                            Compartilhar com terapeuta
+
+                        </h3>
+
+                    </div>
+
+                    <i class="fa-solid fa-chevron-right seta"></i>
+
+                </button>
+
+            </div>
+
+        </section>
+
+        <!-- ========================= -->
+        <!-- Segunda linha -->
+        <!-- ========================= -->
+
+        <section class="linha">
+
+            <!-- Privacidade -->
+
+            <div class="card privacidade">
+
+                <h2>
+
+                    Privacidade
+
+                </h2>
+
+                <!-- 🔧 FIX 5: IDs adicionados para o addEventListener funcionar -->
+
+                <button
+                    class="config-btn"
+                    type="button"
+                    id="btnAlterarSenha"
+                >
+
+                    <div class="icone verde">
+
+                        <i class="fa-solid fa-lock"></i>
+
+                    </div>
+
+                    <div class="texto">
+
+                        <h3>
+
+                            Alterar senha
+
+                        </h3>
+
+                    </div>
+
+                    <i class="fa-solid fa-chevron-right seta"></i>
+
+                </button>
+
+                <button
+                    class="config-btn"
+                    type="button"
+                    id="btnExcluirConta"
+                >
+
+                    <div class="icone azul">
+
+                        <i class="fa-regular fa-trash-can"></i>
+
+                    </div>
+
+                    <div class="texto">
+
+                        <h3>
+
+                            Excluir minha conta
+
+                        </h3>
+
+                    </div>
+
+                    <i class="fa-solid fa-chevron-right seta"></i>
+
+                </button>
+
+                <!-- 🔧 FIX 4: Confirmação inline para excluir conta em vez de confirm() -->
+                <!-- Aparece só quando o usuário clica no botão de excluir -->
+
+                <div
+                    id="confirmarExclusao"
+                    class="confirmar-exclusao"
+                    style="display: none;"
+                >
+
+                    <p>
+
+                        ⚠️ Tem certeza? Esta ação não pode ser desfeita.
+                        Todos os seus dados serão removidos permanentemente.
+
+                    </p>
+
+                    <div class="confirmar-botoes">
+
+                        <button
+                            type="button"
+                            id="btnConfirmarExclusao"
+                            class="btn-confirmar-exclusao"
+                        >
+
+                            Sim, excluir minha conta
+
+                        </button>
+
+                        <button
+                            type="button"
+                            id="btnCancelarExclusao"
+                            class="btn-cancelar-exclusao"
+                        >
+
+                            Cancelar
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Segurança -->
+
+            <div class="card seguranca">
+
+                <div class="texto-seguranca">
+
+                    <h2>
+
+                        Sua segurança<br>
+                        é nossa
+                        <span>prioridade</span>
+
+                    </h2>
+
+                    <p>
+
+                        Utilizamos criptografia e
+                        boas práticas para proteger
+                        suas informações e da sua criança.
+
+                    </p>
+
+                    <div class="status-seguranca">
+
+                        <i class="fa-solid fa-circle-check"></i>
+
+                        <span>
+
+                            Seus dados estão protegidos.
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <img
+                    src="/img/BixucoSeguranca.png"
+                    alt="Segurança"
+                >
+
+            </div>
+
+        </section>
+
+        <!-- 🔧 FIX 8: </section> e </main> que estavam faltando -->
+
+    </main>
+
+</div>
+
+<!-- ========================= -->
+<!-- JAVASCRIPT -->
+<!-- ========================= -->
+
+<script>
+
+    // ==========================
+    // TEMA
+    // ==========================
+
+    // 🔧 FIX 6: IDs padronizados btnClaro/btnEscuro + função aplicarTema
+    // igual a todas as outras páginas do projeto
+
+    function aplicarTema(tema) {
+
+        document.body.classList.remove("tema-claro", "tema-escuro");
+        document.body.classList.add(`tema-${tema}`);
+
+        document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
+        document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
+
+        localStorage.setItem("tema", tema);
+
+    }
+
+    document.getElementById("btnClaro").addEventListener("click", () => {
+        aplicarTema("claro");
+    });
+
+    document.getElementById("btnEscuro").addEventListener("click", () => {
+        aplicarTema("escuro");
+    });
+
+    const temaSalvo = localStorage.getItem("tema") || "claro";
+    aplicarTema(temaSalvo);
+
+
+    // ==========================
+    // CARREGA DADOS DO USUÁRIO
+    // ==========================
+
+    async function carregarUsuario() {
+
+        try {
+
+            // 🔧 FIX 1: Rota corrigida de /api/usuario para /api/home
+            const resposta = await fetch("/api/home");
+
+            // 🔧 FIX 10: Redireciona para login se não autenticado
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            if (!resposta.ok) {
+                throw new Error();
+            }
+
+            const usuario = await resposta.json();
+
+            document.getElementById("nomeUsuario").textContent =
+                usuario.nome || "Usuário";
+
+            document.getElementById("tipoConta").textContent =
+                usuario.tipoConta || "Responsável";
+
+            if (usuario.fotoPerfil) {
+                document.getElementById("fotoUsuario").src = usuario.fotoPerfil;
+            }
+
+        } catch (erro) {
+
+            console.log("Erro ao carregar usuário:", erro);
+
+        }
+
+    }
+
+    carregarUsuario();
+
+
+    // ==========================
+    // NOTIFICAÇÕES
+    // ==========================
+
+    // 🔧 FIX 5: IDs corrigidos para notifRelatorio/notifNovidades
+    // Antes o JS buscava checkLembrete/checkNovidades que não existiam no HTML
+
+    const notifRelatorio = document.getElementById("notifRelatorio");
+    const notifNovidades = document.getElementById("notifNovidades");
+
+    async function salvarNotificacao(dados) {
+
+        try {
+
+            // 🔧 FIX 2: Rota /api/configuracoes/notificacoes — adicionar no server.js
+            await fetch("/api/configuracoes/notificacoes", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify(dados)
+
+            });
+
+        } catch (erro) {
+
+            console.log("Erro ao salvar notificação:", erro);
+
+        }
+
+    }
+
+    notifRelatorio.addEventListener("change", () => {
+        salvarNotificacao({ lembrete: notifRelatorio.checked });
+    });
+
+    notifNovidades.addEventListener("change", () => {
+        salvarNotificacao({ novidades: notifNovidades.checked });
+    });
+
+
+    // ==========================
+    // COMPARTILHAR TERAPEUTA
+    // ==========================
+
+    // 🔧 FIX 5: getElementById agora funciona pois o ID existe no HTML
+
+    document.getElementById("btnCompartilhar").addEventListener("click", () => {
+        window.location.href = "/compartilhar-terapeuta";
+    });
+
+
+    // ==========================
+    // ALTERAR SENHA
+    // ==========================
+
+    document.getElementById("btnAlterarSenha").addEventListener("click", () => {
+        window.location.href = "/alterar-senha";
+    });
+
+
+    // ==========================
+    // EXCLUIR CONTA
+    // ==========================
+
+    const btnExcluir        = document.getElementById("btnExcluirConta");
+    const confirmarExclusao = document.getElementById("confirmarExclusao");
+    const btnConfirmar      = document.getElementById("btnConfirmarExclusao");
+    const btnCancelar       = document.getElementById("btnCancelarExclusao");
+
+    // 🔧 FIX 4: Clique em excluir mostra confirmação inline em vez de confirm()
+
+    btnExcluir.addEventListener("click", () => {
+
+        confirmarExclusao.style.display = "block";
+        btnExcluir.style.display = "none";
+
+    });
+
+    btnCancelar.addEventListener("click", () => {
+
+        confirmarExclusao.style.display = "none";
+        btnExcluir.style.display = "flex";
+
+    });
+
+    btnConfirmar.addEventListener("click", async () => {
+
+        btnConfirmar.disabled = true;
+        btnConfirmar.textContent = "Excluindo...";
+
+        try {
+
+            // 🔧 FIX 3: Rota /api/excluir-conta — adicionar no server.js
+
+            const resposta = await fetch("/api/excluir-conta", {
+                method: "DELETE"
+            });
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            if (resposta.ok) {
+
+                // Conta excluída — redireciona para a página inicial
+                window.location.href = "/";
+
+            } else {
+
+                const dados = await resposta.json();
+
+                btnConfirmar.disabled = false;
+                btnConfirmar.textContent = "Sim, excluir minha conta";
+
+                confirmarExclusao.querySelector("p").textContent =
+                    "❌ " + (dados.erro || "Erro ao excluir. Tente novamente.");
+
+            }
+
+        } catch (erro) {
+
+            console.log("Erro ao excluir conta:", erro);
+
+            btnConfirmar.disabled = false;
+            btnConfirmar.textContent = "Sim, excluir minha conta";
+
+        }
+
+    });
+
+</script>
+
+</body>
+</html>
