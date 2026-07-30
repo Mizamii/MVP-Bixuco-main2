@@ -397,25 +397,23 @@
 
                 // Backend redirecionou com sucesso
                 // Para pai → /AdicionarC | Para psicologo → /home
-                if (resposta.redirected) {
-                    window.location.href = resposta.url;
+                const dados = await resposta.json();
+
+                if (dados.sucesso) {
+                    window.location.href = dados.destino;
                     return;
                 }
 
-                // 🔧 FIX 2: Exibe erros do servidor nos campos corretos
                 if (!resposta.ok) {
-
-                    const dados = await resposta.json();
-
-                    // Se o servidor indicar qual campo tem erro, mostra lá
                     if (dados.campo) {
                         mostrarErro(dados.campo, "erro-" + dados.campo, dados.erro);
                     } else {
-                        erroGeral.textContent   = dados.erro || "Erro ao criar conta. Tente novamente.";
+                        erroGeral.textContent = dados.erro || "Erro ao criar conta. Tente novamente.";
                         erroGeral.style.display = "block";
                     }
-
                 }
+
+                
 
             } catch (erro) {
 

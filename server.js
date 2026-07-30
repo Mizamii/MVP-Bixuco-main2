@@ -849,18 +849,9 @@ app.post("/esqueceu-senha", async (req, res) => {
 ========================== */
 
 app.post("/cadastro-finalizar", async (req, res) => {
-    
 
     const dados = req.session.cadastro;
-    if (!dados) {
-        return res.status(400).json({
-            erro: "Sessão expirada. Reinicie o cadastro."
-        });
-    }
-    //mudar aq
-    console.log("===== DADOS DA SESSÃO =====");
-    console.log(dados);
-    console.log("Tipo recebido:", dados.tipo);
+
 
     if (!dados) {
         return res.status(400).json({
@@ -1008,11 +999,17 @@ app.post("/cadastro-finalizar", async (req, res) => {
         delete req.session.cadastro;
 
         if (tipo === "pai") {
-            return res.redirect("/AdicionarC");
+           return res.json({
+                sucesso: true,
+                destino: "/AdicionarC"
+            });
         }
 
         if (tipo === "psicologo") {
-            return res.redirect("/logar");
+            return res.json({
+                sucesso: true,
+                destino: "/logar"
+            });
         }
 
         return res.status(400).json({
