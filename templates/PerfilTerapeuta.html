@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco • Meu Perfil</title>
+
+    <!-- Font Awesome -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <!-- CSS -->
+
+    <link
+        rel="stylesheet"
+        href="/css/PerfilTerapeuta.css"
+    >
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- ========================= -->
+    <!-- MENU LATERAL -->
+    <!-- ========================= -->
+
+    <aside class="sidebar">
+
+        <!-- Logo -->
+
+        <div class="logo">
+
+            <img
+                src="/img/Logo_Colorida.png"
+                alt="Bixuco"
+            >
+
+        </div>
+
+        <!-- Navegação -->
+
+        <nav>
+
+            <a href="/home">
+
+                <i class="fa-solid fa-house"></i>
+
+                <span>Início</span>
+
+            </a>
+
+            <a href="/Relatorios">
+
+                <i class="fa-solid fa-chart-line"></i>
+
+                <span>Relatórios</span>
+
+            </a>
+
+            <a href="/Configuracoes">
+
+                <i class="fa-solid fa-gear"></i>
+
+                <span>Configurações</span>
+
+            </a>
+
+            <a href="/Sobre">
+
+                <i class="fa-solid fa-circle-info"></i>
+
+                <span>Sobre</span>
+
+            </a>
+
+            <a href="/Pacientes">
+
+                <i class="fa-solid fa-user-plus"></i>
+
+                <span>Pacientes</span>
+
+            </a>
+
+        </nav>
+
+        <!-- Tema -->
+
+        <div class="tema">
+
+            <button
+                id="temaClaro"
+                class="ativo"
+            >
+
+                <i class="fa-regular fa-sun"></i>
+
+                Claro
+
+            </button>
+
+            <button id="temaEscuro">
+
+                <i class="fa-regular fa-moon"></i>
+
+                Escuro
+
+            </button>
+
+        </div>
+
+        <!-- Linha -->
+
+        <div class="linha-menu"></div>
+
+        <!-- Logout -->
+
+        <a
+            href="/logout"
+            class="logout"
+        >
+
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+
+            <span>Sair</span>
+
+        </a>
+
+    </aside>
+
+
+
+    <!-- ========================= -->
+    <!-- CONTEÚDO -->
+    <!-- ========================= -->
+
+    <main class="conteudo">
+
+        <!-- Topo -->
+
+        <header class="topo">
+
+            <button
+                class="tradutor"
+                type="button"
+            >
+
+                <i class="fa-solid fa-language"></i>
+
+                Traduzir para inglês
+
+            </button>
+
+            <div class="usuario">
+
+                <button
+                    class="notificacao"
+                    type="button"
+                >
+
+                    <i class="fa-regular fa-bell"></i>
+
+                </button>
+
+                <img
+
+                    id="fotoUsuario"
+
+                    src="/img/perfilPadrao.png"
+
+                    alt="Perfil"
+
+                >
+
+                <div>
+
+                    <h3 id="nomeUsuario">
+
+                        Carregando...
+
+                    </h3>
+
+                    <span id="tipoConta">
+
+                        Terapeuta
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- Cabeçalho -->
+
+        <section class="cabecalho">
+
+            <div>
+
+                <h1>
+
+                    Meu perfil
+
+                </h1>
+
+                <p>
+
+                    Gerencie suas informações e preferências.
+
+                </p>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- Primeira linha -->
+
+        <section class="linha">
+        <!-- ========================= -->
+        <!-- CARD PERFIL -->
+        <!-- ========================= -->
+
+        <div class="card-perfil">
+
+            <div class="perfil-superior">
+
+                <img
+
+                    id="fotoPerfil"
+
+                    src="/img/perfilPadrao.png"
+
+                    alt="Foto"
+
+                    class="foto-perfil"
+
+                >
+
+                <div class="dados-perfil">
+
+                    <h2 id="nomeCompleto">
+
+                        Carregando...
+
+                    </h2>
+
+                    <p>
+
+                        Terapeuta •
+
+                        Código:
+
+                        <span id="codigoTerapeuta">
+
+                            -----
+
+                        </span>
+
+                    </p>
+
+                    <div class="badges">
+
+                        <span class="badge">
+
+                            <i class="fa-solid fa-fire"></i>
+
+                            <span id="diasSeguidos">
+
+                                0
+
+                            </span>
+
+                            dias seguidos
+
+                        </span>
+
+                        <span class="badge">
+
+                            <i class="fa-solid fa-gem"></i>
+
+                            <span id="planoUsuario">
+
+                                Plano Familiar
+
+                            </span>
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="mensagem">
+
+                <strong>
+
+                    Você está fazendo um ótimo trabalho!
+
+                </strong>
+
+                <p>
+
+                    A consistência no acompanhamento faz toda a diferença.
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ========================= -->
+        <!-- COMPARTILHAMENTO -->
+        <!-- ========================= -->
+
+        <div class="card-compartilhar">
+
+            <h2>
+
+                Compartilhamento
+
+            </h2>
+
+            <button
+
+                id="btnNovoPaciente"
+
+                class="botao-compartilhar"
+
+            >
+
+                <div class="icone">
+
+                    <i class="fa-solid fa-share-nodes"></i>
+
+                </div>
+
+                <div class="texto">
+
+                    <strong>
+
+                        Compartilhar com novo paciente
+
+                    </strong>
+
+                </div>
+
+                <i class="fa-solid fa-chevron-right seta"></i>
+
+            </button>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ========================= -->
+    <!-- MASCOTE -->
+    <!-- ========================= -->
+
+    <section class="rodape-perfil">
+
+        <img
+
+            src="/img/BixucoDormindo.png"
+
+            alt="Bixuco"
+
+            class="bixuco"
+
+        >
+
+    </section>
+<script>
+
+// ==========================
+// TEMA
+// ==========================
+
+const temaClaro = document.getElementById("temaClaro");
+const temaEscuro = document.getElementById("temaEscuro");
+
+temaClaro.addEventListener("click", () => {
+
+    document.body.classList.remove("escuro");
+
+    temaClaro.classList.add("ativo");
+    temaEscuro.classList.remove("ativo");
+
+    localStorage.setItem("tema", "claro");
+
+});
+
+temaEscuro.addEventListener("click", () => {
+
+    document.body.classList.add("escuro");
+
+    temaEscuro.classList.add("ativo");
+    temaClaro.classList.remove("ativo");
+
+    localStorage.setItem("tema", "escuro");
+
+});
+
+if(localStorage.getItem("tema")==="escuro"){
+
+    document.body.classList.add("escuro");
+
+    temaEscuro.classList.add("ativo");
+    temaClaro.classList.remove("ativo");
+
+}
+
+
+
+// ==========================
+// CARREGAR DADOS DO USUÁRIO
+// ==========================
+
+async function carregarUsuario(){
+
+    try{
+
+        const resposta = await fetch("/api/usuario");
+
+        if(!resposta.ok){
+
+            throw new Error();
+
+        }
+
+        const usuario = await resposta.json();
+
+        document.getElementById("nomeUsuario").textContent =
+            usuario.nome;
+
+        document.getElementById("nomeCompleto").textContent =
+            usuario.nome;
+
+        document.getElementById("tipoConta").textContent =
+            "Terapeuta";
+
+        if(usuario.foto){
+
+            document.getElementById("fotoUsuario").src =
+                usuario.foto;
+
+            document.getElementById("fotoPerfil").src =
+                usuario.foto;
+
+        }
+
+        document.getElementById("codigoTerapeuta").textContent =
+            usuario.codigo || "Sem código";
+
+        document.getElementById("planoUsuario").textContent =
+            usuario.plano || "Plano Familiar";
+
+        document.getElementById("diasSeguidos").textContent =
+            usuario.dias_seguidos || 0;
+
+    }
+
+    catch(erro){
+
+        console.log(erro);
+
+    }
+
+}
+
+carregarUsuario();
+
+
+
+// ==========================
+// BOTÃO COMPARTILHAR
+// ==========================
+
+const btnNovoPaciente =
+document.getElementById("btnNovoPaciente");
+
+if(btnNovoPaciente){
+
+    btnNovoPaciente.addEventListener("click",()=>{
+
+        window.location.href="/CompartilharPaciente";
+
+    });
+
+}
+
+
+
+// ==========================
+// NOTIFICAÇÃO
+// ==========================
+
+const notificacao =
+document.querySelector(".notificacao");
+
+if(notificacao){
+
+    notificacao.addEventListener("click",()=>{
+
+        window.location.href="/Notificacoes";
+
+    });
+
+}
+
+
+
+// ==========================
+// TRADUTOR
+// ==========================
+
+const tradutor =
+document.querySelector(".tradutor");
+
+if(tradutor){
+
+    tradutor.addEventListener("click",()=>{
+
+        alert("Tradução para inglês será disponibilizada em breve.");
+
+    });
+
+}
+
+
+
+// ==========================
+// FOTO PADRÃO
+// ==========================
+
+document.getElementById("fotoPerfil").onerror=function(){
+
+    this.src="/img/perfilPadrao.png";
+
+};
+
+document.getElementById("fotoUsuario").onerror=function(){
+
+    this.src="/img/perfilPadrao.png";
+
+};
+
+</script>
+
+</body>
+</html>

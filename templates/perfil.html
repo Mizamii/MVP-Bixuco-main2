@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco • Meu Perfil</title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/css/perfil.css"
+    >
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- ===========================
+    MENU LATERAL
+    =========================== -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <img
+                src="/img/Logo_Colorida.png"
+                alt="Bixuco"
+            >
+
+        </div>
+
+        <nav>
+
+            <a href="/home">
+
+                <i class="fa-solid fa-house"></i>
+
+                <span>Início</span>
+
+            </a>
+
+            <a href="/relatorios">
+
+                <!-- 🔧 FIX 8: /Relatorios → /relatorios (minúsculo, consistente com a home) -->
+
+                <i class="fa-solid fa-chart-line"></i>
+
+                <span>Relatórios</span>
+
+            </a>
+
+            <a
+                href="/perfil"
+                class="ativo"
+            >
+
+                <i class="fa-solid fa-user"></i>
+
+                <span>Perfil</span>
+
+            </a>
+
+            <a href="/configuracoes">
+
+                <i class="fa-solid fa-gear"></i>
+
+                <span>Configurações</span>
+
+            </a>
+
+            <a href="/sobre">
+
+                <i class="fa-solid fa-circle-info"></i>
+
+                <span>Sobre</span>
+
+            </a>
+
+        </nav>
+
+        <!-- 🔧 FIX 9: Adicionado type="button" para evitar submit acidental -->
+        <button
+            class="btn-relatorio"
+            type="button"
+            onclick="location.href='/RelatorioDiario'"
+        >
+
+            Relatório diário
+
+        </button>
+
+        <div class="tema">
+
+            <!-- 🔧 FIX 4: IDs padronizados para btnClaro/btnEscuro -->
+            <!-- Antes eram temaClaro/temaEscuro, diferente de todas as outras páginas -->
+
+            <button
+                id="btnClaro"
+                class="ativo"
+                type="button"
+            >
+
+                <i class="fa-regular fa-sun"></i>
+
+                Claro
+
+            </button>
+
+            <button
+                id="btnEscuro"
+                type="button"
+            >
+
+                <i class="fa-regular fa-moon"></i>
+
+                Escuro
+
+            </button>
+
+        </div>
+
+        <a
+            href="/logout"
+            class="logout"
+        >
+
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+
+            <span>Sair</span>
+
+        </a>
+
+    </aside>
+
+    <!-- ===========================
+    CONTEÚDO
+    =========================== -->
+
+    <main class="conteudo">
+
+        <header class="topo">
+
+            <button
+                class="tradutor"
+                type="button"
+            >
+
+                <i class="fa-solid fa-language"></i>
+
+                Traduzir para inglês
+
+            </button>
+
+            <div class="usuario">
+
+                <button
+                    class="notificacao"
+                    type="button"
+                >
+
+                    <i class="fa-regular fa-bell"></i>
+
+                </button>
+
+                <img
+                    id="fotoUsuario"
+                    src="/img/perfilPadrao.png"
+                    alt="Foto do usuário"
+                >
+
+                <div>
+
+                    <h3 id="nomeUsuario">
+
+                        Carregando...
+
+                    </h3>
+
+                    <span id="tipoConta">
+
+                        ...
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <section class="titulo">
+
+            <h1>
+
+                Meu perfil
+
+            </h1>
+
+            <p>
+
+                Gerencie suas informações e preferências
+
+            </p>
+
+        </section>
+
+        <div class="grid-perfil">
+
+            <!-- ========================= -->
+            <!-- CARD PERFIL (esquerda) -->
+            <!-- ========================= -->
+
+            <div class="card perfil-card">
+
+                <div class="perfil-topo">
+
+                    <img
+                        id="fotoPerfil"
+                        src="/img/perfilPadrao.png"
+                        alt="Foto de perfil"
+                    >
+
+                    <div>
+
+                        <h2 id="perfilNome">
+
+                            Carregando...
+
+                        </h2>
+
+                        <p id="perfilDescricao">
+
+                            Responsável
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="badges">
+
+                    <span id="badgeDias">
+
+                        🔥 0 dias seguidos
+
+                    </span>
+
+                    <span id="badgePlano">
+
+                        Plano
+
+                    </span>
+
+                </div>
+
+                <div class="mensagemPerfil">
+
+                    <strong>
+
+                        Você está fazendo um ótimo trabalho!
+
+                    </strong>
+
+                    <p>
+
+                        A consistência no acompanhamento faz toda diferença.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- ========================= -->
+            <!-- COLUNA DIREITA -->
+            <!-- ========================= -->
+
+            <div class="perfil-direita">
+
+                <!-- Terapeuta -->
+
+                <section class="card terapeuta">
+
+                    <h2>
+
+                        Terapeuta vinculado
+
+                    </h2>
+
+                    <div class="terapeuta-info">
+
+                        <div class="avatar-terapeuta">
+
+                            <span>Dr</span>
+
+                        </div>
+
+                        <div class="dados-terapeuta">
+
+                            <h3 id="nomeTerapeuta">
+
+                                Nenhum terapeuta
+
+                            </h3>
+
+                            <p id="crpTerapeuta">
+
+                                Ainda não vinculado
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <!-- 🔧 FIX 3: Confirmação inline em vez de confirm() -->
+                    <!-- Aparece só quando o usuário clica em remover -->
+                    <!-- Padrão consistente com o restante do projeto -->
+                    <div
+                        id="confirmarRemocao"
+                        class="confirmar-remocao"
+                        style="display: none;"
+                    >
+
+                        <p>
+
+                            Tem certeza que deseja remover o terapeuta?
+
+                        </p>
+
+                        <div class="confirmar-botoes">
+
+                            <button
+                                type="button"
+                                id="btnConfirmarRemover"
+                                class="btn-confirmar"
+                            >
+
+                                Sim, remover
+
+                            </button>
+
+                            <button
+                                type="button"
+                                id="btnCancelarRemover"
+                                class="btn-cancelar-remocao"
+                            >
+
+                                Cancelar
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <button
+                        class="btn-remover"
+                        id="btnRemoverTerapeuta"
+                        type="button"
+                    >
+
+                        <i class="fa-solid fa-link-slash"></i>
+
+                        Remover terapeuta
+
+                    </button>
+
+                </section>
+
+                <!-- Conta -->
+
+                <section class="card conta">
+
+                    <h2>
+
+                        Conta
+
+                    </h2>
+
+                    <a
+                        href="/planos"
+                        class="item-card"
+                    >
+
+                        <div class="icone-card">
+
+                            <i class="fa-solid fa-crown"></i>
+
+                        </div>
+
+                        <div>
+
+                            <h3>
+
+                                Minha assinatura
+
+                            </h3>
+
+                            <p id="nomePlano">
+
+                                Carregando...
+
+                            </p>
+
+                        </div>
+
+                        <i class="fa-solid fa-chevron-right seta"></i>
+
+                    </a>
+
+                </section>
+
+                <!-- Criança -->
+
+                <section class="card crianca">
+
+                    <h2>
+
+                        Criança cadastrada
+
+                    </h2>
+
+                    <a
+                        href="/crianca"
+                        class="item-card"
+                    >
+
+                        <div
+                            class="avatar-crianca"
+                            id="avatarCrianca"
+                        >
+
+                            ?
+
+                        </div>
+
+                        <div>
+
+                            <h3 id="nomeCrianca">
+
+                                Carregando...
+
+                            </h3>
+
+                            <p id="idadeCrianca">
+
+                                ...
+
+                            </p>
+
+                        </div>
+
+                        <i class="fa-solid fa-chevron-right seta"></i>
+
+                    </a>
+
+                </section>
+
+            </div>
+
+        </div>
+        <!-- 🔧 FIX 6: </div> do grid-perfil que estava faltando -->
+        <!-- Antes a div class="grid-perfil" não fechava, quebrando o layout -->
+
+    </main>
+
+</div>
+
+<!-- ===========================
+JAVASCRIPT
+=========================== -->
+
+<script>
+
+    // ==========================
+    // TEMA
+    // ==========================
+
+    // 🔧 FIX 4: Tema agora persiste com localStorage
+    // e IDs padronizados igual a todas as outras páginas (btnClaro/btnEscuro)
+    function aplicarTema(tema) {
+
+        document.body.classList.remove("tema-claro", "tema-escuro");
+        document.body.classList.add(`tema-${tema}`);
+
+        document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
+        document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
+
+        localStorage.setItem("tema", tema);
+
+    }
+
+    document.getElementById("btnClaro").addEventListener("click", () => {
+        aplicarTema("claro");
+    });
+
+    document.getElementById("btnEscuro").addEventListener("click", () => {
+        aplicarTema("escuro");
+    });
+
+    // Aplica o tema salvo ao carregar a página
+    const temaSalvo = localStorage.getItem("tema") || "claro";
+    aplicarTema(temaSalvo);
+
+
+    // ==========================
+    // CARREGAR DADOS DO PERFIL
+    // ==========================
+
+    async function carregarPerfil() {
+
+        try {
+
+            // 🔧 FIX 1: Rota corrigida de /dados-usuario para /api/perfil
+            // /dados-usuario nunca existiu no server.js
+            const resposta = await fetch("/api/perfil");
+
+            // 🔧 FIX 5: Redireciona para login se não autenticado
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            if (!resposta.ok) {
+                throw new Error("Erro ao carregar perfil");
+            }
+
+            const usuario = await resposta.json();
+
+            // =====================
+            // DADOS DO USUÁRIO
+            // =====================
+
+            document.getElementById("nomeUsuario").textContent =
+                usuario.nome || "Usuário";
+
+            document.getElementById("perfilNome").textContent =
+                usuario.nome || "Usuário";
+
+            document.getElementById("tipoConta").textContent =
+                usuario.tipoConta || "Responsável";
+
+            document.getElementById("perfilDescricao").textContent =
+                `${usuario.tipoConta || "Responsável"} • Membro desde ${usuario.anoCadastro || "2026"}`;
+
+            if (usuario.fotoPerfil) {
+
+                document.getElementById("fotoUsuario").src = usuario.fotoPerfil;
+                document.getElementById("fotoPerfil").src = usuario.fotoPerfil;
+
+            }
+
+            // =====================
+            // DIAS CONSECUTIVOS
+            // =====================
+
+            document.getElementById("badgeDias").innerHTML =
+                `🔥 ${usuario.diasConsecutivos || 0} dias seguidos`;
+
+            // =====================
+            // PLANO
+            // =====================
+
+            document.getElementById("badgePlano").textContent =
+                usuario.plano || "Plano gratuito";
+
+            document.getElementById("nomePlano").textContent =
+                usuario.plano || "Plano gratuito";
+
+            // =====================
+            // CRIANÇA
+            // =====================
+
+            if (usuario.crianca) {
+
+                document.getElementById("nomeCrianca").textContent =
+                    usuario.crianca.nome;
+
+                document.getElementById("idadeCrianca").textContent =
+                    usuario.crianca.idade + " anos";
+
+                document.getElementById("avatarCrianca").textContent =
+                    usuario.crianca.nome.charAt(0).toUpperCase();
+
+            } else {
+
+                document.getElementById("nomeCrianca").textContent =
+                    "Nenhuma criança";
+
+                document.getElementById("idadeCrianca").textContent =
+                    "Cadastre uma criança";
+
+            }
+
+            // =====================
+            // TERAPEUTA
+            // =====================
+
+            if (usuario.terapeuta) {
+
+                document.getElementById("nomeTerapeuta").textContent =
+                    usuario.terapeuta.nome;
+
+                document.getElementById("crpTerapeuta").textContent =
+                    usuario.terapeuta.crp;
+
+                document.getElementById("btnRemoverTerapeuta").style.display =
+                    "block";
+
+            } else {
+
+                document.getElementById("nomeTerapeuta").textContent =
+                    "Nenhum terapeuta";
+
+                document.getElementById("crpTerapeuta").textContent =
+                    "Ainda não vinculado";
+
+                // Esconde o botão de remover se não há terapeuta
+                document.getElementById("btnRemoverTerapeuta").style.display =
+                    "none";
+
+            }
+
+        } catch (erro) {
+
+            console.log("Erro ao carregar perfil:", erro);
+
+        }
+
+    }
+
+
+    // ==========================
+    // REMOVER TERAPEUTA
+    // ==========================
+
+    // 🔧 FIX 3: Confirmação inline em vez de confirm()
+    // Clique em "Remover terapeuta" → mostra caixa de confirmação inline
+    // Usuário escolhe "Sim, remover" ou "Cancelar"
+
+    const btnRemover = document.getElementById("btnRemoverTerapeuta");
+    const confirmarRemocao = document.getElementById("confirmarRemocao");
+    const btnConfirmar = document.getElementById("btnConfirmarRemover");
+    const btnCancelar = document.getElementById("btnCancelarRemover");
+
+    // Mostra a confirmação inline ao clicar em remover
+    if (btnRemover) {
+
+        btnRemover.addEventListener("click", () => {
+
+            confirmarRemocao.style.display = "block";
+            btnRemover.style.display = "none";
+
+        });
+
+    }
+
+    // Cancela a remoção e volta ao estado original
+    if (btnCancelar) {
+
+        btnCancelar.addEventListener("click", () => {
+
+            confirmarRemocao.style.display = "none";
+            btnRemover.style.display = "block";
+
+        });
+
+    }
+
+    // Confirma a remoção e chama o backend
+    if (btnConfirmar) {
+
+        btnConfirmar.addEventListener("click", async () => {
+
+            btnConfirmar.disabled = true;
+            btnConfirmar.textContent = "Removendo...";
+
+            try {
+
+                // 🔧 FIX 2: Rota /remover-terapeuta agora existe no backend
+                // (adicionar a rota no server.js — veja rotas_perfil.js)
+                const resposta = await fetch("/api/remover-terapeuta", {
+                    method: "POST"
+                });
+
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
+                }
+
+                if (resposta.ok) {
+
+                    // Recarrega os dados do perfil com o terapeuta removido
+                    confirmarRemocao.style.display = "none";
+                    await carregarPerfil();
+
+                } else {
+
+                    const dados = await resposta.json();
+                    alert(dados.erro || "Erro ao remover terapeuta.");
+
+                    btnConfirmar.disabled = false;
+                    btnConfirmar.textContent = "Sim, remover";
+
+                }
+
+            } catch (erro) {
+
+                console.log("Erro ao remover terapeuta:", erro);
+
+                btnConfirmar.disabled = false;
+                btnConfirmar.textContent = "Sim, remover";
+
+            }
+
+        });
+
+    }
+
+
+    // ==========================
+    // INICIAR
+    // ==========================
+
+    carregarPerfil();
+
+</script>
+
+</body>
+
+</html>

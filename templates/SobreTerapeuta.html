@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Sobre</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="/css/sobre.css">
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- ========================= -->
+        <!-- MENU LATERAL -->
+        <!-- ========================= -->
+        <aside class="sidebar">
+
+            <div class="logo">
+                <img src="/img/Logo_Colorida.png" alt="Logo Bixuco">
+            </div>
+
+            <nav>
+                <a href="/homeTerapeuta">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Início</span>
+                </a>
+
+                <a href="/relatoriosTerapeuta">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Relatórios</span>
+                </a>
+
+                <a href="/configuracoes">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Configurações</span>
+                </a>
+
+                <!-- aba ativa -->
+                <a href="/sobre" class="ativo">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>Sobre</span>
+                </a>
+
+                <a href="/pacientes">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Pacientes</span>
+                </a>
+            </nav>
+
+            <div class="tema">
+                <button id="btnClaro" class="ativo" type="button">
+                    <i class="fa-regular fa-sun"></i>
+                    Claro
+                </button>
+
+                <button id="btnEscuro" type="button">
+                    <i class="fa-regular fa-moon"></i>
+                    Escuro
+                </button>
+            </div>
+
+            <a href="/logout" class="logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Sair</span>
+            </a>
+
+        </aside>
+
+        <!-- ========================= -->
+        <!-- CONTEÚDO PRINCIPAL -->
+        <!-- ========================= -->
+        <main class="conteudo">
+
+            <!-- TOPO -->
+            <header class="topo">
+
+                <button class="tradutor" type="button" id="btnTraduzir">
+                    <i class="fa-solid fa-globe"></i>
+                    Traduzir para inglês
+                </button>
+
+                <div class="usuario">
+                    <button class="notificacoes" type="button" id="btnNotificacoes">
+                        <i class="fa-regular fa-bell"></i>
+                        <span id="badgeNotificacoes" class="badge" style="display:none">0</span>
+                    </button>
+
+                    <img
+                        id="fotoUsuario"
+                        src="/img/perfilPadrao.png"
+                        alt="Foto do terapeuta"
+                    >
+
+                    <div>
+                        <h3 id="nomeUsuario">Carregando...</h3>
+                        <span id="tipoConta">Terapeuta</span>
+                    </div>
+                </div>
+
+            </header>
+
+            <!-- CABEÇALHO DA PÁGINA -->
+            <section class="cabecalho-sobre">
+                <div>
+                    <h1>Sobre o Bixuco</h1>
+                    <p>Conheça nossa história, missão e como trabalhamos<br>para transformar vidas.</p>
+                </div>
+
+                <!-- ilustração do gatinho lendo — trocar imagem quando tiver a definitiva -->
+                <img src="/img/BixucoSobre.png" alt="Mascote Bixuco lendo">
+            </section>
+
+            <!-- ========================= -->
+            <!-- GRID DE CARDS INFORMATIVOS -->
+            <!-- cada card abre um modal com mais informações ao clicar -->
+            <!-- ========================= -->
+            <section class="grid-sobre">
+
+                <!-- linha 1: 2 cards largos -->
+                <button type="button" class="card-sobre card-sobre--largo" onclick="abrirModal('sobreNos')">
+                    <i class="fa-regular fa-circle-info icone icone--verde"></i>
+                    <strong>Sobre nós</strong>
+                    <span>Nossa história e missão</span>
+                </button>
+
+                <button type="button" class="card-sobre card-sobre--largo" onclick="abrirModal('comoAjudamos')">
+                    <i class="fa-regular fa-heart icone icone--azul"></i>
+                    <strong>Como ajudamos</strong>
+                    <span>O que fazemos por você</span>
+                </button>
+
+                <!-- linha 2: 3 cards menores -->
+                <button type="button" class="card-sobre" onclick="abrirModal('comoFunciona')">
+                    <i class="fa-solid fa-gear icone icone--verde"></i>
+                    <strong>Como funciona</strong>
+                    <span>Pelúcia + app + relatórios</span>
+                </button>
+
+                <button type="button" class="card-sobre" onclick="abrirModal('paraQuemE')">
+                    <i class="fa-solid fa-people-group icone icone--azul"></i>
+                    <strong>Para quem é</strong>
+                    <span>Pais e terapeutas</span>
+                </button>
+
+                <button type="button" class="card-sobre" onclick="abrirModal('oQueNaoFazemos')">
+                    <i class="fa-solid fa-ban icone icone--azul"></i>
+                    <strong>O que não fazemos</strong>
+                    <span>Sem diagnósticos</span>
+                </button>
+
+                <!-- linha 3: 3 cards menores -->
+                <button type="button" class="card-sobre" onclick="abrirModal('privacidade')">
+                    <i class="fa-solid fa-shield-halved icone icone--verde"></i>
+                    <strong>Privacidade</strong>
+                    <span>Como protegemos seus dados</span>
+                </button>
+
+                <button type="button" class="card-sobre" onclick="abrirModal('nossoProposto')">
+                    <i class="fa-solid fa-trophy icone icone--verde"></i>
+                    <strong>Nosso propósito</strong>
+                    <span>Missão, visão e valores da Bixuco</span>
+                </button>
+
+                <button type="button" class="card-sobre" onclick="abrirModal('contato')">
+                    <i class="fa-solid fa-headset icone icone--azul"></i>
+                    <strong>Contato e suporte</strong>
+                    <span>Fale com nossa equipe</span>
+                </button>
+
+            </section>
+
+            <!-- RODAPÉ DA PÁGINA -->
+            <div class="rodape-sobre">
+                <img src="/img/BixucoMini.png" alt="Mascote Bixuco">
+                <p>
+                    Mais do que tecnologia, entregamos
+                    <a href="#" onclick="abrirModal('comoAjudamos'); return false;">conexão</a>,
+                    <a href="#" onclick="abrirModal('sobreNos'); return false;">empatia</a> e
+                    <a href="#" onclick="abrirModal('comoFunciona'); return false;">inteligência</a>
+                    para apoiar o desenvolvimento infantil.
+                </p>
+            </div>
+
+        </main>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- MODAL DE INFORMAÇÕES -->
+    <!-- abre quando o usuário clica em qualquer card -->
+    <!-- fecha ao clicar fora ou no X -->
+    <!-- ========================= -->
+    <div id="modal" class="modal" style="display:none" onclick="fecharModalFora(event)">
+        <div class="modal-conteudo">
+
+            <button type="button" class="modal-fechar" onclick="fecharModal()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="modal-icone" id="modalIcone"></div>
+            <h2 id="modalTitulo"></h2>
+            <p id="modalTexto"></p>
+
+        </div>
+    </div>
+
+
+    <script>
+
+        // =========================
+        // CONTEÚDO DOS MODAIS
+        // cada chave corresponde ao id passado na função abrirModal()
+        // =========================
+        const conteudoModais = {
+            sobreNos: {
+                icone: '<i class="fa-regular fa-circle-info icone--verde"></i>',
+                titulo: "Sobre nós",
+                texto: `A Bixuco nasceu da vontade de ajudar famílias que enfrentam os desafios do Transtorno
+                        de Processamento Sensorial (TPS). Somos uma startup de tecnologia voltada para a saúde
+                        e o bem-estar infantil, com foco em criar ferramentas que aproximam pais, terapeutas
+                        e crianças de forma simples e acolhedora.`
+            },
+            comoAjudamos: {
+                icone: '<i class="fa-regular fa-heart icone--azul"></i>',
+                titulo: "Como ajudamos",
+                texto: `Oferecemos uma pelúcia sensorizada que detecta sinais de estresse da criança e envia
+                        alertas para o aplicativo. Com isso, pais e terapeutas conseguem acompanhar o
+                        comportamento da criança ao longo do tempo, identificar padrões e tomar decisões
+                        mais assertivas no cuidado diário.`
+            },
+            comoFunciona: {
+                icone: '<i class="fa-solid fa-gear icone--verde"></i>',
+                titulo: "Como funciona",
+                texto: `A pelúcia Bixuco tem um sensor que detecta apertos fortes ou repetitivos — sinais
+                        comuns de estresse em crianças com TPS. Esses dados são enviados para o aplicativo,
+                        onde os responsáveis podem preencher relatórios diários, visualizar gráficos do
+                        comportamento e compartilhar tudo isso com o terapeuta da criança.`
+            },
+            paraQuemE: {
+                icone: '<i class="fa-solid fa-people-group icone--azul"></i>',
+                titulo: "Para quem é",
+                texto: `O Bixuco foi desenvolvido para pais e responsáveis de crianças com hipersensibilidade
+                        sensorial e para terapeutas que acompanham essas crianças. A plataforma também oferece
+                        uma área educativa gratuita para quem quer entender mais sobre o TPS.`
+            },
+            oQueNaoFazemos: {
+                icone: '<i class="fa-solid fa-ban icone--azul"></i>',
+                titulo: "O que não fazemos",
+                texto: `O Bixuco é uma ferramenta de apoio — não realizamos diagnósticos médicos ou
+                        psicológicos. Todas as informações geradas pela plataforma devem ser interpretadas
+                        por um profissional de saúde qualificado. Nosso papel é organizar os dados e
+                        facilitar a comunicação entre família e terapeuta.`
+            },
+            privacidade: {
+                icone: '<i class="fa-solid fa-shield-halved icone--verde"></i>',
+                titulo: "Privacidade",
+                texto: `A segurança dos seus dados é nossa prioridade. Utilizamos criptografia para proteger
+                        todas as informações armazenadas. Os dados da criança e os relatórios só podem ser
+                        acessados pelo responsável e pelo terapeuta vinculado, mediante consentimento explícito.
+                        Nunca vendemos dados para terceiros.`
+            },
+            nossoProposto: {
+                icone: '<i class="fa-solid fa-trophy icone--verde"></i>',
+                titulo: "Nosso propósito",
+                texto: `Nossa missão é ajudar pais e responsáveis a compreender melhor crianças com
+                        hipersensibilidade sensorial, facilitando a comunicação e promovendo bem-estar.
+                        Nossa visão é ser referência no apoio tecnológico ao desenvolvimento infantil,
+                        impactando positivamente famílias e profissionais em todo o país.`
+            },
+            contato: {
+                icone: '<i class="fa-solid fa-headset icone--azul"></i>',
+                titulo: "Contato e suporte",
+                texto: `Precisa de ajuda? Nossa equipe está disponível para atender você. Entre em contato
+                        pelo e-mail suporte@bixuco.com.br ou acesse nossa central de ajuda. Respondemos
+                        em até 48 horas úteis.`
+            }
+        };
+
+
+        // =========================
+        // ABRIR MODAL
+        // =========================
+        function abrirModal(chave) {
+            const dados = conteudoModais[chave];
+            if (!dados) return;
+
+            document.getElementById("modalIcone").innerHTML = dados.icone;
+            document.getElementById("modalTitulo").textContent = dados.titulo;
+            document.getElementById("modalTexto").textContent = dados.texto;
+            document.getElementById("modal").style.display = "flex";
+        }
+
+        function fecharModal() {
+            document.getElementById("modal").style.display = "none";
+        }
+
+        // fecha ao clicar fora do conteúdo do modal
+        function fecharModalFora(evento) {
+            if (evento.target === document.getElementById("modal")) {
+                fecharModal();
+            }
+        }
+
+        // fecha com a tecla ESC
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") fecharModal();
+        });
+
+
+        // =========================
+        // CARREGAR NOME DO USUÁRIO
+        // =========================
+        async function carregarUsuario() {
+            try {
+                const resposta = await fetch("/api/home-terapeuta");
+
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
+                }
+
+                if (!resposta.ok) return;
+
+                const dados = await resposta.json();
+                document.getElementById("nomeUsuario").textContent = dados.nome || "Terapeuta";
+
+                if (dados.fotoPerfil) {
+                    document.getElementById("fotoUsuario").src = dados.fotoPerfil;
+                }
+
+                const badge = document.getElementById("badgeNotificacoes");
+                if (dados.notificacoes > 0) {
+                    badge.textContent = dados.notificacoes;
+                    badge.style.display = "inline";
+                }
+
+            } catch (erro) {
+                console.log("Erro ao carregar usuário:", erro);
+            }
+        }
+
+
+        // =========================
+        // TEMA CLARO / ESCURO
+        // =========================
+        function aplicarTema(tema) {
+            document.body.classList.remove("tema-claro", "tema-escuro");
+            document.body.classList.add(`tema-${tema}`);
+            document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
+            document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
+            localStorage.setItem("tema", tema);
+        }
+
+        document.getElementById("btnClaro").addEventListener("click", () => aplicarTema("claro"));
+        document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
+
+        document.getElementById("btnTraduzir").addEventListener("click", () => {
+            alert("Função de tradução ainda será implementada.");
+        });
+
+        document.getElementById("btnNotificacoes").addEventListener("click", () => {
+            alert("Abrir notificações.");
+        });
+
+        // inicializa
+        const temaSalvo = localStorage.getItem("tema") || "claro";
+        aplicarTema(temaSalvo);
+        carregarUsuario();
+
+    </script>
+
+</body>
+</html>

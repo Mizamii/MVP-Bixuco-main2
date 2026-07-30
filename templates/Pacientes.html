@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Meus Pacientes</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="/css/pacientes.css">
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- ========================= -->
+        <!-- MENU LATERAL -->
+        <!-- ========================= -->
+        <aside class="sidebar">
+
+            <div class="logo">
+                <img src="/img/Logo_Colorida.png" alt="Logo Bixuco">
+            </div>
+
+            <nav>
+                <a href="/homeTerapeuta">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Início</span>
+                </a>
+
+                <a href="/relatoriosTerapeuta">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Relatórios</span>
+                </a>
+
+                <a href="/configuracoes">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Configurações</span>
+                </a>
+
+                <a href="/sobre">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>Sobre</span>
+                </a>
+
+                <!-- aba ativa -->
+                <a href="/pacientes" class="ativo">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Pacientes</span>
+                </a>
+            </nav>
+
+            <div class="tema">
+                <button id="btnClaro" class="ativo" type="button">
+                    <i class="fa-regular fa-sun"></i>
+                    Claro
+                </button>
+
+                <button id="btnEscuro" type="button">
+                    <i class="fa-regular fa-moon"></i>
+                    Escuro
+                </button>
+            </div>
+
+            <a href="/logout" class="logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Sair</span>
+            </a>
+
+        </aside>
+
+        <!-- ========================= -->
+        <!-- CONTEÚDO PRINCIPAL -->
+        <!-- ========================= -->
+        <main class="conteudo">
+
+            <!-- TOPO -->
+            <header class="topo">
+
+                <button class="tradutor" type="button" id="btnTraduzir">
+                    <i class="fa-solid fa-globe"></i>
+                    Traduzir para inglês
+                </button>
+
+                <div class="usuario">
+                    <button class="notificacoes" type="button" id="btnNotificacoes">
+                        <i class="fa-regular fa-bell"></i>
+                        <span id="badgeNotificacoes" class="badge" style="display:none">0</span>
+                    </button>
+
+                    <img
+                        id="fotoUsuario"
+                        src="/img/perfilPadrao.png"
+                        alt="Foto do terapeuta"
+                    >
+
+                    <div>
+                        <h3 id="nomeTerapeuta">Carregando...</h3>
+                        <span>Terapeuta</span>
+                    </div>
+                </div>
+
+            </header>
+
+            <!-- TÍTULO DA PÁGINA -->
+            <h1 class="titulo-pagina">Meus pacientes</h1>
+
+            <!-- BARRA DE BUSCA -->
+            <!-- filtra os cards em tempo real pelo nome do responsável ou criança -->
+            <div class="busca">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input
+                    type="text"
+                    id="inputBusca"
+                    placeholder="Buscar pacientes..."
+                    oninput="filtrarPacientes()"
+                >
+            </div>
+
+            <!-- ABAS DE FILTRO -->
+            <!-- todos / ativos / com alertas -->
+            <div class="abas">
+                <button
+                    type="button"
+                    class="aba aba--ativa"
+                    id="abaAtiva"
+                    data-filtro="todos"
+                    onclick="trocarAba(this)"
+                >
+                    Todos <span id="contadorTodos">(0)</span>
+                </button>
+
+                <button
+                    type="button"
+                    class="aba"
+                    data-filtro="ativos"
+                    onclick="trocarAba(this)"
+                >
+                    Ativos <span id="contadorAtivos">(0)</span>
+                </button>
+
+                <button
+                    type="button"
+                    class="aba"
+                    data-filtro="alertas"
+                    onclick="trocarAba(this)"
+                >
+                    Alertas <span id="contadorAlertas">(0)</span>
+                </button>
+            </div>
+
+            <!-- ========================= -->
+            <!-- GRID DE PACIENTES -->
+            <!-- duas colunas: requer atenção (esquerda) e monitoramento regular (direita) -->
+            <!-- ========================= -->
+            <section class="grid-pacientes">
+
+                <!-- COLUNA ESQUERDA: pacientes com alertas altos -->
+                <div class="coluna">
+                    <h2 class="coluna-titulo">Requer atenção</h2>
+
+                    <!-- lista preenchida pelo JS -->
+                    <!-- cards com borda vermelha, badge de alertas no topo -->
+                    <div id="listaAtencao">
+                        <p class="carregando">Carregando...</p>
+                    </div>
+
+                    <!-- aparece quando não tem ninguém nessa coluna -->
+                    <p id="semAtencao" style="display:none" class="lista-vazia">
+                        Nenhum paciente requer atenção no momento.
+                    </p>
+                </div>
+
+                <!-- COLUNA DIREITA: pacientes em monitoramento normal -->
+                <div class="coluna">
+                    <h2 class="coluna-titulo">Monitoramento regular</h2>
+
+                    <!-- lista preenchida pelo JS -->
+                    <!-- cards sem borda vermelha -->
+                    <div id="listaRegular">
+                        <p class="carregando">Carregando...</p>
+                    </div>
+
+                    <!-- aparece quando não tem ninguém nessa coluna -->
+                    <p id="semRegular" style="display:none" class="lista-vazia">
+                        Nenhum paciente em monitoramento regular.
+                    </p>
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <script>
+
+        // guarda todos os pacientes para filtrar sem buscar no servidor de novo
+        let todosPacientes = [];
+        let filtroAtual = "todos";
+
+
+        // =========================
+        // CARREGAR PACIENTES
+        // =========================
+        async function carregarPacientes() {
+            try {
+                const resposta = await fetch("/api/pacientes");
+
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
+                }
+
+                if (!resposta.ok) throw new Error("Falha ao carregar pacientes");
+
+                const dados = await resposta.json();
+
+                // preenche nome do terapeuta no topo
+                if (dados.nomeTerapeuta) {
+                    document.getElementById("nomeTerapeuta").textContent = dados.nomeTerapeuta;
+                }
+
+                todosPacientes = dados.pacientes || [];
+
+                // atualiza contadores das abas
+                const comAlertas = todosPacientes.filter(p => p.alertas > 0);
+                const ativos     = todosPacientes.filter(p => p.status === "ativo");
+
+                document.getElementById("contadorTodos").textContent   = `(${todosPacientes.length})`;
+                document.getElementById("contadorAtivos").textContent  = `(${ativos.length})`;
+                document.getElementById("contadorAlertas").textContent = `(${comAlertas.length})`;
+
+                renderPacientes(todosPacientes);
+
+            } catch (erro) {
+                console.log("Erro ao carregar pacientes:", erro);
+                document.getElementById("listaAtencao").innerHTML = "";
+                document.getElementById("listaRegular").innerHTML = "";
+                document.getElementById("semAtencao").style.display = "block";
+                document.getElementById("semRegular").style.display = "block";
+            }
+        }
+
+
+        // =========================
+        // RENDERIZAR CARDS
+        // =========================
+
+        // cada paciente tem:
+        // { id, nomeResponsavel, fotoPerfil, nomeCrianca, idadeCrianca,
+        //   status, alertas, nivelEstresse, ultimoRelatorio }
+        // nivelEstresse pode ser: "Alto", "Médio", "Baixo"
+        // ultimoRelatorio pode ser: "Hoje", "3 dias", "1 semana" etc
+        function renderPacientes(lista) {
+            const listaAtencao = document.getElementById("listaAtencao");
+            const listaRegular = document.getElementById("listaRegular");
+
+            listaAtencao.innerHTML = "";
+            listaRegular.innerHTML = "";
+
+            // separa quem tem alerta alto de quem está em monitoramento normal
+            const atencao = lista.filter(p => p.alertas >= 3);
+            const regular = lista.filter(p => p.alertas < 3);
+
+            // coluna esquerda: requer atenção
+            if (atencao.length === 0) {
+                document.getElementById("semAtencao").style.display = "block";
+            } else {
+                document.getElementById("semAtencao").style.display = "none";
+                atencao.forEach(p => {
+                    listaAtencao.appendChild(criarCard(p, true));
+                });
+            }
+
+            // coluna direita: monitoramento regular
+            if (regular.length === 0) {
+                document.getElementById("semRegular").style.display = "block";
+            } else {
+                document.getElementById("semRegular").style.display = "none";
+                regular.forEach(p => {
+                    listaRegular.appendChild(criarCard(p, false));
+                });
+            }
+        }
+
+
+        // monta o HTML de um card de paciente
+        // temAlerta = true → card com borda vermelha e badge de alertas no topo
+        function criarCard(paciente, temAlerta) {
+            const card = document.createElement("article");
+
+            // classe extra para o card com borda vermelha
+            card.classList.add("card-paciente");
+            if (temAlerta) card.classList.add("card-paciente--alerta");
+
+            // badge de alertas no topo (só aparece quando temAlerta = true)
+            const badgeAlerta = temAlerta
+                ? `<p class="badge-alerta">${paciente.alertas} alertas esta semana</p>`
+                : "";
+
+            // cor do nível de estresse muda conforme o valor
+            const corEstresse = {
+                "Alto":  "estresse--alto",
+                "Médio": "estresse--medio",
+                "Baixo": "estresse--baixo"
+            }[paciente.nivelEstresse] || "";
+
+            card.innerHTML = `
+                ${badgeAlerta}
+
+                <div class="card-cabecalho">
+                    <img
+                        src="${paciente.fotoPerfil || '/img/perfilPadrao.png'}"
+                        alt="${paciente.nomeResponsavel}"
+                    >
+
+                    <div class="card-info">
+                        <strong>${paciente.nomeResponsavel}</strong>
+                        <span>Criança: ${paciente.nomeCrianca}, ${paciente.idadeCrianca} anos</span>
+                    </div>
+
+                    <!-- badge de status ativo/inativo -->
+                    <span class="status-badge status-badge--${paciente.status}">
+                        ${paciente.status === "ativo" ? "Ativo" : "Inativo"}
+                    </span>
+                </div>
+
+                <!-- métricas do paciente -->
+                <div class="card-metricas">
+                    <div class="metrica">
+                        <span>Alertas</span>
+                        <strong class="metrica-valor metrica-valor--alerta">${paciente.alertas}</strong>
+                    </div>
+
+                    <div class="metrica">
+                        <span>Estresse</span>
+                        <strong class="metrica-valor ${corEstresse}">${paciente.nivelEstresse}</strong>
+                    </div>
+
+                    <div class="metrica">
+                        <span>Último relat.</span>
+                        <strong class="metrica-valor metrica-valor--data">${paciente.ultimoRelatorio}</strong>
+                    </div>
+                </div>
+
+                <!-- botão ver relatório -->
+                <button
+                    type="button"
+                    class="btn-relatorio"
+                    onclick="window.location.href='/relatoriosTerapeuta?paciente=${paciente.id}'"
+                >
+                    <i class="fa-regular fa-clipboard-list"></i>
+                    Relatório
+                </button>
+            `;
+
+            return card;
+        }
+
+
+        // =========================
+        // FILTRAR POR ABA
+        // =========================
+        function trocarAba(botao) {
+            // remove ativo de todos e coloca no clicado
+            document.querySelectorAll(".aba").forEach(b => b.classList.remove("aba--ativa"));
+            botao.classList.add("aba--ativa");
+
+            filtroAtual = botao.dataset.filtro;
+
+            // aplica o filtro atual junto com a busca
+            aplicarFiltros();
+        }
+
+
+        // =========================
+        // FILTRAR POR BUSCA
+        // =========================
+        function filtrarPacientes() {
+            aplicarFiltros();
+        }
+
+        function aplicarFiltros() {
+            const busca = document.getElementById("inputBusca").value.trim().toLowerCase();
+
+            let lista = [...todosPacientes];
+
+            // filtro por aba
+            if (filtroAtual === "ativos") {
+                lista = lista.filter(p => p.status === "ativo");
+            } else if (filtroAtual === "alertas") {
+                lista = lista.filter(p => p.alertas > 0);
+            }
+
+            // filtro por busca: nome do responsável ou da criança
+            if (busca) {
+                lista = lista.filter(p =>
+                    p.nomeResponsavel.toLowerCase().includes(busca) ||
+                    p.nomeCrianca.toLowerCase().includes(busca)
+                );
+            }
+
+            renderPacientes(lista);
+        }
+
+
+        // =========================
+        // TEMA CLARO / ESCURO
+        // =========================
+        function aplicarTema(tema) {
+            document.body.classList.remove("tema-claro", "tema-escuro");
+            document.body.classList.add(`tema-${tema}`);
+            document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
+            document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
+            localStorage.setItem("tema", tema);
+        }
+
+        document.getElementById("btnClaro").addEventListener("click", () => aplicarTema("claro"));
+        document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
+
+        document.getElementById("btnTraduzir").addEventListener("click", () => {
+            alert("Função de tradução ainda será implementada.");
+        });
+
+        document.getElementById("btnNotificacoes").addEventListener("click", () => {
+            alert("Abrir notificações.");
+        });
+
+        // inicializa
+        const temaSalvo = localStorage.getItem("tema") || "claro";
+        aplicarTema(temaSalvo);
+        carregarPacientes();
+
+    </script>
+
+</body>
+</html>

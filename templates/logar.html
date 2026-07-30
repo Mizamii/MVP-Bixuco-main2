@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco — Login</title>
+
+    <!-- Biblioteca de ícones -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <!-- CSS da página -->
+    <link
+        rel="stylesheet"
+        href="/css/login.css"
+    >
+</head>
+
+<body>
+
+    <main class="login">
+
+        <!-- ========================= -->
+        <!-- LADO ESQUERDO -->
+        <!-- ========================= -->
+        <section>
+
+            <div>
+                <!-- Logo branca -->
+                <img
+                    src="/img/Logo_Branca.png"
+                    alt="Logo Bixuco"
+                >
+
+                <!-- Título -->
+                <h1>
+                    Acompanhamento
+                    <br>
+                    infantil
+                    <span>inteligente.</span>
+                </h1>
+
+                <!-- Texto -->
+                <p>
+                    Mais organização, mais conexão e mais cuidado
+                    para famílias e terapeutas.
+                </p>
+            </div>
+
+            <!-- Imagem ilustrativa -->
+            <div>
+                <img
+                    src="/img/login-urso.png"
+                    alt="Foto da criança com o Bixuco"
+                >
+            </div>
+
+        </section>
+
+        <!-- ========================= -->
+        <!-- LADO DIREITO -->
+        <!-- ========================= -->
+        <section>
+
+            <!-- Logo colorida do gatinho bixuco -->
+            <img
+                src="/img/Logo_Gato.png"
+                alt="Logo Bixuco"
+            >
+
+            <!-- Título de bem vindo de volta -->
+            <h2>
+                Bem-vindo
+                <span>de volta!</span>
+            </h2>
+
+            <!-- Texto -->
+            <p>
+                Acesse sua conta para continuar
+            </p>
+
+            <!-- ========================= -->
+            <!-- FORMULÁRIO -->
+            <!-- ========================= -->
+
+            <!-- 🔧 FIX 1: Removido action e method do form -->
+            <!-- O envio agora é feito via fetch no JavaScript -->
+            <!-- Isso permite exibir os erros do servidor na tela -->
+            <!-- sem redirecionar ou recarregar a página -->
+            <form id="formLogin" novalidate>
+
+                <!-- Email -->
+                <div>
+                    <label for="email">
+                        Email
+                    </label>
+
+                    <div>
+                        <input
+                            class="login-form__input"
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Digite seu e-mail"
+                            autocomplete="username"
+                            required
+                        >
+                    </div>
+
+                    <span
+                        class="login-form__erro"
+                        id="erro-email"
+                    ></span>
+                </div>
+
+                <!-- Campo da senha -->
+                <div>
+                    <div>
+                        <label for="senha">
+                            Senha
+                        </label>
+                    </div>
+
+                    <div>
+                        <input
+                            class="login-form__input"
+                            type="password"
+                            id="senha"
+                            name="senha"
+                            placeholder="Digite sua senha"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="login-form__toggle-senha"
+                            onclick="toggleSenha()"
+                            aria-label="Mostrar senha"
+                        >
+                            <i
+                                class="fa-solid fa-eye"
+                                id="iconeSenha"
+                            ></i>
+                        </button>
+                    </div>
+
+                    <span
+                        class="login-form__erro"
+                        id="erro-senha"
+                    ></span>
+                </div>
+
+                <!-- Grupo de opções -->
+                <div>
+                    <a href="/EsqueceuSenha">
+                        Esqueci minha senha
+                    </a>
+                </div>
+
+                <!-- 🔧 FIX 2: Área de erro geral do servidor -->
+                <!-- Exibe mensagens como "Senha incorreta" vindas do backend -->
+                <!-- Antes o usuário não via nada quando o servidor retornava erro -->
+                <span
+                    class="login-form__erro login-form__erro--geral"
+                    id="erro-geral"
+                ></span>
+
+                <!-- 🔧 FIX 3: Botão com estado de carregamento -->
+                <!-- Antes o usuário podia clicar várias vezes enquanto o servidor processava -->
+                <button
+                    type="submit"
+                    id="btnEntrar"
+                >
+                    Entrar
+                </button>
+
+            </form>
+
+            <div>
+                <span></span>
+                <p>ou</p>
+                <span></span>
+            </div>
+
+            <button type="button" onclick="loginGoogle()">
+                <img
+                    src="/img/google.png"
+                    alt="Google"
+                >
+                <span>Continuar com Google</span>
+            </button>
+
+            <div>
+                <p>
+                    Não tem conta?
+                </p>
+                <a href="/CriarContaS">
+                    Criar agora
+                </a>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+
+        // ==========================
+        // MOSTRAR / ESCONDER SENHA
+        // ==========================
+
+        function toggleSenha() {
+            const senha = document.getElementById("senha");
+            const icone = document.getElementById("iconeSenha");
+            const botao = icone.closest("button");
+
+            if (senha.type === "password") {
+                senha.type = "text";
+                icone.classList.remove("fa-eye");
+                icone.classList.add("fa-eye-slash");
+                if (botao) botao.setAttribute("aria-label", "Esconder senha");
+            } else {
+                senha.type = "password";
+                icone.classList.remove("fa-eye-slash");
+                icone.classList.add("fa-eye");
+                if (botao) botao.setAttribute("aria-label", "Mostrar senha");
+            }
+        }
+
+        // ==========================
+        // EXIBIR / LIMPAR ERROS
+        // ==========================
+
+        function mostrarErro(inputId, erroId, mensagem) {
+            const input = document.getElementById(inputId);
+            const erro = document.getElementById(erroId);
+
+            if (!input || !erro) return;
+
+            input.classList.add("input-erro");
+            erro.textContent = mensagem;
+            erro.style.display = "block";
+
+            // Remove a borda de erro após meio segundo (efeito visual)
+            setTimeout(() => {
+                input.classList.remove("input-erro");
+            }, 500);
+        }
+
+        function limparErros() {
+            const campos = ["email", "senha"];
+
+            campos.forEach(id => {
+                const input = document.getElementById(id);
+                const erro = document.getElementById("erro-" + id);
+
+                if (input) input.classList.remove("input-erro");
+                if (erro) erro.style.display = "none";
+            });
+
+            // Limpa também o erro geral do servidor
+            const erroGeral = document.getElementById("erro-geral");
+            if (erroGeral) erroGeral.style.display = "none";
+        }
+
+        // ==========================
+        // VALIDAÇÃO LOCAL
+        // ==========================
+
+        function validarCampos() {
+            limparErros();
+            let valido = true;
+
+            const email = document.getElementById("email").value.trim();
+            const senha = document.getElementById("senha").value;
+            const regexEmail = /\S+@\S+\.\S+/;
+
+            if (!regexEmail.test(email)) {
+                mostrarErro(
+                    "email",
+                    "erro-email",
+                    "Digite um e-mail válido."
+                );
+                valido = false;
+            }
+
+            if (senha.length < 6) {
+                mostrarErro(
+                    "senha",
+                    "erro-senha",
+                    "A senha deve possuir pelo menos 6 caracteres."
+                );
+                valido = false;
+            }
+
+            return valido;
+        }
+
+        // ==========================
+        // ENVIO DO FORMULÁRIO
+        // ==========================
+
+        // 🔧 FIX 1 + 2 + 3: Intercepta o submit e envia via fetch
+        // Antes o form fazia POST direto e o browser redirecionava
+        // sem mostrar os erros JSON do servidor na tela
+        document.getElementById("formLogin").addEventListener("submit", async (evento) => {
+
+            // Impede o comportamento padrão do form (recarregar a página)
+            evento.preventDefault();
+
+            // Valida os campos antes de enviar para o servidor
+            if (!validarCampos()) {
+                return;
+            }
+
+            const btnEntrar = document.getElementById("btnEntrar");
+            const erroGeral = document.getElementById("erro-geral");
+
+            // 🔧 FIX 3: Desabilita o botão e muda o texto enquanto processa
+            // Evita que o usuário clique várias vezes e envie múltiplas requisições
+            btnEntrar.disabled = true;
+            btnEntrar.textContent = "Entrando...";
+
+            try {
+
+                const resposta = await fetch("/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        email: document.getElementById("email").value.trim(),
+                        senha: document.getElementById("senha").value
+                    })
+                });
+
+                // 🔧 FIX 2: Login bem-sucedido — o backend redireciona para /home
+                // Como usamos fetch, precisamos tratar o redirect manualmente
+                // Se a resposta for um redirect (status 3xx), seguimos para /home
+                if (resposta.redirected) {
+                    window.location.href = resposta.url;
+                    return;
+                }
+
+                // Se chegou aqui, o servidor retornou um erro (4xx ou 5xx)
+                const dados = await resposta.json();
+
+                // 🔧 FIX 2: Exibe a mensagem de erro do servidor na tela
+                // Antes o usuário não via nada — agora aparece abaixo dos campos
+                erroGeral.textContent = dados.erro || "Erro ao fazer login. Tente novamente.";
+                erroGeral.style.display = "block";
+
+            } catch (erro) {
+
+                console.log("Erro na requisição de login:", erro);
+
+                erroGeral.textContent = "Erro de conexão. Verifique sua internet e tente novamente.";
+                erroGeral.style.display = "block";
+
+            } finally {
+
+                // Reabilita o botão independente do resultado
+                btnEntrar.disabled = false;
+                btnEntrar.textContent = "Entrar";
+
+            }
+
+        });
+
+        // ==========================
+        // LOGIN COM GOOGLE
+        // ==========================
+
+        function loginGoogle() {
+            window.location.href = "/auth/google";
+        }
+
+    </script>
+
+</body>
+</html>

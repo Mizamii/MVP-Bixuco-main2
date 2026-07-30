@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Bixuco — Bem-vindo
+    </title>
+
+    <!-- Ícones -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <!-- CSS -->
+    <link
+        rel="stylesheet"
+        href="/css/transicao1.css"
+    >
+
+</head>
+
+<body>
+
+    <main id="tela">
+
+        <!-- Botão Pular -->
+
+        <header>
+
+            <a
+                href="/home"
+                class="botao-pular"
+            >
+                Pular
+            </a>
+
+        </header>
+
+
+        <!-- Conteúdo -->
+
+        <section class="conteudo">
+
+            <img
+                src="/img/logo-bixuco-colorida.png"
+                alt="Logo Bixuco"
+            >
+
+            <h1>
+
+                Bem-vindo ao Bixuco
+
+            </h1>
+
+            <p>
+
+                Sua pelúcia inteligente vai ajudar a entender os sinais do seu filho(a) com TPS.
+
+            </p>
+
+        </section>
+
+
+        <!-- Seta -->
+
+        <button
+            id="proximo"
+            class="botao-proximo"
+            aria-label="Próxima tela"
+        >
+
+            <i class="fa-solid fa-chevron-right"></i>
+
+        </button>
+
+
+        <!-- Indicadores -->
+
+        <footer>
+
+            <div class="indicadores">
+
+                <span class="ativo"></span>
+
+                <span></span>
+
+                <span></span>
+
+            </div>
+
+        </footer>
+
+    </main>
+
+
+    <script>
+
+        // botão próximo
+
+        document
+        .getElementById("proximo")
+        .addEventListener("click",()=>{
+
+            window.location.href="/Transicao2";
+
+        });
+
+
+        // arrastar com o dedo
+
+        const tela = document.getElementById("tela");
+
+        let inicioTouch = 0;
+
+        tela.addEventListener("touchstart",(e)=>{
+
+            inicioTouch = e.touches[0].clientX;
+
+        });
+
+        tela.addEventListener("touchend",(e)=>{
+
+            const fimTouch = e.changedTouches[0].clientX;
+
+            if(inicioTouch - fimTouch > 80){
+
+                window.location.href="/Transicao2";
+
+            }
+
+        });
+
+
+        // arrastar com o mouse
+
+        let inicioMouse = 0;
+
+        tela.addEventListener("mousedown",(e)=>{
+
+            inicioMouse = e.clientX;
+
+        });
+
+        tela.addEventListener("mouseup",(e)=>{
+
+            const fimMouse = e.clientX;
+
+            if(inicioMouse - fimMouse > 80){
+
+                window.location.href="/Transicao2";
+
+            }
+
+        });
+
+    </script>
+
+</body>
+
+</html>

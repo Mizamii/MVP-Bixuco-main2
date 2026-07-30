@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco — Relatório diário</title>
+
+    <!-- Ícones -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <!-- CSS -->
+
+    <link
+        rel="stylesheet"
+        href="/css/relatoriodiario.css"
+    >
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- ========================= -->
+        <!-- MENU LATERAL -->
+        <!-- ========================= -->
+
+        <aside class="sidebar">
+
+            <div class="logo">
+
+                <img
+                    src="/img/Logo_Colorida.png"
+                    alt="Logo Bixuco"
+                >
+
+            </div>
+
+            <nav>
+
+                <a href="/home">
+
+                    <i class="fa-solid fa-house"></i>
+
+                    <span>Início</span>
+
+                </a>
+
+                <a href="/relatorios">
+
+                    <i class="fa-solid fa-chart-line"></i>
+
+                    <span>Relatórios</span>
+
+                </a>
+
+                <a href="/configuracoes">
+
+                    <i class="fa-solid fa-gear"></i>
+
+                    <span>Configurações</span>
+
+                </a>
+
+                <a href="/sobre">
+
+                    <i class="fa-solid fa-circle-info"></i>
+
+                    <span>Sobre</span>
+
+                </a>
+
+            </nav>
+
+            <button
+                class="btn-relatorio ativo"
+                type="button"
+            >
+
+                Relatório diário
+
+            </button>
+
+            <div class="tema">
+
+                <!-- 🔧 FIX 1: IDs padronizados para btnClaro/btnEscuro -->
+                <!-- Antes eram temaClaro/temaEscuro, diferente da home -->
+                <!-- Agora todas as páginas usam os mesmos IDs -->
+
+                <button
+                    id="btnClaro"
+                    class="ativo"
+                    type="button"
+                >
+
+                    <i class="fa-regular fa-sun"></i>
+
+                    Claro
+
+                </button>
+
+                <button
+                    id="btnEscuro"
+                    type="button"
+                >
+
+                    <i class="fa-regular fa-moon"></i>
+
+                    Escuro
+
+                </button>
+
+            </div>
+
+            <a
+                href="/logout"
+                class="logout"
+            >
+
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+
+                <span>Sair</span>
+
+            </a>
+
+        </aside>
+
+        <!-- ========================= -->
+        <!-- CONTEÚDO -->
+        <!-- ========================= -->
+
+        <main class="conteudo">
+
+            <!-- Cabeçalho -->
+
+            <header class="topo">
+
+                <button
+                    class="tradutor"
+                    type="button"
+                >
+
+                    <i class="fa-solid fa-language"></i>
+
+                    Traduzir para inglês
+
+                </button>
+
+                <div class="usuario">
+
+                    <button
+                        class="notificacao"
+                        type="button"
+                    >
+
+                        <i class="fa-regular fa-bell"></i>
+
+                    </button>
+
+                    <img
+                        id="fotoUsuario"
+                        src="/img/perfilPadrao.png"
+                        alt="Perfil"
+                    >
+
+                    <div>
+
+                        <h3 id="nomeUsuario">
+
+                            Carregando...
+
+                        </h3>
+
+                        <span id="tipoConta">
+
+                            ...
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+            <!-- Cabeçalho da página -->
+
+            <section class="cabecalho-relatorio">
+
+                <div>
+
+                    <h1>
+
+                        Relatório diário
+
+                    </h1>
+
+                    <p>
+
+                        Ajude-nos a acompanhar o desenvolvimento
+                        da sua criança de forma personalizada.
+
+                    </p>
+
+                </div>
+
+                <img
+                    src="/img/BixucoRelatorio.png"
+                    alt="Mascote"
+                >
+
+            </section>
+
+            <!-- ========================= -->
+            <!-- CARD DO RELATÓRIO -->
+            <!-- ========================= -->
+
+            <section class="card-relatorio">
+
+                <!-- Topo -->
+
+                <div class="topo-card">
+
+                    <span id="contadorPergunta">
+
+                        Pergunta 1 de 10
+
+                    </span>
+
+                    <span
+                        id="porcentagem"
+                        class="porcentagem"
+                    >
+
+                        10% concluído
+
+                    </span>
+
+                </div>
+
+                <!-- Barra -->
+
+                <div
+                    id="barraProgresso"
+                    class="barra-progresso"
+                >
+
+                    <!-- Criada pelo JavaScript -->
+
+                </div>
+
+                <!-- Pergunta -->
+
+                <h2 id="textoPergunta">
+
+                    Carregando pergunta...
+
+                </h2>
+
+                <!-- Opções -->
+
+                <div
+                    id="listaRespostas"
+                    class="lista-respostas"
+                >
+
+                    <!-- Criadas pelo JavaScript -->
+
+                </div>
+
+                <!-- Botão -->
+
+                <button
+                    id="btnProxima"
+                    type="button"
+                    disabled
+                >
+
+                    Próxima pergunta
+
+                </button>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <script>
+
+        // ==========================
+        // DADOS DO RELATÓRIO
+        // ==========================
+
+        const perguntas = [
+
+            {
+                pergunta: "Ela demonstra desconforto com texturas de roupas ou alimentos?",
+                respostas: [
+                    "Sempre",
+                    "Quase sempre",
+                    "Raramente",
+                    "Nunca"
+                ]
+            },
+
+            {
+                pergunta: "Hoje ela evitou contato visual?",
+                respostas: [
+                    "Sempre",
+                    "Quase sempre",
+                    "Raramente",
+                    "Nunca"
+                ]
+            },
+
+            {
+                pergunta: "Como foi a comunicação hoje?",
+                respostas: [
+                    "Muito boa",
+                    "Boa",
+                    "Pouca",
+                    "Nenhuma"
+                ]
+            },
+
+            {
+                pergunta: "Como estava o humor durante o dia?",
+                respostas: [
+                    "Muito calmo",
+                    "Calmo",
+                    "Agitado",
+                    "Muito agitado"
+                ]
+            },
+
+            {
+                pergunta: "Apresentou crises sensoriais?",
+                respostas: [
+                    "Sim, várias",
+                    "Algumas",
+                    "Poucas",
+                    "Nenhuma"
+                ]
+            },
+
+            {
+                pergunta: "Dormiu bem?",
+                respostas: [
+                    "Muito bem",
+                    "Bem",
+                    "Pouco",
+                    "Muito pouco"
+                ]
+            },
+
+            {
+                pergunta: "Como foi a alimentação?",
+                respostas: [
+                    "Muito boa",
+                    "Boa",
+                    "Regular",
+                    "Ruim"
+                ]
+            },
+
+            {
+                pergunta: "Realizou atividades propostas?",
+                respostas: [
+                    "Todas",
+                    "Quase todas",
+                    "Poucas",
+                    "Nenhuma"
+                ]
+            },
+
+            {
+                pergunta: "Como foi a interação social?",
+                respostas: [
+                    "Excelente",
+                    "Boa",
+                    "Pouca",
+                    "Nenhuma"
+                ]
+            },
+
+            {
+                pergunta: "Como você avaliaria o dia de hoje?",
+                respostas: [
+                    "Excelente",
+                    "Bom",
+                    "Regular",
+                    "Difícil"
+                ]
+            }
+
+        ];
+
+        // ==========================
+        // VARIÁVEIS
+        // ==========================
+
+        let perguntaAtual = 0;
+
+        let respostaSelecionada = null;
+
+        const respostasUsuario = [];
+
+        const textoPergunta =
+            document.getElementById("textoPergunta");
+
+        const listaRespostas =
+            document.getElementById("listaRespostas");
+
+        const contador =
+            document.getElementById("contadorPergunta");
+
+        const porcentagem =
+            document.getElementById("porcentagem");
+
+        const barra =
+            document.getElementById("barraProgresso");
+
+        const btnProxima =
+            document.getElementById("btnProxima");
+
+        // ==========================
+        // CRIAR BARRA
+        // ==========================
+
+        function atualizarBarra() {
+
+            barra.innerHTML = "";
+
+            perguntas.forEach((item, index) => {
+
+                const bolinha = document.createElement("span");
+
+                bolinha.classList.add("bolinha");
+
+                if (index < perguntaAtual) {
+
+                    bolinha.classList.add("respondida");
+
+                } else if (index === perguntaAtual) {
+
+                    bolinha.classList.add("ativa");
+
+                }
+
+                barra.appendChild(bolinha);
+
+            });
+
+        }
+
+        // ==========================
+        // CARREGAR PERGUNTA
+        // ==========================
+
+        function carregarPergunta() {
+
+            respostaSelecionada = null;
+
+            btnProxima.disabled = true;
+
+            const atual = perguntas[perguntaAtual];
+
+            textoPergunta.textContent = atual.pergunta;
+
+            contador.textContent =
+                `Pergunta ${perguntaAtual + 1} de ${perguntas.length}`;
+
+            porcentagem.textContent =
+                `${Math.round((perguntaAtual / perguntas.length) * 100)}% concluído`;
+
+            atualizarBarra();
+
+            listaRespostas.innerHTML = "";
+
+            atual.respostas.forEach(opcao => {
+
+                const botao = document.createElement("button");
+
+                botao.type = "button";
+
+                botao.className = "opcao";
+
+                botao.textContent = opcao;
+
+                botao.onclick = () => {
+
+                    document
+                        .querySelectorAll(".opcao")
+                        .forEach(btn => {
+                            btn.classList.remove("selecionada");
+                        });
+
+                    botao.classList.add("selecionada");
+
+                    respostaSelecionada = opcao;
+
+                    btnProxima.disabled = false;
+
+                };
+
+                listaRespostas.appendChild(botao);
+
+            });
+
+        }
+
+        // ==========================
+        // BOTÃO PRÓXIMA
+        // ==========================
+
+        btnProxima.addEventListener("click", () => {
+
+            if (respostaSelecionada === null) {
+                return;
+            }
+
+            respostasUsuario.push({
+                pergunta: perguntas[perguntaAtual].pergunta,
+                resposta: respostaSelecionada
+            });
+
+            perguntaAtual++;
+
+            if (perguntaAtual >= perguntas.length) {
+
+                finalizarRelatorio();
+                return;
+
+            }
+
+            carregarPergunta();
+
+        });
+
+        // ==========================
+        // FINALIZAR
+        // ==========================
+
+        async function finalizarRelatorio() {
+
+            // Desabilita o botão para evitar duplo envio enquanto salva
+            btnProxima.disabled = true;
+            btnProxima.textContent = "Salvando...";
+
+            try {
+
+                // 🔧 FIX 2: Rota corrigida de /salvar-relatorio para /api/relatorio
+                // A rota antiga não existia no server.js
+                // 🔧 FIX 3: data enviada como toISOString() em vez de new Date()
+                // new Date() vira string ISO automaticamente no JSON.stringify,
+                // mas toISOString() é explícito e garante o formato correto
+                const resposta = await fetch("/api/relatorio", {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        respostas: respostasUsuario,
+                        data: new Date().toISOString()
+                    })
+
+                });
+
+                // 🔧 FIX 4: Verifica se o servidor retornou 401 (não autenticado)
+                // e redireciona para login em vez de mostrar erro genérico
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
+                }
+
+                if (!resposta.ok) {
+                    throw new Error("Resposta do servidor com erro");
+                }
+
+                // Relatório salvo com sucesso — volta para a home
+                window.location.href = "/home";
+
+            } catch (erro) {
+
+                console.log("Erro ao salvar relatório:", erro);
+
+                // Reabilita o botão para o usuário tentar de novo
+                btnProxima.disabled = false;
+                btnProxima.textContent = "Próxima pergunta";
+
+                alert("Erro ao salvar o relatório. Tente novamente.");
+
+            }
+
+        }
+
+        // ==========================
+        // DADOS DO USUÁRIO
+        // ==========================
+
+        async function carregarUsuario() {
+
+            try {
+
+                // 🔧 FIX 5: Rota corrigida de /dados-usuario para /api/home
+                // /dados-usuario nunca existiu no server.js
+                // /api/home já existe e retorna os dados necessários
+                const resposta = await fetch("/api/home");
+
+                // 🔧 FIX 6: Redireciona para login se não autenticado
+                // Antes a página abria normalmente mesmo sem login
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
+                }
+
+                if (!resposta.ok) {
+                    return;
+                }
+
+                const usuario = await resposta.json();
+
+                document.getElementById("nomeUsuario").textContent =
+                    usuario.nome || "Usuário";
+
+                document.getElementById("tipoConta").textContent =
+                    usuario.tipoConta || "Responsável";
+
+                if (usuario.fotoPerfil) {
+                    document.getElementById("fotoUsuario").src = usuario.fotoPerfil;
+                }
+
+            } catch (erro) {
+
+                console.log("Erro ao carregar usuário:", erro);
+
+            }
+
+        }
+
+        // ==========================
+        // TEMA
+        // ==========================
+
+        // 🔧 FIX 7: Tema agora persiste com localStorage
+        // igual ao que foi feito na home — antes o tema resetava ao trocar de página
+        function aplicarTema(tema) {
+
+            document.body.classList.remove("tema-claro", "tema-escuro");
+            document.body.classList.add(`tema-${tema}`);
+
+            document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
+            document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
+
+            localStorage.setItem("tema", tema);
+
+        }
+
+        document.getElementById("btnClaro").addEventListener("click", () => {
+            aplicarTema("claro");
+        });
+
+        document.getElementById("btnEscuro").addEventListener("click", () => {
+            aplicarTema("escuro");
+        });
+
+        // ==========================
+        // INICIAR
+        // ==========================
+
+        // Aplica o tema salvo ao carregar a página
+        const temaSalvo = localStorage.getItem("tema") || "claro";
+        aplicarTema(temaSalvo);
+
+        carregarUsuario();
+        carregarPergunta();
+
+    </script>
+
+</body>
+</html>

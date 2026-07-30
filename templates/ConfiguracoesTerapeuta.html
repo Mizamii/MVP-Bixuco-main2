@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco — Configurações</title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/css/configuracoesT.css"
+    >
+
+</head>
+
+<body>
+
+<main>
+
+    <!-- MENU LATERAL -->
+
+    <aside class="menu-lateral">
+
+        <img
+            src="/img/logo-verde.png"
+            alt="Logo Bixuco"
+            class="logo"
+        >
+
+        <nav>
+
+            <a href="/home">
+                <i class="fa-solid fa-house"></i>
+                Início
+            </a>
+
+            <a href="/pacientes">
+                <i class="fa-solid fa-user-group"></i>
+                Pacientes
+            </a>
+
+            <a href="/agenda">
+                <i class="fa-solid fa-calendar"></i>
+                Agenda
+            </a>
+
+            <a href="/chat">
+                <i class="fa-solid fa-comments"></i>
+                Chat
+            </a>
+
+            <a
+                href="/ConfiguracoesT"
+                class="ativo"
+            >
+                <i class="fa-solid fa-gear"></i>
+                Configurações
+            </a>
+
+        </nav>
+
+    </aside>
+
+    <!-- CONTEÚDO -->
+
+    <section class="conteudo">
+
+        <header>
+
+            <h1>
+
+                Configurações
+
+            </h1>
+
+        </header>
+
+        <!-- APARÊNCIA -->
+
+        <div class="card">
+
+            <h2>
+
+                Aparência
+
+            </h2>
+
+            <div class="tema">
+
+                <button
+                    id="btnClaro"
+                    class="ativo"
+                >
+
+                    ☀️ Claro
+
+                </button>
+
+                <button
+                    id="btnEscuro"
+                >
+
+                    🌙 Escuro
+
+                </button>
+
+            </div>
+
+        </div>
+
+        <!-- NOTIFICAÇÕES -->
+
+        <div class="card">
+
+            <h2>
+
+                Notificações
+
+            </h2>
+
+            <div class="linha">
+
+                <span>
+
+                    Lembrete de relatório
+
+                </span>
+
+                <label class="switch">
+
+                    <input
+                        type="checkbox"
+                        id="relatorio"
+                        checked
+                    >
+
+                    <span class="slider"></span>
+
+                </label>
+
+            </div>
+
+            <div class="linha">
+
+                <span>
+
+                    Nova solicitação
+
+                </span>
+
+                <label class="switch">
+
+                    <input
+                        type="checkbox"
+                        id="solicitacao"
+                        checked
+                    >
+
+                    <span class="slider"></span>
+
+                </label>
+
+            </div>
+
+        </div>
+        <!-- SEGURANÇA -->
+
+        <div class="card">
+
+            <h2>
+
+                Segurança
+
+            </h2>
+
+            <button
+                class="botao-opcao"
+                id="alterarSenha"
+            >
+
+                <i class="fa-solid fa-lock"></i>
+
+                Alterar senha
+
+                <i class="fa-solid fa-chevron-right seta"></i>
+
+            </button>
+
+        </div>
+
+        <!-- CONTA -->
+
+        <div class="card">
+
+            <h2>
+
+                Conta
+
+            </h2>
+
+            <button
+                class="botao-excluir"
+                id="excluirConta"
+            >
+
+                <i class="fa-solid fa-trash"></i>
+
+                Excluir conta
+
+            </button>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- MODAL -->
+
+<div
+    class="modal"
+    id="modalExcluir"
+>
+
+    <div class="modal-conteudo">
+
+        <i class="fa-solid fa-triangle-exclamation icone-alerta"></i>
+
+        <h2>
+
+            Excluir conta?
+
+        </h2>
+
+        <p>
+
+            Esta ação é permanente e todos os seus dados serão removidos.
+
+        </p>
+
+        <div class="botoes-modal">
+
+            <button
+                id="cancelarExcluir"
+                class="cancelar"
+            >
+
+                Cancelar
+
+            </button>
+
+            <button
+                id="confirmarExcluir"
+                class="confirmar"
+            >
+
+                Excluir
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+// ==============================
+// ALTERAÇÃO DE TEMA
+// ==============================
+
+const btnClaro = document.getElementById("btnClaro");
+const btnEscuro = document.getElementById("btnEscuro");
+
+btnClaro.addEventListener("click", () => {
+
+    document.body.classList.remove("tema-escuro");
+
+    btnClaro.classList.add("ativo");
+    btnEscuro.classList.remove("ativo");
+
+    localStorage.setItem("tema", "claro");
+
+});
+
+btnEscuro.addEventListener("click", () => {
+
+    document.body.classList.add("tema-escuro");
+
+    btnEscuro.classList.add("ativo");
+    btnClaro.classList.remove("ativo");
+
+    localStorage.setItem("tema", "escuro");
+
+});
+
+// Carrega o tema salvo
+
+const temaSalvo = localStorage.getItem("tema");
+
+if (temaSalvo === "escuro") {
+
+    document.body.classList.add("tema-escuro");
+
+    btnEscuro.classList.add("ativo");
+    btnClaro.classList.remove("ativo");
+
+}
+
+
+// ==============================
+// MODAL EXCLUIR CONTA
+// ==============================
+
+const modal = document.getElementById("modalExcluir");
+
+const btnExcluir = document.getElementById("excluirConta");
+
+const cancelar = document.getElementById("cancelarExcluir");
+
+const confirmar = document.getElementById("confirmarExcluir");
+
+
+btnExcluir.addEventListener("click", () => {
+
+    modal.classList.add("mostrar");
+
+});
+
+
+cancelar.addEventListener("click", () => {
+
+    modal.classList.remove("mostrar");
+
+});
+
+
+window.addEventListener("click", (e) => {
+
+    if (e.target === modal) {
+
+        modal.classList.remove("mostrar");
+
+    }
+
+});
+
+
+// ==============================
+// EXCLUIR CONTA
+// ==============================
+
+confirmar.addEventListener("click", () => {
+
+    if (confirm("Tem certeza que deseja excluir sua conta?")) {
+
+        window.location.href = "/ExcluirConta";
+
+    }
+
+});
+
+
+// ==============================
+// ALTERAR SENHA
+// ==============================
+
+document
+.getElementById("alterarSenha")
+.addEventListener("click", () => {
+
+    window.location.href = "/AlterarSenha";
+
+});
+</script>
+
+
+</body>
+</html>

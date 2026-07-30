@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Bixuco — Relatório
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/css/relatoriodetalhado.css"
+    >
+
+</head>
+
+<body>
+
+    <main>
+
+        <!-- =========================
+             MENU LATERAL
+        ========================== -->
+
+        <aside>
+
+            <img
+                src="/img/logo-colorida.png"
+                alt="Logo Bixuco"
+            >
+
+            <nav>
+
+                <a href="/home">
+                    <i class="fa-solid fa-house"></i>
+                    Início
+                </a>
+
+                <a
+                    href="/Relatorios"
+                    class="ativo"
+                >
+                    <i class="fa-solid fa-chart-line"></i>
+                    Relatórios
+                </a>
+
+                <a href="/ConfiguracoesT">
+                    <i class="fa-solid fa-gear"></i>
+                    Configurações
+                </a>
+
+                <a href="/Sobre">
+                    <i class="fa-solid fa-circle-info"></i>
+                    Sobre
+                </a>
+
+                <a href="/Pacientes">
+                    <i class="fa-solid fa-users"></i>
+                    Pacientes
+                </a>
+
+            </nav>
+
+            <div class="tema">
+
+                <button>
+                    <i class="fa-solid fa-sun"></i>
+                    Claro
+                </button>
+
+                <button>
+                    <i class="fa-solid fa-moon"></i>
+                    Escuro
+                </button>
+
+            </div>
+
+            <a
+                href="/"
+                class="sair"
+            >
+
+                <i class="fa-solid fa-right-from-bracket"></i>
+
+                Sair
+
+            </a>
+
+        </aside>
+
+        <!-- =========================
+             CONTEÚDO
+        ========================== -->
+
+        <section class="conteudo">
+
+            <!-- topo -->
+
+            <header>
+
+                <button class="traduzir">
+
+                    <i class="fa-solid fa-globe"></i>
+
+                    Traduzir para o inglês
+
+                </button>
+
+                <div class="usuario">
+
+                    <i class="fa-regular fa-bell"></i>
+
+                    <div>
+
+                        <strong>
+                            Dr. Laura
+                        </strong>
+
+                        <span>
+                            Terapeuta
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+            <!-- titulo -->
+
+            <div class="titulo">
+
+                <a href="/Relatorios">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+
+                </a>
+
+                <div>
+
+                    <h1>
+
+                        Relatórios da Ana
+
+                    </h1>
+
+                </div>
+
+                <img
+                    src="/img/gato-relatorio.png"
+                    alt=""
+                >
+
+            </div>
+
+            <!-- indicadores -->
+
+            <div class="cards">
+
+                <div class="card">
+
+                    <h3>
+
+                        Alertas de estresse
+
+                    </h3>
+
+                    <h2 class="verde">
+
+                        ↓ 18
+
+                    </h2>
+
+                    <p>
+
+                        2 comparado à semana passada
+
+                    </p>
+
+                </div>
+
+                <div class="card">
+
+                    <h3>
+
+                        Tempo de estresse
+
+                    </h3>
+
+                    <h2 class="vermelho">
+
+                        ↑ 120 min
+
+                    </h2>
+
+                    <p>
+
+                        1 min comparado à semana passada
+
+                    </p>
+
+                </div>
+
+            </div>
+        <!-- Conteúdo -->
+        <main class="conteudo">
+
+            <header class="cabecalho-pagina">
+
+                <a href="/RelatoriosT" class="voltar">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
+
+                <div>
+
+                    <h1>
+                        Relatórios da Ana
+                    </h1>
+
+                </div>
+
+                <img
+                    src="/img/gato-relatorio.png"
+                    alt="Ilustração"
+                >
+
+            </header>
+
+
+            <!-- Cards superiores -->
+
+            <section class="cards-resumo">
+
+                <div class="card-resumo">
+
+                    <h3>
+                        Alertas de estresse
+                    </h3>
+
+                    <div class="valor positivo">
+
+                        <i class="fa-solid fa-arrow-down"></i>
+
+                        18
+
+                    </div>
+
+                    <p>
+                        2 comparado à semana passada
+                    </p>
+
+                </div>
+
+
+                <div class="card-resumo">
+
+                    <h3>
+                        Tempo de estresse
+                    </h3>
+
+                    <div class="valor negativo">
+
+                        <i class="fa-solid fa-arrow-up"></i>
+
+                        120 min
+
+                    </div>
+
+                    <p>
+                        1 min comparado à semana passada
+                    </p>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- Linha dos gráficos -->
+
+            <section class="graficos">
+
+                <!-- gráfico barras -->
+
+                <article class="card-grafico">
+
+                    <div class="titulo-card">
+
+                        <h3>
+                            Estresse — últimos 7 dias
+                        </h3>
+
+                        <button>
+
+                            <i class="fa-solid fa-chart-column"></i>
+
+                        </button>
+
+                    </div>
+
+                    <canvas id="graficoBarras"></canvas>
+
+                </article>
+
+
+
+                <!-- gráfico pizza -->
+
+                <article class="card-grafico">
+
+                    <div class="titulo-card">
+
+                        <h3>
+                            Principais gatilhos — últimos 7 dias
+                        </h3>
+
+                        <button>
+
+                            <i class="fa-solid fa-circle-dot"></i>
+
+                        </button>
+
+                    </div>
+
+                    <canvas id="graficoPizza"></canvas>
+
+                </article>
+
+            </section>
+            <!-- Notas clínicas -->
+            <section class="bloco bloco-notas">
+
+                <h3>
+                    Notas clínicas
+                </h3>
+
+                <div class="nota-anterior">
+
+                    <strong>
+                        02/06/2026 - Dra. Laura
+                    </strong>
+
+                    <p>
+                        Ana apresentou melhora significativa na regulação emocional após introdução de fones abafadores.
+                        Recomendada continuar estratégia de antecipação de ambientes barulhentos.
+                    </p>
+
+                </div>
+
+                <textarea
+                    id="novaNota"
+                    placeholder="Adicionar nova nota clínica..."
+                    rows="5"
+                ></textarea>
+
+                <div class="acoes-nota">
+
+                    <button
+                        type="button"
+                        onclick="salvarNota()"
+                    >
+                        Salvar nota
+                    </button>
+
+                </div>
+
+            </section>
+
+        </section>
+
+    </main>
+
+    <script>
+
+        function voltarRelatorios(){
+
+            window.location.href = "/Relatorios";
+
+        }
+
+        function salvarNota(){
+
+            const nota = document
+                .getElementById("novaNota")
+                .value
+                .trim();
+
+            if(nota === ""){
+
+                alert("Digite uma nota antes de salvar.");
+
+                return;
+
+            }
+
+            // Futuramente:
+            // enviar para o banco de dados
+            // usando fetch("/salvar-nota", {...})
+
+            alert("Nota salva com sucesso!");
+
+            document.getElementById("novaNota").value = "";
+
+        }
+
+    </script>
+
+</body>
+
+</html>

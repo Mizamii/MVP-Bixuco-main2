@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Início</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="/css/home.css">
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- ===================== -->
+        <!-- MENU LATERAL -->
+        <!-- ===================== -->
+        <aside class="sidebar">
+
+            <div class="logo">
+                <img src="/img/Logo_Colorida.png" alt="Logo Bixuco">
+            </div>
+
+            <nav>
+                <a href="/home" class="ativo">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Início</span>
+                </a>
+
+                <a href="/relatorios">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Relatórios</span>
+                </a>
+
+                <a href="/historico">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span>Histórico</span>
+                </a>
+
+                <a href="/configuracoes">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Configurações</span>
+                </a>
+            </nav>
+
+            <button
+                class="btn-relatorio"
+                type="button"
+                onclick="window.location.href='/RelatorioDiario'"
+            >
+                Fazer relatório diário
+            </button>
+
+            <div class="tema">
+                <button id="btnClaro" class="ativo" type="button">
+                    <i class="fa-regular fa-sun"></i>
+                    Claro
+                </button>
+
+                <button id="btnEscuro" type="button">
+                    <i class="fa-regular fa-moon"></i>
+                    Escuro
+                </button>
+            </div>
+
+            <a href="/logout" class="logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Sair</span>
+            </a>
+        </aside>
+
+        <!-- ===================== -->
+        <!-- CONTEÚDO PRINCIPAL -->
+        <!-- ===================== -->
+        <main class="conteudo">
+
+            <!-- TOPO -->
+            <header class="topo">
+
+                <button class="tradutor" type="button" id="btnTraduzir">
+                    <i class="fa-solid fa-language"></i>
+                    Traduzir para inglês
+                </button>
+
+                <div class="usuario">
+                    <button class="notificacoes" type="button" id="btnNotificacoes">
+                        <i class="fa-regular fa-bell"></i>
+                        <span id="quantidadeNotificacoes" class="badge">0</span>
+                    </button>
+
+                    <img
+                        id="fotoUsuario"
+                        src="/img/perfilPadrao.png"
+                        alt="Foto do usuário"
+                    >
+
+                    <div>
+                        <h3 id="nomeUsuario">Carregando...</h3>
+                        <span id="tipoConta">...</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- SAUDAÇÃO -->
+            <section class="saudacao">
+                <div>
+                    <h1>
+                        Olá, <span id="primeiroNome">Usuário</span>!
+                    </h1>
+
+                    <p>
+                        Acompanhe a rotina do
+                        <strong id="nomeBixuco">Bixuco</strong>
+                        com carinho e praticidade.
+                    </p>
+                </div>
+
+                <img src="/img/BixucoHome.png" alt="Mascote Bixuco">
+            </section>
+
+            <!-- CARDS SUPERIORES -->
+            <section class="linha-superior">
+
+                <!-- Card sequência -->
+                <article class="card">
+                    <div class="icone">
+                        <i class="fa-solid fa-fire"></i>
+                    </div>
+
+                    <div>
+                        <h2>
+                            <span id="diasConsecutivos">0</span>
+                            dias consecutivos
+                        </h2>
+
+                        <p id="textoSequencia">
+                            Continue registrando seus relatórios diariamente.
+                        </p>
+                    </div>
+                </article>
+
+                <!-- Card relatório -->
+                <article
+                    class="card card-relatorio"
+                    onclick="window.location.href='/RelatorioDiario'"
+                >
+                    <div class="icone">
+                        <i class="fa-solid fa-file-lines"></i>
+                    </div>
+
+                    <div>
+                        <h2>Relatório diário</h2>
+                        <p>Clique para registrar o relatório de hoje.</p>
+                    </div>
+
+                    <i class="fa-solid fa-chevron-right seta"></i>
+                </article>
+            </section>
+
+            <!-- CALENDÁRIO -->
+            <section class="calendario-card">
+                <div class="calendario-header">
+                    <button id="mesAnterior" type="button">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+
+                    <h3 id="tituloCalendario">Junho 2026</h3>
+
+                    <button id="proximoMes" type="button">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <div class="dias-semana">
+                    <span>Dom</span>
+                    <span>Seg</span>
+                    <span>Ter</span>
+                    <span>Qua</span>
+                    <span>Qui</span>
+                    <span>Sex</span>
+                    <span>Sáb</span>
+                </div>
+
+                <div id="diasCalendario" class="dias-calendario"></div>
+            </section>
+
+            <!-- AÇÕES RÁPIDAS -->
+            <section class="acoes">
+                <button id="btnMapa" type="button">
+                    <i class="fa-solid fa-location-dot"></i>
+                    Localizar Bixuco
+                </button>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+
+        // =========================
+        // CARREGAR DADOS DO USUÁRIO
+        // =========================
+        async function carregarDadosUsuario() {
+            try {
+                // Chama a rota /api/home que agora existe no backend
+                const resposta = await fetch("/api/home");
+
+                // 🔧 FIX: Se o servidor retornar 401, usuário não está logado
+                // Redireciona para a tela de login
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
+                }
+
+                if (!resposta.ok) {
+                    throw new Error("Falha ao carregar dados do usuário");
+                }
+
+                const dados = await resposta.json();
+
+                const nomeCompleto = dados.nome || "Usuário";
+                const primeiroNome = nomeCompleto.split(" ")[0];
+
+                document.getElementById("nomeUsuario").textContent = nomeCompleto;
+                document.getElementById("primeiroNome").textContent = primeiroNome;
+                document.getElementById("nomeBixuco").textContent = dados.nomeBixuco || "Bixuco";
+                document.getElementById("tipoConta").textContent = dados.tipoConta || "Responsável";
+                document.getElementById("quantidadeNotificacoes").textContent = dados.notificacoes ?? 0;
+                document.getElementById("diasConsecutivos").textContent = dados.diasConsecutivos ?? 0;
+
+                if (dados.fotoPerfil) {
+                    document.getElementById("fotoUsuario").src = dados.fotoPerfil;
+                }
+
+                // Mensagem dinâmica baseada na sequência de dias
+                atualizarTextoSequencia(dados.diasConsecutivos ?? 0);
+
+            } catch (erro) {
+                console.log("Erro ao carregar dados:", erro);
+
+                // Fallback: valores padrão caso a requisição falhe
+                document.getElementById("nomeUsuario").textContent = "Usuário";
+                document.getElementById("primeiroNome").textContent = "Usuário";
+                document.getElementById("nomeBixuco").textContent = "Bixuco";
+                document.getElementById("tipoConta").textContent = "Responsável";
+                document.getElementById("quantidadeNotificacoes").textContent = "0";
+                document.getElementById("diasConsecutivos").textContent = "0";
+                document.getElementById("textoSequencia").textContent = "Continue registrando seus relatórios diariamente.";
+            }
+        }
+
+        function atualizarTextoSequencia(dias) {
+            const texto = document.getElementById("textoSequencia");
+
+            if (dias <= 0) {
+                texto.textContent = "Continue registrando seus relatórios diariamente.";
+            } else if (dias === 1) {
+                texto.textContent = "Você já começou bem! Continue acompanhando o dia a dia.";
+            } else if (dias < 7) {
+                texto.textContent = "Muito bom! Você está criando uma rotina de acompanhamento.";
+            } else if (dias < 30) {
+                texto.textContent = "Ótimo progresso! Seu acompanhamento está ficando consistente.";
+            } else {
+                texto.textContent = "Parabéns! Você já mantém um acompanhamento de longa duração.";
+            }
+        }
+
+
+        // CALENDÁRIO
+        
+        let dataAtual = new Date();
+
+        // 🔧 FIX: diasComRelatorio agora é preenchido pelo backend
+        // Antes estava sempre vazio, então nenhum dia ficava verde no calendário
+        let diasComRelatorio = [];
+
+        async function carregarDiasRelatorio() {
+            try {
+                const mes = dataAtual.getMonth() + 1; // getMonth() começa em 0
+                const ano = dataAtual.getFullYear();
+
+                // Chama a nova rota do backend que retorna os dias com relatório
+                const resposta = await fetch(`/api/relatorios/dias?mes=${mes}&ano=${ano}`);
+
+                if (!resposta.ok) {
+                    throw new Error("Falha ao carregar dias de relatório");
+                }
+
+                const dados = await resposta.json();
+
+                // Salva os dias e redesenha o calendário com os círculos corretos
+                diasComRelatorio = dados.dias || [];
+                atualizarCalendario();
+
+            } catch (erro) {
+                console.log("Erro ao carregar dias de relatório:", erro);
+                diasComRelatorio = [];
+                atualizarCalendario();
+            }
+        }
+
+        function atualizarCalendario() {
+            const titulo = document.getElementById("tituloCalendario");
+            const dias = document.getElementById("diasCalendario");
+
+            dias.innerHTML = "";
+
+            const meses = [
+                "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+                "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+            ];
+
+            titulo.textContent = `${meses[dataAtual.getMonth()]} ${dataAtual.getFullYear()}`;
+
+            const primeiroDia = new Date(
+                dataAtual.getFullYear(),
+                dataAtual.getMonth(),
+                1
+            ).getDay();
+
+            const ultimoDia = new Date(
+                dataAtual.getFullYear(),
+                dataAtual.getMonth() + 1,
+                0
+            ).getDate();
+
+            // Espaços vazios antes do primeiro dia do mês
+            for (let i = 0; i < primeiroDia; i++) {
+                const vazio = document.createElement("div");
+                dias.appendChild(vazio);
+            }
+
+            const hoje = new Date();
+
+            // Dias do mês
+            for (let dia = 1; dia <= ultimoDia; dia++) {
+                const botao = document.createElement("button");
+                botao.type = "button";
+                botao.textContent = dia;
+
+                // Marca o dia de hoje
+                if (
+                    dia === hoje.getDate() &&
+                    dataAtual.getMonth() === hoje.getMonth() &&
+                    dataAtual.getFullYear() === hoje.getFullYear()
+                ) {
+                    botao.classList.add("hoje");
+                }
+
+                // 🔧 FIX: Marca os dias que têm relatório com classe "com-relatorio"
+                // Antes nenhum dia ficava verde pois diasComRelatorio estava sempre vazio
+                if (diasComRelatorio.includes(dia)) {
+                    botao.classList.add("com-relatorio");
+                }
+
+                dias.appendChild(botao);
+            }
+        }
+
+
+        // 🔧 FIX: Tema agora persiste usando localStorage
+        // Antes ao trocar de página o tema voltava para claro sempre
+        function aplicarTema(tema) {
+            document.body.classList.remove("tema-claro", "tema-escuro");
+            document.body.classList.add(`tema-${tema}`);
+
+            document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
+            document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
+
+            localStorage.setItem("tema", tema);
+        }
+
+        document.getElementById("btnClaro").addEventListener("click", () => {
+            aplicarTema("claro");
+        });
+
+        document.getElementById("btnEscuro").addEventListener("click", () => {
+            aplicarTema("escuro");
+        });
+
+        document.getElementById("btnTraduzir").addEventListener("click", () => {
+            // Futuramente conectar com tradução do site
+            alert("Função de tradução ainda será implementada.");
+        });
+
+        document.getElementById("btnNotificacoes").addEventListener("click", () => {
+            // Futuramente abrir a mini aba de notificações
+            alert("Abrir notificações.");
+        });
+
+        document.getElementById("btnMapa").addEventListener("click", () => {
+            // Futuramente abrir a tela/mapa de localização do Bixuco
+            alert("Abrir localização do Bixuco.");
+        });
+
+        document.getElementById("mesAnterior").onclick = () => {
+            dataAtual.setMonth(dataAtual.getMonth() - 1);
+            // Recarrega os dias de relatório do mês anterior
+            carregarDiasRelatorio();
+        };
+
+        document.getElementById("proximoMes").onclick = () => {
+            dataAtual.setMonth(dataAtual.getMonth() + 1);
+            // Recarrega os dias de relatório do próximo mês
+            carregarDiasRelatorio();
+        };
+
+        // Aplica o tema salvo ao carregar a página
+        const temaSalvo = localStorage.getItem("tema") || "claro";
+        aplicarTema(temaSalvo);
+
+        // Carrega os dados do usuário e o calendário
+        carregarDadosUsuario();
+        carregarDiasRelatorio();
+
+    </script>
+
+</body>
+</html>

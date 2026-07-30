@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+    <title>Bixuco — Recuperar senha</title>
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+    <link
+        rel="stylesheet"
+        href="/css/esqueceusenha.css"
+    >
+</head>
+
+<body>
+    <main>
+
+        <!-- ========================= -->
+        <!-- LADO ESQUERDO -->
+        <!-- ========================= -->
+        <section>
+
+            <div>
+                <!-- Logo branca -->
+                <img
+                    src="/img/Logo_Branca.png"
+                    alt="Logo Bixuco"
+                >
+
+                <h1>
+                    Acompanhamento
+                    <br>
+                    infantil
+                    <span>inteligente.</span>
+                </h1>
+
+                <p>
+                    Mais organização, mais conexão e mais cuidado
+                    para famílias e terapeutas.
+                </p>
+            </div>
+
+            <div>
+                <img
+                    src="/img/login-urso.png"
+                    alt="Criança abraçando o Bixuco"
+                >
+            </div>
+
+        </section>
+
+        <!-- ========================= -->
+        <!-- LADO DIREITO -->
+        <!-- ========================= -->
+        <section>
+
+            <!-- Logo colorida -->
+            <img
+                src="/img/Logo_Gato.png"
+                alt="Logo Bixuco"
+            >
+
+            <!-- Título -->
+            <h2>
+                Recuperar senha
+            </h2>
+
+            <!-- Subtítulo -->
+            <h3>
+                Esqueceu sua senha?
+            </h3>
+
+            <!-- Texto explicativo -->
+            <p>
+                Informe o e-mail cadastrado em sua conta.
+                Enviaremos um link para que você possa criar
+                uma nova senha com segurança.
+            </p>
+
+            <!-- ========================= -->
+            <!-- FORMULÁRIO -->
+            <!-- ========================= -->
+
+            <!-- 🔧 FIX 1: Removido action e method do form -->
+            <!-- O envio agora é feito via fetch igual ao login -->
+            <!-- Assim conseguimos mostrar erros e sucesso sem recarregar a página -->
+            <form id="formRecuperar" novalidate>
+
+                <!-- Campo de e-mail -->
+                <div>
+                    <label for="email">
+                        Email cadastrado
+                    </label>
+
+                    <div>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Digite seu e-mail"
+                            autocomplete="email"
+                            required
+                        >
+                    </div>
+
+                    <!-- Mensagem de erro do campo -->
+                    <span
+                        class="recuperar-form__erro"
+                        id="erro-email"
+                    ></span>
+                </div>
+
+                <!-- 🔧 FIX 2: Área de feedback do servidor -->
+                <!-- Mostra tanto erros ("E-mail não encontrado") -->
+                <!-- quanto sucesso ("Link enviado!") sem recarregar a página -->
+                <span
+                    id="feedback-geral"
+                    class="recuperar-form__feedback"
+                ></span>
+
+                <!-- 🔧 FIX 3: Botão com estado de carregamento -->
+                <!-- Desabilita enquanto envia para evitar cliques duplos -->
+                <button
+                    type="submit"
+                    id="btnEnviar"
+                >
+                    Enviar link de recuperação
+                </button>
+
+            </form>
+
+            <!-- Botão para voltar ao login -->
+            <a href="/logar">
+                Voltar para a tela do login
+            </a>
+
+        </section>
+
+    </main>
+
+    <script>
+
+        // ==========================
+        // EXIBIR / LIMPAR ERROS
+        // ==========================
+
+        function mostrarErro(inputId, erroId, mensagem) {
+
+            const input = document.getElementById(inputId);
+            const erro = document.getElementById(erroId);
+
+            input.classList.add("input-erro");
+            erro.textContent = mensagem;
+            erro.style.display = "block";
+
+            setTimeout(() => {
+                input.classList.remove("input-erro");
+            }, 500);
+
+        }
+
+        function limparErros() {
+
+            const input = document.getElementById("email");
+            const erro = document.getElementById("erro-email");
+            const feedback = document.getElementById("feedback-geral");
+
+            input.classList.remove("input-erro");
+            erro.style.display = "none";
+            erro.textContent = "";
+
+            // Limpa também o feedback geral do servidor
+            feedback.style.display = "none";
+            feedback.textContent = "";
+            feedback.className = "recuperar-form__feedback";
+
+        }
+
+        // ==========================
+        // VALIDAÇÃO LOCAL
+        // ==========================
+
+        function validarCampos() {
+
+            limparErros();
+
+            let valido = true;
+
+            const email = document.getElementById("email").value.trim();
+
+            // Expressão regular para validar e-mail
+            const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!regexEmail.test(email)) {
+
+                mostrarErro(
+                    "email",
+                    "erro-email",
+                    "Digite um e-mail válido."
+                );
+
+                valido = false;
+
+            }
+
+            return valido;
+
+        }
+
+        // ==========================
+        // ENVIO DO FORMULÁRIO
+        // ==========================
+
+        // 🔧 FIX 1 + 2 + 3: Envio via fetch
+        // Antes o form fazia POST direto e o usuário não via nenhum retorno
+        // — nem confirmação de envio nem mensagem de erro do servidor
+        document.getElementById("formRecuperar").addEventListener("submit", async (evento) => {
+
+            evento.preventDefault();
+
+            if (!validarCampos()) {
+                return;
+            }
+
+            const btnEnviar = document.getElementById("btnEnviar");
+            const feedback = document.getElementById("feedback-geral");
+            const email = document.getElementById("email").value.trim();
+
+            // 🔧 FIX 3: Desabilita botão enquanto o servidor processa
+            btnEnviar.disabled = true;
+            btnEnviar.textContent = "Enviando...";
+
+            try {
+
+                // Chama a rota do backend que envia o e-mail via Nodemailer
+                const resposta = await fetch("/esqueceu-senha", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ email })
+                });
+
+                const dados = await resposta.json();
+
+                if (resposta.ok) {
+
+                    // 🔧 FIX 2: Mostra mensagem de sucesso na tela
+                    // e desabilita o formulário para evitar reenvio
+                    feedback.textContent = "✅ " + dados.mensagem;
+                    feedback.classList.add("recuperar-form__feedback--sucesso");
+                    feedback.style.display = "block";
+
+                    // Limpa o campo de e-mail e desabilita após sucesso
+                    document.getElementById("email").value = "";
+                    document.getElementById("email").disabled = true;
+                    btnEnviar.disabled = true;
+                    btnEnviar.textContent = "Link enviado!";
+
+                } else {
+
+                    // 🔧 FIX 2: Mostra o erro do servidor na tela
+                    feedback.textContent = "❌ " + (dados.erro || "Erro ao enviar. Tente novamente.");
+                    feedback.classList.add("recuperar-form__feedback--erro");
+                    feedback.style.display = "block";
+
+                    // Reabilita o botão para tentar novamente
+                    btnEnviar.disabled = false;
+                    btnEnviar.textContent = "Enviar link de recuperação";
+
+                }
+
+            } catch (erro) {
+
+                console.log("Erro na requisição:", erro);
+
+                feedback.textContent = "❌ Erro de conexão. Verifique sua internet e tente novamente.";
+                feedback.classList.add("recuperar-form__feedback--erro");
+                feedback.style.display = "block";
+
+                btnEnviar.disabled = false;
+                btnEnviar.textContent = "Enviar link de recuperação";
+
+            }
+
+        });
+
+    </script>
+
+</body>
+</html>
+

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco — Introdução</title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/css/transicao3.css"
+    >
+
+</head>
+
+<body>
+
+    <main id="conteudo">
+
+        <!-- Botão voltar -->
+
+        <button
+            class="seta-esquerda"
+            onclick="voltarPagina()"
+        >
+
+            <i class="fa-solid fa-chevron-left"></i>
+
+        </button>
+
+        <!-- Conteúdo -->
+
+        <section>
+
+            <img
+                src="/img/icone-terapeuta.png"
+                alt="Conecte seu terapeuta"
+            >
+
+            <h1>
+
+                Conecte seu terapeuta
+
+            </h1>
+
+            <p>
+
+                Compartilhe relatórios e facilite
+                o acompanhamento profissional
+                do seu filho(a).
+
+            </p>
+
+            <button
+                class="btn-proximo"
+                onclick="proximaPagina()"
+            >
+
+                Próximo
+
+            </button>
+
+        </section>
+
+    </main>
+
+<script>
+
+    function voltarPagina(){
+
+        window.location.href="/Transicao2";
+
+    }
+
+    function proximaPagina(){
+
+        window.location.href="/home";
+
+    }
+
+
+    /*passar o dedo*/
+
+    let touchInicial = 0;
+
+    document.addEventListener("touchstart",(e)=>{
+
+        touchInicial = e.changedTouches[0].clientX;
+
+    });
+
+    document.addEventListener("touchend",(e)=>{
+
+        const touchFinal = e.changedTouches[0].clientX;
+
+        const distancia = touchFinal - touchInicial;
+
+        if(distancia > 80){
+
+            voltarPagina();
+
+        }
+
+    });
+
+
+    /*passar o mouse*/
+
+    let mousePressionado = false;
+
+    let mouseInicial = 0;
+
+    document.addEventListener("mousedown",(e)=>{
+
+        mousePressionado = true;
+
+        mouseInicial = e.clientX;
+
+    });
+
+    document.addEventListener("mouseup",(e)=>{
+
+        if(!mousePressionado){
+
+            return;
+
+        }
+
+        mousePressionado = false;
+
+        const distancia = e.clientX - mouseInicial;
+
+        if(distancia > 80){
+
+            voltarPagina();
+
+        }
+
+    });
+
+</script>
+
+</body>
+
+</html>

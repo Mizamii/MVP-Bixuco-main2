@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco - Relatórios</title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <!-- 🔧 FIX 9: Chart.js importado para os gráficos funcionarem -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+    <link
+        rel="stylesheet"
+        href="/css/relatorios.css"
+    >
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- ========================= -->
+    <!-- MENU LATERAL -->
+    <!-- ========================= -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <img
+                src="/img/Logo_Colorida.png"
+                alt="Bixuco"
+            >
+
+        </div>
+
+        <nav>
+
+            <a href="/home">
+
+                <i class="fa-solid fa-house"></i>
+
+                <span>Início</span>
+
+            </a>
+
+            <a
+                href="/relatorios"
+                class="ativo"
+            >
+
+                <i class="fa-solid fa-chart-line"></i>
+
+                <span>Relatórios</span>
+
+            </a>
+
+            <!-- 🔧 FIX 6: /Configuracoes → /configuracoes -->
+
+            <a href="/configuracoes">
+
+                <i class="fa-solid fa-gear"></i>
+
+                <span>Configurações</span>
+
+            </a>
+
+            <!-- 🔧 FIX 6: /Sobre → /sobre -->
+
+            <a href="/sobre">
+
+                <i class="fa-solid fa-circle-info"></i>
+
+                <span>Sobre</span>
+
+            </a>
+
+        </nav>
+
+        <!-- 🔧 FIX 7: type="button" e rota corrigida para /RelatorioDiario -->
+
+        <button
+            class="btn-relatorio"
+            type="button"
+            onclick="location.href='/RelatorioDiario'"
+        >
+
+            Relatório diário
+
+        </button>
+
+        <div class="tema">
+
+            <!-- 🔧 FIX 4: IDs padronizados btnClaro/btnEscuro -->
+
+            <button
+                id="btnClaro"
+                class="ativo"
+                type="button"
+            >
+
+                <i class="fa-regular fa-sun"></i>
+
+                Claro
+
+            </button>
+
+            <button
+                id="btnEscuro"
+                type="button"
+            >
+
+                <i class="fa-regular fa-moon"></i>
+
+                Escuro
+
+            </button>
+
+        </div>
+
+        <a
+            href="/logout"
+            class="logout"
+        >
+
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+
+            <span>Sair</span>
+
+        </a>
+
+    </aside>
+
+    <!-- ========================= -->
+    <!-- CONTEÚDO -->
+    <!-- ========================= -->
+
+    <main class="conteudo">
+
+        <header class="topo">
+
+            <button
+                class="tradutor"
+                type="button"
+            >
+
+                <i class="fa-solid fa-language"></i>
+
+                Traduzir para inglês
+
+            </button>
+
+            <div class="usuario">
+
+                <button
+                    class="notificacao"
+                    type="button"
+                >
+
+                    <i class="fa-regular fa-bell"></i>
+
+                </button>
+
+                <img
+                    id="fotoUsuario"
+                    src="/img/perfilPadrao.png"
+                    alt="Perfil"
+                >
+
+                <div>
+
+                    <h3 id="nomeUsuario">
+
+                        Carregando...
+
+                    </h3>
+
+                    <span id="tipoConta">
+
+                        ...
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <!-- Cabeçalho com abas -->
+
+        <section class="cabecalho">
+
+            <div>
+
+                <h1>Relatórios</h1>
+
+                <div class="abas">
+
+                    <button
+                        id="btnVisao"
+                        class="ativa"
+                        type="button"
+                    >
+
+                        Visão geral
+
+                    </button>
+
+                    <button
+                        id="btnDiario"
+                        type="button"
+                    >
+
+                        Diário
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <img
+                src="/img/BixucoRelatorio.png"
+                alt="Mascote"
+            >
+
+        </section>
+
+        <!-- ================================= -->
+        <!-- ABA — VISÃO GERAL -->
+        <!-- ================================= -->
+
+        <section
+            id="abaVisao"
+            class="aba-conteudo ativa"
+        >
+
+            <!-- Cards de resumo -->
+
+            <div class="cards-relatorio">
+
+                <div class="card">
+
+                    <h3>Alertas de estresse</h3>
+
+                    <!-- 🔧 FIX 11: Seta e comparativo vêm do backend -->
+                    <span id="alertasEstresse" class="valor-destaque">0</span>
+
+                    <p id="comparativoAlertas">registrados este mês</p>
+
+                </div>
+
+                <div class="card">
+
+                    <h3>Tempo de estresse</h3>
+
+                    <span id="tempoEstresse" class="valor-destaque">0 min</span>
+
+                    <p id="comparativoTempo">por episódio</p>
+
+                </div>
+
+            </div>
+
+            <!-- Linha 1 de gráficos -->
+
+            <div class="linha-graficos">
+
+                <!-- Gráfico de estresse (barras) -->
+
+                <div class="grafico-card">
+
+                    <h2>
+
+                        <i class="fa-solid fa-chart-bar"></i>
+
+                        Estresse — últimos 7 dias
+
+                    </h2>
+
+                    <canvas id="graficoEstresse"></canvas>
+
+                </div>
+
+                <!-- Gráfico de gatilhos (rosca) -->
+
+                <div class="grafico-card">
+
+                    <h2>
+
+                        <i class="fa-solid fa-circle-nodes"></i>
+
+                        Principais gatilhos — últimos 7 dias
+
+                    </h2>
+
+                    <canvas id="graficoGatilhos"></canvas>
+
+                    <!-- Legenda do gráfico de rosca -->
+
+                    <div
+                        id="legendaGatilhos"
+                        class="legenda-rosca"
+                    ></div>
+
+                </div>
+
+            </div>
+
+            <!-- Linha 2 — Gráfico de evolução (linha) -->
+
+            <div class="linha-graficos">
+
+                <div class="grafico-card grande">
+
+                    <h2>
+
+                        <i class="fa-solid fa-chart-line"></i>
+
+                        Evolução de estresse — últimos 7 dias
+
+                    </h2>
+
+                    <canvas id="graficoEvolucao"></canvas>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ================================= -->
+        <!-- ABA — DIÁRIO -->
+        <!-- ================================= -->
+
+        <section
+            id="abaDiario"
+            class="aba-conteudo"
+            style="display: none;"
+        >
+
+            <!-- Cards de resumo (iguais à visão geral) -->
+
+            <div class="cards-relatorio">
+
+                <div class="card">
+
+                    <h3>Alertas de estresse</h3>
+
+                    <span id="alertasEstresseDiario" class="valor-destaque">0</span>
+
+                    <p id="comparativoAltasDiario">registrados este mês</p>
+
+                </div>
+
+                <div class="card">
+
+                    <h3>Tempo de estresse</h3>
+
+                    <span id="tempoEstresseDiario" class="valor-destaque">0 min</span>
+
+                    <p id="comparativoTempoDiario">por episódio</p>
+
+                </div>
+
+            </div>
+
+            <!-- Respostas do relatório diário -->
+
+            <div class="relatorio-diario">
+
+                <div class="topo-diario">
+
+                    <h2>Respostas do relatório diário</h2>
+
+                    <p id="dataRelatorio">Carregando...</p>
+
+                </div>
+
+                <!-- 🔧 FIX 12: Lista com badges coloridos igual ao design -->
+
+                <div
+                    id="listaPerguntas"
+                    class="lista-perguntas"
+                >
+
+                    <!-- Preenchido pelo JavaScript -->
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script>
+
+    // ==========================
+    // TEMA
+    // ==========================
+
+    // 🔧 FIX 4 + 5: IDs padronizados e tema persistindo com localStorage
+    function aplicarTema(tema) {
+
+        document.body.classList.remove("tema-claro", "tema-escuro");
+        document.body.classList.add(`tema-${tema}`);
+
+        document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
+        document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
+
+        localStorage.setItem("tema", tema);
+
+    }
+
+    document.getElementById("btnClaro").addEventListener("click", () => {
+        aplicarTema("claro");
+    });
+
+    document.getElementById("btnEscuro").addEventListener("click", () => {
+        aplicarTema("escuro");
+    });
+
+    const temaSalvo = localStorage.getItem("tema") || "claro";
+    aplicarTema(temaSalvo);
+
+
+    // ==========================
+    // ALTERNAR ABAS
+    // ==========================
+
+    const btnVisao  = document.getElementById("btnVisao");
+    const btnDiario = document.getElementById("btnDiario");
+    const abaVisao  = document.getElementById("abaVisao");
+    const abaDiario = document.getElementById("abaDiario");
+
+    btnVisao.addEventListener("click", () => {
+
+        btnVisao.classList.add("ativa");
+        btnDiario.classList.remove("ativa");
+
+        abaVisao.style.display  = "block";
+        abaDiario.style.display = "none";
+
+    });
+
+    btnDiario.addEventListener("click", () => {
+
+        btnDiario.classList.add("ativa");
+        btnVisao.classList.remove("ativa");
+
+        abaVisao.style.display  = "none";
+        abaDiario.style.display = "block";
+
+    });
+
+
+    // ==========================
+    // DADOS DO USUÁRIO
+    // ==========================
+
+    async function carregarUsuario() {
+
+        try {
+
+            // 🔧 FIX 1: Rota corrigida de /usuario para /api/home
+            const resposta = await fetch("/api/home");
+
+            // 🔧 FIX 8: Redireciona para login se não autenticado
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            if (!resposta.ok) return;
+
+            const usuario = await resposta.json();
+
+            document.getElementById("nomeUsuario").textContent =
+                usuario.nome || "Usuário";
+
+            document.getElementById("tipoConta").textContent =
+                usuario.tipoConta || "Responsável";
+
+            if (usuario.fotoPerfil) {
+                document.getElementById("fotoUsuario").src = usuario.fotoPerfil;
+            }
+
+        } catch (e) {
+
+            console.log("Erro ao carregar usuário:", e);
+
+        }
+
+    }
+
+
+    // ==========================
+    // DADOS DOS RELATÓRIOS
+    // ==========================
+
+    async function carregarRelatorios() {
+
+        try {
+
+            // 🔧 FIX 2: Rota /api/relatorios criada no backend
+            const resposta = await fetch("/api/relatorios");
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            if (!resposta.ok) {
+                usarDadosExemplo();
+                return;
+            }
+
+            const dados = await resposta.json();
+
+            preencherCards(dados);
+            renderizarGraficos(dados);
+            preencherDiario(dados);
+
+        } catch (e) {
+
+            console.log("Erro ao carregar relatórios:", e);
+
+            // Mostra dados de exemplo se o backend não responder
+            usarDadosExemplo();
+
+        }
+
+    }
+
+    // Dados de exemplo enquanto o backend não tem dados reais
+    function usarDadosExemplo() {
+
+        const dadosExemplo = {
+
+            alertas: 18,
+            comparativoAlertas: "↓ 2 comparado a semana passada",
+            tempo: "120 min",
+            comparativoTempo: "↑ 1 min comparado a semana passada",
+
+            // Dados para o gráfico de barras (estresse por dia)
+            graficoEstresse: {
+                labels: ["Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui"],
+                dados:  [3, 2, 5, 7, 8, 4, 2]
+            },
+
+            // Dados para o gráfico de rosca (gatilhos)
+            graficoGatilhos: {
+                labels: [
+                    "Ambientes barulhentos",
+                    "Locais lotados",
+                    "Mudanças de rotina",
+                    "Texturas de alimentos"
+                ],
+                dados:  [42, 28, 18, 12],
+                cores:  ["#32C26D", "#0AB7FB", "#1D8EC9", "#C2C2C2"]
+            },
+
+            // Dados para o gráfico de linha (evolução)
+            graficoEvolucao: {
+                labels: ["Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui"],
+                dados:  [2, 3, 4, 5, 8, 4, 2]
+            },
+
+            // Respostas do último relatório diário
+            dataRelatorio: "Hoje, 05 de julho de 2026",
+            perguntas: [
+                { pergunta: "Como a criança se sentiu hoje?",              resposta: "Feliz"      },
+                { pergunta: "Em qual período houve mais desconforto?",      resposta: "Manhã"      },
+                { pergunta: "A pelúcia foi apertada com força?",            resposta: "Sim"        },
+                { pergunta: "A criança conseguiu se acalmar facilmente?",   resposta: "Não"        },
+                { pergunta: "Houve algum fator que causou desconforto?",    resposta: "Barulho"    },
+                { pergunta: "Como foi o comportamento geral?",              resposta: "Tranquilo"  }
+            ]
+
+        };
+
+        preencherCards(dadosExemplo);
+        renderizarGraficos(dadosExemplo);
+        preencherDiario(dadosExemplo);
+
+    }
+
+
+    // ==========================
+    // PREENCHER CARDS
+    // ==========================
+
+    function preencherCards(dados) {
+
+        // Visão geral
+        document.getElementById("alertasEstresse").textContent =
+            dados.alertas ?? 0;
+
+        document.getElementById("comparativoAlertas").textContent =
+            dados.comparativoAlertas || "registrados este mês";
+
+        document.getElementById("tempoEstresse").textContent =
+            dados.tempo || "0 min";
+
+        document.getElementById("comparativoTempo").textContent =
+            dados.comparativoTempo || "por episódio";
+
+        // Diário (mesmos valores)
+        document.getElementById("alertasEstresseDiario").textContent =
+            dados.alertas ?? 0;
+
+        document.getElementById("comparativoAltasDiario").textContent =
+            dados.comparativoAlertas || "registrados este mês";
+
+        document.getElementById("tempoEstresseDiario").textContent =
+            dados.tempo || "0 min";
+
+        document.getElementById("comparativoTempoDiario").textContent =
+            dados.comparativoTempo || "por episódio";
+
+    }
+
+
+    // ==========================
+    // GRÁFICOS COM CHART.JS
+    // ==========================
+
+    // 🔧 FIX 9: Gráficos reais com Chart.js — antes os <canvas> não renderizavam nada
+
+    let graficos = {};
+
+    function renderizarGraficos(dados) {
+
+        // Destrói gráficos anteriores se existirem (evita duplicatas ao recarregar)
+        Object.values(graficos).forEach(g => g.destroy());
+        graficos = {};
+
+        // Cores da Bixuco
+        const VERDE  = "#32C26D";
+        const AZUL   = "#0AB7FB";
+        const VERDE2 = "#79D836";
+
+        // ===========================
+        // Gráfico de barras — Estresse
+        // ===========================
+
+        const ctxEstresse = document.getElementById("graficoEstresse").getContext("2d");
+
+        graficos.estresse = new Chart(ctxEstresse, {
+
+            type: "bar",
+
+            data: {
+                labels:   dados.graficoEstresse?.labels || [],
+                datasets: [{
+                    label:           "Alertas",
+                    data:            dados.graficoEstresse?.dados  || [],
+                    backgroundColor: dados.graficoEstresse?.dados?.map((v, i) =>
+                        // Destaca o maior valor em vermelho, os demais em verde/amarelo/laranja
+                        v === Math.max(...(dados.graficoEstresse?.dados || [])) ? "#E53E3E" :
+                        v > 5 ? "#F6AD55" : VERDE
+                    ) || [],
+                    borderRadius:    6
+                }]
+            },
+
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 2 }
+                    }
+                }
+            }
+
+        });
+
+        // ===========================
+        // Gráfico de rosca — Gatilhos
+        // ===========================
+
+        const ctxGatilhos = document.getElementById("graficoGatilhos").getContext("2d");
+
+        const gatilhos = dados.graficoGatilhos || { labels: [], dados: [], cores: [] };
+
+        graficos.gatilhos = new Chart(ctxGatilhos, {
+
+            type: "doughnut",
+
+            data: {
+                labels:   gatilhos.labels,
+                datasets: [{
+                    data:            gatilhos.dados,
+                    backgroundColor: gatilhos.cores || [VERDE, AZUL, "#1D8EC9", "#C2C2C2"],
+                    borderWidth:     0,
+                    hoverOffset:     8
+                }]
+            },
+
+            options: {
+                responsive: true,
+                cutout: "65%",
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+
+        });
+
+        // Monta a legenda customizada do gráfico de rosca
+        const legendaEl = document.getElementById("legendaGatilhos");
+        legendaEl.innerHTML = "";
+
+        gatilhos.labels.forEach((label, i) => {
+
+            legendaEl.innerHTML += `
+                <div class="legenda-item">
+                    <span
+                        class="legenda-cor"
+                        style="background:${gatilhos.cores[i] || VERDE}"
+                    ></span>
+                    <span>${label} ${gatilhos.dados[i]}%</span>
+                </div>
+            `;
+
+        });
+
+        // ===========================
+        // Gráfico de linha — Evolução
+        // ===========================
+
+        const ctxEvolucao = document.getElementById("graficoEvolucao").getContext("2d");
+
+        // Cria gradiente de preenchimento sob a linha
+        const gradiente = ctxEvolucao.createLinearGradient(0, 0, 0, 300);
+        gradiente.addColorStop(0,   "rgba(50, 194, 109, 0.35)");
+        gradiente.addColorStop(1,   "rgba(50, 194, 109, 0)");
+
+        graficos.evolucao = new Chart(ctxEvolucao, {
+
+            type: "line",
+
+            data: {
+                labels:   dados.graficoEvolucao?.labels || [],
+                datasets: [{
+                    label:           "Nível de estresse",
+                    data:            dados.graficoEvolucao?.dados  || [],
+                    borderColor:     VERDE,
+                    backgroundColor: gradiente,
+                    borderWidth:     2.5,
+                    pointBackgroundColor: dados.graficoEvolucao?.dados?.map((v, i) =>
+                        // Ponto vermelho no pico máximo
+                        v === Math.max(...(dados.graficoEvolucao?.dados || [])) ? "#E53E3E" : VERDE
+                    ) || [],
+                    pointRadius:     5,
+                    tension:         0.4,
+                    fill:            true
+                }]
+            },
+
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 2 }
+                    }
+                }
+            }
+
+        });
+
+    }
+
+
+    // ==========================
+    // PREENCHER ABA DIÁRIO
+    // ==========================
+
+    // 🔧 FIX 12: Badges coloridos nas respostas igual ao design
+    function preencherDiario(dados) {
+
+        document.getElementById("dataRelatorio").textContent =
+            dados.dataRelatorio || "Nenhum relatório encontrado.";
+
+        const lista = document.getElementById("listaPerguntas");
+        lista.innerHTML = "";
+
+        if (!dados.perguntas || dados.perguntas.length === 0) {
+
+            lista.innerHTML = `
+                <p class="sem-dados">
+                    Nenhum relatório preenchido ainda.
+                    <a href="/RelatorioDiario">Fazer relatório agora</a>
+                </p>
+            `;
+
+            return;
+
+        }
+
+        dados.perguntas.forEach(item => {
+
+            const div = document.createElement("div");
+            div.className = "pergunta-item";
+
+            div.innerHTML = `
+                <span class="pergunta-texto">${item.pergunta}</span>
+                <span class="pergunta-badge">${item.resposta}</span>
+            `;
+
+            lista.appendChild(div);
+
+        });
+
+    }
+
+
+    // ==========================
+    // INICIALIZAÇÃO
+    // ==========================
+
+    carregarUsuario();
+    carregarRelatorios();
+
+</script>
+
+</body>
+
+</html>

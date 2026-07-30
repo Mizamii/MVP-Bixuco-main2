@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Bixuco — Perfil sensorial
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/css/questionariop.css"
+    >
+
+</head>
+
+<body>
+
+    <main>
+
+        <!-- ========================= -->
+        <!-- LADO ESQUERDO -->
+        <!-- ========================= -->
+
+        <section>
+
+            <div>
+
+                <!-- Logo -->
+                <img
+                    src="/img/Logo_Branca.png"
+                    alt="Logo Bixuco"
+                >
+
+                <!-- Título -->
+                <h1>
+                    Acompanhamento
+                    <br>
+                    infantil
+                    <span>inteligente.</span>
+                </h1>
+
+                <!-- Texto -->
+                <p>
+                    Mais organização,
+                    mais conexão e mais cuidado
+                    para famílias e terapeutas.
+                </p>
+
+            </div>
+
+            <div>
+
+                <img
+                    src="/img/questionario-menino.png"
+                    alt="Criança abraçando o Bixuco"
+                >
+
+            </div>
+
+        </section>
+
+        <!-- ========================= -->
+        <!-- LADO DIREITO -->
+        <!-- ========================= -->
+
+        <section>
+
+            <header>
+
+                <h2>
+                    Perfil sensorial
+                </h2>
+
+            </header>
+
+            <div>
+
+                <!-- Barra de progresso -->
+
+                <div class="questionario-progresso">
+
+                    <span id="texto-progresso">
+                        Pergunta 1 de 10
+                    </span>
+
+                    <div
+                        class="questionario-progresso__barra"
+                        id="barra-progresso"
+                    ></div>
+
+                </div>
+
+                <!-- Pergunta -->
+
+                <h3 id="pergunta-texto">
+                    Carregando...
+                </h3>
+
+                <!-- Alternativas -->
+
+                <form id="form-pergunta">
+
+                    <div id="opcoes">
+                        <!-- Preenchido pelo JavaScript -->
+                    </div>
+
+                </form>
+
+                <!-- 🔧 FIX 7: Mensagem de erro ao salvar -->
+                <span
+                    id="erro-salvar"
+                    style="display: none; color: #e53e3e; font-size: 14px; margin-top: 8px;"
+                ></span>
+
+                <!-- 🔧 FIX 5 + 6: onclick removido, botão com estado de carregamento -->
+                <button
+                    id="btn-proximo"
+                    type="button"
+                    disabled
+                >
+                    Próxima pergunta
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+
+        // ==========================
+        // PERGUNTAS DO QUESTIONÁRIO
+        // ==========================
+
+        const perguntas = [
+
+            "Com que frequência sua criança fica incomodada com barulhos altos ou inesperados?",
+
+            "Sua criança evita certas texturas de alimentos ou tecidos?",
+
+            "Ela demonstra sensibilidade excessiva à luz ou movimentos rápidos?",
+
+            "Sua criança procura atividades com bastante movimento, como girar ou pular?",
+
+            "Sua criança se distrai facilmente durante atividades?",
+
+            "Ela se incomoda quando alguém encosta nela inesperadamente?",
+
+            "Sua criança gosta de observar objetos girando ou luzes?",
+
+            "Ela evita lugares muito movimentados ou cheios de pessoas?",
+
+            "Sua criança gosta de cheirar objetos frequentemente?",
+
+            "Ela apresenta dificuldade para dormir devido aos estímulos do ambiente?"
+
+        ];
+
+        // Alternativas fixas para todas as perguntas
+        const alternativas = [
+            "Sempre",
+            "Quase sempre",
+            "Raramente",
+            "Nunca"
+        ];
+
+        // Variáveis de estado
+        let perguntaAtual    = 0;
+        let respostaSelecionada = null;
+
+        // 🔧 FIX 1: Array para guardar todas as respostas e enviar ao backend
+        const respostasUsuario = [];
+
+        // Referências aos elementos
+        const btnProximo    = document.getElementById("btn-proximo");
+        const erroSalvar    = document.getElementById("erro-salvar");
+
+        // ==========================
+        // BARRA DE PROGRESSO
+        // ==========================
+
+        // 🔧 FIX 8: Cria a barra uma vez e atualiza só as classes
+        // Antes era recriada do zero a cada pergunta
+
+        function criarBarra() {
+
+            const barra = document.getElementById("barra-progresso");
+            barra.innerHTML = "";
+
+            for (let i = 0; i < perguntas.length; i++) {
+
+                const ponto = document.createElement("span");
+                ponto.id = `ponto-${i}`;
+                barra.appendChild(ponto);
+
+            }
+
+        }
+
+        function atualizarBarra() {
+
+            for (let i = 0; i < perguntas.length; i++) {
+
+                const ponto = document.getElementById(`ponto-${i}`);
+
+                ponto.className = "";
+                ponto.textContent = "";
+
+                if (i < perguntaAtual) {
+                    ponto.classList.add("ativo");
+                } else if (i === perguntaAtual) {
+                    ponto.classList.add("atual");
+                    ponto.textContent = i + 1;
+                }
+
+            }
+
+        }
+
+        // ==========================
+        // ATUALIZAR PERGUNTA
+        // ==========================
+
+        function atualizarPergunta() {
+
+            // Atualiza o texto da pergunta e o contador
+            document.getElementById("pergunta-texto").textContent =
+                perguntas[perguntaAtual];
+
+            document.getElementById("texto-progresso").textContent =
+                `Pergunta ${perguntaAtual + 1} de ${perguntas.length}`;
+
+            // Atualiza a barra de progresso
+            atualizarBarra();
+
+            // Recria as opções de resposta
+            const opcoes = document.getElementById("opcoes");
+            opcoes.innerHTML = "";
+
+            alternativas.forEach(opcao => {
+
+                const botao = document.createElement("button");
+                botao.type      = "button";
+                botao.className = "opcao";
+                botao.textContent = opcao;
+
+                botao.addEventListener("click", () => selecionarOpcao(botao, opcao));
+
+                opcoes.appendChild(botao);
+
+            });
+
+            // Reseta estado da pergunta
+            respostaSelecionada   = null;
+            btnProximo.disabled   = true;
+            erroSalvar.style.display = "none";
+
+            // Muda o texto do botão na última pergunta
+            btnProximo.textContent = perguntaAtual === perguntas.length - 1
+                ? "Finalizar"
+                : "Próxima pergunta";
+
+        }
+
+        // ==========================
+        // SELECIONAR OPÇÃO
+        // ==========================
+
+        function selecionarOpcao(botao, resposta) {
+
+            // Remove seleção anterior
+            document.querySelectorAll(".opcao").forEach(op => {
+                op.classList.remove("selecionada");
+            });
+
+            // Marca a opção clicada
+            botao.classList.add("selecionada");
+
+            respostaSelecionada = resposta;
+            btnProximo.disabled = false;
+
+        }
+
+        // ==========================
+        // PRÓXIMA PERGUNTA
+        // ==========================
+
+        // 🔧 FIX 5: addEventListener em vez de onclick inline
+        btnProximo.addEventListener("click", async () => {
+
+            if (respostaSelecionada === null) return;
+
+            // 🔧 FIX 1: Guarda a resposta no array
+            respostasUsuario.push({
+                pergunta: perguntas[perguntaAtual],
+                resposta: respostaSelecionada
+            });
+
+            // Se ainda há perguntas, avança para a próxima
+            if (perguntaAtual < perguntas.length - 1) {
+
+                perguntaAtual++;
+                atualizarPergunta();
+
+            } else {
+
+                // Última pergunta respondida — salva o perfil sensorial
+                await finalizarQuestionario();
+
+            }
+
+        });
+
+        // ==========================
+        // FINALIZAR E SALVAR
+        // ==========================
+
+        // 🔧 FIX 1 + 6 + 7: Salva as respostas no backend ao finalizar
+        // Antes só redirecionava para /home sem salvar nada
+        async function finalizarQuestionario() {
+
+            // 🔧 FIX 6: Desabilita o botão enquanto salva
+            btnProximo.disabled    = true;
+            btnProximo.textContent = "Salvando...";
+
+            try {
+
+                const resposta = await fetch("/api/perfil-sensorial", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        respostas: respostasUsuario
+                    })
+                });
+
+                // 🔧 FIX 4: Redireciona para login se não autenticado
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
+                }
+
+                if (resposta.redirected) {
+                    window.location.href = resposta.url;
+                    return;
+                }
+
+                if (resposta.ok) {
+                    // Perfil salvo com sucesso — vai para a home
+                    window.location.href = "/home";
+                    return;
+                }
+
+                throw new Error("Resposta inesperada do servidor.");
+
+            } catch (erro) {
+
+                console.log("Erro ao salvar perfil sensorial:", erro);
+
+                // 🔧 FIX 7: Mostra o erro e reabilita o botão para tentar de novo
+                erroSalvar.textContent   = "Erro ao salvar. Tente novamente.";
+                erroSalvar.style.display = "block";
+
+                btnProximo.disabled    = false;
+                btnProximo.textContent = "Finalizar";
+
+            }
+
+        }
+
+        // ==========================
+        // INICIALIZAÇÃO
+        // ==========================
+
+        // Cria a barra uma vez e carrega a primeira pergunta
+        criarBarra();
+        atualizarPergunta();
+
+    </script>
+
+</body>
+
+</html>
