@@ -269,7 +269,7 @@
             if (!input || !erro) return;
 
             input.classList.add("input-erro");
-            erro.innerHTML   = mensagem;
+            erro.innerHTML   = mensagem;    
             erro.style.display = "block";
 
             setTimeout(() => {
@@ -315,19 +315,19 @@
 
             if (senha.length < 6) {
 
-                erros.push("A senha deve ter pelo menos 6 caracteres.");
+                erros.push(" -> A senha deve ter pelo menos 6 caracteres.");
 
             }
 
             if (!/[A-Z]/.test(senha)) {
 
-                erros.push("A senha deve conter pelo menos uma letra maiúscula.");
+                erros.push(" -> A senha deve conter pelo menos uma letra maiúscula.");
 
             }
 
             if (!/[!@#$%^&*(),.?":{}|<>_\-\\[\];'/+=]/.test(senha)) {
 
-                erros.push("A senha deve conter pelo menos um caractere especial.");
+                erros.push(" -> A senha deve conter pelo menos um caractere especial.");
 
             }  
 

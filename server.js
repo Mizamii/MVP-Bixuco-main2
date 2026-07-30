@@ -852,15 +852,14 @@ app.post("/cadastro-finalizar", async (req, res) => {
 
     const dados = req.session.cadastro;
 
-    // Se não tiver dados na sessão, a sessão expirou ou o usuário
-    // tentou acessar essa rota direto sem passar pelas etapas anteriores
     if (!dados) {
-        return res.status(400).json({ erro: "Sessão expirada. Reinicie o cadastro." });
+        return res.status(400).json({
+            erro: "Sessão expirada. Reinicie o cadastro."
+        });
     }
 
     const { senha, confirmarSenha } = req.body;
 
-    // 🔧 Retorna JSON com campo para o frontend mostrar o erro no lugar certo
     if (senha !== confirmarSenha) {
         return res.status(400).json({
             campo: "confirmarSenha",
@@ -879,9 +878,9 @@ app.post("/cadastro-finalizar", async (req, res) => {
 
         const senhaHash = await bcrypt.hash(senha, 10);
 
-        /* =====================
+        /* ==========================
            RESPONSÁVEL
-        ===================== */
+        ========================== */
 
         if (dados.tipo === "pai") {
 
@@ -893,7 +892,8 @@ app.post("/cadastro-finalizar", async (req, res) => {
             }
 
             const existe = await db.query(
-                `SELECT * FROM usuarios WHERE email=$1 OR cpf=$2`,
+                `SELECT * FROM usuarios
+                 WHERE email = $1 OR cpf = $2`,
                 [dados.email, dados.cpfUser]
             );
 
@@ -921,18 +921,13 @@ app.post("/cadastro-finalizar", async (req, res) => {
                 ]
             );
 
-            delete req.session.cadastro;
-
-            // Frontend detecta o redirect via resposta.redirected
-            return res.redirect("/AdicionarC");
-
         }
 
-        /* =====================
-           PSICÓLOGO / TERAPEUTA
-        ===================== */
+        /* ==========================
+           PSICÓLOGO
+        ========================== */
 
-        if (dados.tipo === "psicologo") {
+        else if (dados.tipo === "psicologo") {
 
             if (!validarCRP(dados.crp)) {
                 return res.status(400).json({
@@ -942,7 +937,8 @@ app.post("/cadastro-finalizar", async (req, res) => {
             }
 
             const existe = await db.query(
-                `SELECT * FROM usuarios WHERE email=$1 OR crp=$2`,
+                `SELECT * FROM usuarios
+                 WHERE email = $1 OR crp = $2`,
                 [dados.email, dados.crp]
             );
 
@@ -970,38 +966,56 @@ app.post("/cadastro-finalizar", async (req, res) => {
                 ]
             );
 
-            const usuario = await db.query(
-                `SELECT tipo
-                FROM usuarios
-                WHERE email = $1`,
-                [email]
-            );
+        }
 
-            const tipo = usuario.rows[0].tipo;
+        else {
 
-            if (tipo === "pai") {
-
-                return res.redirect("/AdicionarC");
-
-            }
-
-            if (tipo === "psicologo") {
-
-                return res.redirect("/logar");
-
-            }
-
-            delete req.session.cadastro;
-
-            // Frontend detecta o redirect via resposta.redirected
-            return res.redirect("/home");
+            return res.status(400).json({
+                erro: "Tipo de usuário inválido."
+            });
 
         }
+
+        /* ==========================
+           CONSULTA O TIPO NO BANCO
+        ========================== */
+
+        const usuario = await db.query(
+            `SELECT tipo
+             FROM usuarios
+             WHERE email = $1`,
+            [dados.email]
+        );
+
+        if (usuario.rows.length === 0) {
+            return res.status(404).json({
+                erro: "Usuário não encontrado."
+            });
+        }
+
+        const tipo = usuario.rows[0].tipo;
+
+        delete req.session.cadastro;
+
+        if (tipo === "pai") {
+            return res.redirect("/AdicionarC");
+        }
+
+        if (tipo === "psicologo") {
+            return res.redirect("/logar");
+        }
+
+        return res.status(400).json({
+            erro: "Tipo de usuário desconhecido."
+        });
 
     } catch (erro) {
 
         console.log("Erro no cadastro-finalizar:", erro);
-        res.status(500).json({ erro: "Erro interno do servidor. Tente novamente." });
+
+        return res.status(500).json({
+            erro: "Erro interno do servidor. Tente novamente."
+        });
 
     }
 
