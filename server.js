@@ -850,6 +850,8 @@ app.post("/esqueceu-senha", async (req, res) => {
 
 app.post("/cadastro-finalizar", async (req, res) => {
 
+    console.log(req.session.cadastro);
+
     const dados = req.session.cadastro;
 
 
