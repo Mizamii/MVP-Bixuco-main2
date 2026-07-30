@@ -852,13 +852,15 @@ app.post("/cadastro-finalizar", async (req, res) => {
     
 
     const dados = req.session.cadastro;
-
-    if (dados.tipo === "pai") {
-        console.log("Tipo recebido:", dados.tipo);}
-
+    if (!dados) {
+        return res.status(400).json({
+            erro: "Sessão expirada. Reinicie o cadastro."
+        });
+    }
     //mudar aq
-    console.log("DADOS DA SESSÃO:");
+    console.log("===== DADOS DA SESSÃO =====");
     console.log(dados);
+    console.log("Tipo recebido:", dados.tipo);
 
     if (!dados) {
         return res.status(400).json({
