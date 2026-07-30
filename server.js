@@ -905,22 +905,33 @@ app.post("/cadastro-finalizar", async (req, res) => {
                 });
             }
 
-            await db.query(
-                `INSERT INTO usuarios
-                (nome, email, cpf, senha, data_nascimento, tipo, cep, cidade, estado, bairro)
-                VALUES ($1,$2,$3,$4,$5,'pai',$6,$7,$8,$9)`,
-                [
-                    dados.nome,
-                    dados.email,
-                    dados.cpfUser,
-                    senhaHash,
-                    dados.dataNascimento,
-                    dados.cep,
-                    dados.cidade,
-                    dados.estado,
-                    dados.bairro
-                ]
-            );
+        const novoUsuario = await db.query(
+            `INSERT INTO usuarios
+            (nome, email, cpf, senha, data_nascimento, tipo, cep, cidade, estado, bairro)
+            VALUES ($1,$2,$3,$4,$5,'pai',$6,$7,$8,$9)
+            RETURNING id, tipo`,
+            [
+                dados.nome,
+                dados.email,
+                dados.cpfUser,
+                senhaHash,
+                dados.dataNascimento,
+                dados.cep,
+                dados.cidade,
+                dados.estado,
+                dados.bairro
+            ]
+        );
+
+        delete req.session.cadastro;
+
+        req.session.usuarioId = novoUsuario.rows[0].id;
+        req.session.tipo = novoUsuario.rows[0].tipo;
+        
+        return res.json({
+            sucesso: true,
+            destino: "/AdicionarC"
+        });
 
         }
 
@@ -950,10 +961,11 @@ app.post("/cadastro-finalizar", async (req, res) => {
                 });
             }
 
-            await db.query(
+            const novoUsuario = await db.query(
                 `INSERT INTO usuarios
                 (nome, email, crp, senha, data_nascimento, tipo, cep, cidade, estado, bairro)
-                VALUES ($1,$2,$3,$4,$5,'psicologo',$6,$7,$8,$9)`,
+                VALUES ($1,$2,$3,$4,$5,'psicologo',$6,$7,$8,$9)
+                RETURNING id, tipo`,
                 [
                     dados.nome,
                     dados.email,
@@ -967,6 +979,16 @@ app.post("/cadastro-finalizar", async (req, res) => {
                 ]
             );
 
+            delete req.session.cadastro;
+
+            req.session.usuarioId = novoUsuario.rows[0].id;
+            req.session.tipo = novoUsuario.rows[0].tipo;
+
+            return res.json({
+                sucesso: true,
+                destino: "/logar"
+            });
+
         }
 
         else {
@@ -977,44 +999,7 @@ app.post("/cadastro-finalizar", async (req, res) => {
 
         }
 
-        /* ==========================
-           CONSULTA O TIPO NO BANCO
-        ========================== */
-
-        const usuario = await db.query(
-            `SELECT tipo
-             FROM usuarios
-             WHERE email = $1`,
-            [dados.email]
-        );
-
-        if (usuario.rows.length === 0) {
-            return res.status(404).json({
-                erro: "Usuário não encontrado."
-            });
-        }
-
-        const tipo = usuario.rows[0].tipo;
-
-        delete req.session.cadastro;
-
-        if (tipo === "pai") {
-           return res.json({
-                sucesso: true,
-                destino: "/AdicionarC"
-            });
-        }
-
-        if (tipo === "psicologo") {
-            return res.json({
-                sucesso: true,
-                destino: "/logar"
-            });
-        }
-
-        return res.status(400).json({
-            erro: "Tipo de usuário desconhecido."
-        });
+       
 
     } catch (erro) {
 
