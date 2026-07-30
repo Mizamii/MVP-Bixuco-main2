@@ -970,6 +970,27 @@ app.post("/cadastro-finalizar", async (req, res) => {
                 ]
             );
 
+            const usuario = await db.query(
+                `SELECT tipo
+                FROM usuarios
+                WHERE email = $1`,
+                [email]
+            );
+
+            const tipo = usuario.rows[0].tipo;
+
+            if (tipo === "pai") {
+
+                return res.redirect("/AdicionarC");
+
+            }
+
+            if (tipo === "psicologo") {
+
+                return res.redirect("/logar");
+
+            }
+
             delete req.session.cadastro;
 
             // Frontend detecta o redirect via resposta.redirected
