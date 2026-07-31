@@ -14,13 +14,16 @@ const nodemailer = require('nodemailer');
 const app = express();
 
 const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
+    host: "74.125.130.108",  // IP fixo IPv4 do smtp.gmail.com
     port: 587,
     secure: false,
-    family: 4, 
+    family: 4,
     auth: {
         user: process.env.GMAIL_USER,
         pass: process.env.GMAIL_PASS
+    },
+    tls: {
+        servername: "smtp.gmail.com"  // necessário ao usar IP direto
     }
 });
 
