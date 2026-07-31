@@ -285,13 +285,14 @@ app.get(
     ),
 
     (req, res) => {
-
-        // Salva o id na sessão igual ao login manual
         req.session.usuarioId = req.user.id;
         req.session.tipo = req.user.tipo;
 
-        res.redirect("/home");
-
+        // Redireciona conforme o tipo da conta
+        if (req.user.tipo === "psicologo") {
+            return res.redirect("/homeTerapeuta");
+        }
+        return res.redirect("/home");
     }
 
 );
@@ -1286,8 +1287,10 @@ app.post('/login', async (req, res) => {
         req.session.usuarioId = usuario.id;
         req.session.tipo = usuario.tipo;
 
-        // 🔧 Redireciona para /home — o fetch detecta o redirect via resposta.redirected
-        // e redireciona o browser para a URL correta
+        // Redireciona conforme o tipo da conta
+        if (usuario.tipo === "psicologo") {
+            return res.redirect("/homeTerapeuta");
+        }
         return res.redirect("/home");
 
     } catch (erro) {
