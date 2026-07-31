@@ -9,7 +9,7 @@ const session = require('express-session');
 const crypto = require('crypto');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
-const resend = new Resend(process.env.RESEND_API_KEY);
+
 
 const app = express();
 
