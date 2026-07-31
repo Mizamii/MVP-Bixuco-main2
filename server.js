@@ -505,6 +505,7 @@ app.post("/continuar-cadastro-psicologo", async (req, res) => {
     if (existe.rows.length > 0) {
 
         if (existe.rows[0].email === email) {
+            console.log("Email já cadastrado");
             return res.status(409).json({
                 campo: "email",
                 erro: "Este e-mail já está cadastrado."
@@ -512,6 +513,7 @@ app.post("/continuar-cadastro-psicologo", async (req, res) => {
         }
 
         if (existe.rows[0].crp === crp) {
+            console.log("CRP já cadastrado");
             return res.status(409).json({
                 campo: "crp",
                 erro: "Este CRP já está cadastrado."

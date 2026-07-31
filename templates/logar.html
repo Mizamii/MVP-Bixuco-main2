@@ -179,7 +179,7 @@
                     type="submit"
                     id="btnEntrar"
                 >
-                    Entrar 
+                    Entrar  t
                 </button>
 
             </form>
@@ -350,7 +350,10 @@
                 }
 
                 // Se chegou aqui, o servidor retornou um erro (4xx ou 5xx)
-                const dados = await resposta.json();
+                const texto = await resposta.text();
+
+                console.log("Status:", resposta.status);
+                console.log("Texto recebido:", texto);
 
                 // 🔧 FIX 2: Exibe a mensagem de erro do servidor na tela
                 // Antes o usuário não via nada — agora aparece abaixo dos campos
