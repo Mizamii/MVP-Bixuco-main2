@@ -8,10 +8,12 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const session = require('express-session');
 const crypto = require('crypto');
 const multer = require('multer');
-const Brevo = require('@getbrevo/brevo'); // Importa a biblioteca Brevo
-const brevoClient = Brevo.ApiClient.instance;
-brevoClient.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
-const emailApi = new Brevo.TransactionalEmailsApi();
+
+
+const SibApiV3Sdk = require('@getbrevo/brevo');
+const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+const apiKey = apiInstance.authentications['api-key'];
+apiKey.apiKey = process.env.BREVO_API_KEY; // Certifique-se de definir a variável de ambiente BREVO_API_KEY
 
 
 const app = express();
@@ -754,22 +756,17 @@ app.post("/esqueceu-senha", async (req, res) => {
 
     const { email } = req.body;
 
-    // Valida se o e-mail foi enviado
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         return res.status(400).json({ erro: "E-mail inválido." });
     }
 
     try {
 
-        // Verifica se o e-mail existe no banco
         const resultado = await db.query(
             "SELECT * FROM usuarios WHERE email = $1",
             [email]
         );
 
-        // 🔒 Segurança: mesmo que o e-mail não exista, retornamos sucesso
-        // Isso evita que alguém descubra quais e-mails estão cadastrados
-        // testando vários endereços e vendo a diferença nas respostas
         if (resultado.rows.length === 0) {
             return res.status(200).json({
                 mensagem: "Se esse e-mail estiver cadastrado, você receberá o link em breve."
@@ -778,14 +775,9 @@ app.post("/esqueceu-senha", async (req, res) => {
 
         const usuario = resultado.rows[0];
 
-        // Gera um token seguro e aleatório de 32 bytes (64 caracteres hex)
         const token = crypto.randomBytes(32).toString("hex");
-
-        // O token expira em 1 hora a partir de agora
         const expiraEm = new Date(Date.now() + 60 * 60 * 1000);
 
-        // Invalida tokens anteriores desse usuário que ainda não foram usados
-        // Evita ter múltiplos tokens válidos ao mesmo tempo
         await db.query(
             `UPDATE tokens_recuperacao
              SET usado = TRUE
@@ -794,7 +786,6 @@ app.post("/esqueceu-senha", async (req, res) => {
             [usuario.id]
         );
 
-        // Salva o novo token no banco
         await db.query(
             `INSERT INTO tokens_recuperacao
              (usuario_id, token, expira_em)
@@ -802,82 +793,29 @@ app.post("/esqueceu-senha", async (req, res) => {
             [usuario.id, token, expiraEm]
         );
 
-        // Monta o link de recuperação que será enviado no e-mail
         const link = `${process.env.BASE_URL || "http://localhost:3000"}/redefinir-senha?token=${token}`;
 
-        // Monta o e-mail que será enviado
-        const emailOpcoes = {
-            from: `"Bixuco" <${process.env.GMAIL_USER}>`,
-            to: email,
-            subject: "Recuperação de senha — Bixuco",
-            html: `
-                <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto;">
+        // envia via Brevo
+        const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+        sendSmtpEmail.sender = { name: 'Bixuco', email: 'yasminbertoni7@gmail.com' };
+        sendSmtpEmail.to = [{ email: email }];
+        sendSmtpEmail.subject = 'Recuperação de senha — Bixuco';
+        sendSmtpEmail.htmlContent = `
+            <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto;">
+                <h2 style="color: #32C26D;">Recuperação de senha</h2>
+                <p>Olá, <strong>${usuario.nome}</strong>!</p>
+                <p>Recebemos uma solicitação para redefinir a senha da sua conta Bixuco. Clique no botão abaixo para criar uma nova senha:</p>
+                <a href="${link}" style="display: inline-block; background: linear-gradient(135deg, #79D836, #32C26D); color: white; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; margin: 16px 0;">
+                    Redefinir minha senha
+                </a>
+                <p style="color: #5A5A5A; font-size: 14px;">Este link é válido por <strong>1 hora</strong>.</p>
+                <p style="color: #5A5A5A; font-size: 14px;">Se você não solicitou a recuperação de senha, ignore este e-mail.</p>
+                <hr style="border: none; border-top: 1px solid #C2C2C2; margin: 24px 0;">
+                <p style="color: #C2C2C2; font-size: 12px;">Bixuco — Acompanhamento infantil inteligente</p>
+            </div>
+        `;
 
-                    <h2 style="color: #32C26D;">Recuperação de senha</h2>
-
-                    <p>Olá, <strong>${usuario.nome}</strong>!</p>
-
-                    <p>
-                        Recebemos uma solicitação para redefinir a senha da sua conta Bixuco.
-                        Clique no botão abaixo para criar uma nova senha:
-                    </p>
-
-                    <a
-                        href="${link}"
-                        style="
-                            display: inline-block;
-                            background: linear-gradient(135deg, #79D836, #32C26D);
-                            color: white;
-                            padding: 12px 28px;
-                            border-radius: 8px;
-                            text-decoration: none;
-                            font-weight: bold;
-                            margin: 16px 0;
-                        "
-                    >
-                        Redefinir minha senha
-                    </a>
-
-                    <p style="color: #5A5A5A; font-size: 14px;">
-                        Este link é válido por <strong>1 hora</strong>.
-                        Após esse prazo, você precisará solicitar um novo link.
-                    </p>
-
-                    <p style="color: #5A5A5A; font-size: 14px;">
-                        Se você não solicitou a recuperação de senha,
-                        ignore este e-mail. Sua senha não será alterada.
-                    </p>
-
-                    <hr style="border: none; border-top: 1px solid #C2C2C2; margin: 24px 0;">
-
-                    <p style="color: #C2C2C2; font-size: 12px;">
-                        Bixuco — Acompanhamento infantil inteligente
-                    </p>
-
-                </div>
-            `
-        };
-
-        // Envia o e-mail via Nodemailer + Gmail
-        await emailApi.sendTransacEmail({
-            sender: { name: 'Bixuco', email: 'yasminbertoni7@gmail.com' },
-            to: [{ email: email }],
-            subject: 'Recuperação de senha — Bixuco',
-            html: `
-                <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto;">
-                    <h2 style="color: #32C26D;">Recuperação de senha</h2>
-                    <p>Olá, <strong>${usuario.nome}</strong>!</p>
-                    <p>Recebemos uma solicitação para redefinir a senha da sua conta Bixuco. Clique no botão abaixo para criar uma nova senha:</p>
-                    <a href="${link}" style="display: inline-block; background: linear-gradient(135deg, #79D836, #32C26D); color: white; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; margin: 16px 0;">
-                        Redefinir minha senha
-                    </a>
-                    <p style="color: #5A5A5A; font-size: 14px;">Este link é válido por <strong>1 hora</strong>.</p>
-                    <p style="color: #5A5A5A; font-size: 14px;">Se você não solicitou a recuperação de senha, ignore este e-mail.</p>
-                    <hr style="border: none; border-top: 1px solid #C2C2C2; margin: 24px 0;">
-                    <p style="color: #C2C2C2; font-size: 12px;">Bixuco — Acompanhamento infantil inteligente</p>
-                </div>
-            `
-        });
+        await apiInstance.sendTransacEmail(sendSmtpEmail);
 
         return res.status(200).json({
             mensagem: "Se esse e-mail estiver cadastrado, você receberá o link em breve."
