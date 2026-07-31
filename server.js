@@ -867,10 +867,8 @@ app.post("/esqueceu-senha", async (req, res) => {
         });
 
     } catch (erro) {
-
-        console.log("Erro ao enviar e-mail de recuperação:", erro);
+        console.log("ERRO COMPLETO:", JSON.stringify(erro, Object.getOwnPropertyNames(erro)));
         res.status(500).json({ erro: "Erro interno ao enviar o e-mail. Tente novamente." });
-
     }
 
 });
