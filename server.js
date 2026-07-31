@@ -9,9 +9,9 @@ const session = require('express-session');
 const crypto = require('crypto');
 const multer = require('multer');
 
-const SibApiV3Sdk = require('@getbrevo/brevo');
-const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-const apiKey = apiInstance.authentications['api-key'];
+const { TransactionalEmailsApi, SendSmtpEmail, ApiClient } = require('@getbrevo/brevo');
+const apiInstance = new TransactionalEmailsApi();
+const apiKey = ApiClient.instance.authentications['api-key'];
 apiKey.apiKey = process.env.BREVO_API_KEY;
 
 
@@ -795,7 +795,7 @@ app.post("/esqueceu-senha", async (req, res) => {
         const link = `${process.env.BASE_URL || "http://localhost:3000"}/redefinir-senha?token=${token}`;
 
         // envia via Brevo
-        const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+        const sendSmtpEmail = new SendSmtpEmail();
         sendSmtpEmail.sender = { name: 'Bixuco', email: 'yasminbertoni7@gmail.com' };
         sendSmtpEmail.to = [{ email: email }];
         sendSmtpEmail.subject = 'Recuperação de senha — Bixuco';
