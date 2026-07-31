@@ -9,10 +9,12 @@ const session = require('express-session');
 const crypto = require('crypto');
 const multer = require('multer');
 
-const { TransactionalEmailsApi, SendSmtpEmail, ApiClient } = require('@getbrevo/brevo');
-const apiInstance = new TransactionalEmailsApi();
-const apiKey = ApiClient.instance.authentications['api-key'];
-apiKey.apiKey = process.env.BREVO_API_KEY;
+const { Brevo, BrevoClient, BrevoEnvironment } = require('@getbrevo/brevo');
+
+const brevoClient = new BrevoClient({
+    apiKey: process.env.BREVO_API_KEY,
+    environment: BrevoEnvironment.Production
+});
 
 
 const app = express();
@@ -795,26 +797,26 @@ app.post("/esqueceu-senha", async (req, res) => {
         const link = `${process.env.BASE_URL || "http://localhost:3000"}/redefinir-senha?token=${token}`;
 
         // envia via Brevo
-        const sendSmtpEmail = new SendSmtpEmail();
-        sendSmtpEmail.sender = { name: 'Bixuco', email: 'yasminbertoni7@gmail.com' };
-        sendSmtpEmail.to = [{ email: email }];
-        sendSmtpEmail.subject = 'Recuperação de senha — Bixuco';
-        sendSmtpEmail.htmlContent = `
-            <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto;">
-                <h2 style="color: #32C26D;">Recuperação de senha</h2>
-                <p>Olá, <strong>${usuario.nome}</strong>!</p>
-                <p>Recebemos uma solicitação para redefinir a senha da sua conta Bixuco. Clique no botão abaixo para criar uma nova senha:</p>
-                <a href="${link}" style="display: inline-block; background: linear-gradient(135deg, #79D836, #32C26D); color: white; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; margin: 16px 0;">
-                    Redefinir minha senha
-                </a>
-                <p style="color: #5A5A5A; font-size: 14px;">Este link é válido por <strong>1 hora</strong>.</p>
-                <p style="color: #5A5A5A; font-size: 14px;">Se você não solicitou a recuperação de senha, ignore este e-mail.</p>
-                <hr style="border: none; border-top: 1px solid #C2C2C2; margin: 24px 0;">
-                <p style="color: #C2C2C2; font-size: 12px;">Bixuco — Acompanhamento infantil inteligente</p>
-            </div>
-        `;
+        await brevoClient.transactionalEmails.sendTransacEmail({
+            sender: { name: 'Bixuco', email: 'yasminbertoni7@gmail.com' },
+            to: [{ email: email }],
+            subject: 'Recuperação de senha — Bixuco',
+            htmlContent: `
+                <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto;">
+                    <h2 style="color: #32C26D;">Recuperação de senha</h2>
+                    <p>Olá, <strong>${usuario.nome}</strong>!</p>
+                    <p>Clique no botão abaixo para criar uma nova senha:</p>
+                    <a href="${link}" style="display:inline-block;background:linear-gradient(135deg,#79D836,#32C26D);color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;margin:16px 0;">
+                        Redefinir minha senha
+                    </a>
+                    <p style="color:#5A5A5A;font-size:14px;">Este link é válido por <strong>1 hora</strong>.</p>
+                    <hr style="border:none;border-top:1px solid #C2C2C2;margin:24px 0;">
+                    <p style="color:#C2C2C2;font-size:12px;">Bixuco — Acompanhamento infantil inteligente</p>
+                </div>
+            `
+        });
 
-        await apiInstance.sendTransacEmail(sendSmtpEmail);
+        
 
         return res.status(200).json({
             mensagem: "Se esse e-mail estiver cadastrado, você receberá o link em breve."
