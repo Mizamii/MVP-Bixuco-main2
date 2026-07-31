@@ -481,7 +481,7 @@ app.post("/api/adicionar-crianca", estaLogado, upload.single("fotoCrianca"), asy
 });
 
 
-app.post("/continuar-cadastro-psicologo", (req, res) => {
+app.post("/continuar-cadastro-psicologo", async (req, res) => {
 
     const {
         nome,
@@ -494,6 +494,31 @@ app.post("/continuar-cadastro-psicologo", (req, res) => {
         estado,
         bairro
     } = req.body;
+
+    const existe = await db.query(
+        `SELECT email, crp
+        FROM usuarios
+        WHERE email = $1 OR crp = $2`,
+        [email, crp]
+    );
+
+    if (existe.rows.length > 0) {
+
+        if (existe.rows[0].email === email) {
+            return res.status(409).json({
+                campo: "email",
+                erro: "Este e-mail já está cadastrado."
+            });
+        }
+
+        if (existe.rows[0].crp === crp) {
+            return res.status(409).json({
+                campo: "crp",
+                erro: "Este CRP já está cadastrado."
+            });
+        }
+
+    }
 
     // Salva os dados na sessão para usar na etapa final do cadastro
     req.session.cadastro = {
@@ -514,7 +539,10 @@ app.post("/continuar-cadastro-psicologo", (req, res) => {
 
     // Como o frontend usa fetch e trata resposta.redirected,
     // o redirect funciona normalmente aqui
-    res.redirect("/CriarContaSenha");
+    return res.json({
+        sucesso: true,
+        destino: "/CriarContaSenha"
+    });
 
 });
 

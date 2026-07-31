@@ -385,6 +385,10 @@
             try {
 
                 const resposta = await fetch("/cadastro-finalizar", {
+
+                    
+
+
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -398,6 +402,9 @@
                 // Backend redirecionou com sucesso
                 // Para pai → /AdicionarC | Para psicologo → /home
                 const dados = await resposta.json();
+
+                console.log(resposta.status);
+                console.log(dados);
 
                 if (dados.sucesso) {
                     window.location.href = dados.destino;

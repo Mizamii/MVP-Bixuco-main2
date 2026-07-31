@@ -707,22 +707,23 @@
                         bairro:         document.getElementById("bairro").value.trim()
                     })
                 });
+                const dados = await resposta.json();
 
-                // Redirecionamento bem-sucedido (backend vai para /CriarContaSenha)
-                if (resposta.redirected) {
-                    window.location.href = resposta.url;
+                if (dados.sucesso) {
+                    window.location.href = dados.destino;
                     return;
                 }
 
-                // 🔧 FIX 2: Exibe erros do servidor direto nos campos
                 if (!resposta.ok) {
 
-                    const dados = await resposta.json();
-
                     if (dados.campo) {
-                        mostrarErro(dados.campo, "erro-" + dados.campo, dados.erro);
+                        mostrarErro(
+                            dados.campo,
+                            "erro-" + dados.campo,
+                            dados.erro
+                        );
                     } else {
-                        erroGeral.textContent   = dados.erro || "Erro ao continuar. Tente novamente.";
+                        erroGeral.textContent = dados.erro;
                         erroGeral.style.display = "block";
                     }
 
