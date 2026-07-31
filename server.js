@@ -9,11 +9,10 @@ const session = require('express-session');
 const crypto = require('crypto');
 const multer = require('multer');
 
-
 const SibApiV3Sdk = require('@getbrevo/brevo');
 const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 const apiKey = apiInstance.authentications['api-key'];
-apiKey.apiKey = process.env.BREVO_API_KEY; // Certifique-se de definir a variável de ambiente BREVO_API_KEY
+apiKey.apiKey = process.env.BREVO_API_KEY;
 
 
 const app = express();
