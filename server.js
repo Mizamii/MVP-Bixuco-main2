@@ -8,24 +8,14 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const session = require('express-session');
 const crypto = require('crypto');
 const multer = require('multer');
-const nodemailer = require('nodemailer');
+const Brevo = require('@getbrevo/brevo'); // Importa a biblioteca Brevo
+const brevoClient = Brevo.ApiClient.instance;
+brevoClient.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
+const emailApi = new Brevo.TransactionalEmailsApi();
 
 
 const app = express();
 
-const transporter = nodemailer.createTransport({
-    host: "74.125.130.108",  // IP fixo IPv4 do smtp.gmail.com
-    port: 587,
-    secure: false,
-    family: 4,
-    auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS
-    },
-    tls: {
-        servername: "smtp.gmail.com"  // necessário ao usar IP direto
-    }
-});
 
 
 app.use(session({
@@ -869,10 +859,10 @@ app.post("/esqueceu-senha", async (req, res) => {
         };
 
         // Envia o e-mail via Nodemailer + Gmail
-        await transporter.sendMail({
-            from: `"Bixuco" <${process.env.GMAIL_USER}>`,
-            to: email,
-            subject: "Recuperação de senha — Bixuco",
+        await emailApi.sendTransacEmail({
+            sender: { name: 'Bixuco', email: 'yasminbertoni7@gmail.com' },
+            to: [{ email: email }],
+            subject: 'Recuperação de senha — Bixuco',
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto;">
                     <h2 style="color: #32C26D;">Recuperação de senha</h2>
