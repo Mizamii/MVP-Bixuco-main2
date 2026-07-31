@@ -139,7 +139,7 @@ app.get("/EsqueceuSenha", (req, res) => {
 
 app.get("/homeTerapeuta", estaLogado, (req, res) => {
 
-    res.sendFile(path.join(__dirname, "templates", "homeTerapeuta.html"));
+    res.sendFile(path.join(__dirname, "templates", "HomeTerapeuta.html"));
 
 });
 
