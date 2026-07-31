@@ -10,13 +10,11 @@
 
     <title>Bixuco — Login</title>
 
-    <!-- Biblioteca de ícones -->
     <link
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
     >
 
-    <!-- CSS da página -->
     <link
         rel="stylesheet"
         href="/css/login.css"
@@ -33,13 +31,11 @@
         <section>
 
             <div>
-                <!-- Logo branca -->
                 <img
                     src="/img/Logo_Branca.png"
                     alt="Logo Bixuco"
                 >
 
-                <!-- Título -->
                 <h1>
                     Acompanhamento
                     <br>
@@ -47,14 +43,12 @@
                     <span>inteligente.</span>
                 </h1>
 
-                <!-- Texto -->
                 <p>
                     Mais organização, mais conexão e mais cuidado
                     para famílias e terapeutas.
                 </p>
             </div>
 
-            <!-- Imagem ilustrativa -->
             <div>
                 <img
                     src="/img/login-urso.png"
@@ -69,31 +63,20 @@
         <!-- ========================= -->
         <section>
 
-            <!-- Logo colorida do gatinho bixuco -->
             <img
                 src="/img/Logo_Gato.png"
                 alt="Logo Bixuco"
             >
 
-            <!-- Título de bem vindo de volta -->
             <h2>
                 Bem-vindo
                 <span>de volta!</span>
             </h2>
 
-            <!-- Texto -->
             <p>
                 Acesse sua conta para continuar
             </p>
 
-            <!-- ========================= -->
-            <!-- FORMULÁRIO -->
-            <!-- ========================= -->
-
-            <!-- 🔧 FIX 1: Removido action e method do form -->
-            <!-- O envio agora é feito via fetch no JavaScript -->
-            <!-- Isso permite exibir os erros do servidor na tela -->
-            <!-- sem redirecionar ou recarregar a página -->
             <form id="formLogin" novalidate>
 
                 <!-- Email -->
@@ -120,7 +103,7 @@
                     ></span>
                 </div>
 
-                <!-- Campo da senha -->
+                <!-- Senha -->
                 <div>
                     <div>
                         <label for="senha">
@@ -158,28 +141,24 @@
                     ></span>
                 </div>
 
-                <!-- Grupo de opções -->
+                <!-- Esqueci senha -->
                 <div>
                     <a href="/EsqueceuSenha">
                         Esqueci minha senha
                     </a>
                 </div>
 
-                <!-- 🔧 FIX 2: Área de erro geral do servidor -->
-                <!-- Exibe mensagens como "Senha incorreta" vindas do backend -->
-                <!-- Antes o usuário não via nada quando o servidor retornava erro -->
+                <!-- Erro geral do servidor -->
                 <span
                     class="login-form__erro login-form__erro--geral"
                     id="erro-geral"
                 ></span>
 
-                <!-- 🔧 FIX 3: Botão com estado de carregamento -->
-                <!-- Antes o usuário podia clicar várias vezes enquanto o servidor processava -->
                 <button
                     type="submit"
                     id="btnEntrar"
                 >
-                    Entrar   r
+                    Entrar
                 </button>
 
             </form>
@@ -240,32 +219,28 @@
 
         function mostrarErro(inputId, erroId, mensagem) {
             const input = document.getElementById(inputId);
-            const erro = document.getElementById(erroId);
+            const erro  = document.getElementById(erroId);
 
             if (!input || !erro) return;
 
             input.classList.add("input-erro");
-            erro.textContent = mensagem;
+            erro.textContent   = mensagem;
             erro.style.display = "block";
 
-            // Remove a borda de erro após meio segundo (efeito visual)
             setTimeout(() => {
                 input.classList.remove("input-erro");
             }, 500);
         }
 
         function limparErros() {
-            const campos = ["email", "senha"];
-
-            campos.forEach(id => {
+            ["email", "senha"].forEach(id => {
                 const input = document.getElementById(id);
-                const erro = document.getElementById("erro-" + id);
+                const erro  = document.getElementById("erro-" + id);
 
                 if (input) input.classList.remove("input-erro");
-                if (erro) erro.style.display = "none";
+                if (erro)  erro.style.display = "none";
             });
 
-            // Limpa também o erro geral do servidor
             const erroGeral = document.getElementById("erro-geral");
             if (erroGeral) erroGeral.style.display = "none";
         }
@@ -283,20 +258,12 @@
             const regexEmail = /\S+@\S+\.\S+/;
 
             if (!regexEmail.test(email)) {
-                mostrarErro(
-                    "email",
-                    "erro-email",
-                    "Digite um e-mail válido."
-                );
+                mostrarErro("email", "erro-email", "Digite um e-mail válido.");
                 valido = false;
             }
 
             if (senha.length < 6) {
-                mostrarErro(
-                    "senha",
-                    "erro-senha",
-                    "A senha deve possuir pelo menos 6 caracteres."
-                );
+                mostrarErro("senha", "erro-senha", "A senha deve possuir pelo menos 6 caracteres.");
                 valido = false;
             }
 
@@ -307,70 +274,53 @@
         // ENVIO DO FORMULÁRIO
         // ==========================
 
-        // 🔧 FIX 1 + 2 + 3: Intercepta o submit e envia via fetch
-        // Antes o form fazia POST direto e o browser redirecionava
-        // sem mostrar os erros JSON do servidor na tela
         document.getElementById("formLogin").addEventListener("submit", async (evento) => {
 
-            // Impede o comportamento padrão do form (recarregar a página)
             evento.preventDefault();
 
-            // Valida os campos antes de enviar para o servidor
-            if (!validarCampos()) {
-                return;
-            }
+            if (!validarCampos()) return;
 
             const btnEntrar = document.getElementById("btnEntrar");
             const erroGeral = document.getElementById("erro-geral");
 
-            // 🔧 FIX 3: Desabilita o botão e muda o texto enquanto processa
-            // Evita que o usuário clique várias vezes e envie múltiplas requisições
-            btnEntrar.disabled = true;
+            btnEntrar.disabled    = true;
             btnEntrar.textContent = "Entrando...";
 
             try {
 
                 const resposta = await fetch("/login", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         email: document.getElementById("email").value.trim(),
                         senha: document.getElementById("senha").value
                     })
                 });
 
-                // 🔧 FIX 2: Login bem-sucedido — o backend redireciona para /home
-                // Como usamos fetch, precisamos tratar o redirect manualmente
-                // Se a resposta for um redirect (status 3xx), seguimos para /home
+                // ✅ Redirect bem-sucedido (login manual ou Google callback)
                 if (resposta.redirected) {
                     window.location.href = resposta.url;
                     return;
                 }
 
-                // Se chegou aqui, o servidor retornou um erro (4xx ou 5xx)
-                const texto = await resposta.text();
+                // 🔧 BUG CORRIGIDO: antes fazia .text() mas usava "dados.erro"
+                // agora faz .json() corretamente para poder ler dados.erro
+                const dados = await resposta.json();
 
-                console.log("Status:", resposta.status);
-                console.log("Texto recebido:", texto);
-
-                // 🔧 FIX 2: Exibe a mensagem de erro do servidor na tela
-                // Antes o usuário não via nada — agora aparece abaixo dos campos
-                erroGeral.textContent = dados.erro || "Erro ao fazer login. Tente novamente.";
-                erroGeral.style.display = "block";
+                if (!resposta.ok) {
+                    erroGeral.textContent   = dados.erro || "Erro ao fazer login. Tente novamente.";
+                    erroGeral.style.display = "block";
+                }
 
             } catch (erro) {
 
                 console.log("Erro na requisição de login:", erro);
-
-                erroGeral.textContent = "Erro de conexão. Verifique sua internet e tente novamente.";
+                erroGeral.textContent   = "Erro de conexão. Verifique sua internet e tente novamente.";
                 erroGeral.style.display = "block";
 
             } finally {
 
-                // Reabilita o botão independente do resultado
-                btnEntrar.disabled = false;
+                btnEntrar.disabled    = false;
                 btnEntrar.textContent = "Entrar";
 
             }
