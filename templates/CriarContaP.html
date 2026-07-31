@@ -228,6 +228,7 @@
                         <span
                             class="cadastro-form__erro"
                             id="erro-crp"
+                            style="display:none; color:red; font-size:14px;"
                         ></span>
 
                     </div>
@@ -344,7 +345,7 @@
                     <span
                         id="erro-geral"
                         class="cadastro-form__erro cadastro-form__erro--geral"
-                        style="display: none;"
+                        style="display:none; color:red;"
                     ></span>
 
                     <!-- 🔧 FIX 3 + 6: Removido href inválido, botão com estado de carregamento -->
@@ -518,27 +519,14 @@
 
         function mostrarErro(inputId, erroId, mensagem) {
 
-            console.log("mostrarErro foi chamada");
-            console.log("inputId:", inputId);
-            console.log("erroId:", erroId);
-
             const input = document.getElementById(inputId);
             const erro  = document.getElementById(erroId);
 
-            console.log("Input encontrado:", input);
-            console.log("Span encontrado:", erro);
-
-            if (!input || !erro) {
-                console.log("Não encontrou os elementos!");
-                return;
-            }
+            if (!input || !erro) return;
 
             input.classList.add("input-erro");
-
-            erro.textContent = mensagem;
+            erro.textContent   = mensagem;
             erro.style.display = "block";
-
-            console.log("Mensagem colocada:", erro.textContent);
 
             setTimeout(() => {
                 input.classList.remove("input-erro");
@@ -746,36 +734,36 @@
                 const dados = await resposta.json();
 
                 console.log("Status:", resposta.status);
-                console.log("Resposta:", dados);
+            console.log("Resposta:", dados);
 
-                if (dados.sucesso) {
-                    console.log("Sucesso");
-                    window.location.href = dados.destino;
-                    return;
+            if (dados.sucesso) {
+                console.log("Sucesso");
+                window.location.href = dados.destino;
+                return;
+            }
+
+            if (!resposta.ok) {
+
+                console.log("Entrou no if resposta.ok");
+
+                if (dados.campo) {
+
+                    console.log("Vai mostrar erro no campo:", dados.campo);
+
+                    mostrarErro(
+                        dados.campo,
+                        "erro-" + dados.campo,
+                        dados.erro
+                    );
+
+                } else {
+
+                    console.log("Erro geral");
+
+                    erroGeral.textContent = dados.erro;
+                    erroGeral.style.display = "block";
                 }
-
-                if (!resposta.ok) {
-
-                    console.log("Entrou no if resposta.ok");
-
-                    if (dados.campo) {
-
-                        console.log("Vai mostrar erro no campo:", dados.campo);
-
-                        mostrarErro(
-                            dados.campo,
-                            "erro-" + dados.campo,
-                            dados.erro
-                        );
-
-                    } else {
-
-                        console.log("Erro geral");
-
-                        erroGeral.textContent = dados.erro;
-                        erroGeral.style.display = "block";
-                    }
-                }
+            }
             } catch (erro) {
 
                 console.log("Erro na requisição:", erro);
