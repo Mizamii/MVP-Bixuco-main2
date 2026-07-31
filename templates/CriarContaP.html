@@ -665,6 +665,19 @@
                 valido = false;
             }
 
+            console.log({
+                nome,
+                email,
+                telefone,
+                data,
+                crp,
+                cep,
+                cidade,
+                estado,
+                bairro,
+                valido
+            });
+
             return valido;
 
         }
@@ -679,39 +692,6 @@
 
             console.log("Entrou no submit");
 
-            evento.preventDefault();
-
-            if (!validarCampos()) {
-                console.log("Validação falhou");
-                return;
-            }
-
-            console.log("Validação passou");
-
-            const resposta = await fetch("/continuar-cadastro-psicologo", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    nome: document.getElementById("nome").value.trim(),
-                    email: document.getElementById("email").value.trim(),
-                    telefone: document.getElementById("telefone").value.trim(),
-                    dataNascimento: document.getElementById("dataNascimento").value,
-                    crp: document.getElementById("crp").value.trim(),
-                    cep: document.getElementById("cep").value,
-                    cidade: document.getElementById("cidade").value.trim(),
-                    estado: document.getElementById("estado").value.trim(),
-                    bairro: document.getElementById("bairro").value.trim()
-                })
-            });
-
-            console.log("Fetch terminou");
-
-            const dados = await resposta.json();
-
-            console.log("Status:", resposta.status);
-            console.log("Dados:", dados);
 
             evento.preventDefault();
 
