@@ -677,6 +677,8 @@
         // Antes o form fazia POST direto e erros chegavam via ?erro= na URL
         document.getElementById("formCadastro").addEventListener("submit", async (evento) => {
 
+            console.log("Entrou no submit");
+
             evento.preventDefault();
 
             if (!validarCampos()) return;
@@ -690,6 +692,8 @@
 
             try {
                 console.log("Passou da validação!");
+
+                console.log("Vai fazer o fetch");
 
                 const resposta = await fetch("/continuar-cadastro-psicologo", {
                     method: "POST",
@@ -708,6 +712,10 @@
                         bairro:         document.getElementById("bairro").value.trim()
                     })
                 });
+
+                console.log("Fetch terminou");
+
+
                 const dados = await resposta.json();
 
                 console.log("Status:", resposta.status);
