@@ -1053,7 +1053,7 @@ app.post("/cadastro-finalizar", async (req, res) => {
 
 // 🔧 FIX 1: Rota /api/home-terapeuta que o frontend chama
 // Retorna nome, foto, contadores, solicitações pendentes e atividade recente
-app.get("/api/home-terapeuta", estaLogado, async (req, res) => {
+app.get("/api//homeTerapeuta", estaLogado, async (req, res) => {
 
     try {
 
@@ -1172,7 +1172,7 @@ app.get("/api/home-terapeuta", estaLogado, async (req, res) => {
 
     } catch (erro) {
 
-        console.log("Erro na rota /api/home-terapeuta:", erro);
+        console.log("Erro na rota /api/homeTerapeuta:", erro);
         res.status(500).json({ erro: "Erro interno do servidor." });
 
     }
