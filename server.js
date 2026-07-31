@@ -8,10 +8,20 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const session = require('express-session');
 const crypto = require('crypto');
 const multer = require('multer');
-const { Resend } = require('resend');
+const nodemailer = require('nodemailer');
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const app = express();
+
+const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS
+    }
+});
 
 
 app.use(session({
@@ -855,8 +865,8 @@ app.post("/esqueceu-senha", async (req, res) => {
         };
 
         // Envia o e-mail via Nodemailer + Gmail
-        await resend.emails.send({
-            from: 'Bixuco <onboarding@resend.dev>',
+        await transporter.sendMail({
+            from: `"Bixuco" <${process.env.GMAIL_USER}>`,
             to: email,
             subject: "Recuperação de senha — Bixuco",
             html: `
