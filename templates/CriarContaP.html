@@ -689,6 +689,7 @@
             btnContinuar.textContent = "Enviando...";
 
             try {
+                console.log("Passou da validação!");
 
                 const resposta = await fetch("/continuar-cadastro-psicologo", {
                     method: "POST",
