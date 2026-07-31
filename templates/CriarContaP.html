@@ -710,6 +710,9 @@
                 });
                 const dados = await resposta.json();
 
+                console.log("Status:", resposta.status);
+                console.log("Resposta:", dados);
+
                 if (dados.sucesso) {
                     window.location.href = dados.destino;
                     return;
