@@ -135,8 +135,12 @@
                     <span id="textoTradutor">Traduzir para inglês</span>
                 </button>
 
-                <!-- Elemento oculto do Google Translate -->
-                <div id="google_translate_element" style="display: none;"></div>
+                <!-- Elemento do Google Translate — precisa continuar "renderizável"
+                     para o widget inicializar direito, por isso não usamos display:none -->
+                <div
+                    id="google_translate_element"
+                    style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0);"
+                ></div>
 
                 <div class="usuario">
                     <button class="notificacoes" type="button" id="btnNotificacoes">
@@ -443,7 +447,31 @@
         // TRADUÇÃO COM GOOGLE TRANSLATE
         // =========================
 
-        let traduzido = false;
+        // 🔧 Nova estratégia: em vez de simular clique no <select> escondido
+        // do Google (frágil, depende do widget já ter renderizado),
+        // usamos o cookie "googtrans" que o próprio Google Translate lê
+        // ao carregar a página. É o mecanismo oficial e muito mais confiável.
+
+        function lerCookie(nome) {
+            const valor = `; ${document.cookie}`;
+            const partes = valor.split(`; ${nome}=`);
+            if (partes.length === 2) return partes.pop().split(";").shift();
+            return null;
+        }
+
+        function definirCookieTraducao(destino) {
+            // destino: "en" para traduzir, null para remover a tradução
+
+            // Remove cookie antigo em possíveis variações de domínio/path
+            document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+            document.cookie = `googtrans=; path=/; domain=${location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
+
+            if (destino) {
+                const valor = `/pt/${destino}`;
+                document.cookie = `googtrans=${valor}; path=/`;
+                document.cookie = `googtrans=${valor}; path=/; domain=${location.hostname}`;
+            }
+        }
 
         // Callback chamado pelo script do Google Translate após carregar
         function iniciarTradutor() {
@@ -457,30 +485,32 @@
             );
         }
 
+        // Atualiza o texto do botão com base no cookie atual, ao carregar a página
+        function atualizarTextoBotaoTraducao() {
+            const cookieAtual = lerCookie("googtrans");
+            const textoBotao = document.getElementById("textoTradutor");
+
+            if (cookieAtual && cookieAtual.includes("/en")) {
+                textoBotao.textContent = "Voltar para português";
+            } else {
+                textoBotao.textContent = "Traduzir para inglês";
+            }
+        }
+
         document.getElementById("btnTraduzir").addEventListener("click", () => {
 
-            if (!traduzido) {
-                const select = document.querySelector(".goog-te-combo");
-                if (select) {
-                    select.value = "en";
-                    select.dispatchEvent(new Event("change"));
-                    document.getElementById("textoTradutor").textContent = "Voltar para português";
-                    traduzido = true;
-                } else {
-                    // Widget ainda não carregou — tenta de novo em 500ms
-                    setTimeout(() => {
-                        document.getElementById("btnTraduzir").click();
-                    }, 500);
-                }
+            const cookieAtual = lerCookie("googtrans");
+            const estaTraduzido = cookieAtual && cookieAtual.includes("/en");
+
+            if (estaTraduzido) {
+                definirCookieTraducao(null);
             } else {
-                const select = document.querySelector(".goog-te-combo");
-                if (select) {
-                    select.value = "pt";
-                    select.dispatchEvent(new Event("change"));
-                    document.getElementById("textoTradutor").textContent = "Traduzir para inglês";
-                    traduzido = false;
-                }
+                definirCookieTraducao("en");
             }
+
+            // Recarrega a página — o Google Translate lê o cookie
+            // assim que a página carrega e aplica a tradução sozinho
+            window.location.reload();
 
         });
 
@@ -547,6 +577,7 @@
         carregarDadosUsuario();
         carregarDiasRelatorio();
         iniciarMapa();
+        atualizarTextoBotaoTraducao();
 
     </script>
 
