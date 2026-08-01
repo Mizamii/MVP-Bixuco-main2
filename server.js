@@ -774,7 +774,7 @@ app.post("/api/relatorio", estaLogado, async (req, res) => {
         await db.query(
             `INSERT INTO notificacoes (usuario_id, tipo, mensagem, lida)
              VALUES ($1, 'relatorio_concluido', $2, FALSE)`,
-            [usuarioId, "Você acabou de finalizar um relatório. Parabéns! 🎉"]
+            [usuarioId, "Você acabou de finalizar um relatório. Parabéns! "]
         );
 
         return res.status(201).json({ mensagem: "Relatório salvo com sucesso." });
