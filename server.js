@@ -19,14 +19,34 @@ const brevoClient = new BrevoClient({
 
 const app = express();
 
+const db = new Pool({
 
+    // 🔒 FIX 3: A connection string NUNCA deve ficar hardcoded no código
+    // Crie um arquivo .env na raiz do projeto com a linha:
+    // DATABASE_URL=postgresql://usuario:senha@host/banco?sslmode=require
+    // E adicione .env no seu .gitignore para não subir para o GitHub
+    connectionString: process.env.DATABASE_URL,
+
+    ssl: {
+        rejectUnauthorized: false
+    }
+
+});
+
+const pgSession = require('connect-pg-simple')(session);
 
 app.use(session({
-    // 🔒 FIX 1: SESSION_SECRET agora obrigatoriamente vem do .env
-    // Nunca deixe um segredo fixo no código em produção
+    store: new pgSession({
+        pool: db,              // usa o mesmo Pool do Postgres que você já tem
+        tableName: 'session',
+        createTableIfMissing: true
+    }),
     secret: process.env.SESSION_SECRET || "bixuco2024",
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    cookie: {
+        maxAge: 30 * 24 * 60 * 60 * 1000 // 30 dias
+    }
 }));
 
 
@@ -139,7 +159,7 @@ app.get("/EsqueceuSenha", (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "EsqueceuSenha.html"));
 });
 
-app.get("/home-terapeuta", estaLogado, (req, res) => {
+app.get("/hometerapeuta", estaLogado, (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "HomeTerapeuta.html"));
 
@@ -166,19 +186,7 @@ app.get("/Transicao3", estaLogado, (req, res) => {
    BANCO DE DADOS
 ========================== */
 
-const db = new Pool({
 
-    // 🔒 FIX 3: A connection string NUNCA deve ficar hardcoded no código
-    // Crie um arquivo .env na raiz do projeto com a linha:
-    // DATABASE_URL=postgresql://usuario:senha@host/banco?sslmode=require
-    // E adicione .env no seu .gitignore para não subir para o GitHub
-    connectionString: process.env.DATABASE_URL,
-
-    ssl: {
-        rejectUnauthorized: false
-    }
-
-});
 
 /* ==========================
    LOGIN COM GOOGLE
@@ -1017,9 +1025,9 @@ app.post("/cadastro-finalizar", async (req, res) => {
    ROTA GET — DADOS DO HOME TERAPEUTA (API)
 ========================== */
 
-// 🔧 FIX 1: Rota /api/home-terapeuta que o frontend chama
+// 🔧 FIX 1: Rota /api/homeTerapeuta que o frontend chama
 // Retorna nome, foto, contadores, solicitações pendentes e atividade recente
-app.get("/api//homeTerapeuta", estaLogado, async (req, res) => {
+app.get("/api/homeTerapeuta", estaLogado, async (req, res) => {
 
     try {
 

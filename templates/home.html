@@ -23,50 +23,37 @@
         .goog-te-gadget { font-size: 0 !important; }
         .goog-te-gadget select { display: none; }
 
-        /* Estilo do modal do mapa */
-        #modalMapa {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 9999;
-            align-items: center;
-            justify-content: center;
-        }
-        #modalMapa.aberto {
-            display: flex;
-        }
-        #modalMapa .mapa-conteudo {
-            background: white;
+        /* Estilo do card do mapa (agora fixo na página, sem modal) */
+        .mapa-card {
+            background: #fff;
             border-radius: 16px;
             padding: 1.5rem;
-            width: 90%;
-            max-width: 600px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+            margin-top: 1.5rem;
         }
-        #modalMapa .mapa-header {
+        .mapa-card .mapa-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1rem;
         }
-        #modalMapa h3 {
+        .mapa-card h3 {
             font-size: 1.1rem;
             font-weight: 600;
         }
-        #modalMapa .btn-fechar-mapa {
+        .mapa-card .btn-centralizar {
             background: none;
             border: none;
-            font-size: 1.3rem;
+            font-size: 1rem;
             cursor: pointer;
-            color: #5A5A5A;
+            color: #0AB7FB;
         }
         #mapaBixuco {
             height: 350px;
             border-radius: 10px;
             z-index: 1;
         }
-        #modalMapa .mapa-status {
+        .mapa-card .mapa-status {
             margin-top: 0.8rem;
             font-size: 0.85rem;
             color: #5A5A5A;
@@ -98,7 +85,6 @@
                     <span>Relatórios</span>
                 </a>
 
-                <!-- 🔧 FIX 1: /historico → /sobre -->
                 <a href="/sobre">
                     <i class="fa-solid fa-circle-info"></i>
                     <span>Sobre</span>
@@ -144,7 +130,6 @@
             <!-- TOPO -->
             <header class="topo">
 
-                <!-- 🔧 FIX 4: Botão de tradução com Google Translate -->
                 <button class="tradutor" type="button" id="btnTraduzir">
                     <i class="fa-solid fa-language"></i>
                     <span id="textoTradutor">Traduzir para inglês</span>
@@ -159,8 +144,6 @@
                         <span id="quantidadeNotificacoes" class="badge">0</span>
                     </button>
 
-                    <!-- 🔧 FIX 2 + 3: Foto clicável que vai para /perfil -->
-                    <!-- Foto padrão garantida mesmo sem upload -->
                     <img
                         id="fotoUsuario"
                         src="/img/perfilPadrao.png"
@@ -261,51 +244,37 @@
                 <div id="diasCalendario" class="dias-calendario"></div>
             </section>
 
-            <!-- AÇÕES RÁPIDAS -->
-            <section class="acoes">
-                <!-- 🔧 FIX 5: Botão abre o modal com mapa real do Leaflet -->
-                <button id="btnMapa" type="button">
-                    <i class="fa-solid fa-location-dot"></i>
-                    Localizar Bixuco
-                </button>
+            <!-- ===================== -->
+            <!-- MAPA — agora fixo na página, sem precisar clicar -->
+            <!-- ===================== -->
+            <section class="mapa-card">
+
+                <div class="mapa-header">
+                    <h3>
+                        <i class="fa-solid fa-location-dot"></i>
+                        Localização do Bixuco
+                    </h3>
+
+                    <button
+                        type="button"
+                        class="btn-centralizar"
+                        id="btnCentralizar"
+                        title="Centralizar no Bixuco"
+                    >
+                        <i class="fa-solid fa-crosshairs"></i>
+                    </button>
+                </div>
+
+                <div id="mapaBixuco"></div>
+
+                <p class="mapa-status">
+                    <i class="fa-solid fa-circle" style="color: #C2C2C2; font-size: 0.6rem;"></i>
+                    Rastreamento em tempo real disponível em breve
+                </p>
+
             </section>
 
         </main>
-    </div>
-
-    <!-- ===================== -->
-    <!-- MODAL DO MAPA -->
-    <!-- ===================== -->
-
-    <!-- 🔧 FIX 5: Modal com mapa funcional via Leaflet + OpenStreetMap -->
-    <!-- Sem API key necessária — gratuito e já funcional -->
-    <!-- No futuro: conectar às coordenadas reais do Bixuco via IoT -->
-    <div id="modalMapa">
-        <div class="mapa-conteudo">
-
-            <div class="mapa-header">
-                <h3>
-                    <i class="fa-solid fa-location-dot"></i>
-                    Localização do Bixuco
-                </h3>
-                <button
-                    type="button"
-                    class="btn-fechar-mapa"
-                    id="btnFecharMapa"
-                    aria-label="Fechar mapa"
-                >
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <div id="mapaBixuco"></div>
-
-            <p class="mapa-status">
-                <i class="fa-solid fa-circle" style="color: #C2C2C2; font-size: 0.6rem;"></i>
-                Rastreamento em tempo real disponível em breve
-            </p>
-
-        </div>
     </div>
 
     <script>
@@ -324,7 +293,7 @@
                 }
 
                 if (!resposta.ok) {
-                    throw new Error("Falha ao carregar dados do usuário");
+                    throw new Error(`Falha ao carregar dados do usuário (status ${resposta.status})`);
                 }
 
                 const dados = await resposta.json();
@@ -339,8 +308,6 @@
                 document.getElementById("quantidadeNotificacoes").textContent = dados.notificacoes ?? 0;
                 document.getElementById("diasConsecutivos").textContent       = dados.diasConsecutivos ?? 0;
 
-                // 🔧 FIX 3: Só troca a foto se o usuário tiver uma cadastrada
-                // Se não tiver, mantém o perfilPadrao.png que já está no src
                 if (dados.fotoPerfil) {
                     document.getElementById("fotoUsuario").src = dados.fotoPerfil;
                 }
@@ -348,7 +315,8 @@
                 atualizarTextoSequencia(dados.diasConsecutivos ?? 0);
 
             } catch (erro) {
-                console.log("Erro ao carregar dados:", erro);
+                // 🔧 Loga o erro real no console para facilitar o diagnóstico
+                console.log("Erro ao carregar dados do usuário:", erro);
 
                 document.getElementById("nomeUsuario").textContent  = "Usuário";
                 document.getElementById("primeiroNome").textContent = "Usuário";
@@ -472,7 +440,7 @@
         document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
 
         // =========================
-        // 🔧 FIX 4: TRADUÇÃO COM GOOGLE TRANSLATE
+        // TRADUÇÃO COM GOOGLE TRANSLATE
         // =========================
 
         let traduzido = false;
@@ -492,7 +460,6 @@
         document.getElementById("btnTraduzir").addEventListener("click", () => {
 
             if (!traduzido) {
-                // Aciona a tradução para inglês
                 const select = document.querySelector(".goog-te-combo");
                 if (select) {
                     select.value = "en";
@@ -506,7 +473,6 @@
                     }, 500);
                 }
             } else {
-                // Volta para o português
                 const select = document.querySelector(".goog-te-combo");
                 if (select) {
                     select.value = "pt";
@@ -527,76 +493,48 @@
         });
 
         // =========================
-        // 🔧 FIX 5: MAPA COM LEAFLET + OPENSTREETMAP
+        // MAPA COM LEAFLET + OPENSTREETMAP
+        // 🔧 Agora inicia sozinho junto com a página, sem precisar de clique
         // =========================
 
-        let mapaIniciado = false;
-        let mapaLeaflet  = null;
-        let marcador     = null;
+        let mapaLeaflet = null;
+        let marcador    = null;
 
-        function abrirMapa() {
-            const modal = document.getElementById("modalMapa");
-            modal.classList.add("aberto");
-            document.body.style.overflow = "hidden";
+        // Coordenadas padrão: São Paulo (centro)
+        // No futuro: substituir por coordenadas reais do Bixuco via API
+        const latInicial = -23.5505;
+        const lngInicial = -46.6333;
 
-            // Inicia o mapa só uma vez — evita erro de "já inicializado"
-            if (!mapaIniciado) {
+        function iniciarMapa() {
 
-                // Coordenadas padrão: São Paulo (centro)
-                // No futuro: substituir por coordenadas reais do Bixuco via API
-                const latInicial = -23.5505;
-                const lngInicial = -46.6333;
+            mapaLeaflet = L.map("mapaBixuco").setView([latInicial, lngInicial], 13);
 
-                mapaLeaflet = L.map("mapaBixuco").setView([latInicial, lngInicial], 13);
+            // Tiles gratuitos do OpenStreetMap — sem API key
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                attribution: '© <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
+                maxZoom: 19
+            }).addTo(mapaLeaflet);
 
-                // Tiles gratuitos do OpenStreetMap — sem API key
-                L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-                    attribution: '© <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
-                    maxZoom: 19
-                }).addTo(mapaLeaflet);
+            // Ícone personalizado para o Bixuco
+            const iconeBixuco = L.divIcon({
+                html: '<div style="background:#32C26D;width:36px;height:36px;border-radius:50%;border:3px solid white;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.3);font-size:18px;">🐱</div>',
+                iconSize:   [36, 36],
+                iconAnchor: [18, 18],
+                className:  ""
+            });
 
-                // Ícone personalizado para o Bixuco
-                const iconeBixuco = L.divIcon({
-                    html: '<div style="background:#32C26D;width:36px;height:36px;border-radius:50%;border:3px solid white;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.3);font-size:18px;">🐱</div>',
-                    iconSize:   [36, 36],
-                    iconAnchor: [18, 18],
-                    className:  ""
-                });
-
-                marcador = L.marker([latInicial, lngInicial], { icon: iconeBixuco })
-                    .addTo(mapaLeaflet)
-                    .bindPopup("<b>Bixuco</b><br>Localização aproximada")
-                    .openPopup();
-
-                mapaIniciado = true;
-
-            }
-
-            // Força o Leaflet a recalcular o tamanho após o modal abrir
-            setTimeout(() => {
-                if (mapaLeaflet) mapaLeaflet.invalidateSize();
-            }, 200);
+            marcador = L.marker([latInicial, lngInicial], { icon: iconeBixuco })
+                .addTo(mapaLeaflet)
+                .bindPopup("<b>Bixuco</b><br>Localização aproximada")
+                .openPopup();
 
         }
 
-        function fecharMapa() {
-            document.getElementById("modalMapa").classList.remove("aberto");
-            document.body.style.overflow = "";
-        }
-
-        document.getElementById("btnMapa").addEventListener("click", abrirMapa);
-        document.getElementById("btnFecharMapa").addEventListener("click", fecharMapa);
-
-        // Fecha o modal clicando fora do conteúdo
-        document.getElementById("modalMapa").addEventListener("click", (e) => {
-            if (e.target === document.getElementById("modalMapa")) {
-                fecharMapa();
+        document.getElementById("btnCentralizar").addEventListener("click", () => {
+            if (mapaLeaflet) {
+                mapaLeaflet.setView([latInicial, lngInicial], 13);
+                if (marcador) marcador.openPopup();
             }
-        });
-
-        // Fecha com tecla Escape
-        document.addEventListener("keydown", (e) => {
-            if (e.key === "Escape") fecharMapa();
         });
 
         // =========================
@@ -608,6 +546,7 @@
 
         carregarDadosUsuario();
         carregarDiasRelatorio();
+        iniciarMapa();
 
     </script>
 
