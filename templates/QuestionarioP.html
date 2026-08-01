@@ -28,24 +28,28 @@
 
 <body>
 
-    <main>
+    <main class="pagina-login">
 
         <!-- ========================= -->
         <!-- LADO ESQUERDO -->
         <!-- ========================= -->
 
-        <section>
+        <section class="login-esquerda">
 
-            <div>
+            <div class="login-esquerda__geometria"></div>
+            <div class="login-esquerda__overlay"></div>
+
+            <div class="login-esquerda__conteudo">
 
                 <!-- Logo -->
                 <img
                     src="/img/Logo_Branca.png"
                     alt="Logo Bixuco"
+                    class="login-esquerda__logo"
                 >
 
                 <!-- Título -->
-                <h1>
+                <h1 class="login-esquerda__titulo">
                     Acompanhamento
                     <br>
                     infantil
@@ -53,7 +57,7 @@
                 </h1>
 
                 <!-- Texto -->
-                <p>
+                <p class="login-esquerda__slogan">
                     Mais organização,
                     mais conexão e mais cuidado
                     para famílias e terapeutas.
@@ -61,11 +65,12 @@
 
             </div>
 
-            <div>
+            <div class="login-esquerda__ilustracao-wrapper">
 
                 <img
                     src="/img/questionario-menino.png"
                     alt="Criança abraçando o Bixuco"
+                    class="login-esquerda__foto"
                 >
 
             </div>
@@ -76,17 +81,17 @@
         <!-- LADO DIREITO -->
         <!-- ========================= -->
 
-        <section>
+        <section class="login-direita">
 
-            <header>
+            <header class="criarconta-header">
 
-                <h2>
+                <h2 class="criarconta-titulo">
                     Perfil sensorial
                 </h2>
 
             </header>
 
-            <div>
+            <div class="criarconta-corpo">
 
                 <!-- Barra de progresso -->
 
@@ -105,13 +110,19 @@
 
                 <!-- Pergunta -->
 
-                <h3 id="pergunta-texto">
+                <h3
+                    id="pergunta-texto"
+                    class="criarconta-pergunta"
+                >
                     Carregando...
                 </h3>
 
                 <!-- Alternativas -->
 
-                <form id="form-pergunta">
+                <form
+                    id="form-pergunta"
+                    class="cadastro-form"
+                >
 
                     <div id="opcoes">
                         <!-- Preenchido pelo JavaScript -->
@@ -122,12 +133,13 @@
                 <!-- 🔧 FIX 7: Mensagem de erro ao salvar -->
                 <span
                     id="erro-salvar"
-                    style="display: none; color: #e53e3e; font-size: 14px; margin-top: 8px;"
+                    class="cadastro-form__erro cadastro-form__erro--geral"
                 ></span>
 
                 <!-- 🔧 FIX 5 + 6: onclick removido, botão com estado de carregamento -->
                 <button
                     id="btn-proximo"
+                    class="btn-continuar"
                     type="button"
                     disabled
                 >
@@ -241,8 +253,9 @@
             document.getElementById("pergunta-texto").textContent =
                 perguntas[perguntaAtual];
 
-            document.getElementById("texto-progresso").textContent =
-                `Pergunta ${perguntaAtual + 1} de ${perguntas.length}`;
+            // Destaca o número da pergunta atual em azul
+            document.getElementById("texto-progresso").innerHTML =
+                `Pergunta <span class="questionario-progresso__numero">${perguntaAtual + 1}</span> de ${perguntas.length}`;
 
             // Atualiza a barra de progresso
             atualizarBarra();
