@@ -23,36 +23,41 @@
 
 <body>
 
-    <main class="login">
+    <main class="pagina-login">
 
         <!-- ========================= -->
         <!-- LADO ESQUERDO -->
         <!-- ========================= -->
-        <section>
+        <section class="login-esquerda">
 
-            <div>
+            <div class="login-esquerda__geometria"></div>
+            <div class="login-esquerda__overlay"></div>
+
+            <div class="login-esquerda__conteudo">
                 <img
                     src="/img/Logo_Branca.png"
                     alt="Logo Bixuco"
+                    class="login-esquerda__logo"
                 >
 
-                <h1>
-                    Acompanhamento  e
+                <h1 class="login-esquerda__titulo">
+                    Acompanhamento
                     <br>
                     infantil
                     <span>inteligente.</span>
                 </h1>
 
-                <p>
+                <p class="login-esquerda__slogan">
                     Mais organização, mais conexão e mais cuidado
                     para famílias e terapeutas.
                 </p>
             </div>
 
-            <div>
+            <div class="login-esquerda__ilustracao-wrapper">
                 <img
                     src="/img/login-urso.png"
                     alt="Foto da criança com o Bixuco"
+                    class="login-esquerda__foto"
                 >
             </div>
 
@@ -61,31 +66,34 @@
         <!-- ========================= -->
         <!-- LADO DIREITO -->
         <!-- ========================= -->
-        <section>
+        <section class="login-direita">
 
-            <img
-                src="/img/Logo_Gato.png"
-                alt="Logo Bixuco"
-            >
+            <div class="login-direita__logo-container">
+                <img
+                    src="/img/Logo_Gato.png"
+                    alt="Logo Bixuco"
+                    class="login-direita__logo"
+                >
+            </div>
 
-            <h2>
+            <h2 class="login-direita__titulo">
                 Bem-vindo
-                <span>de volta!</span>
+                <span class="login-direita__titulo--destaque">de volta!</span>
             </h2>
 
-            <p>
+            <p class="login-direita__subtitulo">
                 Acesse sua conta para continuar
             </p>
 
-            <form id="formLogin" novalidate>
+            <form id="formLogin" class="login-form" novalidate>
 
                 <!-- Email -->
-                <div>
-                    <label for="email">
+                <div class="login-form__campo">
+                    <label for="email" class="login-form__label">
                         Email
                     </label>
 
-                    <div>
+                    <div class="login-form__input-wrapper">
                         <input
                             class="login-form__input"
                             type="email"
@@ -104,14 +112,18 @@
                 </div>
 
                 <!-- Senha -->
-                <div>
-                    <div>
-                        <label for="senha">
+                <div class="login-form__campo">
+                    <div class="login-form__senha-cabecalho">
+                        <label for="senha" class="login-form__label">
                             Senha
                         </label>
+
+                        <a href="/EsqueceuSenha" class="login-form__esqueci-senha">
+                            Esqueci minha senha
+                        </a>
                     </div>
 
-                    <div>
+                    <div class="login-form__input-wrapper">
                         <input
                             class="login-form__input"
                             type="password"
@@ -141,14 +153,18 @@
                     ></span>
                 </div>
 
-                <!-- Esqueci senha -->
-                <div>
-                    <a href="/EsqueceuSenha">
-                        Esqueci minha senha
-                    </a>
+                <div class="login-form__campo">
+                    <label>
+                        <input
+                            type="checkbox"
+                            id="lembrar"
+                            name="lembrar"
+                            value="1"
+                        >
+                        <span>Lembrar de mim</span>
+                    </label>
                 </div>
 
-                <!-- Erro geral do servidor -->
                 <span
                     class="login-form__erro login-form__erro--geral"
                     id="erro-geral"
@@ -157,19 +173,20 @@
                 <button
                     type="submit"
                     id="btnEntrar"
+                    class="login-form__btn-entrar"
                 >
                     Entrar
                 </button>
 
             </form>
 
-            <div>
-                <span></span>
-                <p>ou</p>
-                <span></span>
+            <div class="login-divisor">
+                <span class="login-divisor__linha"></span>
+                <p class="login-divisor__texto">ou</p>
+                <span class="login-divisor__linha"></span>
             </div>
 
-            <button type="button" onclick="loginGoogle()">
+            <button type="button" class="login-google" onclick="loginGoogle()">
                 <img
                     src="/img/google.png"
                     alt="Google"
@@ -177,11 +194,11 @@
                 <span>Continuar com Google</span>
             </button>
 
-            <div>
+            <div class="login-criar-conta">
                 <p>
                     Não tem conta?
                 </p>
-                <a href="/CriarContaS">
+                <a href="/CriarContaS" class="login-criar-conta__link">
                     Criar agora
                 </a>
             </div>
@@ -223,12 +240,12 @@
 
             if (!input || !erro) return;
 
-            input.classList.add("input-erro");
+            input.classList.add("login-form__input--erro");
             erro.textContent   = mensagem;
             erro.style.display = "block";
 
             setTimeout(() => {
-                input.classList.remove("input-erro");
+                input.classList.remove("login-form__input--erro");
             }, 500);
         }
 
@@ -237,7 +254,7 @@
                 const input = document.getElementById(id);
                 const erro  = document.getElementById("erro-" + id);
 
-                if (input) input.classList.remove("input-erro");
+                if (input) input.classList.remove("login-form__input--erro");
                 if (erro)  erro.style.display = "none";
             });
 
@@ -297,14 +314,12 @@
                     })
                 });
 
-                // ✅ Redirect bem-sucedido (login manual ou Google callback)
+                // Redirect bem-sucedido (login manual ou Google callback)
                 if (resposta.redirected) {
                     window.location.href = resposta.url;
                     return;
                 }
 
-                // 🔧 BUG CORRIGIDO: antes fazia .text() mas usava "dados.erro"
-                // agora faz .json() corretamente para poder ler dados.erro
                 const dados = await resposta.json();
 
                 if (!resposta.ok) {
