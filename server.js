@@ -732,7 +732,6 @@ app.post("/api/relatorio", estaLogado, async (req, res) => {
 
     try {
 
-        // Pega o id do usuário logado — funciona tanto para login manual quanto Google
         const usuarioId = req.session.usuarioId || (req.user && req.user.id);
 
         if (!usuarioId) {
@@ -741,25 +740,41 @@ app.post("/api/relatorio", estaLogado, async (req, res) => {
 
         const { respostas, data } = req.body;
 
-        // Valida se as respostas chegaram e são um array com pelo menos 1 item
         if (!respostas || !Array.isArray(respostas) || respostas.length === 0) {
             return res.status(400).json({ erro: "Respostas inválidas." });
         }
 
-        // Salva o relatório na tabela de relatórios
-        // Ajuste o nome das colunas conforme a sua tabela no banco
-        await db.query(
+        // 🔧 Verifica se já existe um relatório de hoje para esse usuário
+        const jaTemHoje = await db.query(
+            `SELECT id FROM relatorios
+             WHERE usuario_id = $1
+             AND DATE(data) = CURRENT_DATE`,
+            [usuarioId]
+        );
 
+        if (jaTemHoje.rows.length > 0) {
+            return res.status(409).json({
+                erro: "Você já preencheu o relatório de hoje. Volte amanhã!"
+            });
+        }
+
+        // Salva o relatório
+        await db.query(
             `INSERT INTO relatorios
             (usuario_id, respostas, data)
             VALUES ($1, $2, $3)`,
-
             [
                 usuarioId,
-                JSON.stringify(respostas),  // salva as respostas como JSON
+                JSON.stringify(respostas),
                 data || new Date().toISOString()
             ]
+        );
 
+        // 🔧 Cria a notificação de sucesso
+        await db.query(
+            `INSERT INTO notificacoes (usuario_id, tipo, mensagem, lida)
+             VALUES ($1, 'relatorio_concluido', $2, FALSE)`,
+            [usuarioId, "Você acabou de finalizar um relatório. Parabéns! 🎉"]
         );
 
         return res.status(201).json({ mensagem: "Relatório salvo com sucesso." });
@@ -772,6 +787,7 @@ app.post("/api/relatorio", estaLogado, async (req, res) => {
     }
 
 });
+
 
 app.post("/esqueceu-senha", async (req, res) => {
 
@@ -1899,6 +1915,70 @@ app.get('/api/home', estaLogado, async (req, res) => {
     } catch (erro) {
 
         console.log("Erro na rota /api/home:", erro);
+        res.status(500).json({ erro: "Erro interno do servidor." });
+
+    }
+
+});
+
+/* ==========================
+   API — NOTIFICAÇÕES
+========================== */
+
+// Lista as notificações do usuário logado, mais recentes primeiro
+app.get("/api/notificacoes", estaLogado, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        const resultado = await db.query(
+            `SELECT id, tipo, mensagem, lida,
+                    TO_CHAR(criado_em, 'DD/MM/YYYY HH24:MI') AS tempo
+             FROM notificacoes
+             WHERE usuario_id = $1
+             ORDER BY criado_em DESC
+             LIMIT 20`,
+            [usuarioId]
+        );
+
+        res.json({ notificacoes: resultado.rows });
+
+    } catch (erro) {
+
+        console.log("Erro ao buscar notificações:", erro);
+        res.status(500).json({ erro: "Erro interno do servidor." });
+
+    }
+
+});
+
+// Marca todas as notificações do usuário como lidas
+// Chamada quando o usuário abre o painel de notificações
+app.post("/api/notificacoes/marcar-lidas", estaLogado, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        await db.query(
+            `UPDATE notificacoes SET lida = TRUE WHERE usuario_id = $1 AND lida = FALSE`,
+            [usuarioId]
+        );
+
+        res.status(200).json({ mensagem: "Notificações marcadas como lidas." });
+
+    } catch (erro) {
+
+        console.log("Erro ao marcar notificações como lidas:", erro);
         res.status(500).json({ erro: "Erro interno do servidor." });
 
     }

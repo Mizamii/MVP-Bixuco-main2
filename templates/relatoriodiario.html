@@ -28,6 +28,38 @@
 
 </head>
 
+<style>
+    /* 🔧 Estilos da mensagem de status (sucesso/erro) — sem CSS externo pronto ainda */
+    .mensagem-status {
+        display: none;
+        max-width: 480px;
+        margin: 0 auto 1.25rem;
+        padding: 0.9rem 1.1rem;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-align: center;
+    }
+    .mensagem-status.visivel {
+        display: block;
+    }
+    .mensagem-status.sucesso {
+        background: rgba(50, 194, 109, 0.12);
+        color: #1E8E4F;
+        border: 1px solid rgba(50, 194, 109, 0.3);
+    }
+    .mensagem-status.aviso {
+        background: rgba(255, 170, 0, 0.12);
+        color: #9A6700;
+        border: 1px solid rgba(255, 170, 0, 0.3);
+    }
+    .mensagem-status.erro {
+        background: rgba(255, 68, 68, 0.1);
+        color: #C0392B;
+        border: 1px solid rgba(255, 68, 68, 0.3);
+    }
+</style>
+
 <body>
 
     <div class="container">
@@ -93,10 +125,6 @@
             </button>
 
             <div class="tema">
-
-                <!-- 🔧 FIX 1: IDs padronizados para btnClaro/btnEscuro -->
-                <!-- Antes eram temaClaro/temaEscuro, diferente da home -->
-                <!-- Agora todas as páginas usam os mesmos IDs -->
 
                 <button
                     id="btnClaro"
@@ -222,11 +250,21 @@
 
             </section>
 
+            <!-- 🔧 Mensagem de status (sucesso, aviso de duplicidade ou erro) -->
+
+            <p
+                id="mensagemStatus"
+                class="mensagem-status"
+            ></p>
+
             <!-- ========================= -->
             <!-- CARD DO RELATÓRIO -->
             <!-- ========================= -->
 
-            <section class="card-relatorio">
+            <section
+                id="cardRelatorio"
+                class="card-relatorio"
+            >
 
                 <!-- Topo -->
 
@@ -435,6 +473,24 @@
         const btnProxima =
             document.getElementById("btnProxima");
 
+        const cardRelatorio =
+            document.getElementById("cardRelatorio");
+
+        const mensagemStatus =
+            document.getElementById("mensagemStatus");
+
+        // ==========================
+        // MENSAGEM DE STATUS
+        // ==========================
+
+        function mostrarMensagem(texto, tipo) {
+
+            // tipo: "sucesso" | "aviso" | "erro"
+            mensagemStatus.textContent = texto;
+            mensagemStatus.className = `mensagem-status visivel ${tipo}`;
+
+        }
+
         // ==========================
         // CRIAR BARRA
         // ==========================
@@ -561,11 +617,6 @@
 
             try {
 
-                // 🔧 FIX 2: Rota corrigida de /salvar-relatorio para /api/relatorio
-                // A rota antiga não existia no server.js
-                // 🔧 FIX 3: data enviada como toISOString() em vez de new Date()
-                // new Date() vira string ISO automaticamente no JSON.stringify,
-                // mas toISOString() é explícito e garante o formato correto
                 const resposta = await fetch("/api/relatorio", {
 
                     method: "POST",
@@ -581,19 +632,45 @@
 
                 });
 
-                // 🔧 FIX 4: Verifica se o servidor retornou 401 (não autenticado)
-                // e redireciona para login em vez de mostrar erro genérico
                 if (resposta.status === 401) {
                     window.location.href = "/logar";
                     return;
+                }
+
+                // 🔧 FIX: Trata o caso de relatório duplicado no mesmo dia
+                // O backend retorna 409 quando o usuário já preencheu hoje
+                if (resposta.status === 409) {
+
+                    const dados = await resposta.json();
+
+                    mostrarMensagem(
+                        dados.erro || "Você já preencheu o relatório de hoje. Volte amanhã!",
+                        "aviso"
+                    );
+
+                    // Esconde o card do questionário, já que não há mais o que fazer aqui hoje
+                    cardRelatorio.style.display = "none";
+
+                    return;
+
                 }
 
                 if (!resposta.ok) {
                     throw new Error("Resposta do servidor com erro");
                 }
 
-                // Relatório salvo com sucesso — volta para a home
-                window.location.href = "/home";
+                // 🔧 FIX: Mostra a mensagem de parabéns antes de voltar para a home
+                // O backend já criou a notificação — aqui é só o feedback imediato na tela
+                mostrarMensagem(
+                    "Você acabou de finalizar um relatório. Parabéns! 🎉",
+                    "sucesso"
+                );
+
+                cardRelatorio.style.display = "none";
+
+                setTimeout(() => {
+                    window.location.href = "/home";
+                }, 1800);
 
             } catch (erro) {
 
@@ -603,7 +680,10 @@
                 btnProxima.disabled = false;
                 btnProxima.textContent = "Próxima pergunta";
 
-                alert("Erro ao salvar o relatório. Tente novamente.");
+                mostrarMensagem(
+                    "Erro ao salvar o relatório. Tente novamente.",
+                    "erro"
+                );
 
             }
 
@@ -617,13 +697,8 @@
 
             try {
 
-                // 🔧 FIX 5: Rota corrigida de /dados-usuario para /api/home
-                // /dados-usuario nunca existiu no server.js
-                // /api/home já existe e retorna os dados necessários
                 const resposta = await fetch("/api/home");
 
-                // 🔧 FIX 6: Redireciona para login se não autenticado
-                // Antes a página abria normalmente mesmo sem login
                 if (resposta.status === 401) {
                     window.location.href = "/logar";
                     return;
@@ -657,8 +732,6 @@
         // TEMA
         // ==========================
 
-        // 🔧 FIX 7: Tema agora persiste com localStorage
-        // igual ao que foi feito na home — antes o tema resetava ao trocar de página
         function aplicarTema(tema) {
 
             document.body.classList.remove("tema-claro", "tema-escuro");
