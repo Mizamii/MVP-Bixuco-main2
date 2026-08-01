@@ -26,29 +26,33 @@
 
 <body>
 
-    <main>
+    <main class="pagina-login">
 
         <!-- ========================= -->
         <!-- LADO ESQUERDO -->
         <!-- ========================= -->
 
-        <section>
+        <section class="login-esquerda">
 
-            <div>
+            <div class="login-esquerda__geometria"></div>
+            <div class="login-esquerda__overlay"></div>
+
+            <div class="login-esquerda__conteudo">
 
                 <!-- Logo branca -->
                 <img
                     src="/img/Logo_Branca.png"
                     alt="Logo Bixuco"
+                    class="login-esquerda__logo"
                 >
 
                 <!-- Título -->
-                <h1>
+                <h1 class="login-esquerda__titulo">
                     Crie sua conta
                 </h1>
 
                 <!-- Texto -->
-                <p>
+                <p class="login-esquerda__slogan">
                     Pais e terapeutas juntos pelo
                     bem-estar da criança.
                 </p>
@@ -56,11 +60,12 @@
             </div>
 
             <!-- Ilustração -->
-            <div>
+            <div class="login-esquerda__ilustracao-wrapper">
 
                 <img
                     src="/img/familia-bixuco.png"
                     alt="Família utilizando o Bixuco"
+                    class="login-esquerda__foto"
                 >
 
             </div>
@@ -71,29 +76,29 @@
         <!-- LADO DIREITO -->
         <!-- ========================= -->
 
-        <section>
+        <section class="login-direita">
 
-            <header>
+            <header class="criarconta-header">
 
-                <h2>
+                <h2 class="criarconta-titulo">
                     Criar conta
                 </h2>
 
             </header>
 
-            <div>
+            <div class="criarconta-corpo">
 
                 <!-- Barra de progresso — etapa 3 de 3 (todas ativas) -->
                 <div class="cadastro-progresso">
 
                     <span class="ativo"></span>
                     <span class="ativo"></span>
-                    <span class="ativo"></span>
+                    <span class="ativo ativo--recente"></span>
 
                 </div>
 
                 <!-- Título -->
-                <h3>
+                <h3 class="criarconta-pergunta">
                     Sobre sua segurança
                 </h3>
 
@@ -101,21 +106,21 @@
                 <!-- FORMULÁRIO -->
                 <!-- ========================= -->
 
-                <!-- 🔧 FIX 1: Removido action e method do form -->
                 <!-- Envio via fetch para exibir erros do servidor na tela -->
                 <!-- sem recarregar a página ou redirecionar com ?erro= na URL -->
-                <form id="formSenha" novalidate>
+                <form id="formSenha" class="cadastro-form" novalidate>
 
                     <!-- Campo da senha -->
                     <div class="cadastro-form__grupo">
 
-                        <label for="senha">
+                        <label for="senha" class="cadastro-form__label">
                             Senha
                         </label>
 
                         <div class="cadastro-form__campo-senha">
 
                             <input
+                                class="cadastro-form__input"
                                 type="password"
                                 id="senha"
                                 name="senha"
@@ -151,13 +156,14 @@
                     <!-- Confirmar senha -->
                     <div class="cadastro-form__grupo">
 
-                        <label for="confirmarSenha">
+                        <label for="confirmarSenha" class="cadastro-form__label">
                             Confirmar senha
                         </label>
 
                         <div class="cadastro-form__campo-senha">
 
                             <input
+                                class="cadastro-form__input"
                                 type="password"
                                 id="confirmarSenha"
                                 name="confirmarSenha"
@@ -190,17 +196,17 @@
 
                     </div>
 
-                    <!-- 🔧 FIX 2: Erro geral do servidor (substitui ?erro= na URL) -->
+                    <!-- Erro geral do servidor (substitui ?erro= na URL) -->
                     <span
                         id="erro-geral"
                         class="cadastro-form__erro cadastro-form__erro--geral"
                         style="display: none;"
                     ></span>
 
-                    <!-- 🔧 FIX 3 + 4: Removido href inválido, botão com carregamento -->
                     <button
                         type="submit"
                         id="btnContinuar"
+                        class="btn-continuar"
                     >
                         Continuar
                     </button>
@@ -208,17 +214,17 @@
                 </form>
 
                 <!-- Termos -->
-                <p>
+                <p class="cadastro-form__termos">
 
                     Ao criar sua conta você concorda com nossos
 
-                    <a href="/termos">
+                    <a href="/termos" class="cadastro-form__link--azul">
                         Termos de uso
                     </a>
 
                     e
 
-                    <a href="/privacidade">
+                    <a href="/privacidade" class="cadastro-form__link--verde">
                         Política de privacidade.
                     </a>
 
@@ -261,6 +267,8 @@
         // MOSTRAR / LIMPAR ERROS
         // ==========================
 
+        // Usa innerHTML (em vez de textContent) para suportar a lista de
+        // requisitos da senha com quebras de linha (<br>) — ver validarCampos()
         function mostrarErro(inputId, erroId, mensagem) {
 
             const input = document.getElementById(inputId);
@@ -269,7 +277,7 @@
             if (!input || !erro) return;
 
             input.classList.add("input-erro");
-            erro.innerHTML   = mensagem;    
+            erro.innerHTML     = mensagem;
             erro.style.display = "block";
 
             setTimeout(() => {
@@ -314,38 +322,31 @@
             let erros = [];
 
             if (senha.length < 6) {
-
                 erros.push(" -> A senha deve ter pelo menos 6 caracteres.");
-
             }
 
             if (!/[A-Z]/.test(senha)) {
-
                 erros.push(" -> A senha deve conter pelo menos uma letra maiúscula.");
-
             }
 
             if (!/[!@#$%^&*(),.?":{}|<>_\-\\[\];'/+=]/.test(senha)) {
-
                 erros.push(" -> A senha deve conter pelo menos um caractere especial.");
-
-            }  
+            }
 
             if (erros.length > 0) {
 
                 mostrarErro(
                     "senha",
                     "erro-senha",
-                    "A senha deve: "+ "<br>" + erros.join("<br>")
+                    "A senha deve: " + "<br>" + erros.join("<br>")
                 );
 
                 valido = false;
+
             }
 
-
-
-            // 🔧 FIX: Verifica confirmação só se a senha já passou na validação de tamanho
-            // Evita mostrar dois erros ao mesmo tempo quando a senha é muito curta
+            // Verifica confirmação só se a senha já passou nas validações acima
+            // Evita mostrar dois erros ao mesmo tempo quando a senha é inválida
             if (valido && senha !== confirmarSenha) {
 
                 mostrarErro(
@@ -366,9 +367,10 @@
         // ENVIO DO FORMULÁRIO
         // ==========================
 
-        // 🔧 FIX 1 + 2: Intercepta o submit e envia via fetch
-        // O backend redireciona para /AdicionarC (pai) ou /home (psicologo)
-        // dependendo do tipo salvo na sessão — o fetch detecta via resposta.redirected
+        // Intercepta o submit e envia via fetch.
+        // O backend responde em JSON com { sucesso, destino } no caso de êxito
+        // (destino é /AdicionarC para pai ou /home para psicólogo),
+        // ou { erro, campo } no caso de falha.
         document.getElementById("formSenha").addEventListener("submit", async (evento) => {
 
             evento.preventDefault();
@@ -378,17 +380,13 @@
             const btnContinuar = document.getElementById("btnContinuar");
             const erroGeral    = document.getElementById("erro-geral");
 
-            // 🔧 FIX 4: Desabilita o botão enquanto processa
+            // Desabilita o botão enquanto processa
             btnContinuar.disabled    = true;
             btnContinuar.textContent = "Criando conta...";
 
             try {
 
                 const resposta = await fetch("/cadastro-finalizar", {
-
-                    
-
-
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -399,12 +397,7 @@
                     })
                 });
 
-                // Backend redirecionou com sucesso
-                // Para pai → /AdicionarC | Para psicologo → /home
                 const dados = await resposta.json();
-
-                console.log(resposta.status);
-                console.log(dados);
 
                 if (dados.sucesso) {
                     window.location.href = dados.destino;
@@ -412,15 +405,15 @@
                 }
 
                 if (!resposta.ok) {
+
                     if (dados.campo) {
                         mostrarErro(dados.campo, "erro-" + dados.campo, dados.erro);
                     } else {
-                        erroGeral.textContent = dados.erro || "Erro ao criar conta. Tente novamente.";
+                        erroGeral.textContent   = dados.erro || "Erro ao criar conta. Tente novamente.";
                         erroGeral.style.display = "block";
                     }
-                }
 
-                
+                }
 
             } catch (erro) {
 
