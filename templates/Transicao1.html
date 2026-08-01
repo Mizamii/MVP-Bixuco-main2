@@ -53,15 +53,16 @@
             <img
                 src="/img/logo-bixuco-colorida.png"
                 alt="Logo Bixuco"
+                class="conteudo__logo"
             >
 
-            <h1>
+            <h1 class="conteudo__titulo">
 
                 Bem-vindo ao Bixuco
 
             </h1>
 
-            <p>
+            <p class="conteudo__texto">
 
                 Sua pelúcia inteligente vai ajudar a entender os sinais do seu filho(a) com TPS.
 
@@ -161,6 +162,34 @@
             }
 
         });
+
+
+        // ==========================
+        // ANIMAÇÃO DO INDICADOR
+        // ==========================
+
+        (function animarIndicador(){
+
+            const indicadores  = document.querySelectorAll(".indicadores span");
+            const indexAtual    = [...indicadores].findIndex(s => s.classList.contains("ativo"));
+            const indexAnterior = parseInt(sessionStorage.getItem("indicadorIndex"), 10);
+
+            if (!isNaN(indexAnterior) && indexAnterior !== indexAtual) {
+
+                const larguraDot = 6;   // tamanho do ponto inativo, em px
+                const gap        = 6.4; // gap entre eles (0.4rem ≈ 6.4px)
+
+                const deslocamento = (indexAnterior - indexAtual) * (larguraDot + gap);
+
+                const ativo = indicadores[indexAtual];
+                ativo.style.setProperty("--deslocamento", `${deslocamento}px`);
+                ativo.classList.add("animando");
+
+            }
+
+            sessionStorage.setItem("indicadorIndex", indexAtual);
+
+        })();
 
     </script>
 
