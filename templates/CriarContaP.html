@@ -26,29 +26,33 @@
 
 <body>
 
-    <main>
+    <main class="pagina-login">
 
         <!-- ========================= -->
         <!-- LADO ESQUERDO -->
         <!-- ========================= -->
 
-        <section>
+        <section class="login-esquerda">
 
-            <div>
+            <div class="login-esquerda__geometria"></div>
+            <div class="login-esquerda__overlay"></div>
+
+            <div class="login-esquerda__conteudo">
 
                 <!-- Logo branca -->
                 <img
                     src="/img/Logo_Branca.png"
                     alt="Logo Bixuco"
+                    class="login-esquerda__logo"
                 >
 
                 <!-- Título -->
-                <h1>
+                <h1 class="login-esquerda__titulo">
                     Crie sua conta
                 </h1>
 
                 <!-- Texto -->
-                <p>
+                <p class="login-esquerda__slogan">
                     Pais e terapeutas juntos pelo
                     bem-estar da criança.
                 </p>
@@ -56,11 +60,12 @@
             </div>
 
             <!-- Ilustração -->
-            <div>
+            <div class="login-esquerda__ilustracao-wrapper">
 
                 <img
                     src="/img/familia-bixuco.png"
                     alt="Família utilizando o Bixuco"
+                    class="login-esquerda__foto"
                 >
 
             </div>
@@ -71,31 +76,31 @@
         <!-- LADO DIREITO -->
         <!-- ========================= -->
 
-        <section>
+        <section class="login-direita">
 
             <!-- Cabeçalho -->
-            <header>
+            <header class="criarconta-header">
 
-                <h2>
+                <h2 class="criarconta-titulo">
                     Criar conta
                 </h2>
 
             </header>
 
             <!-- Conteúdo -->
-            <div>
+            <div class="criarconta-corpo">
 
-                <!-- Barra de progresso -->
+                <!-- Barra de progresso (Etapa 2) -->
                 <div class="cadastro-progresso">
 
                     <span class="ativo"></span>
-                    <span class="ativo"></span>
+                    <span class="ativo ativo--recente"></span>
                     <span></span>
 
                 </div>
 
                 <!-- Título -->
-                <h3>
+                <h3 class="criarconta-pergunta">
                     Informações sobre você
                 </h3>
 
@@ -103,19 +108,19 @@
                 <!-- FORMULÁRIO -->
                 <!-- ========================= -->
 
-                <!-- 🔧 FIX 1: Removido action e method do form -->
                 <!-- Envio via fetch para exibir erros do servidor na tela -->
                 <!-- sem recarregar a página ou usar ?erro= na URL -->
-                <form id="formCadastro" novalidate>
+                <form id="formCadastro" class="cadastro-form" novalidate>
 
                     <!-- Nome -->
                     <div class="cadastro-form__grupo">
 
-                        <label for="nome">
+                        <label for="nome" class="cadastro-form__label">
                             Nome completo
                         </label>
 
                         <input
+                            class="cadastro-form__input"
                             type="text"
                             id="nome"
                             name="nome"
@@ -124,7 +129,6 @@
                             required
                         >
 
-                        <!-- 🔧 FIX 4 + 5: Classe cadastro-form__erro adicionada -->
                         <span
                             class="cadastro-form__erro"
                             id="erro-nome"
@@ -135,11 +139,12 @@
                     <!-- Email -->
                     <div class="cadastro-form__grupo">
 
-                        <label for="email">
+                        <label for="email" class="cadastro-form__label">
                             Email
                         </label>
 
                         <input
+                            class="cadastro-form__input"
                             type="email"
                             id="email"
                             name="email"
@@ -158,17 +163,15 @@
                     <!-- Linha telefone + data -->
                     <div class="cadastro-form__linha">
 
-                        <!-- 🔧 FIX 4 + 5: Classe cadastro-form__grupo e cadastro-form__erro
-                             adicionadas em todos os campos que estavam sem elas -->
-
                         <!-- Telefone -->
                         <div class="cadastro-form__grupo">
 
-                            <label for="telefone">
+                            <label for="telefone" class="cadastro-form__label">
                                 Telefone (opcional)
                             </label>
 
                             <input
+                                class="cadastro-form__input"
                                 type="tel"
                                 id="telefone"
                                 name="telefone"
@@ -186,11 +189,12 @@
                         <!-- Data de nascimento -->
                         <div class="cadastro-form__grupo">
 
-                            <label for="dataNascimento">
+                            <label for="dataNascimento" class="cadastro-form__label">
                                 Data de nascimento
                             </label>
 
                             <input
+                                class="cadastro-form__input"
                                 type="date"
                                 id="dataNascimento"
                                 name="dataNascimento"
@@ -209,13 +213,13 @@
                     <!-- CRP -->
                     <div class="cadastro-form__grupo">
 
-                        <label for="crp">
+                        <label for="crp" class="cadastro-form__label">
                             CRP
                         </label>
 
-                        <!-- 🔧 FIX CRP: Removido oninput inline que brigava com o listener -->
-                        <!-- A máscara agora é aplicada 100% pelo addEventListener abaixo -->
+                        <!-- A máscara é aplicada 100% pelo addEventListener abaixo -->
                         <input
+                            class="cadastro-form__input"
                             type="text"
                             id="crp"
                             name="crp"
@@ -228,25 +232,24 @@
                         <span
                             class="cadastro-form__erro"
                             id="erro-crp"
-                            style="display:none; color:red; font-size:14px;"
                         ></span>
 
                     </div>
 
                     <!-- ========================= -->
-                    <!-- 🔧 FIX 8: Campos de endereço que o backend espera -->
+                    <!-- Campos de endereço que o backend espera -->
                     <!-- /continuar-cadastro-psicologo desestrutura cep, cidade, estado, bairro -->
-                    <!-- Sem esses campos req.session.cadastro fica com undefined -->
                     <!-- ========================= -->
 
                     <!-- CEP -->
                     <div class="cadastro-form__grupo">
 
-                        <label for="cep">
+                        <label for="cep" class="cadastro-form__label">
                             CEP
                         </label>
 
                         <input
+                            class="cadastro-form__input"
                             type="text"
                             id="cep"
                             name="cep"
@@ -270,11 +273,12 @@
                         <!-- Cidade -->
                         <div class="cadastro-form__grupo">
 
-                            <label for="cidade">
+                            <label for="cidade" class="cadastro-form__label">
                                 Cidade
                             </label>
 
                             <input
+                                class="cadastro-form__input"
                                 type="text"
                                 id="cidade"
                                 name="cidade"
@@ -294,11 +298,12 @@
                         <!-- Estado -->
                         <div class="cadastro-form__grupo">
 
-                            <label for="estado">
+                            <label for="estado" class="cadastro-form__label">
                                 Estado
                             </label>
 
                             <input
+                                class="cadastro-form__input"
                                 type="text"
                                 id="estado"
                                 name="estado"
@@ -321,11 +326,12 @@
                     <!-- Bairro -->
                     <div class="cadastro-form__grupo">
 
-                        <label for="bairro">
+                        <label for="bairro" class="cadastro-form__label">
                             Bairro
                         </label>
 
                         <input
+                            class="cadastro-form__input"
                             type="text"
                             id="bairro"
                             name="bairro"
@@ -341,17 +347,17 @@
 
                     </div>
 
-                    <!-- 🔧 FIX 2: Erro geral do servidor (substitui o sistema de ?erro= na URL) -->
+                    <!-- Erro geral do servidor (substitui o sistema de ?erro= na URL) -->
                     <span
                         id="erro-geral"
                         class="cadastro-form__erro cadastro-form__erro--geral"
-                        style="display:none; color:red;"
+                        style="display: none;"
                     ></span>
 
-                    <!-- 🔧 FIX 3 + 6: Removido href inválido, botão com estado de carregamento -->
                     <button
                         type="submit"
                         id="btnContinuar"
+                        class="btn-continuar"
                     >
                         Continuar
                     </button>
@@ -359,17 +365,17 @@
                 </form>
 
                 <!-- Termos -->
-                <p>
+                <p class="cadastro-form__termos">
 
                     Ao criar sua conta você concorda com nossos
 
-                    <a href="/termos">
+                    <a href="/termos" class="cadastro-form__link--azul">
                         Termos de uso
                     </a>
 
                     e
 
-                    <a href="/privacidade">
+                    <a href="/privacidade" class="cadastro-form__link--verde">
                         Política de privacidade.
                     </a>
 
@@ -387,8 +393,6 @@
         // MÁSCARA DO CRP
         // ==========================
 
-        // 🔧 FIX CRP: Antes havia conflito entre oninput inline e addEventListener
-        // Agora a máscara fica só aqui, formatando para CRP-XX/XXXXX automaticamente
         document.getElementById("crp").addEventListener("input", function () {
 
             // Remove tudo que não for número
@@ -410,7 +414,6 @@
         // Impede que o usuário apague o prefixo CRP-
         document.getElementById("crp").addEventListener("keydown", function (e) {
 
-            // Se o cursor estiver nos primeiros 4 caracteres (CRP-) e for backspace/delete
             if (
                 (e.key === "Backspace" || e.key === "Delete") &&
                 this.selectionStart <= 4
@@ -481,7 +484,7 @@
         // BUSCA CEP AUTOMATICAMENTE
         // ==========================
 
-        // 🔧 FIX 8: Preenche cidade/estado/bairro via ViaCEP ao digitar o CEP
+        // Preenche cidade/estado/bairro via ViaCEP ao digitar o CEP
         document.getElementById("cep").addEventListener("blur", async function () {
 
             const cep = this.value.replace(/\D/g, "");
@@ -666,19 +669,6 @@
                 valido = false;
             }
 
-            console.log({
-                nome,
-                email,
-                telefone,
-                data,
-                crp,
-                cep,
-                cidade,
-                estado,
-                bairro,
-                valido
-            });
-
             return valido;
 
         }
@@ -687,12 +677,10 @@
         // ENVIO DO FORMULÁRIO
         // ==========================
 
-        // 🔧 FIX 1 + 2: Intercepta o submit e envia via fetch
-        // Antes o form fazia POST direto e erros chegavam via ?erro= na URL
+        // Intercepta o submit e envia via fetch.
+        // O backend responde em JSON com { sucesso, destino } no caso de êxito,
+        // ou { erro, campo } no caso de falha.
         document.getElementById("formCadastro").addEventListener("submit", async (evento) => {
-
-            console.log("Entrou no submit");
-
 
             evento.preventDefault();
 
@@ -701,14 +689,11 @@
             const btnContinuar = document.getElementById("btnContinuar");
             const erroGeral    = document.getElementById("erro-geral");
 
-            // 🔧 FIX 6: Desabilita o botão enquanto processa
+            // Desabilita o botão enquanto processa
             btnContinuar.disabled    = true;
             btnContinuar.textContent = "Enviando...";
 
             try {
-                console.log("Passou da validação!");
-
-                console.log("Vai fazer o fetch");
 
                 const resposta = await fetch("/continuar-cadastro-psicologo", {
                     method: "POST",
@@ -728,42 +713,24 @@
                     })
                 });
 
-                console.log("Fetch terminou");
-
-
                 const dados = await resposta.json();
 
-                console.log("Status:", resposta.status);
-            console.log("Resposta:", dados);
-
-            if (dados.sucesso) {
-                console.log("Sucesso");
-                window.location.href = dados.destino;
-                return;
-            }
-
-            if (!resposta.ok) {
-
-                console.log("Entrou no if resposta.ok");
-
-                if (dados.campo) {
-
-                    console.log("Vai mostrar erro no campo:", dados.campo);
-
-                    mostrarErro(
-                        dados.campo,
-                        "erro-" + dados.campo,
-                        dados.erro
-                    );
-
-                } else {
-
-                    console.log("Erro geral");
-
-                    erroGeral.textContent = dados.erro;
-                    erroGeral.style.display = "block";
+                if (dados.sucesso) {
+                    window.location.href = dados.destino;
+                    return;
                 }
-            }
+
+                if (!resposta.ok) {
+
+                    if (dados.campo) {
+                        mostrarErro(dados.campo, "erro-" + dados.campo, dados.erro);
+                    } else {
+                        erroGeral.textContent   = dados.erro || "Erro ao continuar. Tente novamente.";
+                        erroGeral.style.display = "block";
+                    }
+
+                }
+
             } catch (erro) {
 
                 console.log("Erro na requisição:", erro);
