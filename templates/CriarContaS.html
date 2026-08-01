@@ -19,37 +19,39 @@
     >
 </head>
 
-<body>
-    <main>
+<body class="pagina-criar-conta">
+    <main class="pagina-login">
 
         <!-- ========================= -->
         <!-- LADO ESQUERDO -->
         <!-- ========================= -->
-        <section>
+        <section class="login-esquerda">
 
-            <div>
-                <!-- Logo branca -->
+            <div class="login-esquerda__geometria"></div>
+            <div class="login-esquerda__overlay"></div>
+
+            <div class="login-esquerda__conteudo">
                 <img
                     src="/img/Logo_Branca.png"
                     alt="Logo Bixuco"
+                    class="login-esquerda__logo"
                 >
 
-                <!-- Título -->
-                <h1>
+                <h1 class="login-esquerda__titulo">
                     Crie sua conta
                 </h1>
 
-                <!-- Texto -->
-                <p>
+                <p class="login-esquerda__slogan">
                     Pais e terapeutas juntos pelo bem-estar da criança.
                 </p>
             </div>
 
             <!-- Ilustração -->
-            <div>
+            <div class="login-esquerda__ilustracao-wrapper">
                 <img
                     src="/img/familia-bixuco.png"
                     alt="Família utilizando o Bixuco"
+                    class="login-esquerda__foto"
                 >
             </div>
 
@@ -58,110 +60,110 @@
         <!-- ========================= -->
         <!-- LADO DIREITO -->
         <!-- ========================= -->
-        <section>
+        <section class="login-direita">
 
-            <img
-                src="/img/Logo_Gato.png"
-                alt="Logo Bixuco"
-            >
-
-            <h2>
-                Criar conta
-            </h2>
-
-            <!-- Barra de progresso -->
-            <div class="progresso" aria-label="Etapas de criação de conta">
-                <span class="progresso__item progresso__item--ativo"></span>
-                <span class="progresso__item"></span>
-                <span class="progresso__item"></span>
+            <!-- Cabeçalho fixo no topo, com linha -->
+            <div class="criarconta-header">
+                <h2 class="criarconta-titulo">
+                    Criar conta
+                </h2>
             </div>
 
-            <h3>
-                Como você vai utilizar o Bixuco?
-            </h3>
+            <!-- Corpo centralizado no restante do espaço -->
+            <div class="criarconta-corpo">
 
-            <!-- Texto auxiliar -->
-            <p>
-                Isso vai nos ajudar a personalizar sua experiência.
-            </p>
+                <!-- Barra de progresso (Etapa 1) -->
+                <div class="cadastro-progresso" aria-label="Etapas de criação de conta">
+                    <span class="ativo ativo--recente"></span>
+                    <span></span>
+                    <span></span>
+                </div>
 
-            <!-- Cards de seleção -->
-            <div class="tipo-container">
+                <h3 class="criarconta-pergunta">
+                    Como você vai utilizar o Bixuco?
+                </h3>
 
-                <!-- Card responsável -->
-                <button
-                    id="cardResponsavel"
-                    class="tipo-card"
-                    type="button"
-                    onclick="selecionarTipo('responsavel')"
-                    aria-pressed="false"
-                >
-                    <div>
-                        <h4>
-                            Sou responsável
-                        </h4>
+                <p class="criarconta-ajuda">
+                    Isso vai nos ajudar a personalizar sua experiência.
+                </p>
 
-                        <p>
-                            Acompanho o desenvolvimento do meu filho(a).
-                        </p>
-                    </div>
-                </button>
+                <!-- Cards de seleção -->
+                <div class="tipo-container">
 
-                <!-- Card terapeuta -->
-                <button
-                    id="cardPsicologo"
-                    class="tipo-card"
-                    type="button"
-                    onclick="selecionarTipo('psicologo')"
-                    aria-pressed="false"
-                >
-                    <div>
-                        <h4>
-                            Sou terapeuta
-                        </h4>
+                    <!-- Card responsável -->
+                    <button
+                        id="cardResponsavel"
+                        class="tipo-card"
+                        type="button"
+                        onclick="selecionarTipo('responsavel')"
+                        aria-pressed="false"
+                    >
+                        <div class="tipo-card__conteudo">
+                            <h4 class="tipo-card__titulo">
+                                Sou responsável
+                            </h4>
 
-                        <p>
-                            Acompanho pacientes profissionalmente.
-                        </p>
-
-                        <div class="tag-crp">
-                            Requer validação de CRP
+                            <p class="tipo-card__descricao">
+                                Acompanho o desenvolvimento do meu filho(a).
+                            </p>
                         </div>
-                    </div>
+                    </button>
+
+                    <!-- Card terapeuta -->
+                    <button
+                        id="cardPsicologo"
+                        class="tipo-card"
+                        type="button"
+                        onclick="selecionarTipo('psicologo')"
+                        aria-pressed="false"
+                    >
+                        <div class="tipo-card__conteudo">
+                            <h4 class="tipo-card__titulo">
+                                Sou terapeuta
+                            </h4>
+
+                            <p class="tipo-card__descricao">
+                                Acompanho pacientes profissionalmente.
+                            </p>
+
+                            <div class="tag-crp">
+                                Requer validação de CRP
+                            </div>
+                        </div>
+                    </button>
+
+                </div>
+
+                <!-- Mensagem inline em vez de alert() -->
+                <!-- Aparece só se o usuário clicar em Continuar sem selecionar nada -->
+                <span
+                    id="erro-selecao"
+                    class="erro-selecao"
+                    style="display: none;"
+                >
+                    Selecione como deseja utilizar o Bixuco.
+                </span>
+
+                <!-- Botão começa desabilitado; fica ativo apenas quando um card é selecionado -->
+                <button
+                    type="button"
+                    id="btnContinuar"
+                    class="btn-continuar"
+                    onclick="continuar()"
+                    disabled
+                >
+                    Continuar
                 </button>
 
+                <!-- Link para login -->
+                <p class="login-direita__rodape">
+                    Já possui uma conta?
+                    <a href="/logar" class="login-direita__link">
+                        Fazer login
+                    </a>
+                </p>
+
             </div>
-
-            <!-- 🔧 FIX 1: Mensagem inline em vez de alert() -->
-            <!-- Aparece só se o usuário clicar em Continuar sem selecionar nada -->
-            <!-- Padrão igual às outras páginas do projeto -->
-            <span
-                id="erro-selecao"
-                class="erro-selecao"
-                style="display: none;"
-            >
-                Selecione como deseja utilizar o Bixuco.
-            </span>
-
-            <!-- 🔧 FIX 2: Botão começa desabilitado -->
-            <!-- Fica ativo apenas quando um card é selecionado -->
-            <!-- Evita o usuário clicar sem ter feito nenhuma escolha -->
-            <button
-                type="button"
-                id="btnContinuar"
-                onclick="continuar()"
-                disabled
-            >
-                Continuar
-            </button>
-
-            <!-- Link para login -->
-            <p>
-                Já possui uma conta?
-                <a href="/logar">
-                    Fazer login
-                </a>
-            </p>
 
         </section>
 
@@ -180,8 +182,7 @@
 
             tipoSelecionado = tipo;
 
-            // 🔧 FIX 5: aria-pressed simplificado — atualiza todos os cards de uma vez
-            // antes estava sendo setado em dois lugares separados, duplicando código
+            // aria-pressed simplificado — atualiza todos os cards de uma vez
             document.querySelectorAll(".tipo-card").forEach(card => {
                 card.classList.remove("tipo-card--ativo");
                 card.setAttribute("aria-pressed", "false");
@@ -195,10 +196,10 @@
             cardSelecionado.classList.add("tipo-card--ativo");
             cardSelecionado.setAttribute("aria-pressed", "true");
 
-            // 🔧 FIX 2: Habilita o botão ao selecionar um card
+            // Habilita o botão ao selecionar um card
             document.getElementById("btnContinuar").disabled = false;
 
-            // 🔧 FIX 1: Esconde a mensagem de erro se estava aparecendo
+            // Esconde a mensagem de erro se estava aparecendo
             const erroSelecao = document.getElementById("erro-selecao");
             erroSelecao.style.display = "none";
 
@@ -210,7 +211,7 @@
 
         function continuar() {
 
-            // 🔧 FIX 1 + 2: Segurança extra — mesmo com botão desabilitado,
+            // Segurança extra — mesmo com botão desabilitado,
             // valida novamente caso o JS seja chamado diretamente
             if (tipoSelecionado === null) {
 
