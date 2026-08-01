@@ -24,24 +24,28 @@
 
 <body>
 
-    <main>
+    <main class="pagina-login">
 
         <!-- ========================= -->
         <!-- LADO ESQUERDO -->
         <!-- ========================= -->
 
-        <section>
+        <section class="login-esquerda">
 
-            <div>
+            <div class="login-esquerda__geometria"></div>
+            <div class="login-esquerda__overlay"></div>
+
+            <div class="login-esquerda__conteudo">
 
                 <!-- Logo branca -->
                 <img
                     src="/img/Logo_Branca.png"
                     alt="Logo Bixuco"
+                    class="login-esquerda__logo"
                 >
 
                 <!-- Título -->
-                <h1>
+                <h1 class="login-esquerda__titulo">
                     Acompanhamento
                     <br>
                     infantil
@@ -49,7 +53,7 @@
                 </h1>
 
                 <!-- Texto -->
-                <p>
+                <p class="login-esquerda__slogan">
                     Mais organização,
                     mais conexão e
                     mais cuidado para
@@ -59,11 +63,12 @@
             </div>
 
             <!-- Ilustração -->
-            <div>
+            <div class="login-esquerda__ilustracao-wrapper">
 
                 <img
                     src="/img/criancas-bixuco.png"
                     alt="Crianças com o Bixuco"
+                    class="login-esquerda__foto"
                 >
 
             </div>
@@ -74,25 +79,20 @@
         <!-- LADO DIREITO -->
         <!-- ========================= -->
 
-        <section>
+        <section class="login-direita">
 
-            <header>
+            <header class="criarconta-header">
 
-                <h2>
+                <h2 class="criarconta-titulo">
                     Adicionar criança
                 </h2>
 
             </header>
 
-            <div>
-
-                <!-- Título -->
-                <h3>
-                    Adicionar criança
-                </h3>
+            <div class="criarconta-corpo">
 
                 <!-- Descrição -->
-                <p>
+                <p class="cadastro-form__descricao">
                     Cadastre o(a) filho(a)
                     que você vai acompanhar.
                 </p>
@@ -101,13 +101,10 @@
                 <!-- FORMULÁRIO -->
                 <!-- ========================= -->
 
-                <!-- 🔧 FIX 1: Removido action, method e enctype do form -->
                 <!-- Envio via fetch usando FormData para suportar upload de foto -->
-                <form id="formCrianca" novalidate>
+                <form id="formCrianca" class="cadastro-form" novalidate>
 
                     <!-- Foto da criança -->
-
-                    <!-- 🔧 FIX 5: Classe adicionada para o CSS funcionar -->
                     <div
                         class="cadastro-form__foto"
                         onclick="document.getElementById('fotoCrianca').click()"
@@ -139,15 +136,14 @@
                     </div>
 
                     <!-- Nome da criança -->
-
-                    <!-- 🔧 FIX 5: Classe cadastro-form__grupo adicionada em todos os campos -->
                     <div class="cadastro-form__grupo">
 
-                        <label for="nomeCrianca">
+                        <label for="nomeCrianca" class="cadastro-form__label">
                             Nome da criança
                         </label>
 
                         <input
+                            class="cadastro-form__input"
                             type="text"
                             id="nomeCrianca"
                             name="nomeCrianca"
@@ -156,7 +152,6 @@
                             required
                         >
 
-                        <!-- 🔧 FIX 5: Classe cadastro-form__erro adicionada -->
                         <span
                             class="cadastro-form__erro"
                             id="erro-nomeCrianca"
@@ -170,11 +165,12 @@
                         <!-- Data de nascimento -->
                         <div class="cadastro-form__grupo">
 
-                            <label for="dataNascimento">
+                            <label for="dataNascimento" class="cadastro-form__label">
                                 Data de nascimento
                             </label>
 
                             <input
+                                class="cadastro-form__input"
                                 type="date"
                                 id="dataNascimento"
                                 name="dataNascimento"
@@ -191,11 +187,12 @@
                         <!-- Sexo -->
                         <div class="cadastro-form__grupo">
 
-                            <label for="sexo">
+                            <label for="sexo" class="cadastro-form__label">
                                 Sexo
                             </label>
 
                             <select
+                                class="cadastro-form__input"
                                 id="sexo"
                                 name="sexo"
                                 required
@@ -231,11 +228,12 @@
                     <!-- Nome da pelúcia -->
                     <div class="cadastro-form__grupo">
 
-                        <label for="nomePelucia">
+                        <label for="nomePelucia" class="cadastro-form__label">
                             Nome da pelúcia (opcional)
                         </label>
 
                         <input
+                            class="cadastro-form__input"
                             type="text"
                             id="nomePelucia"
                             name="nomePelucia"
@@ -244,17 +242,17 @@
 
                     </div>
 
-                    <!-- 🔧 FIX 2: Erro geral do servidor (substitui ?erro= na URL) -->
+                    <!-- Erro geral do servidor (substitui ?erro= na URL) -->
                     <span
                         id="erro-geral"
                         class="cadastro-form__erro cadastro-form__erro--geral"
                         style="display: none;"
                     ></span>
 
-                    <!-- 🔧 FIX 6: Botão com estado de carregamento -->
                     <button
                         type="submit"
                         id="btnIr"
+                        class="btn-continuar"
                     >
                         Ir para o Perfil sensorial
                     </button>
@@ -383,7 +381,7 @@
         // ENVIO DO FORMULÁRIO
         // ==========================
 
-        // 🔧 FIX 1 + 7: Usa FormData para enviar os dados incluindo a foto
+        // Usa FormData para enviar os dados incluindo a foto
         // FormData suporta arquivos — não é possível usar JSON.stringify com imagem
         // O backend precisa do multer para processar o arquivo (ver rotas_adicionarc.js)
 
@@ -396,7 +394,7 @@
             const btnIr     = document.getElementById("btnIr");
             const erroGeral = document.getElementById("erro-geral");
 
-            // 🔧 FIX 6: Desabilita o botão enquanto processa
+            // Desabilita o botão enquanto processa
             btnIr.disabled    = true;
             btnIr.textContent = "Salvando...";
 
@@ -416,14 +414,14 @@
                     formData.append("fotoCrianca", fotoInput.files[0]);
                 }
 
-                // 🔧 FIX 1: Não definir Content-Type manualmente com FormData
+                // Não definir Content-Type manualmente com FormData
                 // O fetch define automaticamente com o boundary correto para multipart
                 const resposta = await fetch("/api/adicionar-crianca", {
                     method: "POST",
                     body: formData
                 });
 
-                // 🔧 FIX 9: Redireciona para login se não autenticado
+                // Redireciona para login se não autenticado
                 if (resposta.status === 401) {
                     window.location.href = "/logar";
                     return;
@@ -439,7 +437,7 @@
 
                     const dados = await resposta.json();
 
-                    // 🔧 FIX 2: Exibe erro do servidor no campo correto
+                    // Exibe erro do servidor no campo correto
                     if (dados.campo) {
                         mostrarErro(dados.campo, "erro-" + dados.campo, dados.erro);
                     } else {
