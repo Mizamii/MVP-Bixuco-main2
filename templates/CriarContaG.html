@@ -19,36 +19,41 @@
 </head>
 
 <body>
-    <main>
+    <main class="pagina-login">
 
         <!-- ========================= -->
         <!-- LADO ESQUERDO -->
         <!-- ========================= -->
-        <section>
+        <section class="login-esquerda">
 
-            <div>
+            <div class="login-esquerda__geometria"></div>
+            <div class="login-esquerda__overlay"></div>
+
+            <div class="login-esquerda__conteudo">
                 <!-- Logo branca -->
                 <img
                     src="/img/Logo_Branca.png"
                     alt="Logo Bixuco"
+                    class="login-esquerda__logo"
                 >
 
                 <!-- Título -->
-                <h1>
+                <h1 class="login-esquerda__titulo">
                     Crie sua conta
                 </h1>
 
                 <!-- Texto -->
-                <p>
+                <p class="login-esquerda__slogan">
                     Pais e terapeutas juntos pelo
                     bem-estar da criança.
                 </p>
             </div>
 
-            <div>
+            <div class="login-esquerda__ilustracao-wrapper">
                 <img
                     src="/img/familia-bixuco.png"
                     alt="Família utilizando o Bixuco"
+                    class="login-esquerda__foto"
                 >
             </div>
 
@@ -57,24 +62,24 @@
         <!-- ========================= -->
         <!-- LADO DIREITO -->
         <!-- ========================= -->
-        <section>
+        <section class="login-direita">
 
-            <header>
-                <h2>
+            <header class="criarconta-header">
+                <h2 class="criarconta-titulo">
                     Criar conta
                 </h2>
             </header>
 
-            <div>
+            <div class="criarconta-corpo">
 
-                <!-- Barra de progresso -->
+                <!-- Barra de progresso (Etapa 2) -->
                 <div class="cadastro-progresso">
                     <span class="ativo"></span>
-                    <span class="ativo"></span>
+                    <span class="ativo ativo--recente"></span>
                     <span></span>
                 </div>
 
-                <h3>
+                <h3 class="criarconta-pergunta">
                     Informações sobre você
                 </h3>
 
@@ -82,16 +87,16 @@
                 <!-- FORMULÁRIO -->
                 <!-- ========================= -->
 
-                <!-- 🔧 FIX 1: Removido action e method do form -->
                 <!-- Envio via fetch para poder exibir erros do servidor na tela -->
-                <form id="formCadastro" novalidate>
+                <form id="formCadastro" class="cadastro-form" novalidate>
 
                     <!-- Nome -->
                     <div class="cadastro-form__grupo">
-                        <label for="nome">
+                        <label for="nome" class="cadastro-form__label">
                             Nome completo
                         </label>
                         <input
+                            class="cadastro-form__input"
                             type="text"
                             id="nome"
                             name="nome"
@@ -107,10 +112,11 @@
 
                     <!-- Email -->
                     <div class="cadastro-form__grupo">
-                        <label for="email">
+                        <label for="email" class="cadastro-form__label">
                             Email
                         </label>
                         <input
+                            class="cadastro-form__input"
                             type="email"
                             id="email"
                             name="email"
@@ -127,15 +133,13 @@
                     <!-- Linha telefone + data -->
                     <div class="cadastro-form__linha">
 
-                        <!-- 🔧 FIX 4 + 5: Classe cadastro-form__grupo e cadastro-form__erro
-                             adicionadas nos campos que estavam sem — consistente com nome e email -->
-
                         <!-- Telefone -->
                         <div class="cadastro-form__grupo">
-                            <label for="telefone">
+                            <label for="telefone" class="cadastro-form__label">
                                 Telefone (opcional)
                             </label>
                             <input
+                                class="cadastro-form__input"
                                 type="tel"
                                 id="telefone"
                                 name="telefone"
@@ -150,10 +154,11 @@
 
                         <!-- Data de nascimento -->
                         <div class="cadastro-form__grupo">
-                            <label for="dataNascimento">
+                            <label for="dataNascimento" class="cadastro-form__label">
                                 Data de nascimento
                             </label>
                             <input
+                                class="cadastro-form__input"
                                 type="date"
                                 id="dataNascimento"
                                 name="dataNascimento"
@@ -169,10 +174,11 @@
 
                     <!-- CPF -->
                     <div class="cadastro-form__grupo">
-                        <label for="cpf">
+                        <label for="cpf" class="cadastro-form__label">
                             CPF
                         </label>
                         <input
+                            class="cadastro-form__input"
                             type="text"
                             id="cpf"
                             name="cpfUser"
@@ -189,17 +195,17 @@
                     </div>
 
                     <!-- ========================= -->
-                    <!-- 🔧 FIX 8: Campos de endereço que o backend espera -->
+                    <!-- Campos de endereço que o backend espera -->
                     <!-- /continuar-cadastro-pai desestrutura cep, cidade, estado, bairro -->
-                    <!-- Sem esses campos req.session.cadastro fica com undefined -->
                     <!-- ========================= -->
 
                     <!-- CEP -->
                     <div class="cadastro-form__grupo">
-                        <label for="cep">
+                        <label for="cep" class="cadastro-form__label">
                             CEP
                         </label>
                         <input
+                            class="cadastro-form__input"
                             type="text"
                             id="cep"
                             name="cep"
@@ -220,10 +226,11 @@
 
                         <!-- Cidade -->
                         <div class="cadastro-form__grupo">
-                            <label for="cidade">
+                            <label for="cidade" class="cadastro-form__label">
                                 Cidade
                             </label>
                             <input
+                                class="cadastro-form__input"
                                 type="text"
                                 id="cidade"
                                 name="cidade"
@@ -240,10 +247,11 @@
 
                         <!-- Estado -->
                         <div class="cadastro-form__grupo">
-                            <label for="estado">
+                            <label for="estado" class="cadastro-form__label">
                                 Estado
                             </label>
                             <input
+                                class="cadastro-form__input"
                                 type="text"
                                 id="estado"
                                 name="estado"
@@ -263,10 +271,11 @@
 
                     <!-- Bairro -->
                     <div class="cadastro-form__grupo">
-                        <label for="bairro">
+                        <label for="bairro" class="cadastro-form__label">
                             Bairro
                         </label>
                         <input
+                            class="cadastro-form__input"
                             type="text"
                             id="bairro"
                             name="bairro"
@@ -280,17 +289,17 @@
                         ></span>
                     </div>
 
-                    <!-- 🔧 FIX 2: Erro geral do servidor (substitui o sistema de ?erro= na URL) -->
+                    <!-- Erro geral do servidor (substitui o sistema de ?erro= na URL) -->
                     <span
                         id="erro-geral"
                         class="cadastro-form__erro cadastro-form__erro--geral"
                         style="display: none;"
                     ></span>
 
-                    <!-- 🔧 FIX 3 + 6: Removido href inválido, botão com estado de carregamento -->
                     <button
                         type="submit"
                         id="btnContinuar"
+                        class="btn-continuar"
                     >
                         Continuar
                     </button>
@@ -298,11 +307,11 @@
                 </form>
 
                 <!-- Termos -->
-                <p>
+                <p class="cadastro-form__termos">
                     Ao criar sua conta você concorda com nossos
-                    <a href="/termos">Termos de uso</a>
+                    <a href="/termos" class="cadastro-form__link--azul">Termos de uso</a>
                     e
-                    <a href="/privacidade">Política de privacidade.</a>
+                    <a href="/privacidade" class="cadastro-form__link--verde">Política de privacidade.</a>
                 </p>
 
             </div>
@@ -391,7 +400,7 @@
         // BUSCA CEP AUTOMATICAMENTE
         // ==========================
 
-        // 🔧 FIX 8: Ao digitar o CEP completo, busca cidade/estado/bairro
+        // Ao digitar o CEP completo, busca cidade/estado/bairro
         // automaticamente via API ViaCEP e preenche os campos readonly
         document.getElementById("cep").addEventListener("blur", async function () {
 
@@ -542,7 +551,7 @@
                 valido = false;
             }
 
-            // 🔧 FIX 7: Validação mais descritiva do CPF
+            // Validação mais descritiva do CPF
             // O backend tem a validação real com dígitos verificadores
             // aqui garantimos pelo menos o formato correto
             if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
@@ -578,7 +587,7 @@
         // ENVIO DO FORMULÁRIO
         // ==========================
 
-        // 🔧 FIX 1 + 2: Intercepta o submit e envia via fetch
+        // Intercepta o submit e envia via fetch
         // Antes o form fazia POST direto e erros chegavam via ?erro= na URL
         // Agora os erros aparecem direto nos campos sem sair da página
 
@@ -591,7 +600,7 @@
             const btnContinuar = document.getElementById("btnContinuar");
             const erroGeral    = document.getElementById("erro-geral");
 
-            // 🔧 FIX 6: Desabilita o botão enquanto processa
+            // Desabilita o botão enquanto processa
             btnContinuar.disabled    = true;
             btnContinuar.textContent = "Enviando...";
 
@@ -621,7 +630,7 @@
                     return;
                 }
 
-                // 🔧 FIX 2: Exibe erros do servidor direto nos campos
+                // Exibe erros do servidor direto nos campos
                 if (!resposta.ok) {
 
                     const dados = await resposta.json();
