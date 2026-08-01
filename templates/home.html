@@ -6,7 +6,73 @@
     <title>Bixuco — Início</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <!-- 🔧 Leaflet.js para o mapa funcional sem precisar de API key -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+    <!-- 🔧 Google Translate widget gratuito -->
+    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
+
     <link rel="stylesheet" href="/css/home.css">
+
+    <style>
+        /* Esconde o banner feio do Google Translate */
+        .goog-te-banner-frame { display: none !important; }
+        body { top: 0 !important; }
+        .goog-te-gadget { font-size: 0 !important; }
+        .goog-te-gadget select { display: none; }
+
+        /* Estilo do modal do mapa */
+        #modalMapa {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        #modalMapa.aberto {
+            display: flex;
+        }
+        #modalMapa .mapa-conteudo {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        #modalMapa .mapa-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        #modalMapa h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        #modalMapa .btn-fechar-mapa {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            color: #5A5A5A;
+        }
+        #mapaBixuco {
+            height: 350px;
+            border-radius: 10px;
+            z-index: 1;
+        }
+        #modalMapa .mapa-status {
+            margin-top: 0.8rem;
+            font-size: 0.85rem;
+            color: #5A5A5A;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
 
@@ -32,9 +98,10 @@
                     <span>Relatórios</span>
                 </a>
 
-                <a href="/historico">
-                    <i class="fa-solid fa-clock-rotate-left"></i>
-                    <span>Histórico</span>
+                <!-- 🔧 FIX 1: /historico → /sobre -->
+                <a href="/sobre">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>Sobre</span>
                 </a>
 
                 <a href="/configuracoes">
@@ -77,10 +144,14 @@
             <!-- TOPO -->
             <header class="topo">
 
+                <!-- 🔧 FIX 4: Botão de tradução com Google Translate -->
                 <button class="tradutor" type="button" id="btnTraduzir">
                     <i class="fa-solid fa-language"></i>
-                    Traduzir para inglês
+                    <span id="textoTradutor">Traduzir para inglês</span>
                 </button>
+
+                <!-- Elemento oculto do Google Translate -->
+                <div id="google_translate_element" style="display: none;"></div>
 
                 <div class="usuario">
                     <button class="notificacoes" type="button" id="btnNotificacoes">
@@ -88,10 +159,16 @@
                         <span id="quantidadeNotificacoes" class="badge">0</span>
                     </button>
 
+                    <!-- 🔧 FIX 2 + 3: Foto clicável que vai para /perfil -->
+                    <!-- Foto padrão garantida mesmo sem upload -->
                     <img
                         id="fotoUsuario"
                         src="/img/perfilPadrao.png"
                         alt="Foto do usuário"
+                        title="Ver perfil"
+                        style="cursor: pointer;"
+                        onclick="window.location.href='/perfil'"
+                        onerror="this.src='/img/perfilPadrao.png'"
                     >
 
                     <div>
@@ -186,6 +263,7 @@
 
             <!-- AÇÕES RÁPIDAS -->
             <section class="acoes">
+                <!-- 🔧 FIX 5: Botão abre o modal com mapa real do Leaflet -->
                 <button id="btnMapa" type="button">
                     <i class="fa-solid fa-location-dot"></i>
                     Localizar Bixuco
@@ -195,18 +273,51 @@
         </main>
     </div>
 
+    <!-- ===================== -->
+    <!-- MODAL DO MAPA -->
+    <!-- ===================== -->
+
+    <!-- 🔧 FIX 5: Modal com mapa funcional via Leaflet + OpenStreetMap -->
+    <!-- Sem API key necessária — gratuito e já funcional -->
+    <!-- No futuro: conectar às coordenadas reais do Bixuco via IoT -->
+    <div id="modalMapa">
+        <div class="mapa-conteudo">
+
+            <div class="mapa-header">
+                <h3>
+                    <i class="fa-solid fa-location-dot"></i>
+                    Localização do Bixuco
+                </h3>
+                <button
+                    type="button"
+                    class="btn-fechar-mapa"
+                    id="btnFecharMapa"
+                    aria-label="Fechar mapa"
+                >
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div id="mapaBixuco"></div>
+
+            <p class="mapa-status">
+                <i class="fa-solid fa-circle" style="color: #C2C2C2; font-size: 0.6rem;"></i>
+                Rastreamento em tempo real disponível em breve
+            </p>
+
+        </div>
+    </div>
+
     <script>
 
         // =========================
         // CARREGAR DADOS DO USUÁRIO
         // =========================
+
         async function carregarDadosUsuario() {
             try {
-                // Chama a rota /api/home que agora existe no backend
                 const resposta = await fetch("/api/home");
 
-                // 🔧 FIX: Se o servidor retornar 401, usuário não está logado
-                // Redireciona para a tela de login
                 if (resposta.status === 401) {
                     window.location.href = "/logar";
                     return;
@@ -221,30 +332,30 @@
                 const nomeCompleto = dados.nome || "Usuário";
                 const primeiroNome = nomeCompleto.split(" ")[0];
 
-                document.getElementById("nomeUsuario").textContent = nomeCompleto;
+                document.getElementById("nomeUsuario").textContent  = nomeCompleto;
                 document.getElementById("primeiroNome").textContent = primeiroNome;
-                document.getElementById("nomeBixuco").textContent = dados.nomeBixuco || "Bixuco";
-                document.getElementById("tipoConta").textContent = dados.tipoConta || "Responsável";
+                document.getElementById("nomeBixuco").textContent   = dados.nomeBixuco || "Bixuco";
+                document.getElementById("tipoConta").textContent    = dados.tipoConta || "Responsável";
                 document.getElementById("quantidadeNotificacoes").textContent = dados.notificacoes ?? 0;
-                document.getElementById("diasConsecutivos").textContent = dados.diasConsecutivos ?? 0;
+                document.getElementById("diasConsecutivos").textContent       = dados.diasConsecutivos ?? 0;
 
+                // 🔧 FIX 3: Só troca a foto se o usuário tiver uma cadastrada
+                // Se não tiver, mantém o perfilPadrao.png que já está no src
                 if (dados.fotoPerfil) {
                     document.getElementById("fotoUsuario").src = dados.fotoPerfil;
                 }
 
-                // Mensagem dinâmica baseada na sequência de dias
                 atualizarTextoSequencia(dados.diasConsecutivos ?? 0);
 
             } catch (erro) {
                 console.log("Erro ao carregar dados:", erro);
 
-                // Fallback: valores padrão caso a requisição falhe
-                document.getElementById("nomeUsuario").textContent = "Usuário";
+                document.getElementById("nomeUsuario").textContent  = "Usuário";
                 document.getElementById("primeiroNome").textContent = "Usuário";
-                document.getElementById("nomeBixuco").textContent = "Bixuco";
-                document.getElementById("tipoConta").textContent = "Responsável";
+                document.getElementById("nomeBixuco").textContent   = "Bixuco";
+                document.getElementById("tipoConta").textContent    = "Responsável";
                 document.getElementById("quantidadeNotificacoes").textContent = "0";
-                document.getElementById("diasConsecutivos").textContent = "0";
+                document.getElementById("diasConsecutivos").textContent       = "0";
                 document.getElementById("textoSequencia").textContent = "Continue registrando seus relatórios diariamente.";
             }
         }
@@ -265,30 +376,23 @@
             }
         }
 
-
+        // =========================
         // CALENDÁRIO
-        
-        let dataAtual = new Date();
+        // =========================
 
-        // 🔧 FIX: diasComRelatorio agora é preenchido pelo backend
-        // Antes estava sempre vazio, então nenhum dia ficava verde no calendário
+        let dataAtual = new Date();
         let diasComRelatorio = [];
 
         async function carregarDiasRelatorio() {
             try {
-                const mes = dataAtual.getMonth() + 1; // getMonth() começa em 0
+                const mes = dataAtual.getMonth() + 1;
                 const ano = dataAtual.getFullYear();
 
-                // Chama a nova rota do backend que retorna os dias com relatório
                 const resposta = await fetch(`/api/relatorios/dias?mes=${mes}&ano=${ano}`);
 
-                if (!resposta.ok) {
-                    throw new Error("Falha ao carregar dias de relatório");
-                }
+                if (!resposta.ok) throw new Error("Falha ao carregar dias");
 
                 const dados = await resposta.json();
-
-                // Salva os dias e redesenha o calendário com os círculos corretos
                 diasComRelatorio = dados.dias || [];
                 atualizarCalendario();
 
@@ -301,44 +405,31 @@
 
         function atualizarCalendario() {
             const titulo = document.getElementById("tituloCalendario");
-            const dias = document.getElementById("diasCalendario");
+            const dias   = document.getElementById("diasCalendario");
 
             dias.innerHTML = "";
 
             const meses = [
-                "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-                "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+                "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+                "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
             ];
 
             titulo.textContent = `${meses[dataAtual.getMonth()]} ${dataAtual.getFullYear()}`;
 
-            const primeiroDia = new Date(
-                dataAtual.getFullYear(),
-                dataAtual.getMonth(),
-                1
-            ).getDay();
+            const primeiroDia = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), 1).getDay();
+            const ultimoDia   = new Date(dataAtual.getFullYear(), dataAtual.getMonth() + 1, 0).getDate();
 
-            const ultimoDia = new Date(
-                dataAtual.getFullYear(),
-                dataAtual.getMonth() + 1,
-                0
-            ).getDate();
-
-            // Espaços vazios antes do primeiro dia do mês
             for (let i = 0; i < primeiroDia; i++) {
-                const vazio = document.createElement("div");
-                dias.appendChild(vazio);
+                dias.appendChild(document.createElement("div"));
             }
 
             const hoje = new Date();
 
-            // Dias do mês
             for (let dia = 1; dia <= ultimoDia; dia++) {
                 const botao = document.createElement("button");
-                botao.type = "button";
+                botao.type        = "button";
                 botao.textContent = dia;
 
-                // Marca o dia de hoje
                 if (
                     dia === hoje.getDate() &&
                     dataAtual.getMonth() === hoje.getMonth() &&
@@ -347,8 +438,6 @@
                     botao.classList.add("hoje");
                 }
 
-                // 🔧 FIX: Marca os dias que têm relatório com classe "com-relatorio"
-                // Antes nenhum dia ficava verde pois diasComRelatorio estava sempre vazio
                 if (diasComRelatorio.includes(dia)) {
                     botao.classList.add("com-relatorio");
                 }
@@ -357,59 +446,166 @@
             }
         }
 
-
-        // 🔧 FIX: Tema agora persiste usando localStorage
-        // Antes ao trocar de página o tema voltava para claro sempre
-        function aplicarTema(tema) {
-            document.body.classList.remove("tema-claro", "tema-escuro");
-            document.body.classList.add(`tema-${tema}`);
-
-            document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
-            document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
-
-            localStorage.setItem("tema", tema);
-        }
-
-        document.getElementById("btnClaro").addEventListener("click", () => {
-            aplicarTema("claro");
-        });
-
-        document.getElementById("btnEscuro").addEventListener("click", () => {
-            aplicarTema("escuro");
-        });
-
-        document.getElementById("btnTraduzir").addEventListener("click", () => {
-            // Futuramente conectar com tradução do site
-            alert("Função de tradução ainda será implementada.");
-        });
-
-        document.getElementById("btnNotificacoes").addEventListener("click", () => {
-            // Futuramente abrir a mini aba de notificações
-            alert("Abrir notificações.");
-        });
-
-        document.getElementById("btnMapa").addEventListener("click", () => {
-            // Futuramente abrir a tela/mapa de localização do Bixuco
-            alert("Abrir localização do Bixuco.");
-        });
-
         document.getElementById("mesAnterior").onclick = () => {
             dataAtual.setMonth(dataAtual.getMonth() - 1);
-            // Recarrega os dias de relatório do mês anterior
             carregarDiasRelatorio();
         };
 
         document.getElementById("proximoMes").onclick = () => {
             dataAtual.setMonth(dataAtual.getMonth() + 1);
-            // Recarrega os dias de relatório do próximo mês
             carregarDiasRelatorio();
         };
 
-        // Aplica o tema salvo ao carregar a página
+        // =========================
+        // TEMA
+        // =========================
+
+        function aplicarTema(tema) {
+            document.body.classList.remove("tema-claro", "tema-escuro");
+            document.body.classList.add(`tema-${tema}`);
+            document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
+            document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
+            localStorage.setItem("tema", tema);
+        }
+
+        document.getElementById("btnClaro").addEventListener("click", () => aplicarTema("claro"));
+        document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
+
+        // =========================
+        // 🔧 FIX 4: TRADUÇÃO COM GOOGLE TRANSLATE
+        // =========================
+
+        let traduzido = false;
+
+        // Callback chamado pelo script do Google Translate após carregar
+        function iniciarTradutor() {
+            new google.translate.TranslateElement(
+                {
+                    pageLanguage: "pt",
+                    includedLanguages: "en",
+                    autoDisplay: false
+                },
+                "google_translate_element"
+            );
+        }
+
+        document.getElementById("btnTraduzir").addEventListener("click", () => {
+
+            if (!traduzido) {
+                // Aciona a tradução para inglês
+                const select = document.querySelector(".goog-te-combo");
+                if (select) {
+                    select.value = "en";
+                    select.dispatchEvent(new Event("change"));
+                    document.getElementById("textoTradutor").textContent = "Voltar para português";
+                    traduzido = true;
+                } else {
+                    // Widget ainda não carregou — tenta de novo em 500ms
+                    setTimeout(() => {
+                        document.getElementById("btnTraduzir").click();
+                    }, 500);
+                }
+            } else {
+                // Volta para o português
+                const select = document.querySelector(".goog-te-combo");
+                if (select) {
+                    select.value = "pt";
+                    select.dispatchEvent(new Event("change"));
+                    document.getElementById("textoTradutor").textContent = "Traduzir para inglês";
+                    traduzido = false;
+                }
+            }
+
+        });
+
+        // =========================
+        // NOTIFICAÇÕES
+        // =========================
+
+        document.getElementById("btnNotificacoes").addEventListener("click", () => {
+            // Futuramente abrir a central de notificações
+        });
+
+        // =========================
+        // 🔧 FIX 5: MAPA COM LEAFLET + OPENSTREETMAP
+        // =========================
+
+        let mapaIniciado = false;
+        let mapaLeaflet  = null;
+        let marcador     = null;
+
+        function abrirMapa() {
+            const modal = document.getElementById("modalMapa");
+            modal.classList.add("aberto");
+            document.body.style.overflow = "hidden";
+
+            // Inicia o mapa só uma vez — evita erro de "já inicializado"
+            if (!mapaIniciado) {
+
+                // Coordenadas padrão: São Paulo (centro)
+                // No futuro: substituir por coordenadas reais do Bixuco via API
+                const latInicial = -23.5505;
+                const lngInicial = -46.6333;
+
+                mapaLeaflet = L.map("mapaBixuco").setView([latInicial, lngInicial], 13);
+
+                // Tiles gratuitos do OpenStreetMap — sem API key
+                L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                    attribution: '© <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
+                    maxZoom: 19
+                }).addTo(mapaLeaflet);
+
+                // Ícone personalizado para o Bixuco
+                const iconeBixuco = L.divIcon({
+                    html: '<div style="background:#32C26D;width:36px;height:36px;border-radius:50%;border:3px solid white;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.3);font-size:18px;">🐱</div>',
+                    iconSize:   [36, 36],
+                    iconAnchor: [18, 18],
+                    className:  ""
+                });
+
+                marcador = L.marker([latInicial, lngInicial], { icon: iconeBixuco })
+                    .addTo(mapaLeaflet)
+                    .bindPopup("<b>Bixuco</b><br>Localização aproximada")
+                    .openPopup();
+
+                mapaIniciado = true;
+
+            }
+
+            // Força o Leaflet a recalcular o tamanho após o modal abrir
+            setTimeout(() => {
+                if (mapaLeaflet) mapaLeaflet.invalidateSize();
+            }, 200);
+
+        }
+
+        function fecharMapa() {
+            document.getElementById("modalMapa").classList.remove("aberto");
+            document.body.style.overflow = "";
+        }
+
+        document.getElementById("btnMapa").addEventListener("click", abrirMapa);
+        document.getElementById("btnFecharMapa").addEventListener("click", fecharMapa);
+
+        // Fecha o modal clicando fora do conteúdo
+        document.getElementById("modalMapa").addEventListener("click", (e) => {
+            if (e.target === document.getElementById("modalMapa")) {
+                fecharMapa();
+            }
+        });
+
+        // Fecha com tecla Escape
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") fecharMapa();
+        });
+
+        // =========================
+        // INICIALIZAÇÃO
+        // =========================
+
         const temaSalvo = localStorage.getItem("tema") || "claro";
         aplicarTema(temaSalvo);
 
-        // Carrega os dados do usuário e o calendário
         carregarDadosUsuario();
         carregarDiasRelatorio();
 

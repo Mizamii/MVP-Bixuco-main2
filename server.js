@@ -139,7 +139,7 @@ app.get("/EsqueceuSenha", (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "EsqueceuSenha.html"));
 });
 
-app.get("/homeTerapeuta", estaLogado, (req, res) => {
+app.get("/home-terapeuta", estaLogado, (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "HomeTerapeuta.html"));
 
@@ -1860,16 +1860,19 @@ app.get('/api/home', estaLogado, async (req, res) => {
 
         // Busca quantas notificações não lidas o usuário tem
         // Ajuste conforme sua tabela de notificações
-        const notificacoes = await db.query(
-
-            `SELECT COUNT(*) AS total
-             FROM notificacoes
-             WHERE usuario_id = $1
-             AND lida = false`,
-
-            [usuarioId]
-
-        );
+        let totalNotificacoes = 0;
+        try {
+            const notificacoes = await db.query(
+                `SELECT COUNT(*) AS total
+                FROM notificacoes
+                WHERE usuario_id = $1
+                AND lida = false`,
+                [usuarioId]
+            );
+            totalNotificacoes = parseInt(notificacoes.rows[0].total) || 0;
+        } catch (_) {
+            // Tabela notificacoes ainda não existe — retorna 0 sem quebrar a home
+        }
 
         // Monta o tipo de conta para exibir na tela
         const tipoConta = usuario.tipo === "pai"
@@ -1880,7 +1883,7 @@ app.get('/api/home', estaLogado, async (req, res) => {
             nome: usuario.nome,
             tipoConta,
             fotoPerfil: usuario.foto_perfil || null,
-            notificacoes: parseInt(notificacoes.rows[0].total) || 0,
+            notificacoes: totalNotificacoes,
             diasConsecutivos: parseInt(sequencia.rows[0].total) || 0,
             nomeBixuco: "Bixuco" // futuramente buscar da tabela de dispositivos vinculados
         });
