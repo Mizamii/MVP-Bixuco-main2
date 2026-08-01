@@ -150,6 +150,18 @@ app.get("/home", estaLogado, (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "home.html"));
 });
 
+app.get("/Transicao1", estaLogado, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "Transicao1.html"));
+});
+
+app.get("/Transicao2", estaLogado, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "Transicao2.html"));
+});
+
+app.get("/Transicao3", estaLogado, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "Transicao3.html"));
+});
+
 /* ==========================
    BANCO DE DADOS
 ========================== */
