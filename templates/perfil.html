@@ -17,9 +17,22 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
     >
 
+    <!-- 🔧 Faltava o link do tema.css — sem ele o toggle claro/escuro
+         troca a classe no body mas nenhuma variável de cor existe -->
+    <link
+        rel="stylesheet"
+        href="/css/tema.css"
+    >
+
     <link
         rel="stylesheet"
         href="/css/perfil.css"
+    >
+
+    <!-- Fase 1: estilos da edição de nome/foto -->
+    <link
+        rel="stylesheet"
+        href="/css/perfil-editar.css"
     >
 
 </head>
@@ -54,8 +67,6 @@
             </a>
 
             <a href="/relatorios">
-
-                <!-- 🔧 FIX 8: /Relatorios → /relatorios (minúsculo, consistente com a home) -->
 
                 <i class="fa-solid fa-chart-line"></i>
 
@@ -92,7 +103,6 @@
 
         </nav>
 
-        <!-- 🔧 FIX 9: Adicionado type="button" para evitar submit acidental -->
         <button
             class="btn-relatorio"
             type="button"
@@ -104,9 +114,6 @@
         </button>
 
         <div class="tema">
-
-            <!-- 🔧 FIX 4: IDs padronizados para btnClaro/btnEscuro -->
-            <!-- Antes eram temaClaro/temaEscuro, diferente de todas as outras páginas -->
 
             <button
                 id="btnClaro"
@@ -228,19 +235,83 @@
 
                 <div class="perfil-topo">
 
-                    <img
-                        id="fotoPerfil"
-                        src="/img/perfilPadrao.png"
-                        alt="Foto de perfil"
+                    <!-- Fase 1: foto agora é clicável, com overlay de câmera -->
+                    <div
+                        class="perfil-foto-wrapper"
+                        id="perfilFotoWrapper"
+                        title="Alterar foto de perfil"
+                    >
+
+                        <img
+                            id="fotoPerfil"
+                            src="/img/perfilPadrao.png"
+                            alt="Foto de perfil"
+                        >
+
+                        <div class="perfil-foto-overlay">
+                            <i class="fa-solid fa-camera"></i>
+                        </div>
+
+                    </div>
+
+                    <input
+                        type="file"
+                        id="inputFotoPerfil"
+                        accept="image/*"
+                        style="display: none;"
                     >
 
                     <div>
 
-                        <h2 id="perfilNome">
+                        <!-- Fase 1: nome agora é editável via ícone de lápis -->
+                        <div class="perfil-nome-linha" id="perfilNomeLinha">
 
-                            Carregando...
+                            <h2 id="perfilNome">
+                                Carregando...
+                            </h2>
 
-                        </h2>
+                            <button
+                                type="button"
+                                class="btn-editar-nome"
+                                id="btnEditarNome"
+                                title="Editar nome"
+                            >
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+
+                        </div>
+
+                        <div class="perfil-nome-editar" id="perfilNomeEditar" style="display: none;">
+
+                            <input
+                                type="text"
+                                id="inputNome"
+                                class="input-nome"
+                                maxlength="80"
+                                autocomplete="name"
+                            >
+
+                            <button
+                                type="button"
+                                class="btn-salvar-nome"
+                                id="btnSalvarNome"
+                                title="Salvar"
+                            >
+                                <i class="fa-solid fa-check"></i>
+                            </button>
+
+                            <button
+                                type="button"
+                                class="btn-cancelar-nome"
+                                id="btnCancelarNome"
+                                title="Cancelar"
+                            >
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+
+                        </div>
+
+                        <span class="erro-nome" id="erroNome"></span>
 
                         <p id="perfilDescricao">
 
@@ -252,11 +323,28 @@
 
                 </div>
 
+                <!-- Ações de salvar/cancelar a foto — só aparecem depois de escolher um arquivo -->
+                <div class="perfil-foto-acoes" id="perfilFotoAcoes">
+                    <button type="button" class="btn-salvar-foto" id="btnSalvarFoto">
+                        Salvar foto
+                    </button>
+                    <button type="button" class="btn-cancelar-foto" id="btnCancelarFoto">
+                        Cancelar
+                    </button>
+                </div>
+
                 <div class="badges">
 
                     <span id="badgeDias">
 
                         🔥 0 dias seguidos
+
+                    </span>
+
+                    <!-- Fase 1: recorde de dias consecutivos -->
+                    <span id="badgeMaiorOfensiva">
+
+                        🏆 Maior sequência: 0 dias
 
                     </span>
 
@@ -328,9 +416,7 @@
 
                     </div>
 
-                    <!-- 🔧 FIX 3: Confirmação inline em vez de confirm() -->
-                    <!-- Aparece só quando o usuário clica em remover -->
-                    <!-- Padrão consistente com o restante do projeto -->
+                    <!-- Confirmação inline em vez de confirm() -->
                     <div
                         id="confirmarRemocao"
                         class="confirmar-remocao"
@@ -381,6 +467,9 @@
 
                     </button>
 
+                    <!-- 🔜 Fase 2: aqui entra o botão "Vincular terapeuta" (modal com
+                         código), o estado de "pedido pendente" e a notificação -->
+
                 </section>
 
                 <!-- Conta -->
@@ -424,6 +513,9 @@
 
                     </a>
 
+                    <!-- 🔜 Fase 4 (fora do escopo por enquanto): trocar de plano
+                         entre gratuito / médio / mais caro -->
+
                 </section>
 
                 <!-- Criança -->
@@ -439,6 +531,7 @@
                     <a
                         href="/crianca"
                         class="item-card"
+                        id="linkCrianca"
                     >
 
                         <div
@@ -470,13 +563,14 @@
 
                     </a>
 
+                    <!-- 🔜 Fase 3: clicar aqui vai abrir um modal com nome/foto
+                         editáveis e idade fixa (calculada, não editável) -->
+
                 </section>
 
             </div>
 
         </div>
-        <!-- 🔧 FIX 6: </div> do grid-perfil que estava faltando -->
-        <!-- Antes a div class="grid-perfil" não fechava, quebrando o layout -->
 
     </main>
 
@@ -491,33 +585,8 @@ JAVASCRIPT
     // ==========================
     // TEMA
     // ==========================
-
-    // 🔧 FIX 4: Tema agora persiste com localStorage
-    // e IDs padronizados igual a todas as outras páginas (btnClaro/btnEscuro)
-    function aplicarTema(tema) {
-
-        document.body.classList.remove("tema-claro", "tema-escuro");
-        document.body.classList.add(`tema-${tema}`);
-
-        document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
-        document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
-
-        localStorage.setItem("tema", tema);
-
-    }
-
-    document.getElementById("btnClaro").addEventListener("click", () => {
-        aplicarTema("claro");
-    });
-
-    document.getElementById("btnEscuro").addEventListener("click", () => {
-        aplicarTema("escuro");
-    });
-
-    // Aplica o tema salvo ao carregar a página
-    const temaSalvo = localStorage.getItem("tema") || "claro";
-    aplicarTema(temaSalvo);
-
+    // A alternância claro/escuro agora vem de /js/tema.js (compartilhado
+    // com todas as páginas) — não duplicamos mais a lógica aqui.
 
     // ==========================
     // CARREGAR DADOS DO PERFIL
@@ -527,11 +596,8 @@ JAVASCRIPT
 
         try {
 
-            // 🔧 FIX 1: Rota corrigida de /dados-usuario para /api/perfil
-            // /dados-usuario nunca existiu no server.js
             const resposta = await fetch("/api/perfil");
 
-            // 🔧 FIX 5: Redireciona para login se não autenticado
             if (resposta.status === 401) {
                 window.location.href = "/logar";
                 return;
@@ -562,7 +628,10 @@ JAVASCRIPT
             if (usuario.fotoPerfil) {
 
                 document.getElementById("fotoUsuario").src = usuario.fotoPerfil;
-                document.getElementById("fotoPerfil").src = usuario.fotoPerfil;
+                document.getElementById("fotoPerfil").src  = usuario.fotoPerfil;
+
+                // Fase 1: guarda a foto atual como "original" para o botão Cancelar
+                fotoOriginalSrc = usuario.fotoPerfil;
 
             }
 
@@ -572,6 +641,14 @@ JAVASCRIPT
 
             document.getElementById("badgeDias").innerHTML =
                 `🔥 ${usuario.diasConsecutivos || 0} dias seguidos`;
+
+            // Fase 1: maior ofensiva (recorde).
+            // 🔧 Backend precisa devolver "maiorOfensiva" em /api/perfil.
+            // Enquanto isso não existir, cai para diasConsecutivos como fallback
+            // só para a tela não ficar com "0" fixo — ajustar quando a rota
+            // devolver o campo de verdade.
+            document.getElementById("badgeMaiorOfensiva").innerHTML =
+                `🏆 Maior sequência: ${usuario.maiorOfensiva ?? usuario.diasConsecutivos ?? 0} dias`;
 
             // =====================
             // PLANO
@@ -631,7 +708,6 @@ JAVASCRIPT
                 document.getElementById("crpTerapeuta").textContent =
                     "Ainda não vinculado";
 
-                // Esconde o botão de remover se não há terapeuta
                 document.getElementById("btnRemoverTerapeuta").style.display =
                     "none";
 
@@ -647,54 +723,244 @@ JAVASCRIPT
 
 
     // ==========================
+    // FASE 1: FOTO DE PERFIL
+    // ==========================
+
+    const perfilFotoWrapper = document.getElementById("perfilFotoWrapper");
+    const inputFotoPerfil   = document.getElementById("inputFotoPerfil");
+    const perfilFotoAcoes   = document.getElementById("perfilFotoAcoes");
+    const btnSalvarFoto     = document.getElementById("btnSalvarFoto");
+    const btnCancelarFoto   = document.getElementById("btnCancelarFoto");
+    const fotoPerfilImg     = document.getElementById("fotoPerfil");
+    const fotoUsuarioImg    = document.getElementById("fotoUsuario");
+
+    // Guarda a foto atual para poder restaurar se o usuário cancelar.
+    // carregarPerfil() atualiza essa variável assim que os dados reais chegam.
+    let fotoOriginalSrc = fotoPerfilImg.src;
+
+    perfilFotoWrapper.addEventListener("click", () => {
+        inputFotoPerfil.click();
+    });
+
+    inputFotoPerfil.addEventListener("change", () => {
+
+        const arquivo = inputFotoPerfil.files && inputFotoPerfil.files[0];
+        if (!arquivo) return;
+
+        // Mostra o preview local antes de enviar — só some quando
+        // "Salvar foto" ou "Cancelar" forem clicados
+        const leitor = new FileReader();
+
+        leitor.onload = (e) => {
+            fotoPerfilImg.src = e.target.result;
+            perfilFotoAcoes.style.display = "flex";
+        };
+
+        leitor.readAsDataURL(arquivo);
+
+    });
+
+    btnCancelarFoto.addEventListener("click", () => {
+        fotoPerfilImg.src = fotoOriginalSrc;
+        inputFotoPerfil.value = "";
+        perfilFotoAcoes.style.display = "none";
+    });
+
+    btnSalvarFoto.addEventListener("click", async () => {
+
+        const arquivo = inputFotoPerfil.files && inputFotoPerfil.files[0];
+        if (!arquivo) return;
+
+        btnSalvarFoto.disabled    = true;
+        btnSalvarFoto.textContent = "Salvando...";
+
+        try {
+
+            // 🔧 Rota esperada no backend: POST /api/perfil/atualizar
+            // Aceita multipart/form-data com o campo "fotoPerfil" (arquivo).
+            // Resposta esperada em caso de sucesso: { sucesso: true, fotoPerfil: "<url>" }
+            const formData = new FormData();
+            formData.append("fotoPerfil", arquivo);
+
+            const resposta = await fetch("/api/perfil/atualizar", {
+                method: "POST",
+                body: formData
+            });
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok || !dados.sucesso) {
+                throw new Error(dados.erro || "Erro ao salvar a foto.");
+            }
+
+            // Se o backend reprocessar/otimizar a imagem, ele deve devolver a URL
+            // definitiva em dados.fotoPerfil. Se não vier, mantém o preview local.
+            const novaFoto = dados.fotoPerfil || fotoPerfilImg.src;
+
+            fotoPerfilImg.src  = novaFoto;
+            fotoUsuarioImg.src = novaFoto;
+            fotoOriginalSrc    = novaFoto;
+
+            inputFotoPerfil.value = "";
+            perfilFotoAcoes.style.display = "none";
+
+        } catch (erro) {
+
+            console.log("Erro ao salvar foto de perfil:", erro);
+            alert(erro.message || "Erro ao salvar a foto. Tente novamente.");
+
+        } finally {
+
+            btnSalvarFoto.disabled    = false;
+            btnSalvarFoto.textContent = "Salvar foto";
+
+        }
+
+    });
+
+
+    // ==========================
+    // FASE 1: EDITAR NOME
+    // ==========================
+
+    const perfilNomeLinha  = document.getElementById("perfilNomeLinha");
+    const perfilNomeEditar = document.getElementById("perfilNomeEditar");
+    const perfilNomeH2     = document.getElementById("perfilNome");
+    const btnEditarNome    = document.getElementById("btnEditarNome");
+    const inputNome        = document.getElementById("inputNome");
+    const btnSalvarNome    = document.getElementById("btnSalvarNome");
+    const btnCancelarNome  = document.getElementById("btnCancelarNome");
+    const erroNome         = document.getElementById("erroNome");
+
+    btnEditarNome.addEventListener("click", () => {
+
+        inputNome.value = perfilNomeH2.textContent.trim();
+        erroNome.style.display = "none";
+
+        perfilNomeLinha.style.display  = "none";
+        perfilNomeEditar.style.display = "flex";
+
+        inputNome.focus();
+        inputNome.select();
+
+    });
+
+    btnCancelarNome.addEventListener("click", () => {
+        perfilNomeEditar.style.display = "none";
+        perfilNomeLinha.style.display  = "flex";
+        erroNome.style.display = "none";
+    });
+
+    btnSalvarNome.addEventListener("click", async () => {
+
+        const novoNome = inputNome.value.trim();
+
+        if (novoNome.length < 2) {
+            erroNome.textContent   = "Digite um nome válido.";
+            erroNome.style.display = "block";
+            return;
+        }
+
+        btnSalvarNome.disabled = true;
+
+        try {
+
+            // 🔧 Mesma rota da foto: POST /api/perfil/atualizar
+            // Aceita multipart/form-data com o campo "nome" (texto).
+            // Resposta esperada em caso de sucesso: { sucesso: true, nome: "<nome>" }
+            const formData = new FormData();
+            formData.append("nome", novoNome);
+
+            const resposta = await fetch("/api/perfil/atualizar", {
+                method: "POST",
+                body: formData
+            });
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok || !dados.sucesso) {
+                throw new Error(dados.erro || "Erro ao salvar o nome.");
+            }
+
+            const nomeFinal = dados.nome || novoNome;
+
+            perfilNomeH2.textContent = nomeFinal;
+            document.getElementById("nomeUsuario").textContent = nomeFinal;
+
+            perfilNomeEditar.style.display = "none";
+            perfilNomeLinha.style.display  = "flex";
+
+        } catch (erro) {
+
+            console.log("Erro ao salvar nome:", erro);
+            erroNome.textContent   = erro.message || "Erro ao salvar. Tente novamente.";
+            erroNome.style.display = "block";
+
+        } finally {
+
+            btnSalvarNome.disabled = false;
+
+        }
+
+    });
+
+    // Enter salva, Esc cancela — sem precisar clicar nos ícones
+    inputNome.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            btnSalvarNome.click();
+        } else if (e.key === "Escape") {
+            btnCancelarNome.click();
+        }
+    });
+
+
+    // ==========================
     // REMOVER TERAPEUTA
     // ==========================
 
-    // 🔧 FIX 3: Confirmação inline em vez de confirm()
-    // Clique em "Remover terapeuta" → mostra caixa de confirmação inline
-    // Usuário escolhe "Sim, remover" ou "Cancelar"
-
-    const btnRemover = document.getElementById("btnRemoverTerapeuta");
+    const btnRemover       = document.getElementById("btnRemoverTerapeuta");
     const confirmarRemocao = document.getElementById("confirmarRemocao");
-    const btnConfirmar = document.getElementById("btnConfirmarRemover");
-    const btnCancelar = document.getElementById("btnCancelarRemover");
+    const btnConfirmar     = document.getElementById("btnConfirmarRemover");
+    const btnCancelar      = document.getElementById("btnCancelarRemover");
 
-    // Mostra a confirmação inline ao clicar em remover
     if (btnRemover) {
 
         btnRemover.addEventListener("click", () => {
-
             confirmarRemocao.style.display = "block";
             btnRemover.style.display = "none";
-
         });
 
     }
 
-    // Cancela a remoção e volta ao estado original
     if (btnCancelar) {
 
         btnCancelar.addEventListener("click", () => {
-
             confirmarRemocao.style.display = "none";
             btnRemover.style.display = "block";
-
         });
 
     }
 
-    // Confirma a remoção e chama o backend
     if (btnConfirmar) {
 
         btnConfirmar.addEventListener("click", async () => {
 
-            btnConfirmar.disabled = true;
+            btnConfirmar.disabled    = true;
             btnConfirmar.textContent = "Removendo...";
 
             try {
 
-                // 🔧 FIX 2: Rota /remover-terapeuta agora existe no backend
-                // (adicionar a rota no server.js — veja rotas_perfil.js)
                 const resposta = await fetch("/api/remover-terapeuta", {
                     method: "POST"
                 });
@@ -706,7 +972,6 @@ JAVASCRIPT
 
                 if (resposta.ok) {
 
-                    // Recarrega os dados do perfil com o terapeuta removido
                     confirmarRemocao.style.display = "none";
                     await carregarPerfil();
 
@@ -715,7 +980,7 @@ JAVASCRIPT
                     const dados = await resposta.json();
                     alert(dados.erro || "Erro ao remover terapeuta.");
 
-                    btnConfirmar.disabled = false;
+                    btnConfirmar.disabled    = false;
                     btnConfirmar.textContent = "Sim, remover";
 
                 }
@@ -724,7 +989,7 @@ JAVASCRIPT
 
                 console.log("Erro ao remover terapeuta:", erro);
 
-                btnConfirmar.disabled = false;
+                btnConfirmar.disabled    = false;
                 btnConfirmar.textContent = "Sim, remover";
 
             }

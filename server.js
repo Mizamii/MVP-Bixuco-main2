@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs'); 
 const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
 const { cpf } = require('cpf-cnpj-validator');
@@ -1991,12 +1992,15 @@ app.get("/api/perfil", estaLogado, async (req, res) => {
             : "Terapeuta";
 
         // Monta e retorna o JSON completo para o frontend
+        const diasConsecutivos = parseInt(resultadoDias.rows[0].total) || 0;
+
         res.json({
             nome: usuario.nome,
             tipoConta,
             fotoPerfil: usuario.foto_perfil || null,
             anoCadastro: usuario.ano_cadastro || new Date().getFullYear(),
-            diasConsecutivos: parseInt(resultadoDias.rows[0].total) || 0,
+            diasConsecutivos,
+            maiorOfensiva: diasConsecutivos, // 🔧 placeholder — ver nota sobre streak real acima
             plano,
             crianca: criancaDados,
             terapeuta: terapeutaDados
@@ -2051,6 +2055,94 @@ app.post("/api/remover-terapeuta", estaLogado, async (req, res) => {
 
 });
 
+/* ==========================
+   ROTA POST — ATUALIZAR PERFIL (nome e/ou foto)
+========================== */
+
+app.post("/api/perfil/atualizar", estaLogado, upload.single("fotoPerfil"), async (req, res) => {
+
+    try {
+
+        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        const { nome } = req.body;
+
+        // Monta a query dinamicamente — só atualiza os campos que vieram
+        const campos = [];
+        const valores = [];
+        let indice = 1;
+
+        if (nome !== undefined) {
+
+            const nomeLimpo = nome.trim();
+
+            if (nomeLimpo.length < 2) {
+                return res.status(400).json({ erro: "Nome inválido.", campo: "nome" });
+            }
+
+            campos.push(`nome = $${indice++}`);
+            valores.push(nomeLimpo);
+
+        }
+
+        // Se veio uma foto nova, salva no disco (reaproveitando o multer
+        // "upload" já configurado com memoryStorage, igual ao adicionar-crianca)
+        if (req.file) {
+
+            const pastaDestino = path.join(__dirname, "static", "uploads", "perfil");
+            fs.mkdirSync(pastaDestino, { recursive: true });
+
+            const extensao = path.extname(req.file.originalname) || ".jpg";
+            const nomeArquivo = `perfil_${usuarioId}_${Date.now()}${extensao}`;
+            const caminhoCompleto = path.join(pastaDestino, nomeArquivo);
+
+            fs.writeFileSync(caminhoCompleto, req.file.buffer);
+
+            // "static" já é servido publicamente em app.use(express.static(...)),
+            // então o arquivo fica acessível em /uploads/perfil/<nome>
+            const novaFotoUrl = `/uploads/perfil/${nomeArquivo}`;
+
+            campos.push(`foto_perfil = $${indice++}`);
+            valores.push(novaFotoUrl);
+
+        }
+
+        if (campos.length === 0) {
+            return res.status(400).json({ erro: "Nada para atualizar." });
+        }
+
+        valores.push(usuarioId);
+
+        const resultado = await db.query(
+            `UPDATE usuarios
+             SET ${campos.join(", ")}
+             WHERE id = $${indice}
+             RETURNING nome, foto_perfil`,
+            valores
+        );
+
+        if (resultado.rows.length === 0) {
+            return res.status(404).json({ erro: "Usuário não encontrado." });
+        }
+
+        return res.json({
+            sucesso: true,
+            nome: resultado.rows[0].nome,
+            fotoPerfil: resultado.rows[0].foto_perfil
+        });
+
+    } catch (erro) {
+
+        console.log("Erro ao atualizar perfil:", erro);
+        res.status(500).json({ erro: "Erro interno ao salvar perfil." });
+
+    }
+
+});
 
 /* ==================================================
    ROTA DO SOBRE — adicione no seu server.js
