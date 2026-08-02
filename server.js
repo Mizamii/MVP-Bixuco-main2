@@ -1585,7 +1585,11 @@ app.post("/api/vinculos/responder", estaLogado, async (req, res) => {
 // ─────────────────────────────────────────
 app.post("/api/vinculos/solicitar", estaLogado, async (req, res) => {
     const { codigoTerapeuta } = req.body;
-    const responsavelId = req.session.usuario.id;
+    const responsavelId = req.session.usuarioId || (req.user && req.user.id);
+
+    if (!responsavelId) {
+        return res.status(401).json({ erro: "Não autenticado." });
+    }
 
     try {
         const terapeuta = await db.query(
@@ -1633,7 +1637,11 @@ app.post("/api/vinculos/solicitar", estaLogado, async (req, res) => {
 // CANCELAR PEDIDO PENDENTE
 // ─────────────────────────────────────────
 app.post("/api/vinculos/cancelar", estaLogado, async (req, res) => {
-    const responsavelId = req.session.usuario.id;
+    const responsavelId = req.session.usuarioId || (req.user && req.user.id);
+
+    if (!responsavelId) {
+        return res.status(401).json({ erro: "Não autenticado." });
+    }
 
     try {
         await db.query(
@@ -1652,13 +1660,23 @@ app.post("/api/vinculos/cancelar", estaLogado, async (req, res) => {
 // REMOVER TERAPEUTA VINCULADO
 // ─────────────────────────────────────────
 app.post("/api/vinculos/remover", estaLogado, async (req, res) => {
-    const responsavelId = req.session.usuario.id;
+    const responsavelId = req.session.usuarioId || (req.user && req.user.id);
+
+    if (!responsavelId) {
+        return res.status(401).json({ erro: "Não autenticado." });
+    }
 
     try {
-        await db.query(
-            "DELETE FROM vinculos WHERE responsavel_id = $1 AND ativo = true",
+        // Usa ativo = FALSE em vez de DELETE para manter histórico do vínculo
+        const resultado = await db.query(
+            `UPDATE vinculos SET ativo = FALSE WHERE responsavel_id = $1 AND ativo = TRUE`,
             [responsavelId]
         );
+
+        if (resultado.rowCount === 0) {
+            return res.status(404).json({ erro: "Nenhum terapeuta vinculado encontrado." });
+        }
+
         res.json({ sucesso: true });
     } catch (erro) {
         console.error(erro);
@@ -1671,7 +1689,11 @@ app.post("/api/vinculos/remover", estaLogado, async (req, res) => {
 // BUSCAR STATUS DO VÍNCULO ATUAL
 // ─────────────────────────────────────────
 app.get("/api/vinculos/status", estaLogado, async (req, res) => {
-    const responsavelId = req.session.usuario.id;
+    const responsavelId = req.session.usuarioId || (req.user && req.user.id);
+
+    if (!responsavelId) {
+        return res.status(401).json({ erro: "Não autenticado." });
+    }
 
     try {
         const resultado = await db.query(
@@ -2269,45 +2291,9 @@ app.get("/api/perfil", estaLogado, async (req, res) => {
 
 });
 
-/* ==========================
-   ROTA POST — REMOVER TERAPEUTA
-========================== */
-
-// 🔧 FIX 2: Rota /api/remover-terapeuta que não existia no server.js
-app.post("/api/remover-terapeuta", estaLogado, async (req, res) => {
-
-    try {
-
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
-
-        if (!usuarioId) {
-            return res.status(401).json({ erro: "Não autenticado." });
-        }
-
-        // Desativa o vínculo entre o responsável e o terapeuta
-        // Usa ativo = FALSE em vez de deletar para manter histórico
-        const resultado = await db.query(
-            `UPDATE vinculos
-             SET ativo = FALSE
-             WHERE responsavel_id = $1
-             AND ativo = TRUE`,
-            [usuarioId]
-        );
-
-        if (resultado.rowCount === 0) {
-            return res.status(404).json({ erro: "Nenhum terapeuta vinculado encontrado." });
-        }
-
-        return res.status(200).json({ mensagem: "Terapeuta removido com sucesso." });
-
-    } catch (erro) {
-
-        console.log("Erro ao remover terapeuta:", erro);
-        res.status(500).json({ erro: "Erro interno ao remover terapeuta." });
-
-    }
-
-});
+// 🔧 A remoção de terapeuta agora é feita só por /api/vinculos/remover
+// (a rota /api/remover-terapeuta foi removida por ser duplicada e
+// usar DELETE em vez de manter o histórico do vínculo)
 
 /* ==========================
    ROTA POST — ATUALIZAR PERFIL (nome e/ou foto)

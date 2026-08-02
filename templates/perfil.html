@@ -179,6 +179,158 @@
         background: rgba(255, 68, 68, 0.1);
         color: #C0392B;
     }
+
+    /* ========================= */
+    /* MODAL — VINCULAR TERAPEUTA */
+    /* ========================= */
+
+    #modalVincular {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+    }
+    #modalVincular.aberto {
+        display: flex;
+    }
+    #modalVincular .modal-conteudo {
+        background: #fff;
+        border-radius: 16px;
+        padding: 1.75rem;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    #modalVincular .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.25rem;
+    }
+    #modalVincular h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #141414;
+    }
+    #modalVincular .btn-fechar-modal {
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: #5A5A5A;
+    }
+    #modalVincular .modal-descricao {
+        font-size: 0.85rem;
+        color: #5A5A5A;
+        margin-bottom: 1rem;
+    }
+    #modalVincular label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #141414;
+        margin-bottom: 0.4rem;
+    }
+    #modalVincular input[type="text"] {
+        width: 100%;
+        padding: 0.75rem 0.9rem;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-family: inherit;
+    }
+    #modalVincular .erro-vincular {
+        display: block;
+        margin-top: 0.5rem;
+        font-size: 0.8rem;
+        color: #C0392B;
+    }
+    #modalVincular .btn-salvar-crianca {
+        width: 100%;
+        margin-top: 1.25rem;
+        padding: 0.85rem;
+        background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    #modalVincular .btn-salvar-crianca:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    /* ========================= */
+    /* CARD TERAPEUTA — 4 ESTADOS */
+    /* ========================= */
+
+    .card.terapeuta .texto-vazio {
+        color: #5A5A5A;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .card.terapeuta .btn-vincular {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.7rem 1.1rem;
+        background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .card.terapeuta .badge-ativo {
+        margin-left: auto;
+        padding: 0.25rem 0.65rem;
+        border-radius: 999px;
+        background: rgba(50, 194, 109, 0.12);
+        color: #1E8E4F;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .card.terapeuta .notificacao-status {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.9rem;
+        border-radius: 12px;
+        font-size: 0.85rem;
+    }
+    .card.terapeuta .notificacao-status strong {
+        display: block;
+        margin-bottom: 0.15rem;
+    }
+    .card.terapeuta .notificacao-status--pendente {
+        background: rgba(10, 183, 251, 0.1);
+        color: #0A7EA4;
+    }
+    .card.terapeuta .notificacao-status--recusado {
+        background: rgba(255, 68, 68, 0.1);
+        color: #C0392B;
+    }
+
+    .card.terapeuta .btn-cancelar-vinculo {
+        margin-top: 0.75rem;
+        background: none;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 0.5rem 0.9rem;
+        font-size: 0.82rem;
+        color: #5A5A5A;
+        cursor: pointer;
+    }
 </style>
 
 <body>
@@ -530,84 +682,174 @@
 
                     </h2>
 
-                    <div class="terapeuta-info">
+                    <!-- estado 1: sem vínculo nenhum -->
+                    <div id="estadoSemVinculo">
 
-                        <div class="avatar-terapeuta">
+                        <p class="texto-vazio">Nenhum terapeuta vinculado ainda.</p>
 
-                            <span>Dr</span>
+                        <button
+                            type="button"
+                            class="btn-vincular"
+                            id="btnAbrirModalVincular"
+                        >
 
-                        </div>
+                            <i class="fa-solid fa-link"></i>
 
-                        <div class="dados-terapeuta">
+                            Vincular terapeuta
 
-                            <h3 id="nomeTerapeuta">
-
-                                Nenhum terapeuta
-
-                            </h3>
-
-                            <p id="crpTerapeuta">
-
-                                Ainda não vinculado
-
-                            </p>
-
-                        </div>
+                        </button>
 
                     </div>
 
+                    <!-- estado 2: pedido pendente -->
                     <div
-                        id="confirmarRemocao"
-                        class="confirmar-remocao"
+                        id="estadoPendente"
                         style="display: none;"
                     >
 
-                        <p>
+                        <div class="notificacao-status notificacao-status--pendente">
 
-                            Tem certeza que deseja remover o terapeuta?
+                            <i class="fa-solid fa-clock"></i>
 
-                        </p>
+                            <div>
 
-                        <div class="confirmar-botoes">
+                                <strong>Pedido enviado!</strong>
 
-                            <button
-                                type="button"
-                                id="btnConfirmarRemover"
-                                class="btn-confirmar"
-                            >
+                                <p>Aguardando confirmação de <span id="nomeTerapeutaPendente">...</span></p>
 
-                                Sim, remover
-
-                            </button>
-
-                            <button
-                                type="button"
-                                id="btnCancelarRemover"
-                                class="btn-cancelar-remocao"
-                            >
-
-                                Cancelar
-
-                            </button>
+                            </div>
 
                         </div>
 
+                        <button
+                            type="button"
+                            class="btn-cancelar-vinculo"
+                            id="btnCancelarPedido"
+                        >
+
+                            Cancelar pedido
+
+                        </button>
+
                     </div>
 
-                    <button
-                        class="btn-remover"
-                        id="btnRemoverTerapeuta"
-                        type="button"
+                    <!-- estado 3: recusado -->
+                    <div
+                        id="estadoRecusado"
+                        style="display: none;"
                     >
 
-                        <i class="fa-solid fa-link-slash"></i>
+                        <div class="notificacao-status notificacao-status--recusado">
 
-                        Remover terapeuta
+                            <i class="fa-solid fa-circle-xmark"></i>
 
-                    </button>
+                            <div>
 
-                    <!-- 🔜 Fase 2: aqui entra o botão "Vincular terapeuta" (modal com
-                         código), o estado de "pedido pendente" e a notificação -->
+                                <strong>Pedido recusado</strong>
+
+                                <p>O terapeuta não aceitou o vínculo.</p>
+
+                            </div>
+
+                        </div>
+
+                        <button
+                            type="button"
+                            class="btn-vincular"
+                            id="btnTentarOutroTerapeuta"
+                            style="margin-top: 1rem;"
+                        >
+
+                            <i class="fa-solid fa-link"></i>
+
+                            Tentar outro terapeuta
+
+                        </button>
+
+                    </div>
+
+                    <!-- estado 4: vínculo aceito -->
+                    <div
+                        id="estadoAceito"
+                        style="display: none;"
+                    >
+
+                        <div class="terapeuta-info">
+
+                            <div class="avatar-terapeuta">
+
+                                <img
+                                    id="fotoTerapeutaVinculado"
+                                    src="/img/perfilPadrao.png"
+                                    alt="Foto do terapeuta"
+                                    onerror="this.src='/img/perfilPadrao.png'"
+                                >
+
+                            </div>
+
+                            <div class="dados-terapeuta">
+
+                                <h3 id="nomeTerapeutaVinculado">...</h3>
+
+                                <p id="crpTerapeutaVinculado">CRP: ...</p>
+
+                            </div>
+
+                            <span class="badge-ativo">Ativo</span>
+
+                        </div>
+
+                        <div
+                            id="confirmarRemocao"
+                            class="confirmar-remocao"
+                            style="display: none;"
+                        >
+
+                            <p>
+
+                                Tem certeza que deseja remover o terapeuta?
+
+                            </p>
+
+                            <div class="confirmar-botoes">
+
+                                <button
+                                    type="button"
+                                    id="btnConfirmarRemover"
+                                    class="btn-confirmar"
+                                >
+
+                                    Sim, remover
+
+                                </button>
+
+                                <button
+                                    type="button"
+                                    id="btnCancelarRemover"
+                                    class="btn-cancelar-remocao"
+                                >
+
+                                    Cancelar
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                        <button
+                            class="btn-remover"
+                            id="btnRemoverTerapeuta"
+                            type="button"
+                        >
+
+                            <i class="fa-solid fa-link-slash"></i>
+
+                            Remover terapeuta
+
+                        </button>
+
+                    </div>
 
                 </section>
 
@@ -710,6 +952,52 @@
 
     </main>
 
+</div>
+
+<!-- ===========================
+MODAL — VINCULAR TERAPEUTA
+=========================== -->
+
+<div id="modalVincular">
+    <div class="modal-conteudo">
+
+        <div class="modal-header">
+            <h3>Vincular terapeuta</h3>
+            <button
+                type="button"
+                class="btn-fechar-modal"
+                id="btnFecharModalVincular"
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <p class="modal-descricao">
+            Digite o código CRP do seu terapeuta para enviar um pedido de vínculo.
+        </p>
+
+        <label for="inputCodigoTerapeuta">Código do terapeuta (CRP)</label>
+        <input
+            type="text"
+            id="inputCodigoTerapeuta"
+            placeholder="Ex: CRP-06/123456"
+        >
+
+        <span
+            class="erro-vincular"
+            id="erroVincular"
+            style="display: none;"
+        ></span>
+
+        <button
+            type="button"
+            class="btn-salvar-crianca"
+            id="btnEnviarPedidoVinculo"
+        >
+            Enviar pedido
+        </button>
+
+    </div>
 </div>
 
 <!-- ===========================
@@ -900,33 +1188,9 @@ JAVASCRIPT
 
             }
 
-            // =====================
-            // TERAPEUTA
-            // =====================
-
-            if (usuario.terapeuta) {
-
-                document.getElementById("nomeTerapeuta").textContent =
-                    usuario.terapeuta.nome;
-
-                document.getElementById("crpTerapeuta").textContent =
-                    usuario.terapeuta.crp;
-
-                document.getElementById("btnRemoverTerapeuta").style.display =
-                    "block";
-
-            } else {
-
-                document.getElementById("nomeTerapeuta").textContent =
-                    "Nenhum terapeuta";
-
-                document.getElementById("crpTerapeuta").textContent =
-                    "Ainda não vinculado";
-
-                document.getElementById("btnRemoverTerapeuta").style.display =
-                    "none";
-
-            }
+            // Terapeuta agora é tratado à parte por carregarVinculo(),
+            // que consulta /api/vinculos/status e cobre os 4 estados
+            // (sem vínculo / pendente / recusado / aceito)
 
         } catch (erro) {
 
@@ -1306,6 +1570,222 @@ JAVASCRIPT
 
 
     // ==========================
+    // VÍNCULO COM TERAPEUTA
+    // ==========================
+
+    const modalVincular          = document.getElementById("modalVincular");
+    const btnAbrirModalVincular  = document.getElementById("btnAbrirModalVincular");
+    const btnTentarOutro         = document.getElementById("btnTentarOutroTerapeuta");
+    const btnFecharModalVincular = document.getElementById("btnFecharModalVincular");
+    const inputCodigoTerapeuta   = document.getElementById("inputCodigoTerapeuta");
+    const erroVincular           = document.getElementById("erroVincular");
+    const btnEnviarPedidoVinculo = document.getElementById("btnEnviarPedidoVinculo");
+    const btnCancelarPedido      = document.getElementById("btnCancelarPedido");
+
+    const estadoSemVinculo = document.getElementById("estadoSemVinculo");
+    const estadoPendente   = document.getElementById("estadoPendente");
+    const estadoRecusado   = document.getElementById("estadoRecusado");
+    const estadoAceito     = document.getElementById("estadoAceito");
+
+    // Busca o status atual do vínculo e atualiza o card
+    async function carregarVinculo() {
+
+        try {
+
+            const resposta = await fetch("/api/vinculos/status");
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            if (!resposta.ok) throw new Error();
+
+            const dados = await resposta.json();
+            atualizarEstadoVinculo(dados);
+
+        } catch (erro) {
+
+            console.log("Erro ao carregar vínculo:", erro);
+            atualizarEstadoVinculo({ status: "sem_vinculo" });
+
+        }
+
+    }
+
+    // Mostra só o bloco correspondente ao status atual
+    function atualizarEstadoVinculo(dados) {
+
+        estadoSemVinculo.style.display = "none";
+        estadoPendente.style.display   = "none";
+        estadoRecusado.style.display   = "none";
+        estadoAceito.style.display     = "none";
+
+        if (dados.status === "pendente") {
+
+            document.getElementById("nomeTerapeutaPendente").textContent =
+                dados.nomeTerapeuta || "...";
+
+            estadoPendente.style.display = "block";
+
+        } else if (dados.status === "aceito") {
+
+            document.getElementById("nomeTerapeutaVinculado").textContent =
+                dados.nomeTerapeuta || "...";
+
+            document.getElementById("crpTerapeutaVinculado").textContent =
+                `CRP: ${dados.crpTerapeuta || "..."}`;
+
+            if (dados.fotoTerapeuta) {
+                document.getElementById("fotoTerapeutaVinculado").src =
+                    dados.fotoTerapeuta;
+            }
+
+            // garante que a confirmação de remoção comece fechada
+            document.getElementById("confirmarRemocao").style.display = "none";
+            document.getElementById("btnRemoverTerapeuta").style.display = "block";
+
+            estadoAceito.style.display = "block";
+
+        } else if (dados.status === "recusado") {
+
+            estadoRecusado.style.display = "block";
+
+        } else {
+
+            estadoSemVinculo.style.display = "block";
+
+        }
+
+    }
+
+    function abrirModalVincular() {
+        inputCodigoTerapeuta.value    = "";
+        erroVincular.style.display    = "none";
+        modalVincular.classList.add("aberto");
+        document.body.style.overflow  = "hidden";
+    }
+
+    function fecharModalVincular() {
+        modalVincular.classList.remove("aberto");
+        document.body.style.overflow = "";
+    }
+
+    if (btnAbrirModalVincular) {
+        btnAbrirModalVincular.addEventListener("click", abrirModalVincular);
+    }
+
+    if (btnTentarOutro) {
+        btnTentarOutro.addEventListener("click", abrirModalVincular);
+    }
+
+    btnFecharModalVincular.addEventListener("click", fecharModalVincular);
+
+    modalVincular.addEventListener("click", (e) => {
+        if (e.target === modalVincular) fecharModalVincular();
+    });
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && modalVincular.classList.contains("aberto")) {
+            fecharModalVincular();
+        }
+    });
+
+    inputCodigoTerapeuta.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            btnEnviarPedidoVinculo.click();
+        }
+    });
+
+    btnEnviarPedidoVinculo.addEventListener("click", async () => {
+
+        const codigo = inputCodigoTerapeuta.value.trim();
+
+        erroVincular.style.display = "none";
+
+        if (!codigo) {
+            erroVincular.textContent   = "Digite o código do terapeuta.";
+            erroVincular.style.display = "block";
+            return;
+        }
+
+        btnEnviarPedidoVinculo.disabled    = true;
+        btnEnviarPedidoVinculo.textContent = "Enviando...";
+
+        try {
+
+            const resposta = await fetch("/api/vinculos/solicitar", {
+                method:  "POST",
+                headers: { "Content-Type": "application/json" },
+                body:    JSON.stringify({ codigoTerapeuta: codigo })
+            });
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok || !dados.sucesso) {
+                erroVincular.textContent   = dados.erro || "Erro ao enviar pedido.";
+                erroVincular.style.display = "block";
+                return;
+            }
+
+            fecharModalVincular();
+            atualizarEstadoVinculo({
+                status: "pendente",
+                nomeTerapeuta: dados.nomeTerapeuta
+            });
+
+        } catch (erro) {
+
+            console.log("Erro ao enviar pedido de vínculo:", erro);
+            erroVincular.textContent   = "Erro ao enviar pedido. Tente novamente.";
+            erroVincular.style.display = "block";
+
+        } finally {
+
+            btnEnviarPedidoVinculo.disabled    = false;
+            btnEnviarPedidoVinculo.textContent = "Enviar pedido";
+
+        }
+
+    });
+
+    if (btnCancelarPedido) {
+
+        btnCancelarPedido.addEventListener("click", async () => {
+
+            try {
+
+                const resposta = await fetch("/api/vinculos/cancelar", {
+                    method: "POST"
+                });
+
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
+                }
+
+                if (!resposta.ok) throw new Error();
+
+                atualizarEstadoVinculo({ status: "sem_vinculo" });
+
+            } catch (erro) {
+
+                console.log("Erro ao cancelar pedido:", erro);
+                alert("Erro ao cancelar pedido. Tente novamente.");
+
+            }
+
+        });
+
+    }
+
+    // ==========================
     // REMOVER TERAPEUTA
     // ==========================
 
@@ -1341,7 +1821,7 @@ JAVASCRIPT
 
             try {
 
-                const resposta = await fetch("/api/remover-terapeuta", {
+                const resposta = await fetch("/api/vinculos/remover", {
                     method: "POST"
                 });
 
@@ -1353,21 +1833,20 @@ JAVASCRIPT
                 if (resposta.ok) {
 
                     confirmarRemocao.style.display = "none";
-                    await carregarPerfil();
+                    atualizarEstadoVinculo({ status: "sem_vinculo" });
 
                 } else {
 
                     const dados = await resposta.json();
                     alert(dados.erro || "Erro ao remover terapeuta.");
 
-                    btnConfirmar.disabled    = false;
-                    btnConfirmar.textContent = "Sim, remover";
-
                 }
 
             } catch (erro) {
 
                 console.log("Erro ao remover terapeuta:", erro);
+
+            } finally {
 
                 btnConfirmar.disabled    = false;
                 btnConfirmar.textContent = "Sim, remover";
@@ -1384,6 +1863,7 @@ JAVASCRIPT
     // ==========================
 
     carregarPerfil();
+    carregarVinculo();
 
 </script>
 <script src="/js/tema.js"></script>
