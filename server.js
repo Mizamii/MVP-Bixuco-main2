@@ -382,6 +382,96 @@ app.get("/admin/novidades", (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "Adminnovidades.html"));
 });
 
+/* ==========================
+   ROTA — ATUALIZAR CRIANÇA (nome / foto)
+========================== */
+
+app.post("/api/crianca/atualizar", estaLogado, upload.single("fotoCrianca"), async (req, res) => {
+
+    try {
+
+        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        const criancaResult = await db.query(
+            "SELECT id FROM criancas WHERE usuario_id = $1 LIMIT 1",
+            [usuarioId]
+        );
+
+        if (criancaResult.rows.length === 0) {
+            return res.status(404).json({ erro: "Nenhuma criança cadastrada." });
+        }
+
+        const criancaId = criancaResult.rows[0].id;
+
+        const { nome } = req.body;
+
+        const campos  = [];
+        const valores = [];
+        let indice = 1;
+
+        if (nome !== undefined) {
+
+            const nomeLimpo = nome.trim();
+
+            if (nomeLimpo.length < 2) {
+                return res.status(400).json({ erro: "Nome inválido." });
+            }
+
+            campos.push(`nome = $${indice++}`);
+            valores.push(nomeLimpo);
+
+        }
+
+        // Mesmo padrão de storage usado em /api/perfil/atualizar
+        if (req.file) {
+
+            const pastaDestino = path.join(__dirname, "static", "uploads", "criancas");
+            fs.mkdirSync(pastaDestino, { recursive: true });
+
+            const extensao = path.extname(req.file.originalname) || ".jpg";
+            const nomeArquivo = `crianca_${criancaId}_${Date.now()}${extensao}`;
+            const caminhoCompleto = path.join(pastaDestino, nomeArquivo);
+
+            fs.writeFileSync(caminhoCompleto, req.file.buffer);
+
+            const novaFotoUrl = `/uploads/criancas/${nomeArquivo}`;
+
+            campos.push(`foto_url = $${indice++}`);
+            valores.push(novaFotoUrl);
+
+        }
+
+        if (campos.length === 0) {
+            return res.status(400).json({ erro: "Nada para atualizar." });
+        }
+
+        valores.push(criancaId);
+
+        const atualizado = await db.query(
+            `UPDATE criancas SET ${campos.join(", ")} WHERE id = $${indice}
+             RETURNING nome, foto_url`,
+            valores
+        );
+
+        return res.status(200).json({
+            sucesso: true,
+            nome: atualizado.rows[0].nome,
+            fotoUrl: atualizado.rows[0].foto_url
+        });
+
+    } catch (erro) {
+
+        console.log("Erro ao atualizar criança:", erro);
+        res.status(500).json({ erro: "Erro interno ao atualizar criança." });
+
+    }
+
+});
+
 // Envia a notificação de novidade para todos os usuários
 // que têm "Novidades e dicas" ativado nas configurações
 app.post("/api/admin/novidade", async (req, res) => {
@@ -1892,6 +1982,7 @@ app.delete("/api/excluir-conta", estaLogado, async (req, res) => {
 // 🔧 FIX 1: Rota /api/perfil que o frontend chamava como /dados-usuario
 // Retorna todos os dados necessários para montar a página de perfil
 app.get("/api/perfil", estaLogado, async (req, res) => {
+    
 
     try {
 
@@ -1919,7 +2010,7 @@ app.get("/api/perfil", estaLogado, async (req, res) => {
         // Busca a criança vinculada ao responsável
         // Ajuste o nome da tabela conforme o seu banco
         const resultadoCrianca = await db.query(
-            `SELECT nome, data_nascimento
+            `SELECT nome, data_nascimento, foto_url
              FROM criancas
              WHERE usuario_id = $1
              LIMIT 1`,
@@ -1939,7 +2030,8 @@ app.get("/api/perfil", estaLogado, async (req, res) => {
 
             criancaDados = {
                 nome: crianca.nome,
-                idade
+                idade,
+                foto: crianca.foto_url || null
             };
 
         }
