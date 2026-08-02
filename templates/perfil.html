@@ -1977,7 +1977,8 @@ JAVASCRIPT
     // ==========================
 
     atualizarTextoBotaoTraducao();
-    document.getElementById("quantidadeNotificacoes").textContent = dados.notificacoes ?? 0;
+    
+    carregarNotificacoes();
 
     carregarPerfil();
     carregarVinculo();
