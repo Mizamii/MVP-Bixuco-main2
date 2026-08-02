@@ -28,6 +28,107 @@
 
 </head>
 
+<style>
+    /* ========================= */
+    /* MODAL — ALTERAR SENHA */
+    /* ========================= */
+
+    #modalSenha {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+    }
+    #modalSenha.aberto {
+        display: flex;
+    }
+    #modalSenha .modal-conteudo {
+        background: #fff;
+        border-radius: 16px;
+        padding: 1.75rem;
+        width: 100%;
+        max-width: 420px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    #modalSenha .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.25rem;
+    }
+    #modalSenha h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #141414;
+    }
+    #modalSenha .btn-fechar-modal {
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: #5A5A5A;
+    }
+    #modalSenha label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #141414;
+        margin-bottom: 0.4rem;
+        margin-top: 1rem;
+    }
+    #modalSenha label:first-of-type {
+        margin-top: 0;
+    }
+    #modalSenha input[type="password"] {
+        width: 100%;
+        padding: 0.75rem 0.9rem;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-family: inherit;
+    }
+    #modalSenha .btn-salvar-senha {
+        width: 100%;
+        margin-top: 1.5rem;
+        padding: 0.85rem;
+        background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    #modalSenha .btn-salvar-senha:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    #modalSenha .status-senha {
+        display: none;
+        margin-top: 1rem;
+        padding: 0.7rem 0.9rem;
+        border-radius: 10px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        text-align: center;
+    }
+    #modalSenha .status-senha.visivel {
+        display: block;
+    }
+    #modalSenha .status-senha.sucesso {
+        background: rgba(50, 194, 109, 0.12);
+        color: #1E8E4F;
+    }
+    #modalSenha .status-senha.erro {
+        background: rgba(255, 68, 68, 0.1);
+        color: #C0392B;
+    }
+</style>
+
 <body>
 
 <div class="container">
@@ -57,8 +158,6 @@
 
             </a>
 
-            <!-- 🔧 FIX 7: /Relatorios → /relatorios (minúsculo, consistente) -->
-
             <a href="/relatorios">
 
                 <i class="fa-solid fa-chart-line"></i>
@@ -66,8 +165,6 @@
                 <span>Relatórios</span>
 
             </a>
-
-            <!-- 🔧 FIX 7: /Configuracoes → /configuracoes -->
 
             <a
                 href="/configuracoes"
@@ -80,8 +177,6 @@
 
             </a>
 
-            <!-- 🔧 FIX 7: /Sobre → /sobre -->
-
             <a href="/sobre">
 
                 <i class="fa-solid fa-circle-info"></i>
@@ -91,8 +186,6 @@
             </a>
 
         </nav>
-
-        <!-- 🔧 FIX 9: type="button" adicionado -->
 
         <button
             class="btn-relatorio"
@@ -105,8 +198,6 @@
         </button>
 
         <div class="tema">
-
-            <!-- 🔧 FIX 6: IDs padronizados btnClaro/btnEscuro igual a todas as páginas -->
 
             <button
                 id="btnClaro"
@@ -257,8 +348,6 @@
 
                     </div>
 
-                    <!-- 🔧 FIX 5: ID corrigido para notifRelatorio (igual ao HTML) -->
-
                     <label class="switch">
 
                         <input
@@ -287,8 +376,6 @@
 
                     </div>
 
-                    <!-- 🔧 FIX 5: ID corrigido para notifNovidades (igual ao HTML) -->
-
                     <label class="switch">
 
                         <input
@@ -313,9 +400,6 @@
                     Compartilhamento
 
                 </h2>
-
-                <!-- 🔧 FIX 5: Removido onclick inline, agora controlado pelo JS -->
-                <!-- com ID correto para o addEventListener funcionar -->
 
                 <button
                     class="config-btn"
@@ -363,7 +447,7 @@
 
                 </h2>
 
-                <!-- 🔧 FIX 5: IDs adicionados para o addEventListener funcionar -->
+                <!-- 🔧 Agora abre o modal em vez de redirecionar para /alterar-senha -->
 
                 <button
                     class="config-btn"
@@ -416,9 +500,6 @@
                     <i class="fa-solid fa-chevron-right seta"></i>
 
                 </button>
-
-                <!-- 🔧 FIX 4: Confirmação inline para excluir conta em vez de confirm() -->
-                <!-- Aparece só quando o usuário clica no botão de excluir -->
 
                 <div
                     id="confirmarExclusao"
@@ -506,10 +587,49 @@
 
         </section>
 
-        <!-- 🔧 FIX 8: </section> e </main> que estavam faltando -->
-
     </main>
 
+</div>
+
+<!-- ========================= -->
+<!-- MODAL — ALTERAR SENHA -->
+<!-- ========================= -->
+
+<div id="modalSenha">
+    <div class="modal-conteudo">
+
+        <div class="modal-header">
+            <h3>Alterar senha</h3>
+            <button
+                type="button"
+                class="btn-fechar-modal"
+                id="btnFecharModalSenha"
+                aria-label="Fechar"
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <form id="formAlterarSenha">
+
+            <label for="senhaAtual">Senha atual</label>
+            <input type="password" id="senhaAtual" required autocomplete="current-password">
+
+            <label for="novaSenha">Nova senha</label>
+            <input type="password" id="novaSenha" required autocomplete="new-password" minlength="6">
+
+            <label for="confirmarNovaSenha">Confirmar nova senha</label>
+            <input type="password" id="confirmarNovaSenha" required autocomplete="new-password" minlength="6">
+
+            <button type="submit" class="btn-salvar-senha" id="btnSalvarSenha">
+                Salvar nova senha
+            </button>
+
+        </form>
+
+        <p id="statusSenha" class="status-senha"></p>
+
+    </div>
 </div>
 
 <!-- ========================= -->
@@ -521,9 +641,6 @@
     // ==========================
     // TEMA
     // ==========================
-
-    // 🔧 FIX 6: IDs padronizados btnClaro/btnEscuro + função aplicarTema
-    // igual a todas as outras páginas do projeto
 
     function aplicarTema(tema) {
 
@@ -557,10 +674,8 @@
 
         try {
 
-            // 🔧 FIX 1: Rota corrigida de /api/usuario para /api/home
             const resposta = await fetch("/api/home");
 
-            // 🔧 FIX 10: Redireciona para login se não autenticado
             if (resposta.status === 401) {
                 window.location.href = "/logar";
                 return;
@@ -594,11 +709,8 @@
 
 
     // ==========================
-    // NOTIFICAÇÕES
+    // NOTIFICAÇÕES (TOGGLES)
     // ==========================
-
-    // 🔧 FIX 5: IDs corrigidos para notifRelatorio/notifNovidades
-    // Antes o JS buscava checkLembrete/checkNovidades que não existiam no HTML
 
     const notifRelatorio = document.getElementById("notifRelatorio");
     const notifNovidades = document.getElementById("notifNovidades");
@@ -607,7 +719,6 @@
 
         try {
 
-            // 🔧 FIX 2: Rota /api/configuracoes/notificacoes — adicionar no server.js
             await fetch("/api/configuracoes/notificacoes", {
 
                 method: "POST",
@@ -641,19 +752,108 @@
     // COMPARTILHAR TERAPEUTA
     // ==========================
 
-    // 🔧 FIX 5: getElementById agora funciona pois o ID existe no HTML
-
     document.getElementById("btnCompartilhar").addEventListener("click", () => {
         window.location.href = "/compartilhar-terapeuta";
     });
 
 
     // ==========================
-    // ALTERAR SENHA
+    // 🔧 ALTERAR SENHA — AGORA VIA MODAL
     // ==========================
 
-    document.getElementById("btnAlterarSenha").addEventListener("click", () => {
-        window.location.href = "/alterar-senha";
+    const modalSenha        = document.getElementById("modalSenha");
+    const formAlterarSenha  = document.getElementById("formAlterarSenha");
+    const btnSalvarSenha    = document.getElementById("btnSalvarSenha");
+    const statusSenha       = document.getElementById("statusSenha");
+
+    function abrirModalSenha() {
+        modalSenha.classList.add("aberto");
+        document.body.style.overflow = "hidden";
+    }
+
+    function fecharModalSenha() {
+        modalSenha.classList.remove("aberto");
+        document.body.style.overflow = "";
+        formAlterarSenha.reset();
+        statusSenha.className = "status-senha";
+    }
+
+    function mostrarStatusSenha(texto, tipo) {
+        statusSenha.textContent = texto;
+        statusSenha.className   = `status-senha visivel ${tipo}`;
+    }
+
+    document.getElementById("btnAlterarSenha").addEventListener("click", abrirModalSenha);
+    document.getElementById("btnFecharModalSenha").addEventListener("click", fecharModalSenha);
+
+    // Fecha clicando fora do card
+    modalSenha.addEventListener("click", (e) => {
+        if (e.target === modalSenha) fecharModalSenha();
+    });
+
+    // Fecha com Escape
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && modalSenha.classList.contains("aberto")) {
+            fecharModalSenha();
+        }
+    });
+
+    formAlterarSenha.addEventListener("submit", async (e) => {
+
+        e.preventDefault();
+
+        const senhaAtual         = document.getElementById("senhaAtual").value;
+        const novaSenha          = document.getElementById("novaSenha").value;
+        const confirmarNovaSenha = document.getElementById("confirmarNovaSenha").value;
+
+        if (novaSenha !== confirmarNovaSenha) {
+            mostrarStatusSenha("As senhas novas não coincidem.", "erro");
+            return;
+        }
+
+        btnSalvarSenha.disabled    = true;
+        btnSalvarSenha.textContent = "Salvando...";
+
+        try {
+
+            const resposta = await fetch("/api/alterar-senha", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    senhaAtual,
+                    novaSenha,
+                    confirmarNovaSenha
+                })
+
+            });
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(dados.erro || "Erro ao alterar a senha.");
+            }
+
+            mostrarStatusSenha(dados.mensagem || "Senha alterada com sucesso!", "sucesso");
+            formAlterarSenha.reset();
+
+            setTimeout(fecharModalSenha, 1800);
+
+        } catch (erro) {
+
+            mostrarStatusSenha(erro.message, "erro");
+
+        } finally {
+
+            btnSalvarSenha.disabled    = false;
+            btnSalvarSenha.textContent = "Salvar nova senha";
+
+        }
+
     });
 
 
@@ -665,8 +865,6 @@
     const confirmarExclusao = document.getElementById("confirmarExclusao");
     const btnConfirmar      = document.getElementById("btnConfirmarExclusao");
     const btnCancelar       = document.getElementById("btnCancelarExclusao");
-
-    // 🔧 FIX 4: Clique em excluir mostra confirmação inline em vez de confirm()
 
     btnExcluir.addEventListener("click", () => {
 
@@ -689,8 +887,6 @@
 
         try {
 
-            // 🔧 FIX 3: Rota /api/excluir-conta — adicionar no server.js
-
             const resposta = await fetch("/api/excluir-conta", {
                 method: "DELETE"
             });
@@ -702,7 +898,6 @@
 
             if (resposta.ok) {
 
-                // Conta excluída — redireciona para a página inicial
                 window.location.href = "/";
 
             } else {

@@ -516,6 +516,8 @@ app.post("/api/perfil-sensorial", estaLogado, async (req, res) => {
 
 });
 
+
+
 app.post("/api/adicionar-crianca", estaLogado, upload.single("fotoCrianca"), async (req, res) => {
 
     try {
@@ -760,6 +762,76 @@ app.get("/redefinir-senha", async (req, res) => {
 
         console.log("Erro ao validar token:", erro);
         res.redirect("/logar");
+
+    }
+
+});
+
+/* ==========================
+   ROTA — ALTERAR SENHA
+========================== */
+
+app.post("/api/alterar-senha", estaLogado, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        const { senhaAtual, novaSenha, confirmarNovaSenha } = req.body;
+
+        if (!senhaAtual || !novaSenha || !confirmarNovaSenha) {
+            return res.status(400).json({ erro: "Preencha todos os campos." });
+        }
+
+        if (novaSenha !== confirmarNovaSenha) {
+            return res.status(400).json({ erro: "As senhas novas não coincidem." });
+        }
+
+        if (novaSenha.length < 6) {
+            return res.status(400).json({ erro: "A nova senha deve ter pelo menos 6 caracteres." });
+        }
+
+        const resultado = await db.query(
+            "SELECT senha FROM usuarios WHERE id = $1",
+            [usuarioId]
+        );
+
+        if (resultado.rows.length === 0) {
+            return res.status(404).json({ erro: "Usuário não encontrado." });
+        }
+
+        const usuario = resultado.rows[0];
+
+        // Contas criadas via Google não têm senha (campo fica vazio)
+        if (!usuario.senha) {
+            return res.status(400).json({
+                erro: "Sua conta usa login do Google e não possui senha cadastrada."
+            });
+        }
+
+        const senhaValida = await bcrypt.compare(senhaAtual, usuario.senha);
+
+        if (!senhaValida) {
+            return res.status(401).json({ erro: "Senha atual incorreta." });
+        }
+
+        const novaSenhaHash = await bcrypt.hash(novaSenha, 10);
+
+        await db.query(
+            "UPDATE usuarios SET senha = $1 WHERE id = $2",
+            [novaSenhaHash, usuarioId]
+        );
+
+        return res.status(200).json({ mensagem: "Senha alterada com sucesso!" });
+
+    } catch (erro) {
+
+        console.log("Erro ao alterar senha:", erro);
+        res.status(500).json({ erro: "Erro interno ao alterar senha." });
 
     }
 
