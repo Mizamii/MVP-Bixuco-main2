@@ -1807,8 +1807,16 @@ app.delete("/api/excluir-conta", estaLogado, async (req, res) => {
             return res.status(401).json({ erro: "Não autenticado." });
         }
 
-        // Remove os dados vinculados ao usuário antes de deletar a conta
-        // A ordem importa para não violar chaves estrangeiras no banco
+        // A ordem importa por causa das chaves estrangeiras (foreign keys).
+        // Sempre apaga primeiro quem "aponta para" o usuário/criança,
+        // e só no final apaga o próprio usuário.
+
+        // 🔧 Perfil sensorial referencia tanto usuario_id quanto crianca_id —
+        // precisa ser apagado antes da tabela criancas
+        await db.query(
+            "DELETE FROM perfil_sensorial WHERE usuario_id = $1",
+            [usuarioId]
+        );
 
         // Remove relatórios
         await db.query(
@@ -1834,7 +1842,26 @@ app.delete("/api/excluir-conta", estaLogado, async (req, res) => {
             [usuarioId]
         );
 
-        // Remove o usuário em si
+        // 🔧 Remove notificações
+        await db.query(
+            "DELETE FROM notificacoes WHERE usuario_id = $1",
+            [usuarioId]
+        );
+
+        // 🔧 Remove assinaturas
+        await db.query(
+            "DELETE FROM assinaturas WHERE usuario_id = $1",
+            [usuarioId]
+        );
+
+        // 🔧 Remove a criança vinculada — precisa vir depois de perfil_sensorial,
+        // e antes do usuário
+        await db.query(
+            "DELETE FROM criancas WHERE usuario_id = $1",
+            [usuarioId]
+        );
+
+        // Remove o usuário em si — por último, já que ninguém mais aponta pra ele agora
         await db.query(
             "DELETE FROM usuarios WHERE id = $1",
             [usuarioId]
