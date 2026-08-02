@@ -19,6 +19,8 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
     >
 
+    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
+
     <!-- CSS -->
 
     <link
@@ -153,27 +155,36 @@
 
         <header class="topo">
 
-            <button
-                class="tradutor"
-                type="button"
-            >
-
+            <button class="tradutor" type="button" id="btnTraduzir">
                 <i class="fa-solid fa-language"></i>
+                <span id="textoTradutor">Traduzir para inglês</span>
+            </button>
 
-                Traduzir para inglês
+            <div
+                id="google_translate_element"
+                style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0);"
+            ></div>
+
+            <i class="fa-solid fa-language"></i>
+
 
             </button>
 
             <div class="usuario">
 
-                <button
-                    class="notificacao"
-                    type="button"
-                >
+                <div class="notificacoes-wrapper">
+                    <button class="notificacoes" type="button" id="btnNotificacoes">
+                        <i class="fa-regular fa-bell"></i>
+                        <span id="quantidadeNotificacoes" class="badge">0</span>
+                    </button>
 
-                    <i class="fa-regular fa-bell"></i>
-
-                </button>
+                    <div class="painel-notificacoes" id="painelNotificacoes">
+                        <div class="painel-header">Notificações</div>
+                        <div id="listaNotificacoes">
+                            <div class="painel-vazio">Carregando...</div>
+                        </div>
+                    </div>
+                </div>
 
                 <img
                     id="fotoUsuario"
@@ -727,6 +738,46 @@
     // Botão X fecha o modal
     fechar.addEventListener("click", fecharModal);
 
+    function lerCookie(nome) {
+        const valor = `; ${document.cookie}`;
+        const partes = valor.split(`; ${nome}=`);
+        if (partes.length === 2) return partes.pop().split(";").shift();
+        return null;
+    }
+
+    function definirCookieTraducao(destino) {
+        document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+        document.cookie = `googtrans=; path=/; domain=${location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
+
+        if (destino) {
+            const valor = `/pt/${destino}`;
+            document.cookie = `googtrans=${valor}; path=/`;
+            document.cookie = `googtrans=${valor}; path=/; domain=${location.hostname}`;
+        }
+    }
+
+    function iniciarTradutor() {
+        new google.translate.TranslateElement(
+            { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
+            "google_translate_element"
+        );
+    }
+
+    function atualizarTextoBotaoTraducao() {
+        const cookieAtual = lerCookie("googtrans");
+        const textoBotao = document.getElementById("textoTradutor");
+        textoBotao.textContent = (cookieAtual && cookieAtual.includes("/en"))
+            ? "Voltar para português"
+            : "Traduzir para inglês";
+    }
+
+    document.getElementById("btnTraduzir").addEventListener("click", () => {
+        const cookieAtual = lerCookie("googtrans");
+        const estaTraduzido = cookieAtual && cookieAtual.includes("/en");
+        definirCookieTraducao(estaTraduzido ? null : "en");
+        window.location.reload();
+    });
+
     // Clique fora do conteúdo do modal também fecha
     modal.addEventListener("click", (e) => {
 
@@ -734,6 +785,71 @@
             fecharModal();
         }
 
+    });
+
+    const painelNotificacoes = document.getElementById("painelNotificacoes");
+    const listaNotificacoes  = document.getElementById("listaNotificacoes");
+
+    function formatarItemNotificacao(item) {
+        const classeExtra = item.lida ? "" : "nao-lida";
+        return `
+            <div class="item-notificacao ${classeExtra}">
+                ${item.mensagem}
+                <span class="tempo-notificacao">${item.tempo}</span>
+            </div>
+        `;
+    }
+
+    async function carregarNotificacoes() {
+        try {
+            const resposta = await fetch("/api/notificacoes");
+            if (!resposta.ok) throw new Error();
+
+            const dados = await resposta.json();
+            const itens = dados.notificacoes || [];
+
+            listaNotificacoes.innerHTML = itens.length === 0
+                ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+                : itens.map(formatarItemNotificacao).join("");
+
+            // se a página não tiver outra fonte pra esse número (ver 3.3),
+            // calcula aqui mesmo a partir da lista
+            const naoLidas = itens.filter(item => !item.lida).length;
+            document.getElementById("quantidadeNotificacoes").textContent = naoLidas;
+
+        } catch (erro) {
+            console.log("Erro ao carregar notificações:", erro);
+            listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar as notificações.</div>`;
+        }
+    }
+
+    async function marcarNotificacoesComoLidas() {
+        try {
+            await fetch("/api/notificacoes/marcar-lidas", { method: "POST" });
+            document.getElementById("quantidadeNotificacoes").textContent = "0";
+        } catch (erro) {
+            console.log("Erro ao marcar notificações como lidas:", erro);
+        }
+    }
+
+    document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
+        e.stopPropagation();
+
+        const estaAberto = painelNotificacoes.classList.contains("aberto");
+        if (estaAberto) {
+            painelNotificacoes.classList.remove("aberto");
+            return;
+        }
+
+        painelNotificacoes.classList.add("aberto");
+        await carregarNotificacoes();
+        marcarNotificacoesComoLidas();
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!painelNotificacoes.contains(e.target)) {
+            painelNotificacoes.classList.remove("aberto");
+        }
     });
 
     // Tecla Escape fecha o modal
@@ -744,6 +860,9 @@
         }
 
     });
+
+    atualizarTextoBotaoTraducao();
+    document.getElementById("quantidadeNotificacoes").textContent = dados.notificacoes ?? 0;
 
 </script>
 <script src="/js/tema.js"></script>
