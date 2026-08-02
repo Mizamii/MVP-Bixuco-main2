@@ -516,7 +516,46 @@ app.post("/api/perfil-sensorial", estaLogado, async (req, res) => {
 
 });
 
+// Retorna as preferências de notificação salvas do usuário
+// Usado para marcar os checkboxes com o estado real ao carregar a página
+app.get("/api/configuracoes/notificacoes", estaLogado, async (req, res) => {
 
+    try {
+
+        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        const resultado = await db.query(
+            `SELECT notif_lembrete, notif_novidades
+             FROM preferencias_usuario
+             WHERE usuario_id = $1`,
+            [usuarioId]
+        );
+
+        // Se o usuário nunca mexeu nos toggles, não existe linha ainda —
+        // usa os mesmos padrões do HTML original (lembrete ligado, novidades desligado)
+        if (resultado.rows.length === 0) {
+            return res.json({ lembrete: true, novidades: false });
+        }
+
+        const prefs = resultado.rows[0];
+
+        res.json({
+            lembrete:  prefs.notif_lembrete  !== null ? prefs.notif_lembrete  : true,
+            novidades: prefs.notif_novidades !== null ? prefs.notif_novidades : false
+        });
+
+    } catch (erro) {
+
+        console.log("Erro ao buscar preferências de notificação:", erro);
+        res.status(500).json({ erro: "Erro interno do servidor." });
+
+    }
+
+});
 
 app.post("/api/adicionar-crianca", estaLogado, upload.single("fotoCrianca"), async (req, res) => {
 
