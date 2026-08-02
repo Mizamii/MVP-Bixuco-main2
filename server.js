@@ -531,6 +531,35 @@ function validarCRP(crp) {
 
 }
 
+async function gerarCodigoVinculo() {
+
+    // Sem caracteres ambíguos (0/O, 1/I) para facilitar digitar o código
+    const caracteres = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+    let codigo;
+    let existe = true;
+
+    while (existe) {
+
+        codigo = "";
+        for (let i = 0; i < 6; i++) {
+            codigo += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+        }
+
+        const resultado = await db.query(
+            "SELECT id FROM usuarios WHERE codigo_vinculo = $1",
+            [codigo]
+        );
+
+        existe = resultado.rows.length > 0;
+
+    }
+
+    return codigo;
+
+}
+
+
 app.post("/api/perfil-sensorial", estaLogado, async (req, res) => {
 
     try {
@@ -1297,10 +1326,12 @@ app.post("/cadastro-finalizar", async (req, res) => {
                 });
             }
 
+            const codigoVinculo = await gerarCodigoVinculo();
+
             const novoUsuario = await db.query(
                 `INSERT INTO usuarios
-                (nome, email, crp, senha, data_nascimento, tipo, cep, cidade, estado, bairro)
-                VALUES ($1,$2,$3,$4,$5,'psicologo',$6,$7,$8,$9)
+                (nome, email, crp, senha, data_nascimento, tipo, cep, cidade, estado, bairro, codigo_vinculo)
+                VALUES ($1,$2,$3,$4,$5,'psicologo',$6,$7,$8,$9,$10)
                 RETURNING id, tipo`,
                 [
                     dados.nome,
@@ -1311,7 +1342,8 @@ app.post("/cadastro-finalizar", async (req, res) => {
                     dados.cep,
                     dados.cidade,
                     dados.estado,
-                    dados.bairro
+                    dados.bairro,
+                    codigoVinculo
                 ]
             );
 
@@ -1546,6 +1578,136 @@ app.post("/api/vinculos/responder", estaLogado, async (req, res) => {
 
     }
 
+});
+
+// ─────────────────────────────────────────
+// VINCULAR TERAPEUTA — enviar pedido
+// ─────────────────────────────────────────
+app.post("/api/vinculos/solicitar", estaLogado, async (req, res) => {
+    const { codigoTerapeuta } = req.body;
+    const responsavelId = req.session.usuario.id;
+
+    try {
+        const terapeuta = await db.query(
+            "SELECT id, nome FROM usuarios WHERE crp = $1 AND tipo = 'psicologo'",
+            [codigoTerapeuta]
+        );
+
+        if (terapeuta.rows.length === 0)
+            return res.status(404).json({ erro: "Terapeuta não encontrado. Verifique o código." });
+
+        const terapeutaId = terapeuta.rows[0].id;
+
+        const existente = await db.query(
+            "SELECT id, ativo, recusado FROM vinculos WHERE responsavel_id = $1 AND terapeuta_id = $2",
+            [responsavelId, terapeutaId]
+        );
+
+        if (existente.rows.length > 0) {
+            const v = existente.rows[0];
+            if (v.ativo)   return res.status(400).json({ erro: "Você já está vinculado a este terapeuta." });
+            if (!v.ativo && !v.recusado) return res.status(400).json({ erro: "Já existe um pedido pendente." });
+
+            // se foi recusado ou cancelado, reabre o pedido
+            await db.query(
+                "UPDATE vinculos SET ativo = false, recusado = false WHERE id = $1",
+                [v.id]
+            );
+        } else {
+            await db.query(
+                "INSERT INTO vinculos (responsavel_id, terapeuta_id, ativo, recusado) VALUES ($1, $2, false, false)",
+                [responsavelId, terapeutaId]
+            );
+        }
+
+        res.json({ sucesso: true, nomeTerapeuta: terapeuta.rows[0].nome });
+
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).json({ erro: "Erro interno ao enviar pedido." });
+    }
+});
+
+
+// ─────────────────────────────────────────
+// CANCELAR PEDIDO PENDENTE
+// ─────────────────────────────────────────
+app.post("/api/vinculos/cancelar", estaLogado, async (req, res) => {
+    const responsavelId = req.session.usuario.id;
+
+    try {
+        await db.query(
+            "DELETE FROM vinculos WHERE responsavel_id = $1 AND ativo = false AND recusado = false",
+            [responsavelId]
+        );
+        res.json({ sucesso: true });
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).json({ erro: "Erro interno ao cancelar pedido." });
+    }
+});
+
+
+// ─────────────────────────────────────────
+// REMOVER TERAPEUTA VINCULADO
+// ─────────────────────────────────────────
+app.post("/api/vinculos/remover", estaLogado, async (req, res) => {
+    const responsavelId = req.session.usuario.id;
+
+    try {
+        await db.query(
+            "DELETE FROM vinculos WHERE responsavel_id = $1 AND ativo = true",
+            [responsavelId]
+        );
+        res.json({ sucesso: true });
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).json({ erro: "Erro interno ao remover terapeuta." });
+    }
+});
+
+
+// ─────────────────────────────────────────
+// BUSCAR STATUS DO VÍNCULO ATUAL
+// ─────────────────────────────────────────
+app.get("/api/vinculos/status", estaLogado, async (req, res) => {
+    const responsavelId = req.session.usuario.id;
+
+    try {
+        const resultado = await db.query(
+            `SELECT v.id, v.ativo, v.recusado,
+                    u.nome        AS nome_terapeuta,
+                    u.crp         AS crp_terapeuta,
+                    u.foto_perfil AS foto_terapeuta
+             FROM vinculos v
+             JOIN usuarios u ON u.id = v.terapeuta_id
+             WHERE v.responsavel_id = $1
+             ORDER BY v.criado_em DESC
+             LIMIT 1`,
+            [responsavelId]
+        );
+
+        if (resultado.rows.length === 0)
+            return res.json({ status: "sem_vinculo" });
+
+        const v = resultado.rows[0];
+
+        let status;
+        if (v.ativo)        status = "aceito";
+        else if (v.recusado) status = "recusado";
+        else                 status = "pendente";
+
+        res.json({
+            status,
+            nomeTerapeuta: v.nome_terapeuta,
+            crpTerapeuta:  v.crp_terapeuta,
+            fotoTerapeuta: v.foto_terapeuta
+        });
+
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
 });
 
 /* ==========================
