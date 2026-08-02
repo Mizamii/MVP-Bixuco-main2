@@ -8,6 +8,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const session = require('express-session');
 const crypto = require('crypto');
 const multer = require('multer');
+const cron = require('node-cron');
 
 const { Brevo, BrevoClient, BrevoEnvironment } = require('@getbrevo/brevo');
 
@@ -73,6 +74,58 @@ const upload = multer({
 
     }
 
+});
+
+/* ==========================
+   LEMBRETE DIÁRIO DE RELATÓRIO
+========================== */
+
+// Roda todo dia às 19h (horário de Brasília)
+// Verifica quem ainda não fez o relatório hoje E tem o lembrete ativado,
+// e cria uma notificação pra essas pessoas — igual o Duolingo faz
+cron.schedule('0 19 * * *', async () => {
+
+    try {
+
+        const usuariosParaLembrar = await db.query(`
+            SELECT u.id
+            FROM usuarios u
+            LEFT JOIN preferencias_usuario p ON p.usuario_id = u.id
+            WHERE u.tipo = 'pai'
+            AND COALESCE(p.notif_lembrete, TRUE) = TRUE
+            AND NOT EXISTS (
+                SELECT 1 FROM relatorios r
+                WHERE r.usuario_id = u.id
+                AND DATE(r.data) = CURRENT_DATE
+            )
+            AND NOT EXISTS (
+                SELECT 1 FROM notificacoes n
+                WHERE n.usuario_id = u.id
+                AND n.tipo = 'lembrete_relatorio'
+                AND DATE(n.criado_em) = CURRENT_DATE
+            )
+        `);
+
+        for (const usuario of usuariosParaLembrar.rows) {
+
+            await db.query(
+                `INSERT INTO notificacoes (usuario_id, tipo, mensagem, lida)
+                 VALUES ($1, 'lembrete_relatorio', $2, FALSE)`,
+                [usuario.id, "Não esqueça de preencher o relatório de hoje! 📋"]
+            );
+
+        }
+
+        console.log(`Lembretes de relatório enviados para ${usuariosParaLembrar.rows.length} usuário(s).`);
+
+    } catch (erro) {
+
+        console.log("Erro ao enviar lembretes de relatório:", erro);
+
+    }
+
+}, {
+    timezone: "America/Sao_Paulo"
 });
 
 /* ==========================
