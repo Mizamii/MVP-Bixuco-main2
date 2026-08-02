@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Admin: Novidades</title>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #F5F7FA;
+            padding: 2rem;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 460px;
+            background: #fff;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            font-size: 1.3rem;
+            color: #141414;
+            margin-bottom: 0.4rem;
+        }
+
+        p.subtitulo {
+            font-size: 0.85rem;
+            color: #5A5A5A;
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #141414;
+            margin-bottom: 0.4rem;
+            margin-top: 1rem;
+        }
+
+        input[type="password"],
+        textarea {
+            width: 100%;
+            padding: 0.75rem 0.9rem;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        textarea {
+            min-height: 100px;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 1.5rem;
+            padding: 0.85rem;
+            background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .status {
+            display: none;
+            margin-top: 1rem;
+            padding: 0.75rem 0.9rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .status.visivel { display: block; }
+
+        .status.sucesso {
+            background: rgba(50, 194, 109, 0.12);
+            color: #1E8E4F;
+        }
+
+        .status.erro {
+            background: rgba(255, 68, 68, 0.1);
+            color: #C0392B;
+        }
+    </style>
+
+</head>
+<body>
+
+    <div class="card">
+
+        <h1>Publicar novidade</h1>
+        <p class="subtitulo">
+            A mensagem será enviada como notificação para todos os
+            usuários que ativaram "Novidades e dicas" nas configurações.
+        </p>
+
+        <form id="formNovidade">
+
+            <label for="chaveAdmin">Senha de admin</label>
+            <input type="password" id="chaveAdmin" required autocomplete="off">
+
+            <label for="mensagemNovidade">Mensagem</label>
+            <textarea id="mensagemNovidade" required placeholder="Ex: Agora você pode acompanhar o histórico completo de relatórios! 🎉"></textarea>
+
+            <button type="submit" id="btnEnviar">Publicar novidade</button>
+
+        </form>
+
+        <p id="statusEnvio" class="status"></p>
+
+    </div>
+
+    <script>
+
+        const form         = document.getElementById("formNovidade");
+        const btnEnviar     = document.getElementById("btnEnviar");
+        const statusEnvio   = document.getElementById("statusEnvio");
+
+        function mostrarStatus(texto, tipo) {
+            statusEnvio.textContent = texto;
+            statusEnvio.className   = `status visivel ${tipo}`;
+        }
+
+        form.addEventListener("submit", async (e) => {
+
+            e.preventDefault();
+
+            const chave     = document.getElementById("chaveAdmin").value;
+            const mensagem  = document.getElementById("mensagemNovidade").value;
+
+            btnEnviar.disabled    = true;
+            btnEnviar.textContent = "Enviando...";
+
+            try {
+
+                const resposta = await fetch("/api/admin/novidade", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ chave, mensagem })
+                });
+
+                const dados = await resposta.json();
+
+                if (!resposta.ok) {
+                    throw new Error(dados.erro || "Erro ao publicar novidade.");
+                }
+
+                mostrarStatus(dados.mensagem, "sucesso");
+                form.reset();
+
+            } catch (erro) {
+
+                mostrarStatus(erro.message, "erro");
+
+            } finally {
+
+                btnEnviar.disabled    = false;
+                btnEnviar.textContent = "Publicar novidade";
+
+            }
+
+        });
+
+    </script>
+
+</body>
+</html>

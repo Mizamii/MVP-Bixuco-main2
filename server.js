@@ -373,6 +373,64 @@ app.get(
 );
 
 /* ==========================
+   ADMIN — PUBLICAR NOVIDADE
+========================== */
+
+// Página simples para publicar novidades (protegida pela senha admin)
+app.get("/admin/novidades", (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "Adminnovidades.html"));
+});
+
+// Envia a notificação de novidade para todos os usuários
+// que têm "Novidades e dicas" ativado nas configurações
+app.post("/api/admin/novidade", async (req, res) => {
+
+    const { chave, mensagem } = req.body;
+
+    // Só continua se a chave enviada bater com a do .env
+    if (!process.env.ADMIN_SECRET || chave !== process.env.ADMIN_SECRET) {
+        return res.status(401).json({ erro: "Chave de admin inválida." });
+    }
+
+    if (!mensagem || mensagem.trim().length < 3) {
+        return res.status(400).json({ erro: "Escreva uma mensagem válida." });
+    }
+
+    try {
+
+        // Busca todos os usuários que têm o toggle "Novidades e dicas" ativado
+        // Quem nunca mexeu no toggle não recebe, já que o padrão do checkbox é desmarcado
+        const usuarios = await db.query(`
+            SELECT u.id
+            FROM usuarios u
+            JOIN preferencias_usuario p ON p.usuario_id = u.id
+            WHERE p.notif_novidades = TRUE
+        `);
+
+        for (const usuario of usuarios.rows) {
+
+            await db.query(
+                `INSERT INTO notificacoes (usuario_id, tipo, mensagem, lida)
+                 VALUES ($1, 'novidade', $2, FALSE)`,
+                [usuario.id, mensagem.trim()]
+            );
+
+        }
+
+        return res.status(201).json({
+            mensagem: `Novidade enviada para ${usuarios.rows.length} usuário(s).`
+        });
+
+    } catch (erro) {
+
+        console.log("Erro ao publicar novidade:", erro);
+        res.status(500).json({ erro: "Erro interno ao publicar novidade." });
+
+    }
+
+});
+
+/* ==========================
    FUNÇÃO AUXILIAR
 ========================== */
 
