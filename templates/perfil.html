@@ -17,8 +17,6 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
     >
 
-    <!-- 🔧 Faltava o link do tema.css — sem ele o toggle claro/escuro
-         troca a classe no body mas nenhuma variável de cor existe -->
     <link
         rel="stylesheet"
         href="/css/tema.css"
@@ -36,6 +34,152 @@
     >
 
 </head>
+
+<style>
+    /* ========================= */
+    /* MODAL — INFORMAÇÕES DA CRIANÇA (Fase 3) */
+    /* ========================= */
+
+    #modalCrianca {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+    }
+    #modalCrianca.aberto {
+        display: flex;
+    }
+    #modalCrianca .modal-conteudo {
+        background: #fff;
+        border-radius: 16px;
+        padding: 1.75rem;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    #modalCrianca .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.25rem;
+    }
+    #modalCrianca h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #141414;
+    }
+    #modalCrianca .btn-fechar-modal {
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: #5A5A5A;
+    }
+
+    #modalCrianca .crianca-foto-wrapper {
+        position: relative;
+        width: 96px;
+        height: 96px;
+        margin: 0 auto 1.25rem;
+        border-radius: 50%;
+        overflow: hidden;
+        cursor: pointer;
+    }
+    #modalCrianca .crianca-foto-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+    #modalCrianca .crianca-foto-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.35);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+    #modalCrianca .crianca-foto-wrapper:hover .crianca-foto-overlay {
+        opacity: 1;
+    }
+
+    #modalCrianca label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #141414;
+        margin-bottom: 0.4rem;
+        margin-top: 1rem;
+    }
+    #modalCrianca label:first-of-type {
+        margin-top: 0;
+    }
+    #modalCrianca input[type="text"] {
+        width: 100%;
+        padding: 0.75rem 0.9rem;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-family: inherit;
+    }
+    #modalCrianca input[disabled] {
+        background: #F5F5F5;
+        color: #777;
+        cursor: not-allowed;
+    }
+    #modalCrianca .dica-idade {
+        display: block;
+        margin-top: 0.35rem;
+        font-size: 0.75rem;
+        color: #999;
+    }
+
+    #modalCrianca .btn-salvar-crianca {
+        width: 100%;
+        margin-top: 1.5rem;
+        padding: 0.85rem;
+        background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    #modalCrianca .btn-salvar-crianca:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    #modalCrianca .status-crianca {
+        display: none;
+        margin-top: 1rem;
+        padding: 0.7rem 0.9rem;
+        border-radius: 10px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        text-align: center;
+    }
+    #modalCrianca .status-crianca.visivel {
+        display: block;
+    }
+    #modalCrianca .status-crianca.sucesso {
+        background: rgba(50, 194, 109, 0.12);
+        color: #1E8E4F;
+    }
+    #modalCrianca .status-crianca.erro {
+        background: rgba(255, 68, 68, 0.1);
+        color: #C0392B;
+    }
+</style>
 
 <body>
 
@@ -235,7 +379,6 @@
 
                 <div class="perfil-topo">
 
-                    <!-- Fase 1: foto agora é clicável, com overlay de câmera -->
                     <div
                         class="perfil-foto-wrapper"
                         id="perfilFotoWrapper"
@@ -263,7 +406,6 @@
 
                     <div>
 
-                        <!-- Fase 1: nome agora é editável via ícone de lápis -->
                         <div class="perfil-nome-linha" id="perfilNomeLinha">
 
                             <h2 id="perfilNome">
@@ -323,7 +465,6 @@
 
                 </div>
 
-                <!-- Ações de salvar/cancelar a foto — só aparecem depois de escolher um arquivo -->
                 <div class="perfil-foto-acoes" id="perfilFotoAcoes">
                     <button type="button" class="btn-salvar-foto" id="btnSalvarFoto">
                         Salvar foto
@@ -341,7 +482,6 @@
 
                     </span>
 
-                    <!-- Fase 1: recorde de dias consecutivos -->
                     <span id="badgeMaiorOfensiva">
 
                         🏆 Maior sequência: 0 dias
@@ -416,7 +556,6 @@
 
                     </div>
 
-                    <!-- Confirmação inline em vez de confirm() -->
                     <div
                         id="confirmarRemocao"
                         class="confirmar-remocao"
@@ -513,9 +652,6 @@
 
                     </a>
 
-                    <!-- 🔜 Fase 4 (fora do escopo por enquanto): trocar de plano
-                         entre gratuito / médio / mais caro -->
-
                 </section>
 
                 <!-- Criança -->
@@ -527,6 +663,9 @@
                         Criança cadastrada
 
                     </h2>
+
+                    <!-- 🔧 Fase 3: se já existe criança, abre o modal de edição
+                         em vez de navegar para /adicionar-crianca -->
 
                     <a
                         href="/adicionar-crianca"
@@ -563,9 +702,6 @@
 
                     </a>
 
-                    <!-- 🔜 Fase 3: clicar aqui vai abrir um modal com nome/foto
-                         editáveis e idade fixa (calculada, não editável) -->
-
                 </section>
 
             </div>
@@ -577,16 +713,88 @@
 </div>
 
 <!-- ===========================
+MODAL — INFORMAÇÕES DA CRIANÇA (Fase 3)
+=========================== -->
+
+<div id="modalCrianca">
+    <div class="modal-conteudo">
+
+        <div class="modal-header">
+            <h3>Informações da criança</h3>
+            <button
+                type="button"
+                class="btn-fechar-modal"
+                id="btnFecharModalCrianca"
+                aria-label="Fechar"
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div
+            class="crianca-foto-wrapper"
+            id="criancaFotoWrapper"
+            title="Alterar foto"
+        >
+            <img
+                id="fotoCriancaModal"
+                src="/img/perfilPadrao.png"
+                alt="Foto da criança"
+            >
+            <div class="crianca-foto-overlay">
+                <i class="fa-solid fa-camera"></i>
+            </div>
+        </div>
+
+        <input
+            type="file"
+            id="inputFotoCrianca"
+            accept="image/*"
+            style="display: none;"
+        >
+
+        <label for="inputNomeCrianca">Nome</label>
+        <input
+            type="text"
+            id="inputNomeCrianca"
+            maxlength="80"
+        >
+
+        <label for="idadeCriancaModal">Idade</label>
+        <input
+            type="text"
+            id="idadeCriancaModal"
+            disabled
+        >
+        <span class="dica-idade">A idade é calculada pela data de nascimento e não pode ser editada aqui.</span>
+
+        <button
+            type="button"
+            class="btn-salvar-crianca"
+            id="btnSalvarCrianca"
+        >
+            Salvar alterações
+        </button>
+
+        <p id="statusCrianca" class="status-crianca"></p>
+
+    </div>
+</div>
+
+<!-- ===========================
 JAVASCRIPT
 =========================== -->
 
 <script>
 
     // ==========================
-    // TEMA
+    // ESTADO GLOBAL DA CRIANÇA
     // ==========================
-    // A alternância claro/escuro agora vem de /js/tema.js (compartilhado
-    // com todas as páginas) — não duplicamos mais a lógica aqui.
+
+    // Guarda os dados atuais da criança para preencher o modal e
+    // decidir se o card abre o modal ou navega para /adicionar-crianca
+    let criancaAtual = null;
+    let perfilCarregado = false;
 
     // ==========================
     // CARREGAR DADOS DO PERFIL
@@ -630,7 +838,6 @@ JAVASCRIPT
                 document.getElementById("fotoUsuario").src = usuario.fotoPerfil;
                 document.getElementById("fotoPerfil").src  = usuario.fotoPerfil;
 
-                // Fase 1: guarda a foto atual como "original" para o botão Cancelar
                 fotoOriginalSrc = usuario.fotoPerfil;
 
             }
@@ -642,11 +849,6 @@ JAVASCRIPT
             document.getElementById("badgeDias").innerHTML =
                 `🔥 ${usuario.diasConsecutivos || 0} dias seguidos`;
 
-            // Fase 1: maior ofensiva (recorde).
-            // 🔧 Backend precisa devolver "maiorOfensiva" em /api/perfil.
-            // Enquanto isso não existir, cai para diasConsecutivos como fallback
-            // só para a tela não ficar com "0" fixo — ajustar quando a rota
-            // devolver o campo de verdade.
             document.getElementById("badgeMaiorOfensiva").innerHTML =
                 `🏆 Maior sequência: ${usuario.maiorOfensiva ?? usuario.diasConsecutivos ?? 0} dias`;
 
@@ -666,16 +868,29 @@ JAVASCRIPT
 
             if (usuario.crianca) {
 
+                criancaAtual = usuario.crianca;
+
                 document.getElementById("nomeCrianca").textContent =
                     usuario.crianca.nome;
 
                 document.getElementById("idadeCrianca").textContent =
                     usuario.crianca.idade + " anos";
 
-                document.getElementById("avatarCrianca").textContent =
-                    usuario.crianca.nome.charAt(0).toUpperCase();
+                if (usuario.crianca.foto) {
+
+                    document.getElementById("avatarCrianca").innerHTML =
+                        `<img src="${usuario.crianca.foto}" alt="${usuario.crianca.nome}">`;
+
+                } else {
+
+                    document.getElementById("avatarCrianca").textContent =
+                        usuario.crianca.nome.charAt(0).toUpperCase();
+
+                }
 
             } else {
+
+                criancaAtual = null;
 
                 document.getElementById("nomeCrianca").textContent =
                     "Nenhuma criança";
@@ -717,6 +932,12 @@ JAVASCRIPT
 
             console.log("Erro ao carregar perfil:", erro);
 
+        } finally {
+
+            // 🔧 Marca que a resposta da API já chegou (com ou sem erro),
+            // liberando o clique no card da criança para decidir corretamente
+            perfilCarregado = true;
+
         }
 
     }
@@ -734,8 +955,6 @@ JAVASCRIPT
     const fotoPerfilImg     = document.getElementById("fotoPerfil");
     const fotoUsuarioImg    = document.getElementById("fotoUsuario");
 
-    // Guarda a foto atual para poder restaurar se o usuário cancelar.
-    // carregarPerfil() atualiza essa variável assim que os dados reais chegam.
     let fotoOriginalSrc = fotoPerfilImg.src;
 
     perfilFotoWrapper.addEventListener("click", () => {
@@ -747,8 +966,6 @@ JAVASCRIPT
         const arquivo = inputFotoPerfil.files && inputFotoPerfil.files[0];
         if (!arquivo) return;
 
-        // Mostra o preview local antes de enviar — só some quando
-        // "Salvar foto" ou "Cancelar" forem clicados
         const leitor = new FileReader();
 
         leitor.onload = (e) => {
@@ -776,9 +993,6 @@ JAVASCRIPT
 
         try {
 
-            // 🔧 Rota esperada no backend: POST /api/perfil/atualizar
-            // Aceita multipart/form-data com o campo "fotoPerfil" (arquivo).
-            // Resposta esperada em caso de sucesso: { sucesso: true, fotoPerfil: "<url>" }
             const formData = new FormData();
             formData.append("fotoPerfil", arquivo);
 
@@ -798,8 +1012,6 @@ JAVASCRIPT
                 throw new Error(dados.erro || "Erro ao salvar a foto.");
             }
 
-            // Se o backend reprocessar/otimizar a imagem, ele deve devolver a URL
-            // definitiva em dados.fotoPerfil. Se não vier, mantém o preview local.
             const novaFoto = dados.fotoPerfil || fotoPerfilImg.src;
 
             fotoPerfilImg.src  = novaFoto;
@@ -870,9 +1082,6 @@ JAVASCRIPT
 
         try {
 
-            // 🔧 Mesma rota da foto: POST /api/perfil/atualizar
-            // Aceita multipart/form-data com o campo "nome" (texto).
-            // Resposta esperada em caso de sucesso: { sucesso: true, nome: "<nome>" }
             const formData = new FormData();
             formData.append("nome", novoNome);
 
@@ -914,7 +1123,6 @@ JAVASCRIPT
 
     });
 
-    // Enter salva, Esc cancela — sem precisar clicar nos ícones
     inputNome.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
             e.preventDefault();
@@ -922,6 +1130,178 @@ JAVASCRIPT
         } else if (e.key === "Escape") {
             btnCancelarNome.click();
         }
+    });
+
+
+    // ==========================
+    // FASE 3: MODAL DA CRIANÇA
+    // ==========================
+
+    const linkCrianca         = document.getElementById("linkCrianca");
+    const modalCrianca        = document.getElementById("modalCrianca");
+    const btnFecharModalCrianca = document.getElementById("btnFecharModalCrianca");
+    const criancaFotoWrapper  = document.getElementById("criancaFotoWrapper");
+    const inputFotoCrianca    = document.getElementById("inputFotoCrianca");
+    const fotoCriancaModal    = document.getElementById("fotoCriancaModal");
+    const inputNomeCrianca    = document.getElementById("inputNomeCrianca");
+    const idadeCriancaModal   = document.getElementById("idadeCriancaModal");
+    const btnSalvarCrianca    = document.getElementById("btnSalvarCrianca");
+    const statusCrianca       = document.getElementById("statusCrianca");
+
+    // Guarda a foto original da criança para restaurar se o modal for
+    // fechado sem salvar (mesmo padrão do cancelar da foto de perfil)
+    let fotoCriancaOriginal = null;
+    let arquivoFotoCrianca  = null;
+
+    // 🔧 FIX: antes, se o clique acontecesse antes de /api/perfil responder,
+    // criancaAtual ainda estava null e o link "escapava" para /adicionar-crianca
+    // mesmo já existindo uma criança cadastrada — bug de corrida (race condition).
+    // Agora SEMPRE bloqueamos a navegação padrão e só decidimos o que fazer
+    // depois de sabermos que os dados já chegaram (perfilCarregado).
+    linkCrianca.addEventListener("click", (e) => {
+
+        e.preventDefault();
+
+        if (!perfilCarregado) {
+            // Dados ainda não chegaram do backend — ignora o clique
+            // em vez de "chutar" que não existe criança
+            return;
+        }
+
+        if (criancaAtual) {
+            abrirModalCrianca();
+        } else {
+            window.location.href = "/adicionar-crianca";
+        }
+
+    });
+
+    function abrirModalCrianca() {
+
+        inputNomeCrianca.value  = criancaAtual.nome || "";
+        idadeCriancaModal.value = (criancaAtual.idade ?? "0") + " anos";
+
+        fotoCriancaOriginal = criancaAtual.foto || "/img/perfilPadrao.png";
+        fotoCriancaModal.src = fotoCriancaOriginal;
+
+        arquivoFotoCrianca = null;
+        inputFotoCrianca.value = "";
+
+        statusCrianca.className = "status-crianca";
+
+        modalCrianca.classList.add("aberto");
+        document.body.style.overflow = "hidden";
+
+    }
+
+    function fecharModalCrianca() {
+        modalCrianca.classList.remove("aberto");
+        document.body.style.overflow = "";
+    }
+
+    btnFecharModalCrianca.addEventListener("click", fecharModalCrianca);
+
+    modalCrianca.addEventListener("click", (e) => {
+        if (e.target === modalCrianca) fecharModalCrianca();
+    });
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && modalCrianca.classList.contains("aberto")) {
+            fecharModalCrianca();
+        }
+    });
+
+    criancaFotoWrapper.addEventListener("click", () => {
+        inputFotoCrianca.click();
+    });
+
+    inputFotoCrianca.addEventListener("change", () => {
+
+        const arquivo = inputFotoCrianca.files && inputFotoCrianca.files[0];
+        if (!arquivo) return;
+
+        arquivoFotoCrianca = arquivo;
+
+        const leitor = new FileReader();
+        leitor.onload = (e) => {
+            fotoCriancaModal.src = e.target.result;
+        };
+        leitor.readAsDataURL(arquivo);
+
+    });
+
+    function mostrarStatusCrianca(texto, tipo) {
+        statusCrianca.textContent = texto;
+        statusCrianca.className   = `status-crianca visivel ${tipo}`;
+    }
+
+    btnSalvarCrianca.addEventListener("click", async () => {
+
+        const novoNome = inputNomeCrianca.value.trim();
+
+        if (novoNome.length < 2) {
+            mostrarStatusCrianca("Digite um nome válido.", "erro");
+            return;
+        }
+
+        btnSalvarCrianca.disabled    = true;
+        btnSalvarCrianca.textContent = "Salvando...";
+
+        try {
+
+            const formData = new FormData();
+            formData.append("nome", novoNome);
+
+            if (arquivoFotoCrianca) {
+                formData.append("fotoCrianca", arquivoFotoCrianca);
+            }
+
+            const resposta = await fetch("/api/crianca/atualizar", {
+                method: "POST",
+                body: formData
+            });
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok || !dados.sucesso) {
+                throw new Error(dados.erro || "Erro ao salvar as alterações.");
+            }
+
+            // Atualiza o estado local e o card principal
+            criancaAtual.nome = dados.nome || novoNome;
+            if (dados.fotoUrl) criancaAtual.foto = dados.fotoUrl;
+
+            document.getElementById("nomeCrianca").textContent = criancaAtual.nome;
+
+            if (criancaAtual.foto) {
+                document.getElementById("avatarCrianca").innerHTML =
+                    `<img src="${criancaAtual.foto}" alt="${criancaAtual.nome}">`;
+            } else {
+                document.getElementById("avatarCrianca").textContent =
+                    criancaAtual.nome.charAt(0).toUpperCase();
+            }
+
+            mostrarStatusCrianca("Alterações salvas com sucesso!", "sucesso");
+
+            setTimeout(fecharModalCrianca, 1400);
+
+        } catch (erro) {
+
+            console.log("Erro ao salvar criança:", erro);
+            mostrarStatusCrianca(erro.message, "erro");
+
+        } finally {
+
+            btnSalvarCrianca.disabled    = false;
+            btnSalvarCrianca.textContent = "Salvar alterações";
+
+        }
+
     });
 
 
