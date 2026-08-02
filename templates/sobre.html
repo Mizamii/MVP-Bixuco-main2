@@ -166,8 +166,6 @@
             ></div>
 
 
-            </button>
-
             <div class="usuario">
 
                 <div class="notificacoes-wrapper">
@@ -440,34 +438,6 @@
 
 <script>
 
-    // ==========================
-    // TEMA
-    // ==========================
-
-    // 🔧 FIX 3: Tema persiste com localStorage igual a todas as páginas
-    function aplicarTema(tema) {
-
-        document.body.classList.remove("tema-claro", "tema-escuro");
-        document.body.classList.add(`tema-${tema}`);
-
-        document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
-        document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
-
-        localStorage.setItem("tema", tema);
-
-    }
-
-    document.getElementById("btnClaro").addEventListener("click", () => {
-        aplicarTema("claro");
-    });
-
-    document.getElementById("btnEscuro").addEventListener("click", () => {
-        aplicarTema("escuro");
-    });
-
-    // Aplica o tema salvo ao carregar a página
-    const temaSalvo = localStorage.getItem("tema") || "claro";
-    aplicarTema(temaSalvo);
 
 
     // ==========================
@@ -860,7 +830,7 @@
     });
 
     atualizarTextoBotaoTraducao();
-    document.getElementById("quantidadeNotificacoes").textContent = dados.notificacoes ?? 0;
+    carregarNotificacoes();
 
 </script>
 <script src="/js/tema.js"></script>
