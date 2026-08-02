@@ -58,6 +58,63 @@
         color: #C0392B;
         border: 1px solid rgba(255, 68, 68, 0.3);
     }
+
+    /* ========================= */
+    /* PAINEL DE NOTIFICAÇÕES */
+    /* ========================= */
+
+    .notificacoes-wrapper {
+        position: relative;
+    }
+
+    .painel-notificacoes {
+        display: none;
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        width: 320px;
+        max-height: 380px;
+        overflow-y: auto;
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        z-index: 50;
+    }
+    .painel-notificacoes.aberto {
+        display: block;
+    }
+    .painel-notificacoes .painel-header {
+        padding: 1rem 1.1rem 0.75rem;
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: #141414;
+        border-bottom: 1px solid #EFEFEF;
+    }
+    .painel-notificacoes .item-notificacao {
+        padding: 0.85rem 1.1rem;
+        border-bottom: 1px solid #F5F5F5;
+        font-size: 0.85rem;
+        color: #141414;
+        line-height: 1.45;
+    }
+    .painel-notificacoes .item-notificacao:last-child {
+        border-bottom: none;
+    }
+    .painel-notificacoes .item-notificacao .tempo-notificacao {
+        display: block;
+        margin-top: 0.25rem;
+        font-size: 0.75rem;
+        color: #999;
+    }
+    .painel-notificacoes .item-notificacao.nao-lida {
+        background: rgba(10, 183, 251, 0.05);
+    }
+    .painel-notificacoes .painel-vazio {
+        padding: 1.5rem 1.1rem;
+        text-align: center;
+        font-size: 0.85rem;
+        color: #999;
+    }
 </style>
 
 <body>
@@ -187,19 +244,28 @@
 
                 <div class="usuario">
 
-                    <button
-                        class="notificacao"
-                        type="button"
-                    >
+                    <div class="notificacoes-wrapper">
+                        <button class="notificacao" type="button" id="btnNotificacoes">
+                            <i class="fa-regular fa-bell"></i>
+                            <span id="quantidadeNotificacoes" class="badge">0</span>
+                        </button>
 
-                        <i class="fa-regular fa-bell"></i>
-
-                    </button>
+                        <div class="painel-notificacoes" id="painelNotificacoes">
+                            <div class="painel-header">Notificações</div>
+                            <div id="listaNotificacoes">
+                                <div class="painel-vazio">Carregando...</div>
+                            </div>
+                        </div>
+                    </div>
 
                     <img
                         id="fotoUsuario"
                         src="/img/perfilPadrao.png"
                         alt="Perfil"
+                        title="Ver perfil"
+                        style="cursor: pointer;"
+                        onclick="window.location.href='/perfil'"
+                        onerror="this.src='/img/perfilPadrao.png'"
                     >
 
                     <div>
@@ -690,6 +756,82 @@
         }
 
         // ==========================
+        // PAINEL DE NOTIFICAÇÕES (SININHO)
+        // ==========================
+
+        const painelNotificacoes = document.getElementById("painelNotificacoes");
+        const listaNotificacoes  = document.getElementById("listaNotificacoes");
+
+        function formatarItemNotificacao(item) {
+            const classeExtra = item.lida ? "" : "nao-lida";
+            return `
+                <div class="item-notificacao ${classeExtra}">
+                    ${item.mensagem}
+                    <span class="tempo-notificacao">${item.tempo}</span>
+                </div>
+            `;
+        }
+
+        async function carregarNotificacoes() {
+
+            try {
+
+                const resposta = await fetch("/api/notificacoes");
+
+                if (!resposta.ok) throw new Error("Falha ao carregar notificações");
+
+                const dados = await resposta.json();
+                const itens = dados.notificacoes || [];
+
+                if (itens.length === 0) {
+                    listaNotificacoes.innerHTML = `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`;
+                } else {
+                    listaNotificacoes.innerHTML = itens.map(formatarItemNotificacao).join("");
+                }
+
+            } catch (erro) {
+                console.log("Erro ao carregar notificações:", erro);
+                listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar as notificações.</div>`;
+            }
+
+        }
+
+        async function marcarNotificacoesComoLidas() {
+
+            try {
+                await fetch("/api/notificacoes/marcar-lidas", { method: "POST" });
+                document.getElementById("quantidadeNotificacoes").textContent = "0";
+            } catch (erro) {
+                console.log("Erro ao marcar notificações como lidas:", erro);
+            }
+
+        }
+
+        document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
+
+            e.stopPropagation();
+
+            const estaAberto = painelNotificacoes.classList.contains("aberto");
+
+            if (estaAberto) {
+                painelNotificacoes.classList.remove("aberto");
+                return;
+            }
+
+            painelNotificacoes.classList.add("aberto");
+
+            await carregarNotificacoes();
+            marcarNotificacoesComoLidas();
+
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!painelNotificacoes.contains(e.target)) {
+                painelNotificacoes.classList.remove("aberto");
+            }
+        });
+
+        // ==========================
         // DADOS DO USUÁRIO
         // ==========================
 
@@ -766,4 +908,3 @@
     </script>
 
 </body>
-</html>
