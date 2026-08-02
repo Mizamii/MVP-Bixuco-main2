@@ -7,117 +7,17 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
-    <!-- 🔧 Leaflet.js para o mapa funcional sem precisar de API key -->
+    <!-- Leaflet.js para o mapa funcional sem precisar de API key -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 
-    <!-- 🔧 Google Translate widget gratuito -->
+    <!-- Google Translate widget gratuito -->
     <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
 
+    <link rel="stylesheet" href="/css/tema.css">
     <link rel="stylesheet" href="/css/home.css">
-
-    <style>
-        /* Esconde o banner feio do Google Translate */
-        .goog-te-banner-frame { display: none !important; }
-        body { top: 0 !important; }
-        .goog-te-gadget { font-size: 0 !important; }
-        .goog-te-gadget select { display: none; }
-
-        /* Estilo do card do mapa (agora fixo na página, sem modal) */
-        .mapa-card {
-            background: #fff;
-            border-radius: 16px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-            margin-top: 1.5rem;
-        }
-        .mapa-card .mapa-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        .mapa-card h3 {
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-        .mapa-card .btn-centralizar {
-            background: none;
-            border: none;
-            font-size: 1rem;
-            cursor: pointer;
-            color: #0AB7FB;
-        }
-        #mapaBixuco {
-            height: 350px;
-            border-radius: 10px;
-            z-index: 1;
-        }
-        .mapa-card .mapa-status {
-            margin-top: 0.8rem;
-            font-size: 0.85rem;
-            color: #5A5A5A;
-            text-align: center;
-        }
-
-        /* ========================= */
-        /* PAINEL DE NOTIFICAÇÕES */
-        /* ========================= */
-
-        .notificacoes-wrapper {
-            position: relative;
-        }
-
-        .painel-notificacoes {
-            display: none;
-            position: absolute;
-            top: calc(100% + 10px);
-            right: 0;
-            width: 320px;
-            max-height: 380px;
-            overflow-y: auto;
-            background: #fff;
-            border-radius: 14px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            z-index: 50;
-        }
-        .painel-notificacoes.aberto {
-            display: block;
-        }
-        .painel-notificacoes .painel-header {
-            padding: 1rem 1.1rem 0.75rem;
-            font-weight: 700;
-            font-size: 0.95rem;
-            color: #141414;
-            border-bottom: 1px solid #EFEFEF;
-        }
-        .painel-notificacoes .item-notificacao {
-            padding: 0.85rem 1.1rem;
-            border-bottom: 1px solid #F5F5F5;
-            font-size: 0.85rem;
-            color: #141414;
-            line-height: 1.45;
-        }
-        .painel-notificacoes .item-notificacao:last-child {
-            border-bottom: none;
-        }
-        .painel-notificacoes .item-notificacao .tempo-notificacao {
-            display: block;
-            margin-top: 0.25rem;
-            font-size: 0.75rem;
-            color: #999;
-        }
-        .painel-notificacoes .item-notificacao.nao-lida {
-            background: rgba(10, 183, 251, 0.05);
-        }
-        .painel-notificacoes .painel-vazio {
-            padding: 1.5rem 1.1rem;
-            text-align: center;
-            font-size: 0.85rem;
-            color: #999;
-        }
-    </style>
 </head>
+
 <body>
 
     <div class="container">
@@ -161,6 +61,7 @@
                 Fazer relatório diário
             </button>
 
+            <!-- O tema claro/escuro é aplicado pelo /js/tema.js (compartilhado com todas as páginas) -->
             <div class="tema">
                 <button id="btnClaro" class="ativo" type="button">
                     <i class="fa-regular fa-sun"></i>
@@ -173,6 +74,9 @@
                 </button>
             </div>
 
+            <!-- Divisor em degradê antes do Sair -->
+            <div class="sidebar-divisor"></div>
+
             <a href="/logout" class="logout">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 <span>Sair</span>
@@ -184,7 +88,7 @@
         <!-- ===================== -->
         <main class="conteudo">
 
-            <!-- TOPO -->
+            <!-- TOPO — barra branca fixa, full-width -->
             <header class="topo">
 
                 <button class="tradutor" type="button" id="btnTraduzir">
@@ -200,6 +104,7 @@
                 ></div>
 
                 <div class="usuario">
+
                     <div class="notificacoes-wrapper">
                         <button class="notificacoes" type="button" id="btnNotificacoes">
                             <i class="fa-regular fa-bell"></i>
@@ -231,118 +136,195 @@
                 </div>
             </header>
 
-            <!-- SAUDAÇÃO -->
-            <section class="saudacao">
-                <div>
-                    <h1>
-                        Olá, <span id="primeiroNome">Usuário</span>!
-                    </h1>
+            <!-- CORPO COM SCROLL INTERNO -->
+            <div class="conteudo-corpo">
 
-                    <p>
-                        Acompanhe a rotina do
-                        <strong id="nomeBixuco">Bixuco</strong>
-                        com carinho e praticidade.
-                    </p>
-                </div>
-
-                <img src="/img/BixucoHome.png" alt="Mascote Bixuco">
-            </section>
-
-            <!-- CARDS SUPERIORES -->
-            <section class="linha-superior">
-
-                <!-- Card sequência -->
-                <article class="card">
-                    <div class="icone">
-                        <i class="fa-solid fa-fire"></i>
-                    </div>
-
+                <!-- SAUDAÇÃO -->
+                <section class="saudacao">
                     <div>
-                        <h2>
-                            <span id="diasConsecutivos">0</span>
-                            dias consecutivos
-                        </h2>
+                        <h1>
+                            Olá, <span id="primeiroNome">Usuário</span>!
+                        </h1>
 
-                        <p id="textoSequencia">
-                            Continue registrando seus relatórios diariamente.
+                        <p>
+                            Acompanhe a rotina do
+                            <strong id="nomeBixuco">Bixuco</strong>
+                            com carinho e praticidade.
                         </p>
                     </div>
-                </article>
 
-                <!-- Card relatório -->
-                <article
-                    class="card card-relatorio"
-                    onclick="window.location.href='/RelatorioDiario'"
-                >
-                    <div class="icone">
-                        <i class="fa-solid fa-file-lines"></i>
+                    <img src="/img/BixucoHome.png" alt="Mascote Bixuco">
+                </section>
+
+                <!-- CARDS SUPERIORES -->
+                <section class="linha-superior">
+
+                    <!-- Card sequência -->
+                    <article class="card">
+                        <div class="icone">
+                            <i class="fa-solid fa-fire"></i>
+                        </div>
+
+                        <div>
+                            <h2>
+                                <span id="diasConsecutivos">0</span>
+                                dias consecutivos
+                            </h2>
+
+                            <p id="textoSequencia">
+                                Continue registrando seus relatórios diariamente.
+                            </p>
+                        </div>
+                    </article>
+
+                    <!-- Card relatório -->
+                    <article
+                        class="card card-relatorio"
+                        onclick="window.location.href='/RelatorioDiario'"
+                    >
+                        <div class="icone">
+                            <i class="fa-solid fa-file-lines"></i>
+                        </div>
+
+                        <div>
+                            <h2>Relatório diário</h2>
+                            <p>Clique para registrar o relatório de hoje.</p>
+                        </div>
+
+                        <i class="fa-solid fa-chevron-right seta"></i>
+                    </article>
+                </section>
+
+                <!-- CALENDÁRIO + MAPA -->
+                <div class="linha-meio">
+
+                    <!-- CALENDÁRIO -->
+                    <section class="calendario-card">
+                        <div class="calendario-header">
+
+                            <div class="calendario-nav">
+                                <button id="mesAnterior" type="button">
+                                    <i class="fa-solid fa-chevron-left"></i>
+                                </button>
+
+                                <h3 id="tituloCalendario">Junho 2026</h3>
+
+                                <button id="proximoMes" type="button">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                            </div>
+
+                            <div class="badge-sequencia">
+                                <i class="fa-solid fa-fire"></i>
+                                <div>
+                                    <strong><span id="diasConsecutivosBadge">0</span> dias</strong>
+                                    <span>Máxima ofensiva</span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="dias-semana">
+                            <span>Dom</span>
+                            <span>Seg</span>
+                            <span>Ter</span>
+                            <span>Qua</span>
+                            <span>Qui</span>
+                            <span>Sex</span>
+                            <span>Sáb</span>
+                        </div>
+
+                        <div id="diasCalendario" class="dias-calendario"></div>
+
+                        <!-- Legenda -->
+                        <div class="legenda">
+                            <span>
+                                <span class="ponto ponto--com-relatorio"></span>
+                                Com relatório
+                            </span>
+                            <span>
+                                <span class="ponto ponto--hoje"></span>
+                                Hoje
+                            </span>
+                            <span>
+                                <span class="ponto ponto--sem-relatorio"></span>
+                                Sem relatório
+                            </span>
+                        </div>
+                    </section>
+
+                    <!-- MAPA — fixo na página, sem precisar clicar -->
+                    <section class="mapa-card">
+
+                        <div class="mapa-header">
+                            <h3>
+                                <i class="fa-solid fa-location-dot"></i>
+                                Localização do Bixuco
+                            </h3>
+
+                            <button
+                                type="button"
+                                class="btn-centralizar"
+                                id="btnCentralizar"
+                                title="Centralizar no Bixuco"
+                            >
+                                <i class="fa-solid fa-crosshairs"></i>
+                            </button>
+                        </div>
+
+                        <div id="mapaBixuco"></div>
+
+                        <p class="mapa-status">
+                            <i class="fa-solid fa-circle" style="color: #C2C2C2; font-size: 0.6rem;"></i>
+                            Rastreamento em tempo real disponível em breve
+                        </p>
+
+                    </section>
+
+                </div>
+
+                <!-- DICAS PERSONALIZADAS -->
+                <!-- Conteúdo fixo por enquanto — conectar com a API de IA depois -->
+                <section class="dicas-card">
+
+                    <div class="dicas-intro">
+                        <div class="icone">
+                            <i class="fa-solid fa-lightbulb"></i>
+                        </div>
+                        <div>
+                            <h3>Dicas personalizadas</h3>
+                            <p>Sugestões para o desenvolvimento do <span id="nomeBixucoDicas">Fluffy</span></p>
+                        </div>
                     </div>
 
-                    <div>
-                        <h2>Relatório diário</h2>
-                        <p>Clique para registrar o relatório de hoje.</p>
-                    </div>
+                    <article class="dica">
+                        <div class="icone-dica">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                        </div>
+                        <div>
+                            <h4>Rotina consistente</h4>
+                            <p>Manter horários regulares para a alimentação</p>
+                        </div>
+                    </article>
 
-                    <i class="fa-solid fa-chevron-right seta"></i>
-                </article>
-            </section>
+                    <article class="dica">
+                        <div class="icone-dica">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                        </div>
+                        <div>
+                            <h4>Rotina consistente</h4>
+                            <p>Manter horários regulares para a alimentação</p>
+                        </div>
+                    </article>
 
-            <!-- CALENDÁRIO -->
-            <section class="calendario-card">
-                <div class="calendario-header">
-                    <button id="mesAnterior" type="button">
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </button>
-
-                    <h3 id="tituloCalendario">Junho 2026</h3>
-
-                    <button id="proximoMes" type="button">
+                    <button class="btn-ver-dicas" type="button" onclick="window.location.href='/dicas'">
+                        Ver mais dicas
                         <i class="fa-solid fa-chevron-right"></i>
                     </button>
-                </div>
 
-                <div class="dias-semana">
-                    <span>Dom</span>
-                    <span>Seg</span>
-                    <span>Ter</span>
-                    <span>Qua</span>
-                    <span>Qui</span>
-                    <span>Sex</span>
-                    <span>Sáb</span>
-                </div>
+                </section>
 
-                <div id="diasCalendario" class="dias-calendario"></div>
-            </section>
-
-            <!-- ===================== -->
-            <!-- MAPA — agora fixo na página, sem precisar clicar -->
-            <!-- ===================== -->
-            <section class="mapa-card">
-
-                <div class="mapa-header">
-                    <h3>
-                        <i class="fa-solid fa-location-dot"></i>
-                        Localização do Bixuco
-                    </h3>
-
-                    <button
-                        type="button"
-                        class="btn-centralizar"
-                        id="btnCentralizar"
-                        title="Centralizar no Bixuco"
-                    >
-                        <i class="fa-solid fa-crosshairs"></i>
-                    </button>
-                </div>
-
-                <div id="mapaBixuco"></div>
-
-                <p class="mapa-status">
-                    <i class="fa-solid fa-circle" style="color: #C2C2C2; font-size: 0.6rem;"></i>
-                    Rastreamento em tempo real disponível em breve
-                </p>
-
-            </section>
+            </div>
 
         </main>
     </div>
@@ -374,9 +356,11 @@
                 document.getElementById("nomeUsuario").textContent  = nomeCompleto;
                 document.getElementById("primeiroNome").textContent = primeiroNome;
                 document.getElementById("nomeBixuco").textContent   = dados.nomeBixuco || "Bixuco";
+                document.getElementById("nomeBixucoDicas").textContent = dados.nomeBixuco || "Bixuco";
                 document.getElementById("tipoConta").textContent    = dados.tipoConta || "Responsável";
                 document.getElementById("quantidadeNotificacoes").textContent = dados.notificacoes ?? 0;
                 document.getElementById("diasConsecutivos").textContent       = dados.diasConsecutivos ?? 0;
+                document.getElementById("diasConsecutivosBadge").textContent  = dados.diasConsecutivos ?? 0;
 
                 if (dados.fotoPerfil) {
                     document.getElementById("fotoUsuario").src = dados.fotoPerfil;
@@ -385,15 +369,17 @@
                 atualizarTextoSequencia(dados.diasConsecutivos ?? 0);
 
             } catch (erro) {
-                // 🔧 Loga o erro real no console para facilitar o diagnóstico
+                // Loga o erro real no console para facilitar o diagnóstico
                 console.log("Erro ao carregar dados do usuário:", erro);
 
                 document.getElementById("nomeUsuario").textContent  = "Usuário";
                 document.getElementById("primeiroNome").textContent = "Usuário";
                 document.getElementById("nomeBixuco").textContent   = "Bixuco";
+                document.getElementById("nomeBixucoDicas").textContent = "Bixuco";
                 document.getElementById("tipoConta").textContent    = "Responsável";
                 document.getElementById("quantidadeNotificacoes").textContent = "0";
                 document.getElementById("diasConsecutivos").textContent       = "0";
+                document.getElementById("diasConsecutivosBadge").textContent  = "0";
                 document.getElementById("textoSequencia").textContent = "Continue registrando seus relatórios diariamente.";
             }
         }
@@ -494,29 +480,15 @@
             carregarDiasRelatorio();
         };
 
-        // =========================
-        // TEMA
-        // =========================
-
-        function aplicarTema(tema) {
-            document.body.classList.remove("tema-claro", "tema-escuro");
-            document.body.classList.add(`tema-${tema}`);
-            document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
-            document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
-            localStorage.setItem("tema", tema);
-        }
-
-        document.getElementById("btnClaro").addEventListener("click", () => aplicarTema("claro"));
-        document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
+        // Tema claro/escuro vem de /js/tema.js (compartilhado com todas as páginas)
 
         // =========================
         // TRADUÇÃO COM GOOGLE TRANSLATE
         // =========================
 
-        // 🔧 Nova estratégia: em vez de simular clique no <select> escondido
-        // do Google (frágil, depende do widget já ter renderizado),
-        // usamos o cookie "googtrans" que o próprio Google Translate lê
-        // ao carregar a página. É o mecanismo oficial e muito mais confiável.
+        // Estratégia via cookie "googtrans", que o próprio Google Translate lê
+        // ao carregar a página — mecanismo oficial, mais confiável do que
+        // simular clique no <select> escondido do widget.
 
         function lerCookie(nome) {
             const valor = `; ${document.cookie}`;
@@ -586,7 +558,6 @@
 
         const painelNotificacoes = document.getElementById("painelNotificacoes");
         const listaNotificacoes  = document.getElementById("listaNotificacoes");
-        let painelCarregado = false;
 
         function formatarItemNotificacao(item) {
             const classeExtra = item.lida ? "" : "nao-lida";
@@ -648,7 +619,6 @@
 
             // Recarrega toda vez que abre, pra sempre mostrar as mais recentes
             await carregarNotificacoes();
-            painelCarregado = true;
 
             // Marca como lidas ao abrir e zera o número no sino
             marcarNotificacoesComoLidas();
@@ -664,7 +634,7 @@
 
         // =========================
         // MAPA COM LEAFLET + OPENSTREETMAP
-        // 🔧 Agora inicia sozinho junto com a página, sem precisar de clique
+        // Inicia sozinho junto com a página, sem precisar de clique
         // =========================
 
         let mapaLeaflet = null;
@@ -711,15 +681,15 @@
         // INICIALIZAÇÃO
         // =========================
 
-        const temaSalvo = localStorage.getItem("tema") || "claro";
-        aplicarTema(temaSalvo);
-
         carregarDadosUsuario();
         carregarDiasRelatorio();
         iniciarMapa();
         atualizarTextoBotaoTraducao();
 
     </script>
+
+    <!-- Tema claro/escuro compartilhado — precisa vir depois dos botões #btnClaro/#btnEscuro existirem -->
+    <script src="/js/tema.js"></script>
 
 </body>
 </html>

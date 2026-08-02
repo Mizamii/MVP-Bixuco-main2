@@ -1,0 +1,824 @@
+/* Reset básico */
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+
+html, body {
+height: 100%;
+overflow: hidden;
+}
+
+* {
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+background: var(--cor-fundo-pagina);
+}
+
+/* Esconde o banner feio do Google Translate */
+.goog-te-banner-frame { display: none !important; }
+body { top: 0 !important; }
+.goog-te-gadget { font-size: 0 !important; }
+.goog-te-gadget select { display: none; }
+
+/* ========================================= */
+/* LAYOUT GERAL */
+/* ========================================= */
+
+.container {
+display: flex;
+height: 100vh;
+}
+
+/* ========================================= */
+/* BARRA LATERAL (fixa, não rola com a página) */
+/* ========================================= */
+
+.sidebar {
+width: 210px;
+flex-shrink: 0;
+height: 100%;
+background: var(--cor-fundo-card);
+border-style: solid;
+border-width: 0 1px 0 0;
+border-image: linear-gradient(180deg, #79D836 0%, #0AB7FB 100%) 1;
+padding: 1.25rem 1rem;
+display: flex;
+flex-direction: column;
+overflow-y: auto;
+}
+
+.logo {
+margin-bottom: 1.25rem;
+padding-left: 0.25rem;
+}
+
+.logo img {
+width: 108px;
+height: auto;
+display: block;
+}
+
+.sidebar nav {
+display: flex;
+flex-direction: column;
+gap: 0.75rem;
+margin-bottom: 1.5rem;
+}
+
+.sidebar nav a {
+display: flex;
+align-items: center;
+gap: 0.65rem;
+padding: 0.7rem 0.8rem;
+border-radius: 10px;
+color: var(--cor-texto-secundario);
+text-decoration: none;
+font-size: 0.85rem;
+font-weight: 500;
+transition: background 0.2s, color 0.2s;
+}
+
+.sidebar nav a i {
+width: 16px;
+text-align: center;
+font-size: 0.9rem;
+}
+
+.sidebar nav a:hover {
+background: var(--cor-fundo-hover);
+color: var(--cor-texto-principal);
+}
+
+.sidebar nav a.ativo {
+background: rgba(50, 194, 109, 0.12);
+color: #1D8E4F;
+font-weight: 700;
+}
+
+.sidebar nav a.ativo i {
+color: #32C26D;
+}
+
+/* Botão relatório diário — gradiente de marca, igual nos dois temas */
+.btn-relatorio {
+margin-top: 0.2rem;
+width: 100%;
+padding: 0.8rem;
+border: none;
+border-radius: 999px;
+background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+color: #fff;
+font-size: 0.85rem;
+font-weight: 600;
+cursor: pointer;
+box-shadow: 0 6px 14px rgba(10, 183, 251, 0.25);
+transition: all 0.3s;
+}
+
+.btn-relatorio:hover {
+background: linear-gradient(90deg, #32C26D 0%, #1D8EC9 100%);
+}
+
+/* Alternância de tema claro/escuro */
+.tema {
+margin-top: 9.25rem;
+display: flex;
+background: var(--cor-fundo-hover);
+border-radius: 999px;
+padding: 0.2rem;
+gap: 0.2rem;
+}
+
+.tema button {
+flex: 1;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 0.35rem;
+padding: 0.42rem 0;
+border: none;
+border-radius: 999px;
+background: transparent;
+color: var(--cor-texto-esmaecido);
+font-size: 0.78rem;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.2s;
+}
+
+.tema button.ativo {
+background: var(--cor-fundo-card);
+color: var(--cor-texto-principal);
+box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* Divisor em degradê antes do "Sair" — gradiente de marca, igual nos dois temas */
+.sidebar-divisor {
+margin-top: auto;
+height: 2px;
+border-radius: 999px;
+background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+opacity: 0.35;
+}
+
+.logout {
+margin-top: 0.75rem;
+display: flex;
+align-items: center;
+gap: 0.65rem;
+padding: 0.55rem 0.7rem;
+color: var(--cor-texto-esmaecido);
+text-decoration: none;
+font-size: 0.85rem;
+font-weight: 500;
+border-radius: 10px;
+transition: background 0.2s, color 0.2s;
+}
+
+.logout:hover {
+background: #FDEEEE;
+color: #E24C4C;
+}
+
+/* ========================================= */
+/* CONTEÚDO PRINCIPAL */
+/* ========================================= */
+
+.conteudo {
+flex: 1;
+height: 100%;
+display: flex;
+flex-direction: column;
+overflow: hidden;
+}
+
+/* ---------- Topo: barra full-width com linha em degradê ---------- */
+
+.topo {
+flex-shrink: 0;
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 0.9rem 2rem;
+background: var(--cor-fundo-card);
+border-style: solid;
+border-width: 0 0 1px 0;
+border-image: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%) 1;
+}
+
+.tradutor {
+display: flex;
+align-items: center;
+gap: 0.5rem;
+padding: 0.5rem 0.9rem;
+border: 1px solid #0AB7FB;
+border-radius: 999px;
+background: var(--cor-fundo-card);
+color: #0AB7FB;
+font-size: 0.8rem;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.2s;
+}
+
+.tradutor:hover {
+background: #0AB7FB;
+color: #fff;
+}
+
+.usuario {
+display: flex;
+align-items: center;
+gap: 1rem;
+}
+
+.notificacoes {
+position: relative;
+width: 36px;
+height: 36px;
+border-radius: 50%;
+border: none;
+background: transparent;
+color: var(--cor-texto-secundario);
+font-size: 1rem;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: background 0.2s;
+}
+
+.notificacoes:hover {
+background: var(--cor-fundo-hover);
+}
+
+.notificacoes .badge {
+position: absolute;
+top: 1px;
+right: 1px;
+min-width: 15px;
+height: 15px;
+padding: 0 3px;
+border-radius: 999px;
+background: #E24C4C;
+color: #fff;
+font-size: 0.62rem;
+font-weight: 700;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.usuario img#fotoUsuario {
+width: 38px;
+height: 38px;
+border-radius: 50%;
+object-fit: cover;
+}
+
+.usuario > div h3 {
+font-size: 0.85rem;
+font-weight: 700;
+color: var(--cor-texto-principal);
+}
+
+.usuario > div span {
+font-size: 0.72rem;
+color: var(--cor-texto-esmaecido);
+}
+
+/* ---------- Corpo com scroll interno ---------- */
+
+.conteudo-corpo {
+flex: 1;
+overflow-y: auto;
+padding: 1.25rem 2rem 2rem;
+}
+
+/* ---------- Saudação ---------- */
+
+.saudacao {
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 1.1rem;
+}
+
+.saudacao h1 {
+font-size: 1.4rem;
+font-weight: 700;
+color: var(--cor-texto-principal);
+margin-bottom: 0.3rem;
+}
+
+.saudacao p {
+font-size: 0.85rem;
+color: var(--cor-texto-secundario);
+}
+
+.saudacao p strong {
+color: var(--cor-texto-principal);
+}
+
+.saudacao img {
+width: 82px;
+height: auto;
+}
+
+/* ========================================= */
+/* CARDS SUPERIORES */
+/* ========================================= */
+
+.linha-superior {
+display: flex;
+gap: 1.1rem;
+margin-bottom: 1.1rem;
+}
+
+.card {
+flex: 1;
+background: var(--cor-fundo-card);
+border-radius: 14px;
+padding: 1rem 1.15rem;
+display: flex;
+align-items: center;
+gap: 0.85rem;
+box-shadow: var(--sombra-card);
+border: 1px solid transparent;
+}
+
+.card .icone {
+width: 40px;
+height: 40px;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.05rem;
+flex-shrink: 0;
+}
+
+.card h2 {
+font-size: 0.92rem;
+font-weight: 700;
+color: var(--cor-texto-principal);
+margin-bottom: 0.15rem;
+}
+
+.card p {
+font-size: 0.75rem;
+color: var(--cor-texto-esmaecido);
+}
+
+/* Card dias consecutivos */
+.card:not(.card-relatorio) .icone {
+background: rgba(255, 159, 10, 0.12);
+color: #FF9F0A;
+}
+
+.card:not(.card-relatorio) h2 span {
+color: #32C26D;
+font-size: 1.05rem;
+}
+
+/* Card relatório diário (destacado, clicável) */
+.card-relatorio {
+cursor: pointer;
+border-color: rgba(10, 183, 251, 0.35);
+background: linear-gradient(180deg, #F6FEFB 0%, #F5FBFF 100%);
+transition: box-shadow 0.2s, transform 0.2s;
+}
+
+body.tema-escuro .card-relatorio {
+background: linear-gradient(180deg, rgba(50,194,109,0.08) 0%, rgba(10,183,251,0.08) 100%);
+}
+
+.card-relatorio:hover {
+box-shadow: 0 6px 18px rgba(10, 183, 251, 0.18);
+transform: translateY(-1px);
+}
+
+.card-relatorio .icone {
+background: rgba(10, 183, 251, 0.12);
+color: #0AB7FB;
+}
+
+.card-relatorio .seta {
+margin-left: auto;
+color: #0AB7FB;
+font-size: 0.85rem;
+}
+
+/* ========================================= */
+/* LINHA DO MEIO — CALENDÁRIO + MAPA */
+/* ========================================= */
+
+.linha-meio {
+display: flex;
+align-items: stretch;
+gap: 1.1rem;
+margin-bottom: 1.1rem;
+}
+
+.calendario-card {
+flex: 1;
+background: var(--cor-fundo-card);
+border-radius: 14px;
+padding: 1.15rem;
+box-shadow: var(--sombra-card);
+}
+
+.mapa-card {
+flex: 1.1;
+background: var(--cor-fundo-card);
+border-radius: 14px;
+padding: 1.15rem;
+box-shadow: var(--sombra-card);
+display: flex;
+flex-direction: column;
+}
+
+/* ---------- Cabeçalho do calendário ---------- */
+
+.calendario-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 0.85rem;
+}
+
+.calendario-nav {
+display: flex;
+align-items: center;
+gap: 0.7rem;
+}
+
+.calendario-nav button {
+width: 26px;
+height: 26px;
+border-radius: 50%;
+border: none;
+background: var(--cor-fundo-pagina);
+color: var(--cor-texto-secundario);
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 0.72rem;
+transition: background 0.2s;
+}
+
+.calendario-nav button:hover {
+background: var(--cor-fundo-hover-forte);
+}
+
+.calendario-header h3 {
+font-size: 0.9rem;
+font-weight: 700;
+color: var(--cor-texto-principal);
+min-width: 95px;
+text-align: center;
+}
+
+/* Badge de sequência (dias consecutivos) */
+.badge-sequencia {
+display: flex;
+align-items: center;
+gap: 0.5rem;
+background: #FFF6EC;
+border-radius: 10px;
+padding: 0.4rem 0.75rem;
+}
+
+body.tema-escuro .badge-sequencia {
+background: rgba(255, 159, 10, 0.12);
+}
+
+.badge-sequencia i {
+color: #FF9F0A;
+font-size: 0.9rem;
+}
+
+.badge-sequencia strong {
+display: block;
+font-size: 0.75rem;
+font-weight: 700;
+color: var(--cor-texto-principal);
+}
+
+.badge-sequencia span {
+font-size: 0.65rem;
+color: var(--cor-texto-esmaecido);
+}
+
+/* ---------- Grid de dias ---------- */
+
+.dias-semana {
+display: grid;
+grid-template-columns: repeat(7, 1fr);
+margin-bottom: 0.4rem;
+}
+
+.dias-semana span {
+text-align: center;
+font-size: 0.65rem;
+font-weight: 600;
+color: var(--cor-texto-esmaecido);
+text-transform: uppercase;
+}
+
+.dias-calendario {
+display: grid;
+grid-template-columns: repeat(7, 1fr);
+row-gap: 0.25rem;
+}
+
+.dias-calendario button {
+width: 27px;
+height: 27px;
+margin: 0 auto;
+border: none;
+background: none;
+border-radius: 50%;
+font-size: 0.75rem;
+color: var(--cor-texto-principal);
+cursor: pointer;
+transition: all 0.2s;
+}
+
+.dias-calendario button:hover {
+background: var(--cor-fundo-hover);
+}
+
+.dias-calendario button.com-relatorio {
+background: rgba(50, 194, 109, 0.18);
+color: #1D8E4F;
+font-weight: 600;
+}
+
+body.tema-escuro .dias-calendario button.com-relatorio {
+color: #6FE0A0;
+}
+
+.dias-calendario button.hoje {
+background: #32C26D;
+color: #fff;
+font-weight: 700;
+}
+
+/* ---------- Legenda ---------- */
+
+.legenda {
+display: flex;
+align-items: center;
+gap: 1rem;
+margin-top: 0.85rem;
+padding-top: 0.75rem;
+border-top: 1px solid var(--cor-borda-suave);
+flex-wrap: wrap;
+}
+
+.legenda span {
+display: flex;
+align-items: center;
+gap: 0.4rem;
+font-size: 0.7rem;
+color: var(--cor-texto-secundario);
+}
+
+.legenda .ponto {
+width: 9px;
+height: 9px;
+border-radius: 50%;
+}
+
+.legenda .ponto--com-relatorio {
+background: rgba(50, 194, 109, 0.5);
+}
+
+.legenda .ponto--hoje {
+background: #32C26D;
+}
+
+.legenda .ponto--sem-relatorio {
+background: var(--cor-borda);
+}
+
+/* ---------- Card do mapa ---------- */
+
+.mapa-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 0.85rem;
+}
+
+.mapa-card h3 {
+font-size: 0.9rem;
+font-weight: 700;
+color: var(--cor-texto-principal);
+}
+
+.mapa-card h3 i {
+color: #32C26D;
+margin-right: 0.35rem;
+}
+
+.mapa-card .btn-centralizar {
+width: 28px;
+height: 28px;
+border-radius: 50%;
+border: none;
+background: var(--cor-fundo-pagina);
+font-size: 0.82rem;
+cursor: pointer;
+color: #0AB7FB;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: background 0.2s;
+}
+
+.mapa-card .btn-centralizar:hover {
+background: var(--cor-fundo-hover-forte);
+}
+
+#mapaBixuco {
+flex: 1;
+min-height: 170px;
+height: 100%;
+border-radius: 10px;
+z-index: 1;
+}
+
+.mapa-card .mapa-status {
+margin-top: 0.7rem;
+font-size: 0.72rem;
+color: var(--cor-texto-esmaecido);
+text-align: center;
+}
+
+/* ========================================= */
+/* DICAS PERSONALIZADAS */
+/* ========================================= */
+
+.dicas-card {
+display: flex;
+align-items: center;
+gap: 1.1rem;
+background: var(--cor-fundo-card);
+border-radius: 14px;
+padding: 1rem 1.15rem;
+box-shadow: var(--sombra-card);
+flex-wrap: wrap;
+}
+
+.dicas-intro {
+display: flex;
+align-items: center;
+gap: 0.7rem;
+flex: 1;
+min-width: 210px;
+}
+
+.dicas-intro .icone {
+width: 38px;
+height: 38px;
+border-radius: 50%;
+background: rgba(255, 159, 10, 0.12);
+color: #FF9F0A;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 0.95rem;
+flex-shrink: 0;
+}
+
+.dicas-intro h3 {
+font-size: 0.88rem;
+font-weight: 700;
+color: var(--cor-texto-principal);
+}
+
+.dicas-intro p {
+font-size: 0.72rem;
+color: var(--cor-texto-esmaecido);
+}
+
+.dica {
+display: flex;
+align-items: center;
+gap: 0.65rem;
+background: #F5FBF7;
+border: 1px solid rgba(50, 194, 109, 0.25);
+border-radius: 12px;
+padding: 0.65rem 0.9rem;
+flex: 1;
+min-width: 195px;
+}
+
+body.tema-escuro .dica {
+background: rgba(50, 194, 109, 0.06);
+}
+
+.dica .icone-dica {
+width: 30px;
+height: 30px;
+border-radius: 50%;
+background: rgba(50, 194, 109, 0.15);
+color: #32C26D;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 0.82rem;
+flex-shrink: 0;
+}
+
+.dica h4 {
+font-size: 0.8rem;
+font-weight: 700;
+color: var(--cor-texto-principal);
+}
+
+.dica p {
+font-size: 0.68rem;
+color: var(--cor-texto-secundario);
+}
+
+.btn-ver-dicas {
+display: flex;
+align-items: center;
+gap: 0.35rem;
+background: none;
+border: none;
+color: #0AB7FB;
+font-weight: 600;
+font-size: 0.8rem;
+cursor: pointer;
+white-space: nowrap;
+}
+
+.btn-ver-dicas:hover {
+text-decoration: underline;
+}
+
+/* ========================= */
+/* PAINEL DE NOTIFICAÇÕES    */
+/* ========================= */
+
+.notificacoes-wrapper {
+position: relative;
+}
+
+.painel-notificacoes {
+display: none;
+position: absolute;
+top: calc(100% + 10px);
+right: 0;
+width: 320px;
+max-height: 380px;
+overflow-y: auto;
+background: var(--cor-fundo-card);
+border-radius: 14px;
+box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+z-index: 50;
+}
+.painel-notificacoes.aberto {
+display: block;
+}
+.painel-notificacoes .painel-header {
+padding: 1rem 1.1rem 0.75rem;
+font-weight: 700;
+font-size: 0.95rem;
+color: var(--cor-texto-principal);
+border-bottom: 1px solid var(--cor-borda-suave);
+}
+.painel-notificacoes .item-notificacao {
+padding: 0.85rem 1.1rem;
+border-bottom: 1px solid var(--cor-borda-suave);
+font-size: 0.85rem;
+color: var(--cor-texto-principal);
+line-height: 1.45;
+}
+.painel-notificacoes .item-notificacao:last-child {
+border-bottom: none;
+}
+.painel-notificacoes .item-notificacao .tempo-notificacao {
+display: block;
+margin-top: 0.25rem;
+font-size: 0.75rem;
+color: var(--cor-texto-esmaecido);
+}
+.painel-notificacoes .item-notificacao.nao-lida {
+background: rgba(10, 183, 251, 0.06);
+}
+.painel-notificacoes .painel-vazio {
+padding: 1.5rem 1.1rem;
+text-align: center;
+font-size: 0.85rem;
+color: var(--cor-texto-esmaecido);
+}
