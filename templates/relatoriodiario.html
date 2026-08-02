@@ -409,7 +409,22 @@
 
         const perguntas = [
 
+            // 🔧 Pergunta temporária de controle: enquanto não existe conexão
+            // real com o Bixuco (IoT), é essa resposta que define se o dia
+            // teve ou não um alerta de estresse — usada pelos gráficos da
+            // aba Relatórios. O "id" fixo garante que o backend sempre
+            // encontre essa resposta, mesmo se o texto da pergunta mudar.
             {
+                id: "alerta_estresse",
+                pergunta: "Teve algum alerta de estresse hoje?",
+                respostas: [
+                    "Sim",
+                    "Não"
+                ]
+            },
+
+            {
+                id: "desconforto_texturas",
                 pergunta: "Ela demonstra desconforto com texturas de roupas ou alimentos?",
                 respostas: [
                     "Sempre",
@@ -420,6 +435,7 @@
             },
 
             {
+                id: "evitou_contato_visual",
                 pergunta: "Hoje ela evitou contato visual?",
                 respostas: [
                     "Sempre",
@@ -450,6 +466,7 @@
             },
 
             {
+                id: "crises_sensoriais",
                 pergunta: "Apresentou crises sensoriais?",
                 respostas: [
                     "Sim, várias",
@@ -480,6 +497,7 @@
             },
 
             {
+                id: "atividades_propostas",
                 pergunta: "Realizou atividades propostas?",
                 respostas: [
                     "Todas",
@@ -490,6 +508,7 @@
             },
 
             {
+                id: "interacao_social",
                 pergunta: "Como foi a interação social?",
                 respostas: [
                     "Excelente",
@@ -654,6 +673,7 @@
             }
 
             respostasUsuario.push({
+                id: perguntas[perguntaAtual].id || null,
                 pergunta: perguntas[perguntaAtual].pergunta,
                 resposta: respostaSelecionada
             });

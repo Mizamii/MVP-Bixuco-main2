@@ -1070,7 +1070,7 @@ app.get("/RelatorioDiario", estaLogado, (req, res) => {
 // 🔧 Rota POST — salva o relatório preenchido pelo usuário
 // O frontend chamava /salvar-relatorio que nunca existiu
 // Agora a rota correta é /api/relatorio
-app.post("/api/relatorio", estaLogado, async (req, res) => {
+app.get("/api/relatorios", estaLogado, async (req, res) => {
 
     try {
 
@@ -1080,132 +1080,277 @@ app.post("/api/relatorio", estaLogado, async (req, res) => {
             return res.status(401).json({ erro: "Não autenticado." });
         }
 
-        const { respostas, data } = req.body;
+        // 🔧 Condição reutilizada: só considera "alerta" o dia em que a
+        // pergunta "alerta_estresse" foi respondida com "Sim". Enquanto
+        // não existe conexão real com o Bixuco, é essa resposta que
+        // controla os alertas — ver nota na Parte 1.
+        const filtroAlerta = `
+            AND EXISTS (
+                SELECT 1 FROM jsonb_array_elements(respostas) AS r
+                WHERE r->>'id' = 'alerta_estresse'
+                AND r->>'resposta' = 'Sim'
+            )
+        `;
 
-        if (!respostas || !Array.isArray(respostas) || respostas.length === 0) {
-            return res.status(400).json({ erro: "Respostas inválidas." });
-        }
+        // =====================
+        // ALERTAS DO MÊS
+        // =====================
 
-        // 🔧 Verifica se já existe um relatório de hoje para esse usuário
-        const jaTemHoje = await db.query(
-            `SELECT id FROM relatorios
+        const alertasMes = await db.query(
+            `SELECT COUNT(*) AS total
+             FROM relatorios
              WHERE usuario_id = $1
-             AND DATE(data) = CURRENT_DATE`,
+             AND EXTRACT(MONTH FROM data) = EXTRACT(MONTH FROM NOW())
+             AND EXTRACT(YEAR FROM data)  = EXTRACT(YEAR FROM NOW())
+             ${filtroAlerta}`,
             [usuarioId]
         );
 
-        if (jaTemHoje.rows.length > 0) {
-            return res.status(409).json({
-                erro: "Você já preencheu o relatório de hoje. Volte amanhã!"
-            });
-        }
-
-        // Salva o relatório
-        await db.query(
-            `INSERT INTO relatorios
-            (usuario_id, respostas, data)
-            VALUES ($1, $2, $3)`,
-            [
-                usuarioId,
-                JSON.stringify(respostas),
-                data || new Date().toISOString()
-            ]
-        );
-
-        // 🔧 Cria a notificação de sucesso
-        await db.query(
-            `INSERT INTO notificacoes (usuario_id, tipo, mensagem, lida)
-             VALUES ($1, 'relatorio_concluido', $2, FALSE)`,
-            [usuarioId, "Você acabou de finalizar um relatório. Parabéns! "]
-        );
-
-        return res.status(201).json({ mensagem: "Relatório salvo com sucesso." });
-
-    } catch (erro) {
-
-        console.log("Erro ao salvar relatório:", erro);
-        res.status(500).json({ erro: "Erro interno ao salvar relatório." });
-
-    }
-
-});
-
-
-app.post("/esqueceu-senha", async (req, res) => {
-
-    const { email } = req.body;
-
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        return res.status(400).json({ erro: "E-mail inválido." });
-    }
-
-    try {
-
-        const resultado = await db.query(
-            "SELECT * FROM usuarios WHERE email = $1",
-            [email]
-        );
-
-        if (resultado.rows.length === 0) {
-            return res.status(200).json({
-                mensagem: "Se esse e-mail estiver cadastrado, você receberá o link em breve."
-            });
-        }
-
-        const usuario = resultado.rows[0];
-
-        const token = crypto.randomBytes(32).toString("hex");
-        const expiraEm = new Date(Date.now() + 60 * 60 * 1000);
-
-        await db.query(
-            `UPDATE tokens_recuperacao
-             SET usado = TRUE
+        const alertasSemanaPassada = await db.query(
+            `SELECT COUNT(*) AS total
+             FROM relatorios
              WHERE usuario_id = $1
-             AND usado = FALSE`,
-            [usuario.id]
+             AND data >= NOW() - INTERVAL '14 days'
+             AND data <  NOW() - INTERVAL '7 days'
+             ${filtroAlerta}`,
+            [usuarioId]
         );
 
-        await db.query(
-            `INSERT INTO tokens_recuperacao
-             (usuario_id, token, expira_em)
-             VALUES ($1, $2, $3)`,
-            [usuario.id, token, expiraEm]
+        const alertasSemanaAtual = await db.query(
+            `SELECT COUNT(*) AS total
+             FROM relatorios
+             WHERE usuario_id = $1
+             AND data >= NOW() - INTERVAL '7 days'
+             ${filtroAlerta}`,
+            [usuarioId]
         );
 
-        const link = `${process.env.BASE_URL || "http://localhost:3000"}/redefinir-senha?token=${token}`;
+        const totalMes      = parseInt(alertasMes.rows[0].total) || 0;
+        const totalAtual    = parseInt(alertasSemanaAtual.rows[0].total) || 0;
+        const totalAnterior = parseInt(alertasSemanaPassada.rows[0].total) || 0;
+        const diffAlertas   = totalAtual - totalAnterior;
 
-        // envia via Brevo
-        await brevoClient.transactionalEmails.sendTransacEmail({
-            sender: { name: 'Bixuco', email: 'yasminbertoni7@gmail.com' },
-            to: [{ email: email }],
-            subject: 'Recuperação de senha — Bixuco',
-            htmlContent: `
-                <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto;">
-                    <h2 style="color: #32C26D;">Recuperação de senha</h2>
-                    <p>Olá, <strong>${usuario.nome}</strong>!</p>
-                    <p>Clique no botão abaixo para criar uma nova senha:</p>
-                    <a href="${link}" style="display:inline-block;background:linear-gradient(135deg,#79D836,#32C26D);color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;margin:16px 0;">
-                        Redefinir minha senha
-                    </a>
-                    <p style="color:#5A5A5A;font-size:14px;">Este link é válido por <strong>1 hora</strong>.</p>
-                    <hr style="border:none;border-top:1px solid #C2C2C2;margin:24px 0;">
-                    <p style="color:#C2C2C2;font-size:12px;">Bixuco — Acompanhamento infantil inteligente</p>
-                </div>
-            `
-        });
+        const comparativoAlertas = diffAlertas === 0
+            ? "igual à semana passada"
+            : diffAlertas > 0
+                ? `↑ ${diffAlertas} comparado à semana passada`
+                : `↓ ${Math.abs(diffAlertas)} comparado à semana passada`;
 
-        
+        // =====================
+        // GRÁFICO DE BARRAS — ESTRESSE POR DIA (últimos 7 dias)
+        // 🔧 Agora só entra no gráfico o dia em que houve alerta (Sim)
+        // =====================
 
-        return res.status(200).json({
-            mensagem: "Se esse e-mail estiver cadastrado, você receberá o link em breve."
+        const estresseDias = await db.query(
+            `SELECT
+                TO_CHAR(data, 'Dy') AS dia,
+                COUNT(*) AS total
+             FROM relatorios
+             WHERE usuario_id = $1
+             AND data >= NOW() - INTERVAL '7 days'
+             ${filtroAlerta}
+             GROUP BY data
+             ORDER BY data ASC`,
+            [usuarioId]
+        );
+
+        const labelsEstresse = estresseDias.rows.map(r => r.dia);
+        const dadosEstresse  = estresseDias.rows.map(r => parseInt(r.total));
+
+        // =====================
+        // GRÁFICO DE ROSCA — GATILHOS (aproximação)
+        // 🔧 Mapeamento aproximado usando 4 perguntas existentes, já que ainda
+        // não existe uma pergunta dedicada "qual foi o gatilho". Cada categoria
+        // vem de uma pergunta diferente — ver tabela de mapeamento na conversa.
+        // =====================
+
+        const gatilhosRaw = await db.query(
+            `SELECT
+                COUNT(*) FILTER (
+                    WHERE EXISTS (
+                        SELECT 1 FROM jsonb_array_elements(respostas) AS x
+                        WHERE x->>'id' = 'desconforto_texturas'
+                        AND x->>'resposta' IN ('Sempre', 'Quase sempre')
+                    )
+                ) AS texturas,
+                COUNT(*) FILTER (
+                    WHERE EXISTS (
+                        SELECT 1 FROM jsonb_array_elements(respostas) AS x
+                        WHERE x->>'id' = 'evitou_contato_visual'
+                        AND x->>'resposta' IN ('Sempre', 'Quase sempre')
+                    )
+                ) AS barulho,
+                COUNT(*) FILTER (
+                    WHERE EXISTS (
+                        SELECT 1 FROM jsonb_array_elements(respostas) AS x
+                        WHERE x->>'id' = 'atividades_propostas'
+                        AND x->>'resposta' IN ('Poucas', 'Nenhuma')
+                    )
+                ) AS rotina,
+                COUNT(*) FILTER (
+                    WHERE EXISTS (
+                        SELECT 1 FROM jsonb_array_elements(respostas) AS x
+                        WHERE x->>'id' = 'interacao_social'
+                        AND x->>'resposta' IN ('Pouca', 'Nenhuma')
+                    )
+                ) AS lotados
+            FROM relatorios
+            WHERE usuario_id = $1
+            AND data >= NOW() - INTERVAL '7 days'`,
+            [usuarioId]
+        );
+
+        const g = gatilhosRaw.rows[0];
+
+        const texturas = parseInt(g.texturas) || 0;
+        const barulho   = parseInt(g.barulho)  || 0;
+        const rotina    = parseInt(g.rotina)   || 0;
+        const lotados   = parseInt(g.lotados)  || 0;
+
+        const totalGatilhos = texturas + barulho + rotina + lotados;
+
+        let graficoGatilhos;
+
+        if (totalGatilhos === 0) {
+
+            // Sem nenhum indício nos últimos 7 dias — evita dividir por zero
+            graficoGatilhos = {
+                labels: ["Sem dados suficientes ainda"],
+                dados: [100],
+                cores: ["#C2C2C2"]
+            };
+
+        } else {
+
+            graficoGatilhos = {
+                labels: [
+                    "Ambientes barulhentos",
+                    "Locais lotados",
+                    "Mudanças de rotina",
+                    "Texturas de alimentos"
+                ],
+                dados: [
+                    Math.round((barulho  / totalGatilhos) * 100),
+                    Math.round((lotados  / totalGatilhos) * 100),
+                    Math.round((rotina   / totalGatilhos) * 100),
+                    Math.round((texturas / totalGatilhos) * 100)
+                ],
+                cores: ["#32C26D", "#0AB7FB", "#1D8EC9", "#C2C2C2"]
+            };
+
+        }
+
+
+        // =====================
+        // GRÁFICO DE LINHA — EVOLUÇÃO (últimos 7 dias)
+        // 🔧 Agora usa a pergunta "Apresentou crises sensoriais?" como termômetro
+        // de estresse (0 = Nenhuma, 3 = Sim, várias), em vez de repetir o
+        // Sim/Não do gráfico de barras
+        // =====================
+
+        const evolucaoDias = await db.query(
+            `SELECT
+                TO_CHAR(dia, 'Dy') AS dia_label,
+                COALESCE((
+                    SELECT CASE x->>'resposta'
+                        WHEN 'Nenhuma'      THEN 0
+                        WHEN 'Poucas'       THEN 1
+                        WHEN 'Algumas'      THEN 2
+                        WHEN 'Sim, várias'  THEN 3
+                        ELSE NULL
+                    END
+                    FROM relatorios r,
+                        jsonb_array_elements(r.respostas) AS x
+                    WHERE r.usuario_id = $1
+                    AND DATE(r.data) = dia
+                    AND x->>'id' = 'crises_sensoriais'
+                    LIMIT 1
+                ), 0) AS nivel_estresse
+            FROM generate_series(
+                CURRENT_DATE - INTERVAL '6 days',
+                CURRENT_DATE,
+                INTERVAL '1 day'
+            ) AS dia
+            ORDER BY dia`,
+            [usuarioId]
+        );
+
+        const labelsEvolucao = evolucaoDias.rows.map(r => r.dia_label);
+        const dadosEvolucao  = evolucaoDias.rows.map(r => r.nivel_estresse);
+
+
+        // =====================
+        // ÚLTIMO RELATÓRIO DIÁRIO
+        // (sem alteração — continua mostrando todas as perguntas/respostas)
+        // =====================
+
+        const ultimoRelatorio = await db.query(
+            `SELECT respostas, data
+             FROM relatorios
+             WHERE usuario_id = $1
+             ORDER BY data DESC
+             LIMIT 1`,
+            [usuarioId]
+        );
+
+        let perguntas    = [];
+        let dataRelatorio = "Nenhum relatório encontrado.";
+
+        if (ultimoRelatorio.rows.length > 0) {
+
+            const row = ultimoRelatorio.rows[0];
+
+            perguntas = typeof row.respostas === "string"
+                ? JSON.parse(row.respostas)
+                : row.respostas;
+
+            const data = new Date(row.data);
+            dataRelatorio = data.toLocaleDateString("pt-BR", {
+                weekday: "long",
+                day:     "numeric",
+                month:   "long",
+                year:    "numeric"
+            });
+
+        }
+
+        // =====================
+        // RETORNA TUDO
+        // =====================
+
+        res.json({
+
+            alertas:             totalMes,
+            comparativoAlertas,
+            tempo:               "0 min",
+            comparativoTempo:    "por episódio",
+
+            graficoEstresse: {
+                labels: labelsEstresse,
+                dados:  dadosEstresse
+            },
+
+            graficoGatilhos,
+
+            graficoEvolucao: {
+                labels: labelsEvolucao,
+                dados:  dadosEvolucao
+            },
+
+            dataRelatorio,
+            perguntas
+
         });
 
     } catch (erro) {
-        console.log("ERRO COMPLETO:", JSON.stringify(erro, Object.getOwnPropertyNames(erro)));
-        res.status(500).json({ erro: "Erro interno ao enviar o e-mail. Tente novamente." });
+
+        console.log("Erro na rota /api/relatorios:", erro);
+        res.status(500).json({ erro: "Erro interno do servidor." });
+
     }
 
 });
+
 
 /* ==========================
    CADASTRO FINAL
@@ -1936,20 +2081,37 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
         // GRÁFICO DE BARRAS — ESTRESSE POR DIA (últimos 7 dias)
         // =====================
 
+        // =====================
+        // GRÁFICO DE BARRAS — ESTRESSE POR DIA (últimos 7 dias)
+        // 🔧 Corrigido: agora sempre mostra os 7 dias, mesmo os que não
+        // tiveram alerta (antes esses dias simplesmente sumiam do gráfico)
+        // =====================
+
         const estresseDias = await db.query(
             `SELECT
-                TO_CHAR(data, 'Dy') AS dia,
-                COUNT(*) AS total
-             FROM relatorios
-             WHERE usuario_id = $1
-             AND data >= NOW() - INTERVAL '7 days'
-             GROUP BY data
-             ORDER BY data ASC`,
+                TO_CHAR(dia, 'Dy') AS dia_label,
+                CASE WHEN EXISTS (
+                    SELECT 1 FROM relatorios r
+                    WHERE r.usuario_id = $1
+                    AND DATE(r.data) = dia
+                    AND EXISTS (
+                        SELECT 1 FROM jsonb_array_elements(r.respostas) AS x
+                        WHERE x->>'id' = 'alerta_estresse'
+                        AND x->>'resposta' = 'Sim'
+                    )
+                ) THEN 1 ELSE 0 END AS teve_alerta
+            FROM generate_series(
+                CURRENT_DATE - INTERVAL '6 days',
+                CURRENT_DATE,
+                INTERVAL '1 day'
+            ) AS dia
+            ORDER BY dia`,
             [usuarioId]
         );
 
-        const labelsEstresse = estresseDias.rows.map(r => r.dia);
-        const dadosEstresse  = estresseDias.rows.map(r => parseInt(r.total));
+        const labelsEstresse = estresseDias.rows.map(r => r.dia_label);
+        const dadosEstresse  = estresseDias.rows.map(r => r.teve_alerta);
+
 
         // =====================
         // GRÁFICO DE ROSCA — GATILHOS
@@ -1971,22 +2133,34 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
 
         // =====================
         // GRÁFICO DE LINHA — EVOLUÇÃO (últimos 7 dias)
+        // 🔧 Mesma correção do gráfico de barras
         // =====================
 
         const evolucaoDias = await db.query(
             `SELECT
-                TO_CHAR(data, 'Dy') AS dia,
-                COUNT(*) AS total
-             FROM relatorios
-             WHERE usuario_id = $1
-             AND data >= NOW() - INTERVAL '7 days'
-             GROUP BY data
-             ORDER BY data ASC`,
+                TO_CHAR(dia, 'Dy') AS dia_label,
+                CASE WHEN EXISTS (
+                    SELECT 1 FROM relatorios r
+                    WHERE r.usuario_id = $1
+                    AND DATE(r.data) = dia
+                    AND EXISTS (
+                        SELECT 1 FROM jsonb_array_elements(r.respostas) AS x
+                        WHERE x->>'id' = 'alerta_estresse'
+                        AND x->>'resposta' = 'Sim'
+                    )
+                ) THEN 1 ELSE 0 END AS teve_alerta
+            FROM generate_series(
+                CURRENT_DATE - INTERVAL '6 days',
+                CURRENT_DATE,
+                INTERVAL '1 day'
+            ) AS dia
+            ORDER BY dia`,
             [usuarioId]
         );
 
-        const labelsEvolucao = evolucaoDias.rows.map(r => r.dia);
-        const dadosEvolucao  = evolucaoDias.rows.map(r => parseInt(r.total));
+        const labelsEvolucao = evolucaoDias.rows.map(r => r.dia_label);
+        const dadosEvolucao  = evolucaoDias.rows.map(r => r.teve_alerta);
+
 
         // =====================
         // ÚLTIMO RELATÓRIO DIÁRIO
