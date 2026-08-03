@@ -296,7 +296,7 @@ async (accessToken, refreshToken, profile, done) => {
 
             `INSERT INTO usuarios
              (nome, email, tipo, senha, foto_perfil, novo_usuario)
-             VALUES ($1, $2, NULL, '', $3, TRUE)
+             VALUES ($1, $2, 'pendente', '', $3, TRUE)
              RETURNING *`,
 
             [nome, email, foto]
