@@ -2239,6 +2239,71 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
 });
 
 
+/* ==========================
+   ROTA POST — SALVAR RELATÓRIO DIÁRIO
+========================== */
+
+app.post("/api/relatorio", estaLogado, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        const { respostas, data } = req.body;
+
+        if (!respostas || !Array.isArray(respostas) || respostas.length === 0) {
+            return res.status(400).json({ erro: "Respostas inválidas." });
+        }
+
+        // Impede mais de um relatório por dia
+        const jaTemHoje = await db.query(
+            `SELECT id FROM relatorios
+             WHERE usuario_id = $1
+             AND DATE(data) = CURRENT_DATE`,
+            [usuarioId]
+        );
+
+        if (jaTemHoje.rows.length > 0) {
+            return res.status(409).json({
+                erro: "Você já preencheu o relatório de hoje. Volte amanhã!"
+            });
+        }
+
+        // Salva o relatório
+        await db.query(
+            `INSERT INTO relatorios
+            (usuario_id, respostas, data)
+            VALUES ($1, $2, $3)`,
+            [
+                usuarioId,
+                JSON.stringify(respostas),
+                data || new Date().toISOString()
+            ]
+        );
+
+        // Cria a notificação de sucesso
+        await db.query(
+            `INSERT INTO notificacoes (usuario_id, tipo, mensagem, lida)
+             VALUES ($1, 'relatorio_concluido', $2, FALSE)`,
+            [usuarioId, "Você acabou de finalizar um relatório. Parabéns! 🎉"]
+        );
+
+        return res.status(201).json({ mensagem: "Relatório salvo com sucesso." });
+
+    } catch (erro) {
+
+        console.log("Erro ao salvar relatório:", erro);
+        res.status(500).json({ erro: "Erro interno ao salvar relatório." });
+
+    }
+
+});
+
+
 
 /* ==========================
    ROTA DELETE — EXCLUIR CONTA
