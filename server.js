@@ -251,6 +251,12 @@ app.get("/onboarding-google", estaLogado, (req, res) => {
 
 });
 
+app.get("/PerfilTerapeuta", estaLogado, (req, res) => {
+
+    res.sendFile(path.join(__dirname, "templates", "PerfilTerapeuta.html"));
+    
+});
+
 // 🔒 FIX 2 (aplicado): /home agora exige login
 app.get("/home", estaLogado, (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "home.html"));
