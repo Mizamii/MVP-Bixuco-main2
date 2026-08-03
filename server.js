@@ -132,6 +132,59 @@ cron.schedule('0 19 * * *', async () => {
     timezone: "America/Sao_Paulo"
 });
 
+// GET — busca preferências
+app.get("/api/preferencias", estaLogado, async (req, res) => {
+    try {
+        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const resultado = await db.query(
+            `SELECT notif_lembrete, notif_novidades
+             FROM preferencias_usuario
+             WHERE usuario_id = $1`,
+            [usuarioId]
+        );
+
+        const prefs = resultado.rows[0] || {};
+        res.json({
+            lembreteRelatorio: prefs.notif_lembrete  ?? true,
+            novaSolicitacao:   prefs.notif_novidades ?? true
+        });
+    } catch (_) {
+        res.json({ lembreteRelatorio: true, novaSolicitacao: true });
+    }
+});
+
+// POST — salva preferências (terapeuta e pai compartilham a mesma tabela)
+app.post("/api/preferencias", estaLogado, async (req, res) => {
+    try {
+        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const { lembreteRelatorio, novaSolicitacao } = req.body;
+
+        if (lembreteRelatorio !== undefined) {
+            await db.query(
+                `INSERT INTO preferencias_usuario (usuario_id, notif_lembrete)
+                 VALUES ($1, $2)
+                 ON CONFLICT (usuario_id) DO UPDATE SET notif_lembrete = $2`,
+                [usuarioId, lembreteRelatorio]
+            );
+        }
+
+        if (novaSolicitacao !== undefined) {
+            await db.query(
+                `INSERT INTO preferencias_usuario (usuario_id, notif_novidades)
+                 VALUES ($1, $2)
+                 ON CONFLICT (usuario_id) DO UPDATE SET notif_novidades = $2`,
+                [usuarioId, novaSolicitacao]
+            );
+        }
+
+        res.json({ mensagem: "Preferências salvas." });
+    } catch (erro) {
+        console.log("Erro ao salvar preferências:", erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
+});
+
+
 /* ==========================
    MIDDLEWARES
 ========================== */
@@ -254,7 +307,7 @@ app.get("/onboarding-google", estaLogado, (req, res) => {
 app.get("/PerfilTerapeuta", estaLogado, (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "PerfilTerapeuta.html"));
-    
+
 });
 
 // 🔒 FIX 2 (aplicado): /home agora exige login
@@ -747,6 +800,27 @@ app.get("/api/configuracoes/notificacoes", estaLogado, async (req, res) => {
             lembrete:  prefs.notif_lembrete  !== null ? prefs.notif_lembrete  : true,
             novidades: prefs.notif_novidades !== null ? prefs.notif_novidades : false
         });
+
+        // Preferências do terapeuta
+        if (req.body.lembreteRelatorio !== undefined) {
+            await db.query(
+                `INSERT INTO preferencias_usuario (usuario_id, notif_lembrete)
+                VALUES ($1, $2)
+                ON CONFLICT (usuario_id)
+                DO UPDATE SET notif_lembrete = $2`,
+                [usuarioId, req.body.lembreteRelatorio]
+            );
+        }
+
+        if (req.body.novaSolicitacao !== undefined) {
+            await db.query(
+                `INSERT INTO preferencias_usuario (usuario_id, notif_novidades)
+                VALUES ($1, $2)
+                ON CONFLICT (usuario_id)
+                DO UPDATE SET notif_novidades = $2`,
+                [usuarioId, req.body.novaSolicitacao]
+            );
+        }
 
     } catch (erro) {
 
