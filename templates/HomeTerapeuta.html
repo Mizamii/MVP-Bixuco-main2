@@ -98,8 +98,23 @@
 
                 <div>
                     <h3 id="nomeTerapeuta">Carregando...</h3>
-                    <span id="tipoConta">Terapeuta</span>
+                    <span id="tipoConta">
+                        Terapeuta · Código:
+                        <strong
+                            id="codigoTerapeuta"
+                            title="Compartilhe este código com seus pacientes"
+                            style="cursor: pointer; letter-spacing: 1px;"
+                            onclick="copiarCodigo()"
+                        >...</strong>
+                        <i
+                            class="fa-regular fa-copy"
+                            style="font-size: 0.75rem; margin-left: 3px; cursor: pointer;"
+                            onclick="copiarCodigo()"
+                            title="Copiar código"
+                        ></i>
+                    </span>
                 </div>
+
             </div>
 
         </header>
@@ -226,6 +241,25 @@
     // CARREGAR DADOS DO TERAPEUTA
     // =========================
 
+    // Copia o código do terapeuta para a área de transferência
+    function copiarCodigo() {
+        const codigo = document.getElementById("codigoTerapeuta").textContent;
+        if (!codigo || codigo === "---") return;
+
+        navigator.clipboard.writeText(codigo).then(() => {
+            const icone = document.querySelector("#tipoConta .fa-copy");
+            if (icone) {
+                icone.classList.remove("fa-copy");
+                icone.classList.add("fa-check");
+                setTimeout(() => {
+                    icone.classList.remove("fa-check");
+                    icone.classList.add("fa-copy");
+                }, 2000);
+            }
+        });
+    }
+
+
     async function carregarDados() {
 
         try {
@@ -246,7 +280,8 @@
             document.getElementById("nomeTerapeuta").textContent =
                 dados.nome || "Terapeuta";
 
-            document.getElementById("tipoConta").textContent = "Terapeuta";
+            document.getElementById("codigoTerapeuta").textContent = dados.codigoVinculo || "---";
+            
 
             if (dados.fotoPerfil) {
                 document.getElementById("fotoUsuario").src = dados.fotoPerfil;

@@ -1596,7 +1596,7 @@ app.get("/api/homeTerapeuta", estaLogado, async (req, res) => {
 
         // Dados do terapeuta
         const resultadoUsuario = await db.query(
-            `SELECT nome, foto_perfil FROM usuarios WHERE id = $1`,
+            `SELECT nome, foto_perfil, codigo_vinculo FROM usuarios WHERE id = $1`,
             [usuarioId]
         );
 
@@ -1688,6 +1688,7 @@ app.get("/api/homeTerapeuta", estaLogado, async (req, res) => {
             totalPacientes:   parseInt(totalPacientes.rows[0].total) || 0,
             totalPendentes:   parseInt(totalPendentes.rows[0].total) || 0,
             relatoriosHoje:   parseInt(relatoriosHoje.rows[0].total) || 0,
+            codigoTerapeuta:     terapeuta.codigo_vinculo || null,
 
             solicitacoes: solicitacoes.rows.map(s => ({
                 id:              s.id,
