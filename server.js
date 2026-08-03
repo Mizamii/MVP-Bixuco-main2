@@ -2440,6 +2440,27 @@ app.post("/api/relatorio", estaLogado, async (req, res) => {
 });
 
 
+app.post("/api/relatorios/:id/marcar-visto", estaLogado, async (req, res) => {
+    const usuarioId   = req.session.usuarioId || (req.user && req.user.id);
+    const relatorioId = req.params.id;
+
+    try {
+        await db.query(
+            `UPDATE relatorios SET visto_terapeuta = TRUE
+             WHERE id = $1
+             AND usuario_id IN (
+                 SELECT responsavel_id FROM vinculos
+                 WHERE terapeuta_id = $2 AND ativo = TRUE
+             )`,
+            [relatorioId, usuarioId]
+        );
+        res.json({ sucesso: true });
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
+});
+
 
 /* ==========================
    ROTA DELETE — EXCLUIR CONTA

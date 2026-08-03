@@ -603,7 +603,7 @@
             const li = document.createElement("li");
             li.classList.add("atividade-item");
 
-            li.innerHTML = `
+           li.innerHTML = `
                 <div class="atividade-icone atividade-icone--${item.cor || "verde"}">
                     <i class="fa-solid fa-clipboard-list"></i>
                 </div>
@@ -616,7 +616,7 @@
                 <button
                     type="button"
                     class="btn-ver"
-                    onclick="window.location.href='/relatoriosTerapeuta?id=${item.id}'"
+                    onclick="marcarVistoEAbrir(${item.id})"
                 >
                     <i class="fa-regular fa-eye"></i>
                     Ver
@@ -653,6 +653,13 @@
     document.getElementById("btnNotificacoes").addEventListener("click", () => {
         // Futuramente abrir a central de notificações
     });
+
+    async function marcarVistoEAbrir(relatorioId) {
+        try {
+            await fetch(`/api/relatorios/${relatorioId}/marcar-visto`, { method: "POST" });
+        } catch (_) {}
+        window.location.href = `/relatoriosTerapeuta?id=${relatorioId}`;
+    }
 
 
     // =========================
