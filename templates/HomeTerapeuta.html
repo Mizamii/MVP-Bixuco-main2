@@ -81,14 +81,20 @@
             </button>
 
             <div class="usuario">
-                <button class="notificacoes" type="button" id="btnNotificacoes">
-                    <i class="fa-regular fa-bell"></i>
-                    <span
-                        id="badgeNotificacoes"
-                        class="badge"
-                        style="display: none;"
-                    >0</span>
-                </button>
+                <!-- sininho com painel -->
+                <div class="notificacoes-wrapper">
+                    <button class="notificacoes" type="button" id="btnNotificacoes">
+                        <i class="fa-regular fa-bell"></i>
+                        <span id="badgeNotificacoes" class="badge" style="display:none">0</span>
+                    </button>
+
+                    <div class="painel-notificacoes" id="painelNotificacoes">
+                        <div class="painel-header">Notificações</div>
+                        <div id="listaNotificacoes">
+                            <div class="painel-vazio">Carregando...</div>
+                        </div>
+                    </div>
+                </div>
 
                 <img
                     id="fotoUsuario"
@@ -386,6 +392,99 @@
                 );
             });
 
+            // ─── NOTIFICAÇÕES ───────────────────────────────────────
+
+            const painelNotificacoes = document.getElementById("painelNotificacoes");
+            const listaNotificacoes  = document.getElementById("listaNotificacoes");
+
+            function formatarItemNotificacao(item) {
+                const classeExtra = item.lida ? "" : "nao-lida";
+
+                const icones = {
+                    pedido_vinculo:       "fa-link",
+                    relatorio_finalizado: "fa-clipboard-check",
+                    relatorio_concluido:  "fa-check-circle",
+                    lembrete_relatorio:   "fa-bell"
+                };
+                const icone  = icones[item.tipo] || "fa-bell";
+                const clique = item.tipo === "relatorio_finalizado"
+                    ? `onclick="window.location.href='/relatoriosTerapeuta'"`
+                    : "";
+                const cursor = item.tipo === "relatorio_finalizado" ? "cursor:pointer;" : "";
+
+                return `
+                    <div class="item-notificacao ${classeExtra}" ${clique} style="${cursor}">
+                        <div class="notificacao-linha">
+                            <i class="fa-solid ${icone} notificacao-icone"></i>
+                            <div>
+                                <p>${item.mensagem}</p>
+                                <span class="tempo-notificacao">${item.tempo}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            async function carregarNotificacoes() {
+                try {
+                    const resposta = await fetch("/api/notificacoes");
+                    if (!resposta.ok) throw new Error();
+                    const dados = await resposta.json();
+                    const itens = dados.notificacoes || [];
+
+                    listaNotificacoes.innerHTML = itens.length === 0
+                        ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+                        : itens.map(formatarItemNotificacao).join("");
+
+                    // atualiza o badge com não lidas
+                    const naoLidas = itens.filter(i => !i.lida).length;
+                    const badge    = document.getElementById("badgeNotificacoes");
+                    if (naoLidas > 0) {
+                        badge.textContent  = naoLidas;
+                        badge.style.display = "inline";
+                    } else {
+                        badge.style.display = "none";
+                    }
+
+                } catch (_) {
+                    listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar.</div>`;
+                }
+            }
+
+            document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
+                e.stopPropagation();
+                const estaAberto = painelNotificacoes.classList.toggle("aberto");
+                if (estaAberto) {
+                    await carregarNotificacoes();
+                    // marca todas como lidas quando abre o painel
+                    fetch("/api/notificacoes/marcar-lidas", { method: "POST" });
+                    document.getElementById("badgeNotificacoes").style.display = "none";
+                }
+            });
+
+            // fecha o painel ao clicar fora
+            document.addEventListener("click", (e) => {
+                if (!painelNotificacoes.contains(e.target)) {
+                    painelNotificacoes.classList.remove("aberto");
+                }
+            });
+
+            // carrega o badge ao abrir a página sem abrir o painel
+            async function carregarBadgeNotificacoes() {
+                try {
+                    const resposta = await fetch("/api/notificacoes");
+                    if (!resposta.ok) return;
+                    const dados  = await resposta.json();
+                    const itens  = dados.notificacoes || [];
+                    const naoLidas = itens.filter(i => !i.lida).length;
+                    const badge    = document.getElementById("badgeNotificacoes");
+                    if (naoLidas > 0) {
+                        badge.textContent   = naoLidas;
+                        badge.style.display = "inline";
+                    }
+                } catch (_) {}
+            }
+
             acoes.appendChild(btnAceitar);
             acoes.appendChild(btnRecusar);
 
@@ -574,6 +673,7 @@
     const temaSalvo = localStorage.getItem("tema") || "claro";
     aplicarTema(temaSalvo);
     carregarDados();
+    carregarBadgeNotificacoes();
 
 </script>
 

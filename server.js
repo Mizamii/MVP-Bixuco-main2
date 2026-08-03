@@ -1843,6 +1843,17 @@ app.post("/api/vinculos/solicitar", estaLogado, async (req, res) => {
                 "INSERT INTO vinculos (responsavel_id, terapeuta_id, ativo, recusado) VALUES ($1, $2, false, false)",
                 [responsavelId, terapeutaId]
             );
+
+            await db.query(
+                "INSERT INTO vinculos (responsavel_id, terapeuta_id, ativo, recusado) VALUES ($1, $2, false, false)",
+                // notifica o terapeuta que recebeu um pedido
+                await db.query(
+                    `INSERT INTO notificacoes (usuario_id, tipo, mensagem, lida)
+                    VALUES ($1, 'pedido_vinculo', $2, FALSE)`,
+                    [terapeutaId, `Você recebeu um pedido de vínculo de um novo responsável.`]
+                ),
+                [responsavelId, terapeutaId]
+            );
         }
 
         res.json({ sucesso: true, nomeTerapeuta: terapeuta.rows[0].nome });
@@ -2367,6 +2378,36 @@ app.post("/api/relatorio", estaLogado, async (req, res) => {
              VALUES ($1, 'relatorio_concluido', $2, FALSE)`,
             [usuarioId, "Você acabou de finalizar um relatório. Parabéns! 🎉"]
         );
+
+        // busca o terapeuta vinculado ao responsável
+        const terapeutaVinculado = await db.query(
+            `SELECT u.id, u.nome
+            FROM vinculos v
+            JOIN usuarios u ON u.id = v.terapeuta_id
+            WHERE v.responsavel_id = $1 AND v.ativo = TRUE
+            LIMIT 1`,
+            [usuarioId]
+        );
+
+        // se tiver terapeuta vinculado, notifica ele também
+        if (terapeutaVinculado.rows.length > 0) {
+            const terapeuta = terapeutaVinculado.rows[0];
+
+            // busca o nome da criança do responsável
+            const crianca = await db.query(
+                `SELECT nome FROM criancas WHERE usuario_id = $1 LIMIT 1`,
+                [usuarioId]
+            );
+
+            const nomeCrianca = crianca.rows[0]?.nome || "A criança";
+
+            await db.query(
+                `INSERT INTO notificacoes (usuario_id, tipo, mensagem, lida)
+                VALUES ($1, 'relatorio_finalizado', $2, FALSE)`,
+                [terapeuta.id, `${nomeCrianca} acabou de finalizar um relatório. Clique para ver.`]
+            );
+
+        }
 
         return res.status(201).json({ mensagem: "Relatório salvo com sucesso." });
 
