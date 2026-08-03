@@ -19,7 +19,14 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
     >
 
-    <!-- CSS -->
+    <!-- 🔧 Faltava o link do tema.css — sem ele o toggle claro/escuro
+         troca a classe no body mas nenhuma variável de cor existe -->
+    <link
+        rel="stylesheet"
+        href="/css/tema.css"
+    >
+
+    <!-- CSS da página (base compartilhada + estilos específicos de Configurações) -->
 
     <link
         rel="stylesheet"
@@ -27,164 +34,6 @@
     >
 
 </head>
-
-<style>
-    /* ========================= */
-    /* MODAL — ALTERAR SENHA */
-    /* ========================= */
-
-    #modalSenha {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 9999;
-        align-items: center;
-        justify-content: center;
-        padding: 1.5rem;
-    }
-    #modalSenha.aberto {
-        display: flex;
-    }
-    #modalSenha .modal-conteudo {
-        background: #fff;
-        border-radius: 16px;
-        padding: 1.75rem;
-        width: 100%;
-        max-width: 420px;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    }
-    #modalSenha .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.25rem;
-    }
-    #modalSenha h3 {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: #141414;
-    }
-    #modalSenha .btn-fechar-modal {
-        background: none;
-        border: none;
-        font-size: 1.2rem;
-        cursor: pointer;
-        color: #5A5A5A;
-    }
-    #modalSenha label {
-        display: block;
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #141414;
-        margin-bottom: 0.4rem;
-        margin-top: 1rem;
-    }
-    #modalSenha label:first-of-type {
-        margin-top: 0;
-    }
-    #modalSenha input[type="password"] {
-        width: 100%;
-        padding: 0.75rem 0.9rem;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        font-size: 0.9rem;
-        font-family: inherit;
-    }
-    #modalSenha .btn-salvar-senha {
-        width: 100%;
-        margin-top: 1.5rem;
-        padding: 0.85rem;
-        background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
-        color: #fff;
-        border: none;
-        border-radius: 12px;
-        font-size: 0.95rem;
-        font-weight: 600;
-        cursor: pointer;
-    }
-    #modalSenha .btn-salvar-senha:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-    #modalSenha .status-senha {
-        display: none;
-        margin-top: 1rem;
-        padding: 0.7rem 0.9rem;
-        border-radius: 10px;
-        font-size: 0.82rem;
-        font-weight: 600;
-        text-align: center;
-    }
-    #modalSenha .status-senha.visivel {
-        display: block;
-    }
-    #modalSenha .status-senha.sucesso {
-        background: rgba(50, 194, 109, 0.12);
-        color: #1E8E4F;
-    }
-    #modalSenha .status-senha.erro {
-        background: rgba(255, 68, 68, 0.1);
-        color: #C0392B;
-    }
-
-    /* ========================= */
-    /* PAINEL DE NOTIFICAÇÕES */
-    /* ========================= */
-
-    .notificacoes-wrapper {
-        position: relative;
-    }
-
-    .painel-notificacoes {
-        display: none;
-        position: absolute;
-        top: calc(100% + 10px);
-        right: 0;
-        width: 320px;
-        max-height: 380px;
-        overflow-y: auto;
-        background: #fff;
-        border-radius: 14px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        z-index: 50;
-    }
-    .painel-notificacoes.aberto {
-        display: block;
-    }
-    .painel-notificacoes .painel-header {
-        padding: 1rem 1.1rem 0.75rem;
-        font-weight: 700;
-        font-size: 0.95rem;
-        color: #141414;
-        border-bottom: 1px solid #EFEFEF;
-    }
-    .painel-notificacoes .item-notificacao {
-        padding: 0.85rem 1.1rem;
-        border-bottom: 1px solid #F5F5F5;
-        font-size: 0.85rem;
-        color: #141414;
-        line-height: 1.45;
-    }
-    .painel-notificacoes .item-notificacao:last-child {
-        border-bottom: none;
-    }
-    .painel-notificacoes .item-notificacao .tempo-notificacao {
-        display: block;
-        margin-top: 0.25rem;
-        font-size: 0.75rem;
-        color: #999;
-    }
-    .painel-notificacoes .item-notificacao.nao-lida {
-        background: rgba(10, 183, 251, 0.05);
-    }
-    .painel-notificacoes .painel-vazio {
-        padding: 1.5rem 1.1rem;
-        text-align: center;
-        font-size: 0.85rem;
-        color: #999;
-    }
-</style>
 
 <body>
 
@@ -280,6 +129,9 @@
             </button>
 
         </div>
+
+        <!-- Divisor em degradê antes do Sair -->
+        <div class="sidebar-divisor"></div>
 
         <a
             href="/logout"
