@@ -178,6 +178,10 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "index.html"));
 });
 
+app.get("/pacientes", estaLogado, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "Pacientes.html"));
+});
+
 app.get("/logar", (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "logar.html"));
 });
@@ -212,9 +216,28 @@ app.get("/QuestionarioP", estaLogado, (req, res) => {
 
 });
 
+app.get("/relatoriosTerapeutaS", estaLogado, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "RelatoriosTerapeutaS.html"));
+});
+
+app.get("/relatoriosTerapeuta", estaLogado, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "RelatoriosTerapeuta.html"));
+});
+
 app.get("/EsqueceuSenha", (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "EsqueceuSenha.html"));
 });
+
+app.get("/sobreT", estaLogado, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "SobreTerapeuta.html"));
+});
+
+
+app.get("/configuracoesT", estaLogado, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "ConfiguracoesTerapeuta.html"));
+});
+
+
 
 app.get("/hometerapeuta", estaLogado, (req, res) => {
 
