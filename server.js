@@ -153,11 +153,17 @@ app.get("/api/preferencias", estaLogado, async (req, res) => {
     }
 });
 
+app.use(express.json());
+
 // POST — salva preferências (terapeuta e pai compartilham a mesma tabela)
 app.post("/api/preferencias", estaLogado, async (req, res) => {
     try {
         const usuarioId = req.session.usuarioId || (req.user && req.user.id);
         const { lembreteRelatorio, novaSolicitacao } = req.body;
+
+        if(!req.body){
+            return res.status(400).json({ erro: "corpo da requisição inválido ou ausente" });
+        }
 
         if (lembreteRelatorio !== undefined) {
             await db.query(
@@ -195,7 +201,7 @@ app.use(express.urlencoded({
     extended: true
 }));
 
-app.use(express.json());
+
 
 /* ==========================
    MIDDLEWARE DE AUTENTICAÇÃO
@@ -802,25 +808,25 @@ app.get("/api/configuracoes/notificacoes", estaLogado, async (req, res) => {
         });
 
         // Preferências do terapeuta
-        if (req.body.lembreteRelatorio !== undefined) {
-            await db.query(
-                `INSERT INTO preferencias_usuario (usuario_id, notif_lembrete)
-                VALUES ($1, $2)
-                ON CONFLICT (usuario_id)
-                DO UPDATE SET notif_lembrete = $2`,
-                [usuarioId, req.body.lembreteRelatorio]
-            );
-        }
+    if (req.body.lembreteRelatorio !== undefined) {
+        await db.query(
+            `INSERT INTO preferencias_usuario (usuario_id, notif_lembrete)
+            VALUES ($1, $2)
+            ON CONFLICT (usuario_id)
+            DO UPDATE SET notif_lembrete = $2`,
+            [usuarioId, req.body.lembreteRelatorio]
+        );
+    }
 
-        if (req.body.novaSolicitacao !== undefined) {
-            await db.query(
-                `INSERT INTO preferencias_usuario (usuario_id, notif_novidades)
-                VALUES ($1, $2)
-                ON CONFLICT (usuario_id)
-                DO UPDATE SET notif_novidades = $2`,
-                [usuarioId, req.body.novaSolicitacao]
-            );
-        }
+    if (req.body.novaSolicitacao !== undefined) {
+        await db.query(
+            `INSERT INTO preferencias_usuario (usuario_id, notif_novidades)
+            VALUES ($1, $2)
+            ON CONFLICT (usuario_id)
+            DO UPDATE SET notif_novidades = $2`,
+            [usuarioId, req.body.novaSolicitacao]
+        );
+    }
 
     } catch (erro) {
 
