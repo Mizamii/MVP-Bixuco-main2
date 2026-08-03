@@ -31,7 +31,10 @@ const db = new Pool({
 
     ssl: {
         rejectUnauthorized: false
-    }
+    },
+
+    options: '-c timezone=America/Sao_Paulo'
+
 
 });
 
