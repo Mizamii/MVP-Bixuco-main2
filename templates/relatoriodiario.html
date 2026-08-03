@@ -668,6 +668,15 @@
 
         btnProxima.addEventListener("click", () => {
 
+            // 🔧 FIX: se já passamos de todas as perguntas (o envio anterior
+            // falhou e o botão virou "tentar novamente"), esse clique deve
+            // só reenviar o relatório — sem tentar empilhar mais uma
+            // resposta em perguntas[perguntaAtual], que já não existe
+            if (perguntaAtual >= perguntas.length) {
+                finalizarRelatorio();
+                return;
+            }
+
             if (respostaSelecionada === null) {
                 return;
             }
@@ -764,7 +773,7 @@
 
                 // Reabilita o botão para o usuário tentar de novo
                 btnProxima.disabled = false;
-                btnProxima.textContent = "Próxima pergunta";
+                btnProxima.textContent = "Tentar novamente";
 
                 mostrarMensagem(
                     "Erro ao salvar o relatório. Tente novamente.",
