@@ -1782,7 +1782,8 @@ app.post("/api/vinculos/responder", estaLogado, async (req, res) => {
 // ─────────────────────────────────────────
 app.post("/api/vinculos/solicitar", estaLogado, async (req, res) => {
     const { codigoTerapeuta } = req.body;
-    const responsavelId = req.session.usuarioId || (req.user && req.user.id);
+    const responsavelId = req.session.usuarioId || req.session.userId || req.session.usuario?.id || (req.user && req.user.id);
+    
 
     if (!responsavelId) {
         return res.status(401).json({ erro: "Não autenticado." });
@@ -1834,7 +1835,7 @@ app.post("/api/vinculos/solicitar", estaLogado, async (req, res) => {
 // CANCELAR PEDIDO PENDENTE
 // ─────────────────────────────────────────
 app.post("/api/vinculos/cancelar", estaLogado, async (req, res) => {
-    const responsavelId = req.session.usuarioId || (req.user && req.user.id);
+    const responsavelId = req.session.usuarioId || req.session.userId || req.session.usuario?.id || (req.user && req.user.id);
 
     if (!responsavelId) {
         return res.status(401).json({ erro: "Não autenticado." });
@@ -1857,7 +1858,7 @@ app.post("/api/vinculos/cancelar", estaLogado, async (req, res) => {
 // REMOVER TERAPEUTA VINCULADO
 // ─────────────────────────────────────────
 app.post("/api/vinculos/remover", estaLogado, async (req, res) => {
-    const responsavelId = req.session.usuarioId || (req.user && req.user.id);
+    const responsavelId = req.session.usuarioId || req.session.userId || req.session.usuario?.id || (req.user && req.user.id);
 
     if (!responsavelId) {
         return res.status(401).json({ erro: "Não autenticado." });
@@ -1886,7 +1887,7 @@ app.post("/api/vinculos/remover", estaLogado, async (req, res) => {
 // BUSCAR STATUS DO VÍNCULO ATUAL
 // ─────────────────────────────────────────
 app.get("/api/vinculos/status", estaLogado, async (req, res) => {
-    const responsavelId = req.session.usuarioId || (req.user && req.user.id);
+    const responsavelId = req.session.usuarioId || req.session.userId || req.session.usuario?.id || (req.user && req.user.id);
 
     if (!responsavelId) {
         return res.status(401).json({ erro: "Não autenticado." });
