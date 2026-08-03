@@ -222,6 +222,12 @@ app.get("/hometerapeuta", estaLogado, (req, res) => {
 
 });
 
+app.get("/onboarding-google", estaLogado, (req, res) => {
+
+    res.sendFile(path.join(__dirname, "templates", "onboarding-google.html"));
+
+});
+
 // 🔒 FIX 2 (aplicado): /home agora exige login
 app.get("/home", estaLogado, (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "home.html"));
@@ -265,8 +271,8 @@ async (accessToken, refreshToken, profile, done) => {
     try {
 
         const email = profile.emails[0].value;
-
-        const nome = profile.displayName;
+        const nome  = profile.displayName;
+        const foto  = profile.photos?.[0]?.value || null;
 
         const resultado = await db.query(
 
@@ -278,26 +284,28 @@ async (accessToken, refreshToken, profile, done) => {
 
         if (resultado.rows.length > 0) {
 
+            // Usuário já existe — retorna direto
             return done(null, resultado.rows[0]);
 
         }
 
+        // 🔧 FIX: Usuário novo via Google
+        // NÃO define o tipo ainda — deixa como null
+        // novo_usuario = TRUE → callback vai mandar para o onboarding
         const novoUsuario = await db.query(
 
             `INSERT INTO usuarios
-            (nome,email,tipo,senha)
-            VALUES($1,$2,'pai','')
-            RETURNING *`,
+             (nome, email, tipo, senha, foto_perfil, novo_usuario)
+             VALUES ($1, $2, NULL, '', $3, TRUE)
+             RETURNING *`,
 
-            [nome, email]
+            [nome, email, foto]
 
         );
 
         return done(null, novoUsuario.rows[0]);
 
-    }
-
-    catch (err) {
+    } catch (err) {
 
         return done(err, null);
 
@@ -340,9 +348,7 @@ app.get(
     "/auth/google",
 
     passport.authenticate("google", {
-
         scope: ["profile", "email"]
-
     })
 
 );
@@ -351,30 +357,72 @@ app.get(
 
     "/auth/google/callback",
 
-    passport.authenticate(
-
-        "google",
-
-        {
-
-            failureRedirect: "/logar"
-
-        }
-
-    ),
+    passport.authenticate("google", {
+        failureRedirect: "/logar"
+    }),
 
     (req, res) => {
-        req.session.usuarioId = req.user.id;
-        req.session.tipo = req.user.tipo;
 
-        // Redireciona conforme o tipo da conta
+        req.session.usuarioId = req.user.id;
+        req.session.tipo      = req.user.tipo;
+
+        // 🔧 FIX: Usuário novo → manda para o onboarding de escolha de tipo
+        // Usuário existente → manda para a home correta conforme o tipo
+        if (req.user.novo_usuario) {
+            return res.redirect("/onboarding-google");
+        }
+
         if (req.user.tipo === "psicologo") {
             return res.redirect("/homeTerapeuta");
         }
+
         return res.redirect("/home");
+
     }
 
 );
+
+app.post("/api/onboarding-google", estaLogado, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        const { tipo } = req.body;
+
+        if (!["pai", "psicologo"].includes(tipo)) {
+            return res.status(400).json({ erro: "Tipo inválido." });
+        }
+
+        // Salva o tipo e marca que o onboarding foi concluído
+        await db.query(
+            `UPDATE usuarios
+             SET tipo = $1, novo_usuario = FALSE
+             WHERE id = $2`,
+            [tipo, usuarioId]
+        );
+
+        // Atualiza a sessão com o tipo correto
+        req.session.tipo = tipo;
+
+        // Define o destino conforme o tipo
+        // Pai → adicionar criança | Terapeuta → home do terapeuta
+        const destino = tipo === "pai" ? "/AdicionarC" : "/homeTerapeuta";
+
+        return res.json({ sucesso: true, destino });
+
+    } catch (erro) {
+
+        console.log("Erro no onboarding Google:", erro);
+        res.status(500).json({ erro: "Erro interno do servidor." });
+
+    }
+
+});
 
 /* ==========================
    ADMIN — PUBLICAR NOVIDADE
