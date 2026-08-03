@@ -1582,9 +1582,9 @@ app.post("/cadastro-finalizar", async (req, res) => {
    ROTA GET — DADOS DO HOME TERAPEUTA (API)
 ========================== */
 
-// 🔧 FIX 1: Rota /api/homeTerapeuta que o frontend chama
+// 🔧 FIX 1: Rota /api/home-terapeuta que o frontend chama
 // Retorna nome, foto, contadores, solicitações pendentes e atividade recente
-app.get("/api/homeTerapeuta", estaLogado, async (req, res) => {
+app.get("/api/home-terapeuta", estaLogado, async (req, res) => {
 
     try {
 
