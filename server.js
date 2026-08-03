@@ -1790,7 +1790,7 @@ app.post("/api/vinculos/solicitar", estaLogado, async (req, res) => {
 
     try {
         const terapeuta = await db.query(
-            "SELECT id, nome FROM usuarios WHERE crp = $1 AND tipo = 'psicologo'",
+            "SELECT id, nome FROM usuarios WHERE codigo_vinculo = $1 AND tipo = 'psicologo'",
             [codigoTerapeuta]
         );
 
