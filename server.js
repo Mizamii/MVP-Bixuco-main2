@@ -1656,6 +1656,25 @@ app.get("/api/home-terapeuta", estaLogado, async (req, res) => {
             [usuarioId]
         );
 
+        // Notificações não lidas
+        const notificacoesNaoLidas = await db.query(
+            `SELECT COUNT(*) AS total
+            FROM notificacoes
+            WHERE usuario_id = $1 AND lida = FALSE`,
+            [usuarioId]
+        );
+
+        // Relatórios não vistos (pendentes de visualização)
+        const relatoriosPendentes = await db.query(
+            `SELECT COUNT(*) AS total
+            FROM relatorios r
+            JOIN vinculos v ON v.responsavel_id = r.usuario_id
+            WHERE v.terapeuta_id = $1
+            AND v.ativo = TRUE
+            AND r.visto_terapeuta = FALSE`,
+            [usuarioId]
+        );
+
         // Solicitações pendentes com dados do responsável e criança
         // Ajuste os nomes das tabelas conforme seu banco
         const solicitacoes = await db.query(
@@ -1707,10 +1726,10 @@ app.get("/api/home-terapeuta", estaLogado, async (req, res) => {
         res.json({
             nome:             terapeuta.nome,
             fotoPerfil:       terapeuta.foto_perfil || null,
-            notificacoes:     parseInt(totalPendentes.rows[0].total) || 0,
-            totalPacientes:   parseInt(totalPacientes.rows[0].total) || 0,
-            totalPendentes:   parseInt(totalPendentes.rows[0].total) || 0,
-            relatoriosHoje:   parseInt(relatoriosHoje.rows[0].total) || 0,
+            notificacoes:   parseInt(notificacoesNaoLidas.rows[0].total) || 0,
+            totalPacientes: parseInt(totalPacientes.rows[0].total) || 0,
+            totalPendentes: parseInt(relatoriosPendentes.rows[0].total) || 0,
+            relatoriosHoje: parseInt(relatoriosHoje.rows[0].total) || 0,
             codigoTerapeuta:     terapeuta.codigo_vinculo || null,
 
             solicitacoes: solicitacoes.rows.map(s => ({
