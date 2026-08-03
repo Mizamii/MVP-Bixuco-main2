@@ -1,392 +1,490 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bixuco — Configurações</title>
-
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="/css/configuracoesT.css"
-    >
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/configuracoesT.css">
+    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
+    <style>
+        .goog-te-banner-frame { display: none !important; }
+        body { top: 0 !important; }
+    </style>
 </head>
-
 <body>
 
-<main>
+    <div class="container">
 
-    <!-- MENU LATERAL -->
+        <!-- ========================= -->
+        <!-- MENU LATERAL -->
+        <!-- ========================= -->
+        <aside class="sidebar">
 
-    <aside class="menu-lateral">
+            <div class="logo">
+                <img src="/img/logo_nome.png" alt="Logo Bixuco">
+            </div>
 
-        <img
-            src="/img/logo-verde.png"
-            alt="Logo Bixuco"
-            class="logo"
-        >
+            <nav>
+                <a href="/homeTerapeuta">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Início</span>
+                </a>
 
-        <nav>
+                <a href="/relatoriosTerapeuta">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Relatórios</span>
+                </a>
 
-            <a href="/home">
-                <i class="fa-solid fa-house"></i>
-                Início
-            </a>
+                <!-- aba ativa -->
+                <a href="/ConfiguracoesTerapeuta" class="ativo">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Configurações</span>
+                </a>
 
-            <a href="/pacientes">
-                <i class="fa-solid fa-user-group"></i>
-                Pacientes
-            </a>
+                <a href="/sobre">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>Sobre</span>
+                </a>
 
-            <a href="/agenda">
-                <i class="fa-solid fa-calendar"></i>
-                Agenda
-            </a>
-
-            <a href="/chat">
-                <i class="fa-solid fa-comments"></i>
-                Chat
-            </a>
-
-            <a
-                href="/ConfiguracoesT"
-                class="ativo"
-            >
-                <i class="fa-solid fa-gear"></i>
-                Configurações
-            </a>
-
-        </nav>
-
-    </aside>
-
-    <!-- CONTEÚDO -->
-
-    <section class="conteudo">
-
-        <header>
-
-            <h1>
-
-                Configurações
-
-            </h1>
-
-        </header>
-
-        <!-- APARÊNCIA -->
-
-        <div class="card">
-
-            <h2>
-
-                Aparência
-
-            </h2>
+                <a href="/pacientes">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Pacientes</span>
+                </a>
+            </nav>
 
             <div class="tema">
+                <button id="btnClaro" class="ativo" type="button">
+                    <i class="fa-regular fa-sun"></i>
+                    Claro
+                </button>
+                <button id="btnEscuro" type="button">
+                    <i class="fa-regular fa-moon"></i>
+                    Escuro
+                </button>
+            </div>
 
-                <button
-                    id="btnClaro"
-                    class="ativo"
-                >
+            <div class="sidebar-divisor"></div>
 
-                    ☀️ Claro
+            <a href="/logout" class="logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Sair</span>
+            </a>
 
+        </aside>
+
+        <!-- ========================= -->
+        <!-- CONTEÚDO PRINCIPAL -->
+        <!-- ========================= -->
+        <main class="conteudo">
+
+            <!-- TOPO -->
+            <header class="topo">
+
+                <button class="tradutor" type="button" id="btnTraduzir">
+                    <i class="fa-solid fa-language"></i>
+                    <span id="textoTradutor">Traduzir para inglês</span>
                 </button>
 
-                <button
-                    id="btnEscuro"
-                >
+                <div id="google_translate_element" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);"></div>
 
-                    🌙 Escuro
+                <div class="usuario">
 
-                </button>
+                    <div class="notificacoes-wrapper">
+                        <button class="notificacoes" type="button" id="btnNotificacoes">
+                            <i class="fa-regular fa-bell"></i>
+                            <span id="badgeNotificacoes" class="badge" style="display:none">0</span>
+                        </button>
 
-            </div>
+                        <div class="painel-notificacoes" id="painelNotificacoes">
+                            <div class="painel-header">Notificações</div>
+                            <div id="listaNotificacoes">
+                                <div class="painel-vazio">Carregando...</div>
+                            </div>
+                        </div>
+                    </div>
 
-        </div>
-
-        <!-- NOTIFICAÇÕES -->
-
-        <div class="card">
-
-            <h2>
-
-                Notificações
-
-            </h2>
-
-            <div class="linha">
-
-                <span>
-
-                    Lembrete de relatório
-
-                </span>
-
-                <label class="switch">
-
-                    <input
-                        type="checkbox"
-                        id="relatorio"
-                        checked
+                    <img
+                        id="fotoUsuario"
+                        src="/img/perfilPadrao.png"
+                        alt="Foto do terapeuta"
+                        style="cursor:pointer;"
+                        onclick="window.location.href='/perfilTerapeuta'"
+                        onerror="this.src='/img/perfilPadrao.png'"
+                        title="Ver perfil"
                     >
 
-                    <span class="slider"></span>
+                    <div>
+                        <h3 id="nomeTerapeuta">Carregando...</h3>
+                        <span>Terapeuta</span>
+                    </div>
+                </div>
+            </header>
 
-                </label>
+            <div class="conteudo-corpo">
+
+                <!-- CABEÇALHO DA PÁGINA -->
+                <div class="cabecalho-pagina">
+                    <div>
+                        <h1>Configurações</h1>
+                        <p>Gerencie suas preferências e mantenha sua conta segura.</p>
+                    </div>
+                    <img src="/img/BixucoConfig.png" alt="Mascote Bixuco" onerror="this.style.display='none'">
+                </div>
+
+                <!-- ========================= -->
+                <!-- NOTIFICAÇÕES -->
+                <!-- ========================= -->
+                <div class="card">
+                    <h2>Notificações</h2>
+
+                    <!-- toggle: lembrete de relatório -->
+                    <div class="linha-toggle">
+                        <div class="linha-toggle__info">
+                            <div class="linha-toggle__icone linha-toggle__icone--verde">
+                                <i class="fa-regular fa-bell"></i>
+                            </div>
+                            <span>Lembrete do relatório</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="toggleRelatorio" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- toggle: nova solicitação de vínculo -->
+                    <div class="linha-toggle">
+                        <div class="linha-toggle__info">
+                            <div class="linha-toggle__icone linha-toggle__icone--azul">
+                                <i class="fa-regular fa-envelope"></i>
+                            </div>
+                            <span>Nova solicitação</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="toggleSolicitacao" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                </div>
+
+                <!-- ========================= -->
+                <!-- PRIVACIDADE -->
+                <!-- ========================= -->
+                <div class="card card-privacidade">
+
+                    <div class="privacidade-esquerda">
+
+                        <h2>Privacidade</h2>
+
+                        <!-- alterar senha -->
+                        <button type="button" class="botao-opcao" id="btnAlterarSenha">
+                            <div class="botao-opcao__icone botao-opcao__icone--verde">
+                                <i class="fa-solid fa-lock"></i>
+                            </div>
+                            <span>Alterar senha</span>
+                            <i class="fa-solid fa-chevron-right seta"></i>
+                        </button>
+
+                        <!-- excluir conta -->
+                        <button type="button" class="botao-opcao botao-opcao--perigo" id="btnExcluirConta">
+                            <div class="botao-opcao__icone botao-opcao__icone--vermelho">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </div>
+                            <span>Excluir minha conta</span>
+                            <i class="fa-solid fa-chevron-right seta"></i>
+                        </button>
+
+                    </div>
+
+                    <div class="privacidade-direita">
+                        <h3>Sua segurança<br>é nossa <span class="destaque">prioridade</span></h3>
+                        <p>Utilizamos criptografia e boas práticas para proteger suas informações e das crianças.</p>
+                        <p class="dados-protegidos">
+                            <i class="fa-solid fa-circle-check"></i>
+                            Seus dados estão protegidos.
+                        </p>
+                        <img src="/img/BixucoSeguranca.png" alt="" onerror="this.style.display='none'">
+                    </div>
+
+                </div>
 
             </div>
 
-            <div class="linha">
-
-                <span>
-
-                    Nova solicitação
-
-                </span>
-
-                <label class="switch">
-
-                    <input
-                        type="checkbox"
-                        id="solicitacao"
-                        checked
-                    >
-
-                    <span class="slider"></span>
-
-                </label>
-
-            </div>
-
-        </div>
-        <!-- SEGURANÇA -->
-
-        <div class="card">
-
-            <h2>
-
-                Segurança
-
-            </h2>
-
-            <button
-                class="botao-opcao"
-                id="alterarSenha"
-            >
-
-                <i class="fa-solid fa-lock"></i>
-
-                Alterar senha
-
-                <i class="fa-solid fa-chevron-right seta"></i>
-
-            </button>
-
-        </div>
-
-        <!-- CONTA -->
-
-        <div class="card">
-
-            <h2>
-
-                Conta
-
-            </h2>
-
-            <button
-                class="botao-excluir"
-                id="excluirConta"
-            >
-
-                <i class="fa-solid fa-trash"></i>
-
-                Excluir conta
-
-            </button>
-
-        </div>
-
-    </section>
-
-</main>
-
-
-<!-- MODAL -->
-
-<div
-    class="modal"
-    id="modalExcluir"
->
-
-    <div class="modal-conteudo">
-
-        <i class="fa-solid fa-triangle-exclamation icone-alerta"></i>
-
-        <h2>
-
-            Excluir conta?
-
-        </h2>
-
-        <p>
-
-            Esta ação é permanente e todos os seus dados serão removidos.
-
-        </p>
-
-        <div class="botoes-modal">
-
-            <button
-                id="cancelarExcluir"
-                class="cancelar"
-            >
-
-                Cancelar
-
-            </button>
-
-            <button
-                id="confirmarExcluir"
-                class="confirmar"
-            >
-
-                Excluir
-
-            </button>
-
-        </div>
-
+        </main>
     </div>
 
-</div>
 
-<script>
-// ==============================
-// ALTERAÇÃO DE TEMA
-// ==============================
-
-const btnClaro = document.getElementById("btnClaro");
-const btnEscuro = document.getElementById("btnEscuro");
-
-btnClaro.addEventListener("click", () => {
-
-    document.body.classList.remove("tema-escuro");
-
-    btnClaro.classList.add("ativo");
-    btnEscuro.classList.remove("ativo");
-
-    localStorage.setItem("tema", "claro");
-
-});
-
-btnEscuro.addEventListener("click", () => {
-
-    document.body.classList.add("tema-escuro");
-
-    btnEscuro.classList.add("ativo");
-    btnClaro.classList.remove("ativo");
-
-    localStorage.setItem("tema", "escuro");
-
-});
-
-// Carrega o tema salvo
-
-const temaSalvo = localStorage.getItem("tema");
-
-if (temaSalvo === "escuro") {
-
-    document.body.classList.add("tema-escuro");
-
-    btnEscuro.classList.add("ativo");
-    btnClaro.classList.remove("ativo");
-
-}
+    <!-- ========================= -->
+    <!-- MODAL: EXCLUIR CONTA -->
+    <!-- ========================= -->
+    <div id="modalExcluir" class="modal" style="display:none" onclick="fecharModalFora(event)">
+        <div class="modal-conteudo">
+            <i class="fa-solid fa-triangle-exclamation icone-alerta"></i>
+            <h2>Excluir conta?</h2>
+            <p>Esta ação é permanente e todos os seus dados serão removidos.</p>
+            <div class="modal-acoes">
+                <button type="button" id="btnCancelarExcluir" class="btn-cancelar">Cancelar</button>
+                <button type="button" id="btnConfirmarExcluir" class="btn-confirmar">Excluir</button>
+            </div>
+        </div>
+    </div>
 
 
-// ==============================
-// MODAL EXCLUIR CONTA
-// ==============================
-
-const modal = document.getElementById("modalExcluir");
-
-const btnExcluir = document.getElementById("excluirConta");
-
-const cancelar = document.getElementById("cancelarExcluir");
-
-const confirmar = document.getElementById("confirmarExcluir");
-
-
-btnExcluir.addEventListener("click", () => {
-
-    modal.classList.add("mostrar");
-
-});
+    <!-- ========================= -->
+    <!-- MODAL: ALTERAR SENHA -->
+    <!-- avisa que o email será enviado -->
+    <!-- ========================= -->
+    <div id="modalSenha" class="modal" style="display:none" onclick="fecharModalSenhaFora(event)">
+        <div class="modal-conteudo">
+            <i class="fa-solid fa-lock icone-info"></i>
+            <h2>Alterar senha</h2>
+            <p>Enviaremos um link de redefinição para o seu email cadastrado.</p>
+            <p id="msgEmailSenha" style="display:none;color:#32C26D;font-weight:600;">✓ Email enviado!</p>
+            <div class="modal-acoes">
+                <button type="button" id="btnCancelarSenha" class="btn-cancelar">Cancelar</button>
+                <button type="button" id="btnEnviarSenha" class="btn-confirmar">Enviar email</button>
+            </div>
+        </div>
+    </div>
 
 
-cancelar.addEventListener("click", () => {
+    <script>
 
-    modal.classList.remove("mostrar");
+        // =========================
+        // CARREGAR DADOS DO TOPO
+        // =========================
+        async function carregarUsuario() {
+            try {
+                const resposta = await fetch("/api/home-terapeuta");
+                if (resposta.status === 401) { window.location.href = "/logar"; return; }
+                if (!resposta.ok) return;
+                const dados = await resposta.json();
 
-});
+                document.getElementById("nomeTerapeuta").textContent = dados.nome || "Terapeuta";
+                if (dados.fotoPerfil) document.getElementById("fotoUsuario").src = dados.fotoPerfil;
 
-
-window.addEventListener("click", (e) => {
-
-    if (e.target === modal) {
-
-        modal.classList.remove("mostrar");
-
-    }
-
-});
-
-
-// ==============================
-// EXCLUIR CONTA
-// ==============================
-
-confirmar.addEventListener("click", () => {
-
-    if (confirm("Tem certeza que deseja excluir sua conta?")) {
-
-        window.location.href = "/ExcluirConta";
-
-    }
-
-});
+                const badge = document.getElementById("badgeNotificacoes");
+                if ((dados.notificacoes ?? 0) > 0) {
+                    badge.textContent   = dados.notificacoes;
+                    badge.style.display = "inline";
+                }
+            } catch (_) {}
+        }
 
 
-// ==============================
-// ALTERAR SENHA
-// ==============================
+        // =========================
+        // NOTIFICAÇÕES — toggles salvos no backend
+        // =========================
+        async function carregarPreferencias() {
+            try {
+                const resposta = await fetch("/api/preferencias");
+                if (!resposta.ok) return;
+                const dados = await resposta.json();
+                document.getElementById("toggleRelatorio").checked   = dados.lembreteRelatorio ?? true;
+                document.getElementById("toggleSolicitacao").checked = dados.novaSolicitacao    ?? true;
+            } catch (_) {}
+        }
 
-document
-.getElementById("alterarSenha")
-.addEventListener("click", () => {
+        async function salvarPreferencia(chave, valor) {
+            try {
+                await fetch("/api/preferencias", {
+                    method:  "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body:    JSON.stringify({ [chave]: valor })
+                });
+            } catch (_) {}
+        }
 
-    window.location.href = "/AlterarSenha";
+        document.getElementById("toggleRelatorio").addEventListener("change", (e) => {
+            salvarPreferencia("lembreteRelatorio", e.target.checked);
+        });
 
-});
-</script>
+        document.getElementById("toggleSolicitacao").addEventListener("change", (e) => {
+            salvarPreferencia("novaSolicitacao", e.target.checked);
+        });
 
-<script src="/js/tema.js"></script>
+
+        // =========================
+        // ALTERAR SENHA
+        // =========================
+        document.getElementById("btnAlterarSenha").addEventListener("click", () => {
+            document.getElementById("msgEmailSenha").style.display = "none";
+            document.getElementById("modalSenha").style.display = "flex";
+        });
+
+        document.getElementById("btnCancelarSenha").addEventListener("click", () => {
+            document.getElementById("modalSenha").style.display = "none";
+        });
+
+        document.getElementById("btnEnviarSenha").addEventListener("click", async () => {
+            const btn = document.getElementById("btnEnviarSenha");
+            btn.disabled    = true;
+            btn.textContent = "Enviando...";
+            try {
+                // busca o email do usuário logado e envia o link
+                const me = await fetch("/api/home-terapeuta").then(r => r.json());
+                await fetch("/esqueceu-senha", {
+                    method:  "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body:    JSON.stringify({ email: me.email })
+                });
+                document.getElementById("msgEmailSenha").style.display = "block";
+                btn.textContent = "Enviado!";
+            } catch (_) {
+                btn.textContent = "Erro — tente de novo";
+                btn.disabled    = false;
+            }
+        });
+
+        function fecharModalSenhaFora(e) {
+            if (e.target === document.getElementById("modalSenha")) {
+                document.getElementById("modalSenha").style.display = "none";
+            }
+        }
+
+
+        // =========================
+        // EXCLUIR CONTA
+        // =========================
+        document.getElementById("btnExcluirConta").addEventListener("click", () => {
+            document.getElementById("modalExcluir").style.display = "flex";
+        });
+
+        document.getElementById("btnCancelarExcluir").addEventListener("click", () => {
+            document.getElementById("modalExcluir").style.display = "none";
+        });
+
+        document.getElementById("btnConfirmarExcluir").addEventListener("click", async () => {
+            try {
+                const resposta = await fetch("/api/conta/excluir", { method: "DELETE" });
+                if (resposta.ok) window.location.href = "/";
+                else alert("Erro ao excluir conta. Tente novamente.");
+            } catch (_) {
+                alert("Erro ao excluir conta. Tente novamente.");
+            }
+        });
+
+        function fecharModalFora(e) {
+            if (e.target === document.getElementById("modalExcluir")) {
+                document.getElementById("modalExcluir").style.display = "none";
+            }
+        }
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+                document.getElementById("modalExcluir").style.display = "none";
+                document.getElementById("modalSenha").style.display   = "none";
+            }
+        });
+
+
+        // =========================
+        // NOTIFICAÇÕES — painel do sininho
+        // =========================
+        const painelNotificacoes = document.getElementById("painelNotificacoes");
+        const listaNotificacoes  = document.getElementById("listaNotificacoes");
+
+        async function carregarNotificacoes() {
+            try {
+                const resposta = await fetch("/api/notificacoes");
+                if (!resposta.ok) throw new Error();
+                const dados = await resposta.json();
+                const itens = dados.notificacoes || [];
+
+                listaNotificacoes.innerHTML = itens.length === 0
+                    ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+                    : itens.map(item => `
+                        <div class="item-notificacao ${item.lida ? "" : "nao-lida"}">
+                            <p>${item.mensagem}</p>
+                            <span class="tempo-notificacao">${item.tempo}</span>
+                        </div>
+                    `).join("");
+            } catch (_) {
+                listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar.</div>`;
+            }
+        }
+
+        document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
+            e.stopPropagation();
+            const estaAberto = painelNotificacoes.classList.toggle("aberto");
+            if (estaAberto) {
+                await carregarNotificacoes();
+                fetch("/api/notificacoes/marcar-lidas", { method: "POST" });
+                document.getElementById("badgeNotificacoes").style.display = "none";
+            }
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!painelNotificacoes.contains(e.target)) {
+                painelNotificacoes.classList.remove("aberto");
+            }
+        });
+
+
+        // =========================
+        // TRADUÇÃO
+        // =========================
+        function lerCookie(nome) {
+            const valor  = `; ${document.cookie}`;
+            const partes = valor.split(`; ${nome}=`);
+            if (partes.length === 2) return partes.pop().split(";").shift();
+            return null;
+        }
+
+        function iniciarTradutor() {
+            new google.translate.TranslateElement(
+                { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
+                "google_translate_element"
+            );
+        }
+
+        function atualizarTextoBotao() {
+            const cookieAtual = lerCookie("googtrans");
+            document.getElementById("textoTradutor").textContent =
+                cookieAtual && cookieAtual.includes("/en")
+                    ? "Voltar para português"
+                    : "Traduzir para inglês";
+        }
+
+        document.getElementById("btnTraduzir").addEventListener("click", () => {
+            const cookieAtual   = lerCookie("googtrans");
+            const estaTraduzido = cookieAtual && cookieAtual.includes("/en");
+            const valor = `/pt/${estaTraduzido ? "pt" : "en"}`;
+            document.cookie = `googtrans=${valor}; path=/`;
+            document.cookie = `googtrans=${valor}; path=/; domain=${location.hostname}`;
+            window.location.reload();
+        });
+
+
+        // =========================
+        // TEMA
+        // =========================
+        function aplicarTema(tema) {
+            document.body.classList.remove("tema-claro", "tema-escuro");
+            document.body.classList.add(`tema-${tema}`);
+            document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
+            document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
+            localStorage.setItem("tema", tema);
+        }
+
+        document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema("claro"));
+        document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
+
+
+        // =========================
+        // INICIALIZAÇÃO
+        // =========================
+        const temaSalvo = localStorage.getItem("tema") || "claro";
+        aplicarTema(temaSalvo);
+        atualizarTextoBotao();
+        carregarUsuario();
+        carregarPreferencias();
+
+    </script>
+
+    <script src="/js/tema.js" onerror="console.log('tema.js não encontrado')"></script>
 
 </body>
 </html>
