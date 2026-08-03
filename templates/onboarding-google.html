@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Bem-vindo!</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="/css/criarcontas.css">
+</head>
+<body>
+
+    <main>
+
+        <!-- ========================= -->
+        <!-- LADO ESQUERDO -->
+        <!-- ========================= -->
+        <section>
+
+            <div>
+                <img src="/img/Logo_Branca.png" alt="Logo Bixuco">
+
+                <h1>
+                    Bem-vindo(a)
+                    <br>
+                    ao <span>Bixuco!</span>
+                </h1>
+
+                <p>
+                    Pais e terapeutas juntos pelo
+                    bem-estar da criança.
+                </p>
+            </div>
+
+            <div>
+                <img src="/img/familia-bixuco.png" alt="Família utilizando o Bixuco">
+            </div>
+
+        </section>
+
+        <!-- ========================= -->
+        <!-- LADO DIREITO -->
+        <!-- ========================= -->
+        <section>
+
+            <img src="/img/Logo_Gato.png" alt="Logo Bixuco">
+
+            <h2>
+                Uma última coisa!
+            </h2>
+
+            <p>
+                Como você vai utilizar o Bixuco?
+                Isso nos ajuda a personalizar sua experiência.
+            </p>
+
+            <!-- Cards de seleção — mesmo padrão do CriarContaS.html -->
+            <div class="tipo-container">
+
+                <button
+                    id="cardResponsavel"
+                    class="tipo-card"
+                    type="button"
+                    onclick="selecionarTipo('pai')"
+                    aria-pressed="false"
+                >
+                    <div>
+                        <h4>Sou responsável</h4>
+                        <p>Acompanho o desenvolvimento do meu filho(a).</p>
+                    </div>
+                </button>
+
+                <button
+                    id="cardPsicologo"
+                    class="tipo-card"
+                    type="button"
+                    onclick="selecionarTipo('psicologo')"
+                    aria-pressed="false"
+                >
+                    <div>
+                        <h4>Sou terapeuta</h4>
+                        <p>Acompanho pacientes profissionalmente.</p>
+                        <div class="tag-crp">Requer validação de CRP</div>
+                    </div>
+                </button>
+
+            </div>
+
+            <!-- Erro inline em vez de alert() -->
+            <span
+                id="erro-selecao"
+                class="erro-selecao"
+                style="display: none; color: #E53E3E; font-size: 0.85rem; margin-top: 0.5rem;"
+            >
+                Selecione como deseja utilizar o Bixuco.
+            </span>
+
+            <!-- Botão começa desabilitado — igual ao CriarContaS -->
+            <button
+                type="button"
+                id="btnContinuar"
+                disabled
+            >
+                Continuar
+            </button>
+
+        </section>
+
+    </main>
+
+    <script>
+
+        let tipoSelecionado = null;
+
+        // ==========================
+        // SELECIONAR TIPO
+        // ==========================
+
+        function selecionarTipo(tipo) {
+
+            tipoSelecionado = tipo;
+
+            document.querySelectorAll(".tipo-card").forEach(card => {
+                card.classList.remove("tipo-card--ativo");
+                card.setAttribute("aria-pressed", "false");
+            });
+
+            const cardSelecionado = tipo === "pai"
+                ? document.getElementById("cardResponsavel")
+                : document.getElementById("cardPsicologo");
+
+            cardSelecionado.classList.add("tipo-card--ativo");
+            cardSelecionado.setAttribute("aria-pressed", "true");
+
+            document.getElementById("btnContinuar").disabled = false;
+            document.getElementById("erro-selecao").style.display = "none";
+
+        }
+
+        // ==========================
+        // CONTINUAR
+        // ==========================
+
+        document.getElementById("btnContinuar").addEventListener("click", async () => {
+
+            if (!tipoSelecionado) {
+                document.getElementById("erro-selecao").style.display = "block";
+                return;
+            }
+
+            const btn = document.getElementById("btnContinuar");
+            btn.disabled    = true;
+            btn.textContent = "Salvando...";
+
+            try {
+
+                const resposta = await fetch("/api/onboarding-google", {
+                    method:  "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body:    JSON.stringify({ tipo: tipoSelecionado })
+                });
+
+                const dados = await resposta.json();
+
+                if (!resposta.ok) {
+                    throw new Error(dados.erro || "Erro ao salvar.");
+                }
+
+                // Redireciona para o destino retornado pelo backend
+                // pai → /AdicionarC | psicologo → /homeTerapeuta
+                window.location.href = dados.destino;
+
+            } catch (erro) {
+
+                console.log("Erro no onboarding:", erro);
+
+                const erroEl = document.getElementById("erro-selecao");
+                erroEl.textContent   = erro.message || "Erro ao continuar. Tente novamente.";
+                erroEl.style.display = "block";
+
+                btn.disabled    = false;
+                btn.textContent = "Continuar";
+
+            }
+
+        });
+
+    </script>
+
+</body>
+</html>
