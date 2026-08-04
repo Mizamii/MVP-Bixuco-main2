@@ -19,14 +19,26 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
     >
 
-    <!-- CSS -->
+    <!-- Variáveis compartilhadas de tema (claro/escuro) -->
+    <link
+        rel="stylesheet"
+        href="/css/tema.css"
+    >
 
+    <!-- Layout compartilhado (sidebar, topo, tema claro/escuro) — o mesmo do Home e do Perfil -->
+    <link
+        rel="stylesheet"
+        href="/css/home.css"
+    >
+
+    <!-- CSS específico desta página -->
     <link
         rel="stylesheet"
         href="/css/relatoriodiario.css"
     >
 
 </head>
+
 
 <style>
     /* 🔧 Estilos da mensagem de status (sucesso/erro) — sem CSS externo pronto ainda */
@@ -116,6 +128,8 @@
         color: #999;
     }
 </style>
+
+
 
 <body>
 
@@ -245,7 +259,7 @@
                 <div class="usuario">
 
                     <div class="notificacoes-wrapper">
-                        <button class="notificacao" type="button" id="btnNotificacoes">
+                        <button class="notificacoes" type="button" id="btnNotificacoes">
                             <i class="fa-regular fa-bell"></i>
                             <span id="quantidadeNotificacoes" class="badge">0</span>
                         </button>
@@ -329,7 +343,7 @@
 
             <section
                 id="cardRelatorio"
-                class="card-relatorio"
+                class="card-questionario"
             >
 
                 <!-- Topo -->
@@ -935,6 +949,8 @@
         carregarPergunta();
 
     </script>
+
+    <!-- Seu <script> com toda a lógica (perguntas, barra de progresso, envio do relatório, notificações) continua aqui, sem alterações -->
 
     <script src="/js/tema.js"></script>
 
