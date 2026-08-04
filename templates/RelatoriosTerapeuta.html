@@ -1,423 +1,643 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Relatório do Paciente</title>
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
-    <title>
-        Bixuco — Relatório
-    </title>
+    <!-- Chart.js para os gráficos -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-    >
+    <!-- Google Translate -->
+    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
 
-    <link
-        rel="stylesheet"
-        href="/css/relatoriodetalhado.css"
-    >
+    <!-- CSS do amigo — mesmos da tela anterior -->
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/relatoriodetalhado.css">
 
+    <style>
+        .goog-te-banner-frame { display: none !important; }
+        body { top: 0 !important; }
+    </style>
 </head>
-
 <body>
 
-    <main>
+<div class="container">
 
-        <!-- =========================
-             MENU LATERAL
-        ========================== -->
+    <!-- ========================= -->
+    <!-- MENU LATERAL -->
+    <!-- ========================= -->
+    <aside class="sidebar">
 
-        <aside>
+        <div class="logo">
+            <img src="/img/Logo_Colorida.png" alt="Bixuco">
+        </div>
 
-            <img
-                src="/img/logo-colorida.png"
-                alt="Logo Bixuco"
-            >
-
-            <nav>
-
-                <a href="/home">
-                    <i class="fa-solid fa-house"></i>
-                    Início
-                </a>
-
-                <a
-                    href="/Relatorios"
-                    class="ativo"
-                >
-                    <i class="fa-solid fa-chart-line"></i>
-                    Relatórios
-                </a>
-
-                <a href="/ConfiguracoesT">
-                    <i class="fa-solid fa-gear"></i>
-                    Configurações
-                </a>
-
-                <a href="/Sobre">
-                    <i class="fa-solid fa-circle-info"></i>
-                    Sobre
-                </a>
-
-                <a href="/Pacientes">
-                    <i class="fa-solid fa-users"></i>
-                    Pacientes
-                </a>
-
-            </nav>
-
-            <div class="tema">
-
-                <button>
-                    <i class="fa-solid fa-sun"></i>
-                    Claro
-                </button>
-
-                <button>
-                    <i class="fa-solid fa-moon"></i>
-                    Escuro
-                </button>
-
-            </div>
-
-            <a
-                href="/"
-                class="sair"
-            >
-
-                <i class="fa-solid fa-right-from-bracket"></i>
-
-                Sair
-
+        <nav>
+            <a href="/homeTerapeuta">
+                <i class="fa-solid fa-house"></i>
+                <span>Início</span>
             </a>
 
-        </aside>
+            <!-- 🔧 FIX: rota em minúsculo consistente -->
+            <a href="/relatoriosTerapeutaS" class="ativo">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Relatórios</span>
+            </a>
 
-        <!-- =========================
-             CONTEÚDO
-        ========================== -->
+            <a href="/ConfiguracoesTerapeuta">
+                <i class="fa-solid fa-gear"></i>
+                <span>Configurações</span>
+            </a>
 
-        <section class="conteudo">
+            <a href="/sobre">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>Sobre</span>
+            </a>
 
-            <!-- topo -->
+            <a href="/pacientes">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>Pacientes</span>
+            </a>
+        </nav>
 
-            <header>
+        <div class="tema">
+            <button id="btnClaro" class="ativo" type="button">
+                <i class="fa-regular fa-sun"></i>
+                Claro
+            </button>
+            <button id="btnEscuro" type="button">
+                <i class="fa-regular fa-moon"></i>
+                Escuro
+            </button>
+        </div>
 
-                <button class="traduzir">
+        <div class="sidebar-divisor"></div>
 
-                    <i class="fa-solid fa-globe"></i>
+        <a href="/logout" class="logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span>Sair</span>
+        </a>
 
-                    Traduzir para o inglês
+    </aside>
 
-                </button>
+    <!-- ========================= -->
+    <!-- CONTEÚDO PRINCIPAL -->
+    <!-- ========================= -->
+    <main class="conteudo">
 
-                <div class="usuario">
+        <!-- TOPO — igual ao padrão de todas as telas do terapeuta -->
+        <header class="topo">
 
-                    <i class="fa-regular fa-bell"></i>
+            <button class="tradutor" type="button" id="btnTraduzir">
+                <i class="fa-solid fa-language"></i>
+                <span id="textoTradutor">Traduzir para inglês</span>
+            </button>
+
+            <div
+                id="google_translate_element"
+                style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);"
+            ></div>
+
+            <div class="usuario">
+
+                <!-- Painel de notificações -->
+                <div class="notificacoes-wrapper">
+                    <button class="notificacoes" type="button" id="btnNotificacoes">
+                        <i class="fa-regular fa-bell"></i>
+                        <span id="badgeNotificacoes" class="badge" style="display:none;">0</span>
+                    </button>
+
+                    <div class="painel-notificacoes" id="painelNotificacoes">
+                        <div class="painel-header">Notificações</div>
+                        <div id="listaNotificacoes">
+                            <div class="painel-vazio">Carregando...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Foto clicável -->
+                <img
+                    id="fotoUsuario"
+                    src="/img/perfilPadrao.png"
+                    alt="Foto do terapeuta"
+                    title="Ver perfil"
+                    style="cursor:pointer;"
+                    onclick="window.location.href='/perfilTerapeuta'"
+                    onerror="this.src='/img/perfilPadrao.png'"
+                >
+
+                <div>
+                    <h3 id="nomeTerapeuta">Carregando...</h3>
+                    <span>Terapeuta</span>
+                </div>
+
+            </div>
+
+        </header>
+
+        <div class="conteudo-corpo">
+
+            <!-- CABEÇALHO DA PÁGINA com seta de voltar e nome do paciente dinâmico -->
+            <div class="cabecalho-pagina">
+
+                <div class="cabecalho-titulo">
+                    <a href="/relatoriosTerapeutaS" class="btn-voltar">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </a>
 
                     <div>
-
-                        <strong>
-                            Dr. Laura
-                        </strong>
-
-                        <span>
-                            Terapeuta
-                        </span>
-
+                        <!-- 🔧 FIX: nome do paciente dinâmico via query param -->
+                        <h1>Relatórios de <span id="nomePaciente">...</span></h1>
                     </div>
-
-                </div>
-
-            </header>
-
-            <!-- titulo -->
-
-            <div class="titulo">
-
-                <a href="/Relatorios">
-
-                    <i class="fa-solid fa-arrow-left"></i>
-
-                </a>
-
-                <div>
-
-                    <h1>
-
-                        Relatórios da Ana
-
-                    </h1>
-
                 </div>
 
                 <img
                     src="/img/gato-relatorio.png"
-                    alt=""
+                    alt="Mascote"
+                    onerror="this.style.display='none'"
                 >
 
             </div>
 
-            <!-- indicadores -->
-
-            <div class="cards">
-
-                <div class="card">
-
-                    <h3>
-
-                        Alertas de estresse
-
-                    </h3>
-
-                    <h2 class="verde">
-
-                        ↓ 18
-
-                    </h2>
-
-                    <p>
-
-                        2 comparado à semana passada
-
-                    </p>
-
-                </div>
-
-                <div class="card">
-
-                    <h3>
-
-                        Tempo de estresse
-
-                    </h3>
-
-                    <h2 class="vermelho">
-
-                        ↑ 120 min
-
-                    </h2>
-
-                    <p>
-
-                        1 min comparado à semana passada
-
-                    </p>
-
-                </div>
-
-            </div>
-        <!-- Conteúdo -->
-        <main class="conteudo">
-
-            <header class="cabecalho-pagina">
-
-                <a href="/RelatoriosT" class="voltar">
-                    <i class="fa-solid fa-arrow-left"></i>
-                </a>
-
-                <div>
-
-                    <h1>
-                        Relatórios da Ana
-                    </h1>
-
-                </div>
-
-                <img
-                    src="/img/gato-relatorio.png"
-                    alt="Ilustração"
-                >
-
-            </header>
-
-
-            <!-- Cards superiores -->
-
+            <!-- ========================= -->
+            <!-- CARDS DE RESUMO -->
+            <!-- ========================= -->
             <section class="cards-resumo">
 
                 <div class="card-resumo">
-
-                    <h3>
-                        Alertas de estresse
-                    </h3>
-
-                    <div class="valor positivo">
-
+                    <h3>Alertas de estresse</h3>
+                    <!-- 🔧 FIX: valor e seta dinâmicos -->
+                    <div class="valor" id="alertasEstresse">
                         <i class="fa-solid fa-arrow-down"></i>
-
-                        18
-
+                        0
                     </div>
-
-                    <p>
-                        2 comparado à semana passada
-                    </p>
-
+                    <p id="comparativoAlertas">carregando...</p>
                 </div>
-
 
                 <div class="card-resumo">
-
-                    <h3>
-                        Tempo de estresse
-                    </h3>
-
-                    <div class="valor negativo">
-
+                    <h3>Tempo de estresse</h3>
+                    <div class="valor" id="tempoEstresse">
                         <i class="fa-solid fa-arrow-up"></i>
-
-                        120 min
-
+                        0 min
                     </div>
-
-                    <p>
-                        1 min comparado à semana passada
-                    </p>
-
+                    <p id="comparativoTempo">carregando...</p>
                 </div>
 
             </section>
 
-
-
-            <!-- Linha dos gráficos -->
-
+            <!-- ========================= -->
+            <!-- GRÁFICOS -->
+            <!-- ========================= -->
             <section class="graficos">
 
-                <!-- gráfico barras -->
-
+                <!-- Gráfico de barras -->
                 <article class="card-grafico">
-
                     <div class="titulo-card">
-
-                        <h3>
-                            Estresse — últimos 7 dias
-                        </h3>
-
-                        <button>
-
+                        <h3>Estresse — últimos 7 dias</h3>
+                        <button type="button">
                             <i class="fa-solid fa-chart-column"></i>
-
                         </button>
-
                     </div>
-
+                    <!-- 🔧 FIX: Chart.js agora importado e funcional -->
                     <canvas id="graficoBarras"></canvas>
-
                 </article>
 
-
-
-                <!-- gráfico pizza -->
-
+                <!-- Gráfico de rosca -->
                 <article class="card-grafico">
-
                     <div class="titulo-card">
-
-                        <h3>
-                            Principais gatilhos — últimos 7 dias
-                        </h3>
-
-                        <button>
-
+                        <h3>Principais gatilhos — últimos 7 dias</h3>
+                        <button type="button">
                             <i class="fa-solid fa-circle-dot"></i>
-
                         </button>
-
                     </div>
-
                     <canvas id="graficoPizza"></canvas>
-
+                    <div id="legendaGatilhos" class="legenda-rosca"></div>
                 </article>
 
             </section>
-            <!-- Notas clínicas -->
+
+            <!-- ========================= -->
+            <!-- NOTAS CLÍNICAS -->
+            <!-- ========================= -->
             <section class="bloco bloco-notas">
 
-                <h3>
-                    Notas clínicas
-                </h3>
+                <h3>Notas clínicas</h3>
 
-                <div class="nota-anterior">
-
-                    <strong>
-                        02/06/2026 - Dra. Laura
-                    </strong>
-
-                    <p>
-                        Ana apresentou melhora significativa na regulação emocional após introdução de fones abafadores.
-                        Recomendada continuar estratégia de antecipação de ambientes barulhentos.
-                    </p>
-
+                <!-- 🔧 FIX: notas anteriores carregadas do banco -->
+                <div id="listaNotas">
+                    <div class="carregando-notas">
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+                        Carregando notas...
+                    </div>
                 </div>
 
                 <textarea
                     id="novaNota"
                     placeholder="Adicionar nova nota clínica..."
-                    rows="5"
+                    rows="4"
                 ></textarea>
 
-                <div class="acoes-nota">
+                <!-- Erro inline em vez de alert() -->
+                <span
+                    id="erroNota"
+                    style="display:none; color:#E53E3E; font-size:0.85rem;"
+                ></span>
 
+                <div class="acoes-nota">
+                    <!-- 🔧 FIX: botão com estado de carregamento, sem alert() -->
                     <button
                         type="button"
+                        id="btnSalvarNota"
                         onclick="salvarNota()"
                     >
                         Salvar nota
                     </button>
-
                 </div>
 
             </section>
 
-        </section>
+        </div>
 
     </main>
+</div>
 
-    <script>
+<script>
 
-        function voltarRelatorios(){
+    // =========================
+    // PEGA O ID DO PACIENTE DA URL
+    // Ex: /relatoriosTerapeuta?paciente=42
+    // =========================
+    const params     = new URLSearchParams(window.location.search);
+    const pacienteId = params.get("paciente");
 
-            window.location.href = "/Relatorios";
+    // Se não tem ID na URL, volta para a lista
+    if (!pacienteId) {
+        window.location.href = "/relatoriosTerapeutaS";
+    }
 
-        }
+    // =========================
+    // CARREGAR DADOS DO TERAPEUTA (topo)
+    // =========================
+    async function carregarTerapeuta() {
+        try {
+            const resposta = await fetch("/api/home-terapeuta");
 
-        function salvarNota(){
-
-            const nota = document
-                .getElementById("novaNota")
-                .value
-                .trim();
-
-            if(nota === ""){
-
-                alert("Digite uma nota antes de salvar.");
-
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
                 return;
-
             }
 
-            // Futuramente:
-            // enviar para o banco de dados
-            // usando fetch("/salvar-nota", {...})
+            if (!resposta.ok) return;
 
-            alert("Nota salva com sucesso!");
+            const dados = await resposta.json();
 
-            document.getElementById("novaNota").value = "";
+            document.getElementById("nomeTerapeuta").textContent = dados.nome || "Terapeuta";
 
+            if (dados.fotoPerfil) {
+                document.getElementById("fotoUsuario").src = dados.fotoPerfil;
+            }
+
+            // Badge de notificações
+            const badge = document.getElementById("badgeNotificacoes");
+            if (dados.notificacoes > 0) {
+                badge.textContent   = dados.notificacoes;
+                badge.style.display = "inline";
+            }
+
+        } catch (e) {
+            console.log("Erro ao carregar terapeuta:", e);
+        }
+    }
+
+    // =========================
+    // CARREGAR RELATÓRIO DO PACIENTE
+    // =========================
+    async function carregarRelatorio() {
+        try {
+            const resposta = await fetch(`/api/relatorio-paciente?paciente=${pacienteId}`);
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            if (!resposta.ok) throw new Error("Falha ao carregar relatório");
+
+            const dados = await resposta.json();
+
+            // Nome do paciente no título
+            document.getElementById("nomePaciente").textContent =
+                dados.nomePaciente || "Paciente";
+
+            // Cards de resumo
+            preencherCards(dados);
+
+            // Gráficos
+            renderizarGraficos(dados);
+
+            // Notas clínicas
+            renderizarNotas(dados.notas || []);
+
+        } catch (e) {
+            console.log("Erro ao carregar relatório:", e);
+            // Fallback com dados de exemplo
+            usarDadosExemplo();
+        }
+    }
+
+    // =========================
+    // DADOS DE EXEMPLO (fallback)
+    // =========================
+    function usarDadosExemplo() {
+
+        document.getElementById("nomePaciente").textContent = "Paciente";
+
+        const dadosExemplo = {
+            alertas: 18,
+            comparativoAlertas: "↓ 2 comparado à semana passada",
+            tempo: "120 min",
+            comparativoTempo:   "↑ 1 min comparado à semana passada",
+            graficoEstresse:    { labels: ["Sex","Sáb","Dom","Seg","Ter","Qua","Qui"], dados: [3,2,5,7,8,4,2] },
+            graficoGatilhos:    { labels: ["Ambientes barulhentos","Locais lotados","Mudanças de rotina","Texturas"], dados: [42,28,18,12], cores: ["#32C26D","#0AB7FB","#1D8EC9","#C2C2C2"] },
+            notas: []
+        };
+
+        preencherCards(dadosExemplo);
+        renderizarGraficos(dadosExemplo);
+        renderizarNotas([]);
+    }
+
+    // =========================
+    // PREENCHER CARDS
+    // =========================
+    function preencherCards(dados) {
+
+        const alertaEl = document.getElementById("alertasEstresse");
+        const seta     = dados.alertas > 0 ? "fa-arrow-up" : "fa-arrow-down";
+        const classe   = dados.alertas > 0 ? "negativo" : "positivo";
+
+        alertaEl.className = `valor ${classe}`;
+        alertaEl.innerHTML = `<i class="fa-solid ${seta}"></i> ${dados.alertas ?? 0}`;
+
+        document.getElementById("comparativoAlertas").textContent =
+            dados.comparativoAlertas || "";
+
+        document.getElementById("tempoEstresse").textContent =
+            dados.tempo || "0 min";
+
+        document.getElementById("comparativoTempo").textContent =
+            dados.comparativoTempo || "";
+    }
+
+    // =========================
+    // GRÁFICOS COM CHART.JS
+    // =========================
+    let graficos = {};
+
+    function renderizarGraficos(dados) {
+
+        Object.values(graficos).forEach(g => g.destroy());
+        graficos = {};
+
+        const VERDE = "#32C26D";
+        const AZUL  = "#0AB7FB";
+
+        // Gráfico de barras
+        const ctxBarras = document.getElementById("graficoBarras").getContext("2d");
+
+        graficos.barras = new Chart(ctxBarras, {
+            type: "bar",
+            data: {
+                labels: dados.graficoEstresse?.labels || [],
+                datasets: [{
+                    label: "Alertas",
+                    data:  dados.graficoEstresse?.dados  || [],
+                    backgroundColor: (dados.graficoEstresse?.dados || []).map((v, i) =>
+                        v === Math.max(...(dados.graficoEstresse?.dados || [])) ? "#E53E3E" :
+                        v > 5 ? "#F6AD55" : VERDE
+                    ),
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales:  { y: { beginAtZero: true, ticks: { stepSize: 2 } } }
+            }
+        });
+
+        // Gráfico de rosca
+        const ctxPizza   = document.getElementById("graficoPizza").getContext("2d");
+        const gatilhos   = dados.graficoGatilhos || { labels: [], dados: [], cores: [] };
+
+        graficos.pizza = new Chart(ctxPizza, {
+            type: "doughnut",
+            data: {
+                labels: gatilhos.labels,
+                datasets: [{
+                    data:            gatilhos.dados,
+                    backgroundColor: gatilhos.cores || [VERDE, AZUL, "#1D8EC9", "#C2C2C2"],
+                    borderWidth: 0,
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: "65%",
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // Legenda customizada da rosca
+        const legendaEl = document.getElementById("legendaGatilhos");
+        legendaEl.innerHTML = "";
+        gatilhos.labels.forEach((label, i) => {
+            legendaEl.innerHTML += `
+                <div class="legenda-item">
+                    <span class="legenda-cor" style="background:${gatilhos.cores[i] || VERDE}"></span>
+                    <span>${label} ${gatilhos.dados[i]}%</span>
+                </div>`;
+        });
+    }
+
+    // =========================
+    // NOTAS CLÍNICAS
+    // =========================
+    function renderizarNotas(notas) {
+
+        const lista = document.getElementById("listaNotas");
+
+        if (notas.length === 0) {
+            lista.innerHTML = `<p class="sem-notas">Nenhuma nota clínica ainda.</p>`;
+            return;
         }
 
-    </script>
-    <script src="/js/tema.js"></script>
+        lista.innerHTML = notas.map(nota => `
+            <div class="nota-anterior">
+                <strong>${nota.data} · ${nota.nomeTerapeuta}</strong>
+                <p>${nota.texto}</p>
+            </div>
+        `).join("");
+    }
+
+    // =========================
+    // SALVAR NOTA — sem alert()
+    // =========================
+    async function salvarNota() {
+
+        const texto    = document.getElementById("novaNota").value.trim();
+        const erroEl   = document.getElementById("erroNota");
+        const btnSalvar = document.getElementById("btnSalvarNota");
+
+        erroEl.style.display = "none";
+
+        if (!texto) {
+            erroEl.textContent   = "Digite uma nota antes de salvar.";
+            erroEl.style.display = "block";
+            return;
+        }
+
+        btnSalvar.disabled    = true;
+        btnSalvar.textContent = "Salvando...";
+
+        try {
+
+            const resposta = await fetch("/api/nota-clinica", {
+                method:  "POST",
+                headers: { "Content-Type": "application/json" },
+                body:    JSON.stringify({ pacienteId, texto })
+            });
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            if (!resposta.ok) throw new Error("Falha ao salvar");
+
+            // Limpa o campo e recarrega as notas
+            document.getElementById("novaNota").value = "";
+            await carregarRelatorio();
+
+        } catch (e) {
+
+            console.log("Erro ao salvar nota:", e);
+            erroEl.textContent   = "Erro ao salvar a nota. Tente novamente.";
+            erroEl.style.display = "block";
+
+        } finally {
+
+            btnSalvar.disabled    = false;
+            btnSalvar.textContent = "Salvar nota";
+
+        }
+    }
+
+    // =========================
+    // PAINEL DE NOTIFICAÇÕES
+    // =========================
+    const painelNotificacoes = document.getElementById("painelNotificacoes");
+
+    async function carregarNotificacoes() {
+        try {
+            const resposta = await fetch("/api/notificacoes");
+            if (!resposta.ok) throw new Error();
+            const dados = await resposta.json();
+            const itens = dados.notificacoes || [];
+
+            document.getElementById("listaNotificacoes").innerHTML = itens.length === 0
+                ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+                : itens.map(n => `
+                    <div class="item-notificacao ${n.lida ? "" : "nao-lida"}">
+                        ${n.mensagem}
+                        <span class="tempo-notificacao">${n.tempo}</span>
+                    </div>`).join("");
+        } catch (_) {
+            document.getElementById("listaNotificacoes").innerHTML =
+                `<div class="painel-vazio">Não foi possível carregar.</div>`;
+        }
+    }
+
+    document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
+        e.stopPropagation();
+        const aberto = painelNotificacoes.classList.toggle("aberto");
+        if (aberto) {
+            await carregarNotificacoes();
+            fetch("/api/notificacoes/marcar-lidas", { method: "POST" }).catch(() => {});
+            document.getElementById("badgeNotificacoes").style.display = "none";
+        }
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!painelNotificacoes.contains(e.target)) {
+            painelNotificacoes.classList.remove("aberto");
+        }
+    });
+
+    // =========================
+    // TRADUÇÃO
+    // =========================
+    function lerCookie(nome) {
+        const v = `; ${document.cookie}`;
+        const p = v.split(`; ${nome}=`);
+        if (p.length === 2) return p.pop().split(";").shift();
+        return null;
+    }
+
+    function iniciarTradutor() {
+        new google.translate.TranslateElement(
+            { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
+            "google_translate_element"
+        );
+    }
+
+    document.getElementById("btnTraduzir").addEventListener("click", () => {
+        const atual     = lerCookie("googtrans");
+        const traduzido = atual && atual.includes("/en");
+
+        document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+        document.cookie = `googtrans=; path=/; domain=${location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
+
+        if (!traduzido) {
+            document.cookie = `googtrans=/pt/en; path=/`;
+            document.cookie = `googtrans=/pt/en; path=/; domain=${location.hostname}`;
+        }
+        window.location.reload();
+    });
+
+    // Atualiza texto do botão conforme cookie
+    const cookieAtual = lerCookie("googtrans");
+    document.getElementById("textoTradutor").textContent =
+        (cookieAtual && cookieAtual.includes("/en")) ? "Voltar para português" : "Traduzir para inglês";
+
+    // =========================
+    // TEMA
+    // =========================
+    function aplicarTema(tema) {
+        document.body.classList.remove("tema-claro", "tema-escuro");
+        document.body.classList.add(`tema-${tema}`);
+        document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
+        document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
+        localStorage.setItem("tema", tema);
+    }
+
+    document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema("claro"));
+    document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
+
+    // =========================
+    // INICIALIZAÇÃO
+    // =========================
+    const temaSalvo = localStorage.getItem("tema") || "claro";
+    aplicarTema(temaSalvo);
+
+    carregarTerapeuta();
+    carregarRelatorio();
+
+</script>
 
 </body>
-
 </html>

@@ -3162,6 +3162,180 @@ app.get("/api/pacientes-relatorios", estaLogado, async (req, res) => {
 });
 
 
+app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
+
+    try {
+
+        const terapeutaId = req.session.usuarioId || (req.user && req.user.id);
+        const pacienteId  = parseInt(req.query.paciente);
+
+        if (!terapeutaId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        if (!pacienteId) {
+            return res.status(400).json({ erro: "ID do paciente inválido." });
+        }
+
+        // Verifica se o terapeuta tem vínculo ativo com esse paciente
+        const vinculo = await db.query(
+            `SELECT id FROM vinculos
+             WHERE terapeuta_id = $1
+             AND responsavel_id = $2
+             AND ativo = TRUE`,
+            [terapeutaId, pacienteId]
+        );
+
+        if (vinculo.rows.length === 0) {
+            return res.status(403).json({ erro: "Você não tem vínculo com esse paciente." });
+        }
+
+        // Nome da criança vinculada ao paciente
+        const crianca = await db.query(
+            `SELECT c.nome FROM criancas c
+             WHERE c.usuario_id = $1
+             LIMIT 1`,
+            [pacienteId]
+        );
+
+        const nomePaciente = crianca.rows[0]?.nome || "Paciente";
+
+        // Alertas do mês atual
+        const alertasMes = await db.query(
+            `SELECT COUNT(*) AS total FROM relatorios
+             WHERE usuario_id = $1
+             AND EXTRACT(MONTH FROM data) = EXTRACT(MONTH FROM NOW())
+             AND EXTRACT(YEAR  FROM data) = EXTRACT(YEAR  FROM NOW())`,
+            [pacienteId]
+        );
+
+        // Comparativo com semana anterior
+        const alertasAtual = await db.query(
+            `SELECT COUNT(*) AS total FROM relatorios
+             WHERE usuario_id = $1 AND data >= NOW() - INTERVAL '7 days'`,
+            [pacienteId]
+        );
+
+        const alertasAnterior = await db.query(
+            `SELECT COUNT(*) AS total FROM relatorios
+             WHERE usuario_id = $1
+             AND data >= NOW() - INTERVAL '14 days'
+             AND data <  NOW() - INTERVAL '7 days'`,
+            [pacienteId]
+        );
+
+        const totalAtual    = parseInt(alertasAtual.rows[0].total)    || 0;
+        const totalAnterior = parseInt(alertasAnterior.rows[0].total)  || 0;
+        const diff          = totalAtual - totalAnterior;
+
+        const comparativoAlertas = diff === 0
+            ? "igual à semana passada"
+            : diff > 0
+                ? `↑ ${diff} comparado à semana passada`
+                : `↓ ${Math.abs(diff)} comparado à semana passada`;
+
+        // Dados para o gráfico de barras — estresse por dia (últimos 7 dias)
+        const estresseDias = await db.query(
+            `SELECT TO_CHAR(data, 'Dy') AS dia, COUNT(*) AS total
+             FROM relatorios
+             WHERE usuario_id = $1 AND data >= NOW() - INTERVAL '7 days'
+             GROUP BY data ORDER BY data ASC`,
+            [pacienteId]
+        );
+
+        // Notas clínicas desse paciente feitas por esse terapeuta
+        const notas = await db.query(
+            `SELECT n.texto,
+                    TO_CHAR(n.criado_em, 'DD/MM/YYYY') AS data,
+                    u.nome AS nome_terapeuta
+             FROM notas_clinicas n
+             JOIN usuarios u ON u.id = n.terapeuta_id
+             WHERE n.paciente_id  = $1
+             AND   n.terapeuta_id = $2
+             ORDER BY n.criado_em DESC`,
+            [pacienteId, terapeutaId]
+        );
+
+        res.json({
+            nomePaciente,
+            alertas:           parseInt(alertasMes.rows[0].total) || 0,
+            comparativoAlertas,
+            tempo:             "0 min",
+            comparativoTempo:  "dados de IoT em breve",
+
+            graficoEstresse: {
+                labels: estresseDias.rows.map(r => r.dia),
+                dados:  estresseDias.rows.map(r => parseInt(r.total))
+            },
+
+            // Gatilhos fixos por ora — integre com sua tabela de respostas quando quiser
+            graficoGatilhos: {
+                labels: ["Ambientes barulhentos","Locais lotados","Mudanças de rotina","Texturas"],
+                dados:  [42, 28, 18, 12],
+                cores:  ["#32C26D","#0AB7FB","#1D8EC9","#C2C2C2"]
+            },
+
+            notas: notas.rows.map(n => ({
+                data:          n.data,
+                nomeTerapeuta: n.nome_terapeuta,
+                texto:         n.texto
+            }))
+        });
+
+    } catch (erro) {
+        console.log("Erro na rota /api/relatorio-paciente:", erro);
+        res.status(500).json({ erro: "Erro interno do servidor." });
+    }
+
+});
+
+/* ==========================
+   ROTA POST — SALVAR NOTA CLÍNICA
+========================== */
+
+app.post("/api/nota-clinica", estaLogado, async (req, res) => {
+
+    try {
+
+        const terapeutaId = req.session.usuarioId || (req.user && req.user.id);
+
+        if (!terapeutaId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        const { pacienteId, texto } = req.body;
+
+        if (!pacienteId || !texto?.trim()) {
+            return res.status(400).json({ erro: "Dados inválidos." });
+        }
+
+        // Verifica vínculo antes de salvar
+        const vinculo = await db.query(
+            `SELECT id FROM vinculos
+             WHERE terapeuta_id = $1 AND responsavel_id = $2 AND ativo = TRUE`,
+            [terapeutaId, parseInt(pacienteId)]
+        );
+
+        if (vinculo.rows.length === 0) {
+            return res.status(403).json({ erro: "Você não tem vínculo com esse paciente." });
+        }
+
+        await db.query(
+            `INSERT INTO notas_clinicas (terapeuta_id, paciente_id, texto)
+             VALUES ($1, $2, $3)`,
+            [terapeutaId, parseInt(pacienteId), texto.trim()]
+        );
+
+        return res.status(201).json({ mensagem: "Nota salva com sucesso." });
+
+    } catch (erro) {
+        console.log("Erro ao salvar nota clínica:", erro);
+        res.status(500).json({ erro: "Erro interno ao salvar nota." });
+    }
+
+});
+
+
 /* ==========================
    INICIAR SERVIDOR
 ========================== */
