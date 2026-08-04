@@ -4,398 +4,400 @@
 <head>
 
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco • Relatórios</title>
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/relatoriost.css">
 
-    <title>
-        Bixuco • Relatórios
-    </title>
+    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
 
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="/css/relatoriost.css"
-    >
+    <style>
+        .goog-te-banner-frame { display: none !important; }
+        body { top: 0 !important; }
+    </style>
 
 </head>
 
 <body>
 
-    <main>
+<div class="container">
 
-        <!-- ==========================
-             MENU LATERAL
-        =========================== -->
+    <!-- ========================= -->
+    <!-- MENU LATERAL -->
+    <!-- ========================= -->
+    <aside class="sidebar">
 
-        <aside>
+        <div class="logo">
+            <img src="/img/Logo_Colorida.png" alt="Bixuco">
+        </div>
 
-            <!-- Logo -->
+        <nav>
 
-            <img
-                src="/img/logo.png"
-                alt="Logo Bixuco"
-            >
+            <a href="/homeTerapeuta">
+                <i class="fa-solid fa-house"></i>
+                <span>Início</span>
+            </a>
 
-            <nav>
+            <!-- aba ativa -->
+            <a href="/selecaoRelatoriosTerapeuta" class="ativo">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Relatórios</span>
+            </a>
 
-                <a href="/home">
-                    <i class="fa-solid fa-house"></i>
-                    <span>Início</span>
-                </a>
+            <a href="/ConfiguracoesTerapeuta">
+                <i class="fa-solid fa-gear"></i>
+                <span>Configurações</span>
+            </a>
 
-                <a
-                    href="/RelatoriosT"
-                    class="ativo"
+            <a href="/sobre">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>Sobre</span>
+            </a>
+
+            <a href="/pacientes">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>Pacientes</span>
+            </a>
+
+        </nav>
+
+        <div class="tema">
+            <button id="btnClaro" class="ativo" type="button">
+                <i class="fa-regular fa-sun"></i>
+                Claro
+            </button>
+            <button id="btnEscuro" type="button">
+                <i class="fa-regular fa-moon"></i>
+                Escuro
+            </button>
+        </div>
+
+        <div class="sidebar-divisor"></div>
+
+        <a href="/logout" class="logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span>Sair</span>
+        </a>
+
+    </aside>
+
+    <!-- ========================= -->
+    <!-- CONTEÚDO PRINCIPAL -->
+    <!-- ========================= -->
+    <main class="conteudo">
+
+        <!-- TOPO — padrão de todas as telas do terapeuta -->
+        <header class="topo">
+
+            <button class="tradutor" type="button" id="btnTraduzir">
+                <i class="fa-solid fa-language"></i>
+                <span id="textoTradutor">Traduzir para inglês</span>
+            </button>
+
+            <div id="google_translate_element"
+                style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">
+            </div>
+
+            <div class="usuario">
+
+                <!-- sininho com painel de notificações -->
+                <div class="notificacoes-wrapper">
+                    <button class="notificacoes" type="button" id="btnNotificacoes">
+                        <i class="fa-regular fa-bell"></i>
+                        <span id="badgeNotificacoes" class="badge" style="display:none">0</span>
+                    </button>
+
+                    <div class="painel-notificacoes" id="painelNotificacoes">
+                        <div class="painel-header">Notificações</div>
+                        <div id="listaNotificacoes">
+                            <div class="painel-vazio">Carregando...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- foto clicável vai para o perfil do terapeuta -->
+                <img
+                    id="fotoUsuario"
+                    src="/img/perfilPadrao.png"
+                    alt="Foto do terapeuta"
+                    title="Ver perfil"
+                    style="cursor:pointer;"
+                    onclick="window.location.href='/perfilTerapeuta'"
+                    onerror="this.src='/img/perfilPadrao.png'"
                 >
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span>Relatórios</span>
-                </a>
 
-                <a href="/ConfiguracoesT">
-                    <i class="fa-solid fa-gear"></i>
-                    <span>Configurações</span>
-                </a>
-
-                <a href="/SobreT">
-                    <i class="fa-solid fa-circle-info"></i>
-                    <span>Sobre</span>
-                </a>
-
-                <a href="/Pacientes">
-                    <i class="fa-solid fa-user-group"></i>
-                    <span>Pacientes</span>
-                </a>
-
-            </nav>
-
-            <!-- Tema -->
-
-            <div>
-
-                <button type="button">
-
-                    <i class="fa-regular fa-sun"></i>
-
-                    Claro
-
-                </button>
-
-                <button type="button">
-
-                    <i class="fa-regular fa-moon"></i>
-
-                    Escuro
-
-                </button>
+                <div>
+                    <h3 id="nomeTerapeuta">Carregando...</h3>
+                    <span>Terapeuta</span>
+                </div>
 
             </div>
 
-            <a href="/">
+        </header>
 
-                <i class="fa-solid fa-right-from-bracket"></i>
+        <div class="conteudo-corpo">
 
-                Sair
-
-            </a>
-
-        </aside>
-
-        <!-- ==========================
-             CONTEÚDO
-        =========================== -->
-
-        <section>
-
-            <!-- Topo -->
-
-            <header>
-
-                <button>
-
-                    <i class="fa-solid fa-globe"></i>
-
-                    Traduzir para o inglês
-
-                </button>
-
+            <!-- CABEÇALHO DA PÁGINA -->
+            <div class="cabecalho-pagina">
                 <div>
-
-                    <i class="fa-regular fa-bell"></i>
-
-                    <div>
-
-                        <strong>
-
-                            Dr. Laura
-
-                        </strong>
-
-                        <small>
-
-                            Terapeuta
-
-                        </small>
-
-                    </div>
-
+                    <h1>Relatórios</h1>
+                    <p>Acompanhe e visualize os relatórios dos pacientes.</p>
                 </div>
+                <img src="/img/gato-relatorio.png" alt="Mascote Bixuco" onerror="this.style.display='none'">
+            </div>
 
-            </header>
+            <h2 class="subtitulo-secao">Relatórios dos pacientes</h2>
 
-            <!-- Conteúdo principal -->
-
-            <article>
-
-                <div>
-
-                    <div>
-
-                        <h1>
-
-                            Relatórios
-
-                        </h1>
-
-                        <p>
-
-                            Acompanhe e visualize os relatórios dos pacientes.
-
-                        </p>
-
-                    </div>
-
-                    <img
-                        src="/img/gato-relatorio.png"
-                        alt="Mascote Bixuco"
-                    >
-
+            <!-- ========================= -->
+            <!-- LISTA DE PACIENTES -->
+            <!-- cada card leva para /relatoriosTerapeuta?paciente=ID -->
+            <!-- gerado pelo JS via /api/pacientes-relatorios -->
+            <!-- ========================= -->
+            <div id="listaRelatorios">
+                <!-- estado de carregamento -->
+                <div class="carregando-relatorios">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    Carregando pacientes...
                 </div>
+            </div>
 
-                <h2>
+            <!-- aparece quando não tem nenhum paciente vinculado -->
+            <div id="semPacientes" style="display:none" class="lista-vazia">
+                <i class="fa-solid fa-users-slash"></i>
+                <p>Nenhum paciente vinculado ainda.</p>
+                <p>Aceite solicitações de vínculo para ver os relatórios aqui.</p>
+            </div>
 
-                    Relatórios dos pacientes
+        </div>
 
-                </h2>
+    </main>
 
-                <div class="lista-relatorios">
-            <!-- Conteúdo principal -->
-            <section class="conteudo">
+</div>
 
-                <header class="topo">
 
-                    <button class="traduzir">
-                        <i class="fa-solid fa-globe"></i>
-                        Traduzir para o inglês
-                    </button>
+<script>
 
-                    <div class="usuario">
+    // =========================
+    // CARREGAR DADOS DO TOPO
+    // =========================
+    async function carregarUsuario() {
+        try {
+            const resposta = await fetch("/api/home-terapeuta");
 
-                        <button class="notificacao">
-                            <i class="fa-regular fa-bell"></i>
-                        </button>
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
 
-                        <div class="perfil">
+            if (!resposta.ok) return;
 
-                            <img
-                                src="/img/perfil.png"
-                                alt="Perfil"
-                            >
+            const dados = await resposta.json();
 
-                            <div>
+            document.getElementById("nomeTerapeuta").textContent = dados.nome || "Terapeuta";
 
-                                <strong>Dr. Laura</strong>
-                                <span>Terapeuta</span>
+            if (dados.fotoPerfil) {
+                document.getElementById("fotoUsuario").src = dados.fotoPerfil;
+            }
 
-                            </div>
+            const badge = document.getElementById("badgeNotificacoes");
+            if ((dados.notificacoes ?? 0) > 0) {
+                badge.textContent   = dados.notificacoes;
+                badge.style.display = "inline";
+            }
 
-                        </div>
+        } catch (_) {}
+    }
 
-                    </div>
 
-                </header>
+    // =========================
+    // CARREGAR LISTA DE PACIENTES COM ÚLTIMO RELATÓRIO
+    // =========================
+    async function carregarRelatorios() {
+        const lista       = document.getElementById("listaRelatorios");
+        const semPacientes = document.getElementById("semPacientes");
 
-                <main class="pagina">
+        try {
+            const resposta = await fetch("/api/pacientes-relatorios");
 
-                    <div class="cabecalho">
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
 
-                        <div>
+            if (!resposta.ok) throw new Error();
 
-                            <h1>Relatórios</h1>
+            const dados   = await resposta.json();
+            const pacientes = dados.pacientes || [];
 
-                            <p>
-                                Acompanhe e visualize os relatórios dos
-                                pacientes.
-                            </p>
+            lista.innerHTML = "";
 
-                        </div>
+            if (pacientes.length === 0) {
+                semPacientes.style.display = "block";
+                return;
+            }
 
-                        <img
-                            src="/img/gato-relatorio.png"
-                            alt="Gato relatório"
-                        >
+            semPacientes.style.display = "none";
 
-                    </div>
+            pacientes.forEach(p => {
+                const card = document.createElement("div");
+                card.classList.add("card-relatorio");
+                card.style.cursor = "pointer";
 
-                    <h2>
-                        Relatórios dos pacientes
-                    </h2>
+                // inicial do nome para o avatar
+                const inicial = (p.nomeCrianca || p.nomeResponsavel || "?").charAt(0).toUpperCase();
 
-                    <div class="lista-relatorios">
+                // data do último relatório formatada
+                const dataRelatorio = p.ultimoRelatorio
+                    ? new Date(p.ultimoRelatorio).toLocaleDateString("pt-BR")
+                    : "Sem relatórios";
 
-                        <div class="card-relatorio">
-
-                            <div class="info">
-
-                                <div class="avatar">
-                                    A
-                                </div>
-
-                                <div>
-
-                                    <strong>Admin</strong>
-
-                                    <span>
-                                        Responsável: Ana
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-                            <button>
-
-                                <i class="fa-solid fa-arrow-right"></i>
-
-                            </button>
-
-                        </div>
-
-                        <div class="card-relatorio">
-
-                            <div class="info">
-
-                                <div class="avatar">
-                                    A
-                                </div>
-
-                                <div>
-
-                                    <strong>Admin</strong>
-
-                                    <span>
-                                        Responsável: Ana
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-                            <button>
-
-                                <i class="fa-solid fa-arrow-right"></i>
-
-                            </button>
-
-                        </div>
-
-                        <div class="card-relatorio">
-
-                            <div class="info">
-
-                                <div class="avatar">
-                                    A
-                                </div>
-
-                                <div>
-
-                                    <strong>Admin</strong>
-
-                                    <span>
-                                        Responsável: Ana
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-                            <button>
-
-                                <i class="fa-solid fa-arrow-right"></i>
-
-                            </button>
-
-                        </div>
-                <!-- Relatório 4 -->
-                <a href="/RelatorioPaciente" class="relatorio-card">
-
-                    <div class="paciente-info">
-
+                card.innerHTML = `
+                    <div class="info">
                         <div class="avatar">
-                            A
+                            ${p.fotoCrianca
+                                ? `<img src="${p.fotoCrianca}" alt="${p.nomeCrianca}" onerror="this.parentElement.textContent='${inicial}'">`
+                                : inicial
+                            }
                         </div>
-
                         <div>
-
-                            <h3>
-                                Admin
-                            </h3>
-
-                            <p>
-                                Responsável: Ana
-                            </p>
-
+                            <strong>${p.nomeCrianca || "Criança"}</strong>
+                            <span>Responsável: ${p.nomeResponsavel}</span>
+                            <span class="data-relatorio">${dataRelatorio}</span>
                         </div>
-
                     </div>
+                    <button type="button" aria-label="Ver relatório">
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                `;
 
-                    <i class="fa-solid fa-arrow-right-long"></i>
+                // ao clicar em qualquer parte do card vai para os relatórios desse paciente
+                card.addEventListener("click", () => {
+                    window.location.href = `/relatoriosTerapeuta?paciente=${p.responsavelId}`;
+                });
 
-                </a>
+                lista.appendChild(card);
+            });
 
-            </section>
-
-        </main>
-
-    </div>
-
-    <script>
-
-        // Alternar tema claro/escuro
-        const btnClaro = document.getElementById("btnClaro");
-        const btnEscuro = document.getElementById("btnEscuro");
-
-        btnClaro.addEventListener("click", () => {
-
-            document.body.classList.remove("dark");
-
-            localStorage.setItem("tema", "claro");
-
-        });
-
-        btnEscuro.addEventListener("click", () => {
-
-            document.body.classList.add("dark");
-
-            localStorage.setItem("tema", "escuro");
-
-        });
-
-        // Carrega o tema salvo
-        if(localStorage.getItem("tema") === "escuro"){
-
-            document.body.classList.add("dark");
-
+        } catch (_) {
+            lista.innerHTML = `
+                <div class="erro-relatorios">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    Erro ao carregar os pacientes. Tente recarregar a página.
+                </div>
+            `;
         }
+    }
 
-    </script>
-    <script src="/js/tema.js"></script>
+
+    // =========================
+    // NOTIFICAÇÕES
+    // =========================
+    const painelNotificacoes = document.getElementById("painelNotificacoes");
+    const listaNotificacoes  = document.getElementById("listaNotificacoes");
+
+    async function carregarNotificacoes() {
+        try {
+            const resposta = await fetch("/api/notificacoes");
+            if (!resposta.ok) throw new Error();
+            const dados = await resposta.json();
+            const itens = dados.notificacoes || [];
+
+            listaNotificacoes.innerHTML = itens.length === 0
+                ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+                : itens.map(item => `
+                    <div class="item-notificacao ${item.lida ? "" : "nao-lida"}">
+                        <p>${item.mensagem}</p>
+                        <span class="tempo-notificacao">${item.tempo}</span>
+                    </div>
+                `).join("");
+        } catch (_) {
+            listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar.</div>`;
+        }
+    }
+
+    document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
+        e.stopPropagation();
+        const estaAberto = painelNotificacoes.classList.toggle("aberto");
+        if (estaAberto) {
+            await carregarNotificacoes();
+            fetch("/api/notificacoes/marcar-lidas", { method: "POST" });
+            document.getElementById("badgeNotificacoes").style.display = "none";
+        }
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!painelNotificacoes.contains(e.target)) {
+            painelNotificacoes.classList.remove("aberto");
+        }
+    });
+
+
+    // =========================
+    // TRADUÇÃO
+    // =========================
+    function lerCookie(nome) {
+        const valor  = `; ${document.cookie}`;
+        const partes = valor.split(`; ${nome}=`);
+        if (partes.length === 2) return partes.pop().split(";").shift();
+        return null;
+    }
+
+    function iniciarTradutor() {
+        new google.translate.TranslateElement(
+            { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
+            "google_translate_element"
+        );
+    }
+
+    function atualizarTextoBotao() {
+        const cookieAtual = lerCookie("googtrans");
+        document.getElementById("textoTradutor").textContent =
+            cookieAtual && cookieAtual.includes("/en")
+                ? "Voltar para português"
+                : "Traduzir para inglês";
+    }
+
+    document.getElementById("btnTraduzir").addEventListener("click", () => {
+        const cookieAtual   = lerCookie("googtrans");
+        const estaTraduzido = cookieAtual && cookieAtual.includes("/en");
+        const valor = `/pt/${estaTraduzido ? "pt" : "en"}`;
+        document.cookie = `googtrans=${valor}; path=/`;
+        document.cookie = `googtrans=${valor}; path=/; domain=${location.hostname}`;
+        window.location.reload();
+    });
+
+
+    // =========================
+    // TEMA
+    // =========================
+    function aplicarTema(tema) {
+        document.body.classList.remove("tema-claro", "tema-escuro");
+        document.body.classList.add(`tema-${tema}`);
+        document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
+        document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
+        localStorage.setItem("tema", tema);
+    }
+
+    document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema("claro"));
+    document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
+
+
+    // =========================
+    // INICIALIZAÇÃO
+    // =========================
+    const temaSalvo = localStorage.getItem("tema") || "claro";
+    aplicarTema(temaSalvo);
+    atualizarTextoBotao();
+    carregarUsuario();
+    carregarRelatorios();
+
+</script>
+
+<script src="/js/tema.js" onerror="console.log('tema.js não encontrado')"></script>
 
 </body>
+
 </html>

@@ -275,7 +275,7 @@ app.get("/QuestionarioP", estaLogado, (req, res) => {
 
 });
 
-app.get("/relatoriosTerapeutaS", estaLogado, (req, res) => {
+app.get("/pacientes-relatorios", estaLogado, (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "RelatoriosTerapeutaS.html"));
 });
 
