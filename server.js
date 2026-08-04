@@ -3119,6 +3119,49 @@ app.get('/usuarios', estaLogado, async (req, res) => {
 
 });
 
+// ─────────────────────────────────────────
+// LISTA DE PACIENTES COM ÚLTIMO RELATÓRIO
+// usada pela tela de seleção de relatórios do terapeuta
+// ─────────────────────────────────────────
+app.get("/api/pacientes-relatorios", estaLogado, async (req, res) => {
+    const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+
+    try {
+        const resultado = await db.query(
+            `SELECT
+                u.id              AS responsavel_id,
+                u.nome            AS nome_responsavel,
+                c.nome            AS nome_crianca,
+                c.foto            AS foto_crianca,
+                MAX(r.data)       AS ultimo_relatorio
+             FROM vinculos v
+             JOIN usuarios u ON u.id = v.responsavel_id
+             LEFT JOIN criancas c ON c.usuario_id = v.responsavel_id
+             LEFT JOIN relatorios r ON r.usuario_id = v.responsavel_id
+             WHERE v.terapeuta_id = $1
+               AND v.ativo = TRUE
+             GROUP BY u.id, u.nome, c.nome, c.foto
+             ORDER BY MAX(r.data) DESC NULLS LAST`,
+            [usuarioId]
+        );
+
+        const pacientes = resultado.rows.map(p => ({
+            responsavelId:   p.responsavel_id,
+            nomeResponsavel: p.nome_responsavel,
+            nomeCrianca:     p.nome_crianca     || "Criança",
+            fotoCrianca:     p.foto_crianca     || null,
+            ultimoRelatorio: p.ultimo_relatorio || null
+        }));
+
+        res.json({ pacientes });
+
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
+});
+
+
 /* ==========================
    INICIAR SERVIDOR
 ========================== */
