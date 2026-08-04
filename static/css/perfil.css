@@ -185,3 +185,875 @@
 #badgeMaiorOfensiva {
     white-space: nowrap;
 }
+
+
+
+/* ==========================================================
+   Estilos específicos da página de Perfil.
+   Sidebar, topo, botão de tema, tradutor, notificações etc.
+   já vêm prontos do home.css (reaproveitado, não duplicado
+   aqui). Foto/nome editáveis já vêm do perfil.css.
+   Aqui só entra o que é exclusivo desta página: o grid de
+   cards do perfil e os dois modais.
+   ========================================================== */
+
+/* ---------- Cabeçalho da página ---------- */
+
+.titulo h1 {
+font-size: 1.4rem;
+font-weight: 700;
+color: var(--cor-texto-principal);
+margin-bottom: 0.3rem;
+}
+
+.titulo p {
+font-size: 0.85rem;
+color: var(--cor-texto-secundario);
+}
+
+/* ---------- Grid principal ---------- */
+
+.grid-perfil {
+display: grid;
+grid-template-columns: 1.4fr 1fr;
+align-items: start;
+gap: 1.1rem;
+margin-top: 1.1rem;
+}
+
+/* home.css já define ".card" para os cards em linha do dashboard;
+   aqui sobrescrevemos só dentro do grid do perfil, que usa cards
+   verticais com padding maior */
+.grid-perfil .card {
+display: block;
+flex: none;
+padding: 1.5rem 1.75rem;
+}
+
+.grid-perfil .card h2 {
+font-size: 1rem;
+margin-bottom: 0.9rem;
+}
+
+/* ---------- Card do perfil (coluna esquerda) ---------- */
+
+.perfil-topo {
+display: flex;
+align-items: flex-start;
+gap: 1.1rem;
+margin-bottom: 1.1rem;
+}
+
+.perfil-topo > div {
+min-width: 0;
+}
+
+#perfilDescricao {
+font-size: 0.82rem;
+color: var(--cor-texto-secundario);
+margin-top: 0.3rem;
+}
+
+.badges {
+display: flex;
+flex-wrap: wrap;
+gap: 0.5rem;
+margin-bottom: 1.1rem;
+}
+
+.badges span {
+padding: 0.3rem 0.7rem;
+border-radius: 999px;
+background: var(--cor-fundo-hover);
+color: var(--cor-texto-secundario);
+font-size: 0.72rem;
+font-weight: 600;
+}
+
+#badgePlano {
+background: rgba(10, 183, 251, 0.12);
+color: #0A7EA4;
+}
+
+.mensagemPerfil {
+background: rgba(50, 194, 109, 0.1);
+border-radius: 12px;
+padding: 0.9rem 1.1rem;
+}
+
+.mensagemPerfil strong {
+display: block;
+color: #1E8E4F;
+font-size: 0.88rem;
+margin-bottom: 0.2rem;
+}
+
+.mensagemPerfil p {
+font-size: 0.8rem;
+color: var(--cor-texto-secundario);
+}
+
+/* ---------- Coluna direita ---------- */
+
+.perfil-direita {
+display: flex;
+flex-direction: column;
+gap: 1.1rem;
+}
+
+/* Terapeuta */
+
+.card.terapeuta .texto-vazio {
+color: var(--cor-texto-secundario);
+font-size: 0.9rem;
+margin-bottom: 1rem;
+}
+
+.card.terapeuta .btn-vincular {
+display: inline-flex;
+align-items: center;
+gap: 0.5rem;
+padding: 0.7rem 1.1rem;
+background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+color: #fff;
+border: none;
+border-radius: 10px;
+font-size: 0.9rem;
+font-weight: 600;
+cursor: pointer;
+}
+
+.card.terapeuta .badge-ativo {
+margin-left: auto;
+padding: 0.25rem 0.65rem;
+border-radius: 999px;
+background: rgba(50, 194, 109, 0.12);
+color: #1E8E4F;
+font-size: 0.75rem;
+font-weight: 700;
+}
+
+.card.terapeuta .notificacao-status {
+display: flex;
+align-items: flex-start;
+gap: 0.75rem;
+padding: 0.9rem;
+border-radius: 12px;
+font-size: 0.85rem;
+}
+
+.card.terapeuta .notificacao-status strong {
+display: block;
+margin-bottom: 0.15rem;
+}
+
+.card.terapeuta .notificacao-status--pendente {
+background: rgba(10, 183, 251, 0.1);
+color: #0A7EA4;
+}
+
+.card.terapeuta .notificacao-status--recusado {
+background: rgba(255, 68, 68, 0.1);
+color: #C0392B;
+}
+
+.card.terapeuta .btn-cancelar-vinculo {
+margin-top: 0.75rem;
+background: none;
+border: 1px solid var(--cor-borda);
+border-radius: 10px;
+padding: 0.5rem 0.9rem;
+font-size: 0.82rem;
+color: var(--cor-texto-secundario);
+cursor: pointer;
+}
+
+.terapeuta-info {
+display: flex;
+align-items: center;
+gap: 0.8rem;
+}
+
+.avatar-terapeuta {
+width: 42px;
+height: 42px;
+border-radius: 50%;
+overflow: hidden;
+flex-shrink: 0;
+background: var(--cor-fundo-hover);
+}
+
+.avatar-terapeuta img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+
+.dados-terapeuta h3 {
+font-size: 0.9rem;
+font-weight: 700;
+color: var(--cor-texto-principal);
+}
+
+.dados-terapeuta p {
+font-size: 0.78rem;
+color: var(--cor-texto-secundario);
+}
+
+.confirmar-remocao {
+margin-top: 0.9rem;
+padding: 0.9rem;
+background: var(--cor-fundo-hover);
+border-radius: 10px;
+}
+
+.confirmar-remocao p {
+font-size: 0.82rem;
+color: var(--cor-texto-principal);
+margin-bottom: 0.7rem;
+}
+
+.confirmar-botoes {
+display: flex;
+gap: 0.6rem;
+}
+
+.btn-confirmar {
+flex: 1;
+padding: 0.5rem;
+border: none;
+border-radius: 8px;
+background: #E24C4C;
+color: #fff;
+font-size: 0.8rem;
+font-weight: 600;
+cursor: pointer;
+}
+
+.btn-cancelar-remocao {
+flex: 1;
+padding: 0.5rem;
+border: 1px solid var(--cor-borda);
+border-radius: 8px;
+background: var(--cor-fundo-card);
+color: var(--cor-texto-secundario);
+font-size: 0.8rem;
+font-weight: 600;
+cursor: pointer;
+}
+
+.btn-remover {
+margin-top: 0.9rem;
+display: inline-flex;
+align-items: center;
+gap: 0.5rem;
+background: none;
+border: 1px solid var(--cor-borda);
+color: #C0392B;
+padding: 0.55rem 0.9rem;
+border-radius: 10px;
+font-size: 0.82rem;
+font-weight: 600;
+cursor: pointer;
+}
+
+/* Conta */
+
+.item-card {
+display: flex;
+align-items: center;
+gap: 0.8rem;
+text-decoration: none;
+padding: 0.4rem 0;
+}
+
+.icone-card {
+width: 40px;
+height: 40px;
+border-radius: 10px;
+background: rgba(10, 183, 251, 0.12);
+color: #0A7EA4;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.05rem;
+flex-shrink: 0;
+}
+
+.item-card h3 {
+font-size: 0.88rem;
+font-weight: 700;
+color: var(--cor-texto-principal);
+}
+
+.item-card p {
+font-size: 0.78rem;
+color: var(--cor-texto-secundario);
+}
+
+.item-card .seta {
+margin-left: auto;
+color: var(--cor-texto-esmaecido);
+font-size: 0.8rem;
+}
+
+/* Criança */
+
+.avatar-crianca {
+width: 40px;
+height: 40px;
+border-radius: 50%;
+background: rgba(50, 194, 109, 0.15);
+color: #1E8E4F;
+display: flex;
+align-items: center;
+justify-content: center;
+font-weight: 700;
+font-size: 1rem;
+flex-shrink: 0;
+overflow: hidden;
+}
+
+.avatar-crianca img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+
+/* ========================================= */
+/* MODAL — INFORMAÇÕES DA CRIANÇA (Fase 3) */
+/* ========================================= */
+
+#modalCrianca {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+#modalCrianca.aberto {
+    display: flex;
+}
+#modalCrianca .modal-conteudo {
+    background: var(--cor-fundo-card);
+    border-radius: 16px;
+    padding: 1.75rem;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+#modalCrianca .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+}
+#modalCrianca h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--cor-texto-principal);
+}
+#modalCrianca .btn-fechar-modal {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: var(--cor-texto-secundario);
+}
+
+#modalCrianca .crianca-foto-wrapper {
+    position: relative;
+    width: 96px;
+    height: 96px;
+    margin: 0 auto 1.25rem;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    background: var(--cor-fundo-hover);
+}
+#modalCrianca .crianca-foto-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+#modalCrianca .crianca-foto-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+#modalCrianca .crianca-foto-wrapper:hover .crianca-foto-overlay {
+    opacity: 1;
+}
+
+#modalCrianca label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--cor-texto-principal);
+    margin-bottom: 0.4rem;
+    margin-top: 1rem;
+}
+#modalCrianca label:first-of-type {
+    margin-top: 0;
+}
+#modalCrianca input[type="text"] {
+    width: 100%;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--cor-borda);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    background: var(--cor-fundo-card);
+    color: var(--cor-texto-principal);
+}
+#modalCrianca input[disabled] {
+    background: var(--cor-fundo-hover);
+    color: var(--cor-texto-esmaecido);
+    cursor: not-allowed;
+}
+#modalCrianca .dica-idade {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 0.75rem;
+    color: var(--cor-texto-esmaecido);
+}
+
+#modalCrianca .btn-salvar-crianca {
+    width: 100%;
+    margin-top: 1.5rem;
+    padding: 0.85rem;
+    background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+#modalCrianca .btn-salvar-crianca:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+#modalCrianca .status-crianca {
+    display: none;
+    margin-top: 1rem;
+    padding: 0.7rem 0.9rem;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-align: center;
+}
+#modalCrianca .status-crianca.visivel {
+    display: block;
+}
+#modalCrianca .status-crianca.sucesso {
+    background: rgba(50, 194, 109, 0.12);
+    color: #1E8E4F;
+}
+#modalCrianca .status-crianca.erro {
+    background: rgba(255, 68, 68, 0.1);
+    color: #C0392B;
+}
+
+/* ========================= */
+/* MODAL — VINCULAR TERAPEUTA */
+/* ========================= */
+
+#modalVincular {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+#modalVincular.aberto {
+    display: flex;
+}
+#modalVincular .modal-conteudo {
+    background: var(--cor-fundo-card);
+    border-radius: 16px;
+    padding: 1.75rem;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+#modalVincular .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+}
+#modalVincular h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--cor-texto-principal);
+}
+#modalVincular .btn-fechar-modal {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: var(--cor-texto-secundario);
+}
+#modalVincular .modal-descricao {
+    font-size: 0.85rem;
+    color: var(--cor-texto-secundario);
+    margin-bottom: 1rem;
+}
+#modalVincular label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--cor-texto-principal);
+    margin-bottom: 0.4rem;
+}
+#modalVincular input[type="text"] {
+    width: 100%;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--cor-borda);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    background: var(--cor-fundo-card);
+    color: var(--cor-texto-principal);
+}
+#modalVincular .erro-vincular {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: #C0392B;
+}
+#modalVincular .btn-salvar-crianca {
+    width: 100%;
+    margin-top: 1.25rem;
+    padding: 0.85rem;
+    background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+#modalVincular .btn-salvar-crianca:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+.crianca-e-gato {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.gato-deitado {
+    width: 70px;      
+    height: auto;
+    flex-shrink: 0;
+}
+
+#modalCrianca {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+#modalCrianca.aberto {
+    display: flex;
+}
+#modalCrianca .modal-conteudo {
+    background: #fff;
+    border-radius: 16px;
+    padding: 1.75rem;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+#modalCrianca .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+}
+#modalCrianca h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #141414;
+}
+#modalCrianca .btn-fechar-modal {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #5A5A5A;
+}
+
+#modalCrianca .crianca-foto-wrapper {
+    position: relative;
+    width: 96px;
+    height: 96px;
+    margin: 0 auto 1.25rem;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+}
+#modalCrianca .crianca-foto-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+#modalCrianca .crianca-foto-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+#modalCrianca .crianca-foto-wrapper:hover .crianca-foto-overlay {
+    opacity: 1;
+}
+
+#modalCrianca label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #141414;
+    margin-bottom: 0.4rem;
+    margin-top: 1rem;
+}
+#modalCrianca label:first-of-type {
+    margin-top: 0;
+}
+#modalCrianca input[type="text"] {
+    width: 100%;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-family: inherit;
+}
+#modalCrianca input[disabled] {
+    background: #F5F5F5;
+    color: #777;
+    cursor: not-allowed;
+}
+#modalCrianca .dica-idade {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 0.75rem;
+    color: #999;
+}
+
+#modalCrianca .btn-salvar-crianca {
+    width: 100%;
+    margin-top: 1.5rem;
+    padding: 0.85rem;
+    background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+#modalCrianca .btn-salvar-crianca:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+#modalCrianca .status-crianca {
+    display: none;
+    margin-top: 1rem;
+    padding: 0.7rem 0.9rem;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-align: center;
+}
+#modalCrianca .status-crianca.visivel {
+    display: block;
+}
+#modalCrianca .status-crianca.sucesso {
+    background: rgba(50, 194, 109, 0.12);
+    color: #1E8E4F;
+}
+#modalCrianca .status-crianca.erro {
+    background: rgba(255, 68, 68, 0.1);
+    color: #C0392B;
+}
+
+/* ========================= */
+/* MODAL — VINCULAR TERAPEUTA */
+/* ========================= */
+
+#modalVincular {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+#modalVincular.aberto {
+    display: flex;
+}
+#modalVincular .modal-conteudo {
+    background: #fff;
+    border-radius: 16px;
+    padding: 1.75rem;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+#modalVincular .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+}
+#modalVincular h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #141414;
+}
+#modalVincular .btn-fechar-modal {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #5A5A5A;
+}
+#modalVincular .modal-descricao {
+    font-size: 0.85rem;
+    color: #5A5A5A;
+    margin-bottom: 1rem;
+}
+#modalVincular label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #141414;
+    margin-bottom: 0.4rem;
+}
+#modalVincular input[type="text"] {
+    width: 100%;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-family: inherit;
+}
+#modalVincular .erro-vincular {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: #C0392B;
+}
+#modalVincular .btn-salvar-crianca {
+    width: 100%;
+    margin-top: 1.25rem;
+    padding: 0.85rem;
+    background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+#modalVincular .btn-salvar-crianca:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ========================= */
+/* CARD TERAPEUTA — 4 ESTADOS */
+/* ========================= */
+
+.card.terapeuta .texto-vazio {
+    color: #5A5A5A;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.card.terapeuta .btn-vincular {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.1rem;
+    background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.card.terapeuta .badge-ativo {
+    margin-left: auto;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    background: rgba(50, 194, 109, 0.12);
+    color: #1E8E4F;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.card.terapeuta .notificacao-status {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.9rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+}
+.card.terapeuta .notificacao-status strong {
+    display: block;
+    margin-bottom: 0.15rem;
+}
+.card.terapeuta .notificacao-status--pendente {
+    background: rgba(10, 183, 251, 0.1);
+    color: #0A7EA4;
+}
+.card.terapeuta .notificacao-status--recusado {
+    background: rgba(255, 68, 68, 0.1);
+    color: #C0392B;
+}
+
+.card.terapeuta .btn-cancelar-vinculo {
+    margin-top: 0.75rem;
+    background: none;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 0.5rem 0.9rem;
+    font-size: 0.82rem;
+    color: #5A5A5A;
+    cursor: pointer;
+}
