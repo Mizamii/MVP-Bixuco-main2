@@ -3132,7 +3132,7 @@ app.get("/api/pacientes-relatorios", estaLogado, async (req, res) => {
                 u.id              AS responsavel_id,
                 u.nome            AS nome_responsavel,
                 c.nome            AS nome_crianca,
-                c.foto            AS foto_crianca,
+                c.foto_url        AS foto_crianca,
                 MAX(r.data)       AS ultimo_relatorio
              FROM vinculos v
              JOIN usuarios u ON u.id = v.responsavel_id
@@ -3140,7 +3140,7 @@ app.get("/api/pacientes-relatorios", estaLogado, async (req, res) => {
              LEFT JOIN relatorios r ON r.usuario_id = v.responsavel_id
              WHERE v.terapeuta_id = $1
                AND v.ativo = TRUE
-             GROUP BY u.id, u.nome, c.nome, c.foto
+             GROUP BY u.id, u.nome, c.nome, c.foto_url
              ORDER BY MAX(r.data) DESC NULLS LAST`,
             [usuarioId]
         );
