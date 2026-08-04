@@ -21,6 +21,44 @@
     <style>
         .goog-te-banner-frame { display: none !important; }
         body { top: 0 !important; }
+
+
+
+        .titulo-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .btn-tipo-grafico {
+            display: flex;
+            gap: 4px;
+        }
+
+        .btn-tipo-grafico button {
+            background: #F5F7FA;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 6px 10px;
+            cursor: pointer;
+            color: #5A5A5A;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .btn-tipo-grafico button:hover {
+            background: #E2F0D9;
+            border-color: #32C26D;
+            color: #32C26D;
+        }
+
+        .btn-tipo-grafico button.ativo {
+            background: #32C26D;
+            border-color: #32C26D;
+            color: white;
+        }
+
     </style>
 </head>
 <body>
@@ -194,31 +232,45 @@
             <!-- ========================= -->
             <section class="graficos">
 
-                <!-- Gráfico de barras -->
-                <article class="card-grafico">
-                    <div class="titulo-card">
-                        <h3>Estresse — últimos 7 dias</h3>
-                        <button type="button">
+            <!-- Gráfico de estresse com botões de tipo -->
+            <article class="card-grafico">
+                <div class="titulo-card">
+                    <h3>Estresse — últimos 7 dias</h3>
+
+                    <div class="btn-tipo-grafico">
+                        <button type="button" class="ativo" onclick="trocarTipoEstresse('bar')" title="Barras">
+                            <i class="fa-solid fa-chart-column"></i>
+                        </button>
+                        <button type="button" onclick="trocarTipoEstresse('line')" title="Linha">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </button>
+                    </div>
+                </div>
+                <canvas id="graficoBarras"></canvas>
+            </article>
+
+            <!-- Gráfico de gatilhos com botões de tipo -->
+            <article class="card-grafico">
+                <div class="titulo-card">
+                    <h3>Principais gatilhos — últimos 7 dias</h3>
+
+                    <div class="btn-tipo-grafico">
+                        <button type="button" class="ativo" onclick="trocarTipoGatilhos('doughnut')" title="Rosca">
+                            <i class="fa-solid fa-circle-dot"></i>
+                        </button>
+                        <button type="button" onclick="trocarTipoGatilhos('pie')" title="Pizza">
+                            <i class="fa-solid fa-chart-pie"></i>
+                        </button>
+                        <button type="button" onclick="trocarTipoGatilhos('bar')" title="Barras">
                             <i class="fa-solid fa-chart-column"></i>
                         </button>
                     </div>
-                    <!-- 🔧 FIX: Chart.js agora importado e funcional -->
-                    <canvas id="graficoBarras"></canvas>
-                </article>
+                </div>
+                <canvas id="graficoPizza"></canvas>
+                <div id="legendaGatilhos" class="legenda-rosca"></div>
+            </article>
 
-                <!-- Gráfico de rosca -->
-                <article class="card-grafico">
-                    <div class="titulo-card">
-                        <h3>Principais gatilhos — últimos 7 dias</h3>
-                        <button type="button">
-                            <i class="fa-solid fa-circle-dot"></i>
-                        </button>
-                    </div>
-                    <canvas id="graficoPizza"></canvas>
-                    <div id="legendaGatilhos" class="legenda-rosca"></div>
-                </article>
-
-            </section>
+        </section>
 
             <!-- ========================= -->
             <!-- NOTAS CLÍNICAS -->
@@ -396,71 +448,188 @@
     // =========================
     // GRÁFICOS COM CHART.JS
     // =========================
-    let graficos = {};
+    let dadosEstresseGlobal  = null;
+    let dadosGatilhosGlobal  = null;
+    let graficos             = {};
 
     function renderizarGraficos(dados) {
 
+        // Destrói gráficos anteriores se existirem
         Object.values(graficos).forEach(g => g.destroy());
         graficos = {};
 
+        // Salva os dados globalmente para recriar ao trocar o tipo
+        dadosEstresseGlobal = dados.graficoEstresse;
+        dadosGatilhosGlobal = dados.graficoGatilhos;
+
+        // Cria os gráficos com os tipos padrão
+        criarGraficoEstresse("bar");
+        criarGraficoGatilhos("doughnut");
+    }
+
+    // ==========================
+    // GRÁFICO DE ESTRESSE
+    // ==========================
+
+    function criarGraficoEstresse(tipo) {
+
         const VERDE = "#32C26D";
-        const AZUL  = "#0AB7FB";
+        const dados = dadosEstresseGlobal;
 
-        // Gráfico de barras
-        const ctxBarras = document.getElementById("graficoBarras").getContext("2d");
+        // Destrói o gráfico anterior se existir
+        if (graficos.estresse) {
+            graficos.estresse.destroy();
+        }
 
-        graficos.barras = new Chart(ctxBarras, {
-            type: "bar",
+        const ctx = document.getElementById("graficoBarras").getContext("2d");
+
+        // Cor de cada barra — vermelho no pico, laranja nos altos, verde nos normais
+        const cores = (dados?.dados || []).map(v =>
+            v === Math.max(...(dados?.dados || [])) ? "#E53E3E" :
+            v > 5 ? "#F6AD55" : VERDE
+        );
+
+        // Para linha, usa sempre verde com gradiente
+        const gradiente = ctx.createLinearGradient(0, 0, 0, 300);
+        gradiente.addColorStop(0,   "rgba(50, 194, 109, 0.35)");
+        gradiente.addColorStop(1,   "rgba(50, 194, 109, 0)");
+
+        graficos.estresse = new Chart(ctx, {
+            type: tipo,
             data: {
-                labels: dados.graficoEstresse?.labels || [],
+                labels: dados?.labels || [],
                 datasets: [{
-                    label: "Alertas",
-                    data:  dados.graficoEstresse?.dados  || [],
-                    backgroundColor: (dados.graficoEstresse?.dados || []).map((v, i) =>
-                        v === Math.max(...(dados.graficoEstresse?.dados || [])) ? "#E53E3E" :
-                        v > 5 ? "#F6AD55" : VERDE
-                    ),
-                    borderRadius: 6
+                    label:           "Alertas",
+                    data:            dados?.dados  || [],
+                    backgroundColor: tipo === "line" ? gradiente : cores,
+                    borderColor:     tipo === "line" ? VERDE : cores,
+                    borderWidth:     tipo === "line" ? 2.5 : 0,
+                    borderRadius:    tipo === "bar"  ? 6 : 0,
+                    pointBackgroundColor: tipo === "line"
+                        ? (dados?.dados || []).map(v =>
+                            v === Math.max(...(dados?.dados || [])) ? "#E53E3E" : VERDE)
+                        : undefined,
+                    pointRadius:  tipo === "line" ? 5 : undefined,
+                    tension:      tipo === "line" ? 0.4 : undefined,
+                    fill:         tipo === "line" ? true : false
                 }]
             },
             options: {
                 responsive: true,
                 plugins: { legend: { display: false } },
-                scales:  { y: { beginAtZero: true, ticks: { stepSize: 2 } } }
+                scales:  {
+                    y: { beginAtZero: true, ticks: { stepSize: 2 } }
+                }
             }
         });
+    }
 
-        // Gráfico de rosca
-        const ctxPizza   = document.getElementById("graficoPizza").getContext("2d");
-        const gatilhos   = dados.graficoGatilhos || { labels: [], dados: [], cores: [] };
+    // Chamado pelos botões — troca o tipo e atualiza o botão ativo
+    function trocarTipoEstresse(tipo) {
 
-        graficos.pizza = new Chart(ctxPizza, {
-            type: "doughnut",
+        criarGraficoEstresse(tipo);
+
+        // Atualiza qual botão está ativo visualmente
+        const iconePorTipo = { bar: "fa-chart-column", line: "fa-chart-line" };
+        atualizarBotoesTipo("graficoBarras", tipo, iconePorTipo);
+    }
+
+    // ==========================
+    // GRÁFICO DE GATILHOS
+    // ==========================
+
+    function criarGraficoGatilhos(tipo) {
+
+        const VERDE   = "#32C26D";
+        const AZUL    = "#0AB7FB";
+        const dados   = dadosGatilhosGlobal;
+        const legenda = document.getElementById("legendaGatilhos");
+
+        // Destrói o gráfico anterior se existir
+        if (graficos.gatilhos) {
+            graficos.gatilhos.destroy();
+        }
+
+        const ctx = document.getElementById("graficoPizza").getContext("2d");
+
+        const ehRosca = tipo === "doughnut" || tipo === "pie";
+
+        graficos.gatilhos = new Chart(ctx, {
+            type: tipo,
             data: {
-                labels: gatilhos.labels,
+                labels: dados?.labels || [],
                 datasets: [{
-                    data:            gatilhos.dados,
-                    backgroundColor: gatilhos.cores || [VERDE, AZUL, "#1D8EC9", "#C2C2C2"],
-                    borderWidth: 0,
-                    hoverOffset: 8
+                    data:            dados?.dados  || [],
+                    backgroundColor: dados?.cores  || [VERDE, AZUL, "#1D8EC9", "#C2C2C2"],
+                    borderWidth:     0,
+                    hoverOffset:     8,
+                    // Para barras
+                    borderRadius:    tipo === "bar" ? 6 : 0
                 }]
             },
             options: {
                 responsive: true,
-                cutout: "65%",
-                plugins: { legend: { display: false } }
+                cutout: tipo === "doughnut" ? "65%" : 0,
+                plugins: {
+                    legend: { display: tipo === "bar" ? true : false }
+                },
+                scales: tipo === "bar"
+                    ? { y: { beginAtZero: true } }
+                    : {}
             }
         });
 
-        // Legenda customizada da rosca
-        const legendaEl = document.getElementById("legendaGatilhos");
-        legendaEl.innerHTML = "";
-        gatilhos.labels.forEach((label, i) => {
-            legendaEl.innerHTML += `
-                <div class="legenda-item">
-                    <span class="legenda-cor" style="background:${gatilhos.cores[i] || VERDE}"></span>
-                    <span>${label} ${gatilhos.dados[i]}%</span>
-                </div>`;
+        // Mostra a legenda customizada só para rosca/pizza
+        if (legenda) {
+            if (ehRosca) {
+                legenda.innerHTML = "";
+                (dados?.labels || []).forEach((label, i) => {
+                    legenda.innerHTML += `
+                        <div class="legenda-item">
+                            <span class="legenda-cor" style="background:${dados?.cores?.[i] || VERDE}"></span>
+                            <span>${label} ${dados?.dados?.[i]}%</span>
+                        </div>`;
+                });
+                legenda.style.display = "flex";
+            } else {
+                legenda.style.display = "none";
+            }
+        }
+    }
+
+    // Chamado pelos botões — troca o tipo e atualiza o botão ativo
+    function trocarTipoGatilhos(tipo) {
+
+        criarGraficoGatilhos(tipo);
+
+        const iconePorTipo = {
+            doughnut: "fa-circle-dot",
+            pie:      "fa-chart-pie",
+            bar:      "fa-chart-column"
+        };
+        atualizarBotoesTipo("graficoPizza", tipo, iconePorTipo);
+    }
+
+    // ==========================
+    // ATUALIZAR BOTÃO ATIVO
+    // ==========================
+
+    // Marca o botão do tipo selecionado como ativo e os outros como inativos
+    function atualizarBotoesTipo(canvasId, tipoAtivo, iconePorTipo) {
+
+        const card   = document.getElementById(canvasId).closest(".card-grafico");
+        const botoes = card.querySelectorAll(".btn-tipo-grafico button");
+
+        botoes.forEach(btn => {
+            const icone = btn.querySelector("i");
+            if (!icone) return;
+
+            // Descobre qual tipo esse botão representa pelo ícone
+            const tipoBtn = Object.entries(iconePorTipo).find(([, cls]) =>
+                icone.classList.contains(cls)
+            )?.[0];
+
+            btn.classList.toggle("ativo", tipoBtn === tipoAtivo);
         });
     }
 
