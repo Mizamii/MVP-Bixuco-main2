@@ -3478,6 +3478,71 @@ app.post("/api/nota-clinica", estaLogado, async (req, res) => {
 
 });
 
+app.post("/esqueceu-senha", async (req, res) => {
+    const { email } = req.body;
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return res.status(400).json({ erro: "E-mail inválido." });
+    }
+
+    try {
+        const resultado = await db.query(
+            "SELECT * FROM usuarios WHERE email = $1",
+            [email]
+        );
+
+        if (resultado.rows.length === 0) {
+            return res.status(200).json({
+                mensagem: "Se esse e-mail estiver cadastrado, você receberá o link em breve."
+            });
+        }
+
+        const usuario = resultado.rows[0];
+        const token   = crypto.randomBytes(32).toString("hex");
+        const expiraEm = new Date(Date.now() + 60 * 60 * 1000);
+
+        await db.query(
+            `UPDATE tokens_recuperacao SET usado = TRUE
+             WHERE usuario_id = $1 AND usado = FALSE`,
+            [usuario.id]
+        );
+
+        await db.query(
+            `INSERT INTO tokens_recuperacao (usuario_id, token, expira_em)
+             VALUES ($1, $2, $3)`,
+            [usuario.id, token, expiraEm]
+        );
+
+        const link = `${process.env.BASE_URL || "http://localhost:3000"}/redefinir-senha?token=${token}`;
+
+        const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+        sendSmtpEmail.sender      = { name: "Bixuco", email: process.env.BREVO_FROM_EMAIL || "seuemail@gmail.com" };
+        sendSmtpEmail.to          = [{ email }];
+        sendSmtpEmail.subject     = "Recuperação de senha — Bixuco";
+        sendSmtpEmail.htmlContent = `
+            <div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;">
+                <h2 style="color:#32C26D;">Recuperação de senha</h2>
+                <p>Olá, <strong>${usuario.nome}</strong>!</p>
+                <p>Clique no botão abaixo para criar uma nova senha. O link expira em 1 hora.</p>
+                <a href="${link}" style="display:inline-block;background:linear-gradient(135deg,#79D836,#32C26D);color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;margin:16px 0;">
+                    Redefinir senha
+                </a>
+                <p style="color:#5A5A5A;font-size:14px;">Se você não solicitou isso, ignore este email.</p>
+            </div>
+        `;
+
+        await apiInstance.sendTransacEmail(sendSmtpEmail);
+
+        return res.status(200).json({
+            mensagem: "Se esse e-mail estiver cadastrado, você receberá o link em breve."
+        });
+
+    } catch (erro) {
+        console.error("ERRO esqueceu-senha:", erro.message || erro);
+        res.status(500).json({ erro: "Erro interno ao enviar o e-mail." });
+    }
+});
+
 
 /* ==========================
    INICIAR SERVIDOR
