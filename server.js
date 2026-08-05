@@ -3119,6 +3119,8 @@ app.get('/usuarios', estaLogado, async (req, res) => {
 
 });
 
+
+
 // ─────────────────────────────────────────
 // LISTA DE PACIENTES COM ÚLTIMO RELATÓRIO
 // usada pela tela de seleção de relatórios do terapeuta
@@ -3287,6 +3289,81 @@ app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
         res.status(500).json({ erro: "Erro interno do servidor." });
     }
 
+});
+
+app.get("/api/pacientes", estaLogado, async (req, res) => {
+    const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+
+    try {
+        const resultado = await db.query(
+            `SELECT
+                u.id                  AS responsavel_id,
+                u.nome                AS nome_responsavel,
+                u.foto_perfil         AS foto_perfil,
+                c.nome                AS nome_crianca,
+                c.data_nascimento     AS data_nascimento,
+                c.foto_url            AS foto_crianca,
+                v.ativo               AS ativo,
+                COUNT(r.id)           AS total_relatorios_semana,
+                MAX(r.data)           AS ultimo_relatorio
+             FROM vinculos v
+             JOIN usuarios u ON u.id = v.responsavel_id
+             LEFT JOIN criancas c ON c.usuario_id = v.responsavel_id
+             LEFT JOIN relatorios r
+                ON r.usuario_id = v.responsavel_id
+                AND r.data >= NOW() - INTERVAL '7 days'
+             WHERE v.terapeuta_id = $1
+             GROUP BY u.id, u.nome, u.foto_perfil, c.nome,
+                      c.data_nascimento, c.foto_url, v.ativo
+             ORDER BY total_relatorios_semana DESC`,
+            [usuarioId]
+        );
+
+        const pacientes = resultado.rows.map(p => {
+            let idade = 0;
+            if (p.data_nascimento) {
+                const hoje = new Date();
+                const nasc = new Date(p.data_nascimento);
+                idade = hoje.getFullYear() - nasc.getFullYear();
+                const mes = hoje.getMonth() - nasc.getMonth();
+                if (mes < 0 || (mes === 0 && hoje.getDate() < nasc.getDate())) idade--;
+            }
+
+            const alertas = parseInt(p.total_relatorios_semana) || 0;
+
+            let nivelEstresse = "Baixo";
+            if (alertas >= 5)      nivelEstresse = "Alto";
+            else if (alertas >= 2) nivelEstresse = "Médio";
+
+            let ultimoRelatorio = "Sem relatórios";
+            if (p.ultimo_relatorio) {
+                const diff = Math.floor(
+                    (new Date() - new Date(p.ultimo_relatorio)) / (1000 * 60 * 60 * 24)
+                );
+                if (diff === 0)      ultimoRelatorio = "Hoje";
+                else if (diff === 1) ultimoRelatorio = "Ontem";
+                else                 ultimoRelatorio = `${diff} dias`;
+            }
+
+            return {
+                id:              p.responsavel_id,
+                nomeResponsavel: p.nome_responsavel,
+                fotoPerfil:      p.foto_perfil   || null,
+                nomeCrianca:     p.nome_crianca  || "Criança",
+                idadeCrianca:    idade,
+                status:          p.ativo ? "ativo" : "inativo",
+                alertas,
+                nivelEstresse,
+                ultimoRelatorio
+            };
+        });
+
+        res.json({ pacientes });
+
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
 });
 
 /* ==========================
