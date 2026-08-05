@@ -3515,7 +3515,7 @@ app.post("/esqueceu-senha", async (req, res) => {
 
         const link = `${process.env.BASE_URL || "http://localhost:3000"}/redefinir-senha?token=${token}`;
 
-        const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+        const sendSmtpEmail = new Brevo.SendSmtpEmail();
         sendSmtpEmail.sender      = { name: "Bixuco", email: process.env.BREVO_FROM_EMAIL || "seuemail@gmail.com" };
         sendSmtpEmail.to          = [{ email }];
         sendSmtpEmail.subject     = "Recuperação de senha — Bixuco";
