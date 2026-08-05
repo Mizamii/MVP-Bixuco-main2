@@ -21,8 +21,19 @@
 
     <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
 
-    <!-- CSS -->
+    <!-- Variáveis compartilhadas de tema (claro/escuro) -->
+    <link
+        rel="stylesheet"
+        href="/css/tema.css"
+    >
 
+    <!-- Layout compartilhado (sidebar, topo, tema claro/escuro) — o mesmo do Home e do Perfil -->
+    <link
+        rel="stylesheet"
+        href="/css/home.css"
+    >
+
+    <!-- CSS específico desta página -->
     <link
         rel="stylesheet"
         href="/css/sobre.css"
@@ -30,108 +41,7 @@
 
 </head>
 
-<style>
-    /* ========================= */
-    /* MODAL — "SOBRE" (ex: Sobre nós, Segurança, etc.) */
-    /* ========================= */
 
-    .modal {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 9999;
-        align-items: center;
-        justify-content: center;
-        padding: 1.5rem;
-    }
-    .modal.mostrar {
-        display: flex;
-    }
-
-    .modal-conteudo {
-        position: relative;
-        background: #fff;
-        border-radius: 16px;
-        padding: 2rem;
-        width: 100%;
-        max-width: 520px;
-        max-height: 80vh;
-        overflow-y: auto;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    }
-
-    /* Botão X sempre fixo no canto do modal, como pedido */
-    .modal-conteudo .fechar {
-        position: absolute;
-        top: 1.25rem;
-        right: 1.25rem;
-        background: none;
-        border: none;
-        font-size: 1.2rem;
-        color: #5A5A5A;
-        cursor: pointer;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background 0.15s;
-    }
-    .modal-conteudo .fechar:hover {
-        background: #F5F5F5;
-    }
-
-    .modal-icone {
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
-        background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
-        color: #fff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.4rem;
-        margin-bottom: 1rem;
-    }
-
-    .modal-conteudo h2 {
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: #141414;
-        margin-bottom: 1rem;
-        padding-right: 2rem;
-    }
-
-    .modal-texto {
-        font-size: 0.95rem;
-        line-height: 1.6;
-        color: #3A3A3A;
-    }
-    .modal-texto p {
-        margin-bottom: 0.9rem;
-    }
-    .modal-texto p:last-child {
-        margin-bottom: 0;
-    }
-    .modal-texto ul,
-    .modal-texto ol {
-        margin: 0 0 0.9rem 1.2rem;
-    }
-    .modal-texto li {
-        margin-bottom: 0.4rem;
-    }
-    .modal-texto h3 {
-        font-size: 1.05rem;
-        font-weight: 700;
-        color: #141414;
-        margin: 1rem 0 0.5rem;
-    }
-    .modal-texto h3:first-child {
-        margin-top: 0;
-    }
-</style>
 
 
 <body>
@@ -927,6 +837,9 @@
     carregarNotificacoes();
 
 </script>
+
+
+<!-- Seu <script> com toda a lógica (usuário, modais dos cards, tradutor, notificações) continua aqui, sem alterações -->
 <script src="/js/tema.js"></script>
 
 </body>
