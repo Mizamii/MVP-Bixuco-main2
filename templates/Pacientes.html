@@ -6,7 +6,15 @@
     <title>Bixuco — Meus Pacientes</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="/css/tema.css">
     <link rel="stylesheet" href="/css/pacientes.css">
+
+    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
+
+    <style>
+        .goog-te-banner-frame { display: none !important; }
+        body { top: 0 !important; }
+    </style>
 </head>
 <body>
 
@@ -27,12 +35,12 @@
                     <span>Início</span>
                 </a>
 
-                <a href="/relatoriosTerapeuta">
+                <a href="/relatoriosTerapeutaS">
                     <i class="fa-solid fa-chart-line"></i>
                     <span>Relatórios</span>
                 </a>
 
-                <a href="/configuracoes">
+                <a href="/ConfiguracoesTerapeuta">
                     <i class="fa-solid fa-gear"></i>
                     <span>Configurações</span>
                 </a>
@@ -54,12 +62,13 @@
                     <i class="fa-regular fa-sun"></i>
                     Claro
                 </button>
-
                 <button id="btnEscuro" type="button">
                     <i class="fa-regular fa-moon"></i>
                     Escuro
                 </button>
             </div>
+
+            <div class="sidebar-divisor"></div>
 
             <a href="/logout" class="logout">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
@@ -78,19 +87,40 @@
 
                 <button class="tradutor" type="button" id="btnTraduzir">
                     <i class="fa-solid fa-globe"></i>
-                    Traduzir para inglês
+                    <span id="textoTradutor">Traduzir para inglês</span>
                 </button>
 
-                <div class="usuario">
-                    <button class="notificacoes" type="button" id="btnNotificacoes">
-                        <i class="fa-regular fa-bell"></i>
-                        <span id="badgeNotificacoes" class="badge" style="display:none">0</span>
-                    </button>
+                <!-- elemento oculto necessário para o Google Translate -->
+                <div id="google_translate_element"
+                    style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">
+                </div>
 
+                <div class="usuario">
+
+                    <!-- sininho com painel de notificações -->
+                    <div class="notificacoes-wrapper">
+                        <button class="notificacoes" type="button" id="btnNotificacoes">
+                            <i class="fa-regular fa-bell"></i>
+                            <span id="badgeNotificacoes" class="badge" style="display:none">0</span>
+                        </button>
+
+                        <div class="painel-notificacoes" id="painelNotificacoes">
+                            <div class="painel-header">Notificações</div>
+                            <div id="listaNotificacoes">
+                                <div class="painel-vazio">Carregando...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- foto clicável vai para o perfil do terapeuta -->
                     <img
                         id="fotoUsuario"
                         src="/img/perfilPadrao.png"
                         alt="Foto do terapeuta"
+                        title="Ver perfil"
+                        style="cursor:pointer;"
+                        onclick="window.location.href='/perfilTerapeuta'"
+                        onerror="this.src='/img/perfilPadrao.png'"
                     >
 
                     <div>
@@ -105,7 +135,6 @@
             <h1 class="titulo-pagina">Meus pacientes</h1>
 
             <!-- BARRA DE BUSCA -->
-            <!-- filtra os cards em tempo real pelo nome do responsável ou criança -->
             <div class="busca">
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <input
@@ -117,7 +146,6 @@
             </div>
 
             <!-- ABAS DE FILTRO -->
-            <!-- todos / ativos / com alertas -->
             <div class="abas">
                 <button
                     type="button"
@@ -150,7 +178,6 @@
 
             <!-- ========================= -->
             <!-- GRID DE PACIENTES -->
-            <!-- duas colunas: requer atenção (esquerda) e monitoramento regular (direita) -->
             <!-- ========================= -->
             <section class="grid-pacientes">
 
@@ -158,13 +185,10 @@
                 <div class="coluna">
                     <h2 class="coluna-titulo">Requer atenção</h2>
 
-                    <!-- lista preenchida pelo JS -->
-                    <!-- cards com borda vermelha, badge de alertas no topo -->
                     <div id="listaAtencao">
                         <p class="carregando">Carregando...</p>
                     </div>
 
-                    <!-- aparece quando não tem ninguém nessa coluna -->
                     <p id="semAtencao" style="display:none" class="lista-vazia">
                         Nenhum paciente requer atenção no momento.
                     </p>
@@ -174,13 +198,10 @@
                 <div class="coluna">
                     <h2 class="coluna-titulo">Monitoramento regular</h2>
 
-                    <!-- lista preenchida pelo JS -->
-                    <!-- cards sem borda vermelha -->
                     <div id="listaRegular">
                         <p class="carregando">Carregando...</p>
                     </div>
 
-                    <!-- aparece quando não tem ninguém nessa coluna -->
                     <p id="semRegular" style="display:none" class="lista-vazia">
                         Nenhum paciente em monitoramento regular.
                     </p>
@@ -195,9 +216,33 @@
 
     <script>
 
-        // guarda todos os pacientes para filtrar sem buscar no servidor de novo
         let todosPacientes = [];
-        let filtroAtual = "todos";
+        let filtroAtual    = "todos";
+
+
+        // =========================
+        // CARREGAR USUÁRIO (topo)
+        // =========================
+        async function carregarUsuario() {
+            try {
+                const resposta = await fetch("/api/home-terapeuta");
+                if (resposta.status === 401) { window.location.href = "/logar"; return; }
+                if (!resposta.ok) return;
+                const dados = await resposta.json();
+
+                document.getElementById("nomeTerapeuta").textContent = dados.nome || "Terapeuta";
+
+                if (dados.fotoPerfil) {
+                    document.getElementById("fotoUsuario").src = dados.fotoPerfil;
+                }
+
+                const badge = document.getElementById("badgeNotificacoes");
+                if ((dados.notificacoes ?? 0) > 0) {
+                    badge.textContent   = dados.notificacoes;
+                    badge.style.display = "inline";
+                }
+            } catch (_) {}
+        }
 
 
         // =========================
@@ -216,14 +261,8 @@
 
                 const dados = await resposta.json();
 
-                // preenche nome do terapeuta no topo
-                if (dados.nomeTerapeuta) {
-                    document.getElementById("nomeTerapeuta").textContent = dados.nomeTerapeuta;
-                }
-
                 todosPacientes = dados.pacientes || [];
 
-                // atualiza contadores das abas
                 const comAlertas = todosPacientes.filter(p => p.alertas > 0);
                 const ativos     = todosPacientes.filter(p => p.status === "ativo");
 
@@ -246,60 +285,40 @@
         // =========================
         // RENDERIZAR CARDS
         // =========================
-
-        // cada paciente tem:
-        // { id, nomeResponsavel, fotoPerfil, nomeCrianca, idadeCrianca,
-        //   status, alertas, nivelEstresse, ultimoRelatorio }
-        // nivelEstresse pode ser: "Alto", "Médio", "Baixo"
-        // ultimoRelatorio pode ser: "Hoje", "3 dias", "1 semana" etc
         function renderPacientes(lista) {
-            const listaAtencao = document.getElementById("listaAtencao");
-            const listaRegular = document.getElementById("listaRegular");
+            const listaAtencao  = document.getElementById("listaAtencao");
+            const listaRegular  = document.getElementById("listaRegular");
 
             listaAtencao.innerHTML = "";
             listaRegular.innerHTML = "";
 
-            // separa quem tem alerta alto de quem está em monitoramento normal
             const atencao = lista.filter(p => p.alertas >= 3);
             const regular = lista.filter(p => p.alertas < 3);
 
-            // coluna esquerda: requer atenção
             if (atencao.length === 0) {
                 document.getElementById("semAtencao").style.display = "block";
             } else {
                 document.getElementById("semAtencao").style.display = "none";
-                atencao.forEach(p => {
-                    listaAtencao.appendChild(criarCard(p, true));
-                });
+                atencao.forEach(p => listaAtencao.appendChild(criarCard(p, true)));
             }
 
-            // coluna direita: monitoramento regular
             if (regular.length === 0) {
                 document.getElementById("semRegular").style.display = "block";
             } else {
                 document.getElementById("semRegular").style.display = "none";
-                regular.forEach(p => {
-                    listaRegular.appendChild(criarCard(p, false));
-                });
+                regular.forEach(p => listaRegular.appendChild(criarCard(p, false)));
             }
         }
 
-
-        // monta o HTML de um card de paciente
-        // temAlerta = true → card com borda vermelha e badge de alertas no topo
         function criarCard(paciente, temAlerta) {
             const card = document.createElement("article");
-
-            // classe extra para o card com borda vermelha
             card.classList.add("card-paciente");
             if (temAlerta) card.classList.add("card-paciente--alerta");
 
-            // badge de alertas no topo (só aparece quando temAlerta = true)
             const badgeAlerta = temAlerta
                 ? `<p class="badge-alerta">${paciente.alertas} alertas esta semana</p>`
                 : "";
 
-            // cor do nível de estresse muda conforme o valor
             const corEstresse = {
                 "Alto":  "estresse--alto",
                 "Médio": "estresse--medio",
@@ -313,6 +332,7 @@
                     <img
                         src="${paciente.fotoPerfil || '/img/perfilPadrao.png'}"
                         alt="${paciente.nomeResponsavel}"
+                        onerror="this.src='/img/perfilPadrao.png'"
                     >
 
                     <div class="card-info">
@@ -320,31 +340,26 @@
                         <span>Criança: ${paciente.nomeCrianca}, ${paciente.idadeCrianca} anos</span>
                     </div>
 
-                    <!-- badge de status ativo/inativo -->
                     <span class="status-badge status-badge--${paciente.status}">
                         ${paciente.status === "ativo" ? "Ativo" : "Inativo"}
                     </span>
                 </div>
 
-                <!-- métricas do paciente -->
                 <div class="card-metricas">
                     <div class="metrica">
                         <span>Alertas</span>
                         <strong class="metrica-valor metrica-valor--alerta">${paciente.alertas}</strong>
                     </div>
-
                     <div class="metrica">
                         <span>Estresse</span>
                         <strong class="metrica-valor ${corEstresse}">${paciente.nivelEstresse}</strong>
                     </div>
-
                     <div class="metrica">
                         <span>Último relat.</span>
                         <strong class="metrica-valor metrica-valor--data">${paciente.ultimoRelatorio}</strong>
                     </div>
                 </div>
 
-                <!-- botão ver relatório -->
                 <button
                     type="button"
                     class="btn-relatorio"
@@ -363,20 +378,12 @@
         // FILTRAR POR ABA
         // =========================
         function trocarAba(botao) {
-            // remove ativo de todos e coloca no clicado
             document.querySelectorAll(".aba").forEach(b => b.classList.remove("aba--ativa"));
             botao.classList.add("aba--ativa");
-
             filtroAtual = botao.dataset.filtro;
-
-            // aplica o filtro atual junto com a busca
             aplicarFiltros();
         }
 
-
-        // =========================
-        // FILTRAR POR BUSCA
-        // =========================
         function filtrarPacientes() {
             aplicarFiltros();
         }
@@ -386,14 +393,12 @@
 
             let lista = [...todosPacientes];
 
-            // filtro por aba
             if (filtroAtual === "ativos") {
                 lista = lista.filter(p => p.status === "ativo");
             } else if (filtroAtual === "alertas") {
                 lista = lista.filter(p => p.alertas > 0);
             }
 
-            // filtro por busca: nome do responsável ou da criança
             if (busca) {
                 lista = lista.filter(p =>
                     p.nomeResponsavel.toLowerCase().includes(busca) ||
@@ -406,7 +411,85 @@
 
 
         // =========================
-        // TEMA CLARO / ESCURO
+        // NOTIFICAÇÕES
+        // =========================
+        const painelNotificacoes = document.getElementById("painelNotificacoes");
+        const listaNotificacoes  = document.getElementById("listaNotificacoes");
+
+        async function carregarNotificacoes() {
+            try {
+                const resposta = await fetch("/api/notificacoes");
+                if (!resposta.ok) throw new Error();
+                const dados = await resposta.json();
+                const itens = dados.notificacoes || [];
+
+                listaNotificacoes.innerHTML = itens.length === 0
+                    ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+                    : itens.map(item => `
+                        <div class="item-notificacao ${item.lida ? "" : "nao-lida"}">
+                            <p>${item.mensagem}</p>
+                            <span class="tempo-notificacao">${item.tempo}</span>
+                        </div>
+                    `).join("");
+            } catch (_) {
+                listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar.</div>`;
+            }
+        }
+
+        document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
+            e.stopPropagation();
+            const estaAberto = painelNotificacoes.classList.toggle("aberto");
+            if (estaAberto) {
+                await carregarNotificacoes();
+                fetch("/api/notificacoes/marcar-lidas", { method: "POST" });
+                document.getElementById("badgeNotificacoes").style.display = "none";
+            }
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!painelNotificacoes.contains(e.target)) {
+                painelNotificacoes.classList.remove("aberto");
+            }
+        });
+
+
+        // =========================
+        // TRADUÇÃO
+        // =========================
+        function lerCookie(nome) {
+            const valor  = `; ${document.cookie}`;
+            const partes = valor.split(`; ${nome}=`);
+            if (partes.length === 2) return partes.pop().split(";").shift();
+            return null;
+        }
+
+        function iniciarTradutor() {
+            new google.translate.TranslateElement(
+                { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
+                "google_translate_element"
+            );
+        }
+
+        function atualizarTextoBotao() {
+            const cookieAtual = lerCookie("googtrans");
+            document.getElementById("textoTradutor").textContent =
+                cookieAtual && cookieAtual.includes("/en")
+                    ? "Voltar para português"
+                    : "Traduzir para inglês";
+        }
+
+        document.getElementById("btnTraduzir").addEventListener("click", () => {
+            const cookieAtual   = lerCookie("googtrans");
+            const estaTraduzido = cookieAtual && cookieAtual.includes("/en");
+            const valor = `/pt/${estaTraduzido ? "pt" : "en"}`;
+            document.cookie = `googtrans=${valor}; path=/`;
+            document.cookie = `googtrans=${valor}; path=/; domain=${location.hostname}`;
+            window.location.reload();
+        });
+
+
+        // =========================
+        // TEMA
         // =========================
         function aplicarTema(tema) {
             document.body.classList.remove("tema-claro", "tema-escuro");
@@ -416,25 +499,22 @@
             localStorage.setItem("tema", tema);
         }
 
-        document.getElementById("btnClaro").addEventListener("click", () => aplicarTema("claro"));
+        document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema("claro"));
         document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
 
-        document.getElementById("btnTraduzir").addEventListener("click", () => {
-            alert("Função de tradução ainda será implementada.");
-        });
 
-        document.getElementById("btnNotificacoes").addEventListener("click", () => {
-            alert("Abrir notificações.");
-        });
-
-        // inicializa
+        // =========================
+        // INICIALIZAÇÃO
+        // =========================
         const temaSalvo = localStorage.getItem("tema") || "claro";
         aplicarTema(temaSalvo);
+        atualizarTextoBotao();
+        carregarUsuario();
         carregarPacientes();
 
     </script>
 
-    <script src="/js/tema.js"></script>
+    <script src="/js/tema.js" onerror="console.log('tema.js não encontrado')"></script>
 
 </body>
 </html>
