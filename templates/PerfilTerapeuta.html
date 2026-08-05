@@ -20,6 +20,19 @@
     >
 
     <!-- CSS -->
+    <!-- 🔧 Mesmo padrão do perfil.html: tema.css define as variáveis de cor,
+         home.css já traz sidebar/topo/tema prontos (não duplicamos aqui),
+         e PerfilTerapeuta.css só tem o que é exclusivo desta página. -->
+
+    <link
+        rel="stylesheet"
+        href="/css/tema.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/css/home.css"
+    >
 
     <link
         rel="stylesheet"
@@ -43,8 +56,8 @@
         <div class="logo">
 
             <img
-                src="/img/Logo_Colorida.png"
-                alt="Bixuco"
+                src="/img/logo_nome.png"
+                alt="Logo Bixuco"
             >
 
         </div>
@@ -53,7 +66,7 @@
 
         <nav>
 
-            <a href="/home">
+            <a href="/homeTerapeuta">
 
                 <i class="fa-solid fa-house"></i>
 
@@ -61,7 +74,7 @@
 
             </a>
 
-            <a href="/Relatorios">
+            <a href="/relatoriosTerapeutaS">
 
                 <i class="fa-solid fa-chart-line"></i>
 
@@ -69,7 +82,7 @@
 
             </a>
 
-            <a href="/Configuracoes">
+            <a href="/configuracoesT">
 
                 <i class="fa-solid fa-gear"></i>
 
@@ -77,7 +90,7 @@
 
             </a>
 
-            <a href="/Sobre">
+            <a href="/sobreT">
 
                 <i class="fa-solid fa-circle-info"></i>
 
@@ -85,7 +98,7 @@
 
             </a>
 
-            <a href="/Pacientes">
+            <a href="/pacientes">
 
                 <i class="fa-solid fa-user-plus"></i>
 
@@ -96,13 +109,14 @@
         </nav>
 
         <!-- Tema -->
+        <!-- 🔧 ids trocados para btnClaro/btnEscuro: são os ids que o
+             /js/tema.js (compartilhado) já espera. Removido o script
+             inline que usava temaClaro/temaEscuro + classe "escuro",
+             que conflitava com tema.css (que só entende "tema-escuro"). -->
 
         <div class="tema">
 
-            <button
-                id="temaClaro"
-                class="ativo"
-            >
+            <button id="btnClaro" class="ativo" type="button">
 
                 <i class="fa-regular fa-sun"></i>
 
@@ -110,7 +124,7 @@
 
             </button>
 
-            <button id="temaEscuro">
+            <button id="btnEscuro" type="button">
 
                 <i class="fa-regular fa-moon"></i>
 
@@ -120,9 +134,9 @@
 
         </div>
 
-        <!-- Linha -->
+        <!-- Linha (mesma classe usada nas outras páginas, já estilizada pelo home.css) -->
 
-        <div class="linha-menu"></div>
+        <div class="sidebar-divisor"></div>
 
         <!-- Logout -->
 
@@ -151,10 +165,7 @@
 
         <header class="topo">
 
-            <button
-                class="tradutor"
-                type="button"
-            >
+            <button class="tradutor" type="button" id="btnTraduzir">
 
                 <i class="fa-solid fa-language"></i>
 
@@ -164,23 +175,17 @@
 
             <div class="usuario">
 
-                <button
-                    class="notificacao"
-                    type="button"
-                >
+                <button class="notificacoes" type="button" id="btnNotificacoes">
 
                     <i class="fa-regular fa-bell"></i>
 
                 </button>
 
                 <img
-
                     id="fotoUsuario"
-
                     src="/img/perfilPadrao.png"
-
                     alt="Perfil"
-
+                    onerror="this.src='/img/perfilPadrao.png'"
                 >
 
                 <div>
@@ -203,7 +208,8 @@
 
         </header>
 
-
+        <!-- CORPO COM SCROLL INTERNO -->
+        <div class="conteudo-corpo">
 
         <!-- Cabeçalho -->
 
@@ -241,15 +247,11 @@
             <div class="perfil-superior">
 
                 <img
-
                     id="fotoPerfil"
-
                     src="/img/perfilPadrao.png"
-
                     alt="Foto"
-
                     class="foto-perfil"
-
+                    onerror="this.src='/img/perfilPadrao.png'"
                 >
 
                 <div class="dados-perfil">
@@ -341,11 +343,8 @@
             </h2>
 
             <button
-
                 id="btnNovoPaciente"
-
                 class="botao-compartilhar"
-
             >
 
                 <div class="icone">
@@ -381,192 +380,128 @@
     <section class="rodape-perfil">
 
         <img
-
             src="/img/BixucoDormindo.png"
-
             alt="Bixuco"
-
             class="bixuco"
-
         >
 
     </section>
+
+    </div>
+
+    </main>
+
+</div>
+
+<!-- Seu <script> com toda a lógica (carregar perfil, compartilhar, notificações, tradutor) entra aqui -->
 <script>
+    // ==========================
+    // CARREGAR DADOS DO USUÁRIO
+    // ==========================
+    // 🔧 FIX: a rota certa é /api/perfil (não /api/usuario, que não existe
+    // no backend) — por isso nada carregava antes.
 
-// ==========================
-// TEMA
-// ==========================
+    async function carregarUsuario() {
 
-const temaClaro = document.getElementById("temaClaro");
-const temaEscuro = document.getElementById("temaEscuro");
+        try {
 
-temaClaro.addEventListener("click", () => {
+            const resposta = await fetch("/api/perfil");
 
-    document.body.classList.remove("escuro");
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
 
-    temaClaro.classList.add("ativo");
-    temaEscuro.classList.remove("ativo");
+            if (!resposta.ok) {
+                throw new Error();
+            }
 
-    localStorage.setItem("tema", "claro");
+            const usuario = await resposta.json();
 
-});
+            document.getElementById("nomeUsuario").textContent =
+                usuario.nome || "Terapeuta";
 
-temaEscuro.addEventListener("click", () => {
+            document.getElementById("nomeCompleto").textContent =
+                usuario.nome || "Terapeuta";
 
-    document.body.classList.add("escuro");
+            document.getElementById("tipoConta").textContent =
+                usuario.tipoConta || "Terapeuta";
 
-    temaEscuro.classList.add("ativo");
-    temaClaro.classList.remove("ativo");
+            if (usuario.fotoPerfil) {
 
-    localStorage.setItem("tema", "escuro");
+                document.getElementById("fotoUsuario").src = usuario.fotoPerfil;
+                document.getElementById("fotoPerfil").src  = usuario.fotoPerfil;
 
-});
+            }
 
-if(localStorage.getItem("tema")==="escuro"){
+            document.getElementById("codigoTerapeuta").textContent =
+                usuario.codigoVinculo || "Sem código";
 
-    document.body.classList.add("escuro");
+            document.getElementById("planoUsuario").textContent =
+                usuario.plano || "Plano Familiar";
 
-    temaEscuro.classList.add("ativo");
-    temaClaro.classList.remove("ativo");
+            document.getElementById("diasSeguidos").textContent =
+                usuario.diasConsecutivos ?? 0;
 
-}
+        } catch (erro) {
 
-
-
-// ==========================
-// CARREGAR DADOS DO USUÁRIO
-// ==========================
-
-async function carregarUsuario(){
-
-    try{
-
-        const resposta = await fetch("/api/usuario");
-
-        if(!resposta.ok){
-
-            throw new Error();
+            console.log("Erro ao carregar usuário:", erro);
 
         }
 
-        const usuario = await resposta.json();
+    }
 
-        document.getElementById("nomeUsuario").textContent =
-            usuario.nome;
+    carregarUsuario();
 
-        document.getElementById("nomeCompleto").textContent =
-            usuario.nome;
 
-        document.getElementById("tipoConta").textContent =
-            "Terapeuta";
 
-        if(usuario.foto){
+    // ==========================
+    // BOTÃO COMPARTILHAR
+    // ==========================
 
-            document.getElementById("fotoUsuario").src =
-                usuario.foto;
+    const btnNovoPaciente = document.getElementById("btnNovoPaciente");
 
-            document.getElementById("fotoPerfil").src =
-                usuario.foto;
+    if (btnNovoPaciente) {
 
-        }
-
-        document.getElementById("codigoTerapeuta").textContent =
-            usuario.codigo || "Sem código";
-
-        document.getElementById("planoUsuario").textContent =
-            usuario.plano || "Plano Familiar";
-
-        document.getElementById("diasSeguidos").textContent =
-            usuario.dias_seguidos || 0;
+        btnNovoPaciente.addEventListener("click", () => {
+            window.location.href = "/CompartilharPaciente";
+        });
 
     }
 
-    catch(erro){
 
-        console.log(erro);
+
+    // ==========================
+    // NOTIFICAÇÃO
+    // ==========================
+
+    const btnNotificacoes = document.getElementById("btnNotificacoes");
+
+    if (btnNotificacoes) {
+
+        btnNotificacoes.addEventListener("click", () => {
+            window.location.href = "/Notificacoes";
+        });
 
     }
 
-}
-
-carregarUsuario();
 
 
+    // ==========================
+    // TRADUTOR
+    // ==========================
 
-// ==========================
-// BOTÃO COMPARTILHAR
-// ==========================
+    const btnTraduzir = document.getElementById("btnTraduzir");
 
-const btnNovoPaciente =
-document.getElementById("btnNovoPaciente");
+    if (btnTraduzir) {
 
-if(btnNovoPaciente){
+        btnTraduzir.addEventListener("click", () => {
+            // Futuramente conectar com tradução do site
+        });
 
-    btnNovoPaciente.addEventListener("click",()=>{
-
-        window.location.href="/CompartilharPaciente";
-
-    });
-
-}
-
-
-
-// ==========================
-// NOTIFICAÇÃO
-// ==========================
-
-const notificacao =
-document.querySelector(".notificacao");
-
-if(notificacao){
-
-    notificacao.addEventListener("click",()=>{
-
-        window.location.href="/Notificacoes";
-
-    });
-
-}
-
-
-
-// ==========================
-// TRADUTOR
-// ==========================
-
-const tradutor =
-document.querySelector(".tradutor");
-
-if(tradutor){
-
-    tradutor.addEventListener("click",()=>{
-
-        alert("Tradução para inglês será disponibilizada em breve.");
-
-    });
-
-}
-
-
-
-// ==========================
-// FOTO PADRÃO
-// ==========================
-
-document.getElementById("fotoPerfil").onerror=function(){
-
-    this.src="/img/perfilPadrao.png";
-
-};
-
-document.getElementById("fotoUsuario").onerror=function(){
-
-    this.src="/img/perfilPadrao.png";
-
-};
-
+    }
 </script>
+<!-- Tema claro/escuro — lógica única, compartilhada por todas as páginas -->
 <script src="/js/tema.js"></script>
 
 </body>
