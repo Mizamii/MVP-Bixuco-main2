@@ -6,7 +6,18 @@
     <title>Bixuco — Início Terapeuta</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <!-- Google Translate -->
+    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
+
+    <!-- tema.css precisa vir ANTES do CSS da página -->
+    <link rel="stylesheet" href="/css/tema.css">
     <link rel="stylesheet" href="/css/homeTerapeuta.css">
+
+    <style>
+        .goog-te-banner-frame { display: none !important; }
+        body { top: 0 !important; }
+    </style>
 </head>
 <body>
 
@@ -17,8 +28,9 @@
     <!-- ========================= -->
     <aside class="sidebar">
 
+        <!-- logo_nome.png do amigo (com o nome junto ao logo) -->
         <div class="logo">
-            <img src="/img/Logo_Colorida.png" alt="Logo Bixuco">
+            <img src="/img/logo_nome.png" alt="Logo Bixuco">
         </div>
 
         <nav>
@@ -60,6 +72,9 @@
             </button>
         </div>
 
+        <!-- Divisor em degradê do amigo — antes do Sair -->
+        <div class="sidebar-divisor"></div>
+
         <a href="/logout" class="logout">
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
             <span>Sair</span>
@@ -75,13 +90,21 @@
         <!-- TOPO -->
         <header class="topo">
 
+            <!-- Tradução real via cookie — do seu JS -->
             <button class="tradutor" type="button" id="btnTraduzir">
-                <i class="fa-solid fa-globe"></i>
-                Traduzir para inglês
+                <i class="fa-solid fa-language"></i>
+                <span id="textoTradutor">Traduzir para inglês</span>
             </button>
 
+            <!-- Elemento invisível do Google Translate -->
+            <div
+                id="google_translate_element"
+                style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);"
+            ></div>
+
             <div class="usuario">
-                <!-- sininho com painel -->
+
+                <!-- Sininho com painel de notificações -->
                 <div class="notificacoes-wrapper">
                     <button class="notificacoes" type="button" id="btnNotificacoes">
                         <i class="fa-regular fa-bell"></i>
@@ -96,6 +119,7 @@
                     </div>
                 </div>
 
+                <!-- Foto clicável com onerror -->
                 <img
                     id="fotoUsuario"
                     src="/img/perfilPadrao.png"
@@ -129,88 +153,90 @@
 
         </header>
 
-        <!-- ========================= -->
-        <!-- LINHA PRINCIPAL: solicitações + atividade -->
-        <!-- ========================= -->
-        <section class="linha-principal">
+        <!-- CORPO COM SCROLL INTERNO — do amigo -->
+        <div class="conteudo-corpo">
 
-            <!-- SOLICITAÇÕES PENDENTES -->
-            <div class="card-solicitacoes">
+            <!-- ========================= -->
+            <!-- LINHA PRINCIPAL: solicitações + atividade -->
+            <!-- ========================= -->
+            <section class="linha-principal">
 
-                <h2>Solicitações pendentes</h2>
+                <!-- SOLICITAÇÕES PENDENTES -->
+                <div class="card-solicitacoes">
 
-                <ul id="listaSolicitacoes">
-                    <li class="solicitacao-carregando">
-                        <p>Carregando solicitações...</p>
-                    </li>
-                </ul>
+                    <h2>Solicitações pendentes</h2>
 
-                <p id="semSolicitacoes" style="display: none;">
-                    Nenhuma solicitação pendente no momento.
-                </p>
+                    <ul id="listaSolicitacoes">
+                        <li class="solicitacao-carregando">
+                            <p>Carregando solicitações...</p>
+                        </li>
+                    </ul>
 
-            </div>
+                    <p id="semSolicitacoes" class="lista-vazia" style="display: none;">
+                        Nenhuma solicitação pendente no momento.
+                    </p>
 
-            <!-- ATIVIDADE RECENTE -->
-            <div class="card-atividade">
-
-                <h2>Atividade recente</h2>
-
-                <ul id="listaAtividade">
-                    <li class="atividade-carregando">
-                        <p>Carregando atividades...</p>
-                    </li>
-                </ul>
-
-                <p id="semAtividade" style="display: none;">
-                    Nenhuma atividade recente.
-                </p>
-
-            </div>
-
-        </section>
-
-        <!-- ========================= -->
-        <!-- LINHA DE CONTADORES -->
-        <!-- ========================= -->
-        <section class="linha-contadores">
-
-            <article class="contador">
-                <div class="contador-icone contador-icone--azul">
-                    <i class="fa-solid fa-user-plus"></i>
                 </div>
-                <div>
-                    <strong id="totalPacientes">0</strong>
-                    <span>Pacientes</span>
-                </div>
-            </article>
 
-            <article class="contador">
-                <div class="contador-icone contador-icone--verde">
-                    <i class="fa-solid fa-file-pen"></i>
-                </div>
-                <div>
-                    <strong id="totalPendentes">0</strong>
-                    <span>Pendentes</span>
-                </div>
-            </article>
+                <!-- ATIVIDADE RECENTE -->
+                <div class="card-atividade">
 
-            <article class="contador">
-                <div class="contador-icone contador-icone--azul-claro">
-                    <i class="fa-solid fa-clipboard-check"></i>
-                </div>
-                <div>
-                    <strong id="totalRelatoriosHoje">0</strong>
-                    <span>Relatórios hoje</span>
-                </div>
-            </article>
+                    <h2>Atividade recente</h2>
 
-        </section>
+                    <ul id="listaAtividade">
+                        <li class="atividade-carregando">
+                            <p>Carregando atividades...</p>
+                        </li>
+                    </ul>
 
-        <!-- ========================= -->
-        <!-- 🔧 FIX 8: Confirmação inline para aceitar/recusar -->
-        <!-- Aparece flutuando sobre o card quando o terapeuta clica em recusar -->
-        <!-- ========================= -->
+                    <p id="semAtividade" class="lista-vazia" style="display: none;">
+                        Nenhuma atividade recente.
+                    </p>
+
+                </div>
+
+            </section>
+
+            <!-- ========================= -->
+            <!-- LINHA DE CONTADORES -->
+            <!-- ========================= -->
+            <section class="linha-contadores">
+
+                <article class="contador">
+                    <div class="contador-icone contador-icone--azul">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                    <div>
+                        <strong id="totalPacientes">0</strong>
+                        <span>Pacientes</span>
+                    </div>
+                </article>
+
+                <article class="contador">
+                    <div class="contador-icone contador-icone--verde">
+                        <i class="fa-solid fa-file-pen"></i>
+                    </div>
+                    <div>
+                        <strong id="totalPendentes">0</strong>
+                        <span>Pendentes</span>
+                    </div>
+                </article>
+
+                <article class="contador">
+                    <div class="contador-icone contador-icone--azul-claro">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                    </div>
+                    <div>
+                        <strong id="totalRelatoriosHoje">0</strong>
+                        <span>Relatórios hoje</span>
+                    </div>
+                </article>
+
+            </section>
+
+        </div><!-- fim .conteudo-corpo -->
+
+        <!-- Modal de confirmação inline (aceitar/recusar solicitações) -->
         <div id="modalConfirmacao" class="modal-confirmacao" style="display: none;">
 
             <div class="modal-confirmacao__conteudo">
@@ -248,10 +274,9 @@
 <script>
 
     // =========================
-    // CARREGAR DADOS DO TERAPEUTA
+    // COPIAR CÓDIGO DO TERAPEUTA
     // =========================
 
-    // Copia o código do terapeuta para a área de transferência
     function copiarCodigo() {
         const codigo = document.getElementById("codigoTerapeuta").textContent;
         if (!codigo || codigo === "---") return;
@@ -270,11 +295,14 @@
     }
 
 
+    // =========================
+    // CARREGAR DADOS DO TERAPEUTA
+    // =========================
+
     async function carregarDados() {
 
         try {
 
-            // 🔧 FIX 1: Rota /api/home-terapeuta criada no backend (ver rotas_homeTerapeuta.js)
             const resposta = await fetch("/api/home-terapeuta");
 
             if (resposta.status === 401) {
@@ -286,38 +314,33 @@
 
             const dados = await resposta.json();
 
-            // Preenche nome e foto
             document.getElementById("nomeTerapeuta").textContent =
                 dados.nome || "Terapeuta";
 
-            document.getElementById("codigoTerapeuta").textContent = dados.codigoTerapeuta || "---";
-            
+            document.getElementById("codigoTerapeuta").textContent =
+                dados.codigoTerapeuta || "---";
 
             if (dados.fotoPerfil) {
                 document.getElementById("fotoUsuario").src = dados.fotoPerfil;
             }
 
-            // Preenche contadores
-            document.getElementById("totalPacientes").textContent     = dados.totalPacientes    ?? 0;
-            document.getElementById("totalPendentes").textContent     = dados.totalPendentes    ?? 0;
+            document.getElementById("totalPacientes").textContent      = dados.totalPacientes   ?? 0;
+            document.getElementById("totalPendentes").textContent      = dados.totalPendentes   ?? 0;
             document.getElementById("totalRelatoriosHoje").textContent = dados.relatoriosHoje   ?? 0;
 
-            // Badge de notificações — só aparece se tiver notificações
             const badge = document.getElementById("badgeNotificacoes");
             if (dados.notificacoes > 0) {
-                badge.textContent    = dados.notificacoes;
-                badge.style.display  = "inline";
+                badge.textContent   = dados.notificacoes;
+                badge.style.display = "inline";
             }
 
-            // Preenche as listas
-            renderSolicitacoes(dados.solicitacoes   || []);
-            renderAtividade(dados.atividadeRecente  || []);
+            renderSolicitacoes(dados.solicitacoes    || []);
+            renderAtividade(dados.atividadeRecente   || []);
 
         } catch (erro) {
 
             console.log("Erro ao carregar dados do terapeuta:", erro);
 
-            // Fallback com zeros
             document.getElementById("nomeTerapeuta").textContent       = "Terapeuta";
             document.getElementById("totalPacientes").textContent      = "0";
             document.getElementById("totalPendentes").textContent      = "0";
@@ -355,12 +378,11 @@
             li.classList.add("solicitacao-item");
             li.dataset.id = item.id;
 
-            // Foto do responsável
             const foto = document.createElement("img");
             foto.src = item.fotoPerfil || "/img/perfilPadrao.png";
             foto.alt = item.nomeResponsavel;
+            foto.onerror = () => { foto.src = "/img/perfilPadrao.png"; };
 
-            // Informações
             const info = document.createElement("div");
             info.classList.add("solicitacao-info");
             info.innerHTML = `
@@ -369,7 +391,6 @@
                 <span class="solicitacao-tempo">${item.tempo}</span>
             `;
 
-            // Botões aceitar e recusar
             const acoes = document.createElement("div");
             acoes.classList.add("solicitacao-acoes");
 
@@ -378,7 +399,7 @@
             btnAceitar.classList.add("btn-aceitar");
             btnAceitar.innerHTML = '<i class="fa-solid fa-check"></i> Aceitar';
 
-            // 🔧 FIX 8: Aceitar direto (ação positiva — não precisa de confirmação)
+            // Aceitar direto — ação positiva, não precisa de confirmação
             btnAceitar.addEventListener("click", () => {
                 responderSolicitacao(item.id, "aceitar", li);
             });
@@ -388,13 +409,22 @@
             btnRecusar.classList.add("btn-recusar");
             btnRecusar.innerHTML = '<i class="fa-solid fa-xmark"></i>';
 
-            // 🔧 FIX 8: Recusar pede confirmação inline em vez de confirm()
+            // Recusar pede confirmação inline
             btnRecusar.addEventListener("click", () => {
                 abrirConfirmacao(
                     `Tem certeza que deseja recusar a solicitação de ${item.nomeResponsavel}?`,
                     () => responderSolicitacao(item.id, "recusar", li)
                 );
             });
+
+            acoes.appendChild(btnAceitar);
+            acoes.appendChild(btnRecusar);
+
+            li.appendChild(foto);
+            li.appendChild(info);
+            li.appendChild(acoes);
+            ul.appendChild(li);
+
         });
 
     }
@@ -404,36 +434,25 @@
     // MODAL DE CONFIRMAÇÃO INLINE
     // =========================
 
-    // 🔧 FIX 8: Substitui confirm() por modal inline padronizado com o projeto
     let callbackConfirmacao = null;
 
     function abrirConfirmacao(texto, callback) {
-
         document.getElementById("modalConfirmacaoTexto").textContent = texto;
         document.getElementById("modalConfirmacao").style.display    = "flex";
         callbackConfirmacao = callback;
-
     }
 
     function fecharConfirmacao() {
-
         document.getElementById("modalConfirmacao").style.display = "none";
         callbackConfirmacao = null;
-
     }
 
     document.getElementById("modalBtnConfirmar").addEventListener("click", () => {
-
         if (callbackConfirmacao) callbackConfirmacao();
         fecharConfirmacao();
-
     });
 
-    document.getElementById("modalBtnCancelar").addEventListener("click", () => {
-        fecharConfirmacao();
-    });
-
-
+    document.getElementById("modalBtnCancelar").addEventListener("click", fecharConfirmacao);
 
 
     // =========================
@@ -442,12 +461,10 @@
 
     async function responderSolicitacao(vinculoId, acao, itemEl) {
 
-        // Desabilita os botões do item para evitar cliques duplos
         itemEl.querySelectorAll("button").forEach(b => b.disabled = true);
 
         try {
 
-            // 🔧 FIX 2: Rota /api/vinculos/responder criada no backend
             const resposta = await fetch("/api/vinculos/responder", {
                 method:  "POST",
                 headers: { "Content-Type": "application/json" },
@@ -461,16 +478,13 @@
 
             if (!resposta.ok) throw new Error("Falha ao responder solicitação");
 
-            // Remove o item visualmente sem recarregar a página
             itemEl.remove();
 
-            // Mostra "sem solicitações" se a lista ficou vazia
             const ul = document.getElementById("listaSolicitacoes");
             if (ul.children.length === 0) {
                 document.getElementById("semSolicitacoes").style.display = "block";
             }
 
-            // Atualiza o contador de pendentes
             const totalPendentes = document.getElementById("totalPendentes");
             const atual = parseInt(totalPendentes.textContent) || 0;
             if (atual > 0) totalPendentes.textContent = atual - 1;
@@ -479,10 +493,8 @@
 
             console.log("Erro ao responder solicitação:", erro);
 
-            // Reabilita os botões se falhou
             itemEl.querySelectorAll("button").forEach(b => b.disabled = false);
 
-            // 🔧 FIX 5: Erro inline em vez de alert()
             const erroEl = document.createElement("p");
             erroEl.style.color    = "#E53E3E";
             erroEl.style.fontSize = "12px";
@@ -498,95 +510,6 @@
     // =========================
     // RENDERIZAR ATIVIDADE RECENTE
     // =========================
-
-    // =========================
-    // NOTIFICAÇÕES
-    // =========================
-
-    const painelNotificacoes = document.getElementById("painelNotificacoes");
-    const listaNotificacoes  = document.getElementById("listaNotificacoes");
-
-    function formatarItemNotificacao(item) {
-        const classeExtra = item.lida ? "" : "nao-lida";
-        const icones = {
-            pedido_vinculo:       "fa-link",
-            relatorio_finalizado: "fa-clipboard-check",
-            relatorio_concluido:  "fa-check-circle",
-            lembrete_relatorio:   "fa-bell"
-        };
-        const icone  = icones[item.tipo] || "fa-bell";
-        const clique = item.tipo === "relatorio_finalizado"
-            ? `onclick="window.location.href='/relatoriosTerapeuta'"`
-            : "";
-        const cursor = item.tipo === "relatorio_finalizado" ? "cursor:pointer;" : "";
-
-        return `
-            <div class="item-notificacao ${classeExtra}" ${clique} style="${cursor}">
-                <div class="notificacao-linha">
-                    <i class="fa-solid ${icone} notificacao-icone"></i>
-                    <div>
-                        <p>${item.mensagem}</p>
-                        <span class="tempo-notificacao">${item.tempo}</span>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    async function carregarNotificacoes() {
-        try {
-            const resposta = await fetch("/api/notificacoes");
-            if (!resposta.ok) throw new Error();
-            const dados = await resposta.json();
-            const itens = dados.notificacoes || [];
-
-            listaNotificacoes.innerHTML = itens.length === 0
-                ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
-                : itens.map(formatarItemNotificacao).join("");
-
-            const naoLidas = itens.filter(i => !i.lida).length;
-            const badge    = document.getElementById("badgeNotificacoes");
-            if (naoLidas > 0) {
-                badge.textContent   = naoLidas;
-                badge.style.display = "inline";
-            } else {
-                badge.style.display = "none";
-            }
-        } catch (_) {
-            listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar.</div>`;
-        }
-    }
-
-    async function carregarBadgeNotificacoes() {
-        try {
-            const resposta = await fetch("/api/notificacoes");
-            if (!resposta.ok) return;
-            const dados    = await resposta.json();
-            const itens    = dados.notificacoes || [];
-            const naoLidas = itens.filter(i => !i.lida).length;
-            const badge    = document.getElementById("badgeNotificacoes");
-            if (naoLidas > 0) {
-                badge.textContent   = naoLidas;
-                badge.style.display = "inline";
-            }
-        } catch (_) {}
-    }
-
-    document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
-        e.stopPropagation();
-        const estaAberto = painelNotificacoes.classList.toggle("aberto");
-        if (estaAberto) {
-            await carregarNotificacoes();
-            fetch("/api/notificacoes/marcar-lidas", { method: "POST" });
-            document.getElementById("badgeNotificacoes").style.display = "none";
-        }
-    });
-
-    document.addEventListener("click", (e) => {
-        if (!painelNotificacoes.contains(e.target)) {
-            painelNotificacoes.classList.remove("aberto");
-        }
-    });
 
     function renderAtividade(lista) {
 
@@ -607,7 +530,7 @@
             const li = document.createElement("li");
             li.classList.add("atividade-item");
 
-           li.innerHTML = `
+            li.innerHTML = `
                 <div class="atividade-icone atividade-icone--${item.cor || "verde"}">
                     <i class="fa-solid fa-clipboard-list"></i>
                 </div>
@@ -633,9 +556,147 @@
 
     }
 
+    // Marca o relatório como visto antes de abrir
+    async function marcarVistoEAbrir(relatorioId) {
+        try {
+            await fetch(`/api/relatorios/${relatorioId}/marcar-visto`, { method: "POST" });
+        } catch (_) {}
+        window.location.href = `/relatoriosTerapeuta?id=${relatorioId}`;
+    }
+
 
     // =========================
-    // TEMA
+    // NOTIFICAÇÕES
+    // =========================
+
+    const painelNotificacoes = document.getElementById("painelNotificacoes");
+    const listaNotificacoesEl = document.getElementById("listaNotificacoes");
+
+    // Ícones diferentes por tipo de notificação
+    function formatarItemNotificacao(item) {
+        const classeExtra = item.lida ? "" : "nao-lida";
+        const icones = {
+            pedido_vinculo:       "fa-link",
+            relatorio_finalizado: "fa-clipboard-check",
+            relatorio_concluido:  "fa-check-circle",
+            lembrete_relatorio:   "fa-bell"
+        };
+        const icone  = icones[item.tipo] || "fa-bell";
+        const clique = item.tipo === "relatorio_finalizado"
+            ? `onclick="window.location.href='/relatoriosTerapeutaS'"`
+            : "";
+        const cursor = item.tipo === "relatorio_finalizado" ? "cursor:pointer;" : "";
+
+        return `
+            <div class="item-notificacao ${classeExtra}" ${clique} style="${cursor}">
+                <div class="notificacao-linha">
+                    <i class="fa-solid ${icone} notificacao-icone"></i>
+                    <div>
+                        <p>${item.mensagem}</p>
+                        <span class="tempo-notificacao">${item.tempo}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    async function carregarNotificacoes() {
+        try {
+            const resposta = await fetch("/api/notificacoes");
+            if (!resposta.ok) throw new Error();
+            const dados = await resposta.json();
+            const itens = dados.notificacoes || [];
+
+            listaNotificacoesEl.innerHTML = itens.length === 0
+                ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+                : itens.map(formatarItemNotificacao).join("");
+
+            const naoLidas = itens.filter(i => !i.lida).length;
+            const badge    = document.getElementById("badgeNotificacoes");
+            if (naoLidas > 0) {
+                badge.textContent   = naoLidas;
+                badge.style.display = "inline";
+            } else {
+                badge.style.display = "none";
+            }
+        } catch (_) {
+            listaNotificacoesEl.innerHTML = `<div class="painel-vazio">Não foi possível carregar.</div>`;
+        }
+    }
+
+    // Carrega só o badge sem abrir o painel (chamado na inicialização)
+    async function carregarBadgeNotificacoes() {
+        try {
+            const resposta = await fetch("/api/notificacoes");
+            if (!resposta.ok) return;
+            const dados    = await resposta.json();
+            const itens    = dados.notificacoes || [];
+            const naoLidas = itens.filter(i => !i.lida).length;
+            const badge    = document.getElementById("badgeNotificacoes");
+            if (naoLidas > 0) {
+                badge.textContent   = naoLidas;
+                badge.style.display = "inline";
+            }
+        } catch (_) {}
+    }
+
+    document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
+        e.stopPropagation();
+        const estaAberto = painelNotificacoes.classList.toggle("aberto");
+        if (estaAberto) {
+            await carregarNotificacoes();
+            fetch("/api/notificacoes/marcar-lidas", { method: "POST" }).catch(() => {});
+            document.getElementById("badgeNotificacoes").style.display = "none";
+        }
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!painelNotificacoes.contains(e.target)) {
+            painelNotificacoes.classList.remove("aberto");
+        }
+    });
+
+
+    // =========================
+    // TRADUÇÃO VIA COOKIE
+    // =========================
+
+    function lerCookie(nome) {
+        const v = `; ${document.cookie}`;
+        const p = v.split(`; ${nome}=`);
+        if (p.length === 2) return p.pop().split(";").shift();
+        return null;
+    }
+
+    function iniciarTradutor() {
+        new google.translate.TranslateElement(
+            { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
+            "google_translate_element"
+        );
+    }
+
+    document.getElementById("btnTraduzir").addEventListener("click", () => {
+        const atual     = lerCookie("googtrans");
+        const traduzido = atual && atual.includes("/en");
+
+        document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+        document.cookie = `googtrans=; path=/; domain=${location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
+
+        if (!traduzido) {
+            document.cookie = `googtrans=/pt/en; path=/`;
+            document.cookie = `googtrans=/pt/en; path=/; domain=${location.hostname}`;
+        }
+        window.location.reload();
+    });
+
+    // Atualiza o texto do botão conforme o cookie atual
+    const cookieAtual = lerCookie("googtrans");
+    document.getElementById("textoTradutor").textContent =
+        (cookieAtual && cookieAtual.includes("/en")) ? "Voltar para português" : "Traduzir para inglês";
+
+
+    // =========================
+    // TEMA CLARO / ESCURO
     // =========================
 
     function aplicarTema(tema) {
@@ -649,22 +710,6 @@
     document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema("claro"));
     document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
 
-    // 🔧 FIX 5: Removido alert() dos botões de traduzir e notificações
-    document.getElementById("btnTraduzir").addEventListener("click", () => {
-        // Futuramente conectar com tradução do site
-    });
-
-    document.getElementById("btnNotificacoes").addEventListener("click", () => {
-        // Futuramente abrir a central de notificações
-    });
-
-    async function marcarVistoEAbrir(relatorioId) {
-        try {
-            await fetch(`/api/relatorios/${relatorioId}/marcar-visto`, { method: "POST" });
-        } catch (_) {}
-        window.location.href = `/relatoriosTerapeuta?id=${relatorioId}`;
-    }
-
 
     // =========================
     // INICIALIZAÇÃO
@@ -672,12 +717,11 @@
 
     const temaSalvo = localStorage.getItem("tema") || "claro";
     aplicarTema(temaSalvo);
+
     carregarDados();
     carregarBadgeNotificacoes();
 
 </script>
-
-<script src="/js/tema.js"></script>
 
 </body>
 </html>
