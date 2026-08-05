@@ -1,0 +1,259 @@
+/* ==========================================================
+   relatorios.css
+   Estilos EXCLUSIVOS da página de Relatórios. Sidebar, topo,
+   tema claro/escuro, tradutor, notificações e o scroll do
+   conteúdo (.conteudo-corpo) já vêm prontos do home.css —
+   não duplicar aqui.
+   Inclua depois de tema.css e home.css:
+
+       <link rel="stylesheet" href="/css/tema.css">
+       <link rel="stylesheet" href="/css/home.css">
+       <link rel="stylesheet" href="/css/relatorios.css">
+
+   ========================================================== */
+
+/* ---------- Cabeçalho + abas ---------- */
+
+.cabecalho {
+display: flex;
+align-items: flex-start;
+justify-content: space-between;
+margin-bottom: 1.1rem;
+}
+
+.cabecalho h1 {
+font-size: 1.4rem;
+font-weight: 700;
+color: var(--cor-texto-principal);
+margin-bottom: 0.7rem;
+}
+
+.cabecalho img {
+width: 66px;
+height: auto;
+}
+
+.abas {
+display: flex;
+gap: 1.5rem;
+border-bottom: 1px solid var(--cor-borda-suave);
+}
+
+.abas button {
+background: none;
+border: none;
+padding: 0 0 0.6rem;
+font-size: 0.85rem;
+font-weight: 600;
+color: var(--cor-texto-esmaecido);
+cursor: pointer;
+position: relative;
+transition: color 0.2s;
+}
+
+.abas button:hover {
+color: var(--cor-texto-principal);
+}
+
+.abas button.ativa {
+color: #32C26D;
+}
+
+.abas button.ativa::after {
+content: "";
+position: absolute;
+left: 0;
+right: 0;
+bottom: -1px;
+height: 2px;
+background: #32C26D;
+border-radius: 999px;
+}
+
+/* ========================================= */
+/* CARDS DE RESUMO (Alertas / Tempo) */
+/* ========================================= */
+
+.cards-relatorio {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 1.1rem;
+margin-bottom: 1.1rem;
+}
+
+.cards-relatorio .card {
+background: var(--cor-fundo-card);
+border-radius: 14px;
+padding: 1rem 1.15rem;
+box-shadow: var(--sombra-card);
+display: flex;
+flex-direction: column;
+gap: 0.2rem;
+}
+
+.cards-relatorio h3 {
+font-size: 0.8rem;
+font-weight: 600;
+color: var(--cor-texto-esmaecido);
+}
+
+.valor-destaque {
+font-size: 1.4rem;
+font-weight: 700;
+}
+
+#alertasEstresse,
+#alertasEstresseDiario {
+color: #32C26D;
+}
+
+#tempoEstresse,
+#tempoEstresseDiario {
+color: #E53E3E;
+}
+
+.cards-relatorio p {
+font-size: 0.72rem;
+color: var(--cor-texto-esmaecido);
+}
+
+/* ========================================= */
+/* LINHA DE GRÁFICOS */
+/* ========================================= */
+
+.linha-graficos {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 1.1rem;
+margin-bottom: 1.1rem;
+}
+
+.grafico-card {
+background: var(--cor-fundo-card);
+border-radius: 14px;
+padding: 1rem 1.15rem;
+box-shadow: var(--sombra-card);
+}
+
+.grafico-card.grande {
+grid-column: 1 / -1;
+}
+
+.grafico-card h2 {
+display: flex;
+align-items: center;
+gap: 0.45rem;
+font-size: 0.85rem;
+font-weight: 700;
+color: var(--cor-texto-principal);
+margin-bottom: 0.75rem;
+}
+
+.grafico-card h2 i {
+color: #32C26D;
+font-size: 0.8rem;
+}
+
+/* Limita o tamanho dos gráficos — sem isso eles crescem sem parar */
+.grafico-card canvas {
+max-height: 150px;
+width: 100% !important;
+}
+
+.grafico-card.grande canvas {
+max-height: 130px;
+}
+
+/* Legenda do gráfico de rosca */
+.legenda-rosca {
+display: flex;
+flex-direction: column;
+gap: 0.4rem;
+margin-top: 0.75rem;
+}
+
+.legenda-item {
+display: flex;
+align-items: center;
+gap: 0.5rem;
+font-size: 0.72rem;
+color: var(--cor-texto-secundario);
+}
+
+.legenda-cor {
+width: 9px;
+height: 9px;
+border-radius: 50%;
+flex-shrink: 0;
+}
+
+/* ========================================= */
+/* ABA DIÁRIO */
+/* ========================================= */
+
+.relatorio-diario {
+background: var(--cor-fundo-card);
+border-radius: 14px;
+padding: 1.15rem;
+box-shadow: var(--sombra-card);
+}
+
+.topo-diario {
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 0.85rem;
+}
+
+.topo-diario h2 {
+font-size: 0.92rem;
+font-weight: 700;
+color: var(--cor-texto-principal);
+}
+
+.topo-diario p {
+font-size: 0.75rem;
+color: var(--cor-texto-esmaecido);
+}
+
+.lista-perguntas {
+display: flex;
+flex-direction: column;
+gap: 0.6rem;
+}
+
+.pergunta-item {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 0.7rem 0.9rem;
+background: var(--cor-fundo-pagina);
+border-radius: 10px;
+}
+
+.pergunta-texto {
+font-size: 0.82rem;
+color: var(--cor-texto-principal);
+}
+
+.pergunta-badge {
+font-size: 0.72rem;
+font-weight: 700;
+color: #1D8E4F;
+background: rgba(50, 194, 109, 0.15);
+padding: 0.25rem 0.65rem;
+border-radius: 999px;
+white-space: nowrap;
+}
+
+.sem-dados {
+text-align: center;
+padding: 2rem;
+color: var(--cor-texto-esmaecido);
+font-size: 0.85rem;
+}
+
+.sem-dados a {
+color: #0AB7FB;
+font-weight: 600;
+}

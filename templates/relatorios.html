@@ -22,6 +22,18 @@
 
     <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
 
+    <!-- Variáveis compartilhadas de tema (claro/escuro) — precisa vir ANTES do CSS da página -->
+    <link
+        rel="stylesheet"
+        href="/css/tema.css"
+    >
+
+    <!-- Layout compartilhado (sidebar, topo, tema claro/escuro) — o mesmo do Home e do Perfil -->
+    <link
+        rel="stylesheet"
+        href="/css/home.css"
+    >
+
     <link
         rel="stylesheet"
         href="/css/relatorios.css"
@@ -105,18 +117,17 @@
 
         <div class="tema">
 
-            <!-- 🔧 FIX 4: IDs padronizados btnClaro/btnEscuro -->
-
-            <div class="tema">
-                <button id="btnClaro" class="ativo" type="button">
-                    <i class="fa-regular fa-sun"></i> Claro
-                </button>
-                <button id="btnEscuro" type="button">
-                    <i class="fa-regular fa-moon"></i> Escuro
-                </button>
-            </div>
+            <button id="btnClaro" class="ativo" type="button">
+                <i class="fa-regular fa-sun"></i> Claro
+            </button>
+            <button id="btnEscuro" type="button">
+                <i class="fa-regular fa-moon"></i> Escuro
+            </button>
 
         </div>
+
+        <!-- Divisor em degradê antes do Sair (igual ao home.html) -->
+        <div class="sidebar-divisor"></div>
 
         <a
             href="/logout"
@@ -195,6 +206,9 @@
 
         </header>
 
+        <!-- Corpo com scroll interno (igual ao home.html) -->
+        <div class="conteudo-corpo">
+
         <!-- Cabeçalho com abas -->
 
         <section class="cabecalho">
@@ -229,7 +243,7 @@
             </div>
 
             <img
-                src="/img/BixucoRelatorio.png"
+                src="/img/gatografico.png"
                 alt="Mascote"
             >
 
@@ -405,9 +419,14 @@
 
         </section>
 
+        </div>
+        <!-- /conteudo-corpo -->
+
     </main>
 
 </div>
+
+<!-- Seu <script> com toda a lógica (gráficos com Chart.js, abas, relatório diário, notificações, tradutor) continua aqui, sem alterações -->
 
 <script>
 
@@ -682,6 +701,7 @@
 
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     legend: { display: false }
                 },
@@ -719,6 +739,7 @@
 
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 cutout: "65%",
                 plugins: {
                     legend: { display: false }
@@ -780,6 +801,7 @@
 
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     legend: { display: false }
                 },
