@@ -456,8 +456,15 @@ app.get(
 
         // 🔧 FIX: Usuário novo → manda para o onboarding de escolha de tipo
         // Usuário existente → manda para a home correta conforme o tipo
-        if (req.user.novo_usuario) {
+        // Salva o tipo. Psicólogo não tem mais etapas depois disso, então já
+
+
+        if (!req.user.tipo || req.user.tipo === "pendente") {
             return res.redirect("/onboarding-google");
+        }
+
+        if (req.user.tipo === "pai" && !req.user.cadastro_completo) {
+            return res.redirect("/AdicionarC");
         }
 
         if (req.user.tipo === "psicologo") {
@@ -487,11 +494,12 @@ app.post("/api/onboarding-google", estaLogado, async (req, res) => {
         }
 
         // Salva o tipo e marca que o onboarding foi concluído
+        // marca cadastro_completo; pai ainda precisa passar pelo AdicionarC.
         await db.query(
             `UPDATE usuarios
-             SET tipo = $1, novo_usuario = FALSE
-             WHERE id = $2`,
-            [tipo, usuarioId]
+            SET tipo = $1, novo_usuario = FALSE, cadastro_completo = $3
+            WHERE id = $2`,
+            [tipo, usuarioId, tipo === "psicologo"]
         );
 
         // Atualiza a sessão com o tipo correto
@@ -921,6 +929,11 @@ app.post("/api/adicionar-crianca", estaLogado, upload.single("fotoCrianca"), asy
                 nomePelucia ? nomePelucia.trim() : null,
                 fotoUrl
             ]
+        );
+
+        await db.query(
+            "UPDATE usuarios SET cadastro_completo = TRUE WHERE id = $1",
+            [usuarioId]
         );
 
         // Redireciona para o questionário de perfil sensorial
