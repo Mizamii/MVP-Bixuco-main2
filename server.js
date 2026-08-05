@@ -3515,7 +3515,7 @@ app.post("/esqueceu-senha", async (req, res) => {
 
         const link = `${process.env.BASE_URL || "http://localhost:3000"}/redefinir-senha?token=${token}`;
 
-        const sendSmtpEmail = new Brevo.SendSmtpEmail();
+        
         await brevoClient.transactionalEmails.sendTransacEmail({
             sender: { name: "Bixuco", email: process.env.BREVO_FROM_EMAIL || "seuemail@gmail.com" },
             to: [{ email }],
