@@ -271,20 +271,30 @@
         // requisitos da senha com quebras de linha (<br>) — ver validarCampos()
         function mostrarErro(inputId, erroId, mensagem) {
 
-            const input = document.getElementById(inputId);
-            const erro  = document.getElementById(erroId);
+        const input = document.getElementById(inputId);
+        const erro  = document.getElementById(erroId);
 
-            if (!input || !erro) return;
-
-            input.classList.add("input-erro");
-            erro.innerHTML     = mensagem;
-            erro.style.display = "block";
-
-            setTimeout(() => {
-                input.classList.remove("input-erro");
-            }, 500);
-
+        if (!input || !erro) {
+            // Campo não existe nesta página (ex: erro de e-mail/CPF que
+            // pertence a uma etapa anterior do cadastro) — mostra no
+            // erro geral em vez de falhar silenciosamente
+            const erroGeral = document.getElementById("erro-geral");
+            if (erroGeral) {
+                erroGeral.textContent   = mensagem;
+                erroGeral.style.display = "block";
+            }
+            return;
         }
+
+        input.classList.add("input-erro");
+        erro.innerHTML     = mensagem;
+        erro.style.display = "block";
+
+        setTimeout(() => {
+            input.classList.remove("input-erro");
+        }, 500);
+
+    }
 
         function limparErros() {
 

@@ -1562,17 +1562,30 @@ app.post("/cadastro-finalizar", async (req, res) => {
                 });
             }
 
+            console.log("Cadastro-finalizar - email:", dados.email, "| cpf:", dados.cpfUser);
+
             const existe = await db.query(
-                `SELECT * FROM usuarios
-                 WHERE email = $1 OR cpf = $2`,
+                `SELECT email, cpf FROM usuarios
+                WHERE email = $1 OR cpf = $2`,
                 [dados.email, dados.cpfUser]
             );
 
             if (existe.rows.length > 0) {
-                return res.status(409).json({
-                    campo: "email",
-                    erro: "Email ou CPF já cadastrado."
-                });
+
+                if (existe.rows[0].email === dados.email) {
+                    return res.status(409).json({
+                        campo: "email",
+                        erro: "Este e-mail já está cadastrado."
+                    });
+                }
+
+                if (existe.rows[0].cpf === dados.cpfUser) {
+                    return res.status(409).json({
+                        campo: "cpf",
+                        erro: "Este CPF já está cadastrado."
+                    });
+                }
+
             }
 
         const novoUsuario = await db.query(
