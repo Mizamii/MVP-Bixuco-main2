@@ -3516,20 +3516,22 @@ app.post("/esqueceu-senha", async (req, res) => {
         const link = `${process.env.BASE_URL || "http://localhost:3000"}/redefinir-senha?token=${token}`;
 
         const sendSmtpEmail = new Brevo.SendSmtpEmail();
-        sendSmtpEmail.sender      = { name: "Bixuco", email: process.env.BREVO_FROM_EMAIL || "seuemail@gmail.com" };
-        sendSmtpEmail.to          = [{ email }];
-        sendSmtpEmail.subject     = "Recuperação de senha — Bixuco";
-        sendSmtpEmail.htmlContent = `
-            <div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;">
-                <h2 style="color:#32C26D;">Recuperação de senha</h2>
-                <p>Olá, <strong>${usuario.nome}</strong>!</p>
-                <p>Clique no botão abaixo para criar uma nova senha. O link expira em 1 hora.</p>
-                <a href="${link}" style="display:inline-block;background:linear-gradient(135deg,#79D836,#32C26D);color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;margin:16px 0;">
-                    Redefinir senha
-                </a>
-                <p style="color:#5A5A5A;font-size:14px;">Se você não solicitou isso, ignore este email.</p>
-            </div>
-        `;
+        await brevoClient.transactionalEmails.sendTransacEmail({
+            sender: { name: "Bixuco", email: process.env.BREVO_FROM_EMAIL || "seuemail@gmail.com" },
+            to: [{ email }],
+            subject: "Recuperação de senha — Bixuco",
+            htmlContent: `
+                <div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;">
+                    <h2 style="color:#32C26D;">Recuperação de senha</h2>
+                    <p>Olá, <strong>${usuario.nome}</strong>!</p>
+                    <p>Clique no botão abaixo para criar uma nova senha. O link expira em 1 hora.</p>
+                    <a href="${link}" style="display:inline-block;background:linear-gradient(135deg,#79D836,#32C26D);color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;margin:16px 0;">
+                        Redefinir senha
+                    </a>
+                    <p style="color:#5A5A5A;font-size:14px;">Se você não solicitou isso, ignore este email.</p>
+                </div>
+            `
+        });
 
         await apiInstance.sendTransacEmail(sendSmtpEmail);
 
