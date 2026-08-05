@@ -1565,56 +1565,71 @@ app.post("/cadastro-finalizar", async (req, res) => {
             console.log("Cadastro-finalizar - email:", dados.email, "| cpf:", dados.cpfUser);
 
             const existe = await db.query(
-                `SELECT email, cpf FROM usuarios
+                `SELECT id, email, cpf, tipo FROM usuarios
                 WHERE email = $1 OR cpf = $2`,
                 [dados.email, dados.cpfUser]
             );
 
-            if (existe.rows.length > 0) {
+            const contaPendente = existe.rows.find(r => r.tipo === 'pendente');
+            const contaCompleta = existe.rows.find(r => r.tipo !== 'pendente');
 
-                if (existe.rows[0].email === dados.email) {
-                    return res.status(409).json({
-                        campo: "email",
-                        erro: "Este e-mail já está cadastrado."
-                    });
+            if (contaCompleta) {
+                if (contaCompleta.email === dados.email) {
+                    return res.status(409).json({ campo: "email", erro: "Este e-mail já está cadastrado." });
                 }
-
-                if (existe.rows[0].cpf === dados.cpfUser) {
-                    return res.status(409).json({
-                        campo: "cpf",
-                        erro: "Este CPF já está cadastrado."
-                    });
-                }
-
+                return res.status(409).json({ campo: "cpf", erro: "Este CPF já está cadastrado." });
             }
 
-        const novoUsuario = await db.query(
-            `INSERT INTO usuarios
-            (nome, email, cpf, senha, data_nascimento, tipo, cep, cidade, estado, bairro)
-            VALUES ($1,$2,$3,$4,$5,'pai',$6,$7,$8,$9)
-            RETURNING id, tipo`,
-            [
-                dados.nome,
-                dados.email,
-                dados.cpfUser,
-                senhaHash,
-                dados.dataNascimento,
-                dados.cep,
-                dados.cidade,
-                dados.estado,
-                dados.bairro
-            ]
-        );
+            if (contaPendente) {
+                // Conta veio do Google e nunca foi completada — assume ela em vez de bloquear
+                const atualizado = await db.query(
+                    `UPDATE usuarios
+                    SET nome=$1, cpf=$2, senha=$3, data_nascimento=$4, tipo='pai',
+                        cep=$5, cidade=$6, estado=$7, bairro=$8, novo_usuario=FALSE
+                    WHERE id=$9
+                    RETURNING id, tipo`,
+                    [dados.nome, dados.cpfUser, senhaHash, dados.dataNascimento,
+                    dados.cep, dados.cidade, dados.estado, dados.bairro, contaPendente.id]
+                );
 
-        delete req.session.cadastro;
+                delete req.session.cadastro;
+                req.session.usuarioId = atualizado.rows[0].id;
+                req.session.tipo = atualizado.rows[0].tipo;
 
-        req.session.usuarioId = novoUsuario.rows[0].id;
-        req.session.tipo = novoUsuario.rows[0].tipo;
-        
-        return res.json({
-            sucesso: true,
-            destino: "/AdicionarC"
-        });
+                return res.json({ sucesso: true, destino: "/AdicionarC" });
+            }
+
+            // nenhuma linha encontrada — segue o INSERT normal que já existe
+
+            const novoUsuario = await db.query(
+                `INSERT INTO usuarios
+                (nome, email, cpf, senha, data_nascimento, tipo, cep, cidade, estado, bairro)
+                VALUES ($1,$2,$3,$4,$5,'pai',$6,$7,$8,$9)
+                RETURNING id, tipo`,
+                [
+                    dados.nome,
+                    dados.email,
+                    dados.cpfUser,
+                    senhaHash,
+                    dados.dataNascimento,
+                    dados.cep,
+                    dados.cidade,
+                    dados.estado,
+                    dados.bairro
+                ]
+            );
+
+            delete req.session.cadastro;
+
+            req.session.usuarioId = novoUsuario.rows[0].id;
+            req.session.tipo = novoUsuario.rows[0].tipo;
+            
+            return res.json({
+                sucesso: true,
+                destino: "/AdicionarC"
+            });
+
+            
 
         }
 
@@ -1632,18 +1647,43 @@ app.post("/cadastro-finalizar", async (req, res) => {
             }
 
             const existe = await db.query(
-                `SELECT * FROM usuarios
-                 WHERE email = $1 OR crp = $2`,
+                `SELECT id, email, crp, tipo FROM usuarios
+                WHERE email = $1 OR crp = $2`,
                 [dados.email, dados.crp]
             );
 
-            if (existe.rows.length > 0) {
-                return res.status(409).json({
-                    campo: "email",
-                    erro: "Email ou CRP já cadastrado."
-                });
+            const contaPendente = existe.rows.find(r => r.tipo === 'pendente');
+            const contaCompleta = existe.rows.find(r => r.tipo !== 'pendente');
+
+            if (contaCompleta) {
+                if (contaCompleta.email === dados.email) {
+                    return res.status(409).json({ campo: "email", erro: "Este e-mail já está cadastrado." });
+                }
+                return res.status(409).json({ campo: "crp", erro: "Este CRP já está cadastrado." });
             }
 
+            if (contaPendente) {
+                // Conta veio do Google e nunca foi completada — assume ela em vez de bloquear
+                const atualizado = await db.query(
+                    `UPDATE usuarios
+                    SET nome=$1, crp=$2, senha=$3, data_nascimento=$4, tipo='psicologo',
+                        cep=$5, cidade=$6, estado=$7, bairro=$8, novo_usuario=FALSE
+                    WHERE id=$9
+                    RETURNING id, tipo`,
+                    [dados.nome, dados.crp, senhaHash, dados.dataNascimento,
+                    dados.cep, dados.cidade, dados.estado, dados.bairro, contaPendente.id]
+                );
+
+                delete req.session.cadastro;
+                req.session.usuarioId = atualizado.rows[0].id;
+                req.session.tipo = atualizado.rows[0].tipo;
+
+                return res.json({ sucesso: true, destino: "/hometerapeuta" });
+            }
+
+            // nenhuma linha encontrada — segue o INSERT normal que já existe
+
+            
             const codigoVinculo = await gerarCodigoVinculo();
 
             const novoUsuario = await db.query(
@@ -1672,7 +1712,7 @@ app.post("/cadastro-finalizar", async (req, res) => {
 
             return res.json({
                 sucesso: true,
-                destino: "/logar"
+                destino: "/hometerapeuta"
             });
 
         }
