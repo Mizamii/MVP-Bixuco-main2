@@ -810,31 +810,11 @@ app.get("/api/configuracoes/notificacoes", estaLogado, async (req, res) => {
 
         const prefs = resultado.rows[0];
 
-        res.json({
+        res.set("Cache-Control", "no-store");
+        return res.json({
             lembrete:  prefs.notif_lembrete  !== null ? prefs.notif_lembrete  : true,
             novidades: prefs.notif_novidades !== null ? prefs.notif_novidades : false
         });
-
-        // Preferências do terapeuta
-    if (req.body.lembreteRelatorio !== undefined) {
-        await db.query(
-            `INSERT INTO preferencias_usuario (usuario_id, notif_lembrete)
-            VALUES ($1, $2)
-            ON CONFLICT (usuario_id)
-            DO UPDATE SET notif_lembrete = $2`,
-            [usuarioId, req.body.lembreteRelatorio]
-        );
-    }
-
-    if (req.body.novaSolicitacao !== undefined) {
-        await db.query(
-            `INSERT INTO preferencias_usuario (usuario_id, notif_novidades)
-            VALUES ($1, $2)
-            ON CONFLICT (usuario_id)
-            DO UPDATE SET notif_novidades = $2`,
-            [usuarioId, req.body.novaSolicitacao]
-        );
-    }
 
     } catch (erro) {
 
@@ -948,6 +928,49 @@ app.post("/api/adicionar-crianca", estaLogado, upload.single("fotoCrianca"), asy
 
 });
 
+
+// Checa em tempo real (enquanto o usuário digita) se email/cpf/crp já
+// estão em uso — usada pelas telas de cadastro para não deixar o erro
+// só aparecer na etapa seguinte.
+app.post("/api/verificar-disponibilidade", async (req, res) => {
+
+    const { campo, valor } = req.body || {};
+
+    const colunaPorCampo = {
+        email: "email",
+        cpf:   "cpf",
+        crp:   "crp"
+    };
+
+    const coluna = colunaPorCampo[campo];
+
+    if (!coluna || !valor) {
+        return res.json({ disponivel: true });
+    }
+
+    try {
+
+        const resultado = await db.query(
+            `SELECT tipo FROM usuarios WHERE ${coluna} = $1`,
+            [valor]
+        );
+
+        // Contas "pendente" vieram do login com Google e nunca terminaram
+        // o cadastro — elas são assumidas depois, então não bloqueiam aqui.
+        const bloqueado = resultado.rows.some(linha => linha.tipo !== "pendente");
+
+        res.json({ disponivel: !bloqueado });
+
+    } catch (erro) {
+
+        console.log("Erro ao verificar disponibilidade:", erro);
+        // Em caso de erro interno não travamos o usuário — a checagem
+        // definitiva continua acontecendo no envio do formulário.
+        res.json({ disponivel: true });
+
+    }
+
+});
 
 app.post("/continuar-cadastro-psicologo", async (req, res) => {
 

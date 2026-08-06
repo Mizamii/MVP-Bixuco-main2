@@ -491,6 +491,78 @@
         }
 
         // ==========================
+        // LIMPAR ERRO DE UM ÚNICO CAMPO
+        // (usado na validação em tempo real, sem precisar dar Enter)
+        // ==========================
+
+        function limparErroCampo(inputId, erroId) {
+
+            const input = document.getElementById(inputId);
+            const erro  = document.getElementById(erroId);
+
+            if (input) input.classList.remove("input-erro");
+
+            if (erro) {
+                erro.style.display = "none";
+                erro.textContent   = "";
+            }
+
+        }
+
+        // ==========================
+        // DEBOUNCE — espera o usuário parar de digitar
+        // antes de consultar o servidor
+        // ==========================
+
+        function debounce(funcao, atraso = 600) {
+
+            let temporizador;
+
+            return (...args) => {
+                clearTimeout(temporizador);
+                temporizador = setTimeout(() => funcao(...args), atraso);
+            };
+
+        }
+
+        // ==========================
+        // CHECAR NO SERVIDOR SE EMAIL/CPF JÁ ESTÃO EM USO
+        // ==========================
+
+        async function verificarDisponibilidade(campo, valor) {
+
+            try {
+
+                const resposta = await fetch("/api/verificar-disponibilidade", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ campo, valor })
+                });
+
+                if (!resposta.ok) return true;
+
+                const dados = await resposta.json();
+                return dados.disponivel !== false;
+
+            } catch (erro) {
+
+                console.log("Erro ao verificar disponibilidade:", erro);
+                return true; // não trava o usuário por erro de conexão
+
+            }
+
+        }
+
+        // ==========================
+        // FORMATO DO CPF (sem checar dígito verificador —
+        // isso o backend já faz com a lib cpf-cnpj-validator)
+        // ==========================
+
+        function cpfFormatoValido(cpfLimpo) {
+            return cpfLimpo.length === 11 && !/^(\d)\1{10}$/.test(cpfLimpo);
+        }
+
+        // ==========================
         // VERIFICAR MAIOR DE IDADE
         // ==========================
 
@@ -556,7 +628,7 @@
             // Validação mais descritiva do CPF
             // O backend tem a validação real com dígitos verificadores
             // aqui garantimos pelo menos o formato correto
-            if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
+            if (!cpfFormatoValido(cpf)) {
                 mostrarErro("cpf", "erro-cpf", "CPF inválido. Verifique os números digitados.");
                 valido = false;
             }
@@ -584,6 +656,104 @@
             return valido;
 
         }
+
+        // ==========================
+        // VALIDAÇÃO EM TEMPO REAL
+        // (o erro some assim que o campo fica válido — não precisa
+        // apertar Enter nem clicar em Continuar)
+        // ==========================
+
+        const campoNome  = document.getElementById("nome");
+        const campoEmail = document.getElementById("email");
+        const campoTel   = document.getElementById("telefone");
+        const campoData  = document.getElementById("dataNascimento");
+        const campoCPF   = document.getElementById("cpf");
+        const campoCEP   = document.getElementById("cep");
+        const campoBairroLive = document.getElementById("bairro");
+
+        const regexEmailLive = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        campoNome.addEventListener("input", () => {
+            const partes = campoNome.value.trim().split(" ").filter(p => p);
+            if (partes.length >= 2) limparErroCampo("nome", "erro-nome");
+        });
+
+        // Checa disponibilidade do email só depois que o formato já está
+        // válido e o usuário parou de digitar por um instante
+        const checarEmailDisponivel = debounce(async () => {
+
+            const valor = campoEmail.value.trim();
+            if (!regexEmailLive.test(valor)) return;
+
+            const disponivel = await verificarDisponibilidade("email", valor);
+
+            // se o usuário já mudou o valor enquanto a resposta chegava, ignora
+            if (campoEmail.value.trim() !== valor) return;
+
+            if (!disponivel) {
+                mostrarErro("email", "erro-email", "Este e-mail já está cadastrado.");
+            } else {
+                limparErroCampo("email", "erro-email");
+            }
+
+        });
+
+        campoEmail.addEventListener("input", () => {
+            if (regexEmailLive.test(campoEmail.value.trim())) {
+                limparErroCampo("email", "erro-email");
+                checarEmailDisponivel();
+            }
+        });
+
+        campoTel.addEventListener("input", () => {
+            const numeros = campoTel.value.replace(/\D/g, "");
+            if (numeros.length === 0 || numeros.length >= 10) {
+                limparErroCampo("telefone", "erro-telefone");
+            }
+        });
+
+        campoData.addEventListener("input", () => {
+            if (campoData.value && maiorIdade(campoData.value)) {
+                limparErroCampo("dataNascimento", "erro-dataNascimento");
+            }
+        });
+
+        // Mesma ideia para o CPF: valida o formato e, se estiver certo,
+        // pergunta ao servidor se já está em uso
+        const checarCPFDisponivel = debounce(async () => {
+
+            const valor   = campoCPF.value.trim();
+            const numeros = valor.replace(/\D/g, "");
+            if (!cpfFormatoValido(numeros)) return;
+
+            const disponivel = await verificarDisponibilidade("cpf", valor);
+
+            if (campoCPF.value.trim() !== valor) return;
+
+            if (!disponivel) {
+                mostrarErro("cpf", "erro-cpf", "Este CPF já está cadastrado.");
+            } else {
+                limparErroCampo("cpf", "erro-cpf");
+            }
+
+        });
+
+        campoCPF.addEventListener("input", () => {
+            const numeros = campoCPF.value.replace(/\D/g, "");
+            if (cpfFormatoValido(numeros)) {
+                limparErroCampo("cpf", "erro-cpf");
+                checarCPFDisponivel();
+            }
+        });
+
+        campoCEP.addEventListener("input", () => {
+            const numeros = campoCEP.value.replace(/\D/g, "");
+            if (numeros.length === 8) limparErroCampo("cep", "erro-cep");
+        });
+
+        campoBairroLive.addEventListener("input", () => {
+            if (campoBairroLive.value.trim()) limparErroCampo("bairro", "erro-bairro");
+        });
 
         // ==========================
         // ENVIO DO FORMULÁRIO

@@ -572,6 +572,69 @@
         }
 
         // ==========================
+        // LIMPAR ERRO DE UM ÚNICO CAMPO
+        // (usado na validação em tempo real, sem precisar dar Enter)
+        // ==========================
+
+        function limparErroCampo(inputId, erroId) {
+
+            const input = document.getElementById(inputId);
+            const erro  = document.getElementById(erroId);
+
+            if (input) input.classList.remove("input-erro");
+
+            if (erro) {
+                erro.style.display = "none";
+                erro.textContent   = "";
+            }
+
+        }
+
+        // ==========================
+        // DEBOUNCE — espera o usuário parar de digitar
+        // antes de consultar o servidor
+        // ==========================
+
+        function debounce(funcao, atraso = 600) {
+
+            let temporizador;
+
+            return (...args) => {
+                clearTimeout(temporizador);
+                temporizador = setTimeout(() => funcao(...args), atraso);
+            };
+
+        }
+
+        // ==========================
+        // CHECAR NO SERVIDOR SE EMAIL/CRP JÁ ESTÃO EM USO
+        // ==========================
+
+        async function verificarDisponibilidade(campo, valor) {
+
+            try {
+
+                const resposta = await fetch("/api/verificar-disponibilidade", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ campo, valor })
+                });
+
+                if (!resposta.ok) return true;
+
+                const dados = await resposta.json();
+                return dados.disponivel !== false;
+
+            } catch (erro) {
+
+                console.log("Erro ao verificar disponibilidade:", erro);
+                return true; // não trava o usuário por erro de conexão
+
+            }
+
+        }
+
+        // ==========================
         // VERIFICAR MAIOR DE IDADE
         // ==========================
 
@@ -674,6 +737,102 @@
             return valido;
 
         }
+
+        // ==========================
+        // VALIDAÇÃO EM TEMPO REAL
+        // (o erro some assim que o campo fica válido — não precisa
+        // apertar Enter nem clicar em Continuar)
+        // ==========================
+
+        const campoNome  = document.getElementById("nome");
+        const campoEmail = document.getElementById("email");
+        const campoTel   = document.getElementById("telefone");
+        const campoData  = document.getElementById("dataNascimento");
+        const campoCRP   = document.getElementById("crp");
+        const campoCEP   = document.getElementById("cep");
+        const campoBairroLive = document.getElementById("bairro");
+
+        const regexEmailLive = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        campoNome.addEventListener("input", () => {
+            const partes = campoNome.value.trim().split(" ").filter(p => p);
+            if (partes.length >= 2) limparErroCampo("nome", "erro-nome");
+        });
+
+        // Checa disponibilidade do email só depois que o formato já está
+        // válido e o usuário parou de digitar por um instante
+        const checarEmailDisponivel = debounce(async () => {
+
+            const valor = campoEmail.value.trim();
+            if (!regexEmailLive.test(valor)) return;
+
+            const disponivel = await verificarDisponibilidade("email", valor);
+
+            // se o usuário já mudou o valor enquanto a resposta chegava, ignora
+            if (campoEmail.value.trim() !== valor) return;
+
+            if (!disponivel) {
+                mostrarErro("email", "erro-email", "Este e-mail já está cadastrado.");
+            } else {
+                limparErroCampo("email", "erro-email");
+            }
+
+        });
+
+        campoEmail.addEventListener("input", () => {
+            if (regexEmailLive.test(campoEmail.value.trim())) {
+                limparErroCampo("email", "erro-email");
+                checarEmailDisponivel();
+            }
+        });
+
+        campoTel.addEventListener("input", () => {
+            const numeros = campoTel.value.replace(/\D/g, "");
+            if (numeros.length === 0 || numeros.length >= 10) {
+                limparErroCampo("telefone", "erro-telefone");
+            }
+        });
+
+        campoData.addEventListener("input", () => {
+            if (campoData.value && maiorIdade(campoData.value)) {
+                limparErroCampo("dataNascimento", "erro-dataNascimento");
+            }
+        });
+
+        // Mesma ideia para o CRP: valida o formato e, se estiver certo,
+        // pergunta ao servidor se já está em uso
+        const checarCRPDisponivel = debounce(async () => {
+
+            const valor = campoCRP.value.trim();
+            if (!validarCRP(valor)) return;
+
+            const disponivel = await verificarDisponibilidade("crp", valor);
+
+            if (campoCRP.value.trim() !== valor) return;
+
+            if (!disponivel) {
+                mostrarErro("crp", "erro-crp", "Este CRP já está cadastrado.");
+            } else {
+                limparErroCampo("crp", "erro-crp");
+            }
+
+        });
+
+        campoCRP.addEventListener("input", () => {
+            if (validarCRP(campoCRP.value.trim())) {
+                limparErroCampo("crp", "erro-crp");
+                checarCRPDisponivel();
+            }
+        });
+
+        campoCEP.addEventListener("input", () => {
+            const numeros = campoCEP.value.replace(/\D/g, "");
+            if (numeros.length === 8) limparErroCampo("cep", "erro-cep");
+        });
+
+        campoBairroLive.addEventListener("input", () => {
+            if (campoBairroLive.value.trim()) limparErroCampo("bairro", "erro-bairro");
+        });
 
         // ==========================
         // ENVIO DO FORMULÁRIO
