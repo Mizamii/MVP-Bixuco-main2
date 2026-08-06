@@ -1,6 +1,9 @@
 /* ========================= */
     /* MODAL — "SOBRE" (ex: Sobre nós, Segurança, etc.) */
     /* ========================= */
+    .conteudo {
+        overflow-y: auto;
+    }
 
     .modal {
         display: none;
