@@ -11,11 +11,21 @@
 
    ========================================================== */
 
+/* ---------- Scroll do conteúdo ---------- */
+/* .conteudo (home.css) vem com overflow: hidden — sem uma
+   .conteudo-corpo envolvendo as seções, isso corta o card do
+   questionário quando ele passa da altura da tela. Reabilita
+   o scroll só nesta página. */
+
+   .conteudo {
+    overflow-y: auto;
+}
+
 /* ---------- Cabeçalho da página ---------- */
 /* padding lateral igual ao de Configurações (.cabecalho),
    já que .conteudo (home.css) não tem padding próprio */
 
-   .cabecalho-relatorio {
+.cabecalho-relatorio {
     display: flex;
     align-items: center;
     justify-content: space-between;
