@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco • Meu Perfil</title>
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/css/tema.css"
+    >
+
+    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
+
+    <link
+        rel="stylesheet"
+        href="/css/home.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/css/perfil.css"
+    >
+
+    <!-- Fase 1: estilos da edição de nome/foto -->
+    <link
+        rel="stylesheet"
+        href="/css/perfil.css"
+    >
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- ===========================
+        MENU LATERAL
+        =========================== -->
+
+        <aside class="sidebar">
+
+            <div class="logo">
+
+                <img
+                    src="/img/logo_nome.png"
+                    alt="Bixuco"
+                >
+
+            </div>
+
+            <nav>
+
+                <a href="/home">
+
+                    <i class="fa-solid fa-house"></i>
+
+                    <span>Início</span>
+
+                </a>
+
+                <a href="/relatorios">
+
+                    <i class="fa-solid fa-chart-line"></i>
+
+                    <span>Relatórios</span>
+
+                </a>
+
+                <a
+                    href="/perfil"
+                    class="ativo"
+                >
+
+                    <i class="fa-solid fa-user"></i>
+
+                    <span>Perfil</span>
+
+                </a>
+
+                <a href="/configuracoes">
+
+                    <i class="fa-solid fa-gear"></i>
+
+                    <span>Configurações</span>
+
+                </a>
+
+                <a href="/sobre">
+
+                    <i class="fa-solid fa-circle-info"></i>
+
+                    <span>Sobre</span>
+
+                </a>
+
+            </nav>
+
+            <button
+                class="btn-relatorio"
+                type="button"
+                onclick="location.href='/RelatorioDiario'"
+            >
+
+                Relatório diário
+
+            </button>
+
+            <div class="tema">
+
+                <button
+                    id="btnClaro"
+                    class="ativo"
+                    type="button"
+                >
+
+                    <i class="fa-regular fa-sun"></i>
+
+                    Claro
+
+                </button>
+
+                <button
+                    id="btnEscuro"
+                    type="button"
+                >
+
+                    <i class="fa-regular fa-moon"></i>
+
+                    Escuro
+
+                </button>
+
+            </div>
+
+            <!-- Divisor em degradê antes do Sair (igual ao Home) -->
+            <div class="sidebar-divisor"></div>
+
+            <a
+                href="/logout"
+                class="logout"
+            >
+
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+
+                <span>Sair</span>
+
+            </a>
+
+        </aside>
+
+        <!-- ===========================
+        CONTEÚDO
+        =========================== -->
+
+        <main class="conteudo">
+
+            <header class="topo">
+
+                <button class="tradutor" type="button" id="btnTraduzir">
+                    <i class="fa-solid fa-language"></i>
+                    <span id="textoTradutor">Traduzir para inglês</span>
+                </button>
+
+                <div
+                    id="google_translate_element"
+                    style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0);"
+                ></div>
+
+                <div class="usuario">
+
+                    <div class="notificacoes-wrapper">
+                        <button class="notificacoes" type="button" id="btnNotificacoes">
+                            <i class="fa-regular fa-bell"></i>
+                            <span id="quantidadeNotificacoes" class="badge">0</span>
+                        </button>
+
+                        <div class="painel-notificacoes" id="painelNotificacoes">
+                            <div class="painel-header">Notificações</div>
+                            <div id="listaNotificacoes">
+                                <div class="painel-vazio">Carregando...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <img
+                        id="fotoUsuario"
+                        src="/img/perfilPadrao.png"
+                        alt="Foto do usuário"
+                        title="Ver perfil"
+                        style="cursor: pointer;"
+                        onclick="window.location.href='/perfil'"
+                        onerror="this.src='/img/perfilPadrao.png'"
+                    >
+
+                    <div>
+
+                        <h3 id="nomeUsuario">
+
+                            Carregando...
+
+                        </h3>
+
+                        <span id="tipoConta">
+
+                            ...
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+            <div class="conteudo-corpo">
+
+            <section class="titulo">
+
+                <h1>
+
+                    Meu perfil
+
+                </h1>
+
+                <p>
+
+                    Gerencie suas informações e preferências
+
+                </p>
+
+            </section>
+
+            <div class="grid-perfil">
+
+                <!-- ========================= -->
+                <!-- COLUNA ESQUERDA: PERFIL + CRIANÇA -->
+                <!-- ========================= -->
+
+                <div class="perfil-coluna-esquerda">
+
+                <!-- ========================= -->
+                <!-- CARD PERFIL -->
+                <!-- ========================= -->
+
+                <div class="card perfil-card">
+
+                    <div class="perfil-topo">
+
+                        <div
+                            class="perfil-foto-wrapper"
+                            id="perfilFotoWrapper"
+                            title="Alterar foto de perfil"
+                        >
+
+                            <img
+                                id="fotoPerfil"
+                                src="/img/perfilPadrao.png"
+                                alt="Foto de perfil"
+                            >
+
+                            <div class="perfil-foto-overlay">
+                                <i class="fa-solid fa-camera"></i>
+                            </div>
+
+                        </div>
+
+                        <input
+                            type="file"
+                            id="inputFotoPerfil"
+                            accept="image/*"
+                            style="display: none;"
+                        >
+
+                        <div>
+
+                            <div class="perfil-nome-linha" id="perfilNomeLinha">
+
+                                <h2 id="perfilNome">
+                                    Carregando...
+                                </h2>
+
+                                <button
+                                    type="button"
+                                    class="btn-editar-nome"
+                                    id="btnEditarNome"
+                                    title="Editar nome"
+                                >
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+
+                            </div>
+
+                            <div class="perfil-nome-editar" id="perfilNomeEditar" style="display: none;">
+
+                                <input
+                                    type="text"
+                                    id="inputNome"
+                                    class="input-nome"
+                                    maxlength="80"
+                                    autocomplete="name"
+                                >
+
+                                <button
+                                    type="button"
+                                    class="btn-salvar-nome"
+                                    id="btnSalvarNome"
+                                    title="Salvar"
+                                >
+                                    <i class="fa-solid fa-check"></i>
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="btn-cancelar-nome"
+                                    id="btnCancelarNome"
+                                    title="Cancelar"
+                                >
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+
+                            </div>
+
+                            <span class="erro-nome" id="erroNome"></span>
+
+                            <p id="perfilDescricao">
+
+                                Responsável
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="perfil-foto-acoes" id="perfilFotoAcoes">
+                        <button type="button" class="btn-salvar-foto" id="btnSalvarFoto">
+                            Salvar foto
+                        </button>
+                        <button type="button" class="btn-cancelar-foto" id="btnCancelarFoto">
+                            Cancelar
+                        </button>
+                    </div>
+
+                    <div class="badges">
+
+                        <span id="badgeDias">
+
+                            🔥 0 dias seguidos
+
+                        </span>
+
+                        <span id="badgeMaiorOfensiva">
+
+                            🏆 Maior sequência: 0 dias
+
+                        </span>
+
+                        <span id="badgePlano">
+
+                            Plano
+
+                        </span>
+
+                    </div>
+
+                    <div class="mensagemPerfil">
+
+                        <strong>
+
+                            Você está fazendo um ótimo trabalho!
+
+                        </strong>
+
+                        <p>
+
+                            A consistência no acompanhamento faz toda diferença.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <!-- Criança + gato -->
+
+                <div class="crianca-e-gato">
+
+                    <img
+                        src="/img/Gatodeitado.png"
+                        alt="gato deitado"
+                        class="gato-deitado"
+                    >
+
+                    <section class="card crianca">
+
+                        <h2>
+
+                            Criança cadastrada
+
+                        </h2>
+
+                        <!-- Se já existe criança cadastrada, abre o modal de edição
+                             em vez de navegar para /adicionar-crianca -->
+
+                        <a
+                            href="/adicionar-crianca"
+                            class="item-card"
+                            id="linkCrianca"
+                        >
+
+                            <div
+                                class="avatar-crianca"
+                                id="avatarCrianca"
+                            >
+
+                                ?
+
+                            </div>
+
+                            <div>
+
+                                <h3 id="nomeCrianca">
+
+                                    Carregando...
+
+                                </h3>
+
+                                <p id="idadeCrianca">
+
+                                    ...
+
+                                </p>
+
+                            </div>
+
+                            <i class="fa-solid fa-chevron-right seta"></i>
+
+                        </a>
+
+                    </section>
+
+                </div>
+
+                </div>
+
+                <!-- ========================= -->
+                <!-- COLUNA DIREITA -->
+                <!-- ========================= -->
+
+                <div class="perfil-direita">
+
+                    <!-- Terapeuta -->
+
+                    <section class="card terapeuta">
+
+                        <h2>
+
+                            Terapeuta vinculado
+
+                        </h2>
+
+                        <!-- estado 1: sem vínculo nenhum -->
+                        <div id="estadoSemVinculo">
+
+                            <p class="texto-vazio">Nenhum terapeuta vinculado ainda.</p>
+
+                            <button
+                                type="button"
+                                class="btn-vincular"
+                                id="btnAbrirModalVincular"
+                            >
+
+                                <i class="fa-solid fa-link"></i>
+
+                                Vincular terapeuta
+
+                            </button>
+
+                        </div>
+
+                        <!-- estado 2: pedido pendente -->
+                        <div
+                            id="estadoPendente"
+                            style="display: none;"
+                        >
+
+                            <div class="notificacao-status notificacao-status--pendente">
+
+                                <i class="fa-solid fa-clock"></i>
+
+                                <div>
+
+                                    <strong>Pedido enviado!</strong>
+
+                                    <p>Aguardando confirmação de <span id="nomeTerapeutaPendente">...</span></p>
+
+                                </div>
+
+                            </div>
+
+                            <button
+                                type="button"
+                                class="btn-cancelar-vinculo"
+                                id="btnCancelarPedido"
+                            >
+
+                                Cancelar pedido
+
+                            </button>
+
+                        </div>
+
+                        <!-- estado 3: recusado -->
+                        <div
+                            id="estadoRecusado"
+                            style="display: none;"
+                        >
+
+                            <div class="notificacao-status notificacao-status--recusado">
+
+                                <i class="fa-solid fa-circle-xmark"></i>
+
+                                <div>
+
+                                    <strong>Pedido recusado</strong>
+
+                                    <p>O terapeuta não aceitou o vínculo.</p>
+
+                                </div>
+
+                            </div>
+
+                            <button
+                                type="button"
+                                class="btn-vincular"
+                                id="btnTentarOutroTerapeuta"
+                                style="margin-top: 1rem;"
+                            >
+
+                                <i class="fa-solid fa-link"></i>
+
+                                Tentar outro terapeuta
+
+                            </button>
+
+                        </div>
+
+                        <!-- estado 4: vínculo aceito -->
+                        <div
+                            id="estadoAceito"
+                            style="display: none;"
+                        >
+
+                            <div class="terapeuta-info">
+
+                                <div class="avatar-terapeuta">
+
+                                    <img
+                                        id="fotoTerapeutaVinculado"
+                                        src="/img/perfilPadrao.png"
+                                        alt="Foto do terapeuta"
+                                        onerror="this.src='/img/perfilPadrao.png'"
+                                    >
+
+                                </div>
+
+                                <div class="dados-terapeuta">
+
+                                    <h3 id="nomeTerapeutaVinculado">...</h3>
+
+                                    <p id="crpTerapeutaVinculado">CRP: ...</p>
+
+                                </div>
+
+                                <span class="badge-ativo">Ativo</span>
+
+                            </div>
+
+                            <div
+                                id="confirmarRemocao"
+                                class="confirmar-remocao"
+                                style="display: none;"
+                            >
+
+                                <p>
+
+                                    Tem certeza que deseja remover o terapeuta?
+
+                                </p>
+
+                                <div class="confirmar-botoes">
+
+                                    <button
+                                        type="button"
+                                        id="btnConfirmarRemover"
+                                        class="btn-confirmar"
+                                    >
+
+                                        Sim, remover
+
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        id="btnCancelarRemover"
+                                        class="btn-cancelar-remocao"
+                                    >
+
+                                        Cancelar
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                            <button
+                                class="btn-remover"
+                                id="btnRemoverTerapeuta"
+                                type="button"
+                            >
+
+                                <i class="fa-solid fa-link-slash"></i>
+
+                                Remover terapeuta
+
+                            </button>
+
+                        </div>
+
+                    </section>
+
+                    <!-- Conta -->
+
+                    <section class="card conta">
+
+                        <h2>
+
+                            Conta
+
+                        </h2>
+
+                        <a
+                            href="/planos"
+                            class="item-card"
+                        >
+
+                            <div class="icone-card">
+
+                                <i class="fa-solid fa-crown"></i>
+
+                            </div>
+
+                            <div>
+
+                                <h3>
+
+                                    Minha assinatura
+
+                                </h3>
+
+                                <p id="nomePlano">
+
+                                    Carregando...
+
+                                </p>
+
+                            </div>
+
+                            <i class="fa-solid fa-chevron-right seta"></i>
+
+                        </a>
+
+                    </section>
+
+                </div>
+
+            </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- ===========================
+    MODAL — VINCULAR TERAPEUTA
+    =========================== -->
+
+    <div id="modalVincular">
+        <div class="modal-conteudo">
+
+            <div class="modal-header">
+                <h3>Vincular terapeuta</h3>
+                <button
+                    type="button"
+                    class="btn-fechar-modal"
+                    id="btnFecharModalVincular"
+                >
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <p class="modal-descricao">
+                Digite o código de vínculo do seu terapeuta. Ele encontra o código no perfil dele.
+            </p>
+
+            <label for="inputCodigoTerapeuta">Código do terapeuta</label>
+            <input
+                type="text"
+                id="inputCodigoTerapeuta"
+                placeholder="Ex: BX-A1B2C3"
+            >
+
+            <span
+                class="erro-vincular"
+                id="erroVincular"
+                style="display: none;"
+            ></span>
+
+            <button
+                type="button"
+                class="btn-salvar-crianca"
+                id="btnEnviarPedidoVinculo"
+            >
+                Enviar pedido
+            </button>
+
+        </div>
+    </div>
+
+    <!-- ===========================
+    MODAL — INFORMAÇÕES DA CRIANÇA
+    =========================== -->
+
+    <div id="modalCrianca">
+        <div class="modal-conteudo">
+
+            <div class="modal-header">
+                <h3>Informações da criança</h3>
+                <button
+                    type="button"
+                    class="btn-fechar-modal"
+                    id="btnFecharModalCrianca"
+                    aria-label="Fechar"
+                >
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div
+                class="crianca-foto-wrapper"
+                id="criancaFotoWrapper"
+                title="Alterar foto"
+            >
+                <img
+                    id="fotoCriancaModal"
+                    src="/img/perfilPadrao.png"
+                    alt="Foto da criança"
+                >
+                <div class="crianca-foto-overlay">
+                    <i class="fa-solid fa-camera"></i>
+                </div>
+            </div>
+
+            <input
+                type="file"
+                id="inputFotoCrianca"
+                accept="image/*"
+                style="display: none;"
+            >
+
+            <label for="inputNomeCrianca">Nome</label>
+            <input
+                type="text"
+                id="inputNomeCrianca"
+                maxlength="80"
+            >
+
+            <label for="idadeCriancaModal">Idade</label>
+            <input
+                type="text"
+                id="idadeCriancaModal"
+                disabled
+            >
+            <span class="dica-idade">A idade é calculada pela data de nascimento e não pode ser editada aqui.</span>
+
+            <button
+                type="button"
+                class="btn-salvar-crianca"
+                id="btnSalvarCrianca"
+            >
+                Salvar alterações
+            </button>
+
+            <p id="statusCrianca" class="status-crianca"></p>
+
+        </div>
+    </div>
+
+    <!-- ===========================
+    JAVASCRIPT
+    =========================== -->
+
+    <script>
+
+        // ==========================
+        // ESTADO GLOBAL DA CRIANÇA
+        // ==========================
+
+        let criancaAtual = null;
+        let perfilCarregado = false;
+
+        // ==========================
+        // CARREGAR DADOS DO PERFIL
+        // ==========================
+
+        async function carregarPerfil() {
+
+            try {
+
+                const resposta = await fetch("/api/perfil");
+
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
+                }
+
+                if (!resposta.ok) {
+                    throw new Error("Erro ao carregar perfil");
+                }
+
+                const usuario = await resposta.json();
+
+                document.getElementById("nomeUsuario").textContent =
+                    usuario.nome || "Usuário";
+
+                document.getElementById("perfilNome").textContent =
+                    usuario.nome || "Usuário";
+
+                document.getElementById("tipoConta").textContent =
+                    usuario.tipoConta || "Responsável";
+
+                document.getElementById("perfilDescricao").textContent =
+                    `${usuario.tipoConta || "Responsável"} • Membro desde ${usuario.anoCadastro || "2026"}`;
+
+                if (usuario.fotoPerfil) {
+
+                    document.getElementById("fotoUsuario").src = usuario.fotoPerfil;
+                    document.getElementById("fotoPerfil").src  = usuario.fotoPerfil;
+
+                    fotoOriginalSrc = usuario.fotoPerfil;
+
+                }
+
+                document.getElementById("badgeDias").innerHTML =
+                    `🔥 ${usuario.diasConsecutivos || 0} dias seguidos`;
+
+                document.getElementById("badgeMaiorOfensiva").innerHTML =
+                    `🏆 Maior sequência: ${usuario.maiorOfensiva ?? usuario.diasConsecutivos ?? 0} dias`;
+
+                document.getElementById("badgePlano").textContent =
+                    usuario.plano || "Plano gratuito";
+
+                document.getElementById("nomePlano").textContent =
+                    usuario.plano || "Plano gratuito";
+
+                if (usuario.crianca) {
+
+                    criancaAtual = usuario.crianca;
+
+                    document.getElementById("nomeCrianca").textContent =
+                        usuario.crianca.nome;
+
+                    document.getElementById("idadeCrianca").textContent =
+                        usuario.crianca.idade + " anos";
+
+                    if (usuario.crianca.foto) {
+
+                        document.getElementById("avatarCrianca").innerHTML =
+                            `<img src="${usuario.crianca.foto}" alt="${usuario.crianca.nome}">`;
+
+                    } else {
+
+                        document.getElementById("avatarCrianca").textContent =
+                            usuario.crianca.nome.charAt(0).toUpperCase();
+
+                    }
+
+                } else {
+
+                    criancaAtual = null;
+
+                    document.getElementById("nomeCrianca").textContent =
+                        "Nenhuma criança";
+
+                    document.getElementById("idadeCrianca").textContent =
+                        "Cadastre uma criança";
+
+                }
+
+                // Terapeuta é tratado à parte por carregarVinculo(),
+                // que consulta /api/vinculos/status e cobre os 4 estados
+                // (sem vínculo / pendente / recusado / aceito)
+
+            } catch (erro) {
+
+                console.log("Erro ao carregar perfil:", erro);
+
+            } finally {
+
+                perfilCarregado = true;
+
+            }
+
+        }
+
+
+        // ==========================
+        // FOTO DE PERFIL
+        // ==========================
+
+        const perfilFotoWrapper = document.getElementById("perfilFotoWrapper");
+        const inputFotoPerfil   = document.getElementById("inputFotoPerfil");
+        const perfilFotoAcoes   = document.getElementById("perfilFotoAcoes");
+        const btnSalvarFoto     = document.getElementById("btnSalvarFoto");
+        const btnCancelarFoto   = document.getElementById("btnCancelarFoto");
+        const fotoPerfilImg     = document.getElementById("fotoPerfil");
+        const fotoUsuarioImg    = document.getElementById("fotoUsuario");
+
+        let fotoOriginalSrc = fotoPerfilImg.src;
+
+        perfilFotoWrapper.addEventListener("click", () => {
+            inputFotoPerfil.click();
+        });
+
+        inputFotoPerfil.addEventListener("change", () => {
+
+            const arquivo = inputFotoPerfil.files && inputFotoPerfil.files[0];
+            if (!arquivo) return;
+
+            const leitor = new FileReader();
+
+            leitor.onload = (e) => {
+                fotoPerfilImg.src = e.target.result;
+                perfilFotoAcoes.style.display = "flex";
+            };
+
+            leitor.readAsDataURL(arquivo);
+
+        });
+
+        btnCancelarFoto.addEventListener("click", () => {
+            fotoPerfilImg.src = fotoOriginalSrc;
+            inputFotoPerfil.value = "";
+            perfilFotoAcoes.style.display = "none";
+        });
+
+        btnSalvarFoto.addEventListener("click", async () => {
+
+            const arquivo = inputFotoPerfil.files && inputFotoPerfil.files[0];
+            if (!arquivo) return;
+
+            btnSalvarFoto.disabled    = true;
+            btnSalvarFoto.textContent = "Salvando...";
+
+            try {
+
+                const formData = new FormData();
+                formData.append("fotoPerfil", arquivo);
+
+                const resposta = await fetch("/api/perfil/atualizar", {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
+                }
+
+                const dados = await resposta.json();
+
+                if (!resposta.ok || !dados.sucesso) {
+                    throw new Error(dados.erro || "Erro ao salvar a foto.");
+                }
+
+                const novaFoto = dados.fotoPerfil || fotoPerfilImg.src;
+
+                fotoPerfilImg.src  = novaFoto;
+                fotoUsuarioImg.src = novaFoto;
+                fotoOriginalSrc    = novaFoto;
+
+                inputFotoPerfil.value = "";
+                perfilFotoAcoes.style.display = "none";
+
+            } catch (erro) {
+
+                console.log("Erro ao salvar foto de perfil:", erro);
+                alert(erro.message || "Erro ao salvar a foto. Tente novamente.");
+
+            } finally {
+
+                btnSalvarFoto.disabled    = false;
+                btnSalvarFoto.textContent = "Salvar foto";
+
+            }
+
+        });
+
+
+        // ==========================
+        // EDITAR NOME
+        // ==========================
+
+        const perfilNomeLinha  = document.getElementById("perfilNomeLinha");
+        const perfilNomeEditar = document.getElementById("perfilNomeEditar");
+        const perfilNomeH2     = document.getElementById("perfilNome");
+        const btnEditarNome    = document.getElementById("btnEditarNome");
+        const inputNome        = document.getElementById("inputNome");
+        const btnSalvarNome    = document.getElementById("btnSalvarNome");
+        const btnCancelarNome  = document.getElementById("btnCancelarNome");
+        const erroNome         = document.getElementById("erroNome");
+
+        btnEditarNome.addEventListener("click", () => {
+
+            inputNome.value = perfilNomeH2.textContent.trim();
+            erroNome.style.display = "none";
+
+            perfilNomeLinha.style.display  = "none";
+            perfilNomeEditar.style.display = "flex";
+
+            inputNome.focus();
+            inputNome.select();
+
+        });
+
+        btnCancelarNome.addEventListener("click", () => {
+            perfilNomeEditar.style.display = "none";
+            perfilNomeLinha.style.display  = "flex";
+            erroNome.style.display = "none";
+        });
+
+        btnSalvarNome.addEventListener("click", async () => {
+
+            const novoNome = inputNome.value.trim();
+
+            if (novoNome.length < 2) {
+                erroNome.textContent   = "Digite um nome válido.";
+                erroNome.style.display = "block";
+                return;
+            }
+
+            btnSalvarNome.disabled = true;
+
+            try {
+
+                const formData = new FormData();
+                formData.append("nome", novoNome);
+
+                const resposta = await fetch("/api/perfil/atualizar", {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
+                }
+
+                const dados = await resposta.json();
+
+                if (!resposta.ok || !dados.sucesso) {
+                    throw new Error(dados.erro || "Erro ao salvar o nome.");
+                }
+
+                const nomeFinal = dados.nome || novoNome;
+
+                perfilNomeH2.textContent = nomeFinal;
+                document.getElementById("nomeUsuario").textContent = nomeFinal;
+
+                perfilNomeEditar.style.display = "none";
+                perfilNomeLinha.style.display  = "flex";
+
+            } catch (erro) {
+
+                console.log("Erro ao salvar nome:", erro);
+                erroNome.textContent   = erro.message || "Erro ao salvar. Tente novamente.";
+                erroNome.style.display = "block";
+
+            } finally {
+
+                btnSalvarNome.disabled = false;
+
+            }
+
+        });
+
+        inputNome.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                btnSalvarNome.click();
+            } else if (e.key === "Escape") {
+                btnCancelarNome.click();
+            }
+        });
+
+
+        // ==========================
+        // MODAL DA CRIANÇA
+        // ==========================
+
+        const linkCrianca         = document.getElementById("linkCrianca");
+        const modalCrianca        = document.getElementById("modalCrianca");
+        const btnFecharModalCrianca = document.getElementById("btnFecharModalCrianca");
+        const criancaFotoWrapper  = document.getElementById("criancaFotoWrapper");
+        const inputFotoCrianca    = document.getElementById("inputFotoCrianca");
+        const fotoCriancaModal    = document.getElementById("fotoCriancaModal");
+        const inputNomeCrianca    = document.getElementById("inputNomeCrianca");
+        const idadeCriancaModal   = document.getElementById("idadeCriancaModal");
+        const btnSalvarCrianca    = document.getElementById("btnSalvarCrianca");
+        const statusCrianca       = document.getElementById("statusCrianca");
+
+        let fotoCriancaOriginal = null;
+        let arquivoFotoCrianca  = null;
+
+        // Sempre bloqueia a navegação padrão e só decide o que fazer
+        // depois de sabermos que os dados do perfil já chegaram
+        // (evita race condition levando para /adicionar-crianca por engano).
+        linkCrianca.addEventListener("click", (e) => {
+
+            e.preventDefault();
+
+            if (!perfilCarregado) {
+                return;
+            }
+
+            if (criancaAtual) {
+                abrirModalCrianca();
+            } else {
+                window.location.href = "/adicionar-crianca";
+            }
+
+        });
+
+        function abrirModalCrianca() {
+
+            inputNomeCrianca.value  = criancaAtual.nome || "";
+            idadeCriancaModal.value = (criancaAtual.idade ?? "0") + " anos";
+
+            fotoCriancaOriginal = criancaAtual.foto || "/img/perfilPadrao.png";
+            fotoCriancaModal.src = fotoCriancaOriginal;
+
+            arquivoFotoCrianca = null;
+            inputFotoCrianca.value = "";
+
+            statusCrianca.className = "status-crianca";
+
+            modalCrianca.classList.add("aberto");
+            document.body.style.overflow = "hidden";
+
+        }
+
+        function fecharModalCrianca() {
+            modalCrianca.classList.remove("aberto");
+            document.body.style.overflow = "";
+        }
+
+        btnFecharModalCrianca.addEventListener("click", fecharModalCrianca);
+
+        modalCrianca.addEventListener("click", (e) => {
+            if (e.target === modalCrianca) fecharModalCrianca();
+        });
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && modalCrianca.classList.contains("aberto")) {
+                fecharModalCrianca();
+            }
+        });
+
+        criancaFotoWrapper.addEventListener("click", () => {
+            inputFotoCrianca.click();
+        });
+
+        inputFotoCrianca.addEventListener("change", () => {
+
+            const arquivo = inputFotoCrianca.files && inputFotoCrianca.files[0];
+            if (!arquivo) return;
+
+            arquivoFotoCrianca = arquivo;
+
+            const leitor = new FileReader();
+            leitor.onload = (e) => {
+                fotoCriancaModal.src = e.target.result;
+            };
+            leitor.readAsDataURL(arquivo);
+
+        });
+
+        function mostrarStatusCrianca(texto, tipo) {
+            statusCrianca.textContent = texto;
+            statusCrianca.className   = `status-crianca visivel ${tipo}`;
+        }
+
+        btnSalvarCrianca.addEventListener("click", async () => {
+
+            const novoNome = inputNomeCrianca.value.trim();
+
+            if (novoNome.length < 2) {
+                mostrarStatusCrianca("Digite um nome válido.", "erro");
+                return;
+            }
+
+            btnSalvarCrianca.disabled    = true;
+            btnSalvarCrianca.textContent = "Salvando...";
+
+            try {
+
+                const formData = new FormData();
+                formData.append("nome", novoNome);
+
+                if (arquivoFotoCrianca) {
+                    formData.append("fotoCrianca", arquivoFotoCrianca);
+                }
+
+                const resposta = await fetch("/api/crianca/atualizar", {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
+                }
+
+                const dados = await resposta.json();
+
+                if (!resposta.ok || !dados.sucesso) {
+                    throw new Error(dados.erro || "Erro ao salvar as alterações.");
+                }
+
+                criancaAtual.nome = dados.nome || novoNome;
+                if (dados.fotoUrl) criancaAtual.foto = dados.fotoUrl;
+
+                document.getElementById("nomeCrianca").textContent = criancaAtual.nome;
+
+                if (criancaAtual.foto) {
+                    document.getElementById("avatarCrianca").innerHTML =
+                        `<img src="${criancaAtual.foto}" alt="${criancaAtual.nome}">`;
+                } else {
+                    document.getElementById("avatarCrianca").textContent =
+                        criancaAtual.nome.charAt(0).toUpperCase();
+                }
+
+                mostrarStatusCrianca("Alterações salvas com sucesso!", "sucesso");
+
+                setTimeout(fecharModalCrianca, 1400);
+
+            } catch (erro) {
+
+                console.log("Erro ao salvar criança:", erro);
+                mostrarStatusCrianca(erro.message, "erro");
+
+            } finally {
+
+                btnSalvarCrianca.disabled    = false;
+                btnSalvarCrianca.textContent = "Salvar alterações";
+
+            }
+
+        });
+
+
+        // ==========================
+        // VÍNCULO COM TERAPEUTA
+        // ==========================
+
+        const modalVincular          = document.getElementById("modalVincular");
+        const btnAbrirModalVincular  = document.getElementById("btnAbrirModalVincular");
+        const btnTentarOutro         = document.getElementById("btnTentarOutroTerapeuta");
+        const btnFecharModalVincular = document.getElementById("btnFecharModalVincular");
+        const inputCodigoTerapeuta   = document.getElementById("inputCodigoTerapeuta");
+        const erroVincular           = document.getElementById("erroVincular");
+        const btnEnviarPedidoVinculo = document.getElementById("btnEnviarPedidoVinculo");
+        const btnCancelarPedido      = document.getElementById("btnCancelarPedido");
+
+        const estadoSemVinculo = document.getElementById("estadoSemVinculo");
+        const estadoPendente   = document.getElementById("estadoPendente");
+        const estadoRecusado   = document.getElementById("estadoRecusado");
+        const estadoAceito     = document.getElementById("estadoAceito");
+
+        async function carregarVinculo() {
+
+            try {
+
+                const resposta = await fetch("/api/vinculos/status");
+
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
+                }
+
+                if (!resposta.ok) throw new Error();
+
+                const dados = await resposta.json();
+                atualizarEstadoVinculo(dados);
+
+            } catch (erro) {
+
+                console.log("Erro ao carregar vínculo:", erro);
+                atualizarEstadoVinculo({ status: "sem_vinculo" });
+
+            }
+
+        }
+
+        function atualizarEstadoVinculo(dados) {
+
+            estadoSemVinculo.style.display = "none";
+            estadoPendente.style.display   = "none";
+            estadoRecusado.style.display   = "none";
+            estadoAceito.style.display     = "none";
+
+            if (dados.status === "pendente") {
+
+                document.getElementById("nomeTerapeutaPendente").textContent =
+                    dados.nomeTerapeuta || "...";
+
+                estadoPendente.style.display = "block";
+
+            } else if (dados.status === "aceito") {
+
+                document.getElementById("nomeTerapeutaVinculado").textContent =
+                    dados.nomeTerapeuta || "...";
+
+                document.getElementById("crpTerapeutaVinculado").textContent =
+                    `CRP: ${dados.crpTerapeuta || "..."}`;
+
+                if (dados.fotoTerapeuta) {
+                    document.getElementById("fotoTerapeutaVinculado").src =
+                        dados.fotoTerapeuta;
+                }
+
+                document.getElementById("confirmarRemocao").style.display = "none";
+                document.getElementById("btnRemoverTerapeuta").style.display = "block";
+
+                estadoAceito.style.display = "block";
+
+            } else if (dados.status === "recusado") {
+
+                estadoRecusado.style.display = "block";
+
+            } else {
+
+                estadoSemVinculo.style.display = "block";
+
+            }
+
+        }
+
+        function abrirModalVincular() {
+            inputCodigoTerapeuta.value    = "";
+            erroVincular.style.display    = "none";
+            modalVincular.classList.add("aberto");
+            document.body.style.overflow  = "hidden";
+        }
+
+        function fecharModalVincular() {
+            modalVincular.classList.remove("aberto");
+            document.body.style.overflow = "";
+        }
+
+        if (btnAbrirModalVincular) {
+            btnAbrirModalVincular.addEventListener("click", abrirModalVincular);
+        }
+
+        if (btnTentarOutro) {
+            btnTentarOutro.addEventListener("click", abrirModalVincular);
+        }
+
+        btnFecharModalVincular.addEventListener("click", fecharModalVincular);
+
+        modalVincular.addEventListener("click", (e) => {
+            if (e.target === modalVincular) fecharModalVincular();
+        });
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && modalVincular.classList.contains("aberto")) {
+                fecharModalVincular();
+            }
+        });
+
+        inputCodigoTerapeuta.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                btnEnviarPedidoVinculo.click();
+            }
+        });
+
+        btnEnviarPedidoVinculo.addEventListener("click", async () => {
+
+            const codigo = inputCodigoTerapeuta.value.trim();
+
+            erroVincular.style.display = "none";
+
+            if (!codigo) {
+                erroVincular.textContent   = "Digite o código do terapeuta.";
+                erroVincular.style.display = "block";
+                return;
+            }
+
+            btnEnviarPedidoVinculo.disabled    = true;
+            btnEnviarPedidoVinculo.textContent = "Enviando...";
+
+            try {
+
+                const resposta = await fetch("/api/vinculos/solicitar", {
+                    method:  "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body:    JSON.stringify({ codigoTerapeuta: codigo })
+                });
+
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
+                }
+
+                const dados = await resposta.json();
+
+                if (!resposta.ok || !dados.sucesso) {
+                    erroVincular.textContent   = dados.erro || "Erro ao enviar pedido.";
+                    erroVincular.style.display = "block";
+                    return;
+                }
+
+                fecharModalVincular();
+                atualizarEstadoVinculo({
+                    status: "pendente",
+                    nomeTerapeuta: dados.nomeTerapeuta
+                });
+
+            } catch (erro) {
+
+                console.log("Erro ao enviar pedido de vínculo:", erro);
+                erroVincular.textContent   = "Erro ao enviar pedido. Tente novamente.";
+                erroVincular.style.display = "block";
+
+            } finally {
+
+                btnEnviarPedidoVinculo.disabled    = false;
+                btnEnviarPedidoVinculo.textContent = "Enviar pedido";
+
+            }
+
+        });
+
+        if (btnCancelarPedido) {
+
+            btnCancelarPedido.addEventListener("click", async () => {
+
+                try {
+
+                    const resposta = await fetch("/api/vinculos/cancelar", {
+                        method: "POST"
+                    });
+
+                    if (resposta.status === 401) {
+                        window.location.href = "/logar";
+                        return;
+                    }
+
+                    if (!resposta.ok) throw new Error();
+
+                    atualizarEstadoVinculo({ status: "sem_vinculo" });
+
+                } catch (erro) {
+
+                    console.log("Erro ao cancelar pedido:", erro);
+                    alert("Erro ao cancelar pedido. Tente novamente.");
+
+                }
+
+            });
+
+        }
+
+        // ==========================
+        // REMOVER TERAPEUTA
+        // ==========================
+
+        const btnRemover       = document.getElementById("btnRemoverTerapeuta");
+        const confirmarRemocao = document.getElementById("confirmarRemocao");
+        const btnConfirmar     = document.getElementById("btnConfirmarRemover");
+        const btnCancelar      = document.getElementById("btnCancelarRemover");
+
+        if (btnRemover) {
+
+            btnRemover.addEventListener("click", () => {
+                confirmarRemocao.style.display = "block";
+                btnRemover.style.display = "none";
+            });
+
+        }
+
+        if (btnCancelar) {
+
+            btnCancelar.addEventListener("click", () => {
+                confirmarRemocao.style.display = "none";
+                btnRemover.style.display = "block";
+            });
+
+        }
+
+        if (btnConfirmar) {
+
+            btnConfirmar.addEventListener("click", async () => {
+
+                btnConfirmar.disabled    = true;
+                btnConfirmar.textContent = "Removendo...";
+
+                try {
+
+                    const resposta = await fetch("/api/vinculos/remover", {
+                        method: "POST"
+                    });
+
+                    if (resposta.status === 401) {
+                        window.location.href = "/logar";
+                        return;
+                    }
+
+                    if (resposta.ok) {
+
+                        confirmarRemocao.style.display = "none";
+                        atualizarEstadoVinculo({ status: "sem_vinculo" });
+
+                    } else {
+
+                        const dados = await resposta.json();
+                        alert(dados.erro || "Erro ao remover terapeuta.");
+
+                    }
+
+                } catch (erro) {
+
+                    console.log("Erro ao remover terapeuta:", erro);
+
+                } finally {
+
+                    btnConfirmar.disabled    = false;
+                    btnConfirmar.textContent = "Sim, remover";
+
+                }
+
+            });
+
+        }
+
+        function lerCookie(nome) {
+            const valor = `; ${document.cookie}`;
+            const partes = valor.split(`; ${nome}=`);
+            if (partes.length === 2) return partes.pop().split(";").shift();
+            return null;
+        }
+
+        function definirCookieTraducao(destino) {
+            document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+            document.cookie = `googtrans=; path=/; domain=${location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
+
+            if (destino) {
+                const valor = `/pt/${destino}`;
+                document.cookie = `googtrans=${valor}; path=/`;
+                document.cookie = `googtrans=${valor}; path=/; domain=${location.hostname}`;
+            }
+        }
+
+        function iniciarTradutor() {
+            new google.translate.TranslateElement(
+                { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
+                "google_translate_element"
+            );
+        }
+
+        function atualizarTextoBotaoTraducao() {
+            const cookieAtual = lerCookie("googtrans");
+            const textoBotao = document.getElementById("textoTradutor");
+            textoBotao.textContent = (cookieAtual && cookieAtual.includes("/en"))
+                ? "Voltar para português"
+                : "Traduzir para inglês";
+        }
+
+        document.getElementById("btnTraduzir").addEventListener("click", () => {
+            const cookieAtual = lerCookie("googtrans");
+            const estaTraduzido = cookieAtual && cookieAtual.includes("/en");
+            definirCookieTraducao(estaTraduzido ? null : "en");
+            window.location.reload();
+        });
+
+        const painelNotificacoes = document.getElementById("painelNotificacoes");
+        const listaNotificacoes  = document.getElementById("listaNotificacoes");
+
+        function formatarItemNotificacao(item) {
+            const classeExtra = item.lida ? "" : "nao-lida";
+            return `
+                <div class="item-notificacao ${classeExtra}">
+                    ${item.mensagem}
+                    <span class="tempo-notificacao">${item.tempo}</span>
+                </div>
+            `;
+        }
+
+        async function carregarNotificacoes() {
+            try {
+                const resposta = await fetch("/api/notificacoes");
+                if (!resposta.ok) throw new Error();
+
+                const dados = await resposta.json();
+                const itens = dados.notificacoes || [];
+
+                listaNotificacoes.innerHTML = itens.length === 0
+                    ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+                    : itens.map(formatarItemNotificacao).join("");
+
+                const naoLidas = itens.filter(item => !item.lida).length;
+                document.getElementById("quantidadeNotificacoes").textContent = naoLidas;
+
+            } catch (erro) {
+                console.log("Erro ao carregar notificações:", erro);
+                listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar as notificações.</div>`;
+            }
+        }
+
+        async function marcarNotificacoesComoLidas() {
+            try {
+                await fetch("/api/notificacoes/marcar-lidas", { method: "POST" });
+                document.getElementById("quantidadeNotificacoes").textContent = "0";
+            } catch (erro) {
+                console.log("Erro ao marcar notificações como lidas:", erro);
+            }
+        }
+
+        document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
+            e.stopPropagation();
+
+            const estaAberto = painelNotificacoes.classList.contains("aberto");
+            if (estaAberto) {
+                painelNotificacoes.classList.remove("aberto");
+                return;
+            }
+
+            painelNotificacoes.classList.add("aberto");
+            await carregarNotificacoes();
+            marcarNotificacoesComoLidas();
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!painelNotificacoes.contains(e.target)) {
+                painelNotificacoes.classList.remove("aberto");
+            }
+        });
+
+
+        // ==========================
+        // INICIAR
+        // ==========================
+
+        atualizarTextoBotaoTraducao();
+
+        carregarNotificacoes();
+
+        carregarPerfil();
+        carregarVinculo();
+
+    </script>
+
+    <script src="/js/tema.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco — Configurações</title>
+
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+
+    <!-- Font Awesome -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <!-- 🔧 Faltava o link do tema.css — sem ele o toggle claro/escuro
+         troca a classe no body mas nenhuma variável de cor existe -->
+    <link
+        rel="stylesheet"
+        href="/css/tema.css"
+    >
+
+    <!-- CSS da página (base compartilhada + estilos específicos de Configurações) -->
+
+    <link
+        rel="stylesheet"
+        href="/css/configuracoes.css"
+    >
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- ========================= -->
+    <!-- MENU LATERAL -->
+    <!-- ========================= -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <img
+                src="/img/logo_nome.png"
+                alt="Logo"
+            >
+
+        </div>
+
+        <nav>
+
+            <a href="/home">
+
+                <i class="fa-solid fa-house"></i>
+
+                <span>Início</span>
+
+            </a>
+
+            <a href="/relatorios">
+
+                <i class="fa-solid fa-chart-line"></i>
+
+                <span>Relatórios</span>
+
+            </a>
+
+            <a
+                href="/configuracoes"
+                class="ativo"
+            >
+
+                <i class="fa-solid fa-gear"></i>
+
+                <span>Configurações</span>
+
+            </a>
+
+            <a href="/sobre">
+
+                <i class="fa-solid fa-circle-info"></i>
+
+                <span>Sobre</span>
+
+            </a>
+
+        </nav>
+
+        <button
+            class="btn-relatorio"
+            type="button"
+            onclick="location.href='/RelatorioDiario'"
+        >
+
+            Relatório diário
+
+        </button>
+
+        <div class="tema">
+
+            <button
+                id="btnClaro"
+                class="ativo"
+                type="button"
+            >
+
+                <i class="fa-regular fa-sun"></i>
+
+                Claro
+
+            </button>
+
+            <button
+                id="btnEscuro"
+                type="button"
+            >
+
+                <i class="fa-regular fa-moon"></i>
+
+                Escuro
+
+            </button>
+
+        </div>
+
+        <!-- Divisor em degradê antes do Sair -->
+        <div class="sidebar-divisor"></div>
+
+        <a
+            href="/logout"
+            class="logout"
+        >
+
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+
+            <span>Sair</span>
+
+        </a>
+
+    </aside>
+
+    <!-- ========================= -->
+    <!-- CONTEÚDO -->
+    <!-- ========================= -->
+
+    <main class="conteudo">
+
+        <!-- Topo -->
+
+        <header class="topo">
+
+            <button
+                class="tradutor"
+                type="button"
+            >
+
+                <i class="fa-solid fa-language"></i>
+
+                Traduzir para inglês
+
+            </button>
+
+            <div class="usuario">
+
+                <div class="notificacoes-wrapper">
+                    <button class="notificacao" type="button" id="btnNotificacoes">
+                        <i class="fa-regular fa-bell"></i>
+                        <span id="quantidadeNotificacoes" class="badge">0</span>
+                    </button>
+
+                    <div class="painel-notificacoes" id="painelNotificacoes">
+                        <div class="painel-header">Notificações</div>
+                        <div id="listaNotificacoes">
+                            <div class="painel-vazio">Carregando...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <img
+                    id="fotoUsuario"
+                    src="/img/perfilPadrao.png"
+                    alt="Perfil"
+                    title="Ver perfil"
+                    style="cursor: pointer;"
+                    onclick="window.location.href='/perfil'"
+                    onerror="this.src='/img/perfilPadrao.png'"
+                >
+
+                <div>
+
+                    <h3 id="nomeUsuario">
+
+                        Carregando...
+
+                    </h3>
+
+                    <span id="tipoConta">
+
+                        ...
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <!-- Cabeçalho -->
+
+        <section class="cabecalho">
+
+            <div>
+
+                <h1>
+
+                    Configurações
+
+                </h1>
+
+                <p>
+
+                    Gerencie suas preferências e mantenha sua conta segura.
+
+                </p>
+
+            </div>
+
+            <img
+                src="/img/gatografico.png"
+                alt="Mascote"
+            >
+
+        </section>
+
+        <!-- ========================= -->
+        <!-- Primeira linha -->
+        <!-- ========================= -->
+
+        <section class="linha">
+
+            <!-- Card Notificações -->
+
+            <div class="card notificacoes">
+
+                <h2>Notificações</h2>
+
+                <div class="item-config">
+
+                    <div class="icone verde">
+
+                        <i class="fa-regular fa-bell"></i>
+
+                    </div>
+
+                    <div class="texto">
+
+                        <h3>Lembrete do relatório</h3>
+
+                    </div>
+
+                    <label class="switch">
+
+                        <input
+                            type="checkbox"
+                            id="notifRelatorio"
+                            checked
+                        >
+
+                        <span class="slider"></span>
+
+                    </label>
+
+                </div>
+
+                <div class="item-config">
+
+                    <div class="icone azul">
+
+                        <i class="fa-regular fa-envelope"></i>
+
+                    </div>
+
+                    <div class="texto">
+
+                        <h3>Novidades e dicas</h3>
+
+                    </div>
+
+                    <label class="switch">
+
+                        <input
+                            type="checkbox"
+                            id="notifNovidades"
+                        >
+
+                        <span class="slider"></span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+            <!-- Card Compartilhamento -->
+
+            <div class="card compartilhamento">
+
+                <h2>
+
+                    Compartilhamento
+
+                </h2>
+
+                <button
+                    class="config-btn"
+                    type="button"
+                    id="btnCompartilhar"
+                >
+
+                    <div class="icone verde">
+
+                        <i class="fa-solid fa-share-nodes"></i>
+
+                    </div>
+
+                    <div class="texto">
+
+                        <h3>
+
+                            Compartilhar com terapeuta
+
+                        </h3>
+
+                    </div>
+
+                    <i class="fa-solid fa-chevron-right seta"></i>
+
+                </button>
+
+            </div>
+
+        </section>
+
+        <!-- ========================= -->
+        <!-- Segunda linha -->
+        <!-- ========================= -->
+
+        <section class="linha">
+
+            <!-- Privacidade -->
+
+            <div class="card privacidade">
+
+                <h2>
+
+                    Privacidade
+
+                </h2>
+
+                <!-- 🔧 Agora abre o modal em vez de redirecionar para /alterar-senha -->
+
+                <button
+                    class="config-btn"
+                    type="button"
+                    id="btnAlterarSenha"
+                >
+
+                    <div class="icone verde">
+
+                        <i class="fa-solid fa-lock"></i>
+
+                    </div>
+
+                    <div class="texto">
+
+                        <h3>
+
+                            Alterar senha
+
+                        </h3>
+
+                    </div>
+
+                    <i class="fa-solid fa-chevron-right seta"></i>
+
+                </button>
+
+                <button
+                    class="config-btn"
+                    type="button"
+                    id="btnExcluirConta"
+                >
+
+                    <div class="icone azul">
+
+                        <i class="fa-regular fa-trash-can"></i>
+
+                    </div>
+
+                    <div class="texto">
+
+                        <h3>
+
+                            Excluir minha conta
+
+                        </h3>
+
+                    </div>
+
+                    <i class="fa-solid fa-chevron-right seta"></i>
+
+                </button>
+
+                <div
+                    id="confirmarExclusao"
+                    class="confirmar-exclusao"
+                    style="display: none;"
+                >
+
+                    <p>
+
+                        ⚠️ Tem certeza? Esta ação não pode ser desfeita.
+                        Todos os seus dados serão removidos permanentemente.
+
+                    </p>
+
+                    <div class="confirmar-botoes">
+
+                        <button
+                            type="button"
+                            id="btnConfirmarExclusao"
+                            class="btn-confirmar-exclusao"
+                        >
+
+                            Sim, excluir minha conta
+
+                        </button>
+
+                        <button
+                            type="button"
+                            id="btnCancelarExclusao"
+                            class="btn-cancelar-exclusao"
+                        >
+
+                            Cancelar
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Segurança -->
+
+            <div class="card seguranca">
+
+                <div class="texto-seguranca">
+
+                    <h2>
+
+                        Sua segurança<br>
+                        é nossa
+                        <span>prioridade</span>
+
+                    </h2>
+
+                    <p>
+
+                        Utilizamos criptografia e
+                        boas práticas para proteger
+                        suas informações e da sua criança.
+
+                    </p>
+
+                    <div class="status-seguranca">
+
+                        <i class="fa-solid fa-circle-check"></i>
+
+                        <span>
+
+                            Seus dados estão protegidos.
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <img
+                    src="/img/bixucobloqueio.jpg"
+                    alt="Segurança"
+                >
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<!-- ========================= -->
+<!-- MODAL — ALTERAR SENHA -->
+<!-- ========================= -->
+
+<div id="modalSenha">
+    <div class="modal-conteudo">
+
+        <div class="modal-header">
+            <h3>Alterar senha</h3>
+            <button
+                type="button"
+                class="btn-fechar-modal"
+                id="btnFecharModalSenha"
+                aria-label="Fechar"
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <form id="formAlterarSenha">
+
+            <label for="senhaAtual">Senha atual</label>
+            <input type="password" id="senhaAtual" required autocomplete="current-password">
+
+            <label for="novaSenha">Nova senha</label>
+            <input type="password" id="novaSenha" required autocomplete="new-password" minlength="6">
+
+            <label for="confirmarNovaSenha">Confirmar nova senha</label>
+            <input type="password" id="confirmarNovaSenha" required autocomplete="new-password" minlength="6">
+
+            <button type="submit" class="btn-salvar-senha" id="btnSalvarSenha">
+                Salvar nova senha
+            </button>
+
+        </form>
+
+        <p id="statusSenha" class="status-senha"></p>
+
+    </div>
+</div>
+
+<!-- ========================= -->
+<!-- JAVASCRIPT -->
+<!-- ========================= -->
+
+<script>
+
+    // ==========================
+    // TEMA
+    // ==========================
+
+    function aplicarTema(tema) {
+
+        document.body.classList.remove("tema-claro", "tema-escuro");
+        document.body.classList.add(`tema-${tema}`);
+
+        document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
+        document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
+
+        localStorage.setItem("tema", tema);
+
+    }
+
+    document.getElementById("btnClaro").addEventListener("click", () => {
+        aplicarTema("claro");
+    });
+
+    document.getElementById("btnEscuro").addEventListener("click", () => {
+        aplicarTema("escuro");
+    });
+
+    const temaSalvo = localStorage.getItem("tema") || "claro";
+    aplicarTema(temaSalvo);
+
+
+    // ==========================
+    // CARREGA DADOS DO USUÁRIO
+    // ==========================
+
+    async function carregarUsuario() {
+
+        try {
+
+            const resposta = await fetch("/api/home");
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            if (!resposta.ok) {
+                throw new Error();
+            }
+
+            const usuario = await resposta.json();
+
+            document.getElementById("nomeUsuario").textContent =
+                usuario.nome || "Usuário";
+
+            document.getElementById("tipoConta").textContent =
+                usuario.tipoConta || "Responsável";
+
+            if (usuario.fotoPerfil) {
+                document.getElementById("fotoUsuario").src = usuario.fotoPerfil;
+            }
+
+        } catch (erro) {
+
+            console.log("Erro ao carregar usuário:", erro);
+
+        }
+
+    }
+
+    carregarUsuario();
+
+
+    // ==========================
+    // NOTIFICAÇÕES (TOGGLES)
+    // ==========================
+
+    const notifRelatorio = document.getElementById("notifRelatorio");
+    const notifNovidades = document.getElementById("notifNovidades");
+
+    // 🔧 FIX DO BUG: antes os checkboxes tinham o estado fixo no HTML
+    // (sempre "checked" no lembrete, sempre desmarcado nas novidades),
+    // então nunca refletiam o que estava realmente salvo no banco.
+    // Agora buscamos o valor real ao carregar a página.
+    async function carregarPreferenciasNotificacao() {
+
+        try {
+
+            const resposta = await fetch("/api/configuracoes/notificacoes");
+
+            if (!resposta.ok) throw new Error("Falha ao carregar preferências");
+
+            const dados = await resposta.json();
+
+            notifRelatorio.checked = dados.lembrete;
+            notifNovidades.checked = dados.novidades;
+
+        } catch (erro) {
+
+            console.log("Erro ao carregar preferências de notificação:", erro);
+            // Em caso de erro, mantém os padrões que já estão no HTML
+
+        }
+
+    }
+
+    async function salvarNotificacao(dados) {
+
+        try {
+
+            await fetch("/api/configuracoes/notificacoes", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify(dados)
+
+            });
+
+        } catch (erro) {
+
+            console.log("Erro ao salvar notificação:", erro);
+
+        }
+
+    }
+
+    notifRelatorio.addEventListener("change", () => {
+        salvarNotificacao({ lembrete: notifRelatorio.checked });
+    });
+
+    notifNovidades.addEventListener("change", () => {
+        salvarNotificacao({ novidades: notifNovidades.checked });
+    });
+
+    carregarPreferenciasNotificacao();
+
+
+    // ==========================
+    // PAINEL DE NOTIFICAÇÕES (SININHO)
+    // ==========================
+
+    const painelNotificacoes = document.getElementById("painelNotificacoes");
+    const listaNotificacoes  = document.getElementById("listaNotificacoes");
+
+    function formatarItemNotificacao(item) {
+        const classeExtra = item.lida ? "" : "nao-lida";
+        return `
+            <div class="item-notificacao ${classeExtra}">
+                ${item.mensagem}
+                <span class="tempo-notificacao">${item.tempo}</span>
+            </div>
+        `;
+    }
+
+    async function carregarNotificacoes() {
+
+        try {
+
+            const resposta = await fetch("/api/notificacoes");
+
+            if (!resposta.ok) throw new Error("Falha ao carregar notificações");
+
+            const dados = await resposta.json();
+            const itens = dados.notificacoes || [];
+
+            if (itens.length === 0) {
+                listaNotificacoes.innerHTML = `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`;
+            } else {
+                listaNotificacoes.innerHTML = itens.map(formatarItemNotificacao).join("");
+            }
+
+        } catch (erro) {
+            console.log("Erro ao carregar notificações:", erro);
+            listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar as notificações.</div>`;
+        }
+
+    }
+
+    async function marcarNotificacoesComoLidas() {
+
+        try {
+            await fetch("/api/notificacoes/marcar-lidas", { method: "POST" });
+            document.getElementById("quantidadeNotificacoes").textContent = "0";
+        } catch (erro) {
+            console.log("Erro ao marcar notificações como lidas:", erro);
+        }
+
+    }
+
+    document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
+
+        e.stopPropagation();
+
+        const estaAberto = painelNotificacoes.classList.contains("aberto");
+
+        if (estaAberto) {
+            painelNotificacoes.classList.remove("aberto");
+            return;
+        }
+
+        painelNotificacoes.classList.add("aberto");
+
+        await carregarNotificacoes();
+        marcarNotificacoesComoLidas();
+
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!painelNotificacoes.contains(e.target)) {
+            painelNotificacoes.classList.remove("aberto");
+        }
+    });
+
+
+    // ==========================
+    // COMPARTILHAR TERAPEUTA
+    // ==========================
+
+    document.getElementById("btnCompartilhar").addEventListener("click", () => {
+        window.location.href = "/compartilhar-terapeuta";
+    });
+
+
+    // ==========================
+    // 🔧 ALTERAR SENHA — AGORA VIA MODAL
+    // ==========================
+
+    const modalSenha        = document.getElementById("modalSenha");
+    const formAlterarSenha  = document.getElementById("formAlterarSenha");
+    const btnSalvarSenha    = document.getElementById("btnSalvarSenha");
+    const statusSenha       = document.getElementById("statusSenha");
+
+    function abrirModalSenha() {
+        modalSenha.classList.add("aberto");
+        document.body.style.overflow = "hidden";
+    }
+
+    function fecharModalSenha() {
+        modalSenha.classList.remove("aberto");
+        document.body.style.overflow = "";
+        formAlterarSenha.reset();
+        statusSenha.className = "status-senha";
+    }
+
+    function mostrarStatusSenha(texto, tipo) {
+        statusSenha.textContent = texto;
+        statusSenha.className   = `status-senha visivel ${tipo}`;
+    }
+
+    document.getElementById("btnAlterarSenha").addEventListener("click", abrirModalSenha);
+    document.getElementById("btnFecharModalSenha").addEventListener("click", fecharModalSenha);
+
+    // Fecha clicando fora do card
+    modalSenha.addEventListener("click", (e) => {
+        if (e.target === modalSenha) fecharModalSenha();
+    });
+
+    // Fecha com Escape
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && modalSenha.classList.contains("aberto")) {
+            fecharModalSenha();
+        }
+    });
+
+    formAlterarSenha.addEventListener("submit", async (e) => {
+
+        e.preventDefault();
+
+        const senhaAtual         = document.getElementById("senhaAtual").value;
+        const novaSenha          = document.getElementById("novaSenha").value;
+        const confirmarNovaSenha = document.getElementById("confirmarNovaSenha").value;
+
+        if (novaSenha !== confirmarNovaSenha) {
+            mostrarStatusSenha("As senhas novas não coincidem.", "erro");
+            return;
+        }
+
+        btnSalvarSenha.disabled    = true;
+        btnSalvarSenha.textContent = "Salvando...";
+
+        try {
+
+            const resposta = await fetch("/api/alterar-senha", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    senhaAtual,
+                    novaSenha,
+                    confirmarNovaSenha
+                })
+
+            });
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(dados.erro || "Erro ao alterar a senha.");
+            }
+
+            mostrarStatusSenha(dados.mensagem || "Senha alterada com sucesso!", "sucesso");
+            formAlterarSenha.reset();
+
+            setTimeout(fecharModalSenha, 1800);
+
+        } catch (erro) {
+
+            mostrarStatusSenha(erro.message, "erro");
+
+        } finally {
+
+            btnSalvarSenha.disabled    = false;
+            btnSalvarSenha.textContent = "Salvar nova senha";
+
+        }
+
+    });
+
+
+    // ==========================
+    // EXCLUIR CONTA
+    // ==========================
+
+    const btnExcluir        = document.getElementById("btnExcluirConta");
+    const confirmarExclusao = document.getElementById("confirmarExclusao");
+    const btnConfirmar      = document.getElementById("btnConfirmarExclusao");
+    const btnCancelar       = document.getElementById("btnCancelarExclusao");
+
+    btnExcluir.addEventListener("click", () => {
+
+        confirmarExclusao.style.display = "block";
+        btnExcluir.style.display = "none";
+
+    });
+
+    btnCancelar.addEventListener("click", () => {
+
+        confirmarExclusao.style.display = "none";
+        btnExcluir.style.display = "flex";
+
+    });
+
+    btnConfirmar.addEventListener("click", async () => {
+
+        btnConfirmar.disabled = true;
+        btnConfirmar.textContent = "Excluindo...";
+
+        try {
+
+            const resposta = await fetch("/api/excluir-conta", {
+                method: "DELETE"
+            });
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            if (resposta.ok) {
+
+                window.location.href = "/";
+
+            } else {
+
+                const dados = await resposta.json();
+
+                btnConfirmar.disabled = false;
+                btnConfirmar.textContent = "Sim, excluir minha conta";
+
+                confirmarExclusao.querySelector("p").textContent =
+                    "❌ " + (dados.erro || "Erro ao excluir. Tente novamente.");
+
+            }
+
+        } catch (erro) {
+
+            console.log("Erro ao excluir conta:", erro);
+
+            btnConfirmar.disabled = false;
+            btnConfirmar.textContent = "Sim, excluir minha conta";
+
+        }
+
+    });
+
+</script>
+
+<script src="/js/tema.js"></script>
+
+</body>
+</html>

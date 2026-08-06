@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Início Terapeuta</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <!-- Google Translate -->
+    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
+
+    <!-- tema.css precisa vir ANTES do CSS da página -->
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/homeTerapeuta.css">
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+
+    <style>
+        .goog-te-banner-frame { display: none !important; }
+        body { top: 0 !important; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- ========================= -->
+    <!-- MENU LATERAL -->
+    <!-- ========================= -->
+    <aside class="sidebar">
+
+        <!-- logo_nome.png do amigo (com o nome junto ao logo) -->
+        <div class="logo">
+            <img src="/img/logo_nome.png" alt="Logo Bixuco">
+        </div>
+
+        <nav>
+            <a href="/homeTerapeuta" class="ativo">
+                <i class="fa-solid fa-house"></i>
+                <span>Início</span>
+            </a>
+
+            <a href="/relatoriosTerapeutaS">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Relatórios</span>
+            </a>
+
+            <a href="/configuracoesT">
+                <i class="fa-solid fa-gear"></i>
+                <span>Configurações</span>
+            </a>
+
+            <a href="/sobreT">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>Sobre</span>
+            </a>
+
+            <a href="/pacientes">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>Pacientes</span>
+            </a>
+        </nav>
+
+        <div class="tema">
+            <button id="btnClaro" class="ativo" type="button">
+                <i class="fa-regular fa-sun"></i>
+                Claro
+            </button>
+
+            <button id="btnEscuro" type="button">
+                <i class="fa-regular fa-moon"></i>
+                Escuro
+            </button>
+        </div>
+
+        <!-- Divisor em degradê do amigo — antes do Sair -->
+        <div class="sidebar-divisor"></div>
+
+        <a href="/logout" class="logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span>Sair</span>
+        </a>
+
+    </aside>
+
+    <!-- ========================= -->
+    <!-- CONTEÚDO PRINCIPAL -->
+    <!-- ========================= -->
+    <main class="conteudo">
+
+        <!-- TOPO -->
+        <header class="topo">
+
+            <!-- Tradução real via cookie — do seu JS -->
+            <button class="tradutor" type="button" id="btnTraduzir">
+                <i class="fa-solid fa-language"></i>
+                <span id="textoTradutor">Traduzir para inglês</span>
+            </button>
+
+            <!-- Elemento invisível do Google Translate -->
+            <div
+                id="google_translate_element"
+                style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);"
+            ></div>
+
+            <div class="usuario">
+
+                <!-- Sininho com painel de notificações -->
+                <div class="notificacoes-wrapper">
+                    <button class="notificacoes" type="button" id="btnNotificacoes">
+                        <i class="fa-regular fa-bell"></i>
+                        <span id="badgeNotificacoes" class="badge" style="display:none">0</span>
+                    </button>
+
+                    <div class="painel-notificacoes" id="painelNotificacoes">
+                        <div class="painel-header">Notificações</div>
+                        <div id="listaNotificacoes">
+                            <div class="painel-vazio">Carregando...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Foto clicável com onerror -->
+                <img
+                    id="fotoUsuario"
+                    src="/img/perfilPadrao.png"
+                    alt="Foto do terapeuta"
+                    style="cursor:pointer"
+                    onclick="window.location.href='/PerfilTerapeuta'"
+                    onerror="this.src='/img/perfilPadrao.png'"
+                    title="Clique para ver seu perfil"
+                >
+
+                <div>
+                    <h3 id="nomeTerapeuta">Carregando...</h3>
+                    <span id="tipoConta">
+                        Terapeuta · Código:
+                        <strong
+                            id="codigoTerapeuta"
+                            title="Compartilhe este código com seus pacientes"
+                            style="cursor: pointer; letter-spacing: 1px;"
+                            onclick="copiarCodigo()"
+                        >...</strong>
+                        <i
+                            class="fa-regular fa-copy"
+                            style="font-size: 0.75rem; margin-left: 3px; cursor: pointer;"
+                            onclick="copiarCodigo()"
+                            title="Copiar código"
+                        ></i>
+                    </span>
+                </div>
+
+            </div>
+
+        </header>
+
+        <!-- CORPO COM SCROLL INTERNO — do amigo -->
+        <div class="conteudo-corpo">
+
+            <!-- ========================= -->
+            <!-- LINHA PRINCIPAL: solicitações + atividade -->
+            <!-- ========================= -->
+            <section class="linha-principal">
+
+                <!-- SOLICITAÇÕES PENDENTES -->
+                <div class="card-solicitacoes">
+
+                    <h2>Solicitações pendentes</h2>
+
+                    <ul id="listaSolicitacoes">
+                        <li class="solicitacao-carregando">
+                            <p>Carregando solicitações...</p>
+                        </li>
+                    </ul>
+
+                    <p id="semSolicitacoes" class="lista-vazia" style="display: none;">
+                        Nenhuma solicitação pendente no momento.
+                    </p>
+
+                </div>
+
+                <!-- ATIVIDADE RECENTE -->
+                <div class="card-atividade">
+
+                    <h2>Atividade recente</h2>
+
+                    <ul id="listaAtividade">
+                        <li class="atividade-carregando">
+                            <p>Carregando atividades...</p>
+                        </li>
+                    </ul>
+
+                    <p id="semAtividade" class="lista-vazia" style="display: none;">
+                        Nenhuma atividade recente.
+                    </p>
+
+                </div>
+
+            </section>
+
+            <!-- ========================= -->
+            <!-- LINHA DE CONTADORES -->
+            <!-- ========================= -->
+            <section class="linha-contadores">
+
+                <article class="contador">
+                    <div class="contador-icone contador-icone--azul">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                    <div>
+                        <strong id="totalPacientes">0</strong>
+                        <span>Pacientes</span>
+                    </div>
+                </article>
+
+                <article class="contador">
+                    <div class="contador-icone contador-icone--verde">
+                        <i class="fa-solid fa-file-pen"></i>
+                    </div>
+                    <div>
+                        <strong id="totalPendentes">0</strong>
+                        <span>Pendentes</span>
+                    </div>
+                </article>
+
+                <article class="contador">
+                    <div class="contador-icone contador-icone--azul-claro">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                    </div>
+                    <div>
+                        <strong id="totalRelatoriosHoje">0</strong>
+                        <span>Relatórios hoje</span>
+                    </div>
+                </article>
+
+            </section>
+
+        </div><!-- fim .conteudo-corpo -->
+
+        <!-- Modal de confirmação inline (aceitar/recusar solicitações) -->
+        <div id="modalConfirmacao" class="modal-confirmacao" style="display: none;">
+
+            <div class="modal-confirmacao__conteudo">
+
+                <p id="modalConfirmacaoTexto"></p>
+
+                <div class="modal-confirmacao__botoes">
+
+                    <button
+                        type="button"
+                        id="modalBtnConfirmar"
+                        class="btn-confirmar-acao"
+                    >
+                        Confirmar
+                    </button>
+
+                    <button
+                        type="button"
+                        id="modalBtnCancelar"
+                        class="btn-cancelar-acao"
+                    >
+                        Cancelar
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+
+    // =========================
+    // COPIAR CÓDIGO DO TERAPEUTA
+    // =========================
+
+    function copiarCodigo() {
+        const codigo = document.getElementById("codigoTerapeuta").textContent;
+        if (!codigo || codigo === "---") return;
+
+        navigator.clipboard.writeText(codigo).then(() => {
+            const icone = document.querySelector("#tipoConta .fa-copy");
+            if (icone) {
+                icone.classList.remove("fa-copy");
+                icone.classList.add("fa-check");
+                setTimeout(() => {
+                    icone.classList.remove("fa-check");
+                    icone.classList.add("fa-copy");
+                }, 2000);
+            }
+        });
+    }
+
+
+    // =========================
+    // CARREGAR DADOS DO TERAPEUTA
+    // =========================
+
+    async function carregarDados() {
+
+        try {
+
+            const resposta = await fetch("/api/home-terapeuta");
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            if (!resposta.ok) throw new Error("Falha ao carregar dados");
+
+            const dados = await resposta.json();
+
+            document.getElementById("nomeTerapeuta").textContent =
+                dados.nome || "Terapeuta";
+
+            document.getElementById("codigoTerapeuta").textContent =
+                dados.codigoTerapeuta || "---";
+
+            if (dados.fotoPerfil) {
+                document.getElementById("fotoUsuario").src = dados.fotoPerfil;
+            }
+
+            document.getElementById("totalPacientes").textContent      = dados.totalPacientes   ?? 0;
+            document.getElementById("totalPendentes").textContent      = dados.totalPendentes   ?? 0;
+            document.getElementById("totalRelatoriosHoje").textContent = dados.relatoriosHoje   ?? 0;
+
+            const badge = document.getElementById("badgeNotificacoes");
+            if (dados.notificacoes > 0) {
+                badge.textContent   = dados.notificacoes;
+                badge.style.display = "inline";
+            }
+
+            renderSolicitacoes(dados.solicitacoes    || []);
+            renderAtividade(dados.atividadeRecente   || []);
+
+        } catch (erro) {
+
+            console.log("Erro ao carregar dados do terapeuta:", erro);
+
+            document.getElementById("nomeTerapeuta").textContent       = "Terapeuta";
+            document.getElementById("totalPacientes").textContent      = "0";
+            document.getElementById("totalPendentes").textContent      = "0";
+            document.getElementById("totalRelatoriosHoje").textContent = "0";
+
+            renderSolicitacoes([]);
+            renderAtividade([]);
+
+        }
+
+    }
+
+
+    // =========================
+    // RENDERIZAR SOLICITAÇÕES
+    // =========================
+
+    function renderSolicitacoes(lista) {
+
+        const ul              = document.getElementById("listaSolicitacoes");
+        const semSolicitacoes = document.getElementById("semSolicitacoes");
+
+        ul.innerHTML = "";
+
+        if (lista.length === 0) {
+            semSolicitacoes.style.display = "block";
+            return;
+        }
+
+        semSolicitacoes.style.display = "none";
+
+        lista.forEach(item => {
+
+            const li = document.createElement("li");
+            li.classList.add("solicitacao-item");
+            li.dataset.id = item.id;
+
+            const foto = document.createElement("img");
+            foto.src = item.fotoPerfil || "/img/perfilPadrao.png";
+            foto.alt = item.nomeResponsavel;
+            foto.onerror = () => { foto.src = "/img/perfilPadrao.png"; };
+
+            const info = document.createElement("div");
+            info.classList.add("solicitacao-info");
+            info.innerHTML = `
+                <strong>${item.nomeResponsavel}</strong>
+                <span>Criança: ${item.nomeCrianca}, ${item.idadeCrianca} anos</span>
+                <span class="solicitacao-tempo">${item.tempo}</span>
+            `;
+
+            const acoes = document.createElement("div");
+            acoes.classList.add("solicitacao-acoes");
+
+            const btnAceitar = document.createElement("button");
+            btnAceitar.type = "button";
+            btnAceitar.classList.add("btn-aceitar");
+            btnAceitar.innerHTML = '<i class="fa-solid fa-check"></i> Aceitar';
+
+            // Aceitar direto — ação positiva, não precisa de confirmação
+            btnAceitar.addEventListener("click", () => {
+                responderSolicitacao(item.id, "aceitar", li);
+            });
+
+            const btnRecusar = document.createElement("button");
+            btnRecusar.type = "button";
+            btnRecusar.classList.add("btn-recusar");
+            btnRecusar.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+
+            // Recusar pede confirmação inline
+            btnRecusar.addEventListener("click", () => {
+                abrirConfirmacao(
+                    `Tem certeza que deseja recusar a solicitação de ${item.nomeResponsavel}?`,
+                    () => responderSolicitacao(item.id, "recusar", li)
+                );
+            });
+
+            acoes.appendChild(btnAceitar);
+            acoes.appendChild(btnRecusar);
+
+            li.appendChild(foto);
+            li.appendChild(info);
+            li.appendChild(acoes);
+            ul.appendChild(li);
+
+        });
+
+    }
+
+
+    // =========================
+    // MODAL DE CONFIRMAÇÃO INLINE
+    // =========================
+
+    let callbackConfirmacao = null;
+
+    function abrirConfirmacao(texto, callback) {
+        document.getElementById("modalConfirmacaoTexto").textContent = texto;
+        document.getElementById("modalConfirmacao").style.display    = "flex";
+        callbackConfirmacao = callback;
+    }
+
+    function fecharConfirmacao() {
+        document.getElementById("modalConfirmacao").style.display = "none";
+        callbackConfirmacao = null;
+    }
+
+    document.getElementById("modalBtnConfirmar").addEventListener("click", () => {
+        if (callbackConfirmacao) callbackConfirmacao();
+        fecharConfirmacao();
+    });
+
+    document.getElementById("modalBtnCancelar").addEventListener("click", fecharConfirmacao);
+
+
+    // =========================
+    // ACEITAR OU RECUSAR SOLICITAÇÃO
+    // =========================
+
+    async function responderSolicitacao(vinculoId, acao, itemEl) {
+
+        itemEl.querySelectorAll("button").forEach(b => b.disabled = true);
+
+        try {
+
+            const resposta = await fetch("/api/vinculos/responder", {
+                method:  "POST",
+                headers: { "Content-Type": "application/json" },
+                body:    JSON.stringify({ vinculoId, acao })
+            });
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            if (!resposta.ok) throw new Error("Falha ao responder solicitação");
+
+            itemEl.remove();
+
+            const ul = document.getElementById("listaSolicitacoes");
+            if (ul.children.length === 0) {
+                document.getElementById("semSolicitacoes").style.display = "block";
+            }
+
+            const totalPendentes = document.getElementById("totalPendentes");
+            const atual = parseInt(totalPendentes.textContent) || 0;
+            if (atual > 0) totalPendentes.textContent = atual - 1;
+
+        } catch (erro) {
+
+            console.log("Erro ao responder solicitação:", erro);
+
+            itemEl.querySelectorAll("button").forEach(b => b.disabled = false);
+
+            const erroEl = document.createElement("p");
+            erroEl.style.color    = "#E53E3E";
+            erroEl.style.fontSize = "12px";
+            erroEl.textContent    = "Erro ao processar. Tente novamente.";
+            itemEl.appendChild(erroEl);
+            setTimeout(() => erroEl.remove(), 3000);
+
+        }
+
+    }
+
+
+    // =========================
+    // RENDERIZAR ATIVIDADE RECENTE
+    // =========================
+
+    function renderAtividade(lista) {
+
+        const ul          = document.getElementById("listaAtividade");
+        const semAtividade = document.getElementById("semAtividade");
+
+        ul.innerHTML = "";
+
+        if (lista.length === 0) {
+            semAtividade.style.display = "block";
+            return;
+        }
+
+        semAtividade.style.display = "none";
+
+        lista.forEach(item => {
+
+            const li = document.createElement("li");
+            li.classList.add("atividade-item");
+
+            li.innerHTML = `
+                <div class="atividade-icone atividade-icone--${item.cor || "verde"}">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                </div>
+
+                <div class="atividade-info">
+                    <strong>Relatório de ${item.nomeCrianca}</strong>
+                    <span>${item.nomeResponsavel} · ${item.tempo}</span>
+                </div>
+
+                <button
+                    type="button"
+                    class="btn-ver"
+                    onclick="marcarVistoEAbrir(${item.id})"
+                >
+                    <i class="fa-regular fa-eye"></i>
+                    Ver
+                </button>
+            `;
+
+            ul.appendChild(li);
+
+        });
+
+    }
+
+    // Marca o relatório como visto antes de abrir
+    async function marcarVistoEAbrir(relatorioId) {
+        try {
+            await fetch(`/api/relatorios/${relatorioId}/marcar-visto`, { method: "POST" });
+        } catch (_) {}
+        window.location.href = `/relatoriosTerapeuta?id=${relatorioId}`;
+    }
+
+
+    // =========================
+    // NOTIFICAÇÕES
+    // =========================
+
+    const painelNotificacoes = document.getElementById("painelNotificacoes");
+    const listaNotificacoesEl = document.getElementById("listaNotificacoes");
+
+    // Ícones diferentes por tipo de notificação
+    function formatarItemNotificacao(item) {
+        const classeExtra = item.lida ? "" : "nao-lida";
+        const icones = {
+            pedido_vinculo:       "fa-link",
+            relatorio_finalizado: "fa-clipboard-check",
+            relatorio_concluido:  "fa-check-circle",
+            lembrete_relatorio:   "fa-bell"
+        };
+        const icone  = icones[item.tipo] || "fa-bell";
+        const clique = item.tipo === "relatorio_finalizado"
+            ? `onclick="window.location.href='/relatoriosTerapeutaS'"`
+            : "";
+        const cursor = item.tipo === "relatorio_finalizado" ? "cursor:pointer;" : "";
+
+        return `
+            <div class="item-notificacao ${classeExtra}" ${clique} style="${cursor}">
+                <div class="notificacao-linha">
+                    <i class="fa-solid ${icone} notificacao-icone"></i>
+                    <div>
+                        <p>${item.mensagem}</p>
+                        <span class="tempo-notificacao">${item.tempo}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    async function carregarNotificacoes() {
+        try {
+            const resposta = await fetch("/api/notificacoes");
+            if (!resposta.ok) throw new Error();
+            const dados = await resposta.json();
+            const itens = dados.notificacoes || [];
+
+            listaNotificacoesEl.innerHTML = itens.length === 0
+                ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+                : itens.map(formatarItemNotificacao).join("");
+
+            const naoLidas = itens.filter(i => !i.lida).length;
+            const badge    = document.getElementById("badgeNotificacoes");
+            if (naoLidas > 0) {
+                badge.textContent   = naoLidas;
+                badge.style.display = "inline";
+            } else {
+                badge.style.display = "none";
+            }
+        } catch (_) {
+            listaNotificacoesEl.innerHTML = `<div class="painel-vazio">Não foi possível carregar.</div>`;
+        }
+    }
+
+    // Carrega só o badge sem abrir o painel (chamado na inicialização)
+    async function carregarBadgeNotificacoes() {
+        try {
+            const resposta = await fetch("/api/notificacoes");
+            if (!resposta.ok) return;
+            const dados    = await resposta.json();
+            const itens    = dados.notificacoes || [];
+            const naoLidas = itens.filter(i => !i.lida).length;
+            const badge    = document.getElementById("badgeNotificacoes");
+            if (naoLidas > 0) {
+                badge.textContent   = naoLidas;
+                badge.style.display = "inline";
+            }
+        } catch (_) {}
+    }
+
+    document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
+        e.stopPropagation();
+        const estaAberto = painelNotificacoes.classList.toggle("aberto");
+        if (estaAberto) {
+            await carregarNotificacoes();
+            fetch("/api/notificacoes/marcar-lidas", { method: "POST" }).catch(() => {});
+            document.getElementById("badgeNotificacoes").style.display = "none";
+        }
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!painelNotificacoes.contains(e.target)) {
+            painelNotificacoes.classList.remove("aberto");
+        }
+    });
+
+
+    // =========================
+    // TRADUÇÃO VIA COOKIE
+    // =========================
+
+    function lerCookie(nome) {
+        const v = `; ${document.cookie}`;
+        const p = v.split(`; ${nome}=`);
+        if (p.length === 2) return p.pop().split(";").shift();
+        return null;
+    }
+
+    function iniciarTradutor() {
+        new google.translate.TranslateElement(
+            { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
+            "google_translate_element"
+        );
+    }
+
+    document.getElementById("btnTraduzir").addEventListener("click", () => {
+        const atual     = lerCookie("googtrans");
+        const traduzido = atual && atual.includes("/en");
+
+        document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+        document.cookie = `googtrans=; path=/; domain=${location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
+
+        if (!traduzido) {
+            document.cookie = `googtrans=/pt/en; path=/`;
+            document.cookie = `googtrans=/pt/en; path=/; domain=${location.hostname}`;
+        }
+        window.location.reload();
+    });
+
+    // Atualiza o texto do botão conforme o cookie atual
+    const cookieAtual = lerCookie("googtrans");
+    document.getElementById("textoTradutor").textContent =
+        (cookieAtual && cookieAtual.includes("/en")) ? "Voltar para português" : "Traduzir para inglês";
+
+
+    // =========================
+    // TEMA CLARO / ESCURO
+    // =========================
+
+    function aplicarTema(tema) {
+        document.body.classList.remove("tema-claro", "tema-escuro");
+        document.body.classList.add(`tema-${tema}`);
+        document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
+        document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
+        localStorage.setItem("tema", tema);
+    }
+
+    document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema("claro"));
+    document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
+
+
+    // =========================
+    // INICIALIZAÇÃO
+    // =========================
+
+    const temaSalvo = localStorage.getItem("tema") || "claro";
+    aplicarTema(temaSalvo);
+
+    carregarDados();
+    carregarBadgeNotificacoes();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Início</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <!-- Leaflet.js para o mapa funcional sem precisar de API key -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+    <!-- Google Translate widget gratuito -->
+    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
+
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- ===================== -->
+        <!-- MENU LATERAL -->
+        <!-- ===================== -->
+        <aside class="sidebar">
+
+            <div class="logo">
+                <img src="/img/logo_nome.png" alt="Logo Bixuco">
+            </div>
+
+            <nav>
+                <a href="/home" class="ativo">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Início</span>
+                </a>
+
+                <a href="/relatorios">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Relatórios</span>
+                </a>
+
+                <a href="/sobre">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>Sobre</span>
+                </a>
+
+                <a href="/configuracoes">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Configurações</span>
+                </a>
+            </nav>
+
+            <button
+                class="btn-relatorio"
+                type="button"
+                onclick="window.location.href='/RelatorioDiario'"
+            >
+                Fazer relatório diário
+            </button>
+
+            <!-- O tema claro/escuro é aplicado pelo /js/tema.js (compartilhado com todas as páginas) -->
+            <div class="tema">
+                <button id="btnClaro" class="ativo" type="button">
+                    <i class="fa-regular fa-sun"></i>
+                    Claro
+                </button>
+
+                <button id="btnEscuro" type="button">
+                    <i class="fa-regular fa-moon"></i>
+                    Escuro
+                </button>
+            </div>
+
+            <!-- Divisor em degradê antes do Sair -->
+            <div class="sidebar-divisor"></div>
+
+            <a href="/logout" class="logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Sair</span>
+            </a>
+        </aside>
+
+        <!-- ===================== -->
+        <!-- CONTEÚDO PRINCIPAL -->
+        <!-- ===================== -->
+        <main class="conteudo">
+
+            <!-- TOPO — barra branca fixa, full-width -->
+            <header class="topo">
+
+                <button class="tradutor" type="button" id="btnTraduzir">
+                    <i class="fa-solid fa-language"></i>
+                    <span id="textoTradutor">Traduzir para inglês</span>
+                </button>
+
+                <!-- Elemento do Google Translate — precisa continuar "renderizável"
+                     para o widget inicializar direito, por isso não usamos display:none -->
+                <div
+                    id="google_translate_element"
+                    style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0);"
+                ></div>
+
+                <div class="usuario">
+
+                    <div class="notificacoes-wrapper">
+                        <button class="notificacoes" type="button" id="btnNotificacoes">
+                            <i class="fa-regular fa-bell"></i>
+                            <span id="quantidadeNotificacoes" class="badge">0</span>
+                        </button>
+
+                        <div class="painel-notificacoes" id="painelNotificacoes">
+                            <div class="painel-header">Notificações</div>
+                            <div id="listaNotificacoes">
+                                <div class="painel-vazio">Carregando...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <img
+                        id="fotoUsuario"
+                        src="/img/perfilPadrao.png"
+                        alt="Foto do usuário"
+                        title="Ver perfil"
+                        style="cursor: pointer;"
+                        onclick="window.location.href='/perfil'"
+                        onerror="this.src='/img/perfilPadrao.png'"
+                    >
+
+                    <div>
+                        <h3 id="nomeUsuario">Carregando...</h3>
+                        <span id="tipoConta">...</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- CORPO COM SCROLL INTERNO -->
+            <div class="conteudo-corpo">
+
+                <!-- SAUDAÇÃO -->
+                <section class="saudacao">
+                    <div>
+                        <h1>
+                            Olá, <span id="primeiroNome">Usuário</span>!
+                        </h1>
+
+                        <p>
+                            Acompanhe a rotina do
+                            <strong id="nomeBixuco">Bixuco</strong>
+                            com carinho e praticidade.
+                        </p>
+                    </div>
+
+                    <img src="/img/Bixuco_home.png" alt="Mascote Bixuco">
+                </section>
+
+                <!-- CARDS SUPERIORES -->
+                <section class="linha-superior">
+
+                    <!-- Card sequência -->
+                    <article class="card">
+                        <div class="icone">
+                            <i class="fa-solid fa-fire"></i>
+                        </div>
+
+                        <div>
+                            <h2>
+                                <span id="diasConsecutivos">0</span>
+                                dias consecutivos
+                            </h2>
+
+                            <p id="textoSequencia">
+                                Continue registrando seus relatórios diariamente.
+                            </p>
+                        </div>
+                    </article>
+
+                    <!-- Card relatório -->
+                    <article
+                        class="card card-relatorio"
+                        onclick="window.location.href='/RelatorioDiario'"
+                    >
+                        <div class="icone">
+                            <i class="fa-solid fa-file-lines"></i>
+                        </div>
+
+                        <div>
+                            <h2>Relatório diário</h2>
+                            <p>Clique para registrar o relatório de hoje.</p>
+                        </div>
+
+                        <i class="fa-solid fa-chevron-right seta"></i>
+                    </article>
+                </section>
+
+                <!-- CALENDÁRIO + MAPA -->
+                <div class="linha-meio">
+
+                    <!-- CALENDÁRIO -->
+                    <section class="calendario-card">
+                        <div class="calendario-header">
+
+                            <div class="calendario-nav">
+                                <button id="mesAnterior" type="button">
+                                    <i class="fa-solid fa-chevron-left"></i>
+                                </button>
+
+                                <h3 id="tituloCalendario">Junho 2026</h3>
+
+                                <button id="proximoMes" type="button">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                            </div>
+
+                            <div class="badge-sequencia">
+                                <i class="fa-solid fa-fire"></i>
+                                <div>
+                                    <strong><span id="diasConsecutivosBadge">0</span> dias</strong>
+                                    <span>Máxima ofensiva</span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="dias-semana">
+                            <span>Dom</span>
+                            <span>Seg</span>
+                            <span>Ter</span>
+                            <span>Qua</span>
+                            <span>Qui</span>
+                            <span>Sex</span>
+                            <span>Sáb</span>
+                        </div>
+
+                        <div id="diasCalendario" class="dias-calendario"></div>
+
+                        <!-- Legenda -->
+                        <div class="legenda">
+                            <span>
+                                <span class="ponto ponto--com-relatorio"></span>
+                                Com relatório
+                            </span>
+                            <span>
+                                <span class="ponto ponto--hoje"></span>
+                                Hoje
+                            </span>
+                            <span>
+                                <span class="ponto ponto--sem-relatorio"></span>
+                                Sem relatório
+                            </span>
+                        </div>
+                    </section>
+
+                    <!-- MAPA — fixo na página, sem precisar clicar -->
+                    <section class="mapa-card">
+
+                        <div class="mapa-header">
+                            <h3>
+                                <i class="fa-solid fa-location-dot"></i>
+                                Localização do Bixuco
+                            </h3>
+
+                            <button
+                                type="button"
+                                class="btn-centralizar"
+                                id="btnCentralizar"
+                                title="Centralizar no Bixuco"
+                            >
+                                <i class="fa-solid fa-crosshairs"></i>
+                            </button>
+                        </div>
+
+                        <div id="mapaBixuco"></div>
+
+                        <p class="mapa-status">
+                            <i class="fa-solid fa-circle" style="color: #C2C2C2; font-size: 0.6rem;"></i>
+                            Rastreamento em tempo real disponível em breve
+                        </p>
+
+                    </section>
+
+                </div>
+
+                <!-- DICAS PERSONALIZADAS -->
+                <!-- Conteúdo fixo por enquanto — conectar com a API de IA depois -->
+                <section class="dicas-card">
+
+                    <div class="dicas-intro">
+                        <div class="icone">
+                            <i class="fa-solid fa-lightbulb"></i>
+                        </div>
+                        <div>
+                            <h3>Dicas personalizadas</h3>
+                            <p>Sugestões para o desenvolvimento do <span id="nomeBixucoDicas">Fluffy</span></p>
+                        </div>
+                    </div>
+
+                    <article class="dica">
+                        <div class="icone-dica">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                        </div>
+                        <div>
+                            <h4>Rotina consistente</h4>
+                            <p>Manter horários regulares para a alimentação</p>
+                        </div>
+                    </article>
+
+                    <article class="dica">
+                        <div class="icone-dica">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                        </div>
+                        <div>
+                            <h4>Rotina consistente</h4>
+                            <p>Manter horários regulares para a alimentação</p>
+                        </div>
+                    </article>
+
+                    <button class="btn-ver-dicas" type="button" onclick="window.location.href='/dicas'">
+                        Ver mais dicas
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+
+                </section>
+
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+
+        // =========================
+        // CARREGAR DADOS DO USUÁRIO
+        // =========================
+
+        async function carregarDadosUsuario() {
+            try {
+                const resposta = await fetch("/api/home");
+
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
+                }
+
+                if (!resposta.ok) {
+                    throw new Error(`Falha ao carregar dados do usuário (status ${resposta.status})`);
+                }
+
+                const dados = await resposta.json();
+
+                const nomeCompleto = dados.nome || "Usuário";
+                const primeiroNome = nomeCompleto.split(" ")[0];
+
+                document.getElementById("nomeUsuario").textContent  = nomeCompleto;
+                document.getElementById("primeiroNome").textContent = primeiroNome;
+                document.getElementById("nomeBixuco").textContent   = dados.nomeBixuco || "Bixuco";
+                document.getElementById("nomeBixucoDicas").textContent = dados.nomeBixuco || "Bixuco";
+                document.getElementById("tipoConta").textContent    = dados.tipoConta || "Responsável";
+                document.getElementById("quantidadeNotificacoes").textContent = dados.notificacoes ?? 0;
+                document.getElementById("diasConsecutivos").textContent       = dados.diasConsecutivos ?? 0;
+                document.getElementById("diasConsecutivosBadge").textContent  = dados.diasConsecutivos ?? 0;
+
+                if (dados.fotoPerfil) {
+                    document.getElementById("fotoUsuario").src = dados.fotoPerfil;
+                }
+
+                atualizarTextoSequencia(dados.diasConsecutivos ?? 0);
+
+            } catch (erro) {
+                // Loga o erro real no console para facilitar o diagnóstico
+                console.log("Erro ao carregar dados do usuário:", erro);
+
+                document.getElementById("nomeUsuario").textContent  = "Usuário";
+                document.getElementById("primeiroNome").textContent = "Usuário";
+                document.getElementById("nomeBixuco").textContent   = "Bixuco";
+                document.getElementById("nomeBixucoDicas").textContent = "Bixuco";
+                document.getElementById("tipoConta").textContent    = "Responsável";
+                document.getElementById("quantidadeNotificacoes").textContent = "0";
+                document.getElementById("diasConsecutivos").textContent       = "0";
+                document.getElementById("diasConsecutivosBadge").textContent  = "0";
+                document.getElementById("textoSequencia").textContent = "Continue registrando seus relatórios diariamente.";
+            }
+        }
+
+        function atualizarTextoSequencia(dias) {
+            const texto = document.getElementById("textoSequencia");
+
+            if (dias <= 0) {
+                texto.textContent = "Continue registrando seus relatórios diariamente.";
+            } else if (dias === 1) {
+                texto.textContent = "Você já começou bem! Continue acompanhando o dia a dia.";
+            } else if (dias < 7) {
+                texto.textContent = "Muito bom! Você está criando uma rotina de acompanhamento.";
+            } else if (dias < 30) {
+                texto.textContent = "Ótimo progresso! Seu acompanhamento está ficando consistente.";
+            } else {
+                texto.textContent = "Parabéns! Você já mantém um acompanhamento de longa duração.";
+            }
+        }
+
+        // =========================
+        // CALENDÁRIO
+        // =========================
+
+        let dataAtual = new Date();
+        let diasComRelatorio = [];
+
+        async function carregarDiasRelatorio() {
+            try {
+                const mes = dataAtual.getMonth() + 1;
+                const ano = dataAtual.getFullYear();
+
+                const resposta = await fetch(`/api/relatorios/dias?mes=${mes}&ano=${ano}`);
+
+                if (!resposta.ok) throw new Error("Falha ao carregar dias");
+
+                const dados = await resposta.json();
+                diasComRelatorio = dados.dias || [];
+                atualizarCalendario();
+
+            } catch (erro) {
+                console.log("Erro ao carregar dias de relatório:", erro);
+                diasComRelatorio = [];
+                atualizarCalendario();
+            }
+        }
+
+        function atualizarCalendario() {
+            const titulo = document.getElementById("tituloCalendario");
+            const dias   = document.getElementById("diasCalendario");
+
+            dias.innerHTML = "";
+
+            const meses = [
+                "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+                "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
+            ];
+
+            titulo.textContent = `${meses[dataAtual.getMonth()]} ${dataAtual.getFullYear()}`;
+
+            const primeiroDia = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), 1).getDay();
+            const ultimoDia   = new Date(dataAtual.getFullYear(), dataAtual.getMonth() + 1, 0).getDate();
+
+            for (let i = 0; i < primeiroDia; i++) {
+                dias.appendChild(document.createElement("div"));
+            }
+
+            const hoje = new Date();
+
+            for (let dia = 1; dia <= ultimoDia; dia++) {
+                const botao = document.createElement("button");
+                botao.type        = "button";
+                botao.textContent = dia;
+
+                if (
+                    dia === hoje.getDate() &&
+                    dataAtual.getMonth() === hoje.getMonth() &&
+                    dataAtual.getFullYear() === hoje.getFullYear()
+                ) {
+                    botao.classList.add("hoje");
+                }
+
+                if (diasComRelatorio.includes(dia)) {
+                    botao.classList.add("com-relatorio");
+                }
+
+                dias.appendChild(botao);
+            }
+        }
+
+        document.getElementById("mesAnterior").onclick = () => {
+            dataAtual.setMonth(dataAtual.getMonth() - 1);
+            carregarDiasRelatorio();
+        };
+
+        document.getElementById("proximoMes").onclick = () => {
+            dataAtual.setMonth(dataAtual.getMonth() + 1);
+            carregarDiasRelatorio();
+        };
+
+        // Tema claro/escuro vem de /js/tema.js (compartilhado com todas as páginas)
+
+        // =========================
+        // TRADUÇÃO COM GOOGLE TRANSLATE
+        // =========================
+
+        // Estratégia via cookie "googtrans", que o próprio Google Translate lê
+        // ao carregar a página — mecanismo oficial, mais confiável do que
+        // simular clique no <select> escondido do widget.
+
+        function lerCookie(nome) {
+            const valor = `; ${document.cookie}`;
+            const partes = valor.split(`; ${nome}=`);
+            if (partes.length === 2) return partes.pop().split(";").shift();
+            return null;
+        }
+
+        function definirCookieTraducao(destino) {
+            // destino: "en" para traduzir, null para remover a tradução
+
+            // Remove cookie antigo em possíveis variações de domínio/path
+            document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+            document.cookie = `googtrans=; path=/; domain=${location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
+
+            if (destino) {
+                const valor = `/pt/${destino}`;
+                document.cookie = `googtrans=${valor}; path=/`;
+                document.cookie = `googtrans=${valor}; path=/; domain=${location.hostname}`;
+            }
+        }
+
+        // Callback chamado pelo script do Google Translate após carregar
+        function iniciarTradutor() {
+            new google.translate.TranslateElement(
+                {
+                    pageLanguage: "pt",
+                    includedLanguages: "en",
+                    autoDisplay: false
+                },
+                "google_translate_element"
+            );
+        }
+
+        // Atualiza o texto do botão com base no cookie atual, ao carregar a página
+        function atualizarTextoBotaoTraducao() {
+            const cookieAtual = lerCookie("googtrans");
+            const textoBotao = document.getElementById("textoTradutor");
+
+            if (cookieAtual && cookieAtual.includes("/en")) {
+                textoBotao.textContent = "Voltar para português";
+            } else {
+                textoBotao.textContent = "Traduzir para inglês";
+            }
+        }
+
+        document.getElementById("btnTraduzir").addEventListener("click", () => {
+
+            const cookieAtual = lerCookie("googtrans");
+            const estaTraduzido = cookieAtual && cookieAtual.includes("/en");
+
+            if (estaTraduzido) {
+                definirCookieTraducao(null);
+            } else {
+                definirCookieTraducao("en");
+            }
+
+            // Recarrega a página — o Google Translate lê o cookie
+            // assim que a página carrega e aplica a tradução sozinho
+            window.location.reload();
+
+        });
+
+        // =========================
+        // PAINEL DE NOTIFICAÇÕES
+        // =========================
+
+        const painelNotificacoes = document.getElementById("painelNotificacoes");
+        const listaNotificacoes  = document.getElementById("listaNotificacoes");
+
+        function formatarItemNotificacao(item) {
+            const classeExtra = item.lida ? "" : "nao-lida";
+            return `
+                <div class="item-notificacao ${classeExtra}">
+                    ${item.mensagem}
+                    <span class="tempo-notificacao">${item.tempo}</span>
+                </div>
+            `;
+        }
+
+        async function carregarNotificacoes() {
+
+            try {
+
+                const resposta = await fetch("/api/notificacoes");
+
+                if (!resposta.ok) throw new Error("Falha ao carregar notificações");
+
+                const dados = await resposta.json();
+                const itens = dados.notificacoes || [];
+
+                if (itens.length === 0) {
+                    listaNotificacoes.innerHTML = `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`;
+                } else {
+                    listaNotificacoes.innerHTML = itens.map(formatarItemNotificacao).join("");
+                }
+
+            } catch (erro) {
+                console.log("Erro ao carregar notificações:", erro);
+                listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar as notificações.</div>`;
+            }
+
+        }
+
+        async function marcarNotificacoesComoLidas() {
+
+            try {
+                await fetch("/api/notificacoes/marcar-lidas", { method: "POST" });
+                document.getElementById("quantidadeNotificacoes").textContent = "0";
+            } catch (erro) {
+                console.log("Erro ao marcar notificações como lidas:", erro);
+            }
+
+        }
+
+        document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
+
+            e.stopPropagation();
+
+            const estaAberto = painelNotificacoes.classList.contains("aberto");
+
+            if (estaAberto) {
+                painelNotificacoes.classList.remove("aberto");
+                return;
+            }
+
+            painelNotificacoes.classList.add("aberto");
+
+            // Recarrega toda vez que abre, pra sempre mostrar as mais recentes
+            await carregarNotificacoes();
+
+            // Marca como lidas ao abrir e zera o número no sino
+            marcarNotificacoesComoLidas();
+
+        });
+
+        // Fecha o painel ao clicar fora dele
+        document.addEventListener("click", (e) => {
+            if (!painelNotificacoes.contains(e.target)) {
+                painelNotificacoes.classList.remove("aberto");
+            }
+        });
+
+        // =========================
+        // MAPA COM LEAFLET + OPENSTREETMAP
+        // Inicia sozinho junto com a página, sem precisar de clique
+        // =========================
+
+        let mapaLeaflet = null;
+        let marcador    = null;
+
+        // Coordenadas padrão: São Paulo (centro)
+        // No futuro: substituir por coordenadas reais do Bixuco via API
+        const latInicial = -23.5505;
+        const lngInicial = -46.6333;
+
+        function iniciarMapa() {
+
+            mapaLeaflet = L.map("mapaBixuco").setView([latInicial, lngInicial], 13);
+
+            // Tiles gratuitos do OpenStreetMap — sem API key
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                attribution: '© <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
+                maxZoom: 19
+            }).addTo(mapaLeaflet);
+
+            // Ícone personalizado para o Bixuco
+            const iconeBixuco = L.divIcon({
+                html: '<div style="background:#32C26D;width:36px;height:36px;border-radius:50%;border:3px solid white;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.3);font-size:18px;">🐱</div>',
+                iconSize:   [36, 36],
+                iconAnchor: [18, 18],
+                className:  ""
+            });
+
+            marcador = L.marker([latInicial, lngInicial], { icon: iconeBixuco })
+                .addTo(mapaLeaflet)
+                .bindPopup("<b>Bixuco</b><br>Localização aproximada")
+                .openPopup();
+
+        }
+
+        document.getElementById("btnCentralizar").addEventListener("click", () => {
+            if (mapaLeaflet) {
+                mapaLeaflet.setView([latInicial, lngInicial], 13);
+                if (marcador) marcador.openPopup();
+            }
+        });
+
+        // =========================
+        // INICIALIZAÇÃO
+        // =========================
+
+        
+
+        carregarDadosUsuario();
+        carregarDiasRelatorio();
+        iniciarMapa();
+        atualizarTextoBotaoTraducao();
+
+    </script>
+
+    <!-- Tema claro/escuro compartilhado — precisa vir depois dos botões #btnClaro/#btnEscuro existirem -->
+    <script src="/js/tema.js"></script>
+
+</body>
+</html>

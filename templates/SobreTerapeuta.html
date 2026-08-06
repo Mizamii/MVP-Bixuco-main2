@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco • Sobre</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+
+    <!--
+        CSS do seu amigo (tema.css + home.css + sobre.css), adaptado
+        para as classes usadas neste HTML mesclado:
+          .cabecalho-sobre  → .cabecalho
+          .grid-sobre       → .cards
+          .card-sobre       → .card (ícone agora é <i> direto, sem .icone--verde/azul)
+          .rodape-sobre     → .frase-final
+          .modal-fechar     → .fechar
+        Se quiser manter em arquivos separados, é só dividir este
+        bloco em tema.css / home.css / sobre.css como preferir.
+    -->
+    <style>
+
+/* ==========================================================
+   tema.css — variáveis de cor compartilhadas (claro/escuro)
+   ========================================================== */
+
+:root {
+
+    --cor-fundo-pagina: #F5F7FA;
+    --cor-fundo-card: #ffffff;
+    --cor-fundo-hover: #F0F2F5;
+    --cor-fundo-hover-forte: #E7EBF0;
+
+    --cor-texto-principal: #141414;
+    --cor-texto-secundario: #5A5A5A;
+    --cor-texto-esmaecido: #8A8F98;
+
+    --cor-borda: #E7EBF0;
+    --cor-borda-suave: #EEF1F4;
+
+    --sombra-card: 0 4px 14px rgba(0, 0, 0, 0.05);
+
+    --cor-marca-verde: #32C26D;
+    --cor-marca-azul: #0AB7FB;
+    --cor-marca-verde-claro: #79D836;
+    --cor-marca-azul-escuro: #1D8EC9;
+    --cor-alerta: #E24C4C;
+    --cor-aviso: #FF9F0A;
+
+}
+
+body.tema-escuro {
+
+    --cor-fundo-pagina: #16181C;
+    --cor-fundo-card: #1F2227;
+    --cor-fundo-hover: #262A31;
+    --cor-fundo-hover-forte: #2E333B;
+
+    --cor-texto-principal: #F5F7FA;
+    --cor-texto-secundario: #B8BCC4;
+    --cor-texto-esmaecido: #8891A0;
+
+    --cor-borda: #2E333B;
+    --cor-borda-suave: #262A31;
+
+    --sombra-card: 0 4px 14px rgba(0, 0, 0, 0.35);
+
+}
+
+body,
+body * {
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+
+html, body {
+height: 100%;
+overflow: hidden;
+}
+
+* {
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+background: var(--cor-fundo-pagina);
+}
+
+.goog-te-banner-frame { display: none !important; }
+body { top: 0 !important; }
+.goog-te-gadget { font-size: 0 !important; }
+.goog-te-gadget select { display: none; }
+
+/* ========================================= */
+/* LAYOUT GERAL */
+/* ========================================= */
+
+.container {
+display: flex;
+height: 100vh;
+}
+
+/* ========================================= */
+/* BARRA LATERAL */
+/* ========================================= */
+
+.sidebar {
+width: 210px;
+flex-shrink: 0;
+height: 100%;
+background: var(--cor-fundo-card);
+border-style: solid;
+border-width: 0 1px 0 0;
+border-image: linear-gradient(180deg, #79D836 0%, #0AB7FB 100%) 1;
+padding: 1.25rem 1rem;
+display: flex;
+flex-direction: column;
+overflow-y: auto;
+}
+
+.logo {
+margin-bottom: 1.25rem;
+padding-left: 0.25rem;
+}
+
+.logo img {
+width: 108px;
+height: auto;
+display: block;
+}
+
+.sidebar nav {
+display: flex;
+flex-direction: column;
+gap: 0.75rem;
+margin-bottom: 1.5rem;
+}
+
+.sidebar nav a {
+display: flex;
+align-items: center;
+gap: 0.65rem;
+padding: 0.7rem 0.8rem;
+border-radius: 10px;
+color: var(--cor-texto-secundario);
+text-decoration: none;
+font-size: 0.85rem;
+font-weight: 500;
+transition: background 0.2s, color 0.2s;
+}
+
+.sidebar nav a i {
+width: 16px;
+text-align: center;
+font-size: 0.9rem;
+}
+
+.sidebar nav a:hover {
+background: var(--cor-fundo-hover);
+color: var(--cor-texto-principal);
+}
+
+.sidebar nav a.ativo {
+background: rgba(50, 194, 109, 0.12);
+color: #1D8E4F;
+font-weight: 700;
+}
+
+.sidebar nav a.ativo i {
+color: #32C26D;
+}
+
+.tema {
+margin-top: 9.25rem;
+display: flex;
+background: var(--cor-fundo-hover);
+border-radius: 999px;
+padding: 0.2rem;
+gap: 0.2rem;
+}
+
+.tema button {
+flex: 1;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 0.35rem;
+padding: 0.42rem 0;
+border: none;
+border-radius: 999px;
+background: transparent;
+color: var(--cor-texto-esmaecido);
+font-size: 0.78rem;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.2s;
+}
+
+.tema button.ativo {
+background: var(--cor-fundo-card);
+color: var(--cor-texto-principal);
+box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.sidebar-divisor {
+margin-top: auto;
+height: 2px;
+border-radius: 999px;
+background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+opacity: 0.35;
+}
+
+.logout {
+margin-top: 0.75rem;
+display: flex;
+align-items: center;
+gap: 0.65rem;
+padding: 0.55rem 0.7rem;
+color: var(--cor-texto-esmaecido);
+text-decoration: none;
+font-size: 0.85rem;
+font-weight: 500;
+border-radius: 10px;
+transition: background 0.2s, color 0.2s;
+}
+
+.logout:hover {
+background: #FDEEEE;
+color: #E24C4C;
+}
+
+/* ========================================= */
+/* CONTEÚDO PRINCIPAL */
+/* ========================================= */
+
+.conteudo {
+flex: 1;
+height: 100%;
+display: flex;
+flex-direction: column;
+overflow: hidden;
+}
+
+.topo {
+flex-shrink: 0;
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 0.9rem 2rem;
+background: var(--cor-fundo-card);
+border-style: solid;
+border-width: 0 0 1px 0;
+border-image: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%) 1;
+}
+
+.tradutor {
+display: flex;
+align-items: center;
+gap: 0.5rem;
+padding: 0.5rem 0.9rem;
+border: 1px solid #0AB7FB;
+border-radius: 999px;
+background: var(--cor-fundo-card);
+color: #0AB7FB;
+font-size: 0.8rem;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.2s;
+}
+
+.tradutor:hover {
+background: #0AB7FB;
+color: #fff;
+}
+
+.usuario {
+display: flex;
+align-items: center;
+gap: 1rem;
+}
+
+.notificacoes {
+position: relative;
+width: 36px;
+height: 36px;
+border-radius: 50%;
+border: none;
+background: transparent;
+color: var(--cor-texto-secundario);
+font-size: 1rem;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: background 0.2s;
+}
+
+.notificacoes:hover {
+background: var(--cor-fundo-hover);
+}
+
+.notificacoes .badge {
+position: absolute;
+top: 1px;
+right: 1px;
+min-width: 15px;
+height: 15px;
+padding: 0 3px;
+border-radius: 999px;
+background: #E24C4C;
+color: #fff;
+font-size: 0.62rem;
+font-weight: 700;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.usuario img#fotoUsuario {
+width: 38px;
+height: 38px;
+border-radius: 50%;
+object-fit: cover;
+}
+
+.usuario > div h3 {
+font-size: 0.85rem;
+font-weight: 700;
+color: var(--cor-texto-principal);
+}
+
+.usuario > div span {
+font-size: 0.72rem;
+color: var(--cor-texto-esmaecido);
+}
+
+.conteudo-corpo,
+main.conteudo > *:not(.topo) {
+padding: 1.25rem 2rem 2rem;
+overflow-y: auto;
+}
+
+main.conteudo > .topo {
+padding: 0.9rem 2rem;
+}
+
+/* ========================= */
+/* PAINEL DE NOTIFICAÇÕES    */
+/* ========================= */
+
+.notificacoes-wrapper {
+position: relative;
+}
+
+.painel-notificacoes {
+display: none;
+position: absolute;
+top: calc(100% + 10px);
+right: 0;
+width: 320px;
+max-height: 380px;
+overflow-y: auto;
+background: var(--cor-fundo-card);
+border-radius: 14px;
+box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+z-index: 50;
+}
+.painel-notificacoes.aberto {
+display: block;
+}
+.painel-notificacoes .painel-header {
+padding: 1rem 1.1rem 0.75rem;
+font-weight: 700;
+font-size: 0.95rem;
+color: var(--cor-texto-principal);
+border-bottom: 1px solid var(--cor-borda-suave);
+}
+.painel-notificacoes .item-notificacao {
+padding: 0.85rem 1.1rem;
+border-bottom: 1px solid var(--cor-borda-suave);
+font-size: 0.85rem;
+color: var(--cor-texto-principal);
+line-height: 1.45;
+}
+.painel-notificacoes .item-notificacao:last-child {
+border-bottom: none;
+}
+.painel-notificacoes .item-notificacao .tempo-notificacao {
+display: block;
+margin-top: 0.25rem;
+font-size: 0.75rem;
+color: var(--cor-texto-esmaecido);
+}
+.painel-notificacoes .item-notificacao.nao-lida {
+background: rgba(10, 183, 251, 0.06);
+}
+.painel-notificacoes .painel-vazio {
+padding: 1.5rem 1.1rem;
+text-align: center;
+font-size: 0.85rem;
+color: var(--cor-texto-esmaecido);
+}
+
+/* ==========================================================
+   sobre.css — específico desta página (adaptado)
+   ========================================================== */
+
+/* ---------- Cabeçalho ---------- */
+
+.cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.4rem;
+}
+
+.cabecalho h1 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--cor-texto-principal);
+    margin-bottom: 0.3rem;
+}
+
+.cabecalho p {
+    font-size: 0.85rem;
+    color: var(--cor-texto-secundario);
+    max-width: 460px;
+}
+
+.cabecalho img {
+    width: 96px;
+    height: auto;
+    flex-shrink: 0;
+}
+
+/* ---------- Grade de cards ---------- */
+/* 8 cards: 4 colunas de base, 2 linhas de 4 */
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.4rem;
+}
+
+.cards .card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+    padding: 1.5rem 1.1rem;
+    border: 1px solid var(--cor-borda-suave);
+    border-radius: 16px;
+    background: var(--cor-fundo-card);
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.cards .card:hover {
+    border-color: rgba(10, 183, 251, 0.35);
+    box-shadow: 0 6px 16px rgba(10, 183, 251, 0.12);
+    transform: translateY(-1px);
+}
+
+.cards .card i {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+.cards .card h3 {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--cor-texto-principal);
+}
+
+.cards .card p {
+    font-size: 0.78rem;
+    color: var(--cor-texto-esmaecido);
+}
+
+/* Cor do ícone por tópico, seguindo a paleta de marca */
+.cards .card[data-topico="sobre"] i,
+.cards .card[data-topico="funciona"] i,
+.cards .card[data-topico="privacidade"] i,
+.cards .card[data-topico="proposito"] i {
+    background: rgba(50, 194, 109, 0.12);
+    color: #32C26D;
+}
+
+.cards .card[data-topico="ajudamos"] i,
+.cards .card[data-topico="publico"] i,
+.cards .card[data-topico="contato"] i {
+    background: rgba(10, 183, 251, 0.12);
+    color: #0AB7FB;
+}
+
+.cards .card[data-topico="naofazemos"] i {
+    background: rgba(226, 76, 76, 0.12);
+    color: #E24C4C;
+}
+
+/* ---------- Frase final ---------- */
+
+.frase-final {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--cor-fundo-card);
+    border: 1px solid var(--cor-borda-suave);
+    border-radius: 16px;
+    padding: 1rem 1.5rem;
+    box-shadow: var(--sombra-card);
+}
+
+.frase-final img {
+    width: 54px;
+    height: auto;
+    flex-shrink: 0;
+}
+
+.frase-final p {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--cor-texto-secundario);
+}
+
+.frase-final p strong {
+    font-weight: 700;
+}
+
+.frase-final p strong:nth-of-type(1) {
+    color: #0AB7FB;
+}
+
+.frase-final p strong:nth-of-type(2) {
+    color: #32C26D;
+}
+
+.frase-final p strong:nth-of-type(3) {
+    color: #0AB7FB;
+}
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 900px) {
+    .cards { grid-template-columns: 1fr 1fr; }
+}
+
+/* ========================= */
+/* MODAL — conteúdo de cada card */
+/* ========================= */
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+
+.modal.mostrar {
+    display: flex;
+}
+
+.modal-conteudo {
+    position: relative;
+    background: var(--cor-fundo-card);
+    border-radius: 16px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 520px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-conteudo .fechar {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: var(--cor-texto-secundario);
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+}
+
+.modal-conteudo .fechar:hover {
+    background: var(--cor-fundo-hover);
+}
+
+.modal-icone {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+}
+
+.modal-conteudo h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--cor-texto-principal);
+    margin-bottom: 1rem;
+    padding-right: 2rem;
+}
+
+.modal-texto {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--cor-texto-secundario);
+}
+
+.modal-texto p {
+    margin-bottom: 0.9rem;
+}
+
+.modal-texto p:last-child {
+    margin-bottom: 0;
+}
+
+.modal-texto ul,
+.modal-texto ol {
+    margin: 0 0 0.9rem 1.2rem;
+}
+
+.modal-texto li {
+    margin-bottom: 0.4rem;
+}
+
+.modal-texto h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--cor-texto-principal);
+    margin: 1rem 0 0.5rem;
+}
+
+.modal-texto h3:first-child {
+    margin-top: 0;
+}
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- ========================= -->
+    <!-- MENU LATERAL -->
+    <!-- ========================= -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <img src="/img/logo_nome.png" alt="Logo Bixuco">
+        </div>
+
+        <nav>
+
+            <a href="/homeTerapeuta">
+                <i class="fa-solid fa-house"></i>
+                <span>Início</span>
+            </a>
+
+            <a href="/relatoriosTerapeutaS">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Relatórios</span>
+            </a>
+
+            <a href="/ConfiguracoesT">
+                <i class="fa-solid fa-gear"></i>
+                <span>Configurações</span>
+            </a>
+
+            <!-- aba ativa -->
+            <a href="/sobreT" class="ativo">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>Sobre</span>
+            </a>
+
+            <a href="/pacientes">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>Pacientes</span>
+            </a>
+
+        </nav>
+
+        <div class="tema">
+            <button id="btnClaro" class="ativo" type="button">
+                <i class="fa-regular fa-sun"></i>
+                Claro
+            </button>
+            <button id="btnEscuro" type="button">
+                <i class="fa-regular fa-moon"></i>
+                Escuro
+            </button>
+        </div>
+
+        <div class="sidebar-divisor"></div>
+
+        <a href="/logout" class="logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span>Sair</span>
+        </a>
+
+    </aside>
+
+    <!-- ========================= -->
+    <!-- CONTEÚDO -->
+    <!-- ========================= -->
+    <main class="conteudo">
+
+        <header class="topo">
+
+            <button class="tradutor" type="button" id="btnTraduzir">
+                <i class="fa-solid fa-language"></i>
+                <span id="textoTradutor">Traduzir para inglês</span>
+            </button>
+
+            <div id="google_translate_element"
+                style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">
+            </div>
+
+            <div class="usuario">
+
+                <div class="notificacoes-wrapper">
+                    <button class="notificacoes" type="button" id="btnNotificacoes">
+                        <i class="fa-regular fa-bell"></i>
+                        <span id="quantidadeNotificacoes" class="badge">0</span>
+                    </button>
+
+                    <div class="painel-notificacoes" id="painelNotificacoes">
+                        <div class="painel-header">Notificações</div>
+                        <div id="listaNotificacoes">
+                            <div class="painel-vazio">Carregando...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- foto clicável vai para o perfilTerapeuta -->
+                <img
+                    id="fotoUsuario"
+                    src="/img/perfilPadrao.png"
+                    alt="Foto do terapeuta"
+                    title="Ver perfil"
+                    style="cursor:pointer;"
+                    onclick="window.location.href='/perfilTerapeuta'"
+                    onerror="this.src='/img/perfilPadrao.png'"
+                >
+
+                <div>
+                    <h3 id="nomeUsuario">Carregando...</h3>
+                    <span id="tipoConta">Terapeuta</span>
+                </div>
+
+            </div>
+
+        </header>
+
+        <!-- TÍTULO -->
+        <section class="cabecalho">
+            <div>
+                <h1>Sobre o Bixuco</h1>
+                <p>Conheça nossa história, missão e como trabalhamos para transformar vidas.</p>
+            </div>
+            <img src="/img/bixucomascote.png" alt="Bixuco">
+        </section>
+
+        <!-- CARDS -->
+        <section class="cards">
+
+            <button class="card" type="button" data-topico="sobre">
+                <i class="fa-solid fa-circle-info"></i>
+                <h3>Sobre nós</h3>
+                <p>Nossa história e missão</p>
+            </button>
+
+            <button class="card" type="button" data-topico="ajudamos">
+                <i class="fa-regular fa-heart"></i>
+                <h3>Como ajudamos</h3>
+                <p>O que fazemos por você</p>
+            </button>
+
+            <button class="card" type="button" data-topico="funciona">
+                <i class="fa-solid fa-gear"></i>
+                <h3>Como funciona</h3>
+                <p>Pelúcia + aplicativo + relatórios</p>
+            </button>
+
+            <button class="card" type="button" data-topico="publico">
+                <i class="fa-solid fa-users"></i>
+                <h3>Para quem é</h3>
+                <p>Pais e terapeutas</p>
+            </button>
+
+            <button class="card" type="button" data-topico="naofazemos">
+                <i class="fa-solid fa-ban"></i>
+                <h3>O que não fazemos</h3>
+                <p>Sem diagnósticos</p>
+            </button>
+
+            <button class="card" type="button" data-topico="privacidade">
+                <i class="fa-solid fa-shield-halved"></i>
+                <h3>Privacidade</h3>
+                <p>Como protegemos seus dados</p>
+            </button>
+
+            <button class="card" type="button" data-topico="proposito">
+                <i class="fa-solid fa-trophy"></i>
+                <h3>Nosso propósito</h3>
+                <p>Missão, visão e valores</p>
+            </button>
+
+            <button class="card" type="button" data-topico="contato">
+                <i class="fa-solid fa-headset"></i>
+                <h3>Contato e suporte</h3>
+                <p>Fale com nossa equipe</p>
+            </button>
+
+        </section>
+
+        <!-- FRASE FINAL -->
+        <section class="frase-final">
+            <img src="/img/BixucoDormindo.png" alt="Bixuco">
+            <p>
+                Mais do que tecnologia, entregamos
+                <strong>conexão</strong>,
+                <strong>empatia</strong> e
+                <strong>inteligência</strong>
+                para apoiar o desenvolvimento infantil.
+            </p>
+        </section>
+
+    </main>
+
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="tituloModal">
+
+    <div class="modal-conteudo">
+
+        <button id="fecharModal" class="fechar" type="button" aria-label="Fechar">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <div id="iconModal" class="modal-icone"></div>
+        <h2 id="tituloModal"></h2>
+        <div id="textoModal" class="modal-texto"></div>
+
+    </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- JAVASCRIPT -->
+<!-- ========================= -->
+
+<script>
+
+
+
+    // ==========================
+    // CARREGAR USUÁRIO
+    // ==========================
+    async function carregarUsuario() {
+        try {
+            const resposta = await fetch("/api/home-terapeuta");
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            if (!resposta.ok) throw new Error();
+
+            const dados = await resposta.json();
+
+            document.getElementById("nomeUsuario").textContent = dados.nome || "Terapeuta";
+            document.getElementById("tipoConta").textContent   = "Terapeuta";
+
+            if (dados.fotoPerfil) {
+                document.getElementById("fotoUsuario").src = dados.fotoPerfil;
+            }
+
+            const badge = document.getElementById("quantidadeNotificacoes");
+            if ((dados.notificacoes ?? 0) > 0) {
+                badge.textContent = dados.notificacoes;
+            }
+
+        } catch (erro) {
+            console.log("Erro ao carregar usuário:", erro);
+        }
+    }
+
+    carregarUsuario();
+
+
+    // ==========================
+    // CONTEÚDO DOS CARDS
+    // adaptado para o ponto de vista do terapeuta
+    // ==========================
+    const conteudo = {
+
+        sobre: {
+            titulo: "Sobre nós",
+            icone:  "fa-solid fa-circle-info",
+            texto: `
+                <p>
+                    A Bixuco nasceu de uma pergunta simples: como ajudar pais
+                    a entender o que seus filhos estão sentindo, mesmo quando
+                    as palavras não chegam?
+                </p>
+                <p>
+                    Somos uma startup de tecnologia focada no bem-estar infantil,
+                    criada para apoiar famílias que convivem com a hipersensibilidade
+                    sensorial — também conhecida como Transtorno do Processamento
+                    Sensorial (TPS).
+                </p>
+                <p>
+                    Nossa solução une um objeto afetivo, a pelúcia Bixuco, a um
+                    aplicativo inteligente que transforma interações físicas em dados
+                    compreensíveis para pais e terapeutas.
+                </p>
+                <p>
+                    Não somos um diagnóstico. Somos um ponto de apoio no dia a dia.
+                </p>
+            `
+        },
+
+        ajudamos: {
+            titulo: "Como ajudamos",
+            icone:  "fa-regular fa-heart",
+            texto: `
+                <p>
+                    Para terapeutas, o Bixuco oferece uma visão estruturada
+                    do cotidiano dos pacientes entre as sessões.
+                </p>
+                <p>
+                    Você recebe relatórios diários preenchidos pelos responsáveis,
+                    com dados organizados sobre comportamento, gatilhos e nível de estresse.
+                </p>
+                <p>
+                    A pelúcia inteligente detecta sinais de estresse em tempo real
+                    e envia alertas para o aplicativo — informações valiosas para
+                    embasar o acompanhamento clínico.
+                </p>
+                <p>
+                    Você também pode registrar notas clínicas diretamente na plataforma,
+                    mantendo um histórico completo e acessível.
+                </p>
+            `
+        },
+
+        funciona: {
+            titulo: "Como funciona",
+            icone:  "fa-solid fa-gear",
+            texto: `
+                <ol>
+                    <li>Crie sua conta como terapeuta e informe seu CRP.</li>
+                    <li>Compartilhe seu código de vínculo com os responsáveis dos seus pacientes.</li>
+                    <li>Aceite as solicitações de vínculo no painel de notificações.</li>
+                    <li>Acompanhe os relatórios diários dos pacientes na tela de Relatórios.</li>
+                    <li>Adicione notas clínicas e acompanhe a evolução ao longo do tempo.</li>
+                    <li>Visualize gráficos de estresse e principais gatilhos por paciente.</li>
+                </ol>
+            `
+        },
+
+        publico: {
+            titulo: "Para quem é",
+            icone:  "fa-solid fa-users",
+            texto: `
+                <p>O Bixuco foi desenvolvido para:</p>
+                <ul>
+                    <li><strong>Terapeutas</strong> — psicólogos e terapeutas ocupacionais que acompanham o desenvolvimento.</li>
+                    <li><strong>Responsáveis</strong> — pais e mães que registram o dia a dia da criança.</li>
+                    <li><strong>Profissionais da saúde infantil</strong> — que buscam dados organizados para embasar seu trabalho.</li>
+                </ul>
+                <p>
+                    Qualquer profissional que acompanhe crianças com TPS ou
+                    hipersensibilidade sensorial pode se beneficiar do Bixuco.
+                </p>
+            `
+        },
+
+        naofazemos: {
+            titulo: "O que não fazemos",
+            icone:  "fa-solid fa-ban",
+            texto: `
+                <p>
+                    É muito importante que fique claro o que o Bixuco <strong>não faz</strong>:
+                </p>
+                <ul>
+                    <li>Não realizamos diagnósticos médicos ou psicológicos.</li>
+                    <li>Não substituímos a avaliação clínica do terapeuta.</li>
+                    <li>Não oferecemos laudos ou pareceres técnicos.</li>
+                </ul>
+                <p>
+                    Nossa função é organizar as informações do cotidiano e facilitar
+                    o acompanhamento profissional — sempre como ferramenta de apoio,
+                    nunca como substituto da expertise clínica.
+                </p>
+            `
+        },
+
+        privacidade: {
+            titulo: "Privacidade",
+            icone:  "fa-solid fa-shield-halved",
+            texto: `
+                <p>
+                    Levamos a privacidade das famílias e dos profissionais muito a sério,
+                    especialmente por lidarmos com dados sensíveis de crianças.
+                </p>
+                <ul>
+                    <li>Dados protegidos com criptografia de ponta.</li>
+                    <li>Acesso aos relatórios apenas mediante vínculo autorizado pelo responsável.</li>
+                    <li>Informações armazenadas com segurança em servidores protegidos.</li>
+                    <li>Seguimos as diretrizes da LGPD (Lei Geral de Proteção de Dados).</li>
+                    <li>O responsável pode revogar o acesso a qualquer momento.</li>
+                </ul>
+            `
+        },
+
+        proposito: {
+            titulo: "Nosso propósito",
+            icone:  "fa-solid fa-trophy",
+            texto: `
+                <h3>Missão</h3>
+                <p>
+                    Facilitar o acompanhamento do desenvolvimento infantil utilizando
+                    tecnologia e empatia, promovendo conexão entre famílias e profissionais.
+                </p>
+
+                <h3>Visão</h3>
+                <p>
+                    Ser referência nacional em soluções tecnológicas para acompanhamento
+                    de crianças com hipersensibilidade sensorial.
+                </p>
+
+                <h3>Valores</h3>
+                <ul>
+                    <li>Empatia</li>
+                    <li>Inovação</li>
+                    <li>Segurança</li>
+                    <li>Transparência</li>
+                    <li>Respeito às famílias e profissionais</li>
+                </ul>
+            `
+        },
+
+        contato: {
+            titulo: "Contato e suporte",
+            icone:  "fa-solid fa-headset",
+            texto: `
+                <p>Precisa de ajuda? Nossa equipe está aqui para você.</p>
+                <p>📧 <strong>suporte@bixuco.com</strong></p>
+                <p>📱 <strong>(11) 99999-9999</strong></p>
+                <p>Segunda a sexta, das 08h às 18h.</p>
+                <p>
+                    Também é possível abrir um chamado diretamente pelo
+                    aplicativo nas configurações da sua conta.
+                </p>
+            `
+        }
+
+    };
+
+
+    // ==========================
+    // MODAL
+    // ==========================
+    const modal     = document.getElementById("modal");
+    const titulo    = document.getElementById("tituloModal");
+    const texto     = document.getElementById("textoModal");
+    const iconModal = document.getElementById("iconModal");
+    const fechar    = document.getElementById("fecharModal");
+
+    function abrirModal(id) {
+        const item = conteudo[id];
+        if (!item) return;
+
+        iconModal.innerHTML = `<i class="${item.icone}"></i>`;
+        titulo.textContent  = item.titulo;
+        texto.innerHTML     = item.texto;
+
+        modal.classList.add("mostrar");
+        document.body.style.overflow = "hidden";
+        fechar.focus();
+    }
+
+    function fecharModal() {
+        modal.classList.remove("mostrar");
+        document.body.style.overflow = "";
+    }
+
+    document.querySelectorAll(".card").forEach(card => {
+        card.addEventListener("click", () => {
+            abrirModal(card.dataset.topico);
+        });
+    });
+
+    fechar.addEventListener("click", fecharModal);
+
+
+    // ==========================
+    // NOTIFICAÇÕES
+    // ==========================
+    const painelNotificacoes = document.getElementById("painelNotificacoes");
+    const listaNotificacoes  = document.getElementById("listaNotificacoes");
+
+    function formatarItemNotificacao(item) {
+        const classeExtra = item.lida ? "" : "nao-lida";
+        return `
+            <div class="item-notificacao ${classeExtra}">
+                ${item.mensagem}
+                <span class="tempo-notificacao">${item.tempo}</span>
+            </div>
+        `;
+    }
+
+    async function carregarNotificacoes() {
+        try {
+            const resposta = await fetch("/api/notificacoes");
+            if (!resposta.ok) throw new Error();
+            const dados = await resposta.json();
+            const itens = dados.notificacoes || [];
+
+            listaNotificacoes.innerHTML = itens.length === 0
+                ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+                : itens.map(formatarItemNotificacao).join("");
+
+            const naoLidas = itens.filter(item => !item.lida).length;
+            document.getElementById("quantidadeNotificacoes").textContent = naoLidas;
+
+        } catch (erro) {
+            console.log("Erro ao carregar notificações:", erro);
+            listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar as notificações.</div>`;
+        }
+    }
+
+    async function marcarNotificacoesComoLidas() {
+        try {
+            await fetch("/api/notificacoes/marcar-lidas", { method: "POST" });
+            document.getElementById("quantidadeNotificacoes").textContent = "0";
+        } catch (_) {}
+    }
+
+    document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
+        e.stopPropagation();
+        const estaAberto = painelNotificacoes.classList.contains("aberto");
+        if (estaAberto) {
+            painelNotificacoes.classList.remove("aberto");
+            return;
+        }
+        painelNotificacoes.classList.add("aberto");
+        await carregarNotificacoes();
+        marcarNotificacoesComoLidas();
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!painelNotificacoes.contains(e.target)) {
+            painelNotificacoes.classList.remove("aberto");
+        }
+    });
+
+
+    // ==========================
+    // TRADUÇÃO
+    // ==========================
+    function lerCookie(nome) {
+        const valor  = `; ${document.cookie}`;
+        const partes = valor.split(`; ${nome}=`);
+        if (partes.length === 2) return partes.pop().split(";").shift();
+        return null;
+    }
+
+    function definirCookieTraducao(destino) {
+        document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+        document.cookie = `googtrans=; path=/; domain=${location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
+        if (destino) {
+            const valor = `/pt/${destino}`;
+            document.cookie = `googtrans=${valor}; path=/`;
+            document.cookie = `googtrans=${valor}; path=/; domain=${location.hostname}`;
+        }
+    }
+
+    function iniciarTradutor() {
+        new google.translate.TranslateElement(
+            { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
+            "google_translate_element"
+        );
+    }
+
+    function atualizarTextoBotaoTraducao() {
+        const cookieAtual = lerCookie("googtrans");
+        document.getElementById("textoTradutor").textContent =
+            cookieAtual && cookieAtual.includes("/en")
+                ? "Voltar para português"
+                : "Traduzir para inglês";
+    }
+
+    document.getElementById("btnTraduzir").addEventListener("click", () => {
+        const cookieAtual   = lerCookie("googtrans");
+        const estaTraduzido = cookieAtual && cookieAtual.includes("/en");
+        definirCookieTraducao(estaTraduzido ? null : "en");
+        window.location.reload();
+    });
+
+
+    // ==========================
+    // TEMA
+    // ==========================
+    function aplicarTema(tema) {
+        document.body.classList.remove("tema-claro", "tema-escuro");
+        document.body.classList.add(`tema-${tema}`);
+        document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
+        document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
+        localStorage.setItem("tema", tema);
+    }
+
+    document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema("claro"));
+    document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
+
+
+    // ==========================
+    // INICIALIZAÇÃO
+    // ==========================
+    const temaSalvo = localStorage.getItem("tema") || "claro";
+    aplicarTema(temaSalvo);
+    atualizarTextoBotaoTraducao();
+    carregarNotificacoes();
+
+</script>
+
+<script src="/js/tema.js" onerror="console.log('tema.js não encontrado')"></script>
+
+</body>
+
+</html>

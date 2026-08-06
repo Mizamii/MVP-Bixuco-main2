@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Criar conta</title>
+
+    <!-- Biblioteca de ícones -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <!-- CSS da página -->
+    <link
+        rel="stylesheet"
+        href="/css/criarcontas.css"
+    >
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+</head>
+
+<body class="pagina-criar-conta">
+    <main class="pagina-login">
+
+        <!-- ========================= -->
+        <!-- LADO ESQUERDO -->
+        <!-- ========================= -->
+        <section class="login-esquerda">
+
+            <div class="login-esquerda__geometria"></div>
+            <div class="login-esquerda__overlay"></div>
+
+            <div class="login-esquerda__conteudo">
+                <img
+                    src="/img/Logo_Branca.png"
+                    alt="Logo Bixuco"
+                    class="login-esquerda__logo"
+                >
+
+                <h1 class="login-esquerda__titulo">
+                    Crie sua conta
+                </h1>
+
+                <p class="login-esquerda__slogan">
+                    Pais e terapeutas juntos pelo bem-estar da criança.
+                </p>
+            </div>
+
+            <!-- Ilustração -->
+            <div class="login-esquerda__ilustracao-wrapper">
+                <img
+                    src="/img/familia-bixuco.png"
+                    alt="Família utilizando o Bixuco"
+                    class="login-esquerda__foto"
+                >
+            </div>
+
+        </section>
+
+        <!-- ========================= -->
+        <!-- LADO DIREITO -->
+        <!-- ========================= -->
+        <section class="login-direita">
+
+            <!-- Cabeçalho fixo no topo, com linha -->
+            <div class="criarconta-header">
+                <h2 class="criarconta-titulo">
+                    Criar conta
+                </h2>
+            </div>
+
+            <!-- Corpo centralizado no restante do espaço -->
+            <div class="criarconta-corpo">
+
+                <!-- Barra de progresso (Etapa 1) -->
+                <div class="cadastro-progresso" aria-label="Etapas de criação de conta">
+                    <span class="ativo ativo--recente"></span>
+                    <span></span>
+                    <span></span>
+                </div>
+
+                <h3 class="criarconta-pergunta">
+                    Como você vai utilizar o Bixuco?
+                </h3>
+
+                <p class="criarconta-ajuda">
+                    Isso vai nos ajudar a personalizar sua experiência.
+                </p>
+
+                <!-- Cards de seleção -->
+                <div class="tipo-container">
+
+                    <!-- Card responsável -->
+                    <button
+                        id="cardResponsavel"
+                        class="tipo-card"
+                        type="button"
+                        onclick="selecionarTipo('responsavel')"
+                        aria-pressed="false"
+                    >
+                        <div class="tipo-card__conteudo">
+                            <h4 class="tipo-card__titulo">
+                                Sou responsável
+                            </h4>
+
+                            <p class="tipo-card__descricao">
+                                Acompanho o desenvolvimento do meu filho(a).
+                            </p>
+                        </div>
+                    </button>
+
+                    <!-- Card terapeuta -->
+                    <button
+                        id="cardPsicologo"
+                        class="tipo-card"
+                        type="button"
+                        onclick="selecionarTipo('psicologo')"
+                        aria-pressed="false"
+                    >
+                        <div class="tipo-card__conteudo">
+                            <h4 class="tipo-card__titulo">
+                                Sou terapeuta
+                            </h4>
+
+                            <p class="tipo-card__descricao">
+                                Acompanho pacientes profissionalmente.
+                            </p>
+
+                            <div class="tag-crp">
+                                Requer validação de CRP
+                            </div>
+                        </div>
+                    </button>
+
+                </div>
+
+                <!-- Mensagem inline em vez de alert() -->
+                <!-- Aparece só se o usuário clicar em Continuar sem selecionar nada -->
+                <span
+                    id="erro-selecao"
+                    class="erro-selecao"
+                    style="display: none;"
+                >
+                    Selecione como deseja utilizar o Bixuco.
+                </span>
+
+                <!-- Botão começa desabilitado; fica ativo apenas quando um card é selecionado -->
+                <button
+                    type="button"
+                    id="btnContinuar"
+                    class="btn-continuar"
+                    onclick="continuar()"
+                    disabled
+                >
+                    Continuar
+                </button>
+
+                <!-- Link para login -->
+                <p class="login-direita__rodape">
+                    Já possui uma conta?
+                    <a href="/logar" class="login-direita__link">
+                        Fazer login
+                    </a>
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+
+        // Guarda o tipo selecionado pelo usuário
+        let tipoSelecionado = null;
+
+        // ==========================
+        // SELECIONAR TIPO
+        // ==========================
+
+        function selecionarTipo(tipo) {
+
+            tipoSelecionado = tipo;
+
+            // aria-pressed simplificado — atualiza todos os cards de uma vez
+            document.querySelectorAll(".tipo-card").forEach(card => {
+                card.classList.remove("tipo-card--ativo");
+                card.setAttribute("aria-pressed", "false");
+            });
+
+            // Marca o card clicado como ativo
+            const cardSelecionado = tipo === "responsavel"
+                ? document.getElementById("cardResponsavel")
+                : document.getElementById("cardPsicologo");
+
+            cardSelecionado.classList.add("tipo-card--ativo");
+            cardSelecionado.setAttribute("aria-pressed", "true");
+
+            // Habilita o botão ao selecionar um card
+            document.getElementById("btnContinuar").disabled = false;
+
+            // Esconde a mensagem de erro se estava aparecendo
+            const erroSelecao = document.getElementById("erro-selecao");
+            erroSelecao.style.display = "none";
+
+        }
+
+        // ==========================
+        // CONTINUAR
+        // ==========================
+
+        function continuar() {
+
+            // Segurança extra — mesmo com botão desabilitado,
+            // valida novamente caso o JS seja chamado diretamente
+            if (tipoSelecionado === null) {
+
+                const erroSelecao = document.getElementById("erro-selecao");
+                erroSelecao.style.display = "block";
+                return;
+
+            }
+
+            // Redireciona para a próxima etapa conforme o tipo escolhido
+            if (tipoSelecionado === "responsavel") {
+                window.location.href = "/CriarContaG";
+            } else if (tipoSelecionado === "psicologo") {
+                window.location.href = "/CriarContaP";
+            }
+
+        }
+
+    </script>
+
+    <script src="/js/tema.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Relatório do Paciente</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <!-- Chart.js para os gráficos -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+    <!-- Google Translate -->
+    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
+
+    <!-- favicon -->
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+
+    <!-- CSS externo — o amigo vai ligar aqui -->
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/relatoriodetalhado.css">
+
+    <style>
+        .goog-te-banner-frame { display: none !important; }
+        body { top: 0 !important; }
+
+        /* Botões de troca de tipo de gráfico — inline pois são específicos desta página */
+        .titulo-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .btn-tipo-grafico {
+            display: flex;
+            gap: 4px;
+        }
+
+        .btn-tipo-grafico button {
+            background: #F5F7FA;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 6px 10px;
+            cursor: pointer;
+            color: #5A5A5A;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .btn-tipo-grafico button:hover {
+            background: #E2F0D9;
+            border-color: #32C26D;
+            color: #32C26D;
+        }
+
+        .btn-tipo-grafico button.ativo {
+            background: #32C26D;
+            border-color: #32C26D;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- ========================= -->
+    <!-- MENU LATERAL -->
+    <!-- ========================= -->
+    <aside class="sidebar">
+
+        <!-- logo_nome.png do amigo -->
+        <div class="logo">
+            <img src="/img/logo_nome.png" alt="Bixuco">
+        </div>
+
+        <nav>
+            <a href="/homeTerapeuta">
+                <i class="fa-solid fa-house"></i>
+                <span>Início</span>
+            </a>
+
+            <!-- aba ativa -->
+            <a href="/relatoriosTerapeutaS" class="ativo">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Relatórios</span>
+            </a>
+
+            <a href="/configuracoesT">
+                <i class="fa-solid fa-gear"></i>
+                <span>Configurações</span>
+            </a>
+
+            <a href="/sobreT">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>Sobre</span>
+            </a>
+
+            <a href="/pacientes">
+                <i class="fa-solid fa-user-group"></i>
+                <span>Pacientes</span>
+            </a>
+        </nav>
+
+        <div class="tema">
+            <button id="btnClaro" class="ativo" type="button">
+                <i class="fa-regular fa-sun"></i>
+                Claro
+            </button>
+            <button id="btnEscuro" type="button">
+                <i class="fa-regular fa-moon"></i>
+                Escuro
+            </button>
+        </div>
+
+        <!-- divisor em degradê do amigo -->
+        <div class="sidebar-divisor"></div>
+
+        <a href="/logout" class="logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span>Sair</span>
+        </a>
+
+    </aside>
+
+    <!-- ========================= -->
+    <!-- CONTEÚDO PRINCIPAL -->
+    <!-- ========================= -->
+    <main class="conteudo">
+
+        <!-- TOPO -->
+        <header class="topo">
+
+            <button class="tradutor" type="button" id="btnTraduzir">
+                <i class="fa-solid fa-globe"></i>
+                <span id="textoTradutor">Traduzir para inglês</span>
+            </button>
+
+            <!-- elemento oculto necessário para o Google Translate -->
+            <div
+                id="google_translate_element"
+                style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);"
+            ></div>
+
+            <div class="usuario">
+
+                <!-- sininho com painel de notificações -->
+                <div class="notificacoes-wrapper">
+                    <button class="notificacoes" type="button" id="btnNotificacoes">
+                        <i class="fa-regular fa-bell"></i>
+                        <span id="badgeNotificacoes" class="badge" style="display:none;">0</span>
+                    </button>
+
+                    <div class="painel-notificacoes" id="painelNotificacoes">
+                        <div class="painel-header">Notificações</div>
+                        <div id="listaNotificacoes">
+                            <div class="painel-vazio">Carregando...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- foto clicável vai para o perfil — do seu JS -->
+                <!-- onerror garante foto padrão se a foto não carregar -->
+                <img
+                    id="fotoUsuario"
+                    src="/img/perfilPadrao.png"
+                    alt="Foto do terapeuta"
+                    title="Ver perfil"
+                    style="cursor:pointer;"
+                    onclick="window.location.href='/PerfilTerapeuta'"
+                    onerror="this.src='/img/perfilPadrao.png'"
+                >
+
+                <div>
+                    <!-- 🔧 dinâmico — o amigo tinha "Dr. Laura" hardcoded -->
+                    <h3 id="nomeTerapeuta">Carregando...</h3>
+                    <span>Terapeuta</span>
+                </div>
+
+            </div>
+
+        </header>
+
+        <!-- conteudo-corpo do amigo — scroll interno correto -->
+        <div class="conteudo-corpo">
+
+            <!-- CABEÇALHO DA PÁGINA com seta de voltar e nome dinâmico -->
+            <div class="cabecalho-pagina">
+
+                <div class="cabecalho-titulo">
+                    <a href="/relatoriosTerapeutaS" class="btn-voltar">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </a>
+
+                    <div>
+                        <!-- nome do paciente dinâmico via query param -->
+                        <h1>Relatórios de <span id="nomePaciente">...</span></h1>
+                    </div>
+                </div>
+
+                <img
+                    src="/img/gato-relatorio.png"
+                    alt="Mascote"
+                    onerror="this.style.display='none'"
+                >
+
+            </div>
+
+            <!-- ========================= -->
+            <!-- CARDS DE RESUMO -->
+            <!-- ========================= -->
+            <section class="cards-resumo">
+
+                <div class="card-resumo">
+                    <h3>Alertas de estresse</h3>
+                    <div class="valor" id="alertasEstresse">
+                        <i class="fa-solid fa-arrow-down"></i>
+                        0
+                    </div>
+                    <p id="comparativoAlertas">carregando...</p>
+                </div>
+
+                <div class="card-resumo">
+                    <h3>Tempo de estresse</h3>
+                    <div class="valor" id="tempoEstresse">
+                        <i class="fa-solid fa-arrow-up"></i>
+                        0 min
+                    </div>
+                    <p id="comparativoTempo">carregando...</p>
+                </div>
+
+            </section>
+
+            <!-- ========================= -->
+            <!-- GRÁFICOS -->
+            <!-- ========================= -->
+            <section class="graficos">
+
+                <!-- Gráfico de estresse com botões de tipo -->
+                <article class="card-grafico">
+                    <div class="titulo-card">
+                        <h3>Estresse — últimos 7 dias</h3>
+
+                        <div class="btn-tipo-grafico">
+                            <button type="button" class="ativo" onclick="trocarTipoEstresse('bar')" title="Barras">
+                                <i class="fa-solid fa-chart-column"></i>
+                            </button>
+                            <button type="button" onclick="trocarTipoEstresse('line')" title="Linha">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <canvas id="graficoBarras"></canvas>
+                </article>
+
+                <!-- Gráfico de gatilhos com botões de tipo -->
+                <article class="card-grafico">
+                    <div class="titulo-card">
+                        <h3>Principais gatilhos — últimos 7 dias</h3>
+
+                        <div class="btn-tipo-grafico">
+                            <button type="button" class="ativo" onclick="trocarTipoGatilhos('doughnut')" title="Rosca">
+                                <i class="fa-solid fa-circle-dot"></i>
+                            </button>
+                            <button type="button" onclick="trocarTipoGatilhos('pie')" title="Pizza">
+                                <i class="fa-solid fa-chart-pie"></i>
+                            </button>
+                            <button type="button" onclick="trocarTipoGatilhos('bar')" title="Barras">
+                                <i class="fa-solid fa-chart-column"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <canvas id="graficoPizza"></canvas>
+                    <div id="legendaGatilhos" class="legenda-rosca"></div>
+                </article>
+
+            </section>
+
+            <!-- ========================= -->
+            <!-- NOTAS CLÍNICAS -->
+            <!-- ========================= -->
+            <section class="bloco bloco-notas">
+
+                <h3>Notas clínicas</h3>
+
+                <div id="listaNotas">
+                    <div class="carregando-notas">
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+                        Carregando notas...
+                    </div>
+                </div>
+
+                <textarea
+                    id="novaNota"
+                    placeholder="Adicionar nova nota clínica..."
+                    rows="4"
+                ></textarea>
+
+                <!-- erro inline em vez de alert() -->
+                <span
+                    id="erroNota"
+                    style="display:none; color:#E53E3E; font-size:0.85rem;"
+                ></span>
+
+                <div class="acoes-nota">
+                    <button
+                        type="button"
+                        id="btnSalvarNota"
+                        onclick="salvarNota()"
+                    >
+                        Salvar nota
+                    </button>
+                </div>
+
+            </section>
+
+        </div><!-- fim .conteudo-corpo -->
+
+    </main>
+</div>
+
+<script>
+    // =========================
+    // PEGA O ID DO PACIENTE DA URL
+    // Ex: /relatoriosTerapeuta?paciente=42
+    // =========================
+    const params     = new URLSearchParams(window.location.search);
+    const pacienteId = params.get("paciente");
+
+    // Se não tem ID na URL, volta para a lista
+    if (!pacienteId) {
+        window.location.href = "/relatoriosTerapeutaS";
+    }
+
+    // =========================
+    // CARREGAR DADOS DO TERAPEUTA (topo)
+    // =========================
+    async function carregarTerapeuta() {
+        try {
+            const resposta = await fetch("/api/home-terapeuta");
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            if (!resposta.ok) return;
+
+            const dados = await resposta.json();
+
+            document.getElementById("nomeTerapeuta").textContent = dados.nome || "Terapeuta";
+
+            if (dados.fotoPerfil) {
+                document.getElementById("fotoUsuario").src = dados.fotoPerfil;
+            }
+
+            // Badge de notificações
+            const badge = document.getElementById("badgeNotificacoes");
+            if (dados.notificacoes > 0) {
+                badge.textContent   = dados.notificacoes;
+                badge.style.display = "inline";
+            }
+
+        } catch (e) {
+            console.log("Erro ao carregar terapeuta:", e);
+        }
+    }
+
+    // =========================
+    // CARREGAR RELATÓRIO DO PACIENTE
+    // =========================
+    async function carregarRelatorio() {
+        try {
+            const resposta = await fetch(`/api/relatorio-paciente?paciente=${pacienteId}`);
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            if (!resposta.ok) throw new Error("Falha ao carregar relatório");
+
+            const dados = await resposta.json();
+
+            // Nome do paciente no título
+            document.getElementById("nomePaciente").textContent =
+                dados.nomePaciente || "Paciente";
+
+            // Cards de resumo
+            preencherCards(dados);
+
+            // Gráficos
+            renderizarGraficos(dados);
+
+            // Notas clínicas
+            renderizarNotas(dados.notas || []);
+
+        } catch (e) {
+            console.log("Erro ao carregar relatório:", e);
+            // Fallback com dados de exemplo
+            usarDadosExemplo();
+        }
+    }
+
+    // =========================
+    // DADOS DE EXEMPLO (fallback)
+    // =========================
+    function usarDadosExemplo() {
+
+        document.getElementById("nomePaciente").textContent = "Paciente";
+
+        const dadosExemplo = {
+            alertas: 18,
+            comparativoAlertas: "↓ 2 comparado à semana passada",
+            tempo: "120 min",
+            comparativoTempo:   "↑ 1 min comparado à semana passada",
+            graficoEstresse:    { labels: ["Sex","Sáb","Dom","Seg","Ter","Qua","Qui"], dados: [3,2,5,7,8,4,2] },
+            graficoGatilhos:    { labels: ["Ambientes barulhentos","Locais lotados","Mudanças de rotina","Texturas"], dados: [42,28,18,12], cores: ["#32C26D","#0AB7FB","#1D8EC9","#C2C2C2"] },
+            notas: []
+        };
+
+        preencherCards(dadosExemplo);
+        renderizarGraficos(dadosExemplo);
+        renderizarNotas([]);
+    }
+
+    // =========================
+    // PREENCHER CARDS
+    // =========================
+    function preencherCards(dados) {
+
+        const alertaEl = document.getElementById("alertasEstresse");
+        const seta     = dados.alertas > 0 ? "fa-arrow-up" : "fa-arrow-down";
+        const classe   = dados.alertas > 0 ? "negativo" : "positivo";
+
+        alertaEl.className = `valor ${classe}`;
+        alertaEl.innerHTML = `<i class="fa-solid ${seta}"></i> ${dados.alertas ?? 0}`;
+
+        document.getElementById("comparativoAlertas").textContent =
+            dados.comparativoAlertas || "";
+
+        document.getElementById("tempoEstresse").textContent =
+            dados.tempo || "0 min";
+
+        document.getElementById("comparativoTempo").textContent =
+            dados.comparativoTempo || "";
+    }
+
+    // =========================
+    // GRÁFICOS COM CHART.JS
+    // =========================
+    let dadosEstresseGlobal  = null;
+    let dadosGatilhosGlobal  = null;
+    let graficos             = {};
+
+    function renderizarGraficos(dados) {
+
+        // Destrói gráficos anteriores se existirem
+        Object.values(graficos).forEach(g => g.destroy());
+        graficos = {};
+
+        // Salva os dados globalmente para recriar ao trocar o tipo
+        dadosEstresseGlobal = dados.graficoEstresse;
+        dadosGatilhosGlobal = dados.graficoGatilhos;
+
+        // Cria os gráficos com os tipos padrão
+        criarGraficoEstresse("bar");
+        criarGraficoGatilhos("doughnut");
+    }
+
+    // ==========================
+    // GRÁFICO DE ESTRESSE
+    // ==========================
+
+    function criarGraficoEstresse(tipo) {
+
+        const VERDE = "#32C26D";
+        const dados = dadosEstresseGlobal;
+
+        // Destrói o gráfico anterior se existir
+        if (graficos.estresse) {
+            graficos.estresse.destroy();
+        }
+
+        const ctx = document.getElementById("graficoBarras").getContext("2d");
+
+        // Cor de cada barra — vermelho no pico, laranja nos altos, verde nos normais
+        const cores = (dados?.dados || []).map(v =>
+            v === Math.max(...(dados?.dados || [])) ? "#E53E3E" :
+            v > 5 ? "#F6AD55" : VERDE
+        );
+
+        // Para linha, usa sempre verde com gradiente
+        const gradiente = ctx.createLinearGradient(0, 0, 0, 300);
+        gradiente.addColorStop(0,   "rgba(50, 194, 109, 0.35)");
+        gradiente.addColorStop(1,   "rgba(50, 194, 109, 0)");
+
+        graficos.estresse = new Chart(ctx, {
+            type: tipo,
+            data: {
+                labels: dados?.labels || [],
+                datasets: [{
+                    label:           "Alertas",
+                    data:            dados?.dados  || [],
+                    backgroundColor: tipo === "line" ? gradiente : cores,
+                    borderColor:     tipo === "line" ? VERDE : cores,
+                    borderWidth:     tipo === "line" ? 2.5 : 0,
+                    borderRadius:    tipo === "bar"  ? 6 : 0,
+                    pointBackgroundColor: tipo === "line"
+                        ? (dados?.dados || []).map(v =>
+                            v === Math.max(...(dados?.dados || [])) ? "#E53E3E" : VERDE)
+                        : undefined,
+                    pointRadius:  tipo === "line" ? 5 : undefined,
+                    tension:      tipo === "line" ? 0.4 : undefined,
+                    fill:         tipo === "line" ? true : false
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales:  {
+                    y: { beginAtZero: true, ticks: { stepSize: 2 } }
+                }
+            }
+        });
+    }
+
+    // Chamado pelos botões — troca o tipo e atualiza o botão ativo
+    function trocarTipoEstresse(tipo) {
+
+        criarGraficoEstresse(tipo);
+
+        // Atualiza qual botão está ativo visualmente
+        const iconePorTipo = { bar: "fa-chart-column", line: "fa-chart-line" };
+        atualizarBotoesTipo("graficoBarras", tipo, iconePorTipo);
+    }
+
+    // ==========================
+    // GRÁFICO DE GATILHOS
+    // ==========================
+
+    function criarGraficoGatilhos(tipo) {
+
+        const VERDE   = "#32C26D";
+        const AZUL    = "#0AB7FB";
+        const dados   = dadosGatilhosGlobal;
+        const legenda = document.getElementById("legendaGatilhos");
+
+        // Destrói o gráfico anterior se existir
+        if (graficos.gatilhos) {
+            graficos.gatilhos.destroy();
+        }
+
+        const ctx = document.getElementById("graficoPizza").getContext("2d");
+
+        const ehRosca = tipo === "doughnut" || tipo === "pie";
+
+        graficos.gatilhos = new Chart(ctx, {
+            type: tipo,
+            data: {
+                labels: dados?.labels || [],
+                datasets: [{
+                    data:            dados?.dados  || [],
+                    backgroundColor: dados?.cores  || [VERDE, AZUL, "#1D8EC9", "#C2C2C2"],
+                    borderWidth:     0,
+                    hoverOffset:     8,
+                    // Para barras
+                    borderRadius:    tipo === "bar" ? 6 : 0
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: tipo === "doughnut" ? "65%" : 0,
+                plugins: {
+                    legend: { display: tipo === "bar" ? true : false }
+                },
+                scales: tipo === "bar"
+                    ? { y: { beginAtZero: true } }
+                    : {}
+            }
+        });
+
+        // Mostra a legenda customizada só para rosca/pizza
+        if (legenda) {
+            if (ehRosca) {
+                legenda.innerHTML = "";
+                (dados?.labels || []).forEach((label, i) => {
+                    legenda.innerHTML += `
+                        <div class="legenda-item">
+                            <span class="legenda-cor" style="background:${dados?.cores?.[i] || VERDE}"></span>
+                            <span>${label} ${dados?.dados?.[i]}%</span>
+                        </div>`;
+                });
+                legenda.style.display = "flex";
+            } else {
+                legenda.style.display = "none";
+            }
+        }
+    }
+
+    // Chamado pelos botões — troca o tipo e atualiza o botão ativo
+    function trocarTipoGatilhos(tipo) {
+
+        criarGraficoGatilhos(tipo);
+
+        const iconePorTipo = {
+            doughnut: "fa-circle-dot",
+            pie:      "fa-chart-pie",
+            bar:      "fa-chart-column"
+        };
+        atualizarBotoesTipo("graficoPizza", tipo, iconePorTipo);
+    }
+
+    // ==========================
+    // ATUALIZAR BOTÃO ATIVO
+    // ==========================
+
+    // Marca o botão do tipo selecionado como ativo e os outros como inativos
+    function atualizarBotoesTipo(canvasId, tipoAtivo, iconePorTipo) {
+
+        const card   = document.getElementById(canvasId).closest(".card-grafico");
+        const botoes = card.querySelectorAll(".btn-tipo-grafico button");
+
+        botoes.forEach(btn => {
+            const icone = btn.querySelector("i");
+            if (!icone) return;
+
+            // Descobre qual tipo esse botão representa pelo ícone
+            const tipoBtn = Object.entries(iconePorTipo).find(([, cls]) =>
+                icone.classList.contains(cls)
+            )?.[0];
+
+            btn.classList.toggle("ativo", tipoBtn === tipoAtivo);
+        });
+    }
+
+    // =========================
+    // NOTAS CLÍNICAS
+    // =========================
+    function renderizarNotas(notas) {
+
+        const lista = document.getElementById("listaNotas");
+
+        if (notas.length === 0) {
+            lista.innerHTML = `<p class="sem-notas">Nenhuma nota clínica ainda.</p>`;
+            return;
+        }
+
+        lista.innerHTML = notas.map(nota => `
+            <div class="nota-anterior">
+                <strong>${nota.data} · ${nota.nomeTerapeuta}</strong>
+                <p>${nota.texto}</p>
+            </div>
+        `).join("");
+    }
+
+    // =========================
+    // SALVAR NOTA — sem alert()
+    // =========================
+    async function salvarNota() {
+
+        const texto    = document.getElementById("novaNota").value.trim();
+        const erroEl   = document.getElementById("erroNota");
+        const btnSalvar = document.getElementById("btnSalvarNota");
+
+        erroEl.style.display = "none";
+
+        if (!texto) {
+            erroEl.textContent   = "Digite uma nota antes de salvar.";
+            erroEl.style.display = "block";
+            return;
+        }
+
+        btnSalvar.disabled    = true;
+        btnSalvar.textContent = "Salvando...";
+
+        try {
+
+            const resposta = await fetch("/api/nota-clinica", {
+                method:  "POST",
+                headers: { "Content-Type": "application/json" },
+                body:    JSON.stringify({ pacienteId, texto })
+            });
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            if (!resposta.ok) throw new Error("Falha ao salvar");
+
+            // Limpa o campo e recarrega as notas
+            document.getElementById("novaNota").value = "";
+            await carregarRelatorio();
+
+        } catch (e) {
+
+            console.log("Erro ao salvar nota:", e);
+            erroEl.textContent   = "Erro ao salvar a nota. Tente novamente.";
+            erroEl.style.display = "block";
+
+        } finally {
+
+            btnSalvar.disabled    = false;
+            btnSalvar.textContent = "Salvar nota";
+
+        }
+    }
+
+    // =========================
+    // PAINEL DE NOTIFICAÇÕES
+    // =========================
+    const painelNotificacoes = document.getElementById("painelNotificacoes");
+
+    async function carregarNotificacoes() {
+        try {
+            const resposta = await fetch("/api/notificacoes");
+            if (!resposta.ok) throw new Error();
+            const dados = await resposta.json();
+            const itens = dados.notificacoes || [];
+
+            document.getElementById("listaNotificacoes").innerHTML = itens.length === 0
+                ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+                : itens.map(n => `
+                    <div class="item-notificacao ${n.lida ? "" : "nao-lida"}">
+                        ${n.mensagem}
+                        <span class="tempo-notificacao">${n.tempo}</span>
+                    </div>`).join("");
+        } catch (_) {
+            document.getElementById("listaNotificacoes").innerHTML =
+                `<div class="painel-vazio">Não foi possível carregar.</div>`;
+        }
+    }
+
+    document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
+        e.stopPropagation();
+        const aberto = painelNotificacoes.classList.toggle("aberto");
+        if (aberto) {
+            await carregarNotificacoes();
+            fetch("/api/notificacoes/marcar-lidas", { method: "POST" }).catch(() => {});
+            document.getElementById("badgeNotificacoes").style.display = "none";
+        }
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!painelNotificacoes.contains(e.target)) {
+            painelNotificacoes.classList.remove("aberto");
+        }
+    });
+
+    // =========================
+    // TRADUÇÃO
+    // =========================
+    function lerCookie(nome) {
+        const v = `; ${document.cookie}`;
+        const p = v.split(`; ${nome}=`);
+        if (p.length === 2) return p.pop().split(";").shift();
+        return null;
+    }
+
+    function iniciarTradutor() {
+        new google.translate.TranslateElement(
+            { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
+            "google_translate_element"
+        );
+    }
+
+    document.getElementById("btnTraduzir").addEventListener("click", () => {
+        const atual     = lerCookie("googtrans");
+        const traduzido = atual && atual.includes("/en");
+
+        document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+        document.cookie = `googtrans=; path=/; domain=${location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
+
+        if (!traduzido) {
+            document.cookie = `googtrans=/pt/en; path=/`;
+            document.cookie = `googtrans=/pt/en; path=/; domain=${location.hostname}`;
+        }
+        window.location.reload();
+    });
+
+    // Atualiza texto do botão conforme cookie
+    const cookieAtual = lerCookie("googtrans");
+    document.getElementById("textoTradutor").textContent =
+        (cookieAtual && cookieAtual.includes("/en")) ? "Voltar para português" : "Traduzir para inglês";
+
+    // =========================
+    // TEMA
+    // =========================
+    function aplicarTema(tema) {
+        document.body.classList.remove("tema-claro", "tema-escuro");
+        document.body.classList.add(`tema-${tema}`);
+        document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
+        document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
+        localStorage.setItem("tema", tema);
+    }
+
+    document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema("claro"));
+    document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
+
+    // =========================
+    // INICIALIZAÇÃO
+    // =========================
+    const temaSalvo = localStorage.getItem("tema") || "claro";
+    aplicarTema(temaSalvo);
+
+    carregarTerapeuta();
+    carregarRelatorio();
+</script>
+
+</body>
+</html>

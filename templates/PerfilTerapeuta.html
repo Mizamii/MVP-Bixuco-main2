@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco • Perfil do Terapeuta</title>
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <!-- Google Translate -->
+    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
+
+    <!-- tema.css define as variáveis de cor -->
+    <link rel="stylesheet" href="/css/tema.css">
+
+    <!-- home.css traz sidebar/topo/tema prontos -->
+    <link rel="stylesheet" href="/css/home.css">
+
+    <!-- CSS exclusivo desta página -->
+    <link rel="stylesheet" href="/css/PerfilTerapeuta.css">
+
+    <style>
+        .goog-te-banner-frame { display: none !important; }
+        body { top: 0 !important; }
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- ===========================
+    MENU LATERAL
+    =========================== -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            <img src="/img/logo_nome.png" alt="Bixuco">
+        </div>
+
+        <nav>
+
+            <a href="/homeTerapeuta">
+                <i class="fa-solid fa-house"></i>
+                <span>Início</span>
+            </a>
+
+            <a href="/relatoriosTerapeutaS">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Relatórios</span>
+            </a>
+
+            <a
+                href="/PerfilTerapeuta"
+                class="ativo"
+            >
+                <i class="fa-solid fa-user"></i>
+                <span>Perfil</span>
+            </a>
+
+            <a href="/configuracoesT">
+                <i class="fa-solid fa-gear"></i>
+                <span>Configurações</span>
+            </a>
+
+            <a href="/sobreT">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>Sobre</span>
+            </a>
+
+            <a href="/pacientes">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>Pacientes</span>
+            </a>
+
+        </nav>
+
+        <div class="tema">
+            <button id="btnClaro" class="ativo" type="button">
+                <i class="fa-regular fa-sun"></i>
+                Claro
+            </button>
+
+            <button id="btnEscuro" type="button">
+                <i class="fa-regular fa-moon"></i>
+                Escuro
+            </button>
+        </div>
+
+        <div class="sidebar-divisor"></div>
+
+        <a href="/logout" class="logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span>Sair</span>
+        </a>
+
+    </aside>
+
+    <!-- ===========================
+    CONTEÚDO
+    =========================== -->
+
+    <main class="conteudo">
+
+        <!-- Topo -->
+
+        <header class="topo">
+
+            <button class="tradutor" type="button" id="btnTraduzir">
+                <i class="fa-solid fa-language"></i>
+                <span id="textoTradutor">Traduzir para inglês</span>
+            </button>
+
+            <!-- Elemento invisível do Google Translate -->
+            <div
+                id="google_translate_element"
+                style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);"
+            ></div>
+
+            <div class="usuario">
+
+                <!-- Painel de notificações -->
+                <div class="notificacoes-wrapper">
+
+                    <button class="notificacoes" type="button" id="btnNotificacoes">
+                        <i class="fa-regular fa-bell"></i>
+                        <span id="quantidadeNotificacoes" class="badge">0</span>
+                    </button>
+
+                    <div class="painel-notificacoes" id="painelNotificacoes">
+                        <div class="painel-header">Notificações</div>
+                        <div id="listaNotificacoes">
+                            <div class="painel-vazio">Carregando...</div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Foto do topo — a própria página de perfil, sem onclick -->
+                <img
+                    id="fotoUsuario"
+                    src="/img/perfilPadrao.png"
+                    alt="Foto do terapeuta"
+                    onerror="this.src='/img/perfilPadrao.png'"
+                >
+
+                <div>
+                    <h3 id="nomeUsuario">Carregando...</h3>
+                    <span id="tipoConta">Terapeuta</span>
+                </div>
+
+            </div>
+
+        </header>
+
+        <!-- CORPO COM SCROLL INTERNO -->
+        <div class="conteudo-corpo">
+
+            <!-- Cabeçalho -->
+
+            <section class="cabecalho">
+                <div>
+                    <h1>Meu perfil</h1>
+                    <p>Gerencie suas informações e preferências.</p>
+                </div>
+            </section>
+
+            <!-- ===========================
+            GRID DO PERFIL
+            =========================== -->
+
+            <div class="grid-perfil">
+
+                <!-- ========================= -->
+                <!-- CARD PERFIL (esquerda) -->
+                <!-- ========================= -->
+
+                <div class="card card-perfil">
+
+                    <!-- Foto clicável para editar -->
+                    <div
+                        class="perfil-foto-wrapper"
+                        id="perfilFotoWrapper"
+                        title="Clique para alterar sua foto"
+                    >
+                        <img
+                            id="fotoPerfil"
+                            src="/img/perfilPadrao.png"
+                            alt="Foto de perfil"
+                            onerror="this.src='/img/perfilPadrao.png'"
+                        >
+                        <div class="perfil-foto-overlay">
+                            <i class="fa-solid fa-camera"></i>
+                        </div>
+                    </div>
+
+                    <input
+                        type="file"
+                        id="inputFotoPerfil"
+                        accept="image/*"
+                        style="display:none;"
+                    >
+
+                    <!-- Botões de salvar/cancelar foto -->
+                    <div
+                        class="perfil-foto-acoes"
+                        id="perfilFotoAcoes"
+                        style="display:none;"
+                    >
+                        <button type="button" id="btnSalvarFoto">Salvar foto</button>
+                        <button type="button" id="btnCancelarFoto">Cancelar</button>
+                    </div>
+
+                    <!-- Nome editável -->
+                    <div class="perfil-nome-linha" id="perfilNomeLinha">
+                        <h2 id="perfilNome">Carregando...</h2>
+                        <button type="button" id="btnEditarNome" title="Editar nome">
+                            <i class="fa-regular fa-pen-to-square"></i>
+                        </button>
+                    </div>
+
+                    <!-- Input de edição do nome -->
+                    <div
+                        class="perfil-nome-editar"
+                        id="perfilNomeEditar"
+                        style="display:none;"
+                    >
+                        <input
+                            type="text"
+                            id="inputNome"
+                            maxlength="80"
+                            placeholder="Seu nome"
+                        >
+                        <button type="button" id="btnSalvarNome">Salvar</button>
+                        <button type="button" id="btnCancelarNome">Cancelar</button>
+                        <span id="erroNome" style="display:none; color:#E53E3E; font-size:0.8rem;"></span>
+                    </div>
+
+                    <!-- Descrição: tipo e desde quando -->
+                    <p id="perfilDescricao">Terapeuta</p>
+
+                    <!-- Badges -->
+                    <div class="badges">
+
+                        <span id="badgeDias" class="badge">
+                            🔥 0 dias seguidos
+                        </span>
+
+                        <span id="badgePlano" class="badge">
+                            Plano gratuito
+                        </span>
+
+                    </div>
+
+                    <!-- Mensagem motivacional -->
+                    <div class="mensagem">
+                        <strong>Você está fazendo um ótimo trabalho!</strong>
+                        <p>A consistência no acompanhamento faz toda a diferença.</p>
+                    </div>
+
+                </div>
+
+                <!-- ========================= -->
+                <!-- COLUNA DIREITA -->
+                <!-- ========================= -->
+
+                <div class="perfil-direita">
+
+                    <!-- Código de vínculo -->
+
+                    <section class="card codigo-vinculo">
+
+                        <h2>Código de vínculo</h2>
+
+                        <p>
+                            Compartilhe este código com seus pacientes
+                            para que eles possam solicitar o vínculo com você.
+                        </p>
+
+                        <div class="codigo-display">
+
+                            <span id="codigoVinculo" class="codigo-valor">---</span>
+
+                            <button
+                                type="button"
+                                id="btnCopiarCodigo"
+                                class="btn-copiar"
+                                title="Copiar código"
+                            >
+                                <i class="fa-regular fa-copy" id="iconeCopiar"></i>
+                            </button>
+
+                        </div>
+
+                        <span
+                            id="mensagemCopiado"
+                            style="display:none; color:#32C26D; font-size:0.8rem;"
+                        >
+                            ✅ Código copiado!
+                        </span>
+
+                    </section>
+
+                    <!-- Compartilhamento -->
+
+                    <section class="card compartilhamento">
+
+                        <h2>Compartilhamento</h2>
+
+                        <button
+                            id="btnNovoPaciente"
+                            class="config-btn"
+                            type="button"
+                        >
+                            <div class="icone verde">
+                                <i class="fa-solid fa-share-nodes"></i>
+                            </div>
+                            <div class="texto">
+                                <h3>Compartilhar com novo paciente</h3>
+                            </div>
+                            <i class="fa-solid fa-chevron-right seta"></i>
+                        </button>
+
+                    </section>
+
+                </div>
+
+            </div>
+
+            <!-- Mascote -->
+            <section class="rodape-perfil">
+                <img
+                    src="/img/BixucoDormindo.png"
+                    alt="Bixuco"
+                    class="bixuco"
+                    onerror="this.style.display='none'"
+                >
+            </section>
+
+        </div><!-- fim .conteudo-corpo -->
+
+    </main>
+
+</div>
+
+<!-- ===========================
+JAVASCRIPT
+=========================== -->
+
+<script>
+
+    // ==========================
+    // CARREGAR DADOS DO PERFIL
+    // ==========================
+
+    async function carregarPerfil() {
+
+        try {
+
+            const resposta = await fetch("/api/perfil");
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            if (!resposta.ok) throw new Error("Erro ao carregar perfil");
+
+            const usuario = await resposta.json();
+
+            // Topo
+            document.getElementById("nomeUsuario").textContent =
+                usuario.nome || "Terapeuta";
+
+            document.getElementById("tipoConta").textContent =
+                "Terapeuta";
+
+            // Card de perfil
+            document.getElementById("perfilNome").textContent =
+                usuario.nome || "Terapeuta";
+
+            document.getElementById("perfilDescricao").textContent =
+                `Terapeuta • Membro desde ${usuario.anoCadastro || "2026"}`;
+
+            if (usuario.fotoPerfil) {
+                document.getElementById("fotoUsuario").src = usuario.fotoPerfil;
+                document.getElementById("fotoPerfil").src  = usuario.fotoPerfil;
+                fotoOriginalSrc = usuario.fotoPerfil;
+            }
+
+            document.getElementById("badgeDias").innerHTML =
+                `🔥 ${usuario.diasConsecutivos || 0} dias seguidos`;
+
+            document.getElementById("badgePlano").textContent =
+                usuario.plano || "Plano gratuito";
+
+            // Código de vínculo — vem do banco como codigo_vinculo
+            document.getElementById("codigoVinculo").textContent =
+                usuario.codigoVinculo || "---";
+
+            // Badge de notificações
+            const qtd = usuario.notificacoes ?? 0;
+            document.getElementById("quantidadeNotificacoes").textContent = qtd;
+
+        } catch (erro) {
+
+            console.log("Erro ao carregar perfil:", erro);
+
+        }
+
+    }
+
+
+    // ==========================
+    // FOTO DE PERFIL
+    // ==========================
+
+    const perfilFotoWrapper = document.getElementById("perfilFotoWrapper");
+    const inputFotoPerfil   = document.getElementById("inputFotoPerfil");
+    const perfilFotoAcoes   = document.getElementById("perfilFotoAcoes");
+    const btnSalvarFoto     = document.getElementById("btnSalvarFoto");
+    const btnCancelarFoto   = document.getElementById("btnCancelarFoto");
+    const fotoPerfilImg     = document.getElementById("fotoPerfil");
+    const fotoUsuarioImg    = document.getElementById("fotoUsuario");
+
+    let fotoOriginalSrc = fotoPerfilImg.src;
+
+    perfilFotoWrapper.addEventListener("click", () => {
+        inputFotoPerfil.click();
+    });
+
+    inputFotoPerfil.addEventListener("change", () => {
+
+        const arquivo = inputFotoPerfil.files && inputFotoPerfil.files[0];
+        if (!arquivo) return;
+
+        const leitor = new FileReader();
+        leitor.onload = (e) => {
+            fotoPerfilImg.src = e.target.result;
+            perfilFotoAcoes.style.display = "flex";
+        };
+        leitor.readAsDataURL(arquivo);
+
+    });
+
+    btnCancelarFoto.addEventListener("click", () => {
+        fotoPerfilImg.src = fotoOriginalSrc;
+        inputFotoPerfil.value = "";
+        perfilFotoAcoes.style.display = "none";
+    });
+
+    btnSalvarFoto.addEventListener("click", async () => {
+
+        const arquivo = inputFotoPerfil.files && inputFotoPerfil.files[0];
+        if (!arquivo) return;
+
+        btnSalvarFoto.disabled    = true;
+        btnSalvarFoto.textContent = "Salvando...";
+
+        try {
+
+            const formData = new FormData();
+            formData.append("fotoPerfil", arquivo);
+
+            // Mesma rota do responsável
+            const resposta = await fetch("/api/perfil/atualizar", {
+                method: "POST",
+                body: formData
+            });
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok || !dados.sucesso) {
+                throw new Error(dados.erro || "Erro ao salvar a foto.");
+            }
+
+            const novaFoto = dados.fotoPerfil || fotoPerfilImg.src;
+            fotoPerfilImg.src  = novaFoto;
+            fotoUsuarioImg.src = novaFoto;
+            fotoOriginalSrc    = novaFoto;
+
+            inputFotoPerfil.value = "";
+            perfilFotoAcoes.style.display = "none";
+
+        } catch (erro) {
+
+            console.log("Erro ao salvar foto:", erro);
+
+            // Mensagem inline em vez de alert()
+            const msg = document.createElement("p");
+            msg.style.color    = "#E53E3E";
+            msg.style.fontSize = "0.8rem";
+            msg.textContent    = erro.message || "Erro ao salvar a foto.";
+            perfilFotoAcoes.after(msg);
+            setTimeout(() => msg.remove(), 3000);
+
+        } finally {
+
+            btnSalvarFoto.disabled    = false;
+            btnSalvarFoto.textContent = "Salvar foto";
+
+        }
+
+    });
+
+
+    // ==========================
+    // EDITAR NOME
+    // ==========================
+
+    const perfilNomeLinha  = document.getElementById("perfilNomeLinha");
+    const perfilNomeEditar = document.getElementById("perfilNomeEditar");
+    const perfilNomeH2     = document.getElementById("perfilNome");
+    const btnEditarNome    = document.getElementById("btnEditarNome");
+    const inputNome        = document.getElementById("inputNome");
+    const btnSalvarNome    = document.getElementById("btnSalvarNome");
+    const btnCancelarNome  = document.getElementById("btnCancelarNome");
+    const erroNome         = document.getElementById("erroNome");
+
+    btnEditarNome.addEventListener("click", () => {
+        inputNome.value = perfilNomeH2.textContent.trim();
+        erroNome.style.display = "none";
+        perfilNomeLinha.style.display  = "none";
+        perfilNomeEditar.style.display = "flex";
+        inputNome.focus();
+        inputNome.select();
+    });
+
+    btnCancelarNome.addEventListener("click", () => {
+        perfilNomeEditar.style.display = "none";
+        perfilNomeLinha.style.display  = "flex";
+        erroNome.style.display = "none";
+    });
+
+    btnSalvarNome.addEventListener("click", async () => {
+
+        const novoNome = inputNome.value.trim();
+
+        if (novoNome.length < 2) {
+            erroNome.textContent   = "Digite um nome válido.";
+            erroNome.style.display = "block";
+            return;
+        }
+
+        btnSalvarNome.disabled = true;
+
+        try {
+
+            const formData = new FormData();
+            formData.append("nome", novoNome);
+
+            const resposta = await fetch("/api/perfil/atualizar", {
+                method: "POST",
+                body: formData
+            });
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok || !dados.sucesso) {
+                throw new Error(dados.erro || "Erro ao salvar o nome.");
+            }
+
+            const nomeFinal = dados.nome || novoNome;
+
+            perfilNomeH2.textContent = nomeFinal;
+            document.getElementById("nomeUsuario").textContent = nomeFinal;
+
+            perfilNomeEditar.style.display = "none";
+            perfilNomeLinha.style.display  = "flex";
+
+        } catch (erro) {
+
+            console.log("Erro ao salvar nome:", erro);
+            erroNome.textContent   = erro.message || "Erro ao salvar. Tente novamente.";
+            erroNome.style.display = "block";
+
+        } finally {
+
+            btnSalvarNome.disabled = false;
+
+        }
+
+    });
+
+    inputNome.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            btnSalvarNome.click();
+        } else if (e.key === "Escape") {
+            btnCancelarNome.click();
+        }
+    });
+
+
+    // ==========================
+    // COPIAR CÓDIGO DE VÍNCULO
+    // ==========================
+
+    document.getElementById("btnCopiarCodigo").addEventListener("click", () => {
+
+        const codigo  = document.getElementById("codigoVinculo").textContent;
+        const icone   = document.getElementById("iconeCopiar");
+        const mensagem = document.getElementById("mensagemCopiado");
+
+        if (!codigo || codigo === "---") return;
+
+        navigator.clipboard.writeText(codigo).then(() => {
+
+            icone.classList.remove("fa-copy");
+            icone.classList.add("fa-check");
+            mensagem.style.display = "block";
+
+            setTimeout(() => {
+                icone.classList.remove("fa-check");
+                icone.classList.add("fa-copy");
+                mensagem.style.display = "none";
+            }, 2000);
+
+        });
+
+    });
+
+
+    // ==========================
+    // COMPARTILHAR COM PACIENTE
+    // ==========================
+
+    document.getElementById("btnNovoPaciente").addEventListener("click", () => {
+        window.location.href = "/CompartilharPaciente";
+    });
+
+
+    // ==========================
+    // PAINEL DE NOTIFICAÇÕES
+    // ==========================
+
+    const painelNotificacoes = document.getElementById("painelNotificacoes");
+    const listaNotificacoes  = document.getElementById("listaNotificacoes");
+
+    function formatarItemNotificacao(item) {
+        const classeExtra = item.lida ? "" : "nao-lida";
+        return `
+            <div class="item-notificacao ${classeExtra}">
+                ${item.mensagem}
+                <span class="tempo-notificacao">${item.tempo}</span>
+            </div>
+        `;
+    }
+
+    async function carregarNotificacoes() {
+        try {
+            const resposta = await fetch("/api/notificacoes");
+            if (!resposta.ok) throw new Error();
+
+            const dados = await resposta.json();
+            const itens = dados.notificacoes || [];
+
+            listaNotificacoes.innerHTML = itens.length === 0
+                ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+                : itens.map(formatarItemNotificacao).join("");
+
+            const naoLidas = itens.filter(i => !i.lida).length;
+            document.getElementById("quantidadeNotificacoes").textContent = naoLidas;
+
+        } catch (erro) {
+            console.log("Erro ao carregar notificações:", erro);
+            listaNotificacoes.innerHTML =
+                `<div class="painel-vazio">Não foi possível carregar.</div>`;
+        }
+    }
+
+    async function marcarNotificacoesComoLidas() {
+        try {
+            await fetch("/api/notificacoes/marcar-lidas", { method: "POST" });
+            document.getElementById("quantidadeNotificacoes").textContent = "0";
+        } catch (_) {}
+    }
+
+    document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
+        e.stopPropagation();
+        const estaAberto = painelNotificacoes.classList.contains("aberto");
+        if (estaAberto) {
+            painelNotificacoes.classList.remove("aberto");
+            return;
+        }
+        painelNotificacoes.classList.add("aberto");
+        await carregarNotificacoes();
+        marcarNotificacoesComoLidas();
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!painelNotificacoes.contains(e.target)) {
+            painelNotificacoes.classList.remove("aberto");
+        }
+    });
+
+
+    // ==========================
+    // TRADUÇÃO VIA COOKIE
+    // ==========================
+
+    function lerCookie(nome) {
+        const valor  = `; ${document.cookie}`;
+        const partes = valor.split(`; ${nome}=`);
+        if (partes.length === 2) return partes.pop().split(";").shift();
+        return null;
+    }
+
+    function definirCookieTraducao(destino) {
+        document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+        document.cookie = `googtrans=; path=/; domain=${location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
+        if (destino) {
+            const valor = `/pt/${destino}`;
+            document.cookie = `googtrans=${valor}; path=/`;
+            document.cookie = `googtrans=${valor}; path=/; domain=${location.hostname}`;
+        }
+    }
+
+    function iniciarTradutor() {
+        new google.translate.TranslateElement(
+            { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
+            "google_translate_element"
+        );
+    }
+
+    function atualizarTextoBotaoTraducao() {
+        const cookieAtual = lerCookie("googtrans");
+        document.getElementById("textoTradutor").textContent =
+            (cookieAtual && cookieAtual.includes("/en"))
+                ? "Voltar para português"
+                : "Traduzir para inglês";
+    }
+
+    document.getElementById("btnTraduzir").addEventListener("click", () => {
+        const cookieAtual   = lerCookie("googtrans");
+        const estaTraduzido = cookieAtual && cookieAtual.includes("/en");
+        definirCookieTraducao(estaTraduzido ? null : "en");
+        window.location.reload();
+    });
+
+
+    // ==========================
+    // INICIALIZAR
+    // ==========================
+    // Tema claro/escuro fica por conta do /js/tema.js (lógica única,
+    // compartilhada por todas as páginas — evita duplicar/entrar em
+    // conflito com os botões #btnClaro/#btnEscuro).
+
+    atualizarTextoBotaoTraducao();
+    carregarPerfil();
+    carregarNotificacoes();
+
+</script>
+
+<!-- Tema claro/escuro — lógica única, compartilhada por todas as páginas -->
+<script src="/js/tema.js"></script>
+
+</body>
+</html>

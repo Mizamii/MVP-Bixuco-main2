@@ -1,0 +1,333 @@
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+}
+.login-form__input--erro {
+    border-color: #ff4444 !important;
+    animation: shake 0.4s ease-in-out !important;
+}
+
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+* {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Container principal da página */
+.pagina-login {
+    display: flex;
+    height: 100vh;
+}
+
+/* ========================================= */
+/* LADO ESQUERDO */
+/* ========================================= */
+
+.login-esquerda {
+    width: 50%;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #1D8EC9 0%, #0AB7FB 45%, #79D836 75%, #32C26D 100%);
+    display: flex;
+    flex-direction: column;
+}
+
+.login-esquerda__geometria {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    opacity: 0.55;
+    background-image: url('/img/padrao-triangulos-bixuco.svg');
+    background-size: cover;
+    background-position: center;
+}
+
+.login-esquerda__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(20, 20, 20, 0.15);
+    z-index: 2;
+}
+
+.login-esquerda__conteudo {
+    position: relative;
+    z-index: 3;
+    padding: 3.5rem 3rem 0 8rem;
+    color: #F5F7FA;
+    text-align: left;
+    max-width: 480px;
+}
+
+.login-esquerda__logo {
+    display: block;
+    width: 130px;
+    height: auto;
+    margin-bottom: 2.5rem;
+}
+
+.login-esquerda__titulo {
+    font-size: 2.2rem;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 1.25rem;
+}
+
+.login-esquerda__titulo span {
+    color: #79D836;
+}
+
+.login-esquerda__slogan {
+    font-size: 1rem;
+    color: #F5F7FA;
+    line-height: 1.6;
+    font-weight: 500;
+    max-width: 380px;
+}
+
+.login-esquerda__foto {
+    display: block;
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    object-fit: contain;
+}
+
+.login-esquerda__ilustracao-wrapper {
+    position: relative;
+    z-index: 3;
+    margin-top: auto;
+    padding: 0 3rem 2rem 8rem;
+}
+
+/* ========================================= */
+/* CRIAR CONTA P — LADO DIREITO               */
+/* ========================================= */
+
+.login-direita {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0;
+    background: #F5F7FA;
+    overflow-y: auto;
+}
+
+/* Cabeçalho: título + linha, sempre grudado no topo */
+.criarconta-header {
+    text-align: center;
+    padding: 2.5rem 0 1.5rem;
+    border-bottom: 1px solid #E0E0E0;
+}
+
+.criarconta-titulo {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #141414;
+}
+
+/* Corpo: centraliza tudo horizontalmente */
+.criarconta-corpo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2.5rem 2rem;
+}
+
+/* ========================================= */
+/* BARRA DE PROGRESSO */
+/* ========================================= */
+
+.cadastro-progresso {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 2rem;
+}
+
+.cadastro-progresso span {
+    flex: 1;
+    height: 6px;
+    border-radius: 999px;
+    background: #D9D9D9;
+    transition: background 0.3s ease, opacity 0.3s ease;
+}
+
+/* Traços ativos "antigos" (etapas já concluídas) */
+.cadastro-progresso span.ativo {
+    background: #0AB7FB;
+    opacity: 0.4;
+}
+
+/* O traço mais novo (etapa atual) fica 100% opaco */
+.cadastro-progresso span.ativo--recente {
+    opacity: 1;
+    transform-origin: left;
+    animation: preencherBarra 0.5s ease forwards;
+}
+
+@keyframes preencherBarra {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+}
+
+/* ========================================= */
+/* PERGUNTA */
+/* ========================================= */
+
+.criarconta-pergunta {
+    width: 100%;
+    max-width: 400px;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #141414;
+    text-align: left;
+    margin-bottom: 1.5rem;
+}
+
+/* ========================================= */
+/* FORMULÁRIO */
+/* ========================================= */
+
+.cadastro-form {
+    width: 100%;
+    max-width: 400px;
+}
+
+.cadastro-form__grupo {
+    margin-bottom: 1.1rem;
+}
+
+.cadastro-form__label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.cadastro-form__input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 1rem;
+    background: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.cadastro-form__input:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.cadastro-form__input:read-only {
+    background: #D9D9D9;
+    color: #666;
+    cursor: default;
+}
+
+.cadastro-form__input.input-erro {
+    border-color: #ff4444;
+}
+
+/* Linha telefone + data / cidade + estado */
+.cadastro-form__linha {
+    display: flex;
+    gap: 1rem;
+}
+
+.cadastro-form__linha .cadastro-form__grupo {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Mensagens de erro */
+.cadastro-form__erro {
+    display: none;
+    color: #ff4444;
+    font-size: 0.8rem;
+    margin-top: 0.35rem;
+}
+
+.cadastro-form__erro--geral {
+    text-align: center;
+    margin: 0 0 1rem;
+}
+
+/* ========================================= */
+/* BOTÃO CONTINUAR */
+/* ========================================= */
+
+.btn-continuar {
+    width: 100%;
+    max-width: 400px;
+    padding: 0.9rem;
+    margin-top: 0.5rem;
+    background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+    color: #fff;
+    border: none;
+    border-radius: 15px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.btn-continuar:hover {
+    background: linear-gradient(90deg, #32C26D 0%, #1D8EC9 100%);
+}
+
+.btn-continuar:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ========================================= */
+/* TERMOS */
+/* ========================================= */
+
+.cadastro-form__termos {
+    width: 100%;
+    max-width: 400px;
+    font-size: 0.8rem;
+    color: #5A5A5A;
+    text-align: center;
+    line-height: 1.5;
+    margin-top: 1.2rem;
+}
+
+.cadastro-form__link--azul {
+    color: #0AB7FB;
+    font-weight: 600;
+    text-decoration: none;
+}
+.cadastro-form__link {
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.cadastro-form__link--verde {
+    color: #32C26D;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.cadastro-form__link:hover {
+    text-decoration: underline;
+}
