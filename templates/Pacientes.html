@@ -6,11 +6,17 @@
     <title>Bixuco — Meus Pacientes</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <link rel="stylesheet" href="/css/tema.css">
-    <link rel="stylesheet" href="/css/pacientes.css">
 
+    <!-- Google Translate -->
     <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
+
+    <!-- favicon -->
     <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+
+    <!-- CSS externo — o amigo vai ligar aqui -->
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/pacientes.css">
 
     <style>
         .goog-te-banner-frame { display: none !important; }
@@ -19,118 +25,123 @@
 </head>
 <body>
 
-    <div class="container">
+<div class="container">
 
-        <!-- ========================= -->
-        <!-- MENU LATERAL -->
-        <!-- ========================= -->
-        <aside class="sidebar">
+    <!-- ========================= -->
+    <!-- MENU LATERAL -->
+    <!-- ========================= -->
+    <aside class="sidebar">
 
-            <div class="logo">
-                <img src="/img/Logo_Colorida.png" alt="Logo Bixuco">
-            </div>
+        <div class="logo">
+            <img src="/img/logo_nome.png" alt="Logo Bixuco">
+        </div>
 
-            <nav>
-                <a href="/homeTerapeuta">
-                    <i class="fa-solid fa-house"></i>
-                    <span>Início</span>
-                </a>
-
-                <a href="/relatoriosTerapeutaS">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span>Relatórios</span>
-                </a>
-
-                <a href="/configuracoesT">
-                    <i class="fa-solid fa-gear"></i>
-                    <span>Configurações</span>
-                </a>
-
-                <a href="/sobreT">
-                    <i class="fa-solid fa-circle-info"></i>
-                    <span>Sobre</span>
-                </a>
-
-                <!-- aba ativa -->
-                <a href="/pacientes" class="ativo">
-                    <i class="fa-solid fa-user-plus"></i>
-                    <span>Pacientes</span>
-                </a>
-            </nav>
-
-            <div class="tema">
-                <button id="btnClaro" class="ativo" type="button">
-                    <i class="fa-regular fa-sun"></i>
-                    Claro
-                </button>
-                <button id="btnEscuro" type="button">
-                    <i class="fa-regular fa-moon"></i>
-                    Escuro
-                </button>
-            </div>
-
-            <div class="sidebar-divisor"></div>
-
-            <a href="/logout" class="logout">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                <span>Sair</span>
+        <nav>
+            <a href="/homeTerapeuta">
+                <i class="fa-solid fa-house"></i>
+                <span>Início</span>
             </a>
 
-        </aside>
+            <a href="/relatoriosTerapeutaS">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Relatórios</span>
+            </a>
 
-        <!-- ========================= -->
-        <!-- CONTEÚDO PRINCIPAL -->
-        <!-- ========================= -->
-        <main class="conteudo">
+            <a href="/configuracoesT">
+                <i class="fa-solid fa-gear"></i>
+                <span>Configurações</span>
+            </a>
 
-            <!-- TOPO -->
-            <header class="topo">
+            <a href="/sobreT">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>Sobre</span>
+            </a>
 
-                <button class="tradutor" type="button" id="btnTraduzir">
-                    <i class="fa-solid fa-globe"></i>
-                    <span id="textoTradutor">Traduzir para inglês</span>
-                </button>
+            <a href="/pacientes" class="ativo">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>Pacientes</span>
+            </a>
+        </nav>
 
-                <!-- elemento oculto necessário para o Google Translate -->
-                <div id="google_translate_element"
-                    style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">
-                </div>
+        <div class="tema">
+            <button id="btnClaro" class="ativo" type="button">
+                <i class="fa-regular fa-sun"></i>
+                Claro
+            </button>
+            <button id="btnEscuro" type="button">
+                <i class="fa-regular fa-moon"></i>
+                Escuro
+            </button>
+        </div>
 
-                <div class="usuario">
+        <!-- divisor em degradê do amigo -->
+        <div class="sidebar-divisor"></div>
 
-                    <!-- sininho com painel de notificações -->
-                    <div class="notificacoes-wrapper">
-                        <button class="notificacoes" type="button" id="btnNotificacoes">
-                            <i class="fa-regular fa-bell"></i>
-                            <span id="badgeNotificacoes" class="badge" style="display:none">0</span>
-                        </button>
+        <a href="/logout" class="logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span>Sair</span>
+        </a>
 
-                        <div class="painel-notificacoes" id="painelNotificacoes">
-                            <div class="painel-header">Notificações</div>
-                            <div id="listaNotificacoes">
-                                <div class="painel-vazio">Carregando...</div>
-                            </div>
+    </aside>
+
+    <!-- ========================= -->
+    <!-- CONTEÚDO PRINCIPAL -->
+    <!-- ========================= -->
+    <main class="conteudo">
+
+        <!-- TOPO -->
+        <header class="topo">
+
+            <button class="tradutor" type="button" id="btnTraduzir">
+                <i class="fa-solid fa-globe"></i>
+                <span id="textoTradutor">Traduzir para inglês</span>
+            </button>
+
+            <!-- elemento oculto necessário para o Google Translate -->
+            <div
+                id="google_translate_element"
+                style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);"
+            ></div>
+
+            <div class="usuario">
+
+                <!-- sininho com painel de notificações -->
+                <div class="notificacoes-wrapper">
+                    <button class="notificacoes" type="button" id="btnNotificacoes">
+                        <i class="fa-regular fa-bell"></i>
+                        <span id="badgeNotificacoes" class="badge" style="display:none">0</span>
+                    </button>
+
+                    <div class="painel-notificacoes" id="painelNotificacoes">
+                        <div class="painel-header">Notificações</div>
+                        <div id="listaNotificacoes">
+                            <div class="painel-vazio">Carregando...</div>
                         </div>
                     </div>
-
-                    <!-- foto clicável vai para o perfil do terapeuta -->
-                    <img
-                        id="fotoUsuario"
-                        src="/img/perfilPadrao.png"
-                        alt="Foto do terapeuta"
-                        title="Ver perfil"
-                        style="cursor:pointer;"
-                        onclick="window.location.href='/perfilTerapeuta'"
-                        onerror="this.src='/img/perfilPadrao.png'"
-                    >
-
-                    <div>
-                        <h3 id="nomeTerapeuta">Carregando...</h3>
-                        <span>Terapeuta</span>
-                    </div>
                 </div>
 
-            </header>
+                <!-- foto clicável vai para o perfil do terapeuta -->
+                <img
+                    id="fotoUsuario"
+                    src="/img/perfilPadrao.png"
+                    alt="Foto do terapeuta"
+                    title="Ver perfil"
+                    style="cursor:pointer;"
+                    onclick="window.location.href='/PerfilTerapeuta'"
+                    onerror="this.src='/img/perfilPadrao.png'"
+                >
+
+                <div>
+                    <h3 id="nomeTerapeuta">Carregando...</h3>
+                    <span>Terapeuta</span>
+                </div>
+
+            </div>
+
+        </header>
+
+        <!-- conteudo-corpo do amigo — permite scroll interno correto -->
+        <div class="conteudo-corpo">
 
             <!-- TÍTULO DA PÁGINA -->
             <h1 class="titulo-pagina">Meus pacientes</h1>
@@ -210,13 +221,13 @@
 
             </section>
 
-        </main>
+        </div><!-- fim .conteudo-corpo -->
 
-    </div>
+    </main>
 
+</div>
 
-    <script>
-
+<script>
         let todosPacientes = [];
         let filtroAtual    = "todos";
 
@@ -514,8 +525,6 @@
         carregarPacientes();
 
     </script>
-
-    <script src="/js/tema.js" onerror="console.log('tema.js não encontrado')"></script>
 
 </body>
 </html>
