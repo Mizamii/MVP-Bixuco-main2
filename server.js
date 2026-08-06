@@ -3568,6 +3568,20 @@ app.post("/esqueceu-senha", async (req, res) => {
     }
 });
 
+app.post("/api/bixuco/evento", async (req, res) => {
+    const { forca, latitude, longitude, crianca_id } = req.body;
+    try {
+        await db.query(
+            `INSERT INTO eventos_bixuco (crianca_id, forca, latitude, longitude)
+             VALUES ($1, $2, $3, $4)`,
+            [crianca_id, forca, latitude, longitude]
+        );
+        res.json({ sucesso: true });
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
+});
 
 /* ==========================
    INICIAR SERVIDOR
