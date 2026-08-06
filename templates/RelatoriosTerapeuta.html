@@ -13,18 +13,19 @@
     <!-- Google Translate -->
     <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
 
-    <!-- CSS do amigo — mesmos da tela anterior -->
+    <!-- favicon -->
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+
+    <!-- CSS externo — o amigo vai ligar aqui -->
     <link rel="stylesheet" href="/css/tema.css">
     <link rel="stylesheet" href="/css/home.css">
     <link rel="stylesheet" href="/css/relatoriodetalhado.css">
-    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
 
     <style>
         .goog-te-banner-frame { display: none !important; }
         body { top: 0 !important; }
 
-
-
+        /* Botões de troca de tipo de gráfico — inline pois são específicos desta página */
         .titulo-card {
             display: flex;
             align-items: center;
@@ -59,7 +60,6 @@
             border-color: #32C26D;
             color: white;
         }
-
     </style>
 </head>
 <body>
@@ -71,6 +71,7 @@
     <!-- ========================= -->
     <aside class="sidebar">
 
+        <!-- logo_nome.png do amigo -->
         <div class="logo">
             <img src="/img/logo_nome.png" alt="Bixuco">
         </div>
@@ -81,7 +82,7 @@
                 <span>Início</span>
             </a>
 
-            <!-- 🔧 FIX: rota em minúsculo consistente -->
+            <!-- aba ativa -->
             <a href="/relatoriosTerapeutaS" class="ativo">
                 <i class="fa-solid fa-chart-line"></i>
                 <span>Relatórios</span>
@@ -98,7 +99,7 @@
             </a>
 
             <a href="/pacientes">
-                <i class="fa-solid fa-user-plus"></i>
+                <i class="fa-solid fa-user-group"></i>
                 <span>Pacientes</span>
             </a>
         </nav>
@@ -114,6 +115,7 @@
             </button>
         </div>
 
+        <!-- divisor em degradê do amigo -->
         <div class="sidebar-divisor"></div>
 
         <a href="/logout" class="logout">
@@ -128,14 +130,15 @@
     <!-- ========================= -->
     <main class="conteudo">
 
-        <!-- TOPO — igual ao padrão de todas as telas do terapeuta -->
+        <!-- TOPO -->
         <header class="topo">
 
             <button class="tradutor" type="button" id="btnTraduzir">
-                <i class="fa-solid fa-language"></i>
+                <i class="fa-solid fa-globe"></i>
                 <span id="textoTradutor">Traduzir para inglês</span>
             </button>
 
+            <!-- elemento oculto necessário para o Google Translate -->
             <div
                 id="google_translate_element"
                 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);"
@@ -143,7 +146,7 @@
 
             <div class="usuario">
 
-                <!-- Painel de notificações -->
+                <!-- sininho com painel de notificações -->
                 <div class="notificacoes-wrapper">
                     <button class="notificacoes" type="button" id="btnNotificacoes">
                         <i class="fa-regular fa-bell"></i>
@@ -158,18 +161,20 @@
                     </div>
                 </div>
 
-                <!-- Foto clicável -->
+                <!-- foto clicável vai para o perfil — do seu JS -->
+                <!-- onerror garante foto padrão se a foto não carregar -->
                 <img
                     id="fotoUsuario"
                     src="/img/perfilPadrao.png"
                     alt="Foto do terapeuta"
                     title="Ver perfil"
                     style="cursor:pointer;"
-                    onclick="window.location.href='/perfilTerapeuta'"
+                    onclick="window.location.href='/PerfilTerapeuta'"
                     onerror="this.src='/img/perfilPadrao.png'"
                 >
 
                 <div>
+                    <!-- 🔧 dinâmico — o amigo tinha "Dr. Laura" hardcoded -->
                     <h3 id="nomeTerapeuta">Carregando...</h3>
                     <span>Terapeuta</span>
                 </div>
@@ -178,9 +183,10 @@
 
         </header>
 
+        <!-- conteudo-corpo do amigo — scroll interno correto -->
         <div class="conteudo-corpo">
 
-            <!-- CABEÇALHO DA PÁGINA com seta de voltar e nome do paciente dinâmico -->
+            <!-- CABEÇALHO DA PÁGINA com seta de voltar e nome dinâmico -->
             <div class="cabecalho-pagina">
 
                 <div class="cabecalho-titulo">
@@ -189,7 +195,7 @@
                     </a>
 
                     <div>
-                        <!-- 🔧 FIX: nome do paciente dinâmico via query param -->
+                        <!-- nome do paciente dinâmico via query param -->
                         <h1>Relatórios de <span id="nomePaciente">...</span></h1>
                     </div>
                 </div>
@@ -209,7 +215,6 @@
 
                 <div class="card-resumo">
                     <h3>Alertas de estresse</h3>
-                    <!-- 🔧 FIX: valor e seta dinâmicos -->
                     <div class="valor" id="alertasEstresse">
                         <i class="fa-solid fa-arrow-down"></i>
                         0
@@ -233,45 +238,45 @@
             <!-- ========================= -->
             <section class="graficos">
 
-            <!-- Gráfico de estresse com botões de tipo -->
-            <article class="card-grafico">
-                <div class="titulo-card">
-                    <h3>Estresse — últimos 7 dias</h3>
+                <!-- Gráfico de estresse com botões de tipo -->
+                <article class="card-grafico">
+                    <div class="titulo-card">
+                        <h3>Estresse — últimos 7 dias</h3>
 
-                    <div class="btn-tipo-grafico">
-                        <button type="button" class="ativo" onclick="trocarTipoEstresse('bar')" title="Barras">
-                            <i class="fa-solid fa-chart-column"></i>
-                        </button>
-                        <button type="button" onclick="trocarTipoEstresse('line')" title="Linha">
-                            <i class="fa-solid fa-chart-line"></i>
-                        </button>
+                        <div class="btn-tipo-grafico">
+                            <button type="button" class="ativo" onclick="trocarTipoEstresse('bar')" title="Barras">
+                                <i class="fa-solid fa-chart-column"></i>
+                            </button>
+                            <button type="button" onclick="trocarTipoEstresse('line')" title="Linha">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </button>
+                        </div>
                     </div>
-                </div>
-                <canvas id="graficoBarras"></canvas>
-            </article>
+                    <canvas id="graficoBarras"></canvas>
+                </article>
 
-            <!-- Gráfico de gatilhos com botões de tipo -->
-            <article class="card-grafico">
-                <div class="titulo-card">
-                    <h3>Principais gatilhos — últimos 7 dias</h3>
+                <!-- Gráfico de gatilhos com botões de tipo -->
+                <article class="card-grafico">
+                    <div class="titulo-card">
+                        <h3>Principais gatilhos — últimos 7 dias</h3>
 
-                    <div class="btn-tipo-grafico">
-                        <button type="button" class="ativo" onclick="trocarTipoGatilhos('doughnut')" title="Rosca">
-                            <i class="fa-solid fa-circle-dot"></i>
-                        </button>
-                        <button type="button" onclick="trocarTipoGatilhos('pie')" title="Pizza">
-                            <i class="fa-solid fa-chart-pie"></i>
-                        </button>
-                        <button type="button" onclick="trocarTipoGatilhos('bar')" title="Barras">
-                            <i class="fa-solid fa-chart-column"></i>
-                        </button>
+                        <div class="btn-tipo-grafico">
+                            <button type="button" class="ativo" onclick="trocarTipoGatilhos('doughnut')" title="Rosca">
+                                <i class="fa-solid fa-circle-dot"></i>
+                            </button>
+                            <button type="button" onclick="trocarTipoGatilhos('pie')" title="Pizza">
+                                <i class="fa-solid fa-chart-pie"></i>
+                            </button>
+                            <button type="button" onclick="trocarTipoGatilhos('bar')" title="Barras">
+                                <i class="fa-solid fa-chart-column"></i>
+                            </button>
+                        </div>
                     </div>
-                </div>
-                <canvas id="graficoPizza"></canvas>
-                <div id="legendaGatilhos" class="legenda-rosca"></div>
-            </article>
+                    <canvas id="graficoPizza"></canvas>
+                    <div id="legendaGatilhos" class="legenda-rosca"></div>
+                </article>
 
-        </section>
+            </section>
 
             <!-- ========================= -->
             <!-- NOTAS CLÍNICAS -->
@@ -280,7 +285,6 @@
 
                 <h3>Notas clínicas</h3>
 
-                <!-- 🔧 FIX: notas anteriores carregadas do banco -->
                 <div id="listaNotas">
                     <div class="carregando-notas">
                         <i class="fa-solid fa-spinner fa-spin"></i>
@@ -294,14 +298,13 @@
                     rows="4"
                 ></textarea>
 
-                <!-- Erro inline em vez de alert() -->
+                <!-- erro inline em vez de alert() -->
                 <span
                     id="erroNota"
                     style="display:none; color:#E53E3E; font-size:0.85rem;"
                 ></span>
 
                 <div class="acoes-nota">
-                    <!-- 🔧 FIX: botão com estado de carregamento, sem alert() -->
                     <button
                         type="button"
                         id="btnSalvarNota"
@@ -313,13 +316,12 @@
 
             </section>
 
-        </div>
+        </div><!-- fim .conteudo-corpo -->
 
     </main>
 </div>
 
 <script>
-
     // =========================
     // PEGA O ID DO PACIENTE DA URL
     // Ex: /relatoriosTerapeuta?paciente=42
@@ -806,7 +808,6 @@
 
     carregarTerapeuta();
     carregarRelatorio();
-
 </script>
 
 </body>
