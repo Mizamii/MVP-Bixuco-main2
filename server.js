@@ -3533,7 +3533,7 @@ app.post("/esqueceu-senha", async (req, res) => {
             `
         });
 
-        await apiInstance.sendTransacEmail(sendSmtpEmail);
+        
 
         return res.status(200).json({
             mensagem: "Se esse e-mail estiver cadastrado, você receberá o link em breve."
