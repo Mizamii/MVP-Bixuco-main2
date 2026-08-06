@@ -247,6 +247,12 @@
             <div class="grid-perfil">
 
                 <!-- ========================= -->
+                <!-- COLUNA ESQUERDA: PERFIL + CRIANÇA -->
+                <!-- ========================= -->
+
+                <div class="perfil-coluna-esquerda">
+
+                <!-- ========================= -->
                 <!-- CARD PERFIL (esquerda) -->
                 <!-- ========================= -->
 
@@ -386,6 +392,68 @@
                         </p>
 
                     </div>
+
+                </div>
+
+                <!-- Criança + gato (agora embaixo do card de perfil) -->
+
+                <div class="crianca-e-gato">
+
+                    <img
+                        src="/img/Gatodeitado.png"
+                        alt="gato deitado"
+                        class="gato-deitado"
+                    >
+
+                    <section class="card crianca">
+
+                        <h2>
+
+                            Criança cadastrada
+
+                        </h2>
+
+                        <!-- Fase 3: se já existe criança, abre o modal de edição
+                            em vez de navegar para /adicionar-crianca -->
+
+                        <a
+                            href="/adicionar-crianca"
+                            class="item-card"
+                            id="linkCrianca"
+                        >
+
+                            <div
+                                class="avatar-crianca"
+                                id="avatarCrianca"
+                            >
+
+                                ?
+
+                            </div>
+
+                            <div>
+
+                                <h3 id="nomeCrianca">
+
+                                    Carregando...
+
+                                </h3>
+
+                                <p id="idadeCrianca">
+
+                                    ...
+
+                                </p>
+
+                            </div>
+
+                            <i class="fa-solid fa-chevron-right seta"></i>
+
+                        </a>
+
+                    </section>
+
+                </div>
 
                 </div>
 
@@ -619,65 +687,6 @@
 
                     </section>
 
-                    <!-- Criança + gato -->
-
-                    <div class="crianca-e-gato">
-
-                    <img
-                        src="/img/Gatodeitado.png"
-                        alt="gato deitado"
-                        class="gato-deitado"
-                    >
-
-                    <section class="card crianca">
-
-                        <h2>
-
-                            Criança cadastrada
-
-                        </h2>
-
-                        <!-- 🔧 Fase 3: se já existe criança, abre o modal de edição
-                            em vez de navegar para /adicionar-crianca -->
-
-                        <a
-                            href="/adicionar-crianca"
-                            class="item-card"
-                            id="linkCrianca"
-                        >
-
-                            <div
-                                class="avatar-crianca"
-                                id="avatarCrianca"
-                            >
-
-                                ?
-
-                            </div>
-
-                            <div>
-
-                                <h3 id="nomeCrianca">
-
-                                    Carregando...
-
-                                </h3>
-
-                                <p id="idadeCrianca">
-
-                                    ...
-
-                                </p>
-
-                            </div>
-
-                            <i class="fa-solid fa-chevron-right seta"></i>
-
-                        </a>
-
-                    </section>
-
-                    </div>
 
                 </div>
 
@@ -1714,7 +1723,6 @@
 
     </script>
 
-    <!-- Seu <script> com toda a lógica (perfil, modais, tradutor, notificações) continua aqui, sem alterações -->
     <script src="/js/tema.js"></script>
 
 </body>

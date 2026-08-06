@@ -293,6 +293,26 @@ font-size: 0.8rem;
 color: var(--cor-texto-secundario);
 }
 
+/* ---------- Coluna esquerda (perfil + criança) ---------- */
+/* 🔧 Card "Criança cadastrada" movido para baixo do card de perfil,
+   dentro da mesma coluna, em vez de ficar espremido na coluna direita */
+
+.perfil-coluna-esquerda {
+display: flex;
+flex-direction: column;
+gap: 1.1rem;
+}
+
+/* Divisor em degradê antes do "Sair" — garantido aqui também,
+   caso a página não carregue essa regra do home.css */
+.sidebar-divisor {
+margin-top: auto;
+height: 2px;
+border-radius: 999px;
+background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+opacity: 0.35;
+}
+
 /* ---------- Coluna direita ---------- */
 
 .perfil-direita {
@@ -757,13 +777,21 @@ object-fit: cover;
 .crianca-e-gato {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.crianca-e-gato .card.crianca {
+    flex: 1;
+    min-width: 220px;
+    order: 1;
 }
 
 .gato-deitado {
-    width: 70px;      
+    width: 170px;
     height: auto;
     flex-shrink: 0;
+    order: 2;
 }
 
 #modalCrianca {
