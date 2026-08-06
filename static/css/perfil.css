@@ -764,23 +764,8 @@ object-fit: cover;
     opacity: 0.6;
     cursor: not-allowed;
 }
-.crianca-e-gato {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-}
-
-.crianca-e-gato .card.crianca {
-    flex: none;
-    width: 100%;
-    order: 1;
-}
-
 .gato-deitado {
     width: 220px;
     height: auto;
-    flex-shrink: 0;
-    order: 2;
     align-self: flex-end;
 }
