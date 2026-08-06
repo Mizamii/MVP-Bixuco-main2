@@ -38,7 +38,7 @@
     <!-- Fase 1: estilos da edição de nome/foto -->
     <link
         rel="stylesheet"
-        href="/css/perfil-editar.css"
+        href="/css/perfil.css"
     >
 
 </head>
@@ -253,7 +253,7 @@
                 <div class="perfil-coluna-esquerda">
 
                 <!-- ========================= -->
-                <!-- CARD PERFIL (esquerda) -->
+                <!-- CARD PERFIL -->
                 <!-- ========================= -->
 
                 <div class="card perfil-card">
@@ -395,7 +395,7 @@
 
                 </div>
 
-                <!-- Criança + gato (agora embaixo do card de perfil) -->
+                <!-- Criança + gato -->
 
                 <div class="crianca-e-gato">
 
@@ -413,8 +413,8 @@
 
                         </h2>
 
-                        <!-- Fase 3: se já existe criança, abre o modal de edição
-                            em vez de navegar para /adicionar-crianca -->
+                        <!-- Se já existe criança cadastrada, abre o modal de edição
+                             em vez de navegar para /adicionar-crianca -->
 
                         <a
                             href="/adicionar-crianca"
@@ -687,7 +687,6 @@
 
                     </section>
 
-
                 </div>
 
             </div>
@@ -717,7 +716,7 @@
             </div>
 
             <p class="modal-descricao">
-                Digite o código de vinculo do seu terapeuta.Ele encontra o codigo no perfil dele.
+                Digite o código de vínculo do seu terapeuta. Ele encontra o código no perfil dele.
             </p>
 
             <label for="inputCodigoTerapeuta">Código do terapeuta</label>
@@ -745,7 +744,7 @@
     </div>
 
     <!-- ===========================
-    MODAL — INFORMAÇÕES DA CRIANÇA (Fase 3)
+    MODAL — INFORMAÇÕES DA CRIANÇA
     =========================== -->
 
     <div id="modalCrianca">
@@ -823,8 +822,6 @@
         // ESTADO GLOBAL DA CRIANÇA
         // ==========================
 
-        // Guarda os dados atuais da criança para preencher o modal e
-        // decidir se o card abre o modal ou navega para /adicionar-crianca
         let criancaAtual = null;
         let perfilCarregado = false;
 
@@ -849,10 +846,6 @@
 
                 const usuario = await resposta.json();
 
-                // =====================
-                // DADOS DO USUÁRIO
-                // =====================
-
                 document.getElementById("nomeUsuario").textContent =
                     usuario.nome || "Usuário";
 
@@ -874,29 +867,17 @@
 
                 }
 
-                // =====================
-                // DIAS CONSECUTIVOS
-                // =====================
-
                 document.getElementById("badgeDias").innerHTML =
                     `🔥 ${usuario.diasConsecutivos || 0} dias seguidos`;
 
                 document.getElementById("badgeMaiorOfensiva").innerHTML =
                     `🏆 Maior sequência: ${usuario.maiorOfensiva ?? usuario.diasConsecutivos ?? 0} dias`;
 
-                // =====================
-                // PLANO
-                // =====================
-
                 document.getElementById("badgePlano").textContent =
                     usuario.plano || "Plano gratuito";
 
                 document.getElementById("nomePlano").textContent =
                     usuario.plano || "Plano gratuito";
-
-                // =====================
-                // CRIANÇA
-                // =====================
 
                 if (usuario.crianca) {
 
@@ -932,7 +913,7 @@
 
                 }
 
-                // Terapeuta agora é tratado à parte por carregarVinculo(),
+                // Terapeuta é tratado à parte por carregarVinculo(),
                 // que consulta /api/vinculos/status e cobre os 4 estados
                 // (sem vínculo / pendente / recusado / aceito)
 
@@ -942,8 +923,6 @@
 
             } finally {
 
-                // 🔧 Marca que a resposta da API já chegou (com ou sem erro),
-                // liberando o clique no card da criança para decidir corretamente
                 perfilCarregado = true;
 
             }
@@ -952,7 +931,7 @@
 
 
         // ==========================
-        // FASE 1: FOTO DE PERFIL
+        // FOTO DE PERFIL
         // ==========================
 
         const perfilFotoWrapper = document.getElementById("perfilFotoWrapper");
@@ -1045,7 +1024,7 @@
 
 
         // ==========================
-        // FASE 1: EDITAR NOME
+        // EDITAR NOME
         // ==========================
 
         const perfilNomeLinha  = document.getElementById("perfilNomeLinha");
@@ -1142,7 +1121,7 @@
 
 
         // ==========================
-        // FASE 3: MODAL DA CRIANÇA
+        // MODAL DA CRIANÇA
         // ==========================
 
         const linkCrianca         = document.getElementById("linkCrianca");
@@ -1156,23 +1135,17 @@
         const btnSalvarCrianca    = document.getElementById("btnSalvarCrianca");
         const statusCrianca       = document.getElementById("statusCrianca");
 
-        // Guarda a foto original da criança para restaurar se o modal for
-        // fechado sem salvar (mesmo padrão do cancelar da foto de perfil)
         let fotoCriancaOriginal = null;
         let arquivoFotoCrianca  = null;
 
-        // 🔧 FIX: antes, se o clique acontecesse antes de /api/perfil responder,
-        // criancaAtual ainda estava null e o link "escapava" para /adicionar-crianca
-        // mesmo já existindo uma criança cadastrada — bug de corrida (race condition).
-        // Agora SEMPRE bloqueamos a navegação padrão e só decidimos o que fazer
-        // depois de sabermos que os dados já chegaram (perfilCarregado).
+        // Sempre bloqueia a navegação padrão e só decide o que fazer
+        // depois de sabermos que os dados do perfil já chegaram
+        // (evita race condition levando para /adicionar-crianca por engano).
         linkCrianca.addEventListener("click", (e) => {
 
             e.preventDefault();
 
             if (!perfilCarregado) {
-                // Dados ainda não chegaram do backend — ignora o clique
-                // em vez de "chutar" que não existe criança
                 return;
             }
 
@@ -1280,7 +1253,6 @@
                     throw new Error(dados.erro || "Erro ao salvar as alterações.");
                 }
 
-                // Atualiza o estado local e o card principal
                 criancaAtual.nome = dados.nome || novoNome;
                 if (dados.fotoUrl) criancaAtual.foto = dados.fotoUrl;
 
@@ -1331,7 +1303,6 @@
         const estadoRecusado   = document.getElementById("estadoRecusado");
         const estadoAceito     = document.getElementById("estadoAceito");
 
-        // Busca o status atual do vínculo e atualiza o card
         async function carregarVinculo() {
 
             try {
@@ -1357,7 +1328,6 @@
 
         }
 
-        // Mostra só o bloco correspondente ao status atual
         function atualizarEstadoVinculo(dados) {
 
             estadoSemVinculo.style.display = "none";
@@ -1385,7 +1355,6 @@
                         dados.fotoTerapeuta;
                 }
 
-                // garante que a confirmação de remoção comece fechada
                 document.getElementById("confirmarRemocao").style.display = "none";
                 document.getElementById("btnRemoverTerapeuta").style.display = "block";
 
@@ -1641,8 +1610,6 @@
             window.location.reload();
         });
 
-        //ds
-
         const painelNotificacoes = document.getElementById("painelNotificacoes");
         const listaNotificacoes  = document.getElementById("listaNotificacoes");
 
@@ -1656,7 +1623,6 @@
             `;
         }
 
-        
         async function carregarNotificacoes() {
             try {
                 const resposta = await fetch("/api/notificacoes");
@@ -1669,8 +1635,6 @@
                     ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
                     : itens.map(formatarItemNotificacao).join("");
 
-                // se a página não tiver outra fonte pra esse número (ver 3.3),
-                // calcula aqui mesmo a partir da lista
                 const naoLidas = itens.filter(item => !item.lida).length;
                 document.getElementById("quantidadeNotificacoes").textContent = naoLidas;
 
@@ -1715,7 +1679,7 @@
         // ==========================
 
         atualizarTextoBotaoTraducao();
-        
+
         carregarNotificacoes();
 
         carregarPerfil();
