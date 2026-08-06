@@ -3517,7 +3517,7 @@ app.post("/esqueceu-senha", async (req, res) => {
 
         
         await brevoClient.transactionalEmails.sendTransacEmail({
-            sender: { name: "Bixuco", email: process.env.BREVO_FROM_EMAIL || "seuemail@gmail.com" },
+            sender: { name: "Bixuco", email: process.env.BREVO_FROM_EMAIL || "yasminbertoni7@gmail.com" },
             to: [{ email }],
             subject: "Recuperação de senha — Bixuco",
             htmlContent: `
