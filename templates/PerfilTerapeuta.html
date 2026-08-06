@@ -336,8 +336,6 @@
 
                     </section>
 
-                    
-
                 </div>
 
             </div>
@@ -372,7 +370,6 @@ JAVASCRIPT
 
         try {
 
-            // Mesma rota do perfil do responsável — retorna dados comuns
             const resposta = await fetch("/api/perfil");
 
             if (resposta.status === 401) {
@@ -408,9 +405,6 @@ JAVASCRIPT
                 `🔥 ${usuario.diasConsecutivos || 0} dias seguidos`;
 
             document.getElementById("badgePlano").textContent =
-                usuario.plano || "Plano gratuito";
-
-            document.getElementById("nomePlano").textContent =
                 usuario.plano || "Plano gratuito";
 
             // Código de vínculo — vem do banco como codigo_vinculo
@@ -769,33 +763,20 @@ JAVASCRIPT
 
 
     // ==========================
-    // TEMA CLARO / ESCURO
-    // ==========================
-
-    function aplicarTema(tema) {
-        document.body.classList.remove("tema-claro", "tema-escuro");
-        document.body.classList.add(`tema-${tema}`);
-        document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
-        document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
-        localStorage.setItem("tema", tema);
-    }
-
-    document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema("claro"));
-    document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
-
-
-    // ==========================
     // INICIALIZAR
     // ==========================
-
-    const temaSalvo = localStorage.getItem("tema") || "claro";
-    aplicarTema(temaSalvo);
+    // Tema claro/escuro fica por conta do /js/tema.js (lógica única,
+    // compartilhada por todas as páginas — evita duplicar/entrar em
+    // conflito com os botões #btnClaro/#btnEscuro).
 
     atualizarTextoBotaoTraducao();
     carregarPerfil();
     carregarNotificacoes();
 
 </script>
+
+<!-- Tema claro/escuro — lógica única, compartilhada por todas as páginas -->
+<script src="/js/tema.js"></script>
 
 </body>
 </html>
