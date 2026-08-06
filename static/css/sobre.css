@@ -296,7 +296,6 @@ flex: 1;
 height: 100%;
 display: flex;
 flex-direction: column;
-overflow: hidden;
 }
 
 /* ---------- Topo: barra full-width com linha em degradê ---------- */
