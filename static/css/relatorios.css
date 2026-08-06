@@ -117,6 +117,12 @@ font-size: 0.72rem;
 color: var(--cor-texto-esmaecido);
 }
 
+.gato_lendo {
+    width: 170px;
+    height: auto;
+    flex-shrink: 0;
+}
+
 /* ========================================= */
 /* LINHA DE GRÁFICOS */
 /* ========================================= */
