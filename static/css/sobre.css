@@ -1,4 +1,4 @@
-    /* ========================= */
+/* ========================= */
     /* MODAL — "SOBRE" (ex: Sobre nós, Segurança, etc.) */
     /* ========================= */
 
@@ -596,6 +596,8 @@ color: var(--cor-texto-esmaecido);
    ========================================================== */
 
 /* ---------- Cabeçalho ---------- */
+/* padding lateral igual ao de Configurações, já que .conteudo
+   (home.css) não tem padding próprio */
 
 .cabecalho {
     display: flex;
@@ -603,6 +605,7 @@ color: var(--cor-texto-esmaecido);
     justify-content: space-between;
     gap: 1rem;
     margin-bottom: 1.4rem;
+    padding: 1.5rem 2rem 0;
 }
 
 .cabecalho h1 {
@@ -634,6 +637,7 @@ color: var(--cor-texto-esmaecido);
     grid-template-columns: repeat(6, 1fr);
     gap: 1rem;
     margin-bottom: 1.4rem;
+    padding: 0 2rem;
 }
 
 .cards .card:nth-child(-n+2) {
@@ -717,6 +721,7 @@ color: var(--cor-texto-esmaecido);
     border-radius: 16px;
     padding: 1rem 1.5rem;
     box-shadow: var(--sombra-card);
+    margin: 0 2rem 1.4rem;
 }
 
 .frase-final img {

@@ -12,12 +12,15 @@
    ========================================================== */
 
 /* ---------- Cabeçalho da página ---------- */
+/* padding lateral igual ao de Configurações (.cabecalho),
+   já que .conteudo (home.css) não tem padding próprio */
 
-.cabecalho-relatorio {
+   .cabecalho-relatorio {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 1.1rem;
+    padding: 1.5rem 2rem 1rem;
 }
 
 .cabecalho-relatorio h1 {
@@ -46,7 +49,7 @@
 .mensagem-status {
     display: none;
     max-width: 100%;
-    margin: 0 0 1.1rem;
+    margin: 0 2rem 1.1rem;
     padding: 0.9rem 1.1rem;
     border-radius: 12px;
     font-size: 0.9rem;
@@ -84,6 +87,7 @@
     border-radius: 16px;
     padding: 1.5rem 1.75rem 1.75rem;
     box-shadow: var(--sombra-card);
+    margin: 0 2rem 2rem;
 }
 
 .topo-card {
