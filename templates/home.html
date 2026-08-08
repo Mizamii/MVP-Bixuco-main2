@@ -633,30 +633,21 @@
             }
         });
 
-        // =========================
-        // MAPA COM LEAFLET + OPENSTREETMAP
-        // Inicia sozinho junto com a página, sem precisar de clique
-        // =========================
-
         let mapaLeaflet = null;
         let marcador    = null;
 
-        // Coordenadas padrão: São Paulo (centro)
-        // No futuro: substituir por coordenadas reais do Bixuco via API
-        const latInicial = -23.5505;
-        const lngInicial = -46.6333;
+        // Coordenadas padrão (usadas só se ainda não houver nenhum evento registrado)
+        let latAtual = -23.5505;
+        let lngAtual = -46.6333;
 
         function iniciarMapa() {
+            mapaLeaflet = L.map("mapaBixuco").setView([latAtual, lngAtual], 13);
 
-            mapaLeaflet = L.map("mapaBixuco").setView([latInicial, lngInicial], 13);
-
-            // Tiles gratuitos do OpenStreetMap — sem API key
             L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
                 attribution: '© <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
                 maxZoom: 19
             }).addTo(mapaLeaflet);
 
-            // Ícone personalizado para o Bixuco
             const iconeBixuco = L.divIcon({
                 html: '<div style="background:#32C26D;width:36px;height:36px;border-radius:50%;border:3px solid white;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.3);font-size:18px;">🐱</div>',
                 iconSize:   [36, 36],
@@ -664,16 +655,54 @@
                 className:  ""
             });
 
-            marcador = L.marker([latInicial, lngInicial], { icon: iconeBixuco })
+            marcador = L.marker([latAtual, lngAtual], { icon: iconeBixuco })
                 .addTo(mapaLeaflet)
-                .bindPopup("<b>Bixuco</b><br>Localização aproximada")
+                .bindPopup("<b>Bixuco</b><br>Carregando localização...")
                 .openPopup();
 
+            carregarLocalizacaoReal();
+        }
+
+        async function carregarLocalizacaoReal() {
+            const statusEl = document.querySelector(".mapa-status");
+
+            try {
+                const resposta = await fetch("/api/bixuco/localizacao");
+                if (!resposta.ok) throw new Error("Falha ao buscar localização");
+
+                const dados = await resposta.json();
+
+                if (!dados.disponivel) {
+                    if (statusEl) statusEl.innerHTML =
+                        '<i class="fa-solid fa-circle" style="color:#C2C2C2;font-size:0.6rem;"></i> Nenhuma localização registrada ainda';
+                    return;
+                }
+
+                latAtual = dados.latitude;
+                lngAtual = dados.longitude;
+
+                mapaLeaflet.setView([latAtual, lngAtual], 15);
+                marcador.setLatLng([latAtual, lngAtual]);
+                marcador.setPopupContent("<b>Bixuco</b><br>Última localização conhecida");
+                marcador.openPopup();
+
+                if (statusEl) {
+                    const data = new Date(dados.atualizadoEm);
+                    const horaFormatada = data.toLocaleString("pt-BR", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" });
+                    statusEl.innerHTML =
+                        `<i class="fa-solid fa-circle" style="color:#32C26D;font-size:0.6rem;"></i> Atualizado em ${horaFormatada}`;
+                }
+
+            } catch (erro) {
+                console.log("Erro ao carregar localização:", erro);
+                if (statusEl) statusEl.innerHTML =
+                    '<i class="fa-solid fa-circle" style="color:#C2C2C2;font-size:0.6rem;"></i> Não foi possível carregar a localização';
+            }
         }
 
         document.getElementById("btnCentralizar").addEventListener("click", () => {
             if (mapaLeaflet) {
-                mapaLeaflet.setView([latInicial, lngInicial], 13);
+                mapaLeaflet.setView([latAtual, lngAtual], 15);
                 if (marcador) marcador.openPopup();
             }
         });

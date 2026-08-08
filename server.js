@@ -3568,6 +3568,38 @@ app.post("/esqueceu-senha", async (req, res) => {
     }
 });
 
+app.get("/api/bixuco/localizacao", estaLogado, async (req, res) => {
+    const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+
+    try {
+        const resultado = await db.query(
+            `SELECT e.latitude, e.longitude, e.criado_em
+             FROM eventos_bixuco e
+             JOIN criancas c ON c.id = e.crianca_id
+             WHERE c.usuario_id = $1
+             ORDER BY e.criado_em DESC
+             LIMIT 1`,
+            [usuarioId]
+        );
+
+        if (resultado.rows.length === 0) {
+            return res.json({ disponivel: false });
+        }
+
+        const local = resultado.rows[0];
+        res.json({
+            disponivel: true,
+            latitude: parseFloat(local.latitude),
+            longitude: parseFloat(local.longitude),
+            atualizadoEm: local.criado_em
+        });
+
+    } catch (erro) {
+        console.error("Erro em /api/bixuco/localizacao:", erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
+});
+
 app.post("/api/bixuco/evento", async (req, res) => {
     const { forca, latitude, longitude, crianca_id } = req.body;
     try {
