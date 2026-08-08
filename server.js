@@ -3568,16 +3568,47 @@ app.post("/esqueceu-senha", async (req, res) => {
     }
 });
 
+app.post("/api/bixuco/localizacao", async (req, res) => {
+    const { dispositivo_id, latitude, longitude } = req.body;
+
+    try {
+        // Descobre qual crianca_id corresponde a esse dispositivo
+        // (por enquanto, fixo pro bixuco_001 -> ajustaremos quando tiver
+        // vinculo dispositivo -> crianca configuravel)
+        const criancaResultado = await db.query(
+            `SELECT id FROM criancas WHERE id = 24 LIMIT 1` // TEMPORARIO - ver nota abaixo
+        );
+
+        if (criancaResultado.rows.length === 0) {
+            return res.status(404).json({ erro: "Crianca nao encontrada para este dispositivo." });
+        }
+
+        const criancaId = criancaResultado.rows[0].id;
+
+        await db.query(
+            `INSERT INTO localizacoes_bixuco (crianca_id, latitude, longitude, criado_em)
+             VALUES ($1, $2, $3, NOW())`,
+            [criancaId, latitude, longitude]
+        );
+
+        res.json({ sucesso: true });
+
+    } catch (erro) {
+        console.error("Erro em POST /api/bixuco/localizacao:", erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
+});
+
 app.get("/api/bixuco/localizacao", estaLogado, async (req, res) => {
     const usuarioId = req.session.usuarioId || (req.user && req.user.id);
 
     try {
         const resultado = await db.query(
-            `SELECT e.latitude, e.longitude, e.criado_em
-             FROM eventos_bixuco e
-             JOIN criancas c ON c.id = e.crianca_id
+            `SELECT l.latitude, l.longitude, l.criado_em
+             FROM localizacoes_bixuco l
+             JOIN criancas c ON c.id = l.crianca_id
              WHERE c.usuario_id = $1
-             ORDER BY e.criado_em DESC
+             ORDER BY l.criado_em DESC
              LIMIT 1`,
             [usuarioId]
         );
@@ -3595,7 +3626,7 @@ app.get("/api/bixuco/localizacao", estaLogado, async (req, res) => {
         });
 
     } catch (erro) {
-        console.error("Erro em /api/bixuco/localizacao:", erro);
+        console.error("Erro em GET /api/bixuco/localizacao:", erro);
         res.status(500).json({ erro: "Erro interno." });
     }
 });
