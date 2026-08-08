@@ -1511,6 +1511,57 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
         }
 
         // =====================
+        // TEMPO DE ESTRESSE (a partir dos eventos reais do Bixuco)
+        // =====================
+
+        const tempoMesResultado = await db.query(
+            `SELECT AVG(e.duracao_ms) AS media_ms
+            FROM eventos_bixuco e
+            JOIN criancas c ON c.id = e.crianca_id
+            WHERE c.usuario_id = $1
+            AND e.duracao_ms IS NOT NULL
+            AND EXTRACT(MONTH FROM e.criado_em) = EXTRACT(MONTH FROM NOW())
+            AND EXTRACT(YEAR FROM e.criado_em)  = EXTRACT(YEAR FROM NOW())`,
+            [usuarioId]
+        );
+
+        const tempoSemanaAtualResultado = await db.query(
+            `SELECT AVG(e.duracao_ms) AS media_ms
+            FROM eventos_bixuco e
+            JOIN criancas c ON c.id = e.crianca_id
+            WHERE c.usuario_id = $1
+            AND e.duracao_ms IS NOT NULL
+            AND e.criado_em >= NOW() - INTERVAL '7 days'`,
+            [usuarioId]
+        );
+
+        const tempoSemanaPassadaResultado = await db.query(
+            `SELECT AVG(e.duracao_ms) AS media_ms
+            FROM eventos_bixuco e
+            JOIN criancas c ON c.id = e.crianca_id
+            WHERE c.usuario_id = $1
+            AND e.duracao_ms IS NOT NULL
+            AND e.criado_em >= NOW() - INTERVAL '14 days'
+            AND e.criado_em <  NOW() - INTERVAL '7 days'`,
+            [usuarioId]
+        );
+
+        const mediaMesMs      = parseFloat(tempoMesResultado.rows[0].media_ms) || 0;
+        const mediaSemanaMs   = parseFloat(tempoSemanaAtualResultado.rows[0].media_ms) || 0;
+        const mediaAnteriorMs = parseFloat(tempoSemanaPassadaResultado.rows[0].media_ms) || 0;
+
+        const tempoMedioMin = Math.round(mediaMesMs / 60000);
+        const diffMinutos   = Math.round((mediaSemanaMs - mediaAnteriorMs) / 60000);
+
+        const comparativoTempo = mediaAnteriorMs === 0
+        ? "por episódio"                                              // SE mediaAnteriorMs for 0
+        : diffMinutos === 0
+            ? "igual à semana passada"                                // SENÃO, SE diffMinutos for 0
+            : diffMinutos > 0
+                ? `↑ ${diffMinutos} min comparado à semana passada`   // SENÃO, SE diffMinutos for positivo
+                : `↓ ${Math.abs(diffMinutos)} min comparado à semana passada`; // SENÃO (diffMinutos negativo)
+
+        // =====================
         // RETORNA TUDO
         // =====================
 
@@ -1518,8 +1569,8 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
 
             alertas:             totalMes,
             comparativoAlertas,
-            tempo:               "0 min",
-            comparativoTempo:    "por episódio",
+            tempo:               `${tempoMedioMin} min`,
+            comparativoTempo,
 
             graficoEstresse: {
                 labels: labelsEstresse,
@@ -3632,12 +3683,12 @@ app.get("/api/bixuco/localizacao", estaLogado, async (req, res) => {
 });
 
 app.post("/api/bixuco/evento", async (req, res) => {
-    const { forca, latitude, longitude, crianca_id } = req.body;
+    const { forca, latitude, longitude, crianca_id, duracao_ms, evento } = req.body;
     try {
         await db.query(
-            `INSERT INTO eventos_bixuco (crianca_id, forca, latitude, longitude)
-             VALUES ($1, $2, $3, $4)`,
-            [crianca_id, forca, latitude, longitude]
+            `INSERT INTO eventos_bixuco (crianca_id, forca, latitude, longitude, duracao_ms, tipo_evento, criado_em)
+             VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
+            [crianca_id, forca, latitude, longitude, duracao_ms || null, evento || 'aperto_forte']
         );
         res.json({ sucesso: true });
     } catch (erro) {
