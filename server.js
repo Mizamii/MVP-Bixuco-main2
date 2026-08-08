@@ -1550,7 +1550,16 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
         const mediaSemanaMs   = parseFloat(tempoSemanaAtualResultado.rows[0].media_ms) || 0;
         const mediaAnteriorMs = parseFloat(tempoSemanaPassadaResultado.rows[0].media_ms) || 0;
 
-        const tempoMedioMin = Math.round(mediaMesMs / 60000);
+        function formatarTempo(ms) {
+            if (ms < 60000) {
+                const segundos = Math.round(ms / 1000);
+                return `${segundos} s`;
+            }
+            const minutos = Math.round(ms / 60000);
+            return `${minutos} min`;
+        }
+
+        const tempoFormatado = formatarTempo(mediaMesMs);
         const diffMinutos   = Math.round((mediaSemanaMs - mediaAnteriorMs) / 60000);
 
         const comparativoTempo = mediaAnteriorMs === 0
@@ -1569,7 +1578,7 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
 
             alertas:             totalMes,
             comparativoAlertas,
-            tempo:               `${tempoMedioMin} min`,
+            tempo: tempoFormatado,
             comparativoTempo,
 
             graficoEstresse: {
