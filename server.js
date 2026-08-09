@@ -3673,6 +3673,41 @@ app.post("/api/bixuco/localizacao", async (req, res) => {
     }
 });
 
+app.get("/api/bixuco/eventos-hoje", estaLogado, async (req, res) => {
+    const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+
+    try {
+        const resultado = await db.query(
+            `SELECT e.criado_em, e.forca, e.duracao_ms, e.tipo_evento
+             FROM eventos_bixuco e
+             JOIN criancas c ON c.id = e.crianca_id
+             WHERE c.usuario_id = $1
+               AND DATE(e.criado_em) = CURRENT_DATE
+             ORDER BY e.criado_em ASC
+             LIMIT 1`,
+            [usuarioId]
+        );
+
+        if (resultado.rows.length === 0) {
+            return res.json({ houveAlerta: false });
+        }
+
+        const evento = resultado.rows[0];
+        const horario = new Date(evento.criado_em)
+            .toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+
+        res.json({
+            houveAlerta: true,
+            horario,
+            tipoEvento: evento.tipo_evento
+        });
+
+    } catch (erro) {
+        console.error("Erro em /api/bixuco/eventos-hoje:", erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
+});
+
 app.get("/api/bixuco/localizacao", estaLogado, async (req, res) => {
     const usuarioId = req.session.usuarioId || (req.user && req.user.id);
 

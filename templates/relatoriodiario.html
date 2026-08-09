@@ -72,6 +72,22 @@
         border: 1px solid rgba(255, 68, 68, 0.3);
     }
 
+    .alerta-detectado {
+        display: none;
+        max-width: 100%;
+        margin: 0 2rem 1.1rem;
+        padding: 1rem 1.2rem;
+        border-radius: 12px;
+        background: rgba(255, 68, 68, 0.08);
+        border: 1px solid rgba(255, 68, 68, 0.25);
+        color: #C0392B;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+    .alerta-detectado.visivel {
+        display: block;
+    }
+
     /* ========================= */
     /* PAINEL DE NOTIFICAÇÕES */
     /* ========================= */
@@ -339,6 +355,8 @@
                 class="mensagem-status"
             ></p>
 
+            <div id="alertaDetectado" class="alerta-detectado" style="display: none;"></div>
+
             <!-- ========================= -->
             <!-- CARD DO RELATÓRIO -->
             <!-- ========================= -->
@@ -423,7 +441,7 @@
         // DADOS DO RELATÓRIO
         // ==========================
 
-        const perguntas = [
+        let perguntas = [
 
             // 🔧 Pergunta temporária de controle: enquanto não existe conexão
             // real com o Bixuco (IoT), é essa resposta que define se o dia
@@ -940,6 +958,59 @@
         });
 
         // ==========================
+        // VERIFICA SE HOUVE ALERTA REAL DO BIXUCO HOJE
+        // ==========================
+
+        async function verificarAlertaHoje() {
+
+            try {
+
+                const resposta = await fetch("/api/bixuco/eventos-hoje");
+                if (!resposta.ok) return;
+
+                const dados = await resposta.json();
+
+                if (!dados.houveAlerta) {
+                    return; // segue o fluxo normal, com a pergunta manual de Sim/Não
+                }
+
+                // Remove a pergunta manual "Teve algum alerta hoje?" — já sabemos que sim
+                perguntas = perguntas.filter(p => p.id !== "alerta_estresse");
+
+                // Ja registra a resposta automaticamente, pros graficos continuarem funcionando
+                respostasUsuario.push({
+                    id: "alerta_estresse",
+                    pergunta: "Teve algum alerta de estresse hoje?",
+                    resposta: "Sim"
+                });
+
+                // Insere as duas perguntas extras logo no inicio do questionario
+                perguntas.unshift(
+                    {
+                        id: "acalmou_facilidade",
+                        pergunta: "Ela conseguiu se acalmar com facilidade?",
+                        respostas: ["Sim, rapidamente", "Sim, mas demorou", "Não, precisou de ajuda", "Não se acalmou"]
+                    },
+                    {
+                        id: "gatilho_principal",
+                        pergunta: "Qual foi o principal gatilho do episódio?",
+                        respostas: ["Ambientes barulhentos", "Locais lotados", "Mudança de rotina", "Não identificado"]
+                    }
+                );
+
+                // Mostra a mensagem de alerta detectado
+                const alertaEl = document.getElementById("alertaDetectado");
+                alertaEl.innerHTML =
+                    `<i class="fa-solid fa-triangle-exclamation"></i> Foi detectado um alto nível de estresse hoje às ${dados.horario}.`;
+                alertaEl.classList.add("visivel");
+
+            } catch (erro) {
+                console.log("Erro ao verificar alerta do dia:", erro);
+            }
+
+        }
+
+        // ==========================
         // INICIAR
         // ==========================
 
@@ -947,8 +1018,13 @@
         const temaSalvo = localStorage.getItem("tema") || "claro";
         aplicarTema(temaSalvo);
 
+        async function iniciarRelatorio() {
+            await verificarAlertaHoje();
+            carregarPergunta();
+        }
+
         carregarUsuario();
-        carregarPergunta();
+        iniciarRelatorio();
 
     </script>
 
