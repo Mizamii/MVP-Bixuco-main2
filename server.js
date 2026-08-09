@@ -3694,7 +3694,7 @@ app.get("/api/bixuco/eventos-hoje", estaLogado, async (req, res) => {
 
         const evento = resultado.rows[0];
         const horario = new Date(evento.criado_em)
-            .toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+            .toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
 
         res.json({
             houveAlerta: true,
