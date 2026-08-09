@@ -661,6 +661,8 @@
                 .openPopup();
 
             carregarLocalizacaoReal();
+
+            setInterval(carregarLocalizacaoReal, 30000); // busca de novo a cada 30 segundos
         }
 
         async function carregarLocalizacaoReal() {
