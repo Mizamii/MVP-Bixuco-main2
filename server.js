@@ -1321,6 +1321,19 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
             [usuarioId]
         );
 
+        const tempoHojeResultado = await db.query(
+            `SELECT AVG(e.duracao_ms) AS media_ms
+            FROM eventos_bixuco e
+            JOIN criancas c ON c.id = e.crianca_id
+            WHERE c.usuario_id = $1
+            AND e.duracao_ms IS NOT NULL
+            AND DATE(e.criado_em) = CURRENT_DATE`,
+            [usuarioId]
+        );
+
+        const mediaHojeMs = parseFloat(tempoHojeResultado.rows[0].media_ms) || 0;
+        const tempoHojeFormatado = formatarTempo(mediaHojeMs);
+
         const totalMes      = parseInt(alertasMes.rows[0].total) || 0;
         const totalAtual    = parseInt(alertasSemanaAtual.rows[0].total) || 0;
         const totalAnterior = parseInt(alertasSemanaPassada.rows[0].total) || 0;
@@ -1578,8 +1591,9 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
 
             alertas:             totalMes,
             comparativoAlertas,
-            tempo: tempoFormatado,
+            tempo:               tempoFormatado,       // media do mes (visao geral)
             comparativoTempo,
+            tempoDiario:         tempoHojeFormatado,    // media de HOJE (aba diario)
 
             graficoEstresse: {
                 labels: labelsEstresse,
