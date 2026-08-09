@@ -3678,7 +3678,7 @@ app.get("/api/bixuco/eventos-hoje", estaLogado, async (req, res) => {
 
     try {
         const resultado = await db.query(
-            `SELECT e.criado_em, e.forca, e.duracao_ms, e.tipo_evento
+            `SELECT TO_CHAR(e.criado_em, 'HH24:MI') AS horario, e.forca, e.duracao_ms, e.tipo_evento
              FROM eventos_bixuco e
              JOIN criancas c ON c.id = e.crianca_id
              WHERE c.usuario_id = $1
@@ -3693,12 +3693,10 @@ app.get("/api/bixuco/eventos-hoje", estaLogado, async (req, res) => {
         }
 
         const evento = resultado.rows[0];
-        const horario = new Date(evento.criado_em)
-            .toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
 
         res.json({
             houveAlerta: true,
-            horario,
+            horario: evento.horario,
             tipoEvento: evento.tipo_evento
         });
 
@@ -3713,8 +3711,10 @@ app.get("/api/bixuco/localizacao", estaLogado, async (req, res) => {
 
     try {
         const resultado = await db.query(
-            `SELECT l.latitude, l.longitude, l.criado_em
-             FROM localizacoes_bixuco l
+            `SELECT l.latitude, l.longitude, 
+                    TO_CHAR(l.criado_em, 'HH24:MI') AS horario,
+                    TO_CHAR(l.criado_em, 'DD/MM') AS data_formatada
+            FROM localizacoes_bixuco l
              JOIN criancas c ON c.id = l.crianca_id
              WHERE c.usuario_id = $1
              ORDER BY l.criado_em DESC
@@ -3731,7 +3731,8 @@ app.get("/api/bixuco/localizacao", estaLogado, async (req, res) => {
             disponivel: true,
             latitude: parseFloat(local.latitude),
             longitude: parseFloat(local.longitude),
-            atualizadoEm: local.criado_em
+            horario: local.horario,
+            dataFormatada: local.data_formatada
         });
 
     } catch (erro) {
