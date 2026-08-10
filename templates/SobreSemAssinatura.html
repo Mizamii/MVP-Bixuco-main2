@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Sobre</title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/sobre.css">
+
+    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- ===================== -->
+        <!-- MENU LATERAL -->
+        <!-- ===================== -->
+        <aside class="sidebar">
+
+            <div class="logo">
+                <img src="/img/Logo_Colorida.png" alt="Logo Bixuco">
+            </div>
+
+            <!-- 🔧 Plano Grátis: sidebar reduzida — só Planos, Configurações e Sobre.
+                 Sem Início/Relatórios/Perfil (exigem assinatura paga) e sem o
+                 botão "Fazer relatório diário". -->
+            <nav>
+                <a href="/planos">
+                    <i class="fa-solid fa-dollar-sign"></i>
+                    <span>Planos</span>
+                </a>
+
+                <a href="/configuracoesSemAssinatura">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Configurações</span>
+                </a>
+
+                <a href="/sobreSemAssinatura" class="ativo">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>Sobre</span>
+                </a>
+            </nav>
+
+            <div class="tema">
+                <button id="btnClaro" class="ativo" type="button">
+                    <i class="fa-regular fa-sun"></i>
+                    Claro
+                </button>
+
+                <button id="btnEscuro" type="button">
+                    <i class="fa-regular fa-moon"></i>
+                    Escuro
+                </button>
+            </div>
+
+            <div class="sidebar-divisor"></div>
+
+            <a href="/logout" class="logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Sair</span>
+            </a>
+        </aside>
+
+        <!-- ===================== -->
+        <!-- CONTEÚDO PRINCIPAL -->
+        <!-- ===================== -->
+        <main class="conteudo">
+
+            <header class="topo">
+
+                <button class="tradutor" type="button" id="btnTraduzir">
+                    <i class="fa-solid fa-language"></i>
+                    <span id="textoTradutor">Traduzir para inglês</span>
+                </button>
+
+                <div
+                    id="google_translate_element"
+                    style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0);"
+                ></div>
+
+                <div class="usuario">
+
+                    <div class="notificacoes-wrapper">
+                        <button class="notificacoes" type="button" id="btnNotificacoes">
+                            <i class="fa-regular fa-bell"></i>
+                            <span id="quantidadeNotificacoes" class="badge">0</span>
+                        </button>
+
+                        <div class="painel-notificacoes" id="painelNotificacoes">
+                            <div class="painel-header">Notificações</div>
+                            <div id="listaNotificacoes">
+                                <div class="painel-vazio">Carregando...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <img
+                        id="fotoUsuario"
+                        src="/img/perfilPadrao.png"
+                        alt="Foto do usuário"
+                        title="Ver perfil"
+                        style="cursor: pointer;"
+                        onclick="window.location.href='/perfilSemAssinatura'"
+                        onerror="this.src='/img/perfilPadrao.png'"
+                    >
+
+                    <div>
+                        <h3 id="nomeUsuario">Carregando...</h3>
+                        <span id="tipoConta">...</span>
+                    </div>
+
+                </div>
+
+            </header>
+
+            <!-- ===================== -->
+            <!-- CABEÇALHO DA PÁGINA -->
+            <!-- ===================== -->
+            <section class="cabecalho">
+                <div>
+                    <h1>Sobre o Bixuco</h1>
+                    <p>
+                        Conheça nossa história, missão e como trabalhamos
+                        para transformar vidas.
+                    </p>
+                </div>
+
+                <!-- ⚠️ Confirme o nome real desse arquivo em static/img/ -->
+                <img src="/img/BixucoSobre.png" alt="Mascote Bixuco lendo um livro">
+            </section>
+
+            <!-- ===================== -->
+            <!-- GRADE DE CARDS -->
+            <!-- ===================== -->
+            <section class="cards">
+
+                <button type="button" class="card" data-topico="sobre" onclick="abrirModal('modal-sobre')">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <h3>Sobre nós</h3>
+                    <p>Nossa história e missão</p>
+                </button>
+
+                <button type="button" class="card" data-topico="ajudamos" onclick="abrirModal('modal-ajudamos')">
+                    <i class="fa-solid fa-heart"></i>
+                    <h3>Como ajudamos</h3>
+                    <p>O que fazemos por você</p>
+                </button>
+
+                <button type="button" class="card" data-topico="funciona" onclick="abrirModal('modal-funciona')">
+                    <i class="fa-solid fa-gear"></i>
+                    <h3>Como funciona</h3>
+                    <p>Pelúcia + app + relatórios</p>
+                </button>
+
+                <button type="button" class="card" data-topico="publico" onclick="abrirModal('modal-publico')">
+                    <i class="fa-solid fa-users"></i>
+                    <h3>Para quem é</h3>
+                    <p>Pais e terapeutas</p>
+                </button>
+
+                <button type="button" class="card" data-topico="naofazemos" onclick="abrirModal('modal-naofazemos')">
+                    <i class="fa-solid fa-ban"></i>
+                    <h3>O que não fazemos</h3>
+                    <p>Sem diagnósticos</p>
+                </button>
+
+                <button type="button" class="card" data-topico="privacidade" onclick="abrirModal('modal-privacidade')">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <h3>Privacidade</h3>
+                    <p>Como protegemos seus dados</p>
+                </button>
+
+                <button type="button" class="card" data-topico="proposito" onclick="abrirModal('modal-proposito')">
+                    <i class="fa-solid fa-trophy"></i>
+                    <h3>Nosso propósito</h3>
+                    <p>Missão, visão e valores da Bixuco</p>
+                </button>
+
+                <button type="button" class="card" data-topico="contato" onclick="abrirModal('modal-contato')">
+                    <i class="fa-solid fa-headset"></i>
+                    <h3>Contato e suporte</h3>
+                    <p>Fale com nossa equipe</p>
+                </button>
+
+            </section>
+
+            <!-- ===================== -->
+            <!-- FRASE FINAL -->
+            <!-- ===================== -->
+            <section class="frase-final">
+                <!-- ⚠️ Confirme o nome real desse arquivo em static/img/ -->
+                <img src="/img/BixucoMini.png" alt="Mascote Bixuco">
+                <p>
+                    Mais do que tecnologia, entregamos
+                    <strong>conexão</strong>,
+                    <strong>empatia</strong>
+                    e
+                    <strong>inteligência</strong>
+                    para apoiar o desenvolvimento infantil.
+                </p>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ===================== -->
+    <!-- MODAIS -->
+    <!-- ===================== -->
+
+    <div class="modal" id="modal-sobre">
+        <div class="modal-conteudo">
+            <button type="button" class="fechar" onclick="fecharModal('modal-sobre')">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="modal-icone"><i class="fa-solid fa-circle-info"></i></div>
+            <h2>Sobre nós</h2>
+            <div class="modal-texto">
+                <p>
+                    O Bixuco nasceu da vontade de aproximar famílias e terapeutas no
+                    acompanhamento do desenvolvimento infantil, unindo uma pelúcia
+                    sensorial a um aplicativo que transforma o dia a dia da criança
+                    em informações úteis e acessíveis.
+                </p>
+                <p>
+                    Somos uma equipe multidisciplinar — desenvolvedores, psicólogos
+                    e pais — construindo, com cuidado, uma ferramenta que realmente
+                    ajuda quem cuida.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="modal-ajudamos">
+        <div class="modal-conteudo">
+            <button type="button" class="fechar" onclick="fecharModal('modal-ajudamos')">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="modal-icone"><i class="fa-solid fa-heart"></i></div>
+            <h2>Como ajudamos</h2>
+            <div class="modal-texto">
+                <p>O Bixuco apoia o dia a dia de quem cuida de uma criança de várias formas:</p>
+                <ul>
+                    <li>Registro simples da rotina através de relatórios diários;</li>
+                    <li>Identificação de padrões de comportamento ao longo do tempo;</li>
+                    <li>Compartilhamento de informações com o terapeuta vinculado;</li>
+                    <li>Lembretes gentis para manter a consistência do acompanhamento.</li>
+                </ul>
+                <p>Tudo isso pensado para reduzir a carga mental de quem já cuida tanto.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="modal-funciona">
+        <div class="modal-conteudo">
+            <button type="button" class="fechar" onclick="fecharModal('modal-funciona')">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="modal-icone"><i class="fa-solid fa-gear"></i></div>
+            <h2>Como funciona</h2>
+            <div class="modal-texto">
+                <h3>1. A pelúcia</h3>
+                <p>Acompanha a criança no dia a dia, de forma leve e não invasiva.</p>
+                <h3>2. O aplicativo</h3>
+                <p>Onde você registra observações e acompanha a evolução ao longo do tempo.</p>
+                <h3>3. Os relatórios</h3>
+                <p>Transformam observações soltas em um retrato mais claro da rotina da criança.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="modal-publico">
+        <div class="modal-conteudo">
+            <button type="button" class="fechar" onclick="fecharModal('modal-publico')">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="modal-icone"><i class="fa-solid fa-users"></i></div>
+            <h2>Para quem é</h2>
+            <div class="modal-texto">
+                <p>
+                    O Bixuco foi pensado para dois públicos principais:
+                </p>
+                <ul>
+                    <li><strong>Pais e responsáveis</strong>, que acompanham a rotina da criança de perto;</li>
+                    <li><strong>Terapeutas</strong>, que recebem informações organizadas para embasar o acompanhamento profissional.</li>
+                </ul>
+                <p>Os dois lados se conectam dentro do app, com a permissão do responsável.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="modal-naofazemos">
+        <div class="modal-conteudo">
+            <button type="button" class="fechar" onclick="fecharModal('modal-naofazemos')">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="modal-icone"><i class="fa-solid fa-ban"></i></div>
+            <h2>O que não fazemos</h2>
+            <div class="modal-texto">
+                <p>
+                    O Bixuco <strong>não</strong> substitui avaliação, diagnóstico ou
+                    tratamento profissional. Ele é uma ferramenta de apoio e
+                    organização — não um serviço de saúde.
+                </p>
+                <p>
+                    Qualquer preocupação sobre o desenvolvimento da criança deve
+                    sempre ser conversada com um profissional qualificado.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="modal-privacidade">
+        <div class="modal-conteudo">
+            <button type="button" class="fechar" onclick="fecharModal('modal-privacidade')">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="modal-icone"><i class="fa-solid fa-shield-halved"></i></div>
+            <h2>Privacidade</h2>
+            <div class="modal-texto">
+                <p>
+                    Levamos a sério os dados que você compartilha conosco. As
+                    informações da criança só são visíveis para você e, quando
+                    autorizado, para o terapeuta vinculado.
+                </p>
+                <p>
+                    Utilizamos boas práticas de segurança e criptografia para
+                    proteger os dados armazenados.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="modal-proposito">
+        <div class="modal-conteudo">
+            <button type="button" class="fechar" onclick="fecharModal('modal-proposito')">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="modal-icone"><i class="fa-solid fa-trophy"></i></div>
+            <h2>Nosso propósito</h2>
+            <div class="modal-texto">
+                <p>
+                    Acreditamos que cuidar bem de uma criança começa por entender
+                    melhor sua rotina. Nossa missão é dar a pais e terapeutas
+                    ferramentas simples para enxergar padrões que, no dia a dia
+                    corrido, passam despercebidos.
+                </p>
+                <p>
+                    Mais organização, mais conexão, mais cuidado.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="modal-contato">
+        <div class="modal-conteudo">
+            <button type="button" class="fechar" onclick="fecharModal('modal-contato')">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="modal-icone"><i class="fa-solid fa-headset"></i></div>
+            <h2>Contato e suporte</h2>
+            <div class="modal-texto">
+                <p>Precisa de ajuda ou tem alguma dúvida? Fale com a gente:</p>
+                <ul>
+                    <li>E-mail: suporte@bixuco.com.br</li>
+                    <li>Segunda a sexta, das 9h às 18h</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        // ==========================
+        // ABRIR / FECHAR MODAIS
+        // ==========================
+
+        function abrirModal(id) {
+            const modal = document.getElementById(id);
+            if (!modal) return;
+            modal.classList.add("mostrar");
+            document.body.style.overflow = "hidden";
+        }
+
+        function fecharModal(id) {
+            const modal = document.getElementById(id);
+            if (!modal) return;
+            modal.classList.remove("mostrar");
+            document.body.style.overflow = "";
+        }
+
+        // Fecha ao clicar fora do conteúdo do modal
+        document.querySelectorAll(".modal").forEach(modal => {
+            modal.addEventListener("click", (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove("mostrar");
+                    document.body.style.overflow = "";
+                }
+            });
+        });
+
+        // Fecha com Esc (fecha o modal aberto no momento, se houver)
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+                document.querySelectorAll(".modal.mostrar").forEach(modal => {
+                    modal.classList.remove("mostrar");
+                });
+                document.body.style.overflow = "";
+            }
+        });
+
+        // ==========================
+        // CARREGAR DADOS DO USUÁRIO (topo)
+        // ==========================
+
+        async function carregarUsuario() {
+            try {
+                const resposta = await fetch("/api/home");
+
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
+                }
+
+                if (!resposta.ok) return;
+
+                const dados = await resposta.json();
+
+                document.getElementById("nomeUsuario").textContent = dados.nome || "Usuário";
+                document.getElementById("tipoConta").textContent   = dados.tipoConta || "Responsável";
+
+                if (dados.fotoPerfil) {
+                    document.getElementById("fotoUsuario").src = dados.fotoPerfil;
+                }
+
+            } catch (erro) {
+                console.log("Erro ao carregar usuário:", erro);
+            }
+        }
+
+        // ==========================
+        // TRADUÇÃO — Google Translate via cookie
+        // ==========================
+
+        function lerCookie(nome) {
+            const valor = `; ${document.cookie}`;
+            const partes = valor.split(`; ${nome}=`);
+            if (partes.length === 2) return partes.pop().split(";").shift();
+            return null;
+        }
+
+        function definirCookieTraducao(destino) {
+            document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+            document.cookie = `googtrans=; path=/; domain=${location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
+
+            if (destino) {
+                const valor = `/pt/${destino}`;
+                document.cookie = `googtrans=${valor}; path=/`;
+                document.cookie = `googtrans=${valor}; path=/; domain=${location.hostname}`;
+            }
+        }
+
+        function iniciarTradutor() {
+            new google.translate.TranslateElement(
+                { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
+                "google_translate_element"
+            );
+        }
+
+        function atualizarTextoBotaoTraducao() {
+            const cookieAtual = lerCookie("googtrans");
+            document.getElementById("textoTradutor").textContent =
+                (cookieAtual && cookieAtual.includes("/en"))
+                    ? "Voltar para português"
+                    : "Traduzir para inglês";
+        }
+
+        document.getElementById("btnTraduzir").addEventListener("click", () => {
+            const cookieAtual = lerCookie("googtrans");
+            const estaTraduzido = cookieAtual && cookieAtual.includes("/en");
+            definirCookieTraducao(estaTraduzido ? null : "en");
+            window.location.reload();
+        });
+
+        // ==========================
+        // PAINEL DE NOTIFICAÇÕES
+        // ==========================
+
+        const painelNotificacoes = document.getElementById("painelNotificacoes");
+        const listaNotificacoes  = document.getElementById("listaNotificacoes");
+
+        function formatarItemNotificacao(item) {
+            const classeExtra = item.lida ? "" : "nao-lida";
+            return `
+                <div class="item-notificacao ${classeExtra}">
+                    ${item.mensagem}
+                    <span class="tempo-notificacao">${item.tempo}</span>
+                </div>
+            `;
+        }
+
+        async function carregarNotificacoes() {
+            try {
+                const resposta = await fetch("/api/notificacoes");
+                if (!resposta.ok) throw new Error();
+
+                const dados = await resposta.json();
+                const itens = dados.notificacoes || [];
+
+                listaNotificacoes.innerHTML = itens.length === 0
+                    ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+                    : itens.map(formatarItemNotificacao).join("");
+
+                const naoLidas = itens.filter(item => !item.lida).length;
+                document.getElementById("quantidadeNotificacoes").textContent = naoLidas;
+
+            } catch (erro) {
+                console.log("Erro ao carregar notificações:", erro);
+                listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar as notificações.</div>`;
+            }
+        }
+
+        async function marcarNotificacoesComoLidas() {
+            try {
+                await fetch("/api/notificacoes/marcar-lidas", { method: "POST" });
+                document.getElementById("quantidadeNotificacoes").textContent = "0";
+            } catch (erro) {
+                console.log("Erro ao marcar notificações como lidas:", erro);
+            }
+        }
+
+        document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
+            e.stopPropagation();
+
+            const estaAberto = painelNotificacoes.classList.contains("aberto");
+            if (estaAberto) {
+                painelNotificacoes.classList.remove("aberto");
+                return;
+            }
+
+            painelNotificacoes.classList.add("aberto");
+            await carregarNotificacoes();
+            marcarNotificacoesComoLidas();
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!painelNotificacoes.contains(e.target)) {
+                painelNotificacoes.classList.remove("aberto");
+            }
+        });
+
+        // ==========================
+        // INICIALIZAÇÃO
+        // ==========================
+
+        atualizarTextoBotaoTraducao();
+        carregarUsuario();
+        carregarNotificacoes();
+
+    </script>
+    <script src="/js/tema.js"></script>
+
+</body>
+</html>
