@@ -270,6 +270,14 @@ function exigePremium(req, res, next) {
    ROTAS GET
 ========================== */
 
+// ─────────────────────────────────────────
+// PLANO DO USUÁRIO LOGADO
+// ─────────────────────────────────────────
+app.get("/api/meu-plano", estaLogado, verificarPlano, (req, res) => {
+    res.json({ plano: req.plano });
+});
+
+
 app.get("/relatorios", estaLogado, (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "relatorios.html"));
@@ -1756,7 +1764,16 @@ app.post("/cadastro-finalizar", async (req, res) => {
                 req.session.usuarioId = atualizado.rows[0].id;
                 req.session.tipo = atualizado.rows[0].tipo;
 
-                return res.json({ sucesso: true, destino: "/AdicionarC" });
+                // cria assinatura gratuita para conta Google finalizada
+                await db.query(
+                    `INSERT INTO assinaturas (usuario_id, nome_plano, ativo)
+                    VALUES ($1, 'gratuito', true)
+                    ON CONFLICT DO NOTHING`,
+                    [atualizado.rows[0].id]
+                );
+
+
+                return res.json({ sucesso: true, destino: "/planos" });
             }
 
             // nenhuma linha encontrada — segue o INSERT normal que já existe
@@ -1789,7 +1806,13 @@ app.post("/cadastro-finalizar", async (req, res) => {
                 destino: "/AdicionarC"
             });
 
-            
+            // cria assinatura gratuita para novo responsável
+            await db.query(
+                `INSERT INTO assinaturas (usuario_id, nome_plano, ativo)
+                VALUES ($1, 'gratuito', true)`,
+                [novoUsuario.rows[0].id]
+            );
+
 
         }
 
@@ -2121,7 +2144,7 @@ app.post("/api/vinculos/responder", estaLogado, async (req, res) => {
 // ─────────────────────────────────────────
 // VINCULAR TERAPEUTA — enviar pedido
 // ─────────────────────────────────────────
-app.post("/api/vinculos/solicitar", estaLogado, async (req, res) => {
+app.post("/api/vinculos/solicitar", estaLogado, verificarPlano, exigePremium, async (req, res) => {
     const { codigoTerapeuta } = req.body;
     const responsavelId = req.session.usuarioId || req.session.userId || req.session.usuario?.id || (req.user && req.user.id);
     
@@ -2186,7 +2209,7 @@ app.post("/api/vinculos/solicitar", estaLogado, async (req, res) => {
 // ─────────────────────────────────────────
 // CANCELAR PEDIDO PENDENTE
 // ─────────────────────────────────────────
-app.post("/api/vinculos/cancelar", estaLogado, async (req, res) => {
+app.post("/api/vinculos/cancelar", estaLogado, verificarPlano, exigePremium, async (req, res) => {
     const responsavelId = req.session.usuarioId || req.session.userId || req.session.usuario?.id || (req.user && req.user.id);
 
     if (!responsavelId) {
@@ -2209,7 +2232,7 @@ app.post("/api/vinculos/cancelar", estaLogado, async (req, res) => {
 // ─────────────────────────────────────────
 // REMOVER TERAPEUTA VINCULADO
 // ─────────────────────────────────────────
-app.post("/api/vinculos/remover", estaLogado, async (req, res) => {
+app.post("/api/vinculos/remover", estaLogado, estaLogado, verificarPlano, exigePremium, async (req, res) => {
     const responsavelId = req.session.usuarioId || req.session.userId || req.session.usuario?.id || (req.user && req.user.id);
 
     if (!responsavelId) {
