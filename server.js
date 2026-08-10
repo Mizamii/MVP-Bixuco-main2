@@ -203,6 +203,8 @@ app.use(express.urlencoded({
 
 
 
+
+
 /* ==========================
    MIDDLEWARE DE AUTENTICAÇÃO
 ========================== */
@@ -215,6 +217,54 @@ function estaLogado(req, res, next) {
     }
     return res.redirect("/logar");
 }
+
+// ─────────────────────────────────────────
+// MIDDLEWARE — verifica plano do usuário
+// ─────────────────────────────────────────
+
+// busca o plano ativo do usuário e anexa em req.plano
+async function verificarPlano(req, res, next) {
+    const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+    if (!usuarioId) return res.status(401).json({ erro: "Não autenticado." });
+
+    try {
+        // terapeutas não precisam de assinatura
+        if (req.session.tipoUsuario === 'psicologo' || (req.user && req.user.tipo === 'psicologo')) {
+            req.plano = 'terapeuta';
+            return next();
+        }
+
+        const resultado = await db.query(
+            `SELECT nome_plano FROM assinaturas 
+             WHERE usuario_id = $1 AND ativo = true 
+             ORDER BY criado_em DESC LIMIT 1`,
+            [usuarioId]
+        );
+
+        req.plano = resultado.rows.length > 0 
+            ? resultado.rows[0].nome_plano 
+            : 'gratuito';
+
+        next();
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
+}
+
+// exige plano economico ou superior
+function exigeEconomico(req, res, next) {
+    if (['economico', 'premium', 'terapeuta'].includes(req.plano)) return next();
+    return res.status(403).json({ erro: "plano_insuficiente", planoAtual: req.plano });
+}
+
+// exige plano premium
+function exigePremium(req, res, next) {
+    if (['premium', 'terapeuta'].includes(req.plano)) return next();
+    return res.status(403).json({ erro: "plano_insuficiente", planoAtual: req.plano });
+}
+
+
 
 /* ==========================
    ROTAS GET
