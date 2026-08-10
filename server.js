@@ -3786,8 +3786,9 @@ app.get("/api/bixuco/localizacao", estaLogado, async (req, res) => {
         const resultado = await db.query(
             `SELECT l.latitude, l.longitude, 
                     TO_CHAR(l.criado_em, 'HH24:MI') AS horario,
-                    TO_CHAR(l.criado_em, 'DD/MM') AS data_formatada
-            FROM localizacoes_bixuco l
+                    TO_CHAR(l.criado_em, 'DD/MM') AS data_formatada,
+                    c.nome_pelucia
+             FROM localizacoes_bixuco l
              JOIN criancas c ON c.id = l.crianca_id
              WHERE c.usuario_id = $1
              ORDER BY l.criado_em DESC
@@ -3805,14 +3806,16 @@ app.get("/api/bixuco/localizacao", estaLogado, async (req, res) => {
             latitude: parseFloat(local.latitude),
             longitude: parseFloat(local.longitude),
             horario: local.horario,
-            dataFormatada: local.data_formatada
+            dataFormatada: local.data_formatada,
+            nomePelucia: local.nome_pelucia
         });
 
     } catch (erro) {
-        console.error("Erro em GET /api/bixuco/localizacao:", erro);
+        console.error("Erro em /api/bixuco/localizacao:", erro);
         res.status(500).json({ erro: "Erro interno." });
     }
 });
+
 
 app.post("/api/bixuco/evento", async (req, res) => {
     const { forca, latitude, longitude, crianca_id, duracao_ms, evento } = req.body;

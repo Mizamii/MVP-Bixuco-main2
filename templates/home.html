@@ -260,8 +260,9 @@
                         <div class="mapa-header">
                             <h3>
                                 <i class="fa-solid fa-location-dot"></i>
-                                Localização do Bixuco
+                                Localização do <span id="nomeBixucoTitulo">Bixuco</span>
                             </h3>
+
 
                             <button
                                 type="button"
@@ -662,7 +663,7 @@
 
             carregarLocalizacaoReal();
 
-            setInterval(carregarLocalizacaoReal, 30000); // busca de novo a cada 30 segundos
+            setInterval(carregarLocalizacaoReal, 10000); // busca de novo a cada 10 segundos
         }
 
         async function carregarLocalizacaoReal() {
@@ -679,6 +680,12 @@
                         '<i class="fa-solid fa-circle" style="color:#C2C2C2;font-size:0.6rem;"></i> Nenhuma localização registrada ainda';
                     return;
                 }
+
+                if (dados.nomePelucia) {
+                    const tituloEl = document.getElementById("nomeBixucoTitulo");
+                    if (tituloEl) tituloEl.textContent = dados.nomePelucia;
+                }
+
 
                 latAtual = dados.latitude;
                 lngAtual = dados.longitude;
