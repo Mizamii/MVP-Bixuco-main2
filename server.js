@@ -3787,7 +3787,8 @@ app.get("/api/bixuco/localizacao", estaLogado, async (req, res) => {
             `SELECT l.latitude, l.longitude, 
                     TO_CHAR(l.criado_em, 'HH24:MI') AS horario,
                     TO_CHAR(l.criado_em, 'DD/MM') AS data_formatada,
-                    c.nome_pelucia
+                    c.nome_pelucia,
+                    c.foto_url
              FROM localizacoes_bixuco l
              JOIN criancas c ON c.id = l.crianca_id
              WHERE c.usuario_id = $1
@@ -3807,7 +3808,8 @@ app.get("/api/bixuco/localizacao", estaLogado, async (req, res) => {
             longitude: parseFloat(local.longitude),
             horario: local.horario,
             dataFormatada: local.data_formatada,
-            nomePelucia: local.nome_pelucia
+            nomePelucia: local.nome_pelucia,
+            fotoUrl: local.foto_url
         });
 
     } catch (erro) {
