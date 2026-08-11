@@ -688,36 +688,33 @@ app.post("/api/planos/assinar", estaLogado, async (req, res) => {
         const usuario = resultadoUsuario.rows[0];
 
         // Cria a assinatura no Mercado Pago
-        const preApproval = new PreApproval(mpClient);
+        const { MercadoPagoConfig, Preference } = require("mercadopago");
 
-        const assinatura = await preApproval.create({
+        // Troque PreApproval por Preference
+        const preference = new Preference(mpClient);
+
+        const pagamento = await preference.create({
             body: {
-                preapproval_plan_id: dadosPlano.planId,
-                reason:              dadosPlano.nome,
-                payer_email:         usuario.email,
-
-                // URLs de retorno
-                back_url: `${process.env.BASE_URL}/pagamento/sucesso?plano=${plano}&usuario=${usuarioId}`,
-
-                // Metadata para identificar no webhook
+                items: [{
+                    id:          `bixuco-${plano}`,
+                    title:       `Bixuco — Plano ${dadosPlano.nome}`,
+                    quantity:    1,
+                    unit_price:  dadosPlano.preco,
+                    currency_id: "BRL"
+                }],
+                payer: { email: usuario.email },
+                back_urls: {
+                    success: `${process.env.BASE_URL}/pagamento/sucesso?plano=${plano}&usuario=${usuarioId}`,
+                    failure: `${process.env.BASE_URL}/pagamento/falha`,
+                    pending: `${process.env.BASE_URL}/pagamento/pendente`
+                },
+                auto_return:        "approved",
                 external_reference: `${usuarioId}|${plano}`,
-
-                // Status inicial — pending até o usuário pagar
-                status: "pending",
-
-                auto_recurring: {
-                    frequency:          1,
-                    frequency_type:     "months",
-                    transaction_amount: dadosPlano.preco,
-                    currency_id:        "BRL"
-                }
+                notification_url:   `${process.env.BASE_URL}/api/planos/webhook`
             }
         });
 
-        // Retorna o link de pagamento para o frontend
-        return res.json({
-            linkPagamento: assinatura.init_point
-        });
+        return res.json({ linkPagamento: pagamento.init_point });
 
     } catch (erro) {
 
