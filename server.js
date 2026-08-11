@@ -1826,19 +1826,23 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
 
         const estresseDias = await db.query(
             `SELECT
-                TO_CHAR(data, 'Dy') AS dia,
+                DATE(data) AS dia,
                 COUNT(*) AS total
-             FROM relatorios
-             WHERE usuario_id = $1
-             AND data >= NOW() - INTERVAL '7 days'
-             ${filtroAlerta}
-             GROUP BY data
-             ORDER BY data ASC`,
+            FROM relatorios
+            WHERE usuario_id = $1
+            AND data >= NOW() - INTERVAL '7 days'
+            ${filtroAlerta}
+            GROUP BY DATE(data)
+            ORDER BY dia ASC`,
             [usuarioId]
         );
 
-        const labelsEstresse = estresseDias.rows.map(r => r.dia);
+        const diasSemanaPt = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
+        const labelsEstresse = estresseDias.rows.map(r => diasSemanaPt[new Date(r.dia).getUTCDay()]);
         const dadosEstresse  = estresseDias.rows.map(r => parseInt(r.total));
+
+
 
         // =====================
         // GRÁFICO DE ROSCA — GATILHOS (aproximação)
@@ -2851,211 +2855,7 @@ app.post("/api/configuracoes/notificacoes", estaLogado, async (req, res) => {
 
 });
 
-app.get("/api/relatorios", estaLogado, async (req, res) => {
 
-    try {
-
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
-
-        if (!usuarioId) {
-            return res.status(401).json({ erro: "Não autenticado." });
-        }
-
-        // =====================
-        // ALERTAS DO MÊS
-        // =====================
-
-        const alertasMes = await db.query(
-            `SELECT COUNT(*) AS total
-             FROM relatorios
-             WHERE usuario_id = $1
-             AND EXTRACT(MONTH FROM data) = EXTRACT(MONTH FROM NOW())
-             AND EXTRACT(YEAR FROM data)  = EXTRACT(YEAR FROM NOW())`,
-            [usuarioId]
-        );
-
-        const alertasSemanaPasada = await db.query(
-            `SELECT COUNT(*) AS total
-             FROM relatorios
-             WHERE usuario_id = $1
-             AND data >= NOW() - INTERVAL '14 days'
-             AND data <  NOW() - INTERVAL '7 days'`,
-            [usuarioId]
-        );
-
-        const alertasSemanaAtual = await db.query(
-            `SELECT COUNT(*) AS total
-             FROM relatorios
-             WHERE usuario_id = $1
-             AND data >= NOW() - INTERVAL '7 days'`,
-            [usuarioId]
-        );
-
-        const totalMes      = parseInt(alertasMes.rows[0].total) || 0;
-        const totalAtual    = parseInt(alertasSemanaAtual.rows[0].total) || 0;
-        const totalAnterior = parseInt(alertasSemanaPasada.rows[0].total) || 0;
-        const diffAlertas   = totalAtual - totalAnterior;
-
-        const comparativoAlertas = diffAlertas === 0
-            ? "igual à semana passada"
-            : diffAlertas > 0
-                ? `↑ ${diffAlertas} comparado à semana passada`
-                : `↓ ${Math.abs(diffAlertas)} comparado à semana passada`;
-
-        // =====================
-        // GRÁFICO DE BARRAS — ESTRESSE POR DIA (últimos 7 dias)
-        // =====================
-
-        // =====================
-        // GRÁFICO DE BARRAS — ESTRESSE POR DIA (últimos 7 dias)
-        // 🔧 Corrigido: agora sempre mostra os 7 dias, mesmo os que não
-        // tiveram alerta (antes esses dias simplesmente sumiam do gráfico)
-        // =====================
-
-        const estresseDias = await db.query(
-            `SELECT
-                DATE(data) AS dia,
-                COUNT(*) AS total
-            FROM relatorios
-            WHERE usuario_id = $1
-            AND data >= NOW() - INTERVAL '7 days'
-            ${filtroAlerta}
-            GROUP BY DATE(data)
-            ORDER BY dia ASC`,
-            [usuarioId]
-        );
-
-        const diasSemanaPt = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-
-        const labelsEstresse = estresseDias.rows.map(r => diasSemanaPt[new Date(r.dia).getUTCDay()]);
-        const dadosEstresse  = estresseDias.rows.map(r => parseInt(r.total));
-
-
-
-        // =====================
-        // GRÁFICO DE ROSCA — GATILHOS
-        // Ajuste conforme sua tabela de respostas
-        // =====================
-
-        // Por ora retorna dados fixos representativos
-        // Integre com sua tabela de respostas do relatório diário quando quiser
-        const graficoGatilhos = {
-            labels: [
-                "Ambientes barulhentos",
-                "Locais lotados",
-                "Mudanças de rotina",
-                "Texturas de alimentos"
-            ],
-            dados: [42, 28, 18, 12],
-            cores: ["#32C26D", "#0AB7FB", "#1D8EC9", "#C2C2C2"]
-        };
-
-        // =====================
-        // GRÁFICO DE LINHA — EVOLUÇÃO (últimos 7 dias)
-        // 🔧 Mesma correção do gráfico de barras
-        // =====================
-
-        const evolucaoDias = await db.query(
-            `SELECT
-                TO_CHAR(dia, 'Dy') AS dia_label,
-                CASE WHEN EXISTS (
-                    SELECT 1 FROM relatorios r
-                    WHERE r.usuario_id = $1
-                    AND DATE(r.data) = dia
-                    AND EXISTS (
-                        SELECT 1 FROM jsonb_array_elements(r.respostas) AS x
-                        WHERE x->>'id' = 'alerta_estresse'
-                        AND x->>'resposta' = 'Sim'
-                    )
-                ) THEN 1 ELSE 0 END AS teve_alerta
-            FROM generate_series(
-                CURRENT_DATE - INTERVAL '6 days',
-                CURRENT_DATE,
-                INTERVAL '1 day'
-            ) AS dia
-            ORDER BY dia`,
-            [usuarioId]
-        );
-
-        const labelsEvolucao = evolucaoDias.rows.map(r => r.dia_label);
-        const dadosEvolucao  = evolucaoDias.rows.map(r => r.teve_alerta);
-
-
-        // =====================
-        // ÚLTIMO RELATÓRIO DIÁRIO
-        // =====================
-
-        const ultimoRelatorio = await db.query(
-            `SELECT respostas, data
-             FROM relatorios
-             WHERE usuario_id = $1
-             ORDER BY data DESC
-             LIMIT 1`,
-            [usuarioId]
-        );
-
-        let perguntas    = [];
-        let dataRelatorio = "Nenhum relatório encontrado.";
-
-        if (ultimoRelatorio.rows.length > 0) {
-
-            const row = ultimoRelatorio.rows[0];
-
-            // respostas é um JSONB com array [{pergunta, resposta}]
-            perguntas = typeof row.respostas === "string"
-                ? JSON.parse(row.respostas)
-                : row.respostas;
-
-            // Formata a data em português
-            const data = new Date(row.data);
-            dataRelatorio = data.toLocaleDateString("pt-BR", {
-                weekday: "long",
-                day:     "numeric",
-                month:   "long",
-                year:    "numeric"
-            });
-
-        }
-
-        // =====================
-        // RETORNA TUDO
-        // =====================
-
-        res.json({
-
-            // Cards
-            alertas:             totalMes,
-            comparativoAlertas,
-            tempo:               "0 min",    // integre com sua tabela de alertas IoT
-            comparativoTempo:    "por episódio",
-
-            // Gráficos
-            graficoEstresse: {
-                labels: labelsEstresse,
-                dados:  dadosEstresse
-            },
-
-            graficoGatilhos,
-
-            graficoEvolucao: {
-                labels: labelsEvolucao,
-                dados:  dadosEvolucao
-            },
-
-            // Diário
-            dataRelatorio,
-            perguntas
-
-        });
-
-    } catch (erro) {
-
-        console.log("Erro na rota /api/relatorios:", erro);
-        res.status(500).json({ erro: "Erro interno do servidor." });
-
-    }
-
-});
 
 
 /* ==========================
