@@ -2074,6 +2074,7 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
 
             alertas:             totalMes,
             comparativoAlertas,
+            alertasHoje:       totalHoje,
             comparativoAlertasDiario,
             tempo:               tempoFormatado,       // media do mes (visao geral)
             comparativoTempo,
