@@ -1929,33 +1929,27 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
 
         const evolucaoDias = await db.query(
             `SELECT
-                TO_CHAR(dia, 'Dy') AS dia_label,
-                COALESCE((
-                    SELECT CASE x->>'resposta'
-                        WHEN 'Nenhuma'      THEN 0
-                        WHEN 'Poucas'       THEN 1
-                        WHEN 'Algumas'      THEN 2
-                        WHEN 'Sim, várias'  THEN 3
-                        ELSE NULL
-                    END
-                    FROM relatorios r,
-                        jsonb_array_elements(r.respostas) AS x
-                    WHERE r.usuario_id = $1
-                    AND DATE(r.data) = dia
-                    AND x->>'id' = 'crises_sensoriais'
-                    LIMIT 1
-                ), 0) AS nivel_estresse
+                dia,
+                COALESCE(cnt.total, 0) AS total
             FROM generate_series(
                 CURRENT_DATE - INTERVAL '6 days',
                 CURRENT_DATE,
                 INTERVAL '1 day'
             ) AS dia
+            LEFT JOIN (
+                SELECT DATE(e.criado_em) AS dia, COUNT(*) AS total
+                FROM eventos_bixuco e
+                JOIN criancas c ON c.id = e.crianca_id
+                WHERE c.usuario_id = $1
+                GROUP BY DATE(e.criado_em)
+            ) cnt USING (dia)
             ORDER BY dia`,
             [usuarioId]
         );
 
-        const labelsEvolucao = evolucaoDias.rows.map(r => r.dia_label);
-        const dadosEvolucao  = evolucaoDias.rows.map(r => r.nivel_estresse);
+        const labelsEvolucao = evolucaoDias.rows.map(r => diasSemanaPt[new Date(r.dia).getUTCDay()]);
+        const dadosEvolucao  = evolucaoDias.rows.map(r => parseInt(r.total));
+
 
         // =====================
         // ÚLTIMO RELATÓRIO DIÁRIO
