@@ -1826,14 +1826,21 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
 
         const estresseDias = await db.query(
             `SELECT
-                DATE(data) AS dia,
-                COUNT(*) AS total
-            FROM relatorios
-            WHERE usuario_id = $1
-            AND data >= NOW() - INTERVAL '7 days'
-            ${filtroAlerta}
-            GROUP BY DATE(data)
-            ORDER BY dia ASC`,
+                dia,
+                COALESCE(cnt.total, 0) AS total
+            FROM generate_series(
+                CURRENT_DATE - INTERVAL '6 days',
+                CURRENT_DATE,
+                INTERVAL '1 day'
+            ) AS dia
+            LEFT JOIN (
+                SELECT DATE(data) AS dia, COUNT(*) AS total
+                FROM relatorios
+                WHERE usuario_id = $1
+                ${filtroAlerta}
+                GROUP BY DATE(data)
+            ) cnt USING (dia)
+            ORDER BY dia`,
             [usuarioId]
         );
 
