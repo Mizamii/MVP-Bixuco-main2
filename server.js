@@ -1771,6 +1771,28 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
             [usuarioId]
         );
 
+        const alertasHoje = await db.query(
+            `SELECT COUNT(*) AS total
+            FROM relatorios
+            WHERE usuario_id = $1
+            AND DATE(data) = CURRENT_DATE
+            ${filtroAlerta}`,
+            [usuarioId]
+        );
+
+        const alertasOntem = await db.query(
+            `SELECT COUNT(*) AS total
+            FROM relatorios
+            WHERE usuario_id = $1
+            AND DATE(data) = CURRENT_DATE - INTERVAL '1 day'
+            ${filtroAlerta}`,
+            [usuarioId]
+        );
+
+        const totalHoje  = parseInt(alertasHoje.rows[0].total) || 0;
+        const totalOntem = parseInt(alertasOntem.rows[0].total) || 0;
+        const diffDiario  = totalHoje - totalOntem;
+
         const alertasSemanaAtual = await db.query(
             `SELECT COUNT(*) AS total
              FROM relatorios
@@ -1797,6 +1819,8 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
         const totalAtual    = parseInt(alertasSemanaAtual.rows[0].total) || 0;
         const totalAnterior = parseInt(alertasSemanaPassada.rows[0].total) || 0;
         const diffAlertas   = totalAtual - totalAnterior;
+
+        const comparativoAlertasDiario = diffDiario === 0 ? "igual a ontem" : diffDiario > 0 ? `↑ ${diffDiario} comparado a ontem` : `↓ ${Math.abs(diffDiario)} comparado a ontem`;
 
         const comparativoAlertas = diffAlertas === 0
             ? "igual à semana passada"
