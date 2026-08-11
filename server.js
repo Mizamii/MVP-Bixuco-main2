@@ -1761,6 +1761,15 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
             [usuarioId]
         );
 
+        const alertasMesAnterior = await db.query(
+            `SELECT COUNT(*) AS total
+             FROM relatorios
+             WHERE usuario_id = $1
+             AND EXTRACT(MONTH FROM data) = EXTRACT(MONTH FROM NOW() - INTERVAL '1 month')
+             AND EXTRACT(YEAR FROM data)  = EXTRACT(YEAR FROM NOW() - INTERVAL '1 month')
+             ${filtroAlerta}`,
+            [usuarioId]
+        );
 
         const alertasHoje = await db.query(
             `SELECT COUNT(*) AS total
@@ -1784,7 +1793,6 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
         const totalOntem = parseInt(alertasOntem.rows[0].total) || 0;
         const diffDiario  = totalHoje - totalOntem;
 
-
         const tempoHojeResultado = await db.query(
             `SELECT AVG(e.duracao_ms) AS media_ms
             FROM eventos_bixuco e
@@ -1795,24 +1803,13 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
             [usuarioId]
         );
 
-        const comparativoAlertasDiario = diffDiario === 0 ? "igual a ontem" : diffDiario > 0 ? `↑ ${diffDiario} comparado a ontem` : `↓ ${Math.abs(diffDiario)} comparado a ontem`;
-
         const mediaHojeMs = parseFloat(tempoHojeResultado.rows[0].media_ms) || 0;
-        const tempoHojeFormatado = formatarTempo(mediaHojeMs);
-
-        const alertasMesAnterior = await db.query(
-            `SELECT COUNT(*) AS total
-            FROM relatorios
-            WHERE usuario_id = $1
-            AND EXTRACT(MONTH FROM data) = EXTRACT(MONTH FROM NOW() - INTERVAL '1 month')
-            AND EXTRACT(YEAR FROM data)  = EXTRACT(YEAR FROM NOW() - INTERVAL '1 month')
-            ${filtroAlerta}`,
-            [usuarioId]
-        );
 
         const totalMes         = parseInt(alertasMes.rows[0].total) || 0;
         const totalMesAnterior = parseInt(alertasMesAnterior.rows[0].total) || 0;
         const diffAlertas      = totalMes - totalMesAnterior;
+
+        const comparativoAlertasDiario = diffDiario === 0 ? "igual a ontem" : diffDiario > 0 ? `↑ ${diffDiario} comparado a ontem` : `↓ ${Math.abs(diffDiario)} comparado a ontem`;
 
         const comparativoAlertas = totalMesAnterior === 0
             ? "registrados este mês"
@@ -1845,9 +1842,6 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
 
         // =====================
         // GRÁFICO DE ROSCA — GATILHOS (aproximação)
-        // 🔧 Mapeamento aproximado usando 4 perguntas existentes, já que ainda
-        // não existe uma pergunta dedicada "qual foi o gatilho". Cada categoria
-        // vem de uma pergunta diferente — ver tabela de mapeamento na conversa.
         // =====================
 
         const gatilhosRaw = await db.query(
@@ -1899,7 +1893,6 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
 
         if (totalGatilhos === 0) {
 
-            // Sem nenhum indício nos últimos 7 dias — evita dividir por zero
             graficoGatilhos = {
                 labels: ["Sem dados suficientes ainda"],
                 dados: [100],
@@ -1926,12 +1919,8 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
 
         }
 
-
         // =====================
         // GRÁFICO DE LINHA — EVOLUÇÃO (últimos 7 dias)
-        // 🔧 Agora usa a pergunta "Apresentou crises sensoriais?" como termômetro
-        // de estresse (0 = Nenhuma, 3 = Sim, várias), em vez de repetir o
-        // Sim/Não do gráfico de barras
         // =====================
 
         const evolucaoDias = await db.query(
@@ -1964,10 +1953,8 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
         const labelsEvolucao = evolucaoDias.rows.map(r => r.dia_label);
         const dadosEvolucao  = evolucaoDias.rows.map(r => r.nivel_estresse);
 
-
         // =====================
         // ÚLTIMO RELATÓRIO DIÁRIO
-        // (sem alteração — continua mostrando todas as perguntas/respostas)
         // =====================
 
         const ultimoRelatorio = await db.query(
@@ -2015,30 +2002,19 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
             [usuarioId]
         );
 
-        const tempoSemanaAtualResultado = await db.query(
+        const tempoMesAnteriorResultado = await db.query(
             `SELECT AVG(e.duracao_ms) AS media_ms
             FROM eventos_bixuco e
             JOIN criancas c ON c.id = e.crianca_id
             WHERE c.usuario_id = $1
             AND e.duracao_ms IS NOT NULL
-            AND e.criado_em >= NOW() - INTERVAL '7 days'`,
+            AND EXTRACT(MONTH FROM e.criado_em) = EXTRACT(MONTH FROM NOW() - INTERVAL '1 month')
+            AND EXTRACT(YEAR FROM e.criado_em)  = EXTRACT(YEAR FROM NOW() - INTERVAL '1 month')`,
             [usuarioId]
         );
 
-        const tempoSemanaPassadaResultado = await db.query(
-            `SELECT AVG(e.duracao_ms) AS media_ms
-            FROM eventos_bixuco e
-            JOIN criancas c ON c.id = e.crianca_id
-            WHERE c.usuario_id = $1
-            AND e.duracao_ms IS NOT NULL
-            AND e.criado_em >= NOW() - INTERVAL '14 days'
-            AND e.criado_em <  NOW() - INTERVAL '7 days'`,
-            [usuarioId]
-        );
-
-        const mediaMesMs      = parseFloat(tempoMesResultado.rows[0].media_ms) || 0;
-        const mediaSemanaMs   = parseFloat(tempoSemanaAtualResultado.rows[0].media_ms) || 0;
-        const mediaAnteriorMs = parseFloat(tempoSemanaPassadaResultado.rows[0].media_ms) || 0;
+        const mediaMesMs         = parseFloat(tempoMesResultado.rows[0].media_ms) || 0;
+        const mediaMesAnteriorMs = parseFloat(tempoMesAnteriorResultado.rows[0].media_ms) || 0;
 
         function formatarTempo(ms) {
             if (ms < 60000) {
@@ -2049,16 +2025,17 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
             return `${minutos} min`;
         }
 
-        const tempoFormatado = formatarTempo(mediaMesMs);
-        const diffMinutos   = Math.round((mediaSemanaMs - mediaAnteriorMs) / 60000);
+        const tempoFormatado    = formatarTempo(mediaMesMs);
+        const tempoHojeFormatado = formatarTempo(mediaHojeMs);
+        const diffMinutos       = Math.round((mediaMesMs - mediaMesAnteriorMs) / 60000);
 
-        const comparativoTempo = mediaAnteriorMs === 0
-        ? "por episódio"                                              // SE mediaAnteriorMs for 0
-        : diffMinutos === 0
-            ? "igual à semana passada"                                // SENÃO, SE diffMinutos for 0
-            : diffMinutos > 0
-                ? `↑ ${diffMinutos} min comparado à semana passada`   // SENÃO, SE diffMinutos for positivo
-                : `↓ ${Math.abs(diffMinutos)} min comparado à semana passada`; // SENÃO (diffMinutos negativo)
+        const comparativoTempo = mediaMesAnteriorMs === 0
+            ? "por episódio"
+            : diffMinutos === 0
+                ? "igual ao mês passado"
+                : diffMinutos > 0
+                    ? `↑ ${diffMinutos} min comparado ao mês passado`
+                    : `↓ ${Math.abs(diffMinutos)} min comparado ao mês passado`;
 
         // =====================
         // RETORNA TUDO
@@ -2070,9 +2047,9 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
             comparativoAlertas,
             alertasHoje:       totalHoje,
             comparativoAlertasDiario,
-            tempo:               tempoFormatado,       // media do mes (visao geral)
+            tempo:               tempoFormatado,
             comparativoTempo,
-            tempoDiario:         tempoHojeFormatado,    // media de HOJE (aba diario)
+            tempoDiario:         tempoHojeFormatado,
 
             graficoEstresse: {
                 labels: labelsEstresse,
@@ -2099,6 +2076,7 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
     }
 
 });
+
 
 
 /* ==========================
