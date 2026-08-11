@@ -2914,28 +2914,22 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
 
         const estresseDias = await db.query(
             `SELECT
-                TO_CHAR(dia, 'Dy') AS dia_label,
-                CASE WHEN EXISTS (
-                    SELECT 1 FROM relatorios r
-                    WHERE r.usuario_id = $1
-                    AND DATE(r.data) = dia
-                    AND EXISTS (
-                        SELECT 1 FROM jsonb_array_elements(r.respostas) AS x
-                        WHERE x->>'id' = 'alerta_estresse'
-                        AND x->>'resposta' = 'Sim'
-                    )
-                ) THEN 1 ELSE 0 END AS teve_alerta
-            FROM generate_series(
-                CURRENT_DATE - INTERVAL '6 days',
-                CURRENT_DATE,
-                INTERVAL '1 day'
-            ) AS dia
-            ORDER BY dia`,
+                DATE(data) AS dia,
+                COUNT(*) AS total
+            FROM relatorios
+            WHERE usuario_id = $1
+            AND data >= NOW() - INTERVAL '7 days'
+            ${filtroAlerta}
+            GROUP BY DATE(data)
+            ORDER BY dia ASC`,
             [usuarioId]
         );
 
-        const labelsEstresse = estresseDias.rows.map(r => r.dia_label);
-        const dadosEstresse  = estresseDias.rows.map(r => r.teve_alerta);
+        const diasSemanaPt = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
+        const labelsEstresse = estresseDias.rows.map(r => diasSemanaPt[new Date(r.dia).getUTCDay()]);
+        const dadosEstresse  = estresseDias.rows.map(r => parseInt(r.total));
+
 
 
         // =====================
