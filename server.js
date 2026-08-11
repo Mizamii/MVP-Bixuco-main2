@@ -2581,22 +2581,20 @@ app.post("/api/vinculos/solicitar", estaLogado, verificarPlano, exigePremium, as
                 [v.id]
             );
         } else {
+            // insere o vínculo
             await db.query(
                 "INSERT INTO vinculos (responsavel_id, terapeuta_id, ativo, recusado) VALUES ($1, $2, false, false)",
                 [responsavelId, terapeutaId]
             );
 
+            // notifica o terapeuta — comando separado
             await db.query(
-                "INSERT INTO vinculos (responsavel_id, terapeuta_id, ativo, recusado) VALUES ($1, $2, false, false)",
-                // notifica o terapeuta que recebeu um pedido
-                await db.query(
-                    `INSERT INTO notificacoes (usuario_id, tipo, mensagem, lida)
-                    VALUES ($1, 'pedido_vinculo', $2, FALSE)`,
-                    [terapeutaId, `Você recebeu um pedido de vínculo de um novo responsável.`]
-                ),
-                [responsavelId, terapeutaId]
+                `INSERT INTO notificacoes (usuario_id, tipo, mensagem, lida)
+                VALUES ($1, 'pedido_vinculo', $2, FALSE)`,
+                [terapeutaId, `Você recebeu um pedido de vínculo de um novo responsável.`]
             );
         }
+
 
         res.json({ sucesso: true, nomeTerapeuta: terapeuta.rows[0].nome });
 
