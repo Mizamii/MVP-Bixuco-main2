@@ -627,7 +627,7 @@ app.post("/api/planos/criar-planos", async (req, res) => {
 });
 
 
-app.post("/api/planos/assinar", estaLogado, async (req, res) => {
+app.post("/api/planos/assinar", estaLogado, async (req, res) => { 
 
     try {
 
@@ -638,6 +638,29 @@ app.post("/api/planos/assinar", estaLogado, async (req, res) => {
         }
 
         const { plano } = req.body;
+
+        // MODO TESTE — remove isso em produção
+        if (process.env.NODE_ENV === "test" || process.env.MP_BYPASS === "true") {
+            
+            await db.query(
+                `UPDATE assinaturas SET ativo = FALSE WHERE usuario_id = $1 AND ativo = TRUE`,
+                [usuarioId]
+            );
+
+            await db.query(
+                `INSERT INTO assinaturas (usuario_id, nome_plano, ativo)
+                VALUES ($1, $2, TRUE)`,
+                [usuarioId, dadosPlano.nomeBanco]
+            );
+
+            await db.query(
+                `UPDATE usuarios SET novo_usuario = FALSE WHERE id = $1`,
+                [usuarioId]
+            );
+
+            return res.json({ destino: "/home" });
+        }
+
 
         // ===========================
         // PLANO GRÁTIS
