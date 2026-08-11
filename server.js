@@ -3645,12 +3645,29 @@ app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
 
         // Dados para o gráfico de barras — estresse por dia (últimos 7 dias)
         const estresseDias = await db.query(
-            `SELECT TO_CHAR(data, 'Dy') AS dia, COUNT(*) AS total
-             FROM relatorios
-             WHERE usuario_id = $1 AND data >= NOW() - INTERVAL '7 days'
-             GROUP BY data ORDER BY data ASC`,
-            [pacienteId]
+            `SELECT
+                dia,
+                COALESCE(cnt.total, 0) AS total
+            FROM generate_series(
+                CURRENT_DATE - INTERVAL '6 days',
+                CURRENT_DATE,
+                INTERVAL '1 day'
+            ) AS dia
+            LEFT JOIN (
+                SELECT DATE(data) AS dia, COUNT(*) AS total
+                FROM relatorios
+                WHERE usuario_id = $1
+                ${filtroAlerta}
+                GROUP BY DATE(data)
+            ) cnt USING (dia)
+            ORDER BY dia`,
+            [usuarioId]
         );
+
+        const diasSemanaPt = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
+        const labelsEstresse = estresseDias.rows.map(r => diasSemanaPt[new Date(r.dia).getUTCDay()]);
+        const dadosEstresse  = estresseDias.rows.map(r => parseInt(r.total));
 
         // Notas clínicas desse paciente feitas por esse terapeuta
         const notas = await db.query(
