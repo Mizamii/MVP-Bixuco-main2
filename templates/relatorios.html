@@ -268,7 +268,7 @@
 
                 <div class="card">
 
-                    <h3>Alertas de estresse</h3>
+                    <h3>Alertas de estresse neste mês</h3>
 
                     <!-- 🔧 FIX 11: Seta e comparativo vêm do backend -->
                     <span id="alertasEstresse" class="valor-destaque">0</span>
@@ -279,7 +279,7 @@
 
                 <div class="card">
 
-                    <h3>Tempo de estresse</h3>
+                    <h3>Tempo de estresse médio neste mês</h3>
 
                     <span id="tempoEstresse" class="valor-destaque">0 min</span>
 
@@ -646,10 +646,10 @@
 
         // Diário (mesmos valores)
         document.getElementById("alertasEstresseDiario").textContent =
-            dados.alertas ?? 0;
+            dados.alertasHoje ?? 0;
 
         document.getElementById("comparativoAltasDiario").textContent =
-            dados.comparativoAlertas || "registrados este mês";
+            dados.comparativoAlertasDiario || "registrados hoje";
 
         document.getElementById("tempoEstresseDiario").textContent =
             dados.tempoDiario || "0 min";
