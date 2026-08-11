@@ -1694,7 +1694,7 @@ app.post("/redefinir-senha", async (req, res) => {
 });
 
 
-app.get("/RelatorioDiario", estaLogado, (req, res) => {
+app.get("/RelatorioDiario", estaLogado,precisaPlano("Médio"), (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "relatoriodiario.html"));
 
@@ -3050,7 +3050,7 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
    ROTA POST — SALVAR RELATÓRIO DIÁRIO
 ========================== */
 
-app.post("/api/relatorio", estaLogado, async (req, res) => {
+app.post("/api/relatorio", estaLogado,precisaPlano("Médio"), async (req, res) => {
 
     try {
 
@@ -3487,7 +3487,7 @@ app.post("/api/perfil/atualizar", estaLogado, upload.single("fotoPerfil"), async
 
 // 🔧 Rota GET /sobre que não existia no server.js
 // Protegida com estaLogado para manter padrão das outras páginas
-app.get("/sobre", estaLogado, (req, res) => {
+app.get("/sobre", estaLogado, precisaPlano("Médio"), (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "sobre.html"));
 
