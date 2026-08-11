@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Meu Perfil</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
+
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <!-- Reaproveitando o CSS do perfil normal -->
+    <link rel="stylesheet" href="/css/perfil.css">
+
+    <style>
+        .goog-te-banner-frame { display: none !important; }
+        body { top: 0 !important; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- ========================= -->
+    <!-- MENU LATERAL — reduzido -->
+    <!-- ========================= -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <img src="/img/Logo_Colorida.png" alt="Logo Bixuco">
+        </div>
+
+        <nav>
+            <a href="/planos">
+                <i class="fa-solid fa-dollar-sign"></i>
+                <span>Planos</span>
+            </a>
+
+            <a href="/configuracoesSemAssinatura">
+                <i class="fa-solid fa-gear"></i>
+                <span>Configurações</span>
+            </a>
+
+            <a href="/sobreSemAssinatura">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>Sobre</span>
+            </a>
+        </nav>
+
+        <div class="tema">
+            <button id="btnClaro" class="ativo" type="button">
+                <i class="fa-regular fa-sun"></i>
+                Claro
+            </button>
+            <button id="btnEscuro" type="button">
+                <i class="fa-regular fa-moon"></i>
+                Escuro
+            </button>
+        </div>
+
+        <div class="sidebar-divisor"></div>
+
+        <a href="/logout" class="logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span>Sair</span>
+        </a>
+
+    </aside>
+
+    <!-- ========================= -->
+    <!-- CONTEÚDO -->
+    <!-- ========================= -->
+    <main class="conteudo">
+
+        <header class="topo">
+
+            <button class="tradutor" type="button" id="btnTraduzir">
+                <i class="fa-solid fa-language"></i>
+                <span id="textoTradutor">Traduzir para inglês</span>
+            </button>
+
+            <div
+                id="google_translate_element"
+                style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);"
+            ></div>
+
+            <div class="usuario">
+
+                <button class="notificacoes" type="button">
+                    <i class="fa-regular fa-bell"></i>
+                </button>
+
+                <!-- sem onclick — já está no perfil -->
+                <img
+                    id="fotoUsuario"
+                    src="/img/perfilPadrao.png"
+                    alt="Foto do usuário"
+                    onerror="this.src='/img/perfilPadrao.png'"
+                >
+
+                <div>
+                    <h3 id="nomeUsuario">Carregando...</h3>
+                    <span id="tipoConta">Responsável</span>
+                </div>
+
+            </div>
+
+        </header>
+
+        <div class="conteudo-corpo">
+
+            <!-- Cabeçalho -->
+            <section class="cabecalho">
+                <div>
+                    <h1>Meu perfil</h1>
+                    <p>Gerencie suas informações e preferências.</p>
+                </div>
+            </section>
+
+            <!-- ========================= -->
+            <!-- GRID DO PERFIL -->
+            <!-- ========================= -->
+            <div class="grid-perfil">
+
+                <!-- Card perfil — só nome e tipo, sem badges e sem edição -->
+                <div class="card card-perfil">
+
+                    <img
+                        id="fotoPerfil"
+                        src="/img/perfilPadrao.png"
+                        alt="Foto de perfil"
+                        onerror="this.src='/img/perfilPadrao.png'"
+                    >
+
+                    <div>
+                        <h2 id="perfilNome">Carregando...</h2>
+                        <p id="perfilDescricao">Responsável</p>
+                    </div>
+
+                    <!-- Banner incentivando upgrade -->
+                    <div class="banner-upgrade">
+                        <i class="fa-solid fa-star"></i>
+                        <div>
+                            <strong>Aprimore seu plano!</strong>
+                            <p>
+                                Assine agora e acesse relatórios,
+                                gráficos e muito mais.
+                            </p>
+                        </div>
+                        <a href="/planos" class="btn-upgrade">
+                            Ver planos
+                        </a>
+                    </div>
+
+                </div>
+
+                <!-- Coluna direita — só criança cadastrada -->
+                <div class="perfil-direita">
+
+                    <!-- Criança -->
+                    <section class="card crianca">
+
+                        <h2>Criança cadastrada</h2>
+
+                        <a
+                            href="/planos"
+                            class="item-card"
+                            title="Assine um plano para acompanhar sua criança"
+                        >
+                            <div
+                                class="avatar-crianca"
+                                id="avatarCrianca"
+                            >
+                                ?
+                            </div>
+
+                            <div>
+                                <h3 id="nomeCrianca">Carregando...</h3>
+                                <p id="idadeCrianca">...</p>
+                            </div>
+
+                            <i class="fa-solid fa-chevron-right seta"></i>
+
+                        </a>
+
+                    </section>
+
+                </div>
+
+            </div>
+
+            <!-- Mascote -->
+            <section class="rodape-perfil">
+                <img
+                    src="/img/BixucoDormindo.png"
+                    alt="Bixuco"
+                    onerror="this.style.display='none'"
+                >
+            </section>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+
+    // =========================
+    // CARREGAR DADOS DO PERFIL
+    // =========================
+    async function carregarPerfil() {
+        try {
+            const resposta = await fetch("/api/perfil");
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            if (!resposta.ok) throw new Error();
+
+            const usuario = await resposta.json();
+
+            // Topo
+            document.getElementById("nomeUsuario").textContent =
+                usuario.nome || "Usuário";
+
+            document.getElementById("tipoConta").textContent =
+                usuario.tipoConta || "Responsável";
+
+            // Card perfil
+            document.getElementById("perfilNome").textContent =
+                usuario.nome || "Usuário";
+
+            document.getElementById("perfilDescricao").textContent =
+                `${usuario.tipoConta || "Responsável"} • Membro desde ${usuario.anoCadastro || "2026"}`;
+
+            if (usuario.fotoPerfil) {
+                document.getElementById("fotoUsuario").src = usuario.fotoPerfil;
+                document.getElementById("fotoPerfil").src  = usuario.fotoPerfil;
+            }
+
+            // Criança
+            if (usuario.crianca) {
+
+                document.getElementById("nomeCrianca").textContent =
+                    usuario.crianca.nome;
+
+                document.getElementById("idadeCrianca").textContent =
+                    usuario.crianca.idade + " anos";
+
+                document.getElementById("avatarCrianca").textContent =
+                    usuario.crianca.nome.charAt(0).toUpperCase();
+
+            } else {
+
+                document.getElementById("nomeCrianca").textContent =
+                    "Nenhuma criança";
+
+                document.getElementById("idadeCrianca").textContent =
+                    "Cadastre uma criança";
+
+            }
+
+        } catch (e) {
+            console.log("Erro ao carregar perfil:", e);
+        }
+    }
+
+    // =========================
+    // TRADUÇÃO VIA COOKIE
+    // =========================
+    function lerCookie(nome) {
+        const v = `; ${document.cookie}`;
+        const p = v.split(`; ${nome}=`);
+        if (p.length === 2) return p.pop().split(";").shift();
+        return null;
+    }
+
+    function iniciarTradutor() {
+        new google.translate.TranslateElement(
+            { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
+            "google_translate_element"
+        );
+    }
+
+    document.getElementById("btnTraduzir").addEventListener("click", () => {
+        const atual     = lerCookie("googtrans");
+        const traduzido = atual && atual.includes("/en");
+
+        document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+        document.cookie = `googtrans=; path=/; domain=${location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
+
+        if (!traduzido) {
+            document.cookie = `googtrans=/pt/en; path=/`;
+            document.cookie = `googtrans=/pt/en; path=/; domain=${location.hostname}`;
+        }
+        window.location.reload();
+    });
+
+    const cookieAtual = lerCookie("googtrans");
+    document.getElementById("textoTradutor").textContent =
+        (cookieAtual && cookieAtual.includes("/en")) ? "Voltar para português" : "Traduzir para inglês";
+
+    // =========================
+    // TEMA
+    // =========================
+    function aplicarTema(tema) {
+        document.body.classList.remove("tema-claro", "tema-escuro");
+        document.body.classList.add(`tema-${tema}`);
+        document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
+        document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
+        localStorage.setItem("tema", tema);
+    }
+
+    document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema("claro"));
+    document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
+
+    // =========================
+    // INICIALIZAÇÃO
+    // =========================
+    const temaSalvo = localStorage.getItem("tema") || "claro";
+    aplicarTema(temaSalvo);
+    carregarPerfil();
+
+</script>
+
+</body>
+</html>
