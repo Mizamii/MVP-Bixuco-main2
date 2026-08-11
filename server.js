@@ -1761,15 +1761,6 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
             [usuarioId]
         );
 
-        const alertasSemanaPassada = await db.query(
-            `SELECT COUNT(*) AS total
-             FROM relatorios
-             WHERE usuario_id = $1
-             AND data >= NOW() - INTERVAL '14 days'
-             AND data <  NOW() - INTERVAL '7 days'
-             ${filtroAlerta}`,
-            [usuarioId]
-        );
 
         const alertasHoje = await db.query(
             `SELECT COUNT(*) AS total
@@ -1793,14 +1784,6 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
         const totalOntem = parseInt(alertasOntem.rows[0].total) || 0;
         const diffDiario  = totalHoje - totalOntem;
 
-        const alertasSemanaAtual = await db.query(
-            `SELECT COUNT(*) AS total
-             FROM relatorios
-             WHERE usuario_id = $1
-             AND data >= NOW() - INTERVAL '7 days'
-             ${filtroAlerta}`,
-            [usuarioId]
-        );
 
         const tempoHojeResultado = await db.query(
             `SELECT AVG(e.duracao_ms) AS media_ms
@@ -1812,21 +1795,32 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
             [usuarioId]
         );
 
+        const comparativoAlertasDiario = diffDiario === 0 ? "igual a ontem" : diffDiario > 0 ? `↑ ${diffDiario} comparado a ontem` : `↓ ${Math.abs(diffDiario)} comparado a ontem`;
+
         const mediaHojeMs = parseFloat(tempoHojeResultado.rows[0].media_ms) || 0;
         const tempoHojeFormatado = formatarTempo(mediaHojeMs);
 
-        const totalMes      = parseInt(alertasMes.rows[0].total) || 0;
-        const totalAtual    = parseInt(alertasSemanaAtual.rows[0].total) || 0;
-        const totalAnterior = parseInt(alertasSemanaPassada.rows[0].total) || 0;
-        const diffAlertas   = totalAtual - totalAnterior;
+        const alertasMesAnterior = await db.query(
+            `SELECT COUNT(*) AS total
+            FROM relatorios
+            WHERE usuario_id = $1
+            AND EXTRACT(MONTH FROM data) = EXTRACT(MONTH FROM NOW() - INTERVAL '1 month')
+            AND EXTRACT(YEAR FROM data)  = EXTRACT(YEAR FROM NOW() - INTERVAL '1 month')
+            ${filtroAlerta}`,
+            [usuarioId]
+        );
 
-        const comparativoAlertasDiario = diffDiario === 0 ? "igual a ontem" : diffDiario > 0 ? `↑ ${diffDiario} comparado a ontem` : `↓ ${Math.abs(diffDiario)} comparado a ontem`;
+        const totalMes         = parseInt(alertasMes.rows[0].total) || 0;
+        const totalMesAnterior = parseInt(alertasMesAnterior.rows[0].total) || 0;
+        const diffAlertas      = totalMes - totalMesAnterior;
 
-        const comparativoAlertas = diffAlertas === 0
-            ? "igual à semana passada"
-            : diffAlertas > 0
-                ? `↑ ${diffAlertas} comparado à semana passada`
-                : `↓ ${Math.abs(diffAlertas)} comparado à semana passada`;
+        const comparativoAlertas = totalMesAnterior === 0
+            ? "registrados este mês"
+            : diffAlertas === 0
+                ? "igual ao mês passado"
+                : diffAlertas > 0
+                    ? `↑ ${diffAlertas} comparado ao mês passado`
+                    : `↓ ${Math.abs(diffAlertas)} comparado ao mês passado`;
 
         // =====================
         // GRÁFICO DE BARRAS — ESTRESSE POR DIA (últimos 7 dias)
