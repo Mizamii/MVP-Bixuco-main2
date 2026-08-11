@@ -10,6 +10,8 @@ const session = require('express-session');
 const crypto = require('crypto');
 const multer = require('multer');
 const cron = require('node-cron');
+const { MercadoPagoConfig, PreApprovalPlan, PreApproval } = require("mercadopago");
+
 
 const { Brevo, BrevoClient, BrevoEnvironment } = require('@getbrevo/brevo');
 
@@ -18,6 +20,10 @@ const brevoClient = new BrevoClient({
     environment: BrevoEnvironment.Production
 });
 
+
+const mpClient = new MercadoPagoConfig({
+    accessToken: process.env.MP_ACCESS_TOKEN
+});
 
 const app = express();
 
@@ -153,6 +159,21 @@ app.get("/api/preferencias", estaLogado, async (req, res) => {
     }
 });
 
+const PLANOS_MP = {
+    medio: {
+        nome:       "Plano Médio Bixuco",
+        preco:      29.00,
+        planId:     process.env.MP_PLAN_ID_MEDIO    || null,
+        nomeBanco:  "Médio"
+    },
+    completo: {
+        nome:       "Plano Completo Bixuco",
+        preco:      55.00,
+        planId:     process.env.MP_PLAN_ID_COMPLETO || null,
+        nomeBanco:  "Completo"
+    }
+};
+
 app.use(express.json());
 
 // POST — salva preferências (terapeuta e pai compartilham a mesma tabela)
@@ -278,7 +299,7 @@ app.get("/api/meu-plano", estaLogado, verificarPlano, (req, res) => {
 });
 
 
-app.get("/relatorios", estaLogado, (req, res) => {
+app.get("/relatorios", estaLogado, precisaPlano("Médio"), (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "relatorios.html"));
 
@@ -356,6 +377,23 @@ app.get("/configuracoesT", estaLogado, (req, res) => {
 
 
 
+app.get("/planos", estaLogado, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "planos.html"));
+});
+
+app.get("/sobreSemAssinatura", estaLogado, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "SobreSemAssinatura.html"));
+});
+
+app.get("/configuracoesSemAssinatura", estaLogado, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "ConfiguracoesSemAssinatura.html"));
+});
+
+app.get("/perfilSemAssinatura", estaLogado, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "PerfilSemAssinatura.html"));
+});
+
+
 app.get("/hometerapeuta", estaLogado, (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "HomeTerapeuta.html"));
@@ -375,7 +413,7 @@ app.get("/PerfilTerapeuta", estaLogado, (req, res) => {
 });
 
 // 🔒 FIX 2 (aplicado): /home agora exige login
-app.get("/home", estaLogado, (req, res) => {
+app.get("/home", estaLogado, precisaPlano("Médio"), (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "home.html"));
 });
 
@@ -534,6 +572,347 @@ app.get(
     }
 
 );
+
+
+app.post("/api/planos/criar-planos", async (req, res) => {
+
+    try {
+
+        const planoMP = new PreApprovalPlan(mpClient);
+
+        // Cria o plano médio
+        const planMedio = await planoMP.create({
+            body: {
+                reason:            "Plano Médio Bixuco",
+                auto_recurring: {
+                    frequency:          1,
+                    frequency_type:     "months",
+                    transaction_amount: 29.00,
+                    currency_id:        "BRL"
+                },
+                back_url: `${process.env.BASE_URL}/pagamento/sucesso`,
+                status:   "active"
+            }
+        });
+
+        // Cria o plano completo
+        const planCompleto = await planoMP.create({
+            body: {
+                reason:            "Plano Completo Bixuco",
+                auto_recurring: {
+                    frequency:          1,
+                    frequency_type:     "months",
+                    transaction_amount: 55.00,
+                    currency_id:        "BRL"
+                },
+                back_url: `${process.env.BASE_URL}/pagamento/sucesso`,
+                status:   "active"
+            }
+        });
+
+        // Retorna os IDs para você copiar no .env
+        res.json({
+            mensagem:           "Planos criados! Adicione esses IDs no .env do Render:",
+            MP_PLAN_ID_MEDIO:    planMedio.id,
+            MP_PLAN_ID_COMPLETO: planCompleto.id
+        });
+
+    } catch (erro) {
+
+        console.log("Erro ao criar planos no MP:", erro);
+        res.status(500).json({ erro: erro.message });
+
+    }
+
+});
+
+
+app.post("/api/planos/assinar", estaLogado, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        const { plano } = req.body;
+
+        // ===========================
+        // PLANO GRÁTIS
+        // ===========================
+        if (plano === "gratis") {
+
+            await db.query(
+                `UPDATE assinaturas SET ativo = FALSE WHERE usuario_id = $1 AND ativo = TRUE`,
+                [usuarioId]
+            );
+
+            await db.query(
+                `INSERT INTO assinaturas (usuario_id, nome_plano, ativo)
+                 VALUES ($1, 'Grátis', TRUE)`,
+                [usuarioId]
+            );
+
+            await db.query(
+                `UPDATE usuarios SET novo_usuario = FALSE WHERE id = $1`,
+                [usuarioId]
+            );
+
+            return res.json({ destino: "/sobreSemAssinatura" });
+
+        }
+
+        // ===========================
+        // PLANOS PAGOS
+        // ===========================
+        if (!PLANOS_MP[plano]) {
+            return res.status(400).json({ erro: "Plano inválido." });
+        }
+
+        const dadosPlano = PLANOS_MP[plano];
+
+        if (!dadosPlano.planId) {
+            return res.status(500).json({
+                erro: "Plano ainda não configurado. Execute POST /api/planos/criar-planos primeiro."
+            });
+        }
+
+        // Busca email do usuário para o MP
+        const resultadoUsuario = await db.query(
+            `SELECT nome, email FROM usuarios WHERE id = $1`,
+            [usuarioId]
+        );
+
+        const usuario = resultadoUsuario.rows[0];
+
+        // Cria a assinatura no Mercado Pago
+        const preApproval = new PreApproval(mpClient);
+
+        const assinatura = await preApproval.create({
+            body: {
+                preapproval_plan_id: dadosPlano.planId,
+                reason:              dadosPlano.nome,
+                payer_email:         usuario.email,
+
+                // URLs de retorno
+                back_url: `${process.env.BASE_URL}/pagamento/sucesso?plano=${plano}&usuario=${usuarioId}`,
+
+                // Metadata para identificar no webhook
+                external_reference: `${usuarioId}|${plano}`,
+
+                // Status inicial — pending até o usuário pagar
+                status: "pending",
+
+                auto_recurring: {
+                    frequency:          1,
+                    frequency_type:     "months",
+                    transaction_amount: dadosPlano.preco,
+                    currency_id:        "BRL"
+                }
+            }
+        });
+
+        // Retorna o link de pagamento para o frontend
+        return res.json({
+            linkPagamento: assinatura.init_point
+        });
+
+    } catch (erro) {
+
+        console.log("Erro ao assinar plano:", JSON.stringify(erro, Object.getOwnPropertyNames(erro)));
+        res.status(500).json({ erro: "Erro ao processar assinatura. Tente novamente." });
+
+    }
+
+});
+
+
+
+app.get("/pagamento/sucesso", estaLogado, async (req, res) => {
+
+    try {
+
+        const { plano, usuario: usuarioIdParam, status } = req.query;
+        const usuarioId = req.session.usuarioId || parseInt(usuarioIdParam);
+
+        // O MP pode demorar alguns segundos para confirmar
+        // então não dependemos só do status da URL — o webhook cuida da ativação
+        // Aqui só mostramos uma tela de aguardo/confirmação
+
+        if (status === "approved") {
+            return res.redirect("/home");
+        }
+
+        // Pendente — webhook vai ativar quando confirmar
+        return res.redirect("/planos?info=pagamento_pendente");
+
+    } catch (erro) {
+
+        console.log("Erro no retorno do pagamento:", erro);
+        res.redirect("/planos");
+
+    }
+
+});
+
+app.get("/pagamento/falha", estaLogado, (req, res) => {
+    res.redirect("/planos?erro=pagamento_falhou");
+});
+
+app.get("/pagamento/pendente", estaLogado, (req, res) => {
+    res.redirect("/planos?info=pagamento_pendente");
+});
+
+
+app.post("/api/planos/webhook", async (req, res) => {
+
+    try {
+
+        const { type, data, action } = req.body;
+
+        console.log("Webhook MP recebido:", type, action, data?.id);
+
+        // Processa notificações de assinatura e pagamento
+        if (type !== "subscription_preapproval" && type !== "payment") {
+            return res.sendStatus(200);
+        }
+
+        const itemId = data?.id;
+        if (!itemId) return res.sendStatus(200);
+
+        // Busca os detalhes no MP
+        const endpoint = type === "payment"
+            ? `https://api.mercadopago.com/v1/payments/${itemId}`
+            : `https://api.mercadopago.com/preapproval/${itemId}`;
+
+        const response = await fetch(endpoint, {
+            headers: { Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}` }
+        });
+
+        const dados = await response.json();
+
+        // Extrai usuarioId e plano da referência externa
+        // Formato: "42|medio" ou "42|completo"
+        const referencia = dados.external_reference || dados.metadata?.external_reference;
+
+        if (!referencia) return res.sendStatus(200);
+
+        const [usuarioId, plano] = referencia.split("|");
+
+        if (!usuarioId || !PLANOS_MP[plano]) return res.sendStatus(200);
+
+        const statusAtual = dados.status;
+
+        // Assinatura ativa ou pagamento aprovado → ativa o plano
+        if (statusAtual === "authorized" || statusAtual === "approved") {
+
+            await db.query(
+                `UPDATE assinaturas SET ativo = FALSE WHERE usuario_id = $1 AND ativo = TRUE`,
+                [parseInt(usuarioId)]
+            );
+
+            await db.query(
+                `INSERT INTO assinaturas (usuario_id, nome_plano, ativo)
+                 VALUES ($1, $2, TRUE)`,
+                [parseInt(usuarioId), PLANOS_MP[plano].nomeBanco]
+            );
+
+            await db.query(
+                `UPDATE usuarios SET novo_usuario = FALSE WHERE id = $1`,
+                [parseInt(usuarioId)]
+            );
+
+            console.log(`Plano ${PLANOS_MP[plano].nomeBanco} ativado para usuário ${usuarioId}.`);
+
+        }
+
+        // Assinatura cancelada ou pausada → volta para grátis
+        if (statusAtual === "cancelled" || statusAtual === "paused") {
+
+            await db.query(
+                `UPDATE assinaturas SET ativo = FALSE WHERE usuario_id = $1 AND ativo = TRUE`,
+                [parseInt(usuarioId)]
+            );
+
+            await db.query(
+                `INSERT INTO assinaturas (usuario_id, nome_plano, ativo)
+                 VALUES ($1, 'Grátis', TRUE)`,
+                [parseInt(usuarioId)]
+            );
+
+            console.log(`Plano cancelado para usuário ${usuarioId}. Voltando para Grátis.`);
+
+        }
+
+        return res.sendStatus(200);
+
+    } catch (erro) {
+
+        console.log("Erro no webhook:", erro);
+        return res.sendStatus(500);
+
+    }
+
+});
+
+/* ==========================
+   MIDDLEWARE DE PLANO
+   Verifica se o usuário tem o plano necessário
+========================== */
+
+async function verificarPlano(req, res, next) {
+
+    try {
+
+        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+
+        if (!usuarioId) return res.redirect("/logar");
+
+        // Terapeuta tem acesso total sem plano
+        if (req.session.tipo === "psicologo") {
+            req.plano = "terapeuta";
+            return next();
+        }
+
+        const resultado = await db.query(
+            `SELECT nome_plano FROM assinaturas
+             WHERE usuario_id = $1 AND ativo = TRUE
+             ORDER BY criado_em DESC LIMIT 1`,
+            [usuarioId]
+        );
+
+        req.plano = resultado.rows[0]?.nome_plano || "Grátis";
+        return next();
+
+    } catch (erro) {
+        console.log("Erro ao verificar plano:", erro);
+        req.plano = "Grátis";
+        return next();
+    }
+
+}
+
+// Bloqueia rotas para usuários sem o plano mínimo necessário
+function precisaPlano(planoMinimo) {
+
+    const hierarquia = { "Grátis": 0, "Médio": 1, "Completo": 2, "terapeuta": 99 };
+
+    return async (req, res, next) => {
+        await verificarPlano(req, res, async () => {
+
+            const nivelUsuario = hierarquia[req.plano] ?? 0;
+            const nivelMinimo  = hierarquia[planoMinimo] ?? 1;
+
+            if (nivelUsuario >= nivelMinimo) return next();
+
+            return res.redirect("/planos");
+        });
+    };
+
+}
+
 
 app.post("/api/onboarding-google", estaLogado, async (req, res) => {
 
@@ -2371,7 +2750,7 @@ app.post('/login', async (req, res) => {
 ========================== */
 
 // 🔧 FIX 7: Rota GET /perfil que não existia no server.js
-app.get("/perfil", estaLogado, (req, res) => {
+app.get("/perfil", estaLogado, precisaPlano("Médio"), (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "perfil.html"));
 
@@ -2386,7 +2765,7 @@ app.get("/perfil", estaLogado, (req, res) => {
 ========================== */
 
 // 🔧 Rota GET /configuracoes que não existia no server.js
-app.get("/configuracoes", estaLogado, (req, res) => {
+app.get("/configuracoes", estaLogado, precisaPlano("Médio"), (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "configuracoes.html"));
 
