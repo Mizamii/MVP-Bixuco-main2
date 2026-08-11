@@ -3452,7 +3452,7 @@ app.post("/api/perfil/atualizar", estaLogado, upload.single("fotoPerfil"), async
         // "upload" já configurado com memoryStorage, igual ao adicionar-crianca)
         if (req.file) {
             const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
-            campos.push(`foto_url = $${indice++}`);
+            campos.push(`foto_perfil = $${indice++}`);
             valores.push(base64);
         }
 
