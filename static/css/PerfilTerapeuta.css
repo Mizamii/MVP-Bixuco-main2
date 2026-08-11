@@ -1,11 +1,11 @@
 /* ==========================================================
    PerfilTerapeuta.css
-   Sidebar, topo e alternância de tema já vêm prontos do
-   home.css (reaproveitado via <link>, não duplicado aqui).
+   Sidebar, topo, alternância de tema e painel de notificações
+   já vêm prontos do layout.css (compartilhado, via <link>,
+   não duplicado aqui).
    Aqui só entra o que é exclusivo desta página: cabeçalho,
-   painel de notificações, grid de perfil, card de perfil
-   (com edição de nome/foto), código de vínculo,
-   compartilhamento e o mascote.
+   grid de perfil, card de perfil (com edição de nome/foto),
+   código de vínculo, compartilhamento e o mascote.
    ========================================================== */
 
 /* ---------- Cabeçalho ---------- */
@@ -22,82 +22,6 @@
     color: var(--cor-texto-secundario);
 }
 
-/* ---------- Painel de notificações ---------- */
-
-.notificacoes-wrapper {
-    position: relative;
-}
-
-.notificacoes {
-    position: relative;
-}
-
-.notificacoes .badge {
-    position: absolute;
-    top: -4px;
-    right: -6px;
-    min-width: 16px;
-    height: 16px;
-    padding: 0 4px;
-    border-radius: 999px;
-    background: #E53E3E;
-    color: #fff;
-    font-size: 0.62rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.painel-notificacoes {
-    position: absolute;
-    top: calc(100% + 12px);
-    right: 0;
-    width: 300px;
-    max-height: 340px;
-    overflow-y: auto;
-    background: var(--cor-fundo-card);
-    border-radius: 14px;
-    box-shadow: var(--sombra-card);
-    display: none;
-    z-index: 20;
-}
-
-.painel-notificacoes.aberto {
-    display: block;
-}
-
-.painel-header {
-    padding: 0.9rem 1.1rem;
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--cor-texto-principal);
-    border-bottom: 1px solid var(--cor-fundo-hover);
-}
-
-.painel-vazio {
-    padding: 1rem 1.1rem;
-    font-size: 0.8rem;
-    color: var(--cor-texto-secundario);
-}
-
-.item-notificacao {
-    position: relative;
-    padding: 0.75rem 1.1rem 0.75rem 1.5rem;
-    font-size: 0.8rem;
-    color: var(--cor-texto-secundario);
-    border-bottom: 1px solid var(--cor-fundo-hover);
-    line-height: 1.4;
-}
-
-.item-notificacao:last-child {
-    border-bottom: none;
-}
-
-.item-notificacao.nao-lida {
-    color: var(--cor-texto-principal);
-}
-
 .item-notificacao.nao-lida::before {
     content: "";
     position: absolute;
@@ -107,13 +31,6 @@
     height: 6px;
     border-radius: 50%;
     background: #32C26D;
-}
-
-.tempo-notificacao {
-    display: block;
-    margin-top: 0.2rem;
-    font-size: 0.7rem;
-    color: var(--cor-texto-esmaecido);
 }
 
 /* ---------- Grid: card de perfil à esquerda, coluna direita ---------- */
