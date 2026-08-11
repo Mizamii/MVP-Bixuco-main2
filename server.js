@@ -627,7 +627,7 @@ app.post("/api/planos/criar-planos", async (req, res) => {
 });
 
 
-app.post("/api/planos/assinar", estaLogado, async (req, res) => { 
+app.post("/api/planos/assinar", estaLogado, async (req, res) => {
 
     try {
 
@@ -641,7 +641,19 @@ app.post("/api/planos/assinar", estaLogado, async (req, res) => {
 
         // MODO TESTE — remove isso em produção
         if (process.env.NODE_ENV === "test" || process.env.MP_BYPASS === "true") {
-            
+
+            const nomesPorPlano = {
+                gratis:   "Grátis",
+                medio:    "Médio",
+                completo: "Completo"
+            };
+
+            const nomePlano = nomesPorPlano[plano];
+
+            if (!nomePlano) {
+                return res.status(400).json({ erro: "Plano inválido." });
+            }
+
             await db.query(
                 `UPDATE assinaturas SET ativo = FALSE WHERE usuario_id = $1 AND ativo = TRUE`,
                 [usuarioId]
@@ -649,8 +661,8 @@ app.post("/api/planos/assinar", estaLogado, async (req, res) => {
 
             await db.query(
                 `INSERT INTO assinaturas (usuario_id, nome_plano, ativo)
-                VALUES ($1, $2, TRUE)`,
-                [usuarioId, dadosPlano.nomeBanco]
+                 VALUES ($1, $2, TRUE)`,
+                [usuarioId, nomePlano]
             );
 
             await db.query(
@@ -658,8 +670,10 @@ app.post("/api/planos/assinar", estaLogado, async (req, res) => {
                 [usuarioId]
             );
 
-            return res.json({ destino: "/home" });
+            const destino = plano === "gratis" ? "/sobreSemAssinatura" : "/home";
+            return res.json({ destino });
         }
+
 
 
         // ===========================
