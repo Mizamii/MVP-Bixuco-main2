@@ -1046,21 +1046,9 @@ app.post("/api/crianca/atualizar", estaLogado, upload.single("fotoCrianca"), asy
 
         // Mesmo padrão de storage usado em /api/perfil/atualizar
         if (req.file) {
-
-            const pastaDestino = path.join(__dirname, "static", "uploads", "criancas");
-            fs.mkdirSync(pastaDestino, { recursive: true });
-
-            const extensao = path.extname(req.file.originalname) || ".jpg";
-            const nomeArquivo = `crianca_${criancaId}_${Date.now()}${extensao}`;
-            const caminhoCompleto = path.join(pastaDestino, nomeArquivo);
-
-            fs.writeFileSync(caminhoCompleto, req.file.buffer);
-
-            const novaFotoUrl = `/uploads/criancas/${nomeArquivo}`;
-
+            const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
             campos.push(`foto_url = $${indice++}`);
-            valores.push(novaFotoUrl);
-
+            valores.push(base64);
         }
 
         if (campos.length === 0) {
@@ -3463,23 +3451,9 @@ app.post("/api/perfil/atualizar", estaLogado, upload.single("fotoPerfil"), async
         // Se veio uma foto nova, salva no disco (reaproveitando o multer
         // "upload" já configurado com memoryStorage, igual ao adicionar-crianca)
         if (req.file) {
-
-            const pastaDestino = path.join(__dirname, "static", "uploads", "perfil");
-            fs.mkdirSync(pastaDestino, { recursive: true });
-
-            const extensao = path.extname(req.file.originalname) || ".jpg";
-            const nomeArquivo = `perfil_${usuarioId}_${Date.now()}${extensao}`;
-            const caminhoCompleto = path.join(pastaDestino, nomeArquivo);
-
-            fs.writeFileSync(caminhoCompleto, req.file.buffer);
-
-            // "static" já é servido publicamente em app.use(express.static(...)),
-            // então o arquivo fica acessível em /uploads/perfil/<nome>
-            const novaFotoUrl = `/uploads/perfil/${nomeArquivo}`;
-
-            campos.push(`foto_perfil = $${indice++}`);
-            valores.push(novaFotoUrl);
-
+            const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+            campos.push(`foto_url = $${indice++}`);
+            valores.push(base64);
         }
 
         if (campos.length === 0) {
