@@ -272,30 +272,31 @@
         // requisitos da senha com quebras de linha (<br>) — ver validarCampos()
         function mostrarErro(inputId, erroId, mensagem) {
 
-        const input = document.getElementById(inputId);
-        const erro  = document.getElementById(erroId);
+            const input = document.getElementById(inputId);
+            const erro  = document.getElementById(erroId);
 
-        if (!input || !erro) {
-            // Campo não existe nesta página (ex: erro de e-mail/CPF que
-            // pertence a uma etapa anterior do cadastro) — mostra no
-            // erro geral em vez de falhar silenciosamente
-            const erroGeral = document.getElementById("erro-geral");
-            if (erroGeral) {
-                erroGeral.textContent   = mensagem;
-                erroGeral.style.display = "block";
+            if (!input || !erro) {
+                // Campo não existe nesta página (ex: erro de e-mail/CPF que
+                // pertence a uma etapa anterior do cadastro) — mostra no
+                // erro geral em vez de falhar silenciosamente
+                const erroGeral = document.getElementById("erro-geral");
+                if (erroGeral) {
+                    erroGeral.textContent   = mensagem;
+                    erroGeral.style.display = "block";
+                }
+                return;
             }
-            return;
+
+            input.classList.add("input-erro");
+            erro.innerHTML     = mensagem;
+            erro.style.display = "block";
+            erro.dataset.jaTentou = "true";
+
+            setTimeout(() => {
+                input.classList.remove("input-erro");
+            }, 500);
+
         }
-
-        input.classList.add("input-erro");
-        erro.innerHTML     = mensagem;
-        erro.style.display = "block";
-
-        setTimeout(() => {
-            input.classList.remove("input-erro");
-        }, 500);
-
-    }
 
         function limparErros() {
 
@@ -372,6 +373,55 @@
 
             return valido;
 
+        }
+
+        // ==========================
+        // VALIDAÇÃO EM TEMPO REAL
+        // ==========================
+
+        const campoSenha = document.getElementById("senha");
+        const campoConfirmar = document.getElementById("confirmarSenha");
+
+        function senhaEhValida(valor) {
+            return valor.length >= 6
+                && /[A-Z]/.test(valor)
+                && /[!@#$%^&*(),.?":{}|<>_\-\\[\];'/+=]/.test(valor);
+        }
+
+        campoSenha.addEventListener("input", () => {
+            if (senhaEhValida(campoSenha.value)) {
+                limparErroCampo("senha", "erro-senha");
+            } else {
+                // Se ja tinha passado por validacao (usuario tentou enviar) e agora ficou invalida de novo, mostra erro
+                const erroEl = document.getElementById("erro-senha");
+                if (erroEl && erroEl.dataset.jaTentou === "true") {
+                    mostrarErro("senha", "erro-senha", "A senha ainda não atende aos requisitos.");
+                }
+            }
+        });
+
+        campoConfirmar.addEventListener("input", () => {
+            const senha = campoSenha.value;
+            const confirmar = campoConfirmar.value;
+
+            if (confirmar && senha === confirmar) {
+                limparErroCampo("confirmarSenha", "erro-confirmarSenha");
+            } else if (confirmar) {
+                const erroEl = document.getElementById("erro-confirmarSenha");
+                if (erroEl && erroEl.dataset.jaTentou === "true") {
+                    mostrarErro("confirmarSenha", "erro-confirmarSenha", "As senhas não coincidem.");
+                }
+            }
+        });
+
+        function limparErroCampo(inputId, erroId) {
+            const input = document.getElementById(inputId);
+            const erro  = document.getElementById(erroId);
+            if (input) input.classList.remove("input-erro");
+            if (erro) {
+                erro.style.display = "none";
+                erro.textContent   = "";
+            }
         }
 
         // ==========================
