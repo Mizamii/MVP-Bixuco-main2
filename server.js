@@ -250,7 +250,7 @@ async function verificarPlano(req, res, next) {
 
     try {
         // terapeutas não precisam de assinatura
-        if (req.session.tipoUsuario === 'psicologo' || (req.user && req.user.tipo === 'psicologo')) {
+        if (req.session.tipo === 'psicologo' || (req.user && req.user.tipo === 'psicologo')) {
             req.plano = 'terapeuta';
             return next();
         }
