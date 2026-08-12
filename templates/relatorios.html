@@ -460,6 +460,8 @@
 
 <script>
 
+    
+
     // ==========================
     // TEMA
     // ==========================
@@ -693,8 +695,15 @@
     // 🔧 FIX 9: Gráficos reais com Chart.js — antes os <canvas> não renderizavam nada
 
     let graficos = {};
+    let dadosEstresseGlobal  = null;
+    let dadosGatilhosGlobal  = null;
+    let dadosEvolucaoGlobal  = null;
 
     function renderizarGraficos(dados) {
+
+        dadosEstresseGlobal = dados.graficoEstresse;
+        dadosGatilhosGlobal = dados.graficoGatilhos;
+        dadosEvolucaoGlobal = dados.graficoEvolucao;
 
         // Destrói gráficos anteriores se existirem (evita duplicatas ao recarregar)
         Object.values(graficos).forEach(g => g.destroy());
@@ -709,141 +718,183 @@
         // Gráfico de barras — Estresse
         // ===========================
 
-        const ctxEstresse = document.getElementById("graficoEstresse").getContext("2d");
+        criarGraficoEstresse("bar");
 
-        graficos.estresse = new Chart(ctxEstresse, {
+        function criarGraficoEstresse(tipo) {
 
-            type: "bar",
-
-            data: {
-                labels:   dados.graficoEstresse?.labels || [],
-                datasets: [{
-                    label:           "Alertas",
-                    data:            dados.graficoEstresse?.dados  || [],
-                    backgroundColor: dados.graficoEstresse?.dados?.map((v, i) =>
-                        // Destaca o maior valor em vermelho, os demais em verde/amarelo/laranja
-                        v === Math.max(...(dados.graficoEstresse?.dados || [])) ? "#E53E3E" :
-                        v > 5 ? "#F6AD55" : VERDE
-                    ) || [],
-                    borderRadius:    6
-                }]
-            },
-
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { stepSize: 2 }
-                    }
-                }
+            if (graficos.estresse) {
+                graficos.estresse.destroy();
             }
 
-        });
+            const ctx = document.getElementById("graficoEstresse").getContext("2d");
+            const dadosArr = dadosEstresseGlobal?.dados || [];
+
+            const cores = dadosArr.map(v =>
+                v === Math.max(...dadosArr) ? "#E53E3E" :
+                v > 5 ? "#F6AD55" : VERDE
+            );
+
+            const gradiente = ctx.createLinearGradient(0, 0, 0, 300);
+            gradiente.addColorStop(0, "rgba(50, 194, 109, 0.35)");
+            gradiente.addColorStop(1, "rgba(50, 194, 109, 0)");
+
+            graficos.estresse = new Chart(ctx, {
+                type: tipo,
+                data: {
+                    labels: dadosEstresseGlobal?.labels || [],
+                    datasets: [{
+                        label:           "Alertas",
+                        data:            dadosArr,
+                        backgroundColor: tipo === "line" ? gradiente : cores,
+                        borderColor:     tipo === "line" ? VERDE : cores,
+                        borderWidth:     tipo === "line" ? 2.5 : 0,
+                        borderRadius:    tipo === "bar" ? 6 : 0,
+                        pointBackgroundColor: tipo === "line"
+                            ? dadosArr.map(v => v === Math.max(...dadosArr) ? "#E53E3E" : VERDE)
+                            : undefined,
+                        pointRadius: tipo === "line" ? 5 : undefined,
+                        tension:     tipo === "line" ? 0.4 : undefined,
+                        fill:        tipo === "line" ? true : false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 2 } }
+                    }
+                }
+            });
+        }
+
+        function trocarTipoEstresse(tipo) {
+            criarGraficoEstresse(tipo);
+            const iconePorTipo = { bar: "fa-chart-column", line: "fa-chart-line" };
+            atualizarBotoesTipo("graficoEstresse", tipo, iconePorTipo);
+        }
 
         // ===========================
         // Gráfico de rosca — Gatilhos
         // ===========================
 
-        const ctxGatilhos = document.getElementById("graficoGatilhos").getContext("2d");
+        criarGraficoGatilhos("doughnut");
 
-        const gatilhos = dados.graficoGatilhos || { labels: [], dados: [], cores: [] };
+        function criarGraficoGatilhos(tipo) {
 
-        graficos.gatilhos = new Chart(ctxGatilhos, {
-
-            type: "doughnut",
-
-            data: {
-                labels:   gatilhos.labels,
-                datasets: [{
-                    data:            gatilhos.dados,
-                    backgroundColor: gatilhos.cores || [VERDE, AZUL, "#1D8EC9", "#C2C2C2"],
-                    borderWidth:     0,
-                    hoverOffset:     8
-                }]
-            },
-
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: "65%",
-                plugins: {
-                    legend: { display: false }
-                }
+            if (graficos.gatilhos) {
+                graficos.gatilhos.destroy();
             }
 
-        });
+            const gatilhos = dadosGatilhosGlobal || { labels: [], dados: [], cores: [] };
+            const legenda  = document.getElementById("legendaGatilhos");
+            const ehRosca  = tipo === "doughnut" || tipo === "pie";
 
-        // Monta a legenda customizada do gráfico de rosca
-        const legendaEl = document.getElementById("legendaGatilhos");
-        legendaEl.innerHTML = "";
+            const ctx = document.getElementById("graficoGatilhos").getContext("2d");
 
-        gatilhos.labels.forEach((label, i) => {
+            graficos.gatilhos = new Chart(ctx, {
+                type: tipo,
+                data: {
+                    labels: gatilhos.labels,
+                    datasets: [{
+                        data:            gatilhos.dados,
+                        backgroundColor: gatilhos.cores || [VERDE, AZUL, "#1D8EC9", "#C2C2C2"],
+                        borderWidth:     0,
+                        hoverOffset:     8,
+                        borderRadius:    tipo === "bar" ? 6 : 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: tipo === "doughnut" ? "65%" : 0,
+                    plugins: {
+                        legend: { display: tipo === "bar" ? true : false }
+                    },
+                    scales: tipo === "bar"
+                        ? { y: { beginAtZero: true } }
+                        : {}
+                }
+            });
 
-            legendaEl.innerHTML += `
-                <div class="legenda-item">
-                    <span
-                        class="legenda-cor"
-                        style="background:${gatilhos.cores[i] || VERDE}"
-                    ></span>
-                    <span>${label} ${gatilhos.dados[i]}%</span>
-                </div>
-            `;
+            if (legenda) {
+                if (ehRosca) {
+                    legenda.innerHTML = "";
+                    gatilhos.labels.forEach((label, i) => {
+                        legenda.innerHTML += `
+                            <div class="legenda-item">
+                                <span class="legenda-cor" style="background:${gatilhos.cores[i] || VERDE}"></span>
+                                <span>${label} ${gatilhos.dados[i]}%</span>
+                            </div>
+                        `;
+                    });
+                    legenda.style.display = "flex";
+                } else {
+                    legenda.style.display = "none";
+                }
+            }
+        }
 
-        });
+        function trocarTipoGatilhos(tipo) {
+            criarGraficoGatilhos(tipo);
+            const iconePorTipo = { doughnut: "fa-circle-dot", pie: "fa-chart-pie", bar: "fa-chart-column" };
+            atualizarBotoesTipo("graficoGatilhos", tipo, iconePorTipo);
+        }
 
         // ===========================
         // Gráfico de linha — Evolução
         // ===========================
 
-        const ctxEvolucao = document.getElementById("graficoEvolucao").getContext("2d");
+        criarGraficoEvolucao("line");
 
-        // Cria gradiente de preenchimento sob a linha
-        const gradiente = ctxEvolucao.createLinearGradient(0, 0, 0, 300);
-        gradiente.addColorStop(0,   "rgba(50, 194, 109, 0.35)");
-        gradiente.addColorStop(1,   "rgba(50, 194, 109, 0)");
+        function criarGraficoEvolucao(tipo) {
 
-        graficos.evolucao = new Chart(ctxEvolucao, {
-
-            type: "line",
-
-            data: {
-                labels:   dados.graficoEvolucao?.labels || [],
-                datasets: [{
-                    label:           "Crises sensoriais",
-                    data:            dados.graficoEvolucao?.dados  || [],
-                    borderColor:     VERDE,
-                    backgroundColor: gradiente,
-                    borderWidth:     2.5,
-                    pointBackgroundColor: dados.graficoEvolucao?.dados?.map((v, i) =>
-                        // Ponto vermelho no pico máximo
-                        v === Math.max(...(dados.graficoEvolucao?.dados || [])) ? "#E53E3E" : VERDE
-                    ) || [],
-                    pointRadius:     5,
-                    tension:         0.4,
-                    fill:            true
-                }]
-            },
-
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { stepSize: 2 }
-                    }
-                }
+            if (graficos.evolucao) {
+                graficos.evolucao.destroy();
             }
 
-        });
+            const ctx = document.getElementById("graficoEvolucao").getContext("2d");
+            const dadosArr = dadosEvolucaoGlobal?.dados || [];
+
+            const gradiente = ctx.createLinearGradient(0, 0, 0, 300);
+            gradiente.addColorStop(0, "rgba(50, 194, 109, 0.35)");
+            gradiente.addColorStop(1, "rgba(50, 194, 109, 0)");
+
+            graficos.evolucao = new Chart(ctx, {
+                type: tipo,
+                data: {
+                    labels: dadosEvolucaoGlobal?.labels || [],
+                    datasets: [{
+                        label:           "Crises sensoriais",
+                        data:            dadosArr,
+                        borderColor:     VERDE,
+                        backgroundColor: tipo === "line" ? gradiente : VERDE,
+                        borderWidth:     tipo === "line" ? 2.5 : 0,
+                        borderRadius:    tipo === "bar" ? 6 : 0,
+                        pointBackgroundColor: tipo === "line"
+                            ? dadosArr.map(v => v === Math.max(...dadosArr) ? "#E53E3E" : VERDE)
+                            : undefined,
+                        pointRadius: tipo === "line" ? 5 : undefined,
+                        tension:     tipo === "line" ? 0.4 : undefined,
+                        fill:        tipo === "line" ? true : false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 2 } }
+                    }
+                }
+            });
+        }
+
+        function trocarTipoEvolucao(tipo) {
+            criarGraficoEvolucao(tipo);
+            const iconePorTipo = { line: "fa-chart-line", bar: "fa-chart-column" };
+            atualizarBotoesTipo("graficoEvolucao", tipo, iconePorTipo);
+        }
 
     }
 
@@ -994,6 +1045,23 @@
             painelNotificacoes.classList.remove("aberto");
         }
     });
+
+    function atualizarBotoesTipo(canvasId, tipoAtivo, iconePorTipo) {
+
+        const card   = document.getElementById(canvasId).closest(".grafico-card");
+        const botoes = card.querySelectorAll(".btn-tipo-grafico button");
+
+        botoes.forEach(btn => {
+            const icone = btn.querySelector("i");
+            if (!icone) return;
+
+            const tipoBtn = Object.entries(iconePorTipo).find(([, cls]) =>
+                icone.classList.contains(cls)
+            )?.[0];
+
+            btn.classList.toggle("ativo", tipoBtn === tipoAtivo);
+        });
+    }
 
 
     // ==========================
