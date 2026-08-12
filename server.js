@@ -1520,10 +1520,9 @@ app.post("/continuar-cadastro-pai", (req, res) => {
         bairro
     } = req.body;
 
+
     req.session.cadastro = {
-
         tipo: "pai",
-
         nome,
         email,
         telefone,
@@ -1536,7 +1535,6 @@ app.post("/continuar-cadastro-pai", (req, res) => {
         cidade,
         estado,
         bairro
-
     };
 
     res.redirect("/CriarContaSenha");
