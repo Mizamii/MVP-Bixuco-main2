@@ -756,7 +756,11 @@
     // ==========================
 
     document.getElementById("btnCompartilhar").addEventListener("click", () => {
-        window.location.href = "/compartilhar-terapeuta";
+        const mensagem = encodeURIComponent(
+            "Olá! Venha conhecer o Bixuco, um aplicativo que ajuda no acompanhamento de crianças com hipersensibilidade sensorial. 🐱\n\n" +
+            "https://mvp-bixuco.onrender.com"
+        );
+        window.open(`https://wa.me/?text=${mensagem}`, "_blank");
     });
 
 
@@ -901,7 +905,7 @@
 
             // 🔧 FIX: vai para / independente da resposta
             // pois a sessão é destruída antes do JSON chegar
-            window.location.href = "/";
+            window.location.href = "/logar";
 
         } catch (erro) {
 

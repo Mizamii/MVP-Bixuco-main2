@@ -202,6 +202,7 @@
                     <!-- ========================= -->
 
                     <!-- CEP -->
+                    <!-- CEP -->
                     <div class="cadastro-form__grupo">
                         <label for="cep" class="cadastro-form__label">
                             CEP
@@ -217,10 +218,61 @@
                             oninput="mascaraCEP(this)"
                             required
                         >
-                        <span
-                            class="cadastro-form__erro"
-                            id="erro-cep"
-                        ></span>
+                        <span class="cadastro-form__erro" id="erro-cep"></span>
+                    </div>
+
+                    <!-- Rua -->
+                    <div class="cadastro-form__grupo">
+                        <label for="rua" class="cadastro-form__label">
+                            Rua
+                        </label>
+                        <input
+                            class="cadastro-form__input"
+                            type="text"
+                            id="rua"
+                            name="rua"
+                            placeholder="Sua rua"
+                            autocomplete="address-line1"
+                            required
+                            readonly
+                        >
+                        <span class="cadastro-form__erro" id="erro-rua"></span>
+                    </div>
+
+                    <!-- Linha número + complemento -->
+                    <div class="cadastro-form__linha">
+
+                        <!-- Número -->
+                        <div class="cadastro-form__grupo">
+                            <label for="numero" class="cadastro-form__label">
+                                Número
+                            </label>
+                            <input
+                                class="cadastro-form__input"
+                                type="text"
+                                id="numero"
+                                name="numero"
+                                placeholder="Nº"
+                                inputmode="numeric"
+                                required
+                            >
+                            <span class="cadastro-form__erro" id="erro-numero"></span>
+                        </div>
+
+                        <!-- Complemento -->
+                        <div class="cadastro-form__grupo">
+                            <label for="complemento" class="cadastro-form__label">
+                                Complemento (opcional)
+                            </label>
+                            <input
+                                class="cadastro-form__input"
+                                type="text"
+                                id="complemento"
+                                name="complemento"
+                                placeholder="Apto, bloco, etc."
+                            >
+                        </div>
+
                     </div>
 
                     <!-- Linha cidade + estado -->
@@ -241,10 +293,7 @@
                                 required
                                 readonly
                             >
-                            <span
-                                class="cadastro-form__erro"
-                                id="erro-cidade"
-                            ></span>
+                            <span class="cadastro-form__erro" id="erro-cidade"></span>
                         </div>
 
                         <!-- Estado -->
@@ -263,32 +312,9 @@
                                 required
                                 readonly
                             >
-                            <span
-                                class="cadastro-form__erro"
-                                id="erro-estado"
-                            ></span>
+                            <span class="cadastro-form__erro" id="erro-estado"></span>
                         </div>
 
-                    </div>
-
-                    <!-- Bairro -->
-                    <div class="cadastro-form__grupo">
-                        <label for="bairro" class="cadastro-form__label">
-                            Bairro
-                        </label>
-                        <input
-                            class="cadastro-form__input"
-                            type="text"
-                            id="bairro"
-                            name="bairro"
-                            placeholder="Seu bairro"
-                            required
-                            readonly
-                        >
-                        <span
-                            class="cadastro-form__erro"
-                            id="erro-bairro"
-                        ></span>
                     </div>
 
                     <!-- Erro geral do servidor (substitui o sistema de ?erro= na URL) -->
@@ -422,13 +448,23 @@
 
                 }
 
-                // Preenche os campos automaticamente
+                document.getElementById("rua").value     = dados.logradouro || "";
                 document.getElementById("cidade").value  = dados.localidade || "";
                 document.getElementById("estado").value  = dados.uf || "";
                 document.getElementById("bairro").value  = dados.bairro || "";
 
-                // Remove readonly do bairro para o usuário corrigir se precisar
+                // Se o CEP nao tiver rua definida (comum em cidades pequenas), libera edicao manual
+                if (!dados.logradouro) {
+                    document.getElementById("rua").removeAttribute("readonly");
+                }
+
                 document.getElementById("bairro").removeAttribute("readonly");
+
+                limparErroCampo("cep", "erro-cep");
+                limparErroCampo("rua", "erro-rua");
+                limparErroCampo("cidade", "erro-cidade");
+                limparErroCampo("estado", "erro-estado");
+                limparErroCampo("bairro", "erro-bairro");
 
             } catch (erro) {
 
@@ -652,6 +688,12 @@
                 mostrarErro("bairro", "erro-bairro", "Informe seu bairro.");
                 valido = false;
             }
+            const numero = document.getElementById("numero").value.trim();
+
+            if (!numero) {
+                mostrarErro("numero", "erro-numero", "Informe o número.");
+                valido = false;
+            }
 
             return valido;
 
@@ -746,13 +788,29 @@
             }
         });
 
+        let cepJaFoiValido = false;
+
         campoCEP.addEventListener("input", () => {
             const numeros = campoCEP.value.replace(/\D/g, "");
-            if (numeros.length === 8) limparErroCampo("cep", "erro-cep");
+
+            if (numeros.length === 8) {
+                limparErroCampo("cep", "erro-cep");
+                cepJaFoiValido = true;
+            } else if (cepJaFoiValido) {
+                // Já tinha ficado valido antes, e agora foi apagado/alterado - mostra erro de novo
+                mostrarErro("cep", "erro-cep", "Digite um CEP válido.");
+                cepJaFoiValido = false;
+            }
         });
 
         campoBairroLive.addEventListener("input", () => {
             if (campoBairroLive.value.trim()) limparErroCampo("bairro", "erro-bairro");
+        });
+
+        document.getElementById("numero").addEventListener("input", () => {
+            if (document.getElementById("numero").value.trim()) {
+                limparErroCampo("numero", "erro-numero");
+            }
         });
 
         // ==========================
@@ -790,6 +848,9 @@
                         dataNascimento: document.getElementById("dataNascimento").value,
                         cpfUser:        document.getElementById("cpf").value,
                         cep:            document.getElementById("cep").value,
+                        rua:            document.getElementById("rua").value.trim(),
+                        numero:         document.getElementById("numero").value.trim(),
+                        complemento:    document.getElementById("complemento").value.trim(),
                         cidade:         document.getElementById("cidade").value.trim(),
                         estado:         document.getElementById("estado").value.trim(),
                         bairro:         document.getElementById("bairro").value.trim()

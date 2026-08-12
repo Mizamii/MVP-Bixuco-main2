@@ -280,6 +280,34 @@
         }
 
         // ==========================
+        // VALIDAÇÃO EM TEMPO REAL (some o erro assim que corrigir)
+        // ==========================
+
+        document.getElementById("email").addEventListener("input", () => {
+            const email = document.getElementById("email").value.trim();
+            const regexEmail = /\S+@\S+\.\S+/;
+
+            if (regexEmail.test(email)) {
+                document.getElementById("email").classList.remove("login-form__input--erro");
+                document.getElementById("erro-email").style.display = "none";
+            }
+
+            // Some tambem o erro geral (ex: "email ou senha invalidos") ao editar
+            document.getElementById("erro-geral").style.display = "none";
+        });
+
+        document.getElementById("senha").addEventListener("input", () => {
+            const senha = document.getElementById("senha").value;
+
+            if (senha.length >= 6) {
+                document.getElementById("senha").classList.remove("login-form__input--erro");
+                document.getElementById("erro-senha").style.display = "none";
+            }
+
+            document.getElementById("erro-geral").style.display = "none";
+        });
+
+        // ==========================
         // ENVIO DO FORMULÁRIO
         // ==========================
 
