@@ -160,13 +160,13 @@ app.get("/api/preferencias", estaLogado, async (req, res) => {
 });
 
 const PLANOS_MP = {
-    medio: {
+    economico: {
         nome:       "Plano Médio Bixuco",
         preco:      29.00,
         planId:     process.env.MP_PLAN_ID_MEDIO    || null,
         nomeBanco:  "economico"
     },
-    completo: {
+    premium: {
         nome:       "Plano Completo Bixuco",
         preco:      55.00,
         planId:     process.env.MP_PLAN_ID_COMPLETO || null,
@@ -643,9 +643,9 @@ app.post("/api/planos/assinar", estaLogado, async (req, res) => {
         if (process.env.NODE_ENV === "test" || process.env.MP_BYPASS === "true") {
 
             const nomesPorPlano = {
-                gratis:   "Grátis",
-                medio:    "economico",
-                completo: "premium"
+                gratis:   "gratis",
+                economico:    "economico",
+                premium: "premium"
             };
 
             const nomePlano = nomesPorPlano[plano];
