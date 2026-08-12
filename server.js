@@ -1335,24 +1335,11 @@ app.post("/api/adicionar-crianca", estaLogado, upload.single("fotoCrianca"), asy
         // Processa a foto se foi enviada
         // Por ora salva null — integre com Cloudinary ou S3 quando quiser
         // Exemplo de integração com Cloudinary está comentado abaixo
+        // Mesmo padrão de storage usado em /api/perfil/atualizar e /api/crianca/atualizar
         let fotoUrl = null;
 
         if (req.file) {
-
-            // Para salvar localmente (simples, mas não recomendado para produção):
-            // const nomeArquivo = `crianca_${usuarioId}_${Date.now()}.jpg`;
-            // const caminho = path.join(__dirname, 'static', 'uploads', nomeArquivo);
-            // require('fs').writeFileSync(caminho, req.file.buffer);
-            // fotoUrl = `/uploads/${nomeArquivo}`;
-
-            // Para Cloudinary (recomendado):
-            // const cloudinary = require('cloudinary').v2;
-            // const resultado = await cloudinary.uploader.upload_stream(...);
-            // fotoUrl = resultado.secure_url;
-
-            // Por ora apenas registra que a foto foi recebida
-            console.log(`Foto recebida: ${req.file.originalname} (${req.file.size} bytes)`);
-
+            fotoUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
         }
 
         // Salva a criança no banco
