@@ -18,29 +18,12 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
     >
 
-    <!-- 🔧 FIX 9: Chart.js importado para os gráficos funcionarem -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
-    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
-
-    <!-- Variáveis compartilhadas de tema (claro/escuro) — precisa vir ANTES do CSS da página -->
-    <link
-        rel="stylesheet"
-        href="/css/tema.css"
-    >
-
+    <link rel="stylesheet" href="/css/tema.css">
     <link rel="stylesheet" href="/css/layout.css">
-
-    <!-- Layout compartilhado (sidebar, topo, tema claro/escuro) — o mesmo do Home e do Perfil -->
-    <link
-        rel="stylesheet"
-        href="/css/home.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="/css/relatorios.css"
-    >
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/relatorios.css">
 
     <style>
         .titulo-card {
@@ -92,73 +75,59 @@
     <aside class="sidebar">
 
         <div class="logo">
-
-            <img
-                src="/img/logo_nome.png"
-                alt="Bixuco"
-            >
-
+            <img src="/img/logo_nome.png" alt="Bixuco">
         </div>
 
         <nav>
 
             <a href="/home">
                 <i class="fa-solid fa-house"></i>
-                <span>Início</span>
+                <span data-pt="Início" data-en="Home">Início</span>
             </a>
 
             <a href="/relatorios" class="ativo">
                 <i class="fa-solid fa-chart-line"></i>
-                <span>Relatórios</span>
+                <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
             </a>
 
             <a href="/sobre">
                 <i class="fa-solid fa-circle-info"></i>
-                <span>Sobre</span>
+                <span data-pt="Sobre" data-en="About">Sobre</span>
             </a>
 
             <a href="/configuracoes">
                 <i class="fa-solid fa-gear"></i>
-                <span>Configurações</span>
+                <span data-pt="Configurações" data-en="Settings">Configurações</span>
             </a>
 
         </nav>
-
-        <!-- 🔧 FIX 7: type="button" e rota corrigida para /RelatorioDiario -->
 
         <button
             class="btn-relatorio"
             type="button"
             onclick="location.href='/RelatorioDiario'"
+            data-pt="Relatório diário"
+            data-en="Daily report"
         >
-
             Relatório diário
-
         </button>
 
         <div class="tema">
 
             <button id="btnClaro" class="ativo" type="button">
-                <i class="fa-regular fa-sun"></i> Claro
+                <i class="fa-regular fa-sun"></i> <span data-pt="Claro" data-en="Light">Claro</span>
             </button>
             <button id="btnEscuro" type="button">
-                <i class="fa-regular fa-moon"></i> Escuro
+                <i class="fa-regular fa-moon"></i> <span data-pt="Escuro" data-en="Dark">Escuro</span>
             </button>
 
         </div>
 
-        <!-- Divisor em degradê antes do Sair (igual ao home.html) -->
         <div class="sidebar-divisor"></div>
 
-        <a
-            href="/logout"
-            class="logout"
-        >
-
+        <a href="/logout" class="logout">
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
-
-            <span>Sair</span>
-
+            <span data-pt="Sair" data-en="Log out">Sair</span>
         </a>
 
     </aside>
@@ -173,13 +142,8 @@
 
             <button class="tradutor" type="button" id="btnTraduzir">
                 <i class="fa-solid fa-language"></i>
-                <span id="textoTradutor">Traduzir para inglês</span>
+                <span id="textoTradutor">EN</span>
             </button>
-
-            <div
-                id="google_translate_element"
-                style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0);"
-            ></div>
 
             <div class="usuario">
 
@@ -190,7 +154,7 @@
                     </button>
 
                     <div class="painel-notificacoes" id="painelNotificacoes">
-                        <div class="painel-header">Notificações</div>
+                        <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
                         <div id="listaNotificacoes">
                             <div class="painel-vazio">Carregando...</div>
                         </div>
@@ -227,36 +191,22 @@
 
         </header>
 
-        <!-- Corpo com scroll interno (igual ao home.html) -->
         <div class="conteudo-corpo">
-
-        <!-- Cabeçalho com abas -->
 
         <section class="cabecalho">
 
             <div>
 
-                <h1>Relatórios</h1>
+                <h1 data-pt="Relatórios" data-en="Reports">Relatórios</h1>
 
                 <div class="abas">
 
-                    <button
-                        id="btnVisao"
-                        class="ativa"
-                        type="button"
-                    >
-
+                    <button id="btnVisao" class="ativa" type="button" data-pt="Visão geral" data-en="Overview">
                         Visão geral
-
                     </button>
 
-                    <button
-                        id="btnDiario"
-                        type="button"
-                    >
-
+                    <button id="btnDiario" type="button" data-pt="Diário" data-en="Daily">
                         Diário
-
                     </button>
 
                 </div>
@@ -275,49 +225,31 @@
         <!-- ABA — VISÃO GERAL -->
         <!-- ================================= -->
 
-        <section
-            id="abaVisao"
-            class="aba-conteudo ativa"
-        >
-
-            <!-- Cards de resumo -->
+        <section id="abaVisao" class="aba-conteudo ativa">
 
             <div class="cards-relatorio">
 
                 <div class="card">
-
-                    <h3>Alertas de estresse neste mês</h3>
-
-                    <!-- 🔧 FIX 11: Seta e comparativo vêm do backend -->
+                    <h3 data-pt="Alertas de estresse neste mês" data-en="Stress alerts this month">Alertas de estresse neste mês</h3>
                     <span id="alertasEstresse" class="valor-destaque">0</span>
-
                     <p id="comparativoAlertas">registrados este mês</p>
-
                 </div>
 
                 <div class="card">
-
-                    <h3>Tempo de estresse médio neste mês</h3>
-
+                    <h3 data-pt="Tempo de estresse médio neste mês" data-en="Average stress time this month">Tempo de estresse médio neste mês</h3>
                     <span id="tempoEstresse" class="valor-destaque">0 min</span>
-
                     <p id="comparativoTempo">por episódio</p>
-
                 </div>
 
             </div>
 
-            <!-- Linha 1 de gráficos -->
-
             <div class="linha-graficos">
-
-                <!-- Gráfico de estresse (barras) -->
 
                 <div class="grafico-card">
                     <div class="titulo-card">
                         <h2>
                             <i class="fa-solid fa-chart-bar"></i>
-                            Estresse — últimos 7 dias
+                            <span data-pt="Estresse — últimos 7 dias" data-en="Stress — last 7 days">Estresse — últimos 7 dias</span>
                         </h2>
                         <div class="btn-tipo-grafico">
                             <button type="button" class="ativo" onclick="trocarTipoEstresse('bar')" title="Barras">
@@ -331,13 +263,11 @@
                     <canvas id="graficoEstresse"></canvas>
                 </div>
 
-                <!-- Gráfico de gatilhos (rosca) -->
-
                 <div class="grafico-card">
                     <div class="titulo-card">
                         <h2>
                             <i class="fa-solid fa-circle-nodes"></i>
-                            Principais gatilhos — últimos 7 dias
+                            <span data-pt="Principais gatilhos — últimos 7 dias" data-en="Main triggers — last 7 days">Principais gatilhos — últimos 7 dias</span>
                         </h2>
                         <div class="btn-tipo-grafico">
                             <button type="button" class="ativo" onclick="trocarTipoGatilhos('doughnut')" title="Rosca">
@@ -351,7 +281,7 @@
                             </button>
                         </div>
                     </div>
-                    <p style="font-size: 0.72rem; color: #999; margin-top: -0.5rem; margin-bottom: 0.5rem;">
+                    <p style="font-size: 0.72rem; color: #999; margin-top: -0.5rem; margin-bottom: 0.5rem;" data-pt="Estimativa baseada nas respostas do relatório diário" data-en="Estimate based on daily report answers">
                         Estimativa baseada nas respostas do relatório diário
                     </p>
                     <canvas id="graficoGatilhos"></canvas>
@@ -360,15 +290,13 @@
 
             </div>
 
-            <!-- Linha 2 — Gráfico de evolução (linha) -->
-
             <div class="linha-graficos">
 
                 <div class="grafico-card grande">
                     <div class="titulo-card">
                         <h2>
                             <i class="fa-solid fa-chart-line"></i>
-                            Evolução de crises sensoriais — últimos 7 dias
+                            <span data-pt="Evolução de crises sensoriais — últimos 7 dias" data-en="Sensory crisis evolution — last 7 days">Evolução de crises sensoriais — últimos 7 dias</span>
                         </h2>
                         <div class="btn-tipo-grafico">
                             <button type="button" class="ativo" onclick="trocarTipoEvolucao('line')" title="Linha">
@@ -390,73 +318,42 @@
         <!-- ABA — DIÁRIO -->
         <!-- ================================= -->
 
-        <section
-            id="abaDiario"
-            class="aba-conteudo"
-            style="display: none;"
-        >
-
-            <!-- Cards de resumo (iguais à visão geral) -->
+        <section id="abaDiario" class="aba-conteudo" style="display: none;">
 
             <div class="cards-relatorio">
 
                 <div class="card">
-
-                    <h3>Alertas de estresse</h3>
-
+                    <h3 data-pt="Alertas de estresse" data-en="Stress alerts">Alertas de estresse</h3>
                     <span id="alertasEstresseDiario" class="valor-destaque">0</span>
-
                     <p id="comparativoAltasDiario">registrados este mês</p>
-
                 </div>
 
                 <div class="card">
-
-                    <h3>Tempo de estresse</h3>
-
+                    <h3 data-pt="Tempo de estresse" data-en="Stress time">Tempo de estresse</h3>
                     <span id="tempoEstresseDiario" class="valor-destaque">0 min</span>
-
                     <p id="comparativoTempoDiario">por episódio</p>
-
                 </div>
 
             </div>
 
-            <!-- Respostas do relatório diário -->
-
             <div class="relatorio-diario">
 
                 <div class="topo-diario">
-
-                    <h2>Respostas do relatório diário</h2>
-
+                    <h2 data-pt="Respostas do relatório diário" data-en="Daily report answers">Respostas do relatório diário</h2>
                     <p id="dataRelatorio">Carregando...</p>
-
                 </div>
 
-                <!-- 🔧 FIX 12: Lista com badges coloridos igual ao design -->
-
-                <div
-                    id="listaPerguntas"
-                    class="lista-perguntas"
-                >
-
-                    <!-- Preenchido pelo JavaScript -->
-
-                </div>
+                <div id="listaPerguntas" class="lista-perguntas"></div>
 
             </div>
 
         </section>
 
         </div>
-        <!-- /conteudo-corpo -->
 
     </main>
 
 </div>
-
-<!-- Seu <script> com toda a lógica (gráficos com Chart.js, abas, relatório diário, notificações, tradutor) continua aqui, sem alterações -->
 
 <script>
 
@@ -465,24 +362,15 @@
     // ==========================
 
     function aplicarTema(tema) {
-
         document.body.classList.remove("tema-claro", "tema-escuro");
         document.body.classList.add(`tema-${tema}`);
-
         document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
         document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
-
         localStorage.setItem("tema", tema);
-
     }
 
-    document.getElementById("btnClaro").addEventListener("click", () => {
-        aplicarTema("claro");
-    });
-
-    document.getElementById("btnEscuro").addEventListener("click", () => {
-        aplicarTema("escuro");
-    });
+    document.getElementById("btnClaro").addEventListener("click", () => aplicarTema("claro"));
+    document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
 
     const temaSalvo = localStorage.getItem("tema") || "claro";
     aplicarTema(temaSalvo);
@@ -498,23 +386,77 @@
     const abaDiario = document.getElementById("abaDiario");
 
     btnVisao.addEventListener("click", () => {
-
         btnVisao.classList.add("ativa");
         btnDiario.classList.remove("ativa");
-
         abaVisao.style.display  = "block";
         abaDiario.style.display = "none";
-
     });
 
     btnDiario.addEventListener("click", () => {
-
         btnDiario.classList.add("ativa");
         btnVisao.classList.remove("ativa");
-
         abaVisao.style.display  = "none";
         abaDiario.style.display = "block";
+    });
 
+
+    // ==========================
+    // TRADUÇÃO MANUAL
+    // ==========================
+
+    let idiomaAtual = localStorage.getItem("idioma") || "pt";
+
+    const dicionario = {
+        "registrados este mês":                "registered this month",
+        "igual ao mês passado":                 "same as last month",
+        "por episódio":                         "per episode",
+        "igual a ontem":                        "same as yesterday",
+        "registrados hoje":                     "registered today",
+        "0 min":                                "0 min",
+        "0 s":                                  "0 s",
+        "Nenhum relatório encontrado.":         "No report found.",
+        "Nenhum relatório preenchido ainda.":   "No report filled in yet.",
+        "Fazer relatório agora":                "Fill report now",
+        "Ambientes barulhentos":                "Noisy environments",
+        "Locais lotados":                       "Crowded places",
+        "Mudanças de rotina":                   "Routine changes",
+        "Texturas de alimentos":                "Food textures",
+        "Sem dados suficientes ainda":          "Not enough data yet",
+        "Dom": "Sun", "Seg": "Mon", "Ter": "Tue", "Qua": "Wed",
+        "Qui": "Thu", "Sex": "Fri", "Sáb": "Sat"
+    };
+
+    function traduzir(texto) {
+        if (idiomaAtual === "pt" || texto == null) return texto;
+        if (dicionario[texto]) return dicionario[texto];
+
+        return String(texto)
+            .replace("comparado ao mês passado", "compared to last month")
+            .replace("comparado a ontem", "compared to yesterday");
+    }
+
+    function aplicarIdiomaEstatico() {
+        document.querySelectorAll("[data-pt]").forEach(el => {
+            el.textContent = idiomaAtual === "en"
+                ? (el.dataset.en || el.dataset.pt)
+                : el.dataset.pt;
+        });
+
+        document.getElementById("textoTradutor").textContent =
+            idiomaAtual === "en" ? "PT" : "EN";
+    }
+
+    document.getElementById("btnTraduzir").addEventListener("click", () => {
+        idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+        localStorage.setItem("idioma", idiomaAtual);
+
+        aplicarIdiomaEstatico();
+
+        if (ultimosDadosRelatorio) {
+            preencherCards(ultimosDadosRelatorio);
+            renderizarGraficos(ultimosDadosRelatorio);
+            preencherDiario(ultimosDadosRelatorio);
+        }
     });
 
 
@@ -523,9 +465,7 @@
     // ==========================
 
     async function carregarUsuario() {
-
         try {
-
             const resposta = await fetch("/api/home");
 
             if (resposta.status === 401) {
@@ -548,11 +488,8 @@
             }
 
         } catch (e) {
-
             console.log("Erro ao carregar usuário:", e);
-
         }
-
     }
 
 
@@ -560,10 +497,10 @@
     // DADOS DOS RELATÓRIOS
     // ==========================
 
+    let ultimosDadosRelatorio = null;
+
     async function carregarRelatorios() {
-
         try {
-
             const resposta = await fetch("/api/relatorios");
 
             if (resposta.status === 401) {
@@ -577,26 +514,21 @@
             }
 
             const dados = await resposta.json();
+            ultimosDadosRelatorio = dados;
 
             preencherCards(dados);
             renderizarGraficos(dados);
             preencherDiario(dados);
 
         } catch (e) {
-
             console.log("Erro ao carregar relatórios:", e);
-
             usarDadosExemplo();
-
         }
-
     }
 
-    // Dados de exemplo enquanto o backend não tem dados reais
     function usarDadosExemplo() {
 
         const dadosExemplo = {
-
             alertas: 18,
             comparativoAlertas: "↓ 2 comparado ao mês passado",
             tempo: "120 min",
@@ -632,8 +564,9 @@
                 { pergunta: "Houve algum fator que causou desconforto?",    resposta: "Barulho"    },
                 { pergunta: "Como foi o comportamento geral?",              resposta: "Tranquilo"  }
             ]
-
         };
+
+        ultimosDadosRelatorio = dadosExemplo;
 
         preencherCards(dadosExemplo);
         renderizarGraficos(dadosExemplo);
@@ -652,25 +585,25 @@
             dados.alertas ?? 0;
 
         document.getElementById("comparativoAlertas").textContent =
-            dados.comparativoAlertas || "registrados este mês";
+            traduzir(dados.comparativoAlertas || "registrados este mês");
 
         document.getElementById("tempoEstresse").textContent =
             dados.tempo || "0 min";
 
         document.getElementById("comparativoTempo").textContent =
-            dados.comparativoTempo || "por episódio";
+            traduzir(dados.comparativoTempo || "por episódio");
 
         document.getElementById("alertasEstresseDiario").textContent =
             dados.alertasHoje ?? 0;
 
         document.getElementById("comparativoAltasDiario").textContent =
-            dados.comparativoAlertasDiario || "registrados hoje";
+            traduzir(dados.comparativoAlertasDiario || "registrados hoje");
 
         document.getElementById("tempoEstresseDiario").textContent =
             dados.tempoDiario || "0 min";
 
         document.getElementById("comparativoTempoDiario").textContent =
-            dados.comparativoTempo || "por episódio";
+            traduzir(dados.comparativoTempo || "por episódio");
 
     }
 
@@ -702,10 +635,6 @@
 
     }
 
-    // ===========================
-    // Gráfico de barras/linha — Estresse
-    // ===========================
-
     function criarGraficoEstresse(tipo) {
 
         if (graficos.estresse) {
@@ -714,6 +643,7 @@
 
         const ctx = document.getElementById("graficoEstresse").getContext("2d");
         const dadosArr = dadosEstresseGlobal?.dados || [];
+        const labelsArr = (dadosEstresseGlobal?.labels || []).map(traduzir);
 
         const cores = dadosArr.map(v =>
             v === Math.max(...dadosArr) ? "#E53E3E" :
@@ -727,7 +657,7 @@
         graficos.estresse = new Chart(ctx, {
             type: tipo,
             data: {
-                labels: dadosEstresseGlobal?.labels || [],
+                labels: labelsArr,
                 datasets: [{
                     label:           "Alertas",
                     data:            dadosArr,
@@ -760,10 +690,6 @@
         atualizarBotoesTipo("graficoEstresse", tipo, iconePorTipo);
     }
 
-    // ===========================
-    // Gráfico de rosca/pizza/barras — Gatilhos
-    // ===========================
-
     function criarGraficoGatilhos(tipo) {
 
         if (graficos.gatilhos) {
@@ -771,6 +697,7 @@
         }
 
         const gatilhos = dadosGatilhosGlobal || { labels: [], dados: [], cores: [] };
+        const labelsArr = (gatilhos.labels || []).map(traduzir);
         const legenda  = document.getElementById("legendaGatilhos");
         const ehRosca  = tipo === "doughnut" || tipo === "pie";
 
@@ -779,7 +706,7 @@
         graficos.gatilhos = new Chart(ctx, {
             type: tipo,
             data: {
-                labels: gatilhos.labels,
+                labels: labelsArr,
                 datasets: [{
                     data:            gatilhos.dados,
                     backgroundColor: gatilhos.cores || [VERDE, AZUL, "#1D8EC9", "#C2C2C2"],
@@ -808,7 +735,7 @@
                     legenda.innerHTML += `
                         <div class="legenda-item">
                             <span class="legenda-cor" style="background:${gatilhos.cores[i] || VERDE}"></span>
-                            <span>${label} ${gatilhos.dados[i]}%</span>
+                            <span>${traduzir(label)} ${gatilhos.dados[i]}%</span>
                         </div>
                     `;
                 });
@@ -825,10 +752,6 @@
         atualizarBotoesTipo("graficoGatilhos", tipo, iconePorTipo);
     }
 
-    // ===========================
-    // Gráfico de linha/barras — Evolução
-    // ===========================
-
     function criarGraficoEvolucao(tipo) {
 
         if (graficos.evolucao) {
@@ -837,6 +760,7 @@
 
         const ctx = document.getElementById("graficoEvolucao").getContext("2d");
         const dadosArr = dadosEvolucaoGlobal?.dados || [];
+        const labelsArr = (dadosEvolucaoGlobal?.labels || []).map(traduzir);
 
         const gradiente = ctx.createLinearGradient(0, 0, 0, 300);
         gradiente.addColorStop(0, "rgba(50, 194, 109, 0.35)");
@@ -845,7 +769,7 @@
         graficos.evolucao = new Chart(ctx, {
             type: tipo,
             data: {
-                labels: dadosEvolucaoGlobal?.labels || [],
+                labels: labelsArr,
                 datasets: [{
                     label:           "Crises sensoriais",
                     data:            dadosArr,
@@ -878,10 +802,6 @@
         atualizarBotoesTipo("graficoEvolucao", tipo, iconePorTipo);
     }
 
-    // ===========================
-    // Atualizar botão ativo (compartilhado pelos 3 gráficos)
-    // ===========================
-
     function atualizarBotoesTipo(canvasId, tipoAtivo, iconePorTipo) {
 
         const card   = document.getElementById(canvasId).closest(".grafico-card");
@@ -901,68 +821,26 @@
 
 
     // ==========================
-    // TRADUÇÃO
-    // ==========================
-
-    function lerCookie(nome) {
-        const valor = `; ${document.cookie}`;
-        const partes = valor.split(`; ${nome}=`);
-        if (partes.length === 2) return partes.pop().split(";").shift();
-        return null;
-    }
-
-    function definirCookieTraducao(destino) {
-        document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
-        document.cookie = `googtrans=; path=/; domain=${location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
-
-        if (destino) {
-            const valor = `/pt/${destino}`;
-            document.cookie = `googtrans=${valor}; path=/`;
-            document.cookie = `googtrans=${valor}; path=/; domain=${location.hostname}`;
-        }
-    }
-
-    function iniciarTradutor() {
-        new google.translate.TranslateElement(
-            { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
-            "google_translate_element"
-        );
-    }
-
-    function atualizarTextoBotaoTraducao() {
-        const cookieAtual = lerCookie("googtrans");
-        const textoBotao = document.getElementById("textoTradutor");
-        textoBotao.textContent = (cookieAtual && cookieAtual.includes("/en"))
-            ? "Voltar para português"
-            : "Traduzir para inglês";
-    }
-
-    document.getElementById("btnTraduzir").addEventListener("click", () => {
-        const cookieAtual = lerCookie("googtrans");
-        const estaTraduzido = cookieAtual && cookieAtual.includes("/en");
-        definirCookieTraducao(estaTraduzido ? null : "en");
-        window.location.reload();
-    });
-
-
-    // ==========================
     // PREENCHER ABA DIÁRIO
     // ==========================
 
     function preencherDiario(dados) {
 
         document.getElementById("dataRelatorio").textContent =
-            dados.dataRelatorio || "Nenhum relatório encontrado.";
+            traduzir(dados.dataRelatorio || "Nenhum relatório encontrado.");
 
         const lista = document.getElementById("listaPerguntas");
         lista.innerHTML = "";
 
         if (!dados.perguntas || dados.perguntas.length === 0) {
 
+            const textoVazio = traduzir("Nenhum relatório preenchido ainda.");
+            const textoLink  = traduzir("Fazer relatório agora");
+
             lista.innerHTML = `
                 <p class="sem-dados">
-                    Nenhum relatório preenchido ainda.
-                    <a href="/RelatorioDiario">Fazer relatório agora</a>
+                    ${textoVazio}
+                    <a href="/RelatorioDiario">${textoLink}</a>
                 </p>
             `;
 
@@ -1059,13 +937,12 @@
     // INICIALIZAÇÃO
     // ==========================
 
+    aplicarIdiomaEstatico();
     carregarUsuario();
     carregarRelatorios();
-    atualizarTextoBotaoTraducao();
     carregarNotificacoes();
 
 </script>
-
 
 <script src="/js/tema.js"></script>
 
