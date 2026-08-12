@@ -67,46 +67,23 @@
             <nav>
 
                 <a href="/home">
-
                     <i class="fa-solid fa-house"></i>
-
                     <span>Início</span>
-
                 </a>
 
                 <a href="/relatorios">
-
                     <i class="fa-solid fa-chart-line"></i>
-
                     <span>Relatórios</span>
-
-                </a>
-
-                <a
-                    href="/perfil"
-                    class="ativo"
-                >
-
-                    <i class="fa-solid fa-user"></i>
-
-                    <span>Perfil</span>
-
-                </a>
-
-                <a href="/configuracoes">
-
-                    <i class="fa-solid fa-gear"></i>
-
-                    <span>Configurações</span>
-
                 </a>
 
                 <a href="/sobre">
-
                     <i class="fa-solid fa-circle-info"></i>
-
                     <span>Sobre</span>
+                </a>
 
+                <a href="/configuracoes">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Configurações</span>
                 </a>
 
             </nav>
@@ -208,19 +185,13 @@
                         onerror="this.src='/img/perfilPadrao.png'"
                     >
 
-                    <div>
-
-                        <h3 id="nomeUsuario">
-
-                            Carregando...
-
-                        </h3>
-
-                        <span id="tipoConta">
-
-                            ...
-
-                        </span>
+                    <div
+                        style="cursor:pointer;"
+                        onclick="window.location.href='/perfil'"
+                        title="Ver perfil"
+                    >
+                        <h3 id="nomeUsuario">Carregando...</h3>
+                        <span id="tipoConta">...</span>
 
                     </div>
 

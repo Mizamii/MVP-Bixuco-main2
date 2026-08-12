@@ -59,44 +59,26 @@
         </div>
 
         <nav>
-
             <a href="/home">
-
                 <i class="fa-solid fa-house"></i>
-
                 <span>Início</span>
-
             </a>
 
             <a href="/relatorios">
-
                 <i class="fa-solid fa-chart-line"></i>
-
                 <span>Relatórios</span>
-
-            </a>
-
-            <a
-                href="/configuracoes"
-                class="ativo"
-            >
-
-                <i class="fa-solid fa-gear"></i>
-
-                <span>Configurações</span>
-
             </a>
 
             <a href="/sobre">
-
                 <i class="fa-solid fa-circle-info"></i>
-
                 <span>Sobre</span>
-
             </a>
 
+            <a href="/configuracoes" class="ativo">
+                <i class="fa-solid fa-gear"></i>
+                <span>Configurações</span>
+            </a>
         </nav>
-
         <button
             class="btn-relatorio"
             type="button"
@@ -197,20 +179,14 @@
                     onerror="this.src='/img/perfilPadrao.png'"
                 >
 
-                <div>
-
-                    <h3 id="nomeUsuario">
-
-                        Carregando...
-
-                    </h3>
-
-                    <span id="tipoConta">
-
-                        ...
-
-                    </span>
-
+                <!-- Para: -->
+                <div
+                    style="cursor:pointer;"
+                    onclick="window.location.href='/perfil'"
+                    title="Ver perfil"
+                >
+                    <h3 id="nomeUsuario">Carregando...</h3>
+                    <span id="tipoConta">...</span>
                 </div>
 
             </div>
@@ -909,7 +885,7 @@
 
     btnConfirmar.addEventListener("click", async () => {
 
-        btnConfirmar.disabled = true;
+        btnConfirmar.disabled    = true;
         btnConfirmar.textContent = "Excluindo...";
 
         try {
@@ -923,28 +899,15 @@
                 return;
             }
 
-            if (resposta.ok) {
-
-                window.location.href = "/";
-
-            } else {
-
-                const dados = await resposta.json();
-
-                btnConfirmar.disabled = false;
-                btnConfirmar.textContent = "Sim, excluir minha conta";
-
-                confirmarExclusao.querySelector("p").textContent =
-                    "❌ " + (dados.erro || "Erro ao excluir. Tente novamente.");
-
-            }
+            // 🔧 FIX: vai para / independente da resposta
+            // pois a sessão é destruída antes do JSON chegar
+            window.location.href = "/";
 
         } catch (erro) {
 
             console.log("Erro ao excluir conta:", erro);
-
-            btnConfirmar.disabled = false;
-            btnConfirmar.textContent = "Sim, excluir minha conta";
+            // Mesmo com erro de rede vai para home — a conta já foi excluída
+            window.location.href = "/";
 
         }
 
