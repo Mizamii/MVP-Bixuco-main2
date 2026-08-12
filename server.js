@@ -1512,12 +1512,14 @@ app.post("/continuar-cadastro-pai", (req, res) => {
         cpfUser,
         dataNascimento,
         cep,
+        rua,
+        numero,
+        complemento,
         cidade,
         estado,
         bairro
     } = req.body;
 
-    // Salva os dados na sessão para usar na etapa final do cadastro
     req.session.cadastro = {
 
         tipo: "pai",
@@ -1528,14 +1530,15 @@ app.post("/continuar-cadastro-pai", (req, res) => {
         cpfUser,
         dataNascimento,
         cep,
+        rua,
+        numero,
+        complemento,
         cidade,
         estado,
         bairro
 
     };
 
-    // Como o frontend usa fetch e trata resposta.redirected,
-    // o redirect funciona normalmente aqui
     res.redirect("/CriarContaSenha");
 
 });
@@ -2164,11 +2167,12 @@ app.post("/cadastro-finalizar", async (req, res) => {
                 const atualizado = await db.query(
                     `UPDATE usuarios
                     SET nome=$1, cpf=$2, senha=$3, data_nascimento=$4, tipo='pai',
-                        cep=$5, cidade=$6, estado=$7, bairro=$8, novo_usuario=FALSE
-                    WHERE id=$9
+                        cep=$5, rua=$6, numero=$7, complemento=$8, cidade=$9, estado=$10, bairro=$11, novo_usuario=FALSE
+                    WHERE id=$12
                     RETURNING id, tipo`,
                     [dados.nome, dados.cpfUser, senhaHash, dados.dataNascimento,
-                    dados.cep, dados.cidade, dados.estado, dados.bairro, contaPendente.id]
+                    dados.cep, dados.rua, dados.numero, dados.complemento,
+                    dados.cidade, dados.estado, dados.bairro, contaPendente.id]
                 );
 
                 delete req.session.cadastro;
@@ -2191,8 +2195,8 @@ app.post("/cadastro-finalizar", async (req, res) => {
 
             const novoUsuario = await db.query(
                 `INSERT INTO usuarios
-                (nome, email, cpf, senha, data_nascimento, tipo, cep, cidade, estado, bairro)
-                VALUES ($1,$2,$3,$4,$5,'pai',$6,$7,$8,$9)
+                (nome, email, cpf, senha, data_nascimento, tipo, cep, rua, numero, complemento, cidade, estado, bairro)
+                VALUES ($1,$2,$3,$4,$5,'pai',$6,$7,$8,$9,$10,$11,$12)
                 RETURNING id, tipo`,
                 [
                     dados.nome,
@@ -2201,6 +2205,9 @@ app.post("/cadastro-finalizar", async (req, res) => {
                     senhaHash,
                     dados.dataNascimento,
                     dados.cep,
+                    dados.rua,
+                    dados.numero,
+                    dados.complemento,
                     dados.cidade,
                     dados.estado,
                     dados.bairro
