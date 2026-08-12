@@ -147,7 +147,7 @@
                 <div
                     class="card-plano"
                     id="cardMedio"
-                    onclick="selecionarPlano('medio', this)"
+                    onclick="selecionarPlano('economico', this)"
                 >
                     <h2 class="plano-preco plano-preco--verde">R$ 29<span>/mês</span></h2>
 
@@ -167,7 +167,7 @@
                 <div
                     class="card-plano"
                     id="cardCompleto"
-                    onclick="selecionarPlano('completo', this)"
+                    onclick="selecionarPlano('premium', this)"
                 >
                     <h2 class="plano-preco plano-preco--verde">R$ 55<span>/mês</span></h2>
 
@@ -294,7 +294,7 @@
 
         try {
 
-            const resposta = await fetch("/api/planos/assinar", {
+            const resposta = await fetch("/api/planos/atualizar", {
                 method:  "POST",
                 headers: { "Content-Type": "application/json" },
                 body:    JSON.stringify({ plano: planoSelecionado })
