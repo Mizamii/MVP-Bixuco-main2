@@ -263,7 +263,7 @@ async function verificarPlano(req, res, next) {
         );
 
         req.plano = resultado.rows.length > 0 
-            ? resultado.rows[0].nome_plano 
+            ? resultado.rows[0].nome_plano.toLowerCase() 
             : 'gratuito';
 
         next();
