@@ -42,6 +42,43 @@
         href="/css/relatorios.css"
     >
 
+    <style>
+        .titulo-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .btn-tipo-grafico {
+            display: flex;
+            gap: 4px;
+        }
+
+        .btn-tipo-grafico button {
+            background: #F5F7FA;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 6px 10px;
+            cursor: pointer;
+            color: #5A5A5A;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .btn-tipo-grafico button:hover {
+            background: #E2F0D9;
+            border-color: #32C26D;
+            color: #32C26D;
+        }
+
+        .btn-tipo-grafico button.ativo {
+            background: #32C26D;
+            border-color: #32C26D;
+            color: white;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -277,44 +314,48 @@
                 <!-- Gráfico de estresse (barras) -->
 
                 <div class="grafico-card">
-
-                    <h2>
-
-                        <i class="fa-solid fa-chart-bar"></i>
-
-                        Estresse — últimos 7 dias
-
-                    </h2>
-
+                    <div class="titulo-card">
+                        <h2>
+                            <i class="fa-solid fa-chart-bar"></i>
+                            Estresse — últimos 7 dias
+                        </h2>
+                        <div class="btn-tipo-grafico">
+                            <button type="button" class="ativo" onclick="trocarTipoEstresse('bar')" title="Barras">
+                                <i class="fa-solid fa-chart-column"></i>
+                            </button>
+                            <button type="button" onclick="trocarTipoEstresse('line')" title="Linha">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </button>
+                        </div>
+                    </div>
                     <canvas id="graficoEstresse"></canvas>
-
                 </div>
 
                 <!-- Gráfico de gatilhos (rosca) -->
 
                 <div class="grafico-card">
-
-                    <h2>
-
-                        <i class="fa-solid fa-circle-nodes"></i>
-
-                        Principais gatilhos — últimos 7 dias
-
-                    </h2>
-
+                    <div class="titulo-card">
+                        <h2>
+                            <i class="fa-solid fa-circle-nodes"></i>
+                            Principais gatilhos — últimos 7 dias
+                        </h2>
+                        <div class="btn-tipo-grafico">
+                            <button type="button" class="ativo" onclick="trocarTipoGatilhos('doughnut')" title="Rosca">
+                                <i class="fa-solid fa-circle-dot"></i>
+                            </button>
+                            <button type="button" onclick="trocarTipoGatilhos('pie')" title="Pizza">
+                                <i class="fa-solid fa-chart-pie"></i>
+                            </button>
+                            <button type="button" onclick="trocarTipoGatilhos('bar')" title="Barras">
+                                <i class="fa-solid fa-chart-column"></i>
+                            </button>
+                        </div>
+                    </div>
                     <p style="font-size: 0.72rem; color: #999; margin-top: -0.5rem; margin-bottom: 0.5rem;">
                         Estimativa baseada nas respostas do relatório diário
                     </p>
-
                     <canvas id="graficoGatilhos"></canvas>
-
-                    <!-- Legenda do gráfico de rosca -->
-
-                    <div
-                        id="legendaGatilhos"
-                        class="legenda-rosca"
-                    ></div>
-
+                    <div id="legendaGatilhos" class="legenda-rosca"></div>
                 </div>
 
             </div>
@@ -324,17 +365,21 @@
             <div class="linha-graficos">
 
                 <div class="grafico-card grande">
-
-                    <h2>
-
-                        <i class="fa-solid fa-chart-line"></i>
-
-                        Evolução de crises sensoriais — últimos 7 dias
-
-                    </h2>
-
+                    <div class="titulo-card">
+                        <h2>
+                            <i class="fa-solid fa-chart-line"></i>
+                            Evolução de crises sensoriais — últimos 7 dias
+                        </h2>
+                        <div class="btn-tipo-grafico">
+                            <button type="button" class="ativo" onclick="trocarTipoEvolucao('line')" title="Linha">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </button>
+                            <button type="button" onclick="trocarTipoEvolucao('bar')" title="Barras">
+                                <i class="fa-solid fa-chart-column"></i>
+                            </button>
+                        </div>
+                    </div>
                     <canvas id="graficoEvolucao"></canvas>
-
                 </div>
 
             </div>
