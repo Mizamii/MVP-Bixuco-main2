@@ -164,13 +164,13 @@ const PLANOS_MP = {
         nome:       "Plano Médio Bixuco",
         preco:      29.00,
         planId:     process.env.MP_PLAN_ID_MEDIO    || null,
-        nomeBanco:  "Médio"
+        nomeBanco:  "economico"
     },
     completo: {
         nome:       "Plano Completo Bixuco",
         preco:      55.00,
         planId:     process.env.MP_PLAN_ID_COMPLETO || null,
-        nomeBanco:  "Completo"
+        nomeBanco:  "premium"
     }
 };
 
@@ -644,8 +644,8 @@ app.post("/api/planos/assinar", estaLogado, async (req, res) => {
 
             const nomesPorPlano = {
                 gratis:   "Grátis",
-                medio:    "Médio",
-                completo: "Completo"
+                medio:    "economico",
+                completo: "premium"
             };
 
             const nomePlano = nomesPorPlano[plano];
@@ -688,7 +688,7 @@ app.post("/api/planos/assinar", estaLogado, async (req, res) => {
 
             await db.query(
                 `INSERT INTO assinaturas (usuario_id, nome_plano, ativo)
-                 VALUES ($1, 'Grátis', TRUE)`,
+                 VALUES ($1, 'gratis', TRUE)`,
                 [usuarioId]
             );
 
@@ -931,7 +931,7 @@ async function verificarPlano(req, res, next) {
 // Bloqueia rotas para usuários sem o plano mínimo necessário
 function precisaPlano(planoMinimo) {
 
-    const hierarquia = { "Grátis": 0, "Médio": 1, "Completo": 2, "terapeuta": 99 };
+    const hierarquia = { "gratis": 0, "economico": 1, "premium": 2, "terapeuta": 99 };
 
     return async (req, res, next) => {
         await verificarPlano(req, res, async () => {
