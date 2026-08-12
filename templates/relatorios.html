@@ -460,13 +460,10 @@
 
 <script>
 
-    
-
     // ==========================
     // TEMA
     // ==========================
 
-    // 🔧 FIX 4 + 5: IDs padronizados e tema persistindo com localStorage
     function aplicarTema(tema) {
 
         document.body.classList.remove("tema-claro", "tema-escuro");
@@ -529,10 +526,8 @@
 
         try {
 
-            // 🔧 FIX 1: Rota corrigida de /usuario para /api/home
             const resposta = await fetch("/api/home");
 
-            // 🔧 FIX 8: Redireciona para login se não autenticado
             if (resposta.status === 401) {
                 window.location.href = "/logar";
                 return;
@@ -569,7 +564,6 @@
 
         try {
 
-            // 🔧 FIX 2: Rota /api/relatorios criada no backend
             const resposta = await fetch("/api/relatorios");
 
             if (resposta.status === 401) {
@@ -592,7 +586,6 @@
 
             console.log("Erro ao carregar relatórios:", e);
 
-            // Mostra dados de exemplo se o backend não responder
             usarDadosExemplo();
 
         }
@@ -605,17 +598,15 @@
         const dadosExemplo = {
 
             alertas: 18,
-            comparativoAlertas: "↓ 2 comparado a semana passada",
+            comparativoAlertas: "↓ 2 comparado ao mês passado",
             tempo: "120 min",
-            comparativoTempo: "↑ 1 min comparado a semana passada",
+            comparativoTempo: "↑ 1 min comparado ao mês passado",
 
-            // Dados para o gráfico de barras (estresse por dia)
             graficoEstresse: {
                 labels: ["Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui"],
                 dados:  [3, 2, 5, 7, 8, 4, 2]
             },
 
-            // Dados para o gráfico de rosca (gatilhos)
             graficoGatilhos: {
                 labels: [
                     "Ambientes barulhentos",
@@ -627,13 +618,11 @@
                 cores:  ["#32C26D", "#0AB7FB", "#1D8EC9", "#C2C2C2"]
             },
 
-            // Dados para o gráfico de linha (evolução)
             graficoEvolucao: {
                 labels: ["Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui"],
                 dados:  [2, 3, 4, 5, 8, 4, 2]
             },
 
-            // Respostas do último relatório diário
             dataRelatorio: "Hoje, 05 de julho de 2026",
             perguntas: [
                 { pergunta: "Como a criança se sentiu hoje?",              resposta: "Feliz"      },
@@ -659,7 +648,6 @@
 
     function preencherCards(dados) {
 
-        // Visão geral
         document.getElementById("alertasEstresse").textContent =
             dados.alertas ?? 0;
 
@@ -672,7 +660,6 @@
         document.getElementById("comparativoTempo").textContent =
             dados.comparativoTempo || "por episódio";
 
-        // Diário (mesmos valores)
         document.getElementById("alertasEstresseDiario").textContent =
             dados.alertasHoje ?? 0;
 
@@ -692,12 +679,13 @@
     // GRÁFICOS COM CHART.JS
     // ==========================
 
-    // 🔧 FIX 9: Gráficos reais com Chart.js — antes os <canvas> não renderizavam nada
-
     let graficos = {};
-    let dadosEstresseGlobal  = null;
-    let dadosGatilhosGlobal  = null;
-    let dadosEvolucaoGlobal  = null;
+    let dadosEstresseGlobal = null;
+    let dadosGatilhosGlobal = null;
+    let dadosEvolucaoGlobal = null;
+
+    const VERDE = "#32C26D";
+    const AZUL  = "#0AB7FB";
 
     function renderizarGraficos(dados) {
 
@@ -705,198 +693,216 @@
         dadosGatilhosGlobal = dados.graficoGatilhos;
         dadosEvolucaoGlobal = dados.graficoEvolucao;
 
-        // Destrói gráficos anteriores se existirem (evita duplicatas ao recarregar)
         Object.values(graficos).forEach(g => g.destroy());
         graficos = {};
 
-        // Cores da Bixuco
-        const VERDE  = "#32C26D";
-        const AZUL   = "#0AB7FB";
-        const VERDE2 = "#79D836";
-
-        // ===========================
-        // Gráfico de barras — Estresse
-        // ===========================
-
         criarGraficoEstresse("bar");
-
-        function criarGraficoEstresse(tipo) {
-
-            if (graficos.estresse) {
-                graficos.estresse.destroy();
-            }
-
-            const ctx = document.getElementById("graficoEstresse").getContext("2d");
-            const dadosArr = dadosEstresseGlobal?.dados || [];
-
-            const cores = dadosArr.map(v =>
-                v === Math.max(...dadosArr) ? "#E53E3E" :
-                v > 5 ? "#F6AD55" : VERDE
-            );
-
-            const gradiente = ctx.createLinearGradient(0, 0, 0, 300);
-            gradiente.addColorStop(0, "rgba(50, 194, 109, 0.35)");
-            gradiente.addColorStop(1, "rgba(50, 194, 109, 0)");
-
-            graficos.estresse = new Chart(ctx, {
-                type: tipo,
-                data: {
-                    labels: dadosEstresseGlobal?.labels || [],
-                    datasets: [{
-                        label:           "Alertas",
-                        data:            dadosArr,
-                        backgroundColor: tipo === "line" ? gradiente : cores,
-                        borderColor:     tipo === "line" ? VERDE : cores,
-                        borderWidth:     tipo === "line" ? 2.5 : 0,
-                        borderRadius:    tipo === "bar" ? 6 : 0,
-                        pointBackgroundColor: tipo === "line"
-                            ? dadosArr.map(v => v === Math.max(...dadosArr) ? "#E53E3E" : VERDE)
-                            : undefined,
-                        pointRadius: tipo === "line" ? 5 : undefined,
-                        tension:     tipo === "line" ? 0.4 : undefined,
-                        fill:        tipo === "line" ? true : false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { beginAtZero: true, ticks: { stepSize: 2 } }
-                    }
-                }
-            });
-        }
-
-        function trocarTipoEstresse(tipo) {
-            criarGraficoEstresse(tipo);
-            const iconePorTipo = { bar: "fa-chart-column", line: "fa-chart-line" };
-            atualizarBotoesTipo("graficoEstresse", tipo, iconePorTipo);
-        }
-
-        // ===========================
-        // Gráfico de rosca — Gatilhos
-        // ===========================
-
         criarGraficoGatilhos("doughnut");
-
-        function criarGraficoGatilhos(tipo) {
-
-            if (graficos.gatilhos) {
-                graficos.gatilhos.destroy();
-            }
-
-            const gatilhos = dadosGatilhosGlobal || { labels: [], dados: [], cores: [] };
-            const legenda  = document.getElementById("legendaGatilhos");
-            const ehRosca  = tipo === "doughnut" || tipo === "pie";
-
-            const ctx = document.getElementById("graficoGatilhos").getContext("2d");
-
-            graficos.gatilhos = new Chart(ctx, {
-                type: tipo,
-                data: {
-                    labels: gatilhos.labels,
-                    datasets: [{
-                        data:            gatilhos.dados,
-                        backgroundColor: gatilhos.cores || [VERDE, AZUL, "#1D8EC9", "#C2C2C2"],
-                        borderWidth:     0,
-                        hoverOffset:     8,
-                        borderRadius:    tipo === "bar" ? 6 : 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: tipo === "doughnut" ? "65%" : 0,
-                    plugins: {
-                        legend: { display: tipo === "bar" ? true : false }
-                    },
-                    scales: tipo === "bar"
-                        ? { y: { beginAtZero: true } }
-                        : {}
-                }
-            });
-
-            if (legenda) {
-                if (ehRosca) {
-                    legenda.innerHTML = "";
-                    gatilhos.labels.forEach((label, i) => {
-                        legenda.innerHTML += `
-                            <div class="legenda-item">
-                                <span class="legenda-cor" style="background:${gatilhos.cores[i] || VERDE}"></span>
-                                <span>${label} ${gatilhos.dados[i]}%</span>
-                            </div>
-                        `;
-                    });
-                    legenda.style.display = "flex";
-                } else {
-                    legenda.style.display = "none";
-                }
-            }
-        }
-
-        function trocarTipoGatilhos(tipo) {
-            criarGraficoGatilhos(tipo);
-            const iconePorTipo = { doughnut: "fa-circle-dot", pie: "fa-chart-pie", bar: "fa-chart-column" };
-            atualizarBotoesTipo("graficoGatilhos", tipo, iconePorTipo);
-        }
-
-        // ===========================
-        // Gráfico de linha — Evolução
-        // ===========================
-
         criarGraficoEvolucao("line");
 
-        function criarGraficoEvolucao(tipo) {
-
-            if (graficos.evolucao) {
-                graficos.evolucao.destroy();
-            }
-
-            const ctx = document.getElementById("graficoEvolucao").getContext("2d");
-            const dadosArr = dadosEvolucaoGlobal?.dados || [];
-
-            const gradiente = ctx.createLinearGradient(0, 0, 0, 300);
-            gradiente.addColorStop(0, "rgba(50, 194, 109, 0.35)");
-            gradiente.addColorStop(1, "rgba(50, 194, 109, 0)");
-
-            graficos.evolucao = new Chart(ctx, {
-                type: tipo,
-                data: {
-                    labels: dadosEvolucaoGlobal?.labels || [],
-                    datasets: [{
-                        label:           "Crises sensoriais",
-                        data:            dadosArr,
-                        borderColor:     VERDE,
-                        backgroundColor: tipo === "line" ? gradiente : VERDE,
-                        borderWidth:     tipo === "line" ? 2.5 : 0,
-                        borderRadius:    tipo === "bar" ? 6 : 0,
-                        pointBackgroundColor: tipo === "line"
-                            ? dadosArr.map(v => v === Math.max(...dadosArr) ? "#E53E3E" : VERDE)
-                            : undefined,
-                        pointRadius: tipo === "line" ? 5 : undefined,
-                        tension:     tipo === "line" ? 0.4 : undefined,
-                        fill:        tipo === "line" ? true : false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { beginAtZero: true, ticks: { stepSize: 2 } }
-                    }
-                }
-            });
-        }
-
-        function trocarTipoEvolucao(tipo) {
-            criarGraficoEvolucao(tipo);
-            const iconePorTipo = { line: "fa-chart-line", bar: "fa-chart-column" };
-            atualizarBotoesTipo("graficoEvolucao", tipo, iconePorTipo);
-        }
-
     }
+
+    // ===========================
+    // Gráfico de barras/linha — Estresse
+    // ===========================
+
+    function criarGraficoEstresse(tipo) {
+
+        if (graficos.estresse) {
+            graficos.estresse.destroy();
+        }
+
+        const ctx = document.getElementById("graficoEstresse").getContext("2d");
+        const dadosArr = dadosEstresseGlobal?.dados || [];
+
+        const cores = dadosArr.map(v =>
+            v === Math.max(...dadosArr) ? "#E53E3E" :
+            v > 5 ? "#F6AD55" : VERDE
+        );
+
+        const gradiente = ctx.createLinearGradient(0, 0, 0, 300);
+        gradiente.addColorStop(0, "rgba(50, 194, 109, 0.35)");
+        gradiente.addColorStop(1, "rgba(50, 194, 109, 0)");
+
+        graficos.estresse = new Chart(ctx, {
+            type: tipo,
+            data: {
+                labels: dadosEstresseGlobal?.labels || [],
+                datasets: [{
+                    label:           "Alertas",
+                    data:            dadosArr,
+                    backgroundColor: tipo === "line" ? gradiente : cores,
+                    borderColor:     tipo === "line" ? VERDE : cores,
+                    borderWidth:     tipo === "line" ? 2.5 : 0,
+                    borderRadius:    tipo === "bar" ? 6 : 0,
+                    pointBackgroundColor: tipo === "line"
+                        ? dadosArr.map(v => v === Math.max(...dadosArr) ? "#E53E3E" : VERDE)
+                        : undefined,
+                    pointRadius: tipo === "line" ? 5 : undefined,
+                    tension:     tipo === "line" ? 0.4 : undefined,
+                    fill:        tipo === "line" ? true : false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 2 } }
+                }
+            }
+        });
+    }
+
+    function trocarTipoEstresse(tipo) {
+        criarGraficoEstresse(tipo);
+        const iconePorTipo = { bar: "fa-chart-column", line: "fa-chart-line" };
+        atualizarBotoesTipo("graficoEstresse", tipo, iconePorTipo);
+    }
+
+    // ===========================
+    // Gráfico de rosca/pizza/barras — Gatilhos
+    // ===========================
+
+    function criarGraficoGatilhos(tipo) {
+
+        if (graficos.gatilhos) {
+            graficos.gatilhos.destroy();
+        }
+
+        const gatilhos = dadosGatilhosGlobal || { labels: [], dados: [], cores: [] };
+        const legenda  = document.getElementById("legendaGatilhos");
+        const ehRosca  = tipo === "doughnut" || tipo === "pie";
+
+        const ctx = document.getElementById("graficoGatilhos").getContext("2d");
+
+        graficos.gatilhos = new Chart(ctx, {
+            type: tipo,
+            data: {
+                labels: gatilhos.labels,
+                datasets: [{
+                    data:            gatilhos.dados,
+                    backgroundColor: gatilhos.cores || [VERDE, AZUL, "#1D8EC9", "#C2C2C2"],
+                    borderWidth:     0,
+                    hoverOffset:     8,
+                    borderRadius:    tipo === "bar" ? 6 : 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: tipo === "doughnut" ? "65%" : 0,
+                plugins: {
+                    legend: { display: tipo === "bar" ? true : false }
+                },
+                scales: tipo === "bar"
+                    ? { y: { beginAtZero: true } }
+                    : {}
+            }
+        });
+
+        if (legenda) {
+            if (ehRosca) {
+                legenda.innerHTML = "";
+                gatilhos.labels.forEach((label, i) => {
+                    legenda.innerHTML += `
+                        <div class="legenda-item">
+                            <span class="legenda-cor" style="background:${gatilhos.cores[i] || VERDE}"></span>
+                            <span>${label} ${gatilhos.dados[i]}%</span>
+                        </div>
+                    `;
+                });
+                legenda.style.display = "flex";
+            } else {
+                legenda.style.display = "none";
+            }
+        }
+    }
+
+    function trocarTipoGatilhos(tipo) {
+        criarGraficoGatilhos(tipo);
+        const iconePorTipo = { doughnut: "fa-circle-dot", pie: "fa-chart-pie", bar: "fa-chart-column" };
+        atualizarBotoesTipo("graficoGatilhos", tipo, iconePorTipo);
+    }
+
+    // ===========================
+    // Gráfico de linha/barras — Evolução
+    // ===========================
+
+    function criarGraficoEvolucao(tipo) {
+
+        if (graficos.evolucao) {
+            graficos.evolucao.destroy();
+        }
+
+        const ctx = document.getElementById("graficoEvolucao").getContext("2d");
+        const dadosArr = dadosEvolucaoGlobal?.dados || [];
+
+        const gradiente = ctx.createLinearGradient(0, 0, 0, 300);
+        gradiente.addColorStop(0, "rgba(50, 194, 109, 0.35)");
+        gradiente.addColorStop(1, "rgba(50, 194, 109, 0)");
+
+        graficos.evolucao = new Chart(ctx, {
+            type: tipo,
+            data: {
+                labels: dadosEvolucaoGlobal?.labels || [],
+                datasets: [{
+                    label:           "Crises sensoriais",
+                    data:            dadosArr,
+                    borderColor:     VERDE,
+                    backgroundColor: tipo === "line" ? gradiente : VERDE,
+                    borderWidth:     tipo === "line" ? 2.5 : 0,
+                    borderRadius:    tipo === "bar" ? 6 : 0,
+                    pointBackgroundColor: tipo === "line"
+                        ? dadosArr.map(v => v === Math.max(...dadosArr) ? "#E53E3E" : VERDE)
+                        : undefined,
+                    pointRadius: tipo === "line" ? 5 : undefined,
+                    tension:     tipo === "line" ? 0.4 : undefined,
+                    fill:        tipo === "line" ? true : false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 2 } }
+                }
+            }
+        });
+    }
+
+    function trocarTipoEvolucao(tipo) {
+        criarGraficoEvolucao(tipo);
+        const iconePorTipo = { line: "fa-chart-line", bar: "fa-chart-column" };
+        atualizarBotoesTipo("graficoEvolucao", tipo, iconePorTipo);
+    }
+
+    // ===========================
+    // Atualizar botão ativo (compartilhado pelos 3 gráficos)
+    // ===========================
+
+    function atualizarBotoesTipo(canvasId, tipoAtivo, iconePorTipo) {
+
+        const card   = document.getElementById(canvasId).closest(".grafico-card");
+        const botoes = card.querySelectorAll(".btn-tipo-grafico button");
+
+        botoes.forEach(btn => {
+            const icone = btn.querySelector("i");
+            if (!icone) return;
+
+            const tipoBtn = Object.entries(iconePorTipo).find(([, cls]) =>
+                icone.classList.contains(cls)
+            )?.[0];
+
+            btn.classList.toggle("ativo", tipoBtn === tipoAtivo);
+        });
+    }
+
+
+    // ==========================
+    // TRADUÇÃO
+    // ==========================
 
     function lerCookie(nome) {
         const valor = `; ${document.cookie}`;
@@ -943,7 +949,6 @@
     // PREENCHER ABA DIÁRIO
     // ==========================
 
-    // 🔧 FIX 12: Badges coloridos nas respostas igual ao design
     function preencherDiario(dados) {
 
         document.getElementById("dataRelatorio").textContent =
@@ -981,6 +986,11 @@
 
     }
 
+
+    // ==========================
+    // NOTIFICAÇÕES
+    // ==========================
+
     const painelNotificacoes = document.getElementById("painelNotificacoes");
     const listaNotificacoes  = document.getElementById("listaNotificacoes");
 
@@ -1006,8 +1016,6 @@
                 ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
                 : itens.map(formatarItemNotificacao).join("");
 
-            // se a página não tiver outra fonte pra esse número (ver 3.3),
-            // calcula aqui mesmo a partir da lista
             const naoLidas = itens.filter(item => !item.lida).length;
             document.getElementById("quantidadeNotificacoes").textContent = naoLidas;
 
@@ -1046,23 +1054,6 @@
         }
     });
 
-    function atualizarBotoesTipo(canvasId, tipoAtivo, iconePorTipo) {
-
-        const card   = document.getElementById(canvasId).closest(".grafico-card");
-        const botoes = card.querySelectorAll(".btn-tipo-grafico button");
-
-        botoes.forEach(btn => {
-            const icone = btn.querySelector("i");
-            if (!icone) return;
-
-            const tipoBtn = Object.entries(iconePorTipo).find(([, cls]) =>
-                icone.classList.contains(cls)
-            )?.[0];
-
-            btn.classList.toggle("ativo", tipoBtn === tipoAtivo);
-        });
-    }
-
 
     // ==========================
     // INICIALIZAÇÃO
@@ -1074,6 +1065,7 @@
     carregarNotificacoes();
 
 </script>
+
 
 <script src="/js/tema.js"></script>
 
