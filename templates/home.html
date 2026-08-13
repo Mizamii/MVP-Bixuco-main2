@@ -18,6 +18,11 @@
     <link rel="stylesheet" href="/css/layout.css">
     <link rel="stylesheet" href="/css/home.css">
     <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+
+    <!-- MapLibre GL + plugin para usar vector tiles dentro do Leaflet -->
+    <script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" rel="stylesheet">
+    <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet/leaflet-maplibre-gl.js"></script>
 </head>
 
 <body>
@@ -131,7 +136,11 @@
                         onerror="this.src='/img/perfilPadrao.png'"
                     >
 
-                    <div>
+                    <div
+                        style="cursor: pointer;"
+                        title="Ver perfil"
+                        onclick="window.location.href='/perfil'"
+                    >
                         <h3 id="nomeUsuario">Carregando...</h3>
                         <span id="tipoConta">...</span>
                     </div>
@@ -637,6 +646,10 @@
 
         let mapaLeaflet = null;
         let marcador    = null;
+        let camadaMapa = null;
+
+        const ESTILO_CLARO  = "https://tiles.openfreemap.org/styles/positron";
+        const ESTILO_ESCURO = "https://tiles.openfreemap.org/styles/dark";
 
         // Coordenadas padrão (usadas só se ainda não houver nenhum evento registrado)
         let latAtual = -23.5505;
@@ -645,9 +658,9 @@
         function iniciarMapa() {
             mapaLeaflet = L.map("mapaBixuco").setView([latAtual, lngAtual], 13);
 
-            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-                attribution: '© <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
-                maxZoom: 19
+            camadaMapa = L.maplibreGL({
+                style: document.body.classList.contains("tema-escuro") ? ESTILO_ESCURO : ESTILO_CLARO,
+                attribution: 'OpenFreeMap © OpenMapTiles Data from OpenStreetMap'
             }).addTo(mapaLeaflet);
 
             const iconeBixuco = L.divIcon({
@@ -665,6 +678,12 @@
             carregarLocalizacaoReal();
 
             setInterval(carregarLocalizacaoReal, 10000); // busca de novo a cada 10 segundos
+        }
+
+        function trocarEstiloMapa(tema) {
+            if (!camadaMapa) return;
+            const novoEstilo = tema === "escuro" ? ESTILO_ESCURO : ESTILO_CLARO;
+            camadaMapa.getMaplibreMap().setStyle(novoEstilo);
         }
 
         async function carregarLocalizacaoReal() {

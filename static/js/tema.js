@@ -21,6 +21,7 @@ function aplicarTema(tema) {
     if (btnClaro)  btnClaro.classList.toggle("ativo", tema === "claro");
     if (btnEscuro) btnEscuro.classList.toggle("ativo", tema === "escuro");
 
+    trocarEstiloMapa(tema); // <- adiciona essa linha
     localStorage.setItem("tema", tema);
 
 }
