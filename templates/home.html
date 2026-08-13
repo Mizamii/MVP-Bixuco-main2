@@ -663,16 +663,20 @@
                 attribution: 'OpenFreeMap © OpenMapTiles Data from OpenStreetMap'
             }).addTo(mapaLeaflet);
 
-            // Corrige o mapa nao preencher o espaco todo (bug de canvas WebGL)
             setTimeout(() => {
                 mapaLeaflet.invalidateSize();
-                camadaMapa.getMaplibreMap().resize(); 
+                camadaMapa.getMaplibreMap().resize();
             }, 200);
-            
-            window.addEventListener("resize", () => {
-                mapaLeaflet.invalidateSize(); 
-                camadaMapa.getMaplibreMap().resize(); 
+
+            // ResizeObserver detecta QUALQUER mudanca de tamanho do container do mapa
+            // (zoom do navegador, redimensionar janela, mudanca de layout, etc.)
+            const observadorTamanho = new ResizeObserver(() => {
+                mapaLeaflet.invalidateSize();
+                camadaMapa.getMaplibreMap().resize();
             });
+
+            observadorTamanho.observe(document.getElementById("mapaBixuco"));
+
 
             const iconeBixuco = L.divIcon({
                 html: '<div style="background:#32C26D;width:36px;height:36px;border-radius:50%;border:3px solid white;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.3);font-size:18px;">🐱</div>',
