@@ -11,8 +11,7 @@
     <link rel="stylesheet" href="/css/tema.css">
     <link rel="stylesheet" href="/css/layout.css">
     <link rel="stylesheet" href="/css/home.css">
-    <!-- Reaproveitando o CSS do perfil normal -->
-    <link rel="stylesheet" href="/css/perfil.css">
+    <link rel="stylesheet" href="/css/PerfilSemcAssinatura.css">
 
 </head>
 <body>
@@ -123,16 +122,22 @@
                 <!-- Card perfil — só nome e tipo, sem badges e sem edição -->
                 <div class="card card-perfil">
 
-                    <img
-                        id="fotoPerfil"
-                        src="/img/perfilPadrao.png"
-                        alt="Foto de perfil"
-                        onerror="this.src='/img/perfilPadrao.png'"
-                    >
+                    <div class="perfil-topo">
 
-                    <div>
-                        <h2 id="perfilNome">Carregando...</h2>
-                        <p id="perfilDescricao">Responsável</p>
+                        <div class="perfil-foto-wrapper">
+                            <img
+                                id="fotoPerfil"
+                                src="/img/perfilPadrao.png"
+                                alt="Foto de perfil"
+                                onerror="this.src='/img/perfilPadrao.png'"
+                            >
+                        </div>
+
+                        <div>
+                            <h2 id="perfilNome">Carregando...</h2>
+                            <p id="perfilDescricao">Responsável</p>
+                        </div>
+
                     </div>
 
                     <!-- Banner incentivando upgrade -->
@@ -183,18 +188,17 @@
 
                     </section>
 
+                    <!-- Mascote — preenche o espaço vazio da coluna -->
+                    <img
+                        src="/img/Gatodeitado.png"
+                        alt="gato deitado"
+                        class="gato-deitado"
+                        onerror="this.style.display='none'"
+                    >
+
                 </div>
 
             </div>
-
-            <!-- Mascote -->
-            <section class="rodape-perfil">
-                <img
-                    src="/img/BixucoDormindo.png"
-                    alt="Bixuco"
-                    onerror="this.style.display='none'"
-                >
-            </section>
 
         </div>
 

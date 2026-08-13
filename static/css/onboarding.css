@@ -137,9 +137,11 @@ html, body {
 }
 
 .criarconta-header__logo {
-  width: 56px;
-  height: auto;
   display: block;
+  width: 100%;
+  max-width: 90px;
+  height: auto;
+  object-fit: contain;
   margin: 0 auto 0.75rem;
 }
 
