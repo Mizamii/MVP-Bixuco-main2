@@ -3353,7 +3353,7 @@ app.get('/api/home', estaLogado, async (req, res) => {
         const sequencia = await db.query(
 
             `WITH dias AS (
-                SELECT DISTINCT DATE(data) AS dia
+                SELECT DISTINCT DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') AS dia
                 FROM relatorios
                 WHERE usuario_id = $1
             ),
@@ -3371,7 +3371,7 @@ app.get('/api/home', estaLogado, async (req, res) => {
             )
             SELECT
                 CASE
-                    WHEN fim >= CURRENT_DATE - INTERVAL '1 day' THEN tamanho
+                    WHEN fim >= (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '1 day' THEN tamanho
                     ELSE 0
                 END AS total
             FROM ultima_ilha`,
@@ -3501,11 +3501,11 @@ app.get('/api/relatorios/dias', estaLogado, async (req, res) => {
 
         const resultado = await db.query(
 
-            `SELECT EXTRACT(DAY FROM data) AS dia
-             FROM relatorios
-             WHERE usuario_id = $1
-             AND EXTRACT(MONTH FROM data) = $2
-             AND EXTRACT(YEAR FROM data) = $3`,
+            `SELECT EXTRACT(DAY FROM (data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) AS dia
+            FROM relatorios
+            WHERE usuario_id = $1
+            AND EXTRACT(MONTH FROM (data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = $2
+            AND EXTRACT(YEAR FROM (data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = $3`,
 
             [usuarioId, mes, ano]
 
