@@ -600,7 +600,7 @@
 
             try {
                 await fetch("/api/notificacoes/marcar-lidas", { method: "POST" });
-                document.getElementById("quantidadeNotificacoes").textContent = "0";
+                atualizarBadgeNotificacoes(0);
             } catch (erro) {
                 console.log("Erro ao marcar notificações como lidas:", erro);
             }
@@ -720,6 +720,28 @@
             }
         }
 
+        function atualizarBadgeNotificacoes(quantidade) {
+            const badge = document.getElementById("quantidadeNotificacoes");
+            badge.textContent = quantidade;
+            badge.classList.toggle("escondido", quantidade === 0);
+        }
+
+        async function carregarContagemInicial() {
+            try {
+                const resposta = await fetch("/api/notificacoes");
+                if (!resposta.ok) return;
+
+                const dados = await resposta.json();
+                const itens = dados.notificacoes || [];
+                const naoLidas = itens.filter(item => !item.lida).length;
+
+                atualizarBadgeNotificacoes(naoLidas);
+
+            } catch (erro) {
+                console.log("Erro ao carregar contagem de notificações:", erro);
+            }
+        }
+
         document.getElementById("btnCentralizar").addEventListener("click", () => {
             if (mapaLeaflet) {
                 mapaLeaflet.setView([latAtual, lngAtual], 15);
@@ -737,6 +759,7 @@
         carregarDiasRelatorio();
         iniciarMapa();
         atualizarTextoBotaoTraducao();
+        carregarContagemInicial();
 
     </script>
 

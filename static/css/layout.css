@@ -236,20 +236,26 @@ background: var(--cor-fundo-hover);
 }
 
 .notificacoes .badge {
-position: absolute;
-top: 1px;
-right: 1px;
-min-width: 15px;
-height: 15px;
-padding: 0 3px;
-border-radius: 999px;
-background: #E24C4C;
-color: #fff;
-font-size: 0.62rem;
-font-weight: 700;
-display: flex;
-align-items: center;
-justify-content: center;
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    min-width: 15px;
+    height: 15px;
+    padding: 0 3px;
+    border-radius: 999px;
+    background: #E24C4C;
+    color: #fff;
+    font-size: 0.62rem;
+    font-weight: 700;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.notificacoes .badge.escondido {
+    display: none;
 }
 
 .usuario img#fotoUsuario {
