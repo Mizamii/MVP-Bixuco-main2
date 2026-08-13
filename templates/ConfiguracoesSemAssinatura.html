@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Configurações</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
+
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <!-- Reaproveitando o CSS das configurações normais -->
+    <link rel="stylesheet" href="/css/configuracoes.css">
+
+</head>
+<body>
+
+<div class="container">
+
+    <!-- ========================= -->
+    <!-- MENU LATERAL — reduzido -->
+    <!-- ========================= -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <img src="/img/Logo_Colorida.png" alt="Logo Bixuco">
+        </div>
+
+        <nav>
+            <a href="/planos">
+                <i class="fa-solid fa-dollar-sign"></i>
+                <span>Planos</span>
+            </a>
+
+            <a href="/configuracoesSemAssinatura" class="ativo">
+                <i class="fa-solid fa-gear"></i>
+                <span>Configurações</span>
+            </a>
+
+            <a href="/sobreSemAssinatura">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>Sobre</span>
+            </a>
+        </nav>
+
+        <div class="tema">
+            <button id="btnClaro" class="ativo" type="button">
+                <i class="fa-regular fa-sun"></i>
+                Claro
+            </button>
+            <button id="btnEscuro" type="button">
+                <i class="fa-regular fa-moon"></i>
+                Escuro
+            </button>
+        </div>
+
+        <div class="sidebar-divisor"></div>
+
+        <a href="/logout" class="logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span>Sair</span>
+        </a>
+
+    </aside>
+
+    <!-- ========================= -->
+    <!-- CONTEÚDO -->
+    <!-- ========================= -->
+    <main class="conteudo">
+
+        <header class="topo">
+
+            <button class="tradutor" type="button" id="btnTraduzir">
+                <i class="fa-solid fa-language"></i>
+                <span id="textoTradutor">Traduzir para inglês</span>
+            </button>
+
+            <div
+                id="google_translate_element"
+                style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);"
+            ></div>
+
+            <div class="usuario">
+
+                <button class="notificacoes" type="button">
+                    <i class="fa-regular fa-bell"></i>
+                </button>
+
+                <img
+                    id="fotoUsuario"
+                    src="/img/perfilPadrao.png"
+                    alt="Foto do usuário"
+                    onerror="this.src='/img/perfilPadrao.png'"
+                >
+
+                <div>
+                    <h3 id="nomeUsuario">Carregando...</h3>
+                    <span id="tipoConta">Responsável</span>
+                </div>
+
+            </div>
+
+        </header>
+
+        <div class="conteudo-corpo">
+
+            <!-- Cabeçalho -->
+            <section class="cabecalho">
+                <div>
+                    <h1>Configurações</h1>
+                    <p>Gerencie suas preferências e mantenha sua conta segura.</p>
+                </div>
+                <img
+                    src="/img/BixucoConfiguracoes.png"
+                    alt="Mascote"
+                    onerror="this.style.display='none'"
+                >
+            </section>
+
+            <!-- ========================= -->
+            <!-- LINHA ÚNICA — Privacidade + Segurança -->
+            <!-- ========================= -->
+            <section class="linha">
+
+                <!-- Privacidade -->
+                <div class="card privacidade">
+
+                    <h2>Privacidade</h2>
+
+                    <button
+                        class="config-btn"
+                        type="button"
+                        id="btnAlterarSenha"
+                    >
+                        <div class="icone verde">
+                            <i class="fa-solid fa-lock"></i>
+                        </div>
+                        <div class="texto">
+                            <h3>Alterar senha</h3>
+                        </div>
+                        <i class="fa-solid fa-chevron-right seta"></i>
+                    </button>
+
+                    <button
+                        class="config-btn"
+                        type="button"
+                        id="btnExcluirConta"
+                    >
+                        <div class="icone azul">
+                            <i class="fa-regular fa-trash-can"></i>
+                        </div>
+                        <div class="texto">
+                            <h3>Excluir minha conta</h3>
+                        </div>
+                        <i class="fa-solid fa-chevron-right seta"></i>
+                    </button>
+
+                    <!-- Confirmação inline excluir conta -->
+                    <div
+                        id="confirmarExclusao"
+                        class="confirmar-exclusao"
+                        style="display: none;"
+                    >
+                        <p>
+                            ⚠️ Tem certeza? Esta ação não pode ser desfeita.
+                            Todos os seus dados serão removidos permanentemente.
+                        </p>
+                        <div class="confirmar-botoes">
+                            <button
+                                type="button"
+                                id="btnConfirmarExclusao"
+                                class="btn-confirmar-exclusao"
+                            >
+                                Sim, excluir minha conta
+                            </button>
+                            <button
+                                type="button"
+                                id="btnCancelarExclusao"
+                                class="btn-cancelar-exclusao"
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Segurança -->
+                <div class="card seguranca">
+
+                    <div class="texto-seguranca">
+
+                        <h2>
+                            Sua segurança<br>
+                            é nossa
+                            <span>prioridade</span>
+                        </h2>
+
+                        <p>
+                            Utilizamos criptografia e boas práticas para proteger
+                            suas informações e da sua criança.
+                        </p>
+
+                        <div class="status-seguranca">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>Seus dados estão protegidos.</span>
+                        </div>
+
+                    </div>
+
+                    <img
+                        src="/img/BixucoSeguranca.png"
+                        alt="Segurança"
+                        onerror="this.style.display='none'"
+                    >
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+
+    // =========================
+    // CARREGAR USUÁRIO
+    // =========================
+    async function carregarUsuario() {
+        try {
+            const resposta = await fetch("/api/home");
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            if (!resposta.ok) return;
+
+            const dados = await resposta.json();
+
+            document.getElementById("nomeUsuario").textContent =
+                dados.nome || "Usuário";
+
+            document.getElementById("tipoConta").textContent =
+                dados.tipoConta || "Responsável";
+
+            if (dados.fotoPerfil) {
+                document.getElementById("fotoUsuario").src = dados.fotoPerfil;
+            }
+
+        } catch (e) {
+            console.log("Erro ao carregar usuário:", e);
+        }
+    }
+
+    // =========================
+    // ALTERAR SENHA
+    // =========================
+    document.getElementById("btnAlterarSenha").addEventListener("click", () => {
+        window.location.href = "/alterar-senha";
+    });
+
+    // =========================
+    // EXCLUIR CONTA
+    // =========================
+    const btnExcluir        = document.getElementById("btnExcluirConta");
+    const confirmarExclusao = document.getElementById("confirmarExclusao");
+    const btnConfirmar      = document.getElementById("btnConfirmarExclusao");
+    const btnCancelar       = document.getElementById("btnCancelarExclusao");
+
+    btnExcluir.addEventListener("click", () => {
+        confirmarExclusao.style.display = "block";
+        btnExcluir.style.display = "none";
+    });
+
+    btnCancelar.addEventListener("click", () => {
+        confirmarExclusao.style.display = "none";
+        btnExcluir.style.display = "flex";
+    });
+
+    btnConfirmar.addEventListener("click", async () => {
+        btnConfirmar.disabled    = true;
+        btnConfirmar.textContent = "Excluindo...";
+
+        try {
+            const resposta = await fetch("/api/excluir-conta", { method: "DELETE" });
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            if (resposta.ok) {
+                window.location.href = "/";
+            } else {
+                const dados = await resposta.json();
+                btnConfirmar.disabled    = false;
+                btnConfirmar.textContent = "Sim, excluir minha conta";
+                confirmarExclusao.querySelector("p").textContent =
+                    "❌ " + (dados.erro || "Erro ao excluir. Tente novamente.");
+            }
+
+        } catch (e) {
+            console.log("Erro ao excluir conta:", e);
+            btnConfirmar.disabled    = false;
+            btnConfirmar.textContent = "Sim, excluir minha conta";
+        }
+    });
+
+    // =========================
+    // TRADUÇÃO VIA COOKIE
+    // =========================
+    function lerCookie(nome) {
+        const v = `; ${document.cookie}`;
+        const p = v.split(`; ${nome}=`);
+        if (p.length === 2) return p.pop().split(";").shift();
+        return null;
+    }
+
+    function iniciarTradutor() {
+        new google.translate.TranslateElement(
+            { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
+            "google_translate_element"
+        );
+    }
+
+    document.getElementById("btnTraduzir").addEventListener("click", () => {
+        const atual     = lerCookie("googtrans");
+        const traduzido = atual && atual.includes("/en");
+
+        document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+        document.cookie = `googtrans=; path=/; domain=${location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
+
+        if (!traduzido) {
+            document.cookie = `googtrans=/pt/en; path=/`;
+            document.cookie = `googtrans=/pt/en; path=/; domain=${location.hostname}`;
+        }
+        window.location.reload();
+    });
+
+    const cookieAtual = lerCookie("googtrans");
+    document.getElementById("textoTradutor").textContent =
+        (cookieAtual && cookieAtual.includes("/en")) ? "Voltar para português" : "Traduzir para inglês";
+
+    // =========================
+    // TEMA
+    // =========================
+    function aplicarTema(tema) {
+        document.body.classList.remove("tema-claro", "tema-escuro");
+        document.body.classList.add(`tema-${tema}`);
+        document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
+        document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
+        localStorage.setItem("tema", tema);
+    }
+
+    document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema("claro"));
+    document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
+
+    // =========================
+    // INICIALIZAÇÃO
+    // =========================
+    const temaSalvo = localStorage.getItem("tema") || "claro";
+    aplicarTema(temaSalvo);
+    carregarUsuario();
+
+</script>
+
+</body>
+</html>

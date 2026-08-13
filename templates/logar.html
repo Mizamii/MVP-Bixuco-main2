@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco — Login</title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/css/login.css"
+    >
+
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+</head>
+
+<body>
+
+    <main class="pagina-login">
+
+        <!-- ========================= -->
+        <!-- LADO ESQUERDO -->
+        <!-- ========================= -->
+        <section class="login-esquerda">
+
+            <div class="login-esquerda__geometria"></div>
+            <div class="login-esquerda__overlay"></div>
+
+            <div class="login-esquerda__conteudo">
+                <img
+                    src="/img/Logo_Branca.png"
+                    alt="Logo Bixuco"
+                    class="login-esquerda__logo"
+                >
+
+                <h1 class="login-esquerda__titulo">
+                    Acompanhamento
+                    <br>
+                    infantil
+                    <span>inteligente.</span>
+                </h1>
+
+                <p class="login-esquerda__slogan">
+                    Mais organização, mais conexão e mais cuidado
+                    para famílias e terapeutas.
+                </p>
+            </div>
+
+            <div class="login-esquerda__ilustracao-wrapper">
+                <img
+                    src="/img/login-urso.png"
+                    alt="Foto da criança com o Bixuco"
+                    class="login-esquerda__foto"
+                >
+            </div>
+
+        </section>
+
+        <!-- ========================= -->
+        <!-- LADO DIREITO -->
+        <!-- ========================= -->
+        <section class="login-direita">
+
+            <div class="login-direita__logo-container">
+                <img
+                    src="/img/logo-bixuco-colorida.png"
+                    alt="Logo Bixuco"
+                    class="login-direita__logo"
+                >
+            </div>
+
+            <h2 class="login-direita__titulo">
+                Bem-vindo
+                <span class="login-direita__titulo--destaque">de volta!</span>
+            </h2>
+
+            <p class="login-direita__subtitulo">
+                Acesse sua conta para continuar
+            </p>
+
+            <form id="formLogin" class="login-form" novalidate>
+
+                <!-- Email -->
+                <div class="login-form__campo">
+                    <label for="email" class="login-form__label">
+                        Email
+                    </label>
+
+                    <div class="login-form__input-wrapper">
+                        <input
+                            class="login-form__input"
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Digite seu e-mail"
+                            autocomplete="username"
+                            required
+                        >
+                    </div>
+
+                    <span
+                        class="login-form__erro"
+                        id="erro-email"
+                    ></span>
+                </div>
+
+                <!-- Senha -->
+                <div class="login-form__campo">
+                    <div class="login-form__senha-cabecalho">
+                        <label for="senha" class="login-form__label">
+                            Senha
+                        </label>
+
+                        <a href="/EsqueceuSenha" class="login-form__esqueci-senha">
+                            Esqueci minha senha
+                        </a>
+                    </div>
+
+                    <div class="login-form__input-wrapper">
+                        <input
+                            class="login-form__input"
+                            type="password"
+                            id="senha"
+                            name="senha"
+                            placeholder="Digite sua senha"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="login-form__toggle-senha"
+                            onclick="toggleSenha()"
+                            aria-label="Mostrar senha"
+                        >
+                            <i
+                                class="fa-solid fa-eye"
+                                id="iconeSenha"
+                            ></i>
+                        </button>
+                    </div>
+
+                    <span
+                        class="login-form__erro"
+                        id="erro-senha"
+                    ></span>
+                </div>
+
+                
+
+                <span
+                    class="login-form__erro login-form__erro--geral"
+                    id="erro-geral"
+                ></span>
+
+                <button
+                    type="submit"
+                    id="btnEntrar"
+                    class="login-form__btn-entrar"
+                >
+                    Entrar
+                </button>
+
+            </form>
+
+            <div class="login-divisor">
+                <span class="login-divisor__linha"></span>
+                <p class="login-divisor__texto">ou</p>
+                <span class="login-divisor__linha"></span>
+            </div>
+
+            <button type="button" class="login-google" onclick="loginGoogle()">
+                <img
+                    src="/img/google.webp"
+                    alt="Google"
+                >
+                <span>Continuar com Google</span>
+            </button>
+
+            <div class="login-criar-conta">
+                <p>
+                    Não tem conta?
+                </p>
+                <a href="/CriarContaS" class="login-criar-conta__link">
+                    Criar agora
+                </a>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+
+        // ==========================
+        // MOSTRAR / ESCONDER SENHA
+        // ==========================
+
+        function toggleSenha() {
+            const senha = document.getElementById("senha");
+            const icone = document.getElementById("iconeSenha");
+            const botao = icone.closest("button");
+
+            if (senha.type === "password") {
+                senha.type = "text";
+                icone.classList.remove("fa-eye");
+                icone.classList.add("fa-eye-slash");
+                if (botao) botao.setAttribute("aria-label", "Esconder senha");
+            } else {
+                senha.type = "password";
+                icone.classList.remove("fa-eye-slash");
+                icone.classList.add("fa-eye");
+                if (botao) botao.setAttribute("aria-label", "Mostrar senha");
+            }
+        }
+
+        // ==========================
+        // EXIBIR / LIMPAR ERROS
+        // ==========================
+
+        function mostrarErro(inputId, erroId, mensagem) {
+            const input = document.getElementById(inputId);
+            const erro  = document.getElementById(erroId);
+
+            if (!input || !erro) return;
+
+            input.classList.add("login-form__input--erro");
+            erro.textContent   = mensagem;
+            erro.style.display = "block";
+
+            setTimeout(() => {
+                input.classList.remove("login-form__input--erro");
+            }, 500);
+        }
+
+        function limparErros() {
+            ["email", "senha"].forEach(id => {
+                const input = document.getElementById(id);
+                const erro  = document.getElementById("erro-" + id);
+
+                if (input) input.classList.remove("login-form__input--erro");
+                if (erro)  erro.style.display = "none";
+            });
+
+            const erroGeral = document.getElementById("erro-geral");
+            if (erroGeral) erroGeral.style.display = "none";
+        }
+
+        // ==========================
+        // VALIDAÇÃO LOCAL
+        // ==========================
+
+        function validarCampos() {
+            limparErros();
+            let valido = true;
+
+            const email = document.getElementById("email").value.trim();
+            const senha = document.getElementById("senha").value;
+            const regexEmail = /\S+@\S+\.\S+/;
+
+            if (!regexEmail.test(email)) {
+                mostrarErro("email", "erro-email", "Digite um e-mail válido.");
+                valido = false;
+            }
+
+            if (senha.length < 6) {
+                mostrarErro("senha", "erro-senha", "A senha deve possuir pelo menos 6 caracteres.");
+                valido = false;
+            }
+
+            return valido;
+        }
+
+        // ==========================
+        // VALIDAÇÃO EM TEMPO REAL (some o erro assim que corrigir)
+        // ==========================
+
+        document.getElementById("email").addEventListener("input", () => {
+            const email = document.getElementById("email").value.trim();
+            const regexEmail = /\S+@\S+\.\S+/;
+
+            if (regexEmail.test(email)) {
+                document.getElementById("email").classList.remove("login-form__input--erro");
+                document.getElementById("erro-email").style.display = "none";
+            }
+
+            // Some tambem o erro geral (ex: "email ou senha invalidos") ao editar
+            document.getElementById("erro-geral").style.display = "none";
+        });
+
+        document.getElementById("senha").addEventListener("input", () => {
+            const senha = document.getElementById("senha").value;
+
+            if (senha.length >= 6) {
+                document.getElementById("senha").classList.remove("login-form__input--erro");
+                document.getElementById("erro-senha").style.display = "none";
+            }
+
+            document.getElementById("erro-geral").style.display = "none";
+        });
+
+        // ==========================
+        // ENVIO DO FORMULÁRIO
+        // ==========================
+
+        document.getElementById("formLogin").addEventListener("submit", async (evento) => {
+
+            evento.preventDefault();
+
+            if (!validarCampos()) return;
+
+            const btnEntrar = document.getElementById("btnEntrar");
+            const erroGeral = document.getElementById("erro-geral");
+
+            btnEntrar.disabled    = true;
+            btnEntrar.textContent = "Entrando...";
+
+            try {
+
+                const resposta = await fetch("/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        email: document.getElementById("email").value.trim(),
+                        senha: document.getElementById("senha").value
+                    })
+                });
+
+                // Redirect bem-sucedido (login manual ou Google callback)
+                if (resposta.redirected) {
+                    window.location.href = resposta.url;
+                    return;
+                }
+
+                const dados = await resposta.json();
+
+                if (!resposta.ok) {
+                    erroGeral.textContent   = dados.erro || "Erro ao fazer login. Tente novamente.";
+                    erroGeral.style.display = "block";
+                }
+
+            } catch (erro) {
+
+                console.log("Erro na requisição de login:", erro);
+                erroGeral.textContent   = "Erro de conexão. Verifique sua internet e tente novamente.";
+                erroGeral.style.display = "block";
+
+            } finally {
+
+                btnEntrar.disabled    = false;
+                btnEntrar.textContent = "Entrar";
+
+            }
+
+        });
+
+        // ==========================
+        // LOGIN COM GOOGLE
+        // ==========================
+
+        function loginGoogle() {
+            window.location.href = "/auth/google";
+        }
+
+    </script>
+    <script src="/js/tema.js"></script>
+
+</body>
+</html>

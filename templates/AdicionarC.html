@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco — Adicionar criança</title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/css/adicionarc.css"
+    >
+
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+
+</head>
+
+<body>
+
+    <main class="pagina-login">
+
+        <!-- ========================= -->
+        <!-- LADO ESQUERDO -->
+        <!-- ========================= -->
+
+        <section class="login-esquerda">
+
+            <div class="login-esquerda__geometria"></div>
+            <div class="login-esquerda__overlay"></div>
+
+            <div class="login-esquerda__conteudo">
+
+                <!-- Logo branca -->
+                <img
+                    src="/img/Logo_Branca.png"
+                    alt="Logo Bixuco"
+                    class="login-esquerda__logo"
+                >
+
+                <!-- Título -->
+                <h1 class="login-esquerda__titulo">
+                    Acompanhamento
+                    <br>
+                    infantil
+                    <span>inteligente</span>
+                </h1>
+
+                <!-- Texto -->
+                <p class="login-esquerda__slogan">
+                    Mais organização,
+                    mais conexão e
+                    mais cuidado para
+                    famílias e terapeutas.
+                </p>
+
+            </div>
+
+            <!-- Ilustração -->
+            <div class="login-esquerda__ilustracao-wrapper">
+
+                <img
+                    src="/img/criancas-bixuco.png"
+                    alt="Crianças com o Bixuco"
+                    class="login-esquerda__foto"
+                >
+
+            </div>
+
+        </section>
+
+        <!-- ========================= -->
+        <!-- LADO DIREITO -->
+        <!-- ========================= -->
+
+        <section class="login-direita">
+
+            <header class="criarconta-header">
+
+                <h2 class="criarconta-titulo">
+                    Adicionar criança
+                </h2>
+
+            </header>
+
+            <div class="criarconta-corpo">
+
+                <!-- Descrição -->
+                <p class="cadastro-form__descricao">
+                    Cadastre o(a) filho(a)
+                    que você vai acompanhar.
+                </p>
+
+                <!-- ========================= -->
+                <!-- FORMULÁRIO -->
+                <!-- ========================= -->
+
+                <!-- Envio via fetch usando FormData para suportar upload de foto -->
+                <form id="formCrianca" class="cadastro-form" novalidate>
+
+                    <!-- Foto da criança -->
+                    <div
+                        class="cadastro-form__foto"
+                        onclick="document.getElementById('fotoCrianca').click()"
+                        title="Clique para adicionar uma foto"
+                    >
+
+                        <img
+                            id="previewFotoCrianca"
+                            src=""
+                            alt="Foto da criança"
+                            style="display: none;"
+                        >
+
+                        <i
+                            id="iconeCamera"
+                            class="fa-solid fa-camera"
+                        ></i>
+
+                        <!-- Input de arquivo oculto -->
+                        <input
+                            type="file"
+                            id="fotoCrianca"
+                            name="fotoCrianca"
+                            accept="image/*"
+                            style="display: none;"
+                            onchange="previewFoto(this)"
+                        >
+
+                    </div>
+
+                    <!-- Nome da criança -->
+                    <div class="cadastro-form__grupo">
+
+                        <label for="nomeCrianca" class="cadastro-form__label">
+                            Nome da criança
+                        </label>
+
+                        <input
+                            class="cadastro-form__input"
+                            type="text"
+                            id="nomeCrianca"
+                            name="nomeCrianca"
+                            placeholder="Digite o nome da criança"
+                            autocomplete="off"
+                            required
+                        >
+
+                        <span
+                            class="cadastro-form__erro"
+                            id="erro-nomeCrianca"
+                        ></span>
+
+                    </div>
+
+                    <!-- Linha data + sexo -->
+                    <div class="cadastro-form__linha">
+
+                        <!-- Data de nascimento -->
+                        <div class="cadastro-form__grupo">
+
+                            <label for="dataNascimento" class="cadastro-form__label">
+                                Data de nascimento
+                            </label>
+
+                            <input
+                                class="cadastro-form__input"
+                                type="date"
+                                id="dataNascimento"
+                                name="dataNascimento"
+                                required
+                            >
+
+                            <span
+                                class="cadastro-form__erro"
+                                id="erro-dataNascimento"
+                            ></span>
+
+                        </div>
+
+                        <!-- Sexo -->
+                        <div class="cadastro-form__grupo">
+
+                            <label for="sexo" class="cadastro-form__label">
+                                Sexo
+                            </label>
+
+                            <select
+                                class="cadastro-form__input"
+                                id="sexo"
+                                name="sexo"
+                                required
+                            >
+
+                                <option value="" selected disabled>
+                                    Selecione
+                                </option>
+
+                                <option value="masculino">
+                                    Masculino
+                                </option>
+
+                                <option value="feminino">
+                                    Feminino
+                                </option>
+
+                                <option value="outro">
+                                    Prefiro não informar
+                                </option>
+
+                            </select>
+
+                            <span
+                                class="cadastro-form__erro"
+                                id="erro-sexo"
+                            ></span>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Nome da pelúcia -->
+                    <div class="cadastro-form__grupo">
+
+                        <label for="nomePelucia" class="cadastro-form__label">
+                            Nome da pelúcia (opcional)
+                        </label>
+
+                        <input
+                            class="cadastro-form__input"
+                            type="text"
+                            id="nomePelucia"
+                            name="nomePelucia"
+                            placeholder="Ex: Bixuco"
+                        >
+
+                    </div>
+
+                    <!-- Erro geral do servidor (substitui ?erro= na URL) -->
+                    <span
+                        id="erro-geral"
+                        class="cadastro-form__erro cadastro-form__erro--geral"
+                        style="display: none;"
+                    ></span>
+
+                    <button
+                        type="submit"
+                        id="btnIr"
+                        class="btn-continuar"
+                    >
+                        Ir para o Perfil sensorial
+                    </button>
+
+                </form>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+
+        // ==========================
+        // PREVIEW DA FOTO
+        // ==========================
+
+        function previewFoto(input) {
+
+            const preview = document.getElementById("previewFotoCrianca");
+            const icone   = document.getElementById("iconeCamera");
+
+            if (input.files && input.files[0]) {
+
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    preview.src          = e.target.result;
+                    preview.style.display = "block";
+                    icone.style.display   = "none";
+                };
+
+                reader.readAsDataURL(input.files[0]);
+
+            }
+
+        }
+
+        // ==========================
+        // MOSTRAR / LIMPAR ERROS
+        // ==========================
+
+        function mostrarErro(inputId, erroId, mensagem) {
+
+            const input = document.getElementById(inputId);
+            const erro  = document.getElementById(erroId);
+
+            if (!input || !erro) return;
+
+            input.classList.add("input-erro");
+            erro.textContent   = mensagem;
+            erro.style.display = "block";
+
+            setTimeout(() => {
+                input.classList.remove("input-erro");
+            }, 500);
+
+        }
+
+        function limparErros() {
+
+            ["nomeCrianca", "dataNascimento", "sexo"].forEach(id => {
+
+                const campo = document.getElementById(id);
+                const erro  = document.getElementById("erro-" + id);
+
+                if (campo) campo.classList.remove("input-erro");
+
+                if (erro) {
+                    erro.style.display = "none";
+                    erro.textContent   = "";
+                }
+
+            });
+
+            const erroGeral = document.getElementById("erro-geral");
+            if (erroGeral) erroGeral.style.display = "none";
+
+        }
+
+        // ==========================
+        // VERIFICAR DATA FUTURA
+        // ==========================
+
+        function dataNoFuturo(data) {
+            return new Date(data) > new Date();
+        }
+
+        // ==========================
+        // VALIDAÇÃO LOCAL
+        // ==========================
+
+        function validarCampos() {
+
+            limparErros();
+            let valido = true;
+
+            const nome = document.getElementById("nomeCrianca").value.trim();
+            const data = document.getElementById("dataNascimento").value;
+            const sexo = document.getElementById("sexo").value;
+
+            if (nome.length < 2) {
+                mostrarErro("nomeCrianca", "erro-nomeCrianca", "Digite o nome da criança.");
+                valido = false;
+            }
+
+            if (!data) {
+                mostrarErro("dataNascimento", "erro-dataNascimento", "Informe a data de nascimento.");
+                valido = false;
+            } else if (dataNoFuturo(data)) {
+                mostrarErro("dataNascimento", "erro-dataNascimento", "A data não pode ser no futuro.");
+                valido = false;
+            }
+
+            if (!sexo) {
+                mostrarErro("sexo", "erro-sexo", "Selecione o sexo.");
+                valido = false;
+            }
+
+            return valido;
+
+        }
+
+        // ==========================
+        // ENVIO DO FORMULÁRIO
+        // ==========================
+
+        // Usa FormData para enviar os dados incluindo a foto
+        // FormData suporta arquivos — não é possível usar JSON.stringify com imagem
+        // O backend precisa do multer para processar o arquivo (ver rotas_adicionarc.js)
+
+        document.getElementById("formCrianca").addEventListener("submit", async (evento) => {
+
+            evento.preventDefault();
+
+            if (!validarCampos()) return;
+
+            const btnIr     = document.getElementById("btnIr");
+            const erroGeral = document.getElementById("erro-geral");
+
+            // Desabilita o botão enquanto processa
+            btnIr.disabled    = true;
+            btnIr.textContent = "Salvando...";
+
+            try {
+
+                // Monta o FormData com todos os campos incluindo a foto
+                const formData = new FormData();
+
+                formData.append("nomeCrianca",  document.getElementById("nomeCrianca").value.trim());
+                formData.append("dataNascimento", document.getElementById("dataNascimento").value);
+                formData.append("sexo",          document.getElementById("sexo").value);
+                formData.append("nomePelucia",   document.getElementById("nomePelucia").value.trim());
+
+                // Adiciona a foto só se o usuário tiver selecionado uma
+                const fotoInput = document.getElementById("fotoCrianca");
+                if (fotoInput.files && fotoInput.files[0]) {
+                    formData.append("fotoCrianca", fotoInput.files[0]);
+                }
+
+                // Não definir Content-Type manualmente com FormData
+                // O fetch define automaticamente com o boundary correto para multipart
+                const resposta = await fetch("/api/adicionar-crianca", {
+                    method: "POST",
+                    body: formData
+                });
+
+                // Redireciona para login se não autenticado
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
+                }
+
+                // Backend redireciona para /QuestionarioP após salvar
+                if (resposta.redirected) {
+                    window.location.href = resposta.url;
+                    return;
+                }
+
+                if (!resposta.ok) {
+
+                    const dados = await resposta.json();
+
+                    // Exibe erro do servidor no campo correto
+                    if (dados.campo) {
+                        mostrarErro(dados.campo, "erro-" + dados.campo, dados.erro);
+                    } else {
+                        erroGeral.textContent   = dados.erro || "Erro ao salvar. Tente novamente.";
+                        erroGeral.style.display = "block";
+                    }
+
+                }
+
+            } catch (erro) {
+
+                console.log("Erro ao adicionar criança:", erro);
+
+                erroGeral.textContent   = "Erro de conexão. Verifique sua internet e tente novamente.";
+                erroGeral.style.display = "block";
+
+            } finally {
+
+                btnIr.disabled    = false;
+                btnIr.textContent = "Ir para o Perfil sensorial";
+
+            }
+
+        });
+
+    </script>
+
+    <script src="/js/tema.js"></script>
+
+</body>
+</html>

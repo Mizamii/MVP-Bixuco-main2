@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco - Relatórios</title>
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/relatorios.css">
+
+    <style>
+        .titulo-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .btn-tipo-grafico {
+            display: flex;
+            gap: 4px;
+        }
+
+        .btn-tipo-grafico button {
+            background: #F5F7FA;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 6px 10px;
+            cursor: pointer;
+            color: #5A5A5A;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .btn-tipo-grafico button:hover {
+            background: #E2F0D9;
+            border-color: #32C26D;
+            color: #32C26D;
+        }
+
+        .btn-tipo-grafico button.ativo {
+            background: #32C26D;
+            border-color: #32C26D;
+            color: white;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- ========================= -->
+    <!-- MENU LATERAL -->
+    <!-- ========================= -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            <img src="/img/logo_nome.png" alt="Bixuco">
+        </div>
+
+        <nav>
+
+            <a href="/home">
+                <i class="fa-solid fa-house"></i>
+                <span data-pt="Início" data-en="Home">Início</span>
+            </a>
+
+            <a href="/relatorios" class="ativo">
+                <i class="fa-solid fa-chart-line"></i>
+                <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+            </a>
+
+            <a href="/sobre">
+                <i class="fa-solid fa-circle-info"></i>
+                <span data-pt="Sobre" data-en="About">Sobre</span>
+            </a>
+
+            <a href="/configuracoes">
+                <i class="fa-solid fa-gear"></i>
+                <span data-pt="Configurações" data-en="Settings">Configurações</span>
+            </a>
+
+        </nav>
+
+        <button
+            class="btn-relatorio"
+            type="button"
+            onclick="location.href='/RelatorioDiario'"
+            data-pt="Relatório diário"
+            data-en="Daily report"
+        >
+            Relatório diário
+        </button>
+
+        <div class="tema">
+
+            <button id="btnClaro" class="ativo" type="button">
+                <i class="fa-regular fa-sun"></i> <span data-pt="Claro" data-en="Light">Claro</span>
+            </button>
+            <button id="btnEscuro" type="button">
+                <i class="fa-regular fa-moon"></i> <span data-pt="Escuro" data-en="Dark">Escuro</span>
+            </button>
+
+        </div>
+
+        <div class="sidebar-divisor"></div>
+
+        <a href="/logout" class="logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span data-pt="Sair" data-en="Log out">Sair</span>
+        </a>
+
+    </aside>
+
+    <!-- ========================= -->
+    <!-- CONTEÚDO -->
+    <!-- ========================= -->
+
+    <main class="conteudo">
+
+        <header class="topo">
+
+            <button class="tradutor" type="button" id="btnTraduzir">
+                <i class="fa-solid fa-language"></i>
+                <span id="textoTradutor">EN</span>
+            </button>
+
+            <div class="usuario">
+
+                <div class="notificacoes-wrapper">
+                    <button class="notificacoes" type="button" id="btnNotificacoes">
+                        <i class="fa-regular fa-bell"></i>
+                        <span id="quantidadeNotificacoes" class="badge">0</span>
+                    </button>
+
+                    <div class="painel-notificacoes" id="painelNotificacoes">
+                        <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
+                        <div id="listaNotificacoes">
+                            <div class="painel-vazio">Carregando...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <img
+                    id="fotoUsuario"
+                    src="/img/perfilPadrao.png"
+                    alt="Foto do usuário"
+                    title="Ver perfil"
+                    style="cursor: pointer;"
+                    onclick="window.location.href='/perfil'"
+                    onerror="this.src='/img/perfilPadrao.png'"
+                >
+
+                <div
+                    style="cursor: pointer;"
+                    title="Ver perfil"
+                    onclick="window.location.href='/perfil'"
+                >
+
+                    <h3 id="nomeUsuario">
+                        Carregando...
+                    </h3>
+
+                    <span id="tipoConta">
+                        ...
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <div class="conteudo-corpo">
+
+        <section class="cabecalho">
+
+            <div>
+
+                <h1 data-pt="Relatórios" data-en="Reports">Relatórios</h1>
+
+                <div class="abas">
+
+                    <button id="btnVisao" class="ativa" type="button" data-pt="Visão geral" data-en="Overview">
+                        Visão geral
+                    </button>
+
+                    <button id="btnDiario" type="button" data-pt="Diário" data-en="Daily">
+                        Diário
+                    </button>
+
+                </div>
+
+            </div>
+
+            <img
+                src="/img/gatografico.png"
+                class="gato_lendo"
+                alt="Mascote"
+            >
+
+        </section>
+
+        <!-- ================================= -->
+        <!-- ABA — VISÃO GERAL -->
+        <!-- ================================= -->
+
+        <section id="abaVisao" class="aba-conteudo ativa">
+
+            <div class="cards-relatorio">
+
+                <div class="card">
+                    <h3 data-pt="Alertas de estresse neste mês" data-en="Stress alerts this month">Alertas de estresse neste mês</h3>
+                    <span id="alertasEstresse" class="valor-destaque">0</span>
+                    <p id="comparativoAlertas">registrados este mês</p>
+                </div>
+
+                <div class="card">
+                    <h3 data-pt="Tempo de estresse médio neste mês" data-en="Average stress time this month">Tempo de estresse médio neste mês</h3>
+                    <span id="tempoEstresse" class="valor-destaque">0 min</span>
+                    <p id="comparativoTempo">por episódio</p>
+                </div>
+
+            </div>
+
+            <div class="linha-graficos">
+
+                <div class="grafico-card">
+                    <div class="titulo-card">
+                        <h2>
+                            <i class="fa-solid fa-chart-bar"></i>
+                            <span data-pt="Estresse — últimos 7 dias" data-en="Stress — last 7 days">Estresse — últimos 7 dias</span>
+                        </h2>
+                        <div class="btn-tipo-grafico">
+                            <button type="button" class="ativo" onclick="trocarTipoEstresse('bar')" title="Barras">
+                                <i class="fa-solid fa-chart-column"></i>
+                            </button>
+                            <button type="button" onclick="trocarTipoEstresse('line')" title="Linha">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <canvas id="graficoEstresse"></canvas>
+                </div>
+
+                <div class="grafico-card">
+                    <div class="titulo-card">
+                        <h2>
+                            <i class="fa-solid fa-circle-nodes"></i>
+                            <span data-pt="Principais gatilhos — últimos 7 dias" data-en="Main triggers — last 7 days">Principais gatilhos — últimos 7 dias</span>
+                        </h2>
+                        <div class="btn-tipo-grafico">
+                            <button type="button" class="ativo" onclick="trocarTipoGatilhos('doughnut')" title="Rosca">
+                                <i class="fa-solid fa-circle-dot"></i>
+                            </button>
+                            <button type="button" onclick="trocarTipoGatilhos('pie')" title="Pizza">
+                                <i class="fa-solid fa-chart-pie"></i>
+                            </button>
+                            <button type="button" onclick="trocarTipoGatilhos('bar')" title="Barras">
+                                <i class="fa-solid fa-chart-column"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.72rem; color: #999; margin-top: -0.5rem; margin-bottom: 0.5rem;" data-pt="Estimativa baseada nas respostas do relatório diário" data-en="Estimate based on daily report answers">
+                        Estimativa baseada nas respostas do relatório diário
+                    </p>
+                    <canvas id="graficoGatilhos"></canvas>
+                    <div id="legendaGatilhos" class="legenda-rosca"></div>
+                </div>
+
+            </div>
+
+            <div class="linha-graficos">
+
+                <div class="grafico-card grande">
+                    <div class="titulo-card">
+                        <h2>
+                            <i class="fa-solid fa-chart-line"></i>
+                            <span data-pt="Evolução de crises sensoriais — últimos 7 dias" data-en="Sensory crisis evolution — last 7 days">Evolução de crises sensoriais — últimos 7 dias</span>
+                        </h2>
+                        <div class="btn-tipo-grafico">
+                            <button type="button" class="ativo" onclick="trocarTipoEvolucao('line')" title="Linha">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </button>
+                            <button type="button" onclick="trocarTipoEvolucao('bar')" title="Barras">
+                                <i class="fa-solid fa-chart-column"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <canvas id="graficoEvolucao"></canvas>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ================================= -->
+        <!-- ABA — DIÁRIO -->
+        <!-- ================================= -->
+
+        <section id="abaDiario" class="aba-conteudo" style="display: none;">
+
+            <div class="cards-relatorio">
+
+                <div class="card">
+                    <h3 data-pt="Alertas de estresse" data-en="Stress alerts">Alertas de estresse</h3>
+                    <span id="alertasEstresseDiario" class="valor-destaque">0</span>
+                    <p id="comparativoAltasDiario">registrados este mês</p>
+                </div>
+
+                <div class="card">
+                    <h3 data-pt="Tempo de estresse" data-en="Stress time">Tempo de estresse</h3>
+                    <span id="tempoEstresseDiario" class="valor-destaque">0 min</span>
+                    <p id="comparativoTempoDiario">por episódio</p>
+                </div>
+
+            </div>
+
+            <div class="relatorio-diario">
+
+                <div class="topo-diario">
+                    <h2 data-pt="Respostas do relatório diário" data-en="Daily report answers">Respostas do relatório diário</h2>
+                    <p id="dataRelatorio">Carregando...</p>
+                </div>
+
+                <div id="listaPerguntas" class="lista-perguntas"></div>
+
+            </div>
+
+        </section>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+
+    // ==========================
+    // TEMA
+    // ==========================
+
+    function aplicarTema(tema) {
+        document.body.classList.remove("tema-claro", "tema-escuro");
+        document.body.classList.add(`tema-${tema}`);
+        document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
+        document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
+        localStorage.setItem("tema", tema);
+    }
+
+    document.getElementById("btnClaro").addEventListener("click", () => aplicarTema("claro"));
+    document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
+
+    const temaSalvo = localStorage.getItem("tema") || "claro";
+    aplicarTema(temaSalvo);
+
+
+    // ==========================
+    // ALTERNAR ABAS
+    // ==========================
+
+    const btnVisao  = document.getElementById("btnVisao");
+    const btnDiario = document.getElementById("btnDiario");
+    const abaVisao  = document.getElementById("abaVisao");
+    const abaDiario = document.getElementById("abaDiario");
+
+    btnVisao.addEventListener("click", () => {
+        btnVisao.classList.add("ativa");
+        btnDiario.classList.remove("ativa");
+        abaVisao.style.display  = "block";
+        abaDiario.style.display = "none";
+    });
+
+    btnDiario.addEventListener("click", () => {
+        btnDiario.classList.add("ativa");
+        btnVisao.classList.remove("ativa");
+        abaVisao.style.display  = "none";
+        abaDiario.style.display = "block";
+    });
+
+
+    // ==========================
+    // TRADUÇÃO MANUAL
+    // ==========================
+
+    let idiomaAtual = localStorage.getItem("idioma") || "pt";
+
+    const dicionario = {
+        "registrados este mês":                "registered this month",
+        "igual ao mês passado":                 "same as last month",
+        "por episódio":                         "per episode",
+        "igual a ontem":                        "same as yesterday",
+        "registrados hoje":                     "registered today",
+        "0 min":                                "0 min",
+        "0 s":                                  "0 s",
+        "Nenhum relatório encontrado.":         "No report found.",
+        "Nenhum relatório preenchido ainda.":   "No report filled in yet.",
+        "Fazer relatório agora":                "Fill report now",
+        "Ambientes barulhentos":                "Noisy environments",
+        "Locais lotados":                       "Crowded places",
+        "Mudanças de rotina":                   "Routine changes",
+        "Texturas de alimentos":                "Food textures",
+        "Sem dados suficientes ainda":          "Not enough data yet",
+        "Dom": "Sun", "Seg": "Mon", "Ter": "Tue", "Qua": "Wed",
+        "Qui": "Thu", "Sex": "Fri", "Sáb": "Sat"
+    };
+
+    function traduzir(texto) {
+        if (idiomaAtual === "pt" || texto == null) return texto;
+        if (dicionario[texto]) return dicionario[texto];
+
+        return String(texto)
+            .replace("comparado ao mês passado", "compared to last month")
+            .replace("comparado a ontem", "compared to yesterday");
+    }
+
+    function aplicarIdiomaEstatico() {
+        document.querySelectorAll("[data-pt]").forEach(el => {
+            el.textContent = idiomaAtual === "en"
+                ? (el.dataset.en || el.dataset.pt)
+                : el.dataset.pt;
+        });
+
+        document.getElementById("textoTradutor").textContent =
+            idiomaAtual === "en" ? "PT" : "EN";
+    }
+
+    document.getElementById("btnTraduzir").addEventListener("click", () => {
+        idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+        localStorage.setItem("idioma", idiomaAtual);
+
+        aplicarIdiomaEstatico();
+
+        if (ultimosDadosRelatorio) {
+            preencherCards(ultimosDadosRelatorio);
+            renderizarGraficos(ultimosDadosRelatorio);
+            preencherDiario(ultimosDadosRelatorio);
+        }
+    });
+
+
+    // ==========================
+    // DADOS DO USUÁRIO
+    // ==========================
+
+    async function carregarUsuario() {
+        try {
+            const resposta = await fetch("/api/home");
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            if (!resposta.ok) return;
+
+            const usuario = await resposta.json();
+
+            document.getElementById("nomeUsuario").textContent =
+                usuario.nome || "Usuário";
+
+            document.getElementById("tipoConta").textContent =
+                usuario.tipoConta || "Responsável";
+
+            if (usuario.fotoPerfil) {
+                document.getElementById("fotoUsuario").src = usuario.fotoPerfil;
+            }
+
+        } catch (e) {
+            console.log("Erro ao carregar usuário:", e);
+        }
+    }
+
+
+    // ==========================
+    // DADOS DOS RELATÓRIOS
+    // ==========================
+
+    let ultimosDadosRelatorio = null;
+
+    async function carregarRelatorios() {
+        try {
+            const resposta = await fetch("/api/relatorios");
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            if (!resposta.ok) {
+                usarDadosExemplo();
+                return;
+            }
+
+            const dados = await resposta.json();
+            ultimosDadosRelatorio = dados;
+
+            preencherCards(dados);
+            renderizarGraficos(dados);
+            preencherDiario(dados);
+
+        } catch (e) {
+            console.log("Erro ao carregar relatórios:", e);
+            usarDadosExemplo();
+        }
+    }
+
+    function usarDadosExemplo() {
+
+        const dadosExemplo = {
+            alertas: 18,
+            comparativoAlertas: "↓ 2 comparado ao mês passado",
+            tempo: "120 min",
+            comparativoTempo: "↑ 1 min comparado ao mês passado",
+
+            graficoEstresse: {
+                labels: ["Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui"],
+                dados:  [3, 2, 5, 7, 8, 4, 2]
+            },
+
+            graficoGatilhos: {
+                labels: [
+                    "Ambientes barulhentos",
+                    "Locais lotados",
+                    "Mudanças de rotina",
+                    "Texturas de alimentos"
+                ],
+                dados:  [42, 28, 18, 12],
+                cores:  ["#32C26D", "#0AB7FB", "#1D8EC9", "#C2C2C2"]
+            },
+
+            graficoEvolucao: {
+                labels: ["Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui"],
+                dados:  [2, 3, 4, 5, 8, 4, 2]
+            },
+
+            dataRelatorio: "Hoje, 05 de julho de 2026",
+            perguntas: [
+                { pergunta: "Como a criança se sentiu hoje?",              resposta: "Feliz"      },
+                { pergunta: "Em qual período houve mais desconforto?",      resposta: "Manhã"      },
+                { pergunta: "A pelúcia foi apertada com força?",            resposta: "Sim"        },
+                { pergunta: "A criança conseguiu se acalmar facilmente?",   resposta: "Não"        },
+                { pergunta: "Houve algum fator que causou desconforto?",    resposta: "Barulho"    },
+                { pergunta: "Como foi o comportamento geral?",              resposta: "Tranquilo"  }
+            ]
+        };
+
+        ultimosDadosRelatorio = dadosExemplo;
+
+        preencherCards(dadosExemplo);
+        renderizarGraficos(dadosExemplo);
+        preencherDiario(dadosExemplo);
+
+    }
+
+
+    // ==========================
+    // PREENCHER CARDS
+    // ==========================
+
+    function preencherCards(dados) {
+
+        document.getElementById("alertasEstresse").textContent =
+            dados.alertas ?? 0;
+
+        document.getElementById("comparativoAlertas").textContent =
+            traduzir(dados.comparativoAlertas || "registrados este mês");
+
+        document.getElementById("tempoEstresse").textContent =
+            dados.tempo || "0 min";
+
+        document.getElementById("comparativoTempo").textContent =
+            traduzir(dados.comparativoTempo || "por episódio");
+
+        document.getElementById("alertasEstresseDiario").textContent =
+            dados.alertasHoje ?? 0;
+
+        document.getElementById("comparativoAltasDiario").textContent =
+            traduzir(dados.comparativoAlertasDiario || "registrados hoje");
+
+        document.getElementById("tempoEstresseDiario").textContent =
+            dados.tempoDiario || "0 min";
+
+        document.getElementById("comparativoTempoDiario").textContent =
+            traduzir(dados.comparativoTempo || "por episódio");
+
+    }
+
+
+    // ==========================
+    // GRÁFICOS COM CHART.JS
+    // ==========================
+
+    let graficos = {};
+    let dadosEstresseGlobal = null;
+    let dadosGatilhosGlobal = null;
+    let dadosEvolucaoGlobal = null;
+
+    const VERDE = "#32C26D";
+    const AZUL  = "#0AB7FB";
+
+    function renderizarGraficos(dados) {
+
+        dadosEstresseGlobal = dados.graficoEstresse;
+        dadosGatilhosGlobal = dados.graficoGatilhos;
+        dadosEvolucaoGlobal = dados.graficoEvolucao;
+
+        Object.values(graficos).forEach(g => g.destroy());
+        graficos = {};
+
+        criarGraficoEstresse("bar");
+        criarGraficoGatilhos("doughnut");
+        criarGraficoEvolucao("line");
+
+    }
+
+    function criarGraficoEstresse(tipo) {
+
+        if (graficos.estresse) {
+            graficos.estresse.destroy();
+        }
+
+        const ctx = document.getElementById("graficoEstresse").getContext("2d");
+        const dadosArr = dadosEstresseGlobal?.dados || [];
+        const labelsArr = (dadosEstresseGlobal?.labels || []).map(traduzir);
+
+        const cores = dadosArr.map(v =>
+            v === Math.max(...dadosArr) ? "#E53E3E" :
+            v > 5 ? "#F6AD55" : VERDE
+        );
+
+        const gradiente = ctx.createLinearGradient(0, 0, 0, 300);
+        gradiente.addColorStop(0, "rgba(50, 194, 109, 0.35)");
+        gradiente.addColorStop(1, "rgba(50, 194, 109, 0)");
+
+        graficos.estresse = new Chart(ctx, {
+            type: tipo,
+            data: {
+                labels: labelsArr,
+                datasets: [{
+                    label:           "Alertas",
+                    data:            dadosArr,
+                    backgroundColor: tipo === "line" ? gradiente : cores,
+                    borderColor:     tipo === "line" ? VERDE : cores,
+                    borderWidth:     tipo === "line" ? 2.5 : 0,
+                    borderRadius:    tipo === "bar" ? 6 : 0,
+                    pointBackgroundColor: tipo === "line"
+                        ? dadosArr.map(v => v === Math.max(...dadosArr) ? "#E53E3E" : VERDE)
+                        : undefined,
+                    pointRadius: tipo === "line" ? 5 : undefined,
+                    tension:     tipo === "line" ? 0.4 : undefined,
+                    fill:        tipo === "line" ? true : false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 2 } }
+                }
+            }
+        });
+    }
+
+    function trocarTipoEstresse(tipo) {
+        criarGraficoEstresse(tipo);
+        const iconePorTipo = { bar: "fa-chart-column", line: "fa-chart-line" };
+        atualizarBotoesTipo("graficoEstresse", tipo, iconePorTipo);
+    }
+
+    function criarGraficoGatilhos(tipo) {
+
+        if (graficos.gatilhos) {
+            graficos.gatilhos.destroy();
+        }
+
+        const gatilhos = dadosGatilhosGlobal || { labels: [], dados: [], cores: [] };
+        const labelsArr = (gatilhos.labels || []).map(traduzir);
+        const legenda  = document.getElementById("legendaGatilhos");
+        const ehRosca  = tipo === "doughnut" || tipo === "pie";
+
+        const ctx = document.getElementById("graficoGatilhos").getContext("2d");
+
+        graficos.gatilhos = new Chart(ctx, {
+            type: tipo,
+            data: {
+                labels: labelsArr,
+                datasets: [{
+                    data:            gatilhos.dados,
+                    backgroundColor: gatilhos.cores || [VERDE, AZUL, "#1D8EC9", "#C2C2C2"],
+                    borderWidth:     0,
+                    hoverOffset:     8,
+                    borderRadius:    tipo === "bar" ? 6 : 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: tipo === "doughnut" ? "65%" : 0,
+                plugins: {
+                    legend: { display: tipo === "bar" ? true : false }
+                },
+                scales: tipo === "bar"
+                    ? { y: { beginAtZero: true } }
+                    : {}
+            }
+        });
+
+        if (legenda) {
+            if (ehRosca) {
+                legenda.innerHTML = "";
+                gatilhos.labels.forEach((label, i) => {
+                    legenda.innerHTML += `
+                        <div class="legenda-item">
+                            <span class="legenda-cor" style="background:${gatilhos.cores[i] || VERDE}"></span>
+                            <span>${traduzir(label)} ${gatilhos.dados[i]}%</span>
+                        </div>
+                    `;
+                });
+                legenda.style.display = "flex";
+            } else {
+                legenda.style.display = "none";
+            }
+        }
+    }
+
+    function trocarTipoGatilhos(tipo) {
+        criarGraficoGatilhos(tipo);
+        const iconePorTipo = { doughnut: "fa-circle-dot", pie: "fa-chart-pie", bar: "fa-chart-column" };
+        atualizarBotoesTipo("graficoGatilhos", tipo, iconePorTipo);
+    }
+
+    function criarGraficoEvolucao(tipo) {
+
+        if (graficos.evolucao) {
+            graficos.evolucao.destroy();
+        }
+
+        const ctx = document.getElementById("graficoEvolucao").getContext("2d");
+        const dadosArr = dadosEvolucaoGlobal?.dados || [];
+        const labelsArr = (dadosEvolucaoGlobal?.labels || []).map(traduzir);
+
+        const gradiente = ctx.createLinearGradient(0, 0, 0, 300);
+        gradiente.addColorStop(0, "rgba(50, 194, 109, 0.35)");
+        gradiente.addColorStop(1, "rgba(50, 194, 109, 0)");
+
+        graficos.evolucao = new Chart(ctx, {
+            type: tipo,
+            data: {
+                labels: labelsArr,
+                datasets: [{
+                    label:           "Crises sensoriais",
+                    data:            dadosArr,
+                    borderColor:     VERDE,
+                    backgroundColor: tipo === "line" ? gradiente : VERDE,
+                    borderWidth:     tipo === "line" ? 2.5 : 0,
+                    borderRadius:    tipo === "bar" ? 6 : 0,
+                    pointBackgroundColor: tipo === "line"
+                        ? dadosArr.map(v => v === Math.max(...dadosArr) ? "#E53E3E" : VERDE)
+                        : undefined,
+                    pointRadius: tipo === "line" ? 5 : undefined,
+                    tension:     tipo === "line" ? 0.4 : undefined,
+                    fill:        tipo === "line" ? true : false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 2 } }
+                }
+            }
+        });
+    }
+
+    function trocarTipoEvolucao(tipo) {
+        criarGraficoEvolucao(tipo);
+        const iconePorTipo = { line: "fa-chart-line", bar: "fa-chart-column" };
+        atualizarBotoesTipo("graficoEvolucao", tipo, iconePorTipo);
+    }
+
+    function atualizarBotoesTipo(canvasId, tipoAtivo, iconePorTipo) {
+
+        const card   = document.getElementById(canvasId).closest(".grafico-card");
+        const botoes = card.querySelectorAll(".btn-tipo-grafico button");
+
+        botoes.forEach(btn => {
+            const icone = btn.querySelector("i");
+            if (!icone) return;
+
+            const tipoBtn = Object.entries(iconePorTipo).find(([, cls]) =>
+                icone.classList.contains(cls)
+            )?.[0];
+
+            btn.classList.toggle("ativo", tipoBtn === tipoAtivo);
+        });
+    }
+
+
+    // ==========================
+    // PREENCHER ABA DIÁRIO
+    // ==========================
+
+    function preencherDiario(dados) {
+
+        document.getElementById("dataRelatorio").textContent =
+            traduzir(dados.dataRelatorio || "Nenhum relatório encontrado.");
+
+        const lista = document.getElementById("listaPerguntas");
+        lista.innerHTML = "";
+
+        if (!dados.perguntas || dados.perguntas.length === 0) {
+
+            const textoVazio = traduzir("Nenhum relatório preenchido ainda.");
+            const textoLink  = traduzir("Fazer relatório agora");
+
+            lista.innerHTML = `
+                <p class="sem-dados">
+                    ${textoVazio}
+                    <a href="/RelatorioDiario">${textoLink}</a>
+                </p>
+            `;
+
+            return;
+
+        }
+
+        dados.perguntas.forEach(item => {
+
+            const div = document.createElement("div");
+            div.className = "pergunta-item";
+
+            div.innerHTML = `
+                <span class="pergunta-texto">${item.pergunta}</span>
+                <span class="pergunta-badge">${item.resposta}</span>
+            `;
+
+            lista.appendChild(div);
+
+        });
+
+    }
+
+
+    // ==========================
+    // NOTIFICAÇÕES
+    // ==========================
+
+    const painelNotificacoes = document.getElementById("painelNotificacoes");
+    const listaNotificacoes  = document.getElementById("listaNotificacoes");
+
+    function formatarItemNotificacao(item) {
+        const classeExtra = item.lida ? "" : "nao-lida";
+        return `
+            <div class="item-notificacao ${classeExtra}">
+                ${item.mensagem}
+                <span class="tempo-notificacao">${item.tempo}</span>
+            </div>
+        `;
+    }
+
+    async function carregarNotificacoes() {
+        try {
+            const resposta = await fetch("/api/notificacoes");
+            if (!resposta.ok) throw new Error();
+
+            const dados = await resposta.json();
+            const itens = dados.notificacoes || [];
+
+            listaNotificacoes.innerHTML = itens.length === 0
+                ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+                : itens.map(formatarItemNotificacao).join("");
+
+            const naoLidas = itens.filter(item => !item.lida).length;
+            document.getElementById("quantidadeNotificacoes").textContent = naoLidas;
+
+        } catch (erro) {
+            console.log("Erro ao carregar notificações:", erro);
+            listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar as notificações.</div>`;
+        }
+    }
+
+    async function marcarNotificacoesComoLidas() {
+        try {
+            await fetch("/api/notificacoes/marcar-lidas", { method: "POST" });
+            document.getElementById("quantidadeNotificacoes").textContent = "0";
+        } catch (erro) {
+            console.log("Erro ao marcar notificações como lidas:", erro);
+        }
+    }
+
+    document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
+        e.stopPropagation();
+
+        const estaAberto = painelNotificacoes.classList.contains("aberto");
+        if (estaAberto) {
+            painelNotificacoes.classList.remove("aberto");
+            return;
+        }
+
+        painelNotificacoes.classList.add("aberto");
+        await carregarNotificacoes();
+        marcarNotificacoesComoLidas();
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!painelNotificacoes.contains(e.target)) {
+            painelNotificacoes.classList.remove("aberto");
+        }
+    });
+
+
+    // ==========================
+    // INICIALIZAÇÃO
+    // ==========================
+
+    aplicarIdiomaEstatico();
+    carregarUsuario();
+    carregarRelatorios();
+    carregarNotificacoes();
+
+</script>
+
+<script src="/js/tema.js"></script>
+
+</body>
+
+</html>

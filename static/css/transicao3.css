@@ -1,0 +1,149 @@
+/* Reset básico */
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+
+html, body {
+height: 100%;
+}
+
+* {
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ========================================= */
+/* TELA */
+/* ========================================= */
+
+#conteudo {
+position: relative;
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+background: #F5F7FA;
+padding: 2rem;
+text-align: center;
+overflow: hidden;
+}
+
+/* ========================================= */
+/* SETA VOLTAR */
+/* ========================================= */
+
+.seta-esquerda {
+position: absolute;
+top: 50%;
+left: 1.75rem;
+transform: translateY(-50%);
+width: 48px;
+height: 48px;
+border-radius: 50%;
+border: none;
+background: #fff;
+color: #0AB7FB;
+font-size: 1.1rem;
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+transition: all 0.2s ease;
+}
+
+.seta-esquerda:hover {
+background: #0AB7FB;
+color: #fff;
+}
+
+/* ========================================= */
+/* CONTEÚDO */
+/* ========================================= */
+
+#conteudo > section {
+display: flex;
+flex-direction: column;
+align-items: center;
+width: 100%;
+max-width: 320px;
+}
+
+#conteudo > section img {
+width: 120px;
+height: auto;
+margin-bottom: 2rem;
+}
+
+#conteudo > section h1 {
+font-size: 1.4rem;
+font-weight: 700;
+color: #141414;
+margin-bottom: 0.75rem;
+}
+
+#conteudo > section p {
+font-size: 0.95rem;
+color: #5A5A5A;
+line-height: 1.55;
+margin-bottom: 2rem;
+}
+
+/* ========================================= */
+/* BOTÃO PRÓXIMO */
+/* ========================================= */
+
+.btn-proximo {
+width: 100%;
+padding: 0.9rem;
+background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+color: #fff;
+border: none;
+border-radius: 15px;
+font-size: 1rem;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.3s;
+box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.btn-proximo:hover {
+background: linear-gradient(90deg, #32C26D 0%, #1D8EC9 100%);
+}
+
+/* ========================================= */
+/* INDICADORES */
+/* ========================================= */
+
+#conteudo > div.indicadores {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 0.4rem;
+margin-top: 1.75rem;
+}
+
+#conteudo > div.indicadores span {
+width: 6px;
+height: 6px;
+border-radius: 999px;
+background: #D9D9D9;
+transition: all 0.3s ease;
+}
+
+#conteudo > div.indicadores span.ativo {
+width: 20px;
+background: #79D836;
+}
+
+/* Animação de deslize ao trocar de tela */
+#conteudo > div.indicadores span.ativo.animando {
+animation: deslizarIndicador 0.35s ease;
+}
+
+@keyframes deslizarIndicador {
+from { transform: translateX(var(--deslocamento, 0)); }
+to   { transform: translateX(0); }
+}

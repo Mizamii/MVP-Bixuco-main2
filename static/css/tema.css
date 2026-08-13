@@ -1,0 +1,73 @@
+/* ==========================================================
+   tema.css
+   Arquivo ÚNICO de cores compartilhado por todas as páginas.
+   Inclua este arquivo em TODAS as páginas, antes do CSS
+   específico de cada uma:
+
+       <link rel="stylesheet" href="/css/tema.css">
+       <link rel="stylesheet" href="/css/home.css">   (ou a página que for)
+
+   As páginas devem usar var(--nome-da-variavel) em vez de
+   cores fixas (#fff, #141414 etc) sempre que a cor precisar
+   mudar entre claro e escuro. Cores que são sempre iguais nos
+   dois temas (como os gradientes verde/azul da marca) podem
+   continuar fixas.
+   ========================================================== */
+
+:root {
+
+    /* Fundo geral da página e dos cards */
+    --cor-fundo-pagina: #F5F7FA;
+    --cor-fundo-card: #ffffff;
+    --cor-fundo-hover: #F0F2F5;
+    --cor-fundo-hover-forte: #E7EBF0;
+
+    /* Texto */
+    --cor-texto-principal: #141414;
+    --cor-texto-secundario: #5A5A5A;
+    --cor-texto-esmaecido: #8A8F98;
+
+    /* Bordas e divisores */
+    --cor-borda: #E7EBF0;
+    --cor-borda-suave: #EEF1F4;
+
+    /* Sombra padrão dos cards */
+    --sombra-card: 0 4px 14px rgba(0, 0, 0, 0.05);
+
+    /* Cores de marca — iguais nos dois temas, não precisam mudar */
+    --cor-marca-verde: #32C26D;
+    --cor-marca-azul: #0AB7FB;
+    --cor-marca-verde-claro: #79D836;
+    --cor-marca-azul-escuro: #1D8EC9;
+    --cor-alerta: #E24C4C;
+    --cor-aviso: #FF9F0A;
+
+}
+
+/* ========================================= */
+/* TEMA ESCURO — sobrescreve as variáveis     */
+/* ========================================= */
+
+body.tema-escuro {
+
+    --cor-fundo-pagina: #16181C;
+    --cor-fundo-card: #1F2227;
+    --cor-fundo-hover: #262A31;
+    --cor-fundo-hover-forte: #2E333B;
+
+    --cor-texto-principal: #F5F7FA;
+    --cor-texto-secundario: #B8BCC4;
+    --cor-texto-esmaecido: #8891A0;
+
+    --cor-borda: #2E333B;
+    --cor-borda-suave: #262A31;
+
+    --sombra-card: 0 4px 14px rgba(0, 0, 0, 0.35);
+
+}
+
+/* Transição suave ao trocar de tema, aplicada globalmente */
+body,
+body * {
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}

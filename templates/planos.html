@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Planos</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
+
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/planos.css">
+
+</head>
+<body>
+
+<div class="container">
+
+    <!-- ========================= -->
+    <!-- MENU LATERAL — reduzido (só Planos, Config, Sobre) -->
+    <!-- ========================= -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <img src="/img/Logo_Colorida.png" alt="Logo Bixuco">
+        </div>
+
+        <nav>
+            <a href="/planos" class="ativo">
+                <i class="fa-solid fa-dollar-sign"></i>
+                <span>Planos</span>
+            </a>
+
+            <a href="/configuracoesSemAssinatura">
+                <i class="fa-solid fa-gear"></i>
+                <span>Configurações</span>
+            </a>
+
+            <a href="/sobreSemAssinatura">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>Sobre</span>
+            </a>
+        </nav>
+
+        <div class="tema">
+            <button id="btnClaro" class="ativo" type="button">
+                <i class="fa-regular fa-sun"></i>
+                Claro
+            </button>
+            <button id="btnEscuro" type="button">
+                <i class="fa-regular fa-moon"></i>
+                Escuro
+            </button>
+        </div>
+
+        <div class="sidebar-divisor"></div>
+
+        <a href="/logout" class="logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span>Sair</span>
+        </a>
+
+    </aside>
+
+    <!-- ========================= -->
+    <!-- CONTEÚDO -->
+    <!-- ========================= -->
+    <main class="conteudo">
+
+        <header class="topo">
+
+            <button class="tradutor" type="button" id="btnTraduzir">
+                <i class="fa-solid fa-language"></i>
+                <span id="textoTradutor">Traduzir para inglês</span>
+            </button>
+
+            <div
+                id="google_translate_element"
+                style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);"
+            ></div>
+
+            <div class="usuario">
+                <button class="notificacoes" type="button">
+                    <i class="fa-regular fa-bell"></i>
+                </button>
+
+                <img
+                    id="fotoUsuario"
+                    src="/img/perfilPadrao.png"
+                    alt="Foto do usuário"
+                    onerror="this.src='/img/perfilPadrao.png'"
+                >
+
+                <div>
+                    <h3 id="nomeUsuario">Carregando...</h3>
+                    <span id="tipoConta">Responsável</span>
+                </div>
+            </div>
+
+        </header>
+
+        <div class="conteudo-corpo">
+
+            <!-- Cabeçalho -->
+            <section class="cabecalho-planos">
+                <div>
+                    <h1>Planos</h1>
+                    <p>Aprimore seu plano e ganhe mais benefícios</p>
+                </div>
+                <img
+                    src="/img/BixucoPlanos.png"
+                    alt="Mascote"
+                    onerror="this.style.display='none'"
+                >
+            </section>
+
+            <!-- Plano atual -->
+            <p id="planoAtualInfo" class="plano-atual-info" style="display:none;">
+                Você está no <strong id="nomePlanoAtual">Grátis</strong>.
+            </p>
+
+            <!-- Cards de planos -->
+            <section class="cards-planos">
+
+                <!-- PLANO GRÁTIS -->
+                <div
+                    class="card-plano"
+                    id="cardGratis"
+                    onclick="selecionarPlano('gratis', this)"
+                >
+                    <h2 class="plano-preco plano-preco--verde">Grátis</h2>
+
+                    <h3>Benefícios</h3>
+
+                    <ul>
+                        <li>Acesso à aba "Sobre"</li>
+                        <li>Conhecer como o Bixuco funciona</li>
+                        <li>Informações sobre TPS e hipersensibilidade</li>
+                        <li>Entendimento da proposta da plataforma</li>
+                        <li>Sem custo</li>
+                    </ul>
+                </div>
+
+                <!-- PLANO MÉDIO -->
+                <div
+                    class="card-plano"
+                    id="cardMedio"
+                    onclick="selecionarPlano('medio', this)"
+                >
+                    <h2 class="plano-preco plano-preco--verde">R$ 29<span>/mês</span></h2>
+
+                    <h3>Benefícios</h3>
+
+                    <ul>
+                        <li>Acesso completo ao aplicativo</li>
+                        <li>Registro de relatórios diários</li>
+                        <li>Visualização de gráficos e dados</li>
+                        <li>Acompanhamento do comportamento da criança</li>
+                        <li>Identificação de padrões e possíveis sinais de estresse</li>
+                        <li>Uso da pelúcia sensorizada integrada</li>
+                    </ul>
+                </div>
+
+                <!-- PLANO COMPLETO -->
+                <div
+                    class="card-plano"
+                    id="cardCompleto"
+                    onclick="selecionarPlano('completo', this)"
+                >
+                    <h2 class="plano-preco plano-preco--verde">R$ 55<span>/mês</span></h2>
+
+                    <h3>Benefícios</h3>
+
+                    <ul>
+                        <li>Tudo do plano Bixuco</li>
+                        <li>Acesso a dicas personalizadas</li>
+                        <li>Suporte com psicólogo</li>
+                        <li>Compartilhamento de dados com profissional vinculado</li>
+                        <li>Acompanhamento mais completo e orientado</li>
+                        <li>Maior segurança no cuidado diário</li>
+                    </ul>
+                </div>
+
+            </section>
+
+            <!-- Erro inline -->
+            <span
+                id="erroPlano"
+                style="display:none; color:#E53E3E; font-size:0.9rem; text-align:center; display:block; margin-top:0.5rem;"
+            ></span>
+
+            <!-- Botão confirmar -->
+            <button
+                type="button"
+                id="btnConfirmar"
+                class="btn-confirmar-plano"
+                onclick="confirmarPlano()"
+            >
+                Confirmar
+            </button>
+
+        </div>
+
+    </main>
+</div>
+
+<script>
+
+    // Plano selecionado pelo usuário
+    let planoSelecionado = null;
+
+    // =========================
+    // CARREGAR USUÁRIO
+    // =========================
+    async function carregarUsuario() {
+        try {
+            const resposta = await fetch("/api/home");
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            if (!resposta.ok) return;
+
+            const dados = await resposta.json();
+
+            document.getElementById("nomeUsuario").textContent =
+                dados.nome || "Usuário";
+
+            document.getElementById("tipoConta").textContent =
+                dados.tipoConta || "Responsável";
+
+            if (dados.fotoPerfil) {
+                document.getElementById("fotoUsuario").src = dados.fotoPerfil;
+            }
+
+            // Mostra o plano atual se já tiver um
+            if (dados.plano) {
+                document.getElementById("nomePlanoAtual").textContent = dados.plano;
+                document.getElementById("planoAtualInfo").style.display = "block";
+
+                // Pré-seleciona o card do plano atual
+                const mapa = { "Grátis": "gratis", "Médio": "medio", "Completo": "completo" };
+                const chave = mapa[dados.plano];
+                if (chave) {
+                    const card = document.getElementById(
+                        chave === "gratis" ? "cardGratis" :
+                        chave === "medio" ? "cardMedio" : "cardCompleto"
+                    );
+                    if (card) selecionarPlano(chave, card);
+                }
+            }
+
+        } catch (e) {
+            console.log("Erro ao carregar usuário:", e);
+        }
+    }
+
+    // =========================
+    // SELECIONAR CARD
+    // =========================
+    function selecionarPlano(plano, card) {
+        // Remove seleção anterior
+        document.querySelectorAll(".card-plano").forEach(c => {
+            c.classList.remove("card-plano--selecionado");
+        });
+
+        // Marca o card clicado
+        card.classList.add("card-plano--selecionado");
+        planoSelecionado = plano;
+
+        // Esconde erro se estava visível
+        document.getElementById("erroPlano").style.display = "none";
+    }
+
+    // =========================
+    // CONFIRMAR PLANO
+    // =========================
+    async function confirmarPlano() {
+
+        if (!planoSelecionado) {
+            const erroEl = document.getElementById("erroPlano");
+            erroEl.textContent = "Selecione um plano antes de confirmar.";
+            erroEl.style.display = "block";
+            return;
+        }
+
+        const btn = document.getElementById("btnConfirmar");
+        btn.disabled    = true;
+        btn.textContent = "Processando...";
+
+        try {
+
+            const resposta = await fetch("/api/planos/assinar", {
+                method:  "POST",
+                headers: { "Content-Type": "application/json" },
+                body:    JSON.stringify({ plano: planoSelecionado })
+            });
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(dados.erro || "Erro ao processar.");
+            }
+
+            // Grátis → vai direto para a home
+            if (dados.destino) {
+                window.location.href = dados.destino;
+                return;
+            }
+
+            // Pago → redireciona para o Mercado Pago
+            if (dados.linkPagamento) {
+                window.location.href = dados.linkPagamento;
+                return;
+            }
+
+        } catch (erro) {
+
+            console.log("Erro ao confirmar plano:", erro);
+
+            const erroEl = document.getElementById("erroPlano");
+            erroEl.textContent = erro.message || "Erro ao processar. Tente novamente.";
+            erroEl.style.display = "block";
+
+        } finally {
+
+            btn.disabled    = false;
+            btn.textContent = "Confirmar";
+
+        }
+
+    }
+
+    // =========================
+    // TRADUÇÃO VIA COOKIE
+    // =========================
+    function lerCookie(nome) {
+        const v = `; ${document.cookie}`;
+        const p = v.split(`; ${nome}=`);
+        if (p.length === 2) return p.pop().split(";").shift();
+        return null;
+    }
+
+    function iniciarTradutor() {
+        new google.translate.TranslateElement(
+            { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
+            "google_translate_element"
+        );
+    }
+
+    document.getElementById("btnTraduzir").addEventListener("click", () => {
+        const atual     = lerCookie("googtrans");
+        const traduzido = atual && atual.includes("/en");
+
+        document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+        document.cookie = `googtrans=; path=/; domain=${location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
+
+        if (!traduzido) {
+            document.cookie = `googtrans=/pt/en; path=/`;
+            document.cookie = `googtrans=/pt/en; path=/; domain=${location.hostname}`;
+        }
+        window.location.reload();
+    });
+
+    const cookieAtual = lerCookie("googtrans");
+    document.getElementById("textoTradutor").textContent =
+        (cookieAtual && cookieAtual.includes("/en")) ? "Voltar para português" : "Traduzir para inglês";
+
+    // =========================
+    // TEMA
+    // =========================
+    function aplicarTema(tema) {
+        document.body.classList.remove("tema-claro", "tema-escuro");
+        document.body.classList.add(`tema-${tema}`);
+        document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
+        document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
+        localStorage.setItem("tema", tema);
+    }
+
+    document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema("claro"));
+    document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
+
+    // =========================
+    // INICIALIZAÇÃO
+    // =========================
+    const temaSalvo = localStorage.getItem("tema") || "claro";
+    aplicarTema(temaSalvo);
+    carregarUsuario();
+
+</script>
+
+</body>
+</html>
