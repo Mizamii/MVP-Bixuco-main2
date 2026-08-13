@@ -25,8 +25,6 @@
 
     <link rel="stylesheet" href="/css/layout.css">
 
-    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
-
     <link
         rel="stylesheet"
         href="/css/home.css"
@@ -68,22 +66,22 @@
 
                 <a href="/home">
                     <i class="fa-solid fa-house"></i>
-                    <span>Início</span>
+                    <span data-pt="Início" data-en="Home">Início</span>
                 </a>
 
                 <a href="/relatorios">
                     <i class="fa-solid fa-chart-line"></i>
-                    <span>Relatórios</span>
+                    <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
                 </a>
 
                 <a href="/sobre">
                     <i class="fa-solid fa-circle-info"></i>
-                    <span>Sobre</span>
+                    <span data-pt="Sobre" data-en="About">Sobre</span>
                 </a>
 
                 <a href="/configuracoes">
                     <i class="fa-solid fa-gear"></i>
-                    <span>Configurações</span>
+                    <span data-pt="Configurações" data-en="Settings">Configurações</span>
                 </a>
 
             </nav>
@@ -92,6 +90,8 @@
                 class="btn-relatorio"
                 type="button"
                 onclick="location.href='/RelatorioDiario'"
+                data-pt="Relatório diário"
+                data-en="Daily report"
             >
 
                 Relatório diário
@@ -108,7 +108,7 @@
 
                     <i class="fa-regular fa-sun"></i>
 
-                    Claro
+                    <span data-pt="Claro" data-en="Light">Claro</span>
 
                 </button>
 
@@ -119,7 +119,7 @@
 
                     <i class="fa-regular fa-moon"></i>
 
-                    Escuro
+                    <span data-pt="Escuro" data-en="Dark">Escuro</span>
 
                 </button>
 
@@ -135,7 +135,7 @@
 
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
 
-                <span>Sair</span>
+                <span data-pt="Sair" data-en="Log out">Sair</span>
 
             </a>
 
@@ -154,11 +154,6 @@
                     <span id="textoTradutor">Traduzir para inglês</span>
                 </button>
 
-                <div
-                    id="google_translate_element"
-                    style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0);"
-                ></div>
-
                 <div class="usuario">
 
                     <div class="notificacoes-wrapper">
@@ -168,9 +163,9 @@
                         </button>
 
                         <div class="painel-notificacoes" id="painelNotificacoes">
-                            <div class="painel-header">Notificações</div>
+                            <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
                             <div id="listaNotificacoes">
-                                <div class="painel-vazio">Carregando...</div>
+                                <div class="painel-vazio" data-pt="Carregando..." data-en="Loading...">Carregando...</div>
                             </div>
                         </div>
                     </div>
@@ -203,13 +198,13 @@
 
             <section class="titulo">
 
-                <h1>
+                <h1 data-pt="Meu perfil" data-en="My profile">
 
                     Meu perfil
 
                 </h1>
 
-                <p>
+                <p data-pt="Gerencie suas informações e preferências" data-en="Manage your information and preferences">
 
                     Gerencie suas informações e preferências
 
@@ -271,6 +266,8 @@
                                     class="btn-editar-nome"
                                     id="btnEditarNome"
                                     title="Editar nome"
+                                    data-pt-title="Editar nome"
+                                    data-en-title="Edit name"
                                 >
                                     <i class="fa-solid fa-pen"></i>
                                 </button>
@@ -292,6 +289,8 @@
                                     class="btn-salvar-nome"
                                     id="btnSalvarNome"
                                     title="Salvar"
+                                    data-pt-title="Salvar"
+                                    data-en-title="Save"
                                 >
                                     <i class="fa-solid fa-check"></i>
                                 </button>
@@ -301,6 +300,8 @@
                                     class="btn-cancelar-nome"
                                     id="btnCancelarNome"
                                     title="Cancelar"
+                                    data-pt-title="Cancelar"
+                                    data-en-title="Cancel"
                                 >
                                     <i class="fa-solid fa-xmark"></i>
                                 </button>
@@ -320,10 +321,10 @@
                     </div>
 
                     <div class="perfil-foto-acoes" id="perfilFotoAcoes">
-                        <button type="button" class="btn-salvar-foto" id="btnSalvarFoto">
+                        <button type="button" class="btn-salvar-foto" id="btnSalvarFoto" data-pt="Salvar foto" data-en="Save photo">
                             Salvar foto
                         </button>
-                        <button type="button" class="btn-cancelar-foto" id="btnCancelarFoto">
+                        <button type="button" class="btn-cancelar-foto" id="btnCancelarFoto" data-pt="Cancelar" data-en="Cancel">
                             Cancelar
                         </button>
                     </div>
@@ -352,13 +353,13 @@
 
                     <div class="mensagemPerfil">
 
-                        <strong>
+                        <strong data-pt="Você está fazendo um ótimo trabalho!" data-en="You're doing a great job!">
 
                             Você está fazendo um ótimo trabalho!
 
                         </strong>
 
-                        <p>
+                        <p data-pt="A consistência no acompanhamento faz toda diferença." data-en="Consistency in tracking makes all the difference.">
 
                             A consistência no acompanhamento faz toda diferença.
 
@@ -372,7 +373,7 @@
 
                     <section class="card crianca">
 
-                        <h2>
+                        <h2 data-pt="Criança cadastrada" data-en="Registered child">
 
                             Criança cadastrada
 
@@ -430,7 +431,7 @@
 
                     <section class="card terapeuta">
 
-                        <h2>
+                        <h2 data-pt="Terapeuta vinculado" data-en="Linked therapist">
 
                             Terapeuta vinculado
 
@@ -439,7 +440,7 @@
                         <!-- estado 1: sem vínculo nenhum -->
                         <div id="estadoSemVinculo">
 
-                            <p class="texto-vazio">Nenhum terapeuta vinculado ainda.</p>
+                            <p class="texto-vazio" data-pt="Nenhum terapeuta vinculado ainda." data-en="No therapist linked yet.">Nenhum terapeuta vinculado ainda.</p>
 
                             <button
                                 type="button"
@@ -449,7 +450,7 @@
 
                                 <i class="fa-solid fa-link"></i>
 
-                                Vincular terapeuta
+                                <span data-pt="Vincular terapeuta" data-en="Link therapist">Vincular terapeuta</span>
 
                             </button>
 
@@ -467,9 +468,9 @@
 
                                 <div>
 
-                                    <strong>Pedido enviado!</strong>
+                                    <strong data-pt="Pedido enviado!" data-en="Request sent!">Pedido enviado!</strong>
 
-                                    <p>Aguardando confirmação de <span id="nomeTerapeutaPendente">...</span></p>
+                                    <p><span data-pt="Aguardando confirmação de" data-en="Waiting for confirmation from">Aguardando confirmação de</span> <span id="nomeTerapeutaPendente">...</span></p>
 
                                 </div>
 
@@ -479,6 +480,8 @@
                                 type="button"
                                 class="btn-cancelar-vinculo"
                                 id="btnCancelarPedido"
+                                data-pt="Cancelar pedido"
+                                data-en="Cancel request"
                             >
 
                                 Cancelar pedido
@@ -499,9 +502,9 @@
 
                                 <div>
 
-                                    <strong>Pedido recusado</strong>
+                                    <strong data-pt="Pedido recusado" data-en="Request declined">Pedido recusado</strong>
 
-                                    <p>O terapeuta não aceitou o vínculo.</p>
+                                    <p data-pt="O terapeuta não aceitou o vínculo." data-en="The therapist did not accept the link.">O terapeuta não aceitou o vínculo.</p>
 
                                 </div>
 
@@ -516,7 +519,7 @@
 
                                 <i class="fa-solid fa-link"></i>
 
-                                Tentar outro terapeuta
+                                <span data-pt="Tentar outro terapeuta" data-en="Try another therapist">Tentar outro terapeuta</span>
 
                             </button>
 
@@ -549,7 +552,7 @@
 
                                 </div>
 
-                                <span class="badge-ativo">Ativo</span>
+                                <span class="badge-ativo" data-pt="Ativo" data-en="Active">Ativo</span>
 
                             </div>
 
@@ -559,7 +562,7 @@
                                 style="display: none;"
                             >
 
-                                <p>
+                                <p data-pt="Tem certeza que deseja remover o terapeuta?" data-en="Are you sure you want to remove the therapist?">
 
                                     Tem certeza que deseja remover o terapeuta?
 
@@ -571,6 +574,8 @@
                                         type="button"
                                         id="btnConfirmarRemover"
                                         class="btn-confirmar"
+                                        data-pt="Sim, remover"
+                                        data-en="Yes, remove"
                                     >
 
                                         Sim, remover
@@ -581,6 +586,8 @@
                                         type="button"
                                         id="btnCancelarRemover"
                                         class="btn-cancelar-remocao"
+                                        data-pt="Cancelar"
+                                        data-en="Cancel"
                                     >
 
                                         Cancelar
@@ -599,7 +606,7 @@
 
                                 <i class="fa-solid fa-link-slash"></i>
 
-                                Remover terapeuta
+                                <span data-pt="Remover terapeuta" data-en="Remove therapist">Remover terapeuta</span>
 
                             </button>
 
@@ -611,7 +618,7 @@
 
                     <section class="card conta">
 
-                        <h2>
+                        <h2 data-pt="Conta" data-en="Account">
 
                             Conta
 
@@ -630,7 +637,7 @@
 
                             <div>
 
-                                <h3>
+                                <h3 data-pt="Minha assinatura" data-en="My subscription">
 
                                     Minha assinatura
 
@@ -674,21 +681,22 @@
         <div class="modal-conteudo">
 
             <div class="modal-header">
-                <h3>Vincular terapeuta</h3>
+                <h3 data-pt="Vincular terapeuta" data-en="Link therapist">Vincular terapeuta</h3>
                 <button
                 type="button"
                     class="btn-fechar-modal"
                     id="btnFecharModalVincular"
+                    aria-label="Fechar"
                 >
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <p class="modal-descricao">
+            <p class="modal-descricao" data-pt="Digite o código de vínculo do seu terapeuta. Ele encontra o código no perfil dele." data-en="Enter your therapist's link code. They can find it on their own profile.">
                 Digite o código de vínculo do seu terapeuta. Ele encontra o código no perfil dele.
             </p>
 
-            <label for="inputCodigoTerapeuta">Código do terapeuta</label>
+            <label for="inputCodigoTerapeuta" data-pt="Código do terapeuta" data-en="Therapist code">Código do terapeuta</label>
             <input
                 type="text"
                 id="inputCodigoTerapeuta"
@@ -705,6 +713,8 @@
                 type="button"
                 class="btn-salvar-crianca"
                 id="btnEnviarPedidoVinculo"
+                data-pt="Enviar pedido"
+                data-en="Send request"
             >
                 Enviar pedido
             </button>
@@ -720,7 +730,7 @@
         <div class="modal-conteudo">
 
             <div class="modal-header">
-                <h3>Informações da criança</h3>
+                <h3 data-pt="Informações da criança" data-en="Child information">Informações da criança</h3>
                 <button
                     type="button"
                     class="btn-fechar-modal"
@@ -753,25 +763,27 @@
                 style="display: none;"
             >
 
-            <label for="inputNomeCrianca">Nome</label>
+            <label for="inputNomeCrianca" data-pt="Nome" data-en="Name">Nome</label>
             <input
                 type="text"
                 id="inputNomeCrianca"
                 maxlength="80"
             >
 
-            <label for="idadeCriancaModal">Idade</label>
+            <label for="idadeCriancaModal" data-pt="Idade" data-en="Age">Idade</label>
             <input
                 type="text"
                 id="idadeCriancaModal"
                 disabled
             >
-            <span class="dica-idade">A idade é calculada pela data de nascimento e não pode ser editada aqui.</span>
+            <span class="dica-idade" data-pt="A idade é calculada pela data de nascimento e não pode ser editada aqui." data-en="Age is calculated from the birth date and can't be edited here.">A idade é calculada pela data de nascimento e não pode ser editada aqui.</span>
 
             <button
                 type="button"
                 class="btn-salvar-crianca"
                 id="btnSalvarCrianca"
+                data-pt="Salvar alterações"
+                data-en="Save changes"
             >
                 Salvar alterações
             </button>
@@ -793,6 +805,8 @@
 
         let criancaAtual = null;
         let perfilCarregado = false;
+        let ultimoUsuario = null;
+        let ultimoVinculo = null;
 
         // ==========================
         // CARREGAR DADOS DO PERFIL
@@ -815,76 +829,8 @@
 
                 const usuario = await resposta.json();
 
-                document.getElementById("nomeUsuario").textContent =
-                    usuario.nome || "Usuário";
-
-                document.getElementById("perfilNome").textContent =
-                    usuario.nome || "Usuário";
-
-                document.getElementById("tipoConta").textContent =
-                    usuario.tipoConta || "Responsável";
-
-                document.getElementById("perfilDescricao").textContent =
-                    `${usuario.tipoConta || "Responsável"} • Membro desde ${usuario.anoCadastro || "2026"}`;
-
-                if (usuario.fotoPerfil) {
-
-                    document.getElementById("fotoUsuario").src = usuario.fotoPerfil;
-                    document.getElementById("fotoPerfil").src  = usuario.fotoPerfil;
-
-                    fotoOriginalSrc = usuario.fotoPerfil;
-
-                }
-
-                document.getElementById("badgeDias").innerHTML =
-                    `🔥 ${usuario.diasConsecutivos || 0} dias seguidos`;
-
-                document.getElementById("badgeMaiorOfensiva").innerHTML =
-                    `🏆 Maior sequência: ${usuario.maiorOfensiva ?? usuario.diasConsecutivos ?? 0} dias`;
-
-                document.getElementById("badgePlano").textContent =
-                    usuario.plano || "Plano gratuito";
-
-                document.getElementById("nomePlano").textContent =
-                    usuario.plano || "Plano gratuito";
-
-                if (usuario.crianca) {
-
-                    criancaAtual = usuario.crianca;
-
-                    document.getElementById("nomeCrianca").textContent =
-                        usuario.crianca.nome;
-
-                    document.getElementById("idadeCrianca").textContent =
-                        usuario.crianca.idade + " anos";
-
-                    if (usuario.crianca.foto) {
-
-                        document.getElementById("avatarCrianca").innerHTML =
-                            `<img src="${usuario.crianca.foto}" alt="${usuario.crianca.nome}">`;
-
-                    } else {
-
-                        document.getElementById("avatarCrianca").textContent =
-                            usuario.crianca.nome.charAt(0).toUpperCase();
-
-                    }
-
-                } else {
-
-                    criancaAtual = null;
-
-                    document.getElementById("nomeCrianca").textContent =
-                        "Nenhuma criança";
-
-                    document.getElementById("idadeCrianca").textContent =
-                        "Cadastre uma criança";
-
-                }
-
-                // Terapeuta é tratado à parte por carregarVinculo(),
-                // que consulta /api/vinculos/status e cobre os 4 estados
-                // (sem vínculo / pendente / recusado / aceito)
+                ultimoUsuario = usuario;
+                preencherPerfil(usuario);
 
             } catch (erro) {
 
@@ -895,6 +841,83 @@
                 perfilCarregado = true;
 
             }
+
+        }
+
+        function preencherPerfil(usuario) {
+
+            const nome     = usuario.nome     || traduzir("Usuário");
+            const tipoConta = traduzir(usuario.tipoConta || "Responsável");
+            const plano    = usuario.plano    || traduzir("Plano gratuito");
+
+            document.getElementById("nomeUsuario").textContent = nome;
+            document.getElementById("perfilNome").textContent  = nome;
+            document.getElementById("tipoConta").textContent   = tipoConta;
+
+            document.getElementById("perfilDescricao").textContent =
+                `${tipoConta} • ${traduzir("Membro desde")} ${usuario.anoCadastro || "2026"}`;
+
+            if (usuario.fotoPerfil) {
+
+                document.getElementById("fotoUsuario").src = usuario.fotoPerfil;
+                document.getElementById("fotoPerfil").src  = usuario.fotoPerfil;
+
+                fotoOriginalSrc = usuario.fotoPerfil;
+
+            }
+
+            const diasSeguidos = usuario.diasConsecutivos || 0;
+            const maiorSequencia = usuario.maiorOfensiva ?? usuario.diasConsecutivos ?? 0;
+
+            document.getElementById("badgeDias").innerHTML = idiomaAtual === "en"
+                ? `🔥 ${diasSeguidos}-day streak`
+                : `🔥 ${diasSeguidos} dias seguidos`;
+
+            document.getElementById("badgeMaiorOfensiva").innerHTML = idiomaAtual === "en"
+                ? `🏆 Longest streak: ${maiorSequencia} days`
+                : `🏆 Maior sequência: ${maiorSequencia} dias`;
+
+            document.getElementById("badgePlano").textContent = plano;
+            document.getElementById("nomePlano").textContent  = plano;
+
+            if (usuario.crianca) {
+
+                criancaAtual = usuario.crianca;
+
+                document.getElementById("nomeCrianca").textContent =
+                    usuario.crianca.nome;
+
+                document.getElementById("idadeCrianca").textContent = idiomaAtual === "en"
+                    ? `${usuario.crianca.idade} years old`
+                    : `${usuario.crianca.idade} anos`;
+
+                if (usuario.crianca.foto) {
+
+                    document.getElementById("avatarCrianca").innerHTML =
+                        `<img src="${usuario.crianca.foto}" alt="${usuario.crianca.nome}">`;
+
+                } else {
+
+                    document.getElementById("avatarCrianca").textContent =
+                        usuario.crianca.nome.charAt(0).toUpperCase();
+
+                }
+
+            } else {
+
+                criancaAtual = null;
+
+                document.getElementById("nomeCrianca").textContent =
+                    traduzir("Nenhuma criança");
+
+                document.getElementById("idadeCrianca").textContent =
+                    traduzir("Cadastre uma criança");
+
+            }
+
+            // Terapeuta é tratado à parte por carregarVinculo(),
+            // que consulta /api/vinculos/status e cobre os 4 estados
+            // (sem vínculo / pendente / recusado / aceito)
 
         }
 
@@ -945,7 +968,7 @@
             if (!arquivo) return;
 
             btnSalvarFoto.disabled    = true;
-            btnSalvarFoto.textContent = "Salvando...";
+            btnSalvarFoto.textContent = traduzir("Salvando...");
 
             try {
 
@@ -965,7 +988,7 @@
                 const dados = await resposta.json();
 
                 if (!resposta.ok || !dados.sucesso) {
-                    throw new Error(dados.erro || "Erro ao salvar a foto.");
+                    throw new Error(dados.erro || traduzir("Erro ao salvar a foto."));
                 }
 
                 const novaFoto = dados.fotoPerfil || fotoPerfilImg.src;
@@ -980,12 +1003,12 @@
             } catch (erro) {
 
                 console.log("Erro ao salvar foto de perfil:", erro);
-                alert(erro.message || "Erro ao salvar a foto. Tente novamente.");
+                alert(erro.message || traduzir("Erro ao salvar a foto. Tente novamente."));
 
             } finally {
 
                 btnSalvarFoto.disabled    = false;
-                btnSalvarFoto.textContent = "Salvar foto";
+                btnSalvarFoto.textContent = traduzir("Salvar foto");
 
             }
 
@@ -1029,7 +1052,7 @@
             const novoNome = inputNome.value.trim();
 
             if (novoNome.length < 2) {
-                erroNome.textContent   = "Digite um nome válido.";
+                erroNome.textContent   = traduzir("Digite um nome válido.");
                 erroNome.style.display = "block";
                 return;
             }
@@ -1054,7 +1077,7 @@
                 const dados = await resposta.json();
 
                 if (!resposta.ok || !dados.sucesso) {
-                    throw new Error(dados.erro || "Erro ao salvar o nome.");
+                    throw new Error(dados.erro || traduzir("Erro ao salvar o nome."));
                 }
 
                 const nomeFinal = dados.nome || novoNome;
@@ -1068,7 +1091,7 @@
             } catch (erro) {
 
                 console.log("Erro ao salvar nome:", erro);
-                erroNome.textContent   = erro.message || "Erro ao salvar. Tente novamente.";
+                erroNome.textContent   = erro.message || traduzir("Erro ao salvar. Tente novamente.");
                 erroNome.style.display = "block";
 
             } finally {
@@ -1129,7 +1152,9 @@
         function abrirModalCrianca() {
 
             inputNomeCrianca.value  = criancaAtual.nome || "";
-            idadeCriancaModal.value = (criancaAtual.idade ?? "0") + " anos";
+            idadeCriancaModal.value = idiomaAtual === "en"
+                ? `${criancaAtual.idade ?? "0"} years old`
+                : `${criancaAtual.idade ?? "0"} anos`;
 
             fotoCriancaOriginal = criancaAtual.foto || "/img/perfilPadrao.png";
             fotoCriancaModal.src = fotoCriancaOriginal;
@@ -1190,12 +1215,12 @@
             const novoNome = inputNomeCrianca.value.trim();
 
             if (novoNome.length < 2) {
-                mostrarStatusCrianca("Digite um nome válido.", "erro");
+                mostrarStatusCrianca(traduzir("Digite um nome válido."), "erro");
                 return;
             }
 
             btnSalvarCrianca.disabled    = true;
-            btnSalvarCrianca.textContent = "Salvando...";
+            btnSalvarCrianca.textContent = traduzir("Salvando...");
 
             try {
 
@@ -1219,7 +1244,7 @@
                 const dados = await resposta.json();
 
                 if (!resposta.ok || !dados.sucesso) {
-                    throw new Error(dados.erro || "Erro ao salvar as alterações.");
+                    throw new Error(dados.erro || traduzir("Erro ao salvar as alterações."));
                 }
 
                 criancaAtual.nome = dados.nome || novoNome;
@@ -1235,7 +1260,7 @@
                         criancaAtual.nome.charAt(0).toUpperCase();
                 }
 
-                mostrarStatusCrianca("Alterações salvas com sucesso!", "sucesso");
+                mostrarStatusCrianca(traduzir("Alterações salvas com sucesso!"), "sucesso");
 
                 setTimeout(fecharModalCrianca, 1400);
 
@@ -1247,7 +1272,7 @@
             } finally {
 
                 btnSalvarCrianca.disabled    = false;
-                btnSalvarCrianca.textContent = "Salvar alterações";
+                btnSalvarCrianca.textContent = traduzir("Salvar alterações");
 
             }
 
@@ -1286,12 +1311,14 @@
                 if (!resposta.ok) throw new Error();
 
                 const dados = await resposta.json();
+                ultimoVinculo = dados;
                 atualizarEstadoVinculo(dados);
 
             } catch (erro) {
 
                 console.log("Erro ao carregar vínculo:", erro);
-                atualizarEstadoVinculo({ status: "sem_vinculo" });
+                ultimoVinculo = { status: "sem_vinculo" };
+                atualizarEstadoVinculo(ultimoVinculo);
 
             }
 
@@ -1317,7 +1344,7 @@
                     dados.nomeTerapeuta || "...";
 
                 document.getElementById("crpTerapeutaVinculado").textContent =
-                    `Código: ${dados.crpTerapeuta || "..."}`;
+                    `${traduzir("Código")}: ${dados.crpTerapeuta || "..."}`;
 
                 if (dados.fotoTerapeuta) {
                     document.getElementById("fotoTerapeutaVinculado").src =
@@ -1387,13 +1414,13 @@
             erroVincular.style.display = "none";
 
             if (!codigo) {
-                erroVincular.textContent   = "Digite o código do terapeuta.";
+                erroVincular.textContent   = traduzir("Digite o código do terapeuta.");
                 erroVincular.style.display = "block";
                 return;
             }
 
             btnEnviarPedidoVinculo.disabled    = true;
-            btnEnviarPedidoVinculo.textContent = "Enviando...";
+            btnEnviarPedidoVinculo.textContent = traduzir("Enviando...");
 
             try {
 
@@ -1411,7 +1438,7 @@
                 const dados = await resposta.json();
 
                 if (!resposta.ok || !dados.sucesso) {
-                    erroVincular.textContent   = dados.erro || "Erro ao enviar pedido.";
+                    erroVincular.textContent   = dados.erro || traduzir("Erro ao enviar pedido.");
                     erroVincular.style.display = "block";
                     return;
                 }
@@ -1425,13 +1452,13 @@
             } catch (erro) {
 
                 console.log("Erro ao enviar pedido de vínculo:", erro);
-                erroVincular.textContent   = "Erro ao enviar pedido. Tente novamente.";
+                erroVincular.textContent   = traduzir("Erro ao enviar pedido. Tente novamente.");
                 erroVincular.style.display = "block";
 
             } finally {
 
                 btnEnviarPedidoVinculo.disabled    = false;
-                btnEnviarPedidoVinculo.textContent = "Enviar pedido";
+                btnEnviarPedidoVinculo.textContent = traduzir("Enviar pedido");
 
             }
 
@@ -1499,7 +1526,7 @@
             btnConfirmar.addEventListener("click", async () => {
 
                 btnConfirmar.disabled    = true;
-                btnConfirmar.textContent = "Removendo...";
+                btnConfirmar.textContent = traduzir("Removendo...");
 
                 try {
 
@@ -1520,7 +1547,7 @@
                     } else {
 
                         const dados = await resposta.json();
-                        alert(dados.erro || "Erro ao remover terapeuta.");
+                        alert(dados.erro || traduzir("Erro ao remover terapeuta."));
 
                     }
 
@@ -1531,7 +1558,7 @@
                 } finally {
 
                     btnConfirmar.disabled    = false;
-                    btnConfirmar.textContent = "Sim, remover";
+                    btnConfirmar.textContent = traduzir("Sim, remover");
 
                 }
 
@@ -1539,44 +1566,83 @@
 
         }
 
-        function lerCookie(nome) {
-            const valor = `; ${document.cookie}`;
-            const partes = valor.split(`; ${nome}=`);
-            if (partes.length === 2) return partes.pop().split(";").shift();
-            return null;
+        // ==========================
+        // TRADUÇÃO MANUAL
+        // ==========================
+
+        let idiomaAtual = localStorage.getItem("idioma") || "pt";
+
+        const dicionario = {
+            "Usuário":                                  "User",
+            "Responsável":                               "Guardian",
+            "Plano gratuito":                            "Free plan",
+            "Nenhuma criança":                           "No child",
+            "Cadastre uma criança":                      "Register a child",
+            "Membro desde":                              "Member since",
+            "Código":                                    "Code",
+            "anos":                                      "years old",
+            "Digite um nome válido.":                    "Enter a valid name.",
+            "Erro ao salvar. Tente novamente.":          "Error saving. Please try again.",
+            "Erro ao salvar a foto. Tente novamente.":   "Error saving the photo. Please try again.",
+            "Erro ao salvar o nome.":                    "Error saving the name.",
+            "Erro ao salvar a foto.":                    "Error saving the photo.",
+            "Erro ao salvar as alterações.":             "Error saving the changes.",
+            "Digite o código do terapeuta.":             "Enter the therapist's code.",
+            "Erro ao enviar pedido.":                    "Error sending request.",
+            "Erro ao enviar pedido. Tente novamente.":   "Error sending request. Please try again.",
+            "Erro ao remover terapeuta.":                "Error removing therapist.",
+            "Alterações salvas com sucesso!":            "Changes saved successfully!",
+            "Salvando...":                               "Saving...",
+            "Enviando...":                               "Sending...",
+            "Removendo...":                              "Removing...",
+            "Salvar foto":                               "Save photo",
+            "Salvar alterações":                         "Save changes",
+            "Sim, remover":                              "Yes, remove",
+            "Enviar pedido":                              "Send request",
+            "Carregando...":                             "Loading..."
+        };
+
+        function traduzir(texto) {
+            if (idiomaAtual === "pt" || texto == null) return texto;
+            return dicionario[texto] || texto;
         }
 
-        function definirCookieTraducao(destino) {
-            document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
-            document.cookie = `googtrans=; path=/; domain=${location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
+        function aplicarIdiomaEstatico() {
 
-            if (destino) {
-                const valor = `/pt/${destino}`;
-                document.cookie = `googtrans=${valor}; path=/`;
-                document.cookie = `googtrans=${valor}; path=/; domain=${location.hostname}`;
-            }
-        }
+            document.querySelectorAll("[data-pt]").forEach(el => {
+                el.textContent = idiomaAtual === "en"
+                    ? (el.dataset.en || el.dataset.pt)
+                    : el.dataset.pt;
+            });
 
-        function iniciarTradutor() {
-            new google.translate.TranslateElement(
-                { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
-                "google_translate_element"
-            );
+            document.querySelectorAll("[data-pt-title]").forEach(el => {
+                el.title = idiomaAtual === "en"
+                    ? (el.dataset.enTitle || el.dataset.ptTitle)
+                    : el.dataset.ptTitle;
+            });
+
+            atualizarTextoBotaoTraducao();
+
         }
 
         function atualizarTextoBotaoTraducao() {
-            const cookieAtual = lerCookie("googtrans");
-            const textoBotao = document.getElementById("textoTradutor");
-            textoBotao.textContent = (cookieAtual && cookieAtual.includes("/en"))
+            document.getElementById("textoTradutor").textContent = idiomaAtual === "en"
                 ? "Voltar para português"
                 : "Traduzir para inglês";
         }
 
         document.getElementById("btnTraduzir").addEventListener("click", () => {
-            const cookieAtual = lerCookie("googtrans");
-            const estaTraduzido = cookieAtual && cookieAtual.includes("/en");
-            definirCookieTraducao(estaTraduzido ? null : "en");
-            window.location.reload();
+
+            idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+            localStorage.setItem("idioma", idiomaAtual);
+
+            aplicarIdiomaEstatico();
+
+            // Reaplica a tradução em cima dos dados que já vieram da API,
+            // sem precisar recarregar a página nem refazer as chamadas
+            if (ultimoUsuario)  preencherPerfil(ultimoUsuario);
+            if (ultimoVinculo)  atualizarEstadoVinculo(ultimoVinculo);
+
         });
 
         const painelNotificacoes = document.getElementById("painelNotificacoes");
@@ -1647,7 +1713,7 @@
         // INICIAR
         // ==========================
 
-        atualizarTextoBotaoTraducao();
+        aplicarIdiomaEstatico();
 
         carregarNotificacoes();
 
