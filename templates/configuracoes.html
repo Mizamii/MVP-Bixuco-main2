@@ -61,22 +61,22 @@
         <nav>
             <a href="/home">
                 <i class="fa-solid fa-house"></i>
-                <span>Início</span>
+                <span data-pt="Início" data-en="Home">Início</span>
             </a>
 
             <a href="/relatorios">
                 <i class="fa-solid fa-chart-line"></i>
-                <span>Relatórios</span>
+                <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
             </a>
 
             <a href="/sobre">
                 <i class="fa-solid fa-circle-info"></i>
-                <span>Sobre</span>
+                <span data-pt="Sobre" data-en="About">Sobre</span>
             </a>
 
             <a href="/configuracoes" class="ativo">
                 <i class="fa-solid fa-gear"></i>
-                <span>Configurações</span>
+                <span data-pt="Configurações" data-en="Settings">Configurações</span>
             </a>
         </nav>
         <button
@@ -85,7 +85,7 @@
             onclick="location.href='/RelatorioDiario'"
         >
 
-            Relatório diário
+            <span data-pt="Relatório diário" data-en="Daily report">Relatório diário</span>
 
         </button>
 
@@ -99,7 +99,7 @@
 
                 <i class="fa-regular fa-sun"></i>
 
-                Claro
+                <span data-pt="Claro" data-en="Light">Claro</span>
 
             </button>
 
@@ -110,7 +110,7 @@
 
                 <i class="fa-regular fa-moon"></i>
 
-                Escuro
+                <span data-pt="Escuro" data-en="Dark">Escuro</span>
 
             </button>
 
@@ -126,7 +126,7 @@
 
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
 
-            <span>Sair</span>
+            <span data-pt="Sair" data-en="Log out">Sair</span>
 
         </a>
 
@@ -145,12 +145,12 @@
             <button
                 class="tradutor"
                 type="button"
-                id="textoTradutor"
+                id="btnTraduzir"
             >
 
                 <i class="fa-solid fa-language"></i>
 
-                Traduzir para inglês
+                <span id="textoTradutor">Traduzir para inglês</span>
 
             </button>
 
@@ -163,9 +163,9 @@
                     </button>
 
                     <div class="painel-notificacoes" id="painelNotificacoes">
-                        <div class="painel-header">Notificações</div>
+                        <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
                         <div id="listaNotificacoes">
-                            <div class="painel-vazio">Carregando...</div>
+                            <div class="painel-vazio" data-pt="Carregando..." data-en="Loading...">Carregando...</div>
                         </div>
                     </div>
                 </div>
@@ -208,7 +208,7 @@
 
                 <p>
 
-                    Gerencie suas preferências e mantenha sua conta segura.
+                    <span data-pt="Gerencie suas preferências e mantenha sua conta segura." data-en="Manage your preferences and keep your account secure.">Gerencie suas preferências e mantenha sua conta segura.</span>
 
                 </p>
 
@@ -231,7 +231,7 @@
 
             <div class="card notificacoes">
 
-                <h2>Notificações</h2>
+                <h2 data-pt="Notificações" data-en="Notifications">Notificações</h2>
 
                 <div class="item-config">
 
@@ -243,7 +243,7 @@
 
                     <div class="texto">
 
-                        <h3>Lembrete do relatório</h3>
+                        <h3 data-pt="Lembrete do relatório" data-en="Report reminder">Lembrete do relatório</h3>
 
                     </div>
 
@@ -271,7 +271,7 @@
 
                     <div class="texto">
 
-                        <h3>Novidades e dicas</h3>
+                        <h3 data-pt="Novidades e dicas" data-en="News and tips">Novidades e dicas</h3>
 
                     </div>
 
@@ -316,7 +316,7 @@
 
                         <h3>
 
-                            Compartilhar com terapeuta
+                            <span data-pt="Compartilhar com terapeuta" data-en="Share with therapist">Compartilhar com terapeuta</span>
 
                         </h3>
 
@@ -364,7 +364,7 @@
 
                         <h3>
 
-                            Alterar senha
+                            <span data-pt="Alterar senha" data-en="Change password">Alterar senha</span>
 
                         </h3>
 
@@ -390,7 +390,7 @@
 
                         <h3>
 
-                            Excluir minha conta
+                            <span data-pt="Excluir minha conta" data-en="Delete my account">Excluir minha conta</span>
 
                         </h3>
 
@@ -469,7 +469,7 @@
 
                         <span>
 
-                            Seus dados estão protegidos.
+                            <span data-pt="Seus dados estão protegidos." data-en="Your data is protected.">Seus dados estão protegidos.</span>
 
                         </span>
 
@@ -917,6 +917,33 @@
         }
 
     });
+
+
+    // ==========================
+    // TRADUÇÃO MANUAL
+    // ==========================
+
+    let idiomaAtual = localStorage.getItem("idioma") || "pt";
+
+    function aplicarIdiomaEstatico() {
+        document.querySelectorAll("[data-pt]").forEach(el => {
+            el.textContent = idiomaAtual === "en"
+                ? (el.dataset.en || el.dataset.pt)
+                : el.dataset.pt;
+        });
+
+        document.getElementById("textoTradutor").textContent =
+            idiomaAtual === "en" ? "Traduzir para português" : "Traduzir para inglês";
+    }
+
+    document.getElementById("btnTraduzir").addEventListener("click", () => {
+        idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+        localStorage.setItem("idioma", idiomaAtual);
+        aplicarIdiomaEstatico();
+    });
+
+    // Aplica o idioma salvo ao carregar
+    aplicarIdiomaEstatico();
 
 </script>
 
