@@ -514,3 +514,24 @@ white-space: nowrap;
 .btn-ver-dicas:hover {
 text-decoration: underline;
 }
+
+
+.badge-bateria {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--cor-texto-secundario);
+    background: var(--cor-fundo-pagina);
+    padding: 0.3rem 0.6rem;
+    border-radius: 999px;
+}
+
+.badge-bateria.baixa {
+    color: #E24C4C;
+}
+
+.badge-bateria.baixa i {
+    color: #E24C4C;
+}

@@ -273,15 +273,16 @@
                                 Localização do <span id="nomeBixucoTitulo">Bixuco</span>
                             </h3>
 
+                            <div style="display:flex; align-items:center; gap:0.6rem;">
+                                <span id="bateriaBixuco" class="badge-bateria" style="display:none;">
+                                    <i class="fa-solid fa-battery-full"></i>
+                                    <span id="bateriaValor">--</span>%
+                                </span>
 
-                            <button
-                                type="button"
-                                class="btn-centralizar"
-                                id="btnCentralizar"
-                                title="Centralizar no Bixuco"
-                            >
-                                <i class="fa-solid fa-crosshairs"></i>
-                            </button>
+                                <button class="btn-centralizar" id="btnCentralizar" title="Centralizar">
+                                    <i class="fa-solid fa-crosshairs"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <div id="mapaBixuco"></div>
@@ -741,6 +742,21 @@
 
                 marcador.setPopupContent("<b>Bixuco</b><br>Última localização conhecida");
                 marcador.openPopup();
+
+                if (dados.bateria !== null && dados.bateria !== undefined) {
+                    const bateriaEl = document.getElementById("bateriaBixuco");
+                    const valorEl = document.getElementById("bateriaValor");
+
+                    valorEl.textContent = dados.bateria;
+                    bateriaEl.style.display = "flex";
+
+                    const icone = bateriaEl.querySelector("i");
+                    icone.className = dados.bateria > 60 ? "fa-solid fa-battery-full"
+                        : dados.bateria > 30 ? "fa-solid fa-battery-half"
+                        : "fa-solid fa-battery-quarter";
+
+                    bateriaEl.classList.toggle("baixa", dados.bateria <= 20);
+                }
 
                 if (statusEl) {
                     statusEl.innerHTML =

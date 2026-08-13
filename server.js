@@ -3910,7 +3910,7 @@ app.post("/esqueceu-senha", async (req, res) => {
 });
 
 app.post("/api/bixuco/localizacao", async (req, res) => {
-    const { dispositivo_id, latitude, longitude } = req.body;
+    const { dispositivo_id, latitude, longitude, bateria } = req.body;
 
     try {
         // Descobre qual crianca_id corresponde a esse dispositivo
@@ -3927,9 +3927,9 @@ app.post("/api/bixuco/localizacao", async (req, res) => {
         const criancaId = criancaResultado.rows[0].id;
 
         await db.query(
-            `INSERT INTO localizacoes_bixuco (crianca_id, latitude, longitude, criado_em)
-             VALUES ($1, $2, $3, NOW())`,
-            [criancaId, latitude, longitude]
+            `INSERT INTO localizacoes_bixuco (crianca_id, latitude, longitude, bateria, criado_em)
+             VALUES ($1, $2, $3, $4, NOW())`,
+            [criancaId, latitude, longitude, bateria || null]
         );
 
         res.json({ sucesso: true });
@@ -3978,16 +3978,16 @@ app.get("/api/bixuco/localizacao", estaLogado, async (req, res) => {
 
     try {
         const resultado = await db.query(
-            `SELECT l.latitude, l.longitude, 
+            `SELECT l.latitude, l.longitude, l.bateria,
                     TO_CHAR(l.criado_em, 'HH24:MI') AS horario,
                     TO_CHAR(l.criado_em, 'DD/MM') AS data_formatada,
                     c.nome_pelucia,
                     c.foto_url
-             FROM localizacoes_bixuco l
-             JOIN criancas c ON c.id = l.crianca_id
-             WHERE c.usuario_id = $1
-             ORDER BY l.criado_em DESC
-             LIMIT 1`,
+            FROM localizacoes_bixuco l
+            JOIN criancas c ON c.id = l.crianca_id
+            WHERE c.usuario_id = $1
+            ORDER BY l.criado_em DESC
+            LIMIT 1`,
             [usuarioId]
         );
 
@@ -4000,6 +4000,7 @@ app.get("/api/bixuco/localizacao", estaLogado, async (req, res) => {
             disponivel: true,
             latitude: parseFloat(local.latitude),
             longitude: parseFloat(local.longitude),
+            bateria: local.bateria,
             horario: local.horario,
             dataFormatada: local.data_formatada,
             nomePelucia: local.nome_pelucia,
