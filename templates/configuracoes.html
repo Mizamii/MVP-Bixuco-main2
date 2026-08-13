@@ -194,297 +194,302 @@
 
         </header>
 
-        <!-- Cabeçalho -->
+        <!-- CORPO COM SCROLL INTERNO (padrão igual home/relatórios) -->
+        <div class="conteudo-corpo">
 
-        <section class="cabecalho">
+            <!-- Cabeçalho -->
 
-            <div>
+            <section class="cabecalho">
 
-                <h1>
+                <div>
 
-                    Configurações
+                    <h1>
 
-                </h1>
+                        Configurações
 
-                <p>
-
-                    <span data-pt="Gerencie suas preferências e mantenha sua conta segura." data-en="Manage your preferences and keep your account secure.">Gerencie suas preferências e mantenha sua conta segura.</span>
-
-                </p>
-
-            </div>
-
-            <img
-                src="/img/gatografico.png"
-                alt="Mascote"
-            >
-
-        </section>
-
-        <!-- ========================= -->
-        <!-- Primeira linha -->
-        <!-- ========================= -->
-
-        <section class="linha">
-
-            <!-- Card Notificações -->
-
-            <div class="card notificacoes">
-
-                <h2 data-pt="Notificações" data-en="Notifications">Notificações</h2>
-
-                <div class="item-config">
-
-                    <div class="icone verde">
-
-                        <i class="fa-regular fa-bell"></i>
-
-                    </div>
-
-                    <div class="texto">
-
-                        <h3 data-pt="Lembrete do relatório" data-en="Report reminder">Lembrete do relatório</h3>
-
-                    </div>
-
-                    <label class="switch">
-
-                        <input
-                            type="checkbox"
-                            id="notifRelatorio"
-                            checked
-                        >
-
-                        <span class="slider"></span>
-
-                    </label>
-
-                </div>
-
-                <div class="item-config">
-
-                    <div class="icone azul">
-
-                        <i class="fa-regular fa-envelope"></i>
-
-                    </div>
-
-                    <div class="texto">
-
-                        <h3 data-pt="Novidades e dicas" data-en="News and tips">Novidades e dicas</h3>
-
-                    </div>
-
-                    <label class="switch">
-
-                        <input
-                            type="checkbox"
-                            id="notifNovidades"
-                        >
-
-                        <span class="slider"></span>
-
-                    </label>
-
-                </div>
-
-            </div>
-
-            <!-- Card Compartilhamento -->
-
-            <div class="card compartilhamento">
-
-                <h2>
-
-                    Compartilhamento
-
-                </h2>
-
-                <button
-                    class="config-btn"
-                    type="button"
-                    id="btnCompartilhar"
-                >
-
-                    <div class="icone verde">
-
-                        <i class="fa-solid fa-share-nodes"></i>
-
-                    </div>
-
-                    <div class="texto">
-
-                        <h3>
-
-                            <span data-pt="Compartilhar com terapeuta" data-en="Share with therapist">Compartilhar com terapeuta</span>
-
-                        </h3>
-
-                    </div>
-
-                    <i class="fa-solid fa-chevron-right seta"></i>
-
-                </button>
-
-            </div>
-
-        </section>
-
-        <!-- ========================= -->
-        <!-- Segunda linha -->
-        <!-- ========================= -->
-
-        <section class="linha">
-
-            <!-- Privacidade -->
-
-            <div class="card privacidade">
-
-                <h2>
-
-                    Privacidade
-
-                </h2>
-
-                <!-- 🔧 Agora abre o modal em vez de redirecionar para /alterar-senha -->
-
-                <button
-                    class="config-btn"
-                    type="button"
-                    id="btnAlterarSenha"
-                >
-
-                    <div class="icone verde">
-
-                        <i class="fa-solid fa-lock"></i>
-
-                    </div>
-
-                    <div class="texto">
-
-                        <h3>
-
-                            <span data-pt="Alterar senha" data-en="Change password">Alterar senha</span>
-
-                        </h3>
-
-                    </div>
-
-                    <i class="fa-solid fa-chevron-right seta"></i>
-
-                </button>
-
-                <button
-                    class="config-btn"
-                    type="button"
-                    id="btnExcluirConta"
-                >
-
-                    <div class="icone azul">
-
-                        <i class="fa-regular fa-trash-can"></i>
-
-                    </div>
-
-                    <div class="texto">
-
-                        <h3>
-
-                            <span data-pt="Excluir minha conta" data-en="Delete my account">Excluir minha conta</span>
-
-                        </h3>
-
-                    </div>
-
-                    <i class="fa-solid fa-chevron-right seta"></i>
-
-                </button>
-
-                <div
-                    id="confirmarExclusao"
-                    class="confirmar-exclusao"
-                    style="display: none;"
-                >
+                    </h1>
 
                     <p>
 
-                        ⚠️ Tem certeza? Esta ação não pode ser desfeita.
-                        Todos os seus dados serão removidos permanentemente.
+                        <span data-pt="Gerencie suas preferências e mantenha sua conta segura." data-en="Manage your preferences and keep your account secure.">Gerencie suas preferências e mantenha sua conta segura.</span>
 
                     </p>
-
-                    <div class="confirmar-botoes">
-
-                        <button
-                            type="button"
-                            id="btnConfirmarExclusao"
-                            class="btn-confirmar-exclusao"
-                        >
-
-                            Sim, excluir minha conta
-
-                        </button>
-
-                        <button
-                            type="button"
-                            id="btnCancelarExclusao"
-                            class="btn-cancelar-exclusao"
-                        >
-
-                            Cancelar
-
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <!-- Segurança -->
-
-            <div class="card seguranca">
-
-                <div class="texto-seguranca">
-
-                    <h2>
-
-                        Sua segurança<br>
-                        é nossa
-                        <span>prioridade</span>
-
-                    </h2>
-
-                    <p>
-
-                        Utilizamos criptografia e
-                        boas práticas para proteger
-                        suas informações e da sua criança.
-
-                    </p>
-
-                    <div class="status-seguranca">
-
-                        <i class="fa-solid fa-circle-check"></i>
-
-                        <span>
-
-                            <span data-pt="Seus dados estão protegidos." data-en="Your data is protected.">Seus dados estão protegidos.</span>
-
-                        </span>
-
-                    </div>
 
                 </div>
 
                 <img
-                    src="/img/bixucobloqueio.jpg"
-                    alt="Segurança"
+                    src="/img/gatografico.png"
+                    alt="Mascote"
                 >
 
-            </div>
+            </section>
 
-        </section>
+            <!-- ========================= -->
+            <!-- Primeira linha -->
+            <!-- ========================= -->
+
+            <section class="linha">
+
+                <!-- Card Notificações -->
+
+                <div class="card notificacoes-card">
+
+                    <h2 data-pt="Notificações" data-en="Notifications">Notificações</h2>
+
+                    <div class="item-config">
+
+                        <div class="icone verde">
+
+                            <i class="fa-regular fa-bell"></i>
+
+                        </div>
+
+                        <div class="texto">
+
+                            <h3 data-pt="Lembrete do relatório" data-en="Report reminder">Lembrete do relatório</h3>
+
+                        </div>
+
+                        <label class="switch">
+
+                            <input
+                                type="checkbox"
+                                id="notifRelatorio"
+                                checked
+                            >
+
+                            <span class="slider"></span>
+
+                        </label>
+
+                    </div>
+
+                    <div class="item-config">
+
+                        <div class="icone azul">
+
+                            <i class="fa-regular fa-envelope"></i>
+
+                        </div>
+
+                        <div class="texto">
+
+                            <h3 data-pt="Novidades e dicas" data-en="News and tips">Novidades e dicas</h3>
+
+                        </div>
+
+                        <label class="switch">
+
+                            <input
+                                type="checkbox"
+                                id="notifNovidades"
+                            >
+
+                            <span class="slider"></span>
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+                <!-- Card Compartilhamento -->
+
+                <div class="card compartilhamento">
+
+                    <h2>
+
+                        Compartilhamento
+
+                    </h2>
+
+                    <button
+                        class="config-btn"
+                        type="button"
+                        id="btnCompartilhar"
+                    >
+
+                        <div class="icone verde">
+
+                            <i class="fa-solid fa-share-nodes"></i>
+
+                        </div>
+
+                        <div class="texto">
+
+                            <h3>
+
+                                <span data-pt="Compartilhar com terapeuta" data-en="Share with therapist">Compartilhar com terapeuta</span>
+
+                            </h3>
+
+                        </div>
+
+                        <i class="fa-solid fa-chevron-right seta"></i>
+
+                    </button>
+
+                </div>
+
+            </section>
+
+            <!-- ========================= -->
+            <!-- Segunda linha -->
+            <!-- ========================= -->
+
+            <section class="linha">
+
+                <!-- Privacidade -->
+
+                <div class="card privacidade">
+
+                    <h2>
+
+                        Privacidade
+
+                    </h2>
+
+                    <!-- 🔧 Agora abre o modal em vez de redirecionar para /alterar-senha -->
+
+                    <button
+                        class="config-btn"
+                        type="button"
+                        id="btnAlterarSenha"
+                    >
+
+                        <div class="icone verde">
+
+                            <i class="fa-solid fa-lock"></i>
+
+                        </div>
+
+                        <div class="texto">
+
+                            <h3>
+
+                                <span data-pt="Alterar senha" data-en="Change password">Alterar senha</span>
+
+                            </h3>
+
+                        </div>
+
+                        <i class="fa-solid fa-chevron-right seta"></i>
+
+                    </button>
+
+                    <button
+                        class="config-btn"
+                        type="button"
+                        id="btnExcluirConta"
+                    >
+
+                        <div class="icone azul">
+
+                            <i class="fa-regular fa-trash-can"></i>
+
+                        </div>
+
+                        <div class="texto">
+
+                            <h3>
+
+                                <span data-pt="Excluir minha conta" data-en="Delete my account">Excluir minha conta</span>
+
+                            </h3>
+
+                        </div>
+
+                        <i class="fa-solid fa-chevron-right seta"></i>
+
+                    </button>
+
+                    <div
+                        id="confirmarExclusao"
+                        class="confirmar-exclusao"
+                        style="display: none;"
+                    >
+
+                        <p>
+
+                            ⚠️ Tem certeza? Esta ação não pode ser desfeita.
+                            Todos os seus dados serão removidos permanentemente.
+
+                        </p>
+
+                        <div class="confirmar-botoes">
+
+                            <button
+                                type="button"
+                                id="btnConfirmarExclusao"
+                                class="btn-confirmar-exclusao"
+                            >
+
+                                Sim, excluir minha conta
+
+                            </button>
+
+                            <button
+                                type="button"
+                                id="btnCancelarExclusao"
+                                class="btn-cancelar-exclusao"
+                            >
+
+                                Cancelar
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Segurança -->
+
+                <div class="card seguranca">
+
+                    <div class="texto-seguranca">
+
+                        <h2>
+
+                            Sua segurança<br>
+                            é nossa
+                            <span>prioridade</span>
+
+                        </h2>
+
+                        <p>
+
+                            Utilizamos criptografia e
+                            boas práticas para proteger
+                            suas informações e da sua criança.
+
+                        </p>
+
+                        <div class="status-seguranca">
+
+                            <i class="fa-solid fa-circle-check"></i>
+
+                            <span>
+
+                                <span data-pt="Seus dados estão protegidos." data-en="Your data is protected.">Seus dados estão protegidos.</span>
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <img
+                        src="/img/bixucobloqueio.jpg"
+                        alt="Segurança"
+                    >
+
+                </div>
+
+            </section>
+
+        </div>
 
     </main>
 
