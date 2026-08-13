@@ -3347,12 +3347,34 @@ app.get('/api/home', estaLogado, async (req, res) => {
 
         // Busca quantos dias consecutivos o usuário preencheu relatório
         // Ajuste a query conforme sua tabela de relatórios
+        // Calcula a sequencia REAL de dias consecutivos (nao apenas o total de relatorios)
+        // Agrupa dias seguidos em "ilhas" e pega a mais recente, so contando como
+        // sequencia ativa se o ultimo dia registrado foi hoje ou ontem
         const sequencia = await db.query(
 
-            `SELECT COUNT(*) AS total
-             FROM relatorios
-             WHERE usuario_id = $1
-             AND data >= CURRENT_DATE - INTERVAL '30 days'`,
+            `WITH dias AS (
+                SELECT DISTINCT DATE(data) AS dia
+                FROM relatorios
+                WHERE usuario_id = $1
+            ),
+            ilhas AS (
+                SELECT dia,
+                    dia - (ROW_NUMBER() OVER (ORDER BY dia))::int AS grupo
+                FROM dias
+            ),
+            ultima_ilha AS (
+                SELECT MAX(dia) AS fim, COUNT(*) AS tamanho
+                FROM ilhas
+                GROUP BY grupo
+                ORDER BY MAX(dia) DESC
+                LIMIT 1
+            )
+            SELECT
+                CASE
+                    WHEN fim >= CURRENT_DATE - INTERVAL '1 day' THEN tamanho
+                    ELSE 0
+                END AS total
+            FROM ultima_ilha`,
 
             [usuarioId]
 

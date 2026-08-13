@@ -424,7 +424,6 @@
             try {
                 const mes = dataAtual.getMonth() + 1;
                 const ano = dataAtual.getFullYear();
-
                 const resposta = await fetch(`/api/relatorios/dias?mes=${mes}&ano=${ano}`);
 
                 if (!resposta.ok) throw new Error("Falha ao carregar dias");
