@@ -370,3 +370,32 @@ color: var(--cor-texto-principal);
 .btn-cancelar-acao:hover {
 background: var(--cor-fundo-hover-forte);
 }
+.btn-codigo-copiar {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.2rem;
+    padding: 0.25rem 0.65rem;
+    border: 1px solid var(--cor-borda);
+    border-radius: 999px;
+    background: var(--cor-fundo-hover);
+    color: var(--cor-texto-secundario);
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.btn-codigo-copiar:hover {
+    background: var(--cor-fundo-hover-forte);
+    color: var(--cor-texto-principal);
+}
+
+.btn-codigo-copiar strong {
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+
+.btn-codigo-copiar i {
+    font-size: 0.78rem;
+}

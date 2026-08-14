@@ -129,22 +129,13 @@
                 >
 
                 <div>
-                    <h3 id="nomeTerapeuta">Carregando...</h3>
-                    <span id="tipoConta">
-                        Terapeuta · Código:
-                        <strong
-                            id="codigoTerapeuta"
-                            title="Compartilhe este código com seus pacientes"
-                            style="cursor: pointer; letter-spacing: 1px;"
-                            onclick="copiarCodigo()"
-                        >...</strong>
-                        <i
-                            class="fa-regular fa-copy"
-                            style="font-size: 0.75rem; margin-left: 3px; cursor: pointer;"
-                            onclick="copiarCodigo()"
-                            title="Copiar código"
-                        ></i>
-                    </span>
+                    <h3 id="nomeTerapeuta" style="cursor:pointer" onclick="window.location.href='/PerfilTerapeuta'">Carregando...</h3>
+                    <span id="tipoConta">Terapeuta</span>
+
+                    <button type="button" class="btn-codigo-copiar" id="btnCodigoCopiar" onclick="copiarCodigo()" title="Copiar código para compartilhar">
+                        <span>Código: <strong id="codigoTerapeuta">...</strong></span>
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
                 </div>
 
             </div>
@@ -153,6 +144,43 @@
 
         <!-- CORPO COM SCROLL INTERNO — do amigo -->
         <div class="conteudo-corpo">
+
+            <!-- ========================= -->
+            <!-- LINHA DE CONTADORES -->
+            <!-- ========================= -->
+            <section class="linha-contadores">
+
+                <article class="contador">
+                    <div class="contador-icone contador-icone--azul">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                    <div>
+                        <strong id="totalPacientes">0</strong>
+                        <span>Pacientes</span>
+                    </div>
+                </article>
+
+                <article class="contador">
+                    <div class="contador-icone contador-icone--verde">
+                        <i class="fa-solid fa-file-pen"></i>
+                    </div>
+                    <div>
+                        <strong id="totalPendentes">0</strong>
+                        <span>Pendentes</span>
+                    </div>
+                </article>
+
+                <article class="contador">
+                    <div class="contador-icone contador-icone--azul-claro">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                    </div>
+                    <div>
+                        <strong id="totalRelatoriosHoje">0</strong>
+                        <span>Relatórios hoje</span>
+                    </div>
+                </article>
+
+            </section>
 
             <!-- ========================= -->
             <!-- LINHA PRINCIPAL: solicitações + atividade -->
@@ -192,43 +220,6 @@
                     </p>
 
                 </div>
-
-            </section>
-
-            <!-- ========================= -->
-            <!-- LINHA DE CONTADORES -->
-            <!-- ========================= -->
-            <section class="linha-contadores">
-
-                <article class="contador">
-                    <div class="contador-icone contador-icone--azul">
-                        <i class="fa-solid fa-user-plus"></i>
-                    </div>
-                    <div>
-                        <strong id="totalPacientes">0</strong>
-                        <span>Pacientes</span>
-                    </div>
-                </article>
-
-                <article class="contador">
-                    <div class="contador-icone contador-icone--verde">
-                        <i class="fa-solid fa-file-pen"></i>
-                    </div>
-                    <div>
-                        <strong id="totalPendentes">0</strong>
-                        <span>Pendentes</span>
-                    </div>
-                </article>
-
-                <article class="contador">
-                    <div class="contador-icone contador-icone--azul-claro">
-                        <i class="fa-solid fa-clipboard-check"></i>
-                    </div>
-                    <div>
-                        <strong id="totalRelatoriosHoje">0</strong>
-                        <span>Relatórios hoje</span>
-                    </div>
-                </article>
 
             </section>
 
@@ -280,7 +271,7 @@
         if (!codigo || codigo === "---") return;
 
         navigator.clipboard.writeText(codigo).then(() => {
-            const icone = document.querySelector("#tipoConta .fa-copy");
+            const icone = document.querySelector("#btnCodigoCopiar .fa-copy");
             if (icone) {
                 icone.classList.remove("fa-copy");
                 icone.classList.add("fa-check");
@@ -380,6 +371,7 @@
             foto.src = item.fotoPerfil || "/img/perfilPadrao.png";
             foto.alt = item.nomeResponsavel;
             foto.onerror = () => { foto.src = "/img/perfilPadrao.png"; };
+            foto.classList.add("solicitacao-foto");
 
             const info = document.createElement("div");
             info.classList.add("solicitacao-info");
