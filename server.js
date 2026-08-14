@@ -1753,8 +1753,8 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
             `SELECT COUNT(*) AS total
              FROM relatorios
              WHERE usuario_id = $1
-             AND EXTRACT(MONTH FROM data) = EXTRACT(MONTH FROM NOW() - INTERVAL '1 month')
-             AND EXTRACT(YEAR FROM data)  = EXTRACT(YEAR FROM NOW() - INTERVAL '1 month')
+             AND EXTRACT(MONTH FROM (data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(MONTH FROM NOW() - INTERVAL '1 month')
+             AND EXTRACT(YEAR FROM (data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo'))  = EXTRACT(YEAR FROM NOW() - INTERVAL '1 month')
              ${filtroAlerta}`,
             [usuarioId]
         );
@@ -1763,7 +1763,7 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
             `SELECT COUNT(*) AS total
             FROM relatorios
             WHERE usuario_id = $1
-            AND DATE(data) = CURRENT_DATE
+            AND DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') = (NOW() AT TIME ZONE 'America/Sao_Paulo')::date
             ${filtroAlerta}`,
             [usuarioId]
         );
@@ -1772,7 +1772,7 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
             `SELECT COUNT(*) AS total
             FROM relatorios
             WHERE usuario_id = $1
-            AND DATE(data) = CURRENT_DATE - INTERVAL '1 day'
+            AND DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') = (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '1 day'
             ${filtroAlerta}`,
             [usuarioId]
         );
@@ -1787,7 +1787,7 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
             JOIN criancas c ON c.id = e.crianca_id
             WHERE c.usuario_id = $1
             AND e.duracao_ms IS NOT NULL
-            AND DATE(e.criado_em) = CURRENT_DATE`,
+            AND DATE((e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = (NOW() AT TIME ZONE 'America/Sao_Paulo')::date`,
             [usuarioId]
         );
 
@@ -1817,16 +1817,16 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
                 dia,
                 COALESCE(cnt.total, 0) AS total
             FROM generate_series(
-                CURRENT_DATE - INTERVAL '6 days',
-                CURRENT_DATE,
+                (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '6 days',
+                (NOW() AT TIME ZONE 'America/Sao_Paulo')::date,
                 INTERVAL '1 day'
             ) AS dia
             LEFT JOIN (
-                SELECT DATE(e.criado_em) AS dia, COUNT(*) AS total
-                FROM eventos_bixuco e
-                JOIN criancas c ON c.id = e.crianca_id
-                WHERE c.usuario_id = $1
-                GROUP BY DATE(e.criado_em)
+                SELECT DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') AS dia, COUNT(*) AS total
+                FROM relatorios
+                WHERE usuario_id = $1
+                ${filtroAlerta}
+                GROUP BY DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')
             ) cnt USING (dia)
             ORDER BY dia`,
             [usuarioId]
@@ -1933,19 +1933,19 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
                         WHEN 'Sim, várias'  THEN 3
                         ELSE NULL
                     END
-                    FROM relatorios r,
-                        jsonb_array_elements(r.respostas) AS x
-                    WHERE r.usuario_id = $1
-                    AND DATE(r.data) = dia
-                    AND x->>'id' = 'crises_sensoriais'
-                    LIMIT 1
-                ), 0) AS nivel_estresse
-            FROM generate_series(
-                CURRENT_DATE - INTERVAL '6 days',
-                CURRENT_DATE,
-                INTERVAL '1 day'
-            ) AS dia
-            ORDER BY dia`,
+                    FROM generate_series(
+                        (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '6 days',
+                        (NOW() AT TIME ZONE 'America/Sao_Paulo')::date,
+                        INTERVAL '1 day'
+                    ) AS dia
+                    LEFT JOIN (
+                        SELECT DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') AS dia, COUNT(*) AS total
+                        FROM relatorios
+                        WHERE usuario_id = $1
+                        ${filtroAlerta}
+                        GROUP BY DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')
+                    ) cnt USING (dia)
+                    ORDER BY dia`,
             [usuarioId]
         );
 
@@ -1982,7 +1982,8 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
                 weekday: "long",
                 day:     "numeric",
                 month:   "long",
-                year:    "numeric"
+                year:    "numeric",
+                timeZone: "America/Sao_Paulo"
             });
 
         }
@@ -3641,8 +3642,8 @@ app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
         const alertasMes = await db.query(
             `SELECT COUNT(*) AS total FROM relatorios
              WHERE usuario_id = $1
-             AND EXTRACT(MONTH FROM data) = EXTRACT(MONTH FROM NOW())
-             AND EXTRACT(YEAR  FROM data) = EXTRACT(YEAR  FROM NOW())`,
+             AND EXTRACT(MONTH FROM (data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(MONTH FROM NOW())
+             AND EXTRACT(YEAR FROM (data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo'))  = EXTRACT(YEAR FROM NOW())`,
             [pacienteId]
         );
 
