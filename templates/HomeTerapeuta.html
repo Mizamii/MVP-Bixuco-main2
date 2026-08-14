@@ -7,9 +7,6 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
-    <!-- Google Translate -->
-    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
-
     <!-- tema.css precisa vir ANTES do CSS da página -->
     <link rel="stylesheet" href="/css/tema.css">
     <link rel="stylesheet" href="/css/layout.css">
@@ -34,39 +31,39 @@
         <nav>
             <a href="/homeTerapeuta" class="ativo">
                 <i class="fa-solid fa-house"></i>
-                <span>Início</span>
+                <span data-pt="Início" data-en="Home">Início</span>
             </a>
 
             <a href="/relatoriosTerapeutaS">
                 <i class="fa-solid fa-chart-line"></i>
-                <span>Relatórios</span>
+                <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
             </a>
 
             <a href="/configuracoesT">
                 <i class="fa-solid fa-gear"></i>
-                <span>Configurações</span>
+                <span data-pt="Configurações" data-en="Settings">Configurações</span>
             </a>
 
             <a href="/sobreT">
                 <i class="fa-solid fa-circle-info"></i>
-                <span>Sobre</span>
+                <span data-pt="Sobre" data-en="About">Sobre</span>
             </a>
 
             <a href="/pacientes">
                 <i class="fa-solid fa-user-plus"></i>
-                <span>Pacientes</span>
+                <span data-pt="Pacientes" data-en="Patients">Pacientes</span>
             </a>
         </nav>
 
         <div class="tema">
             <button id="btnClaro" class="ativo" type="button">
                 <i class="fa-regular fa-sun"></i>
-                Claro
+                <span data-pt="Claro" data-en="Light">Claro</span>
             </button>
 
             <button id="btnEscuro" type="button">
                 <i class="fa-regular fa-moon"></i>
-                Escuro
+                <span data-pt="Escuro" data-en="Dark">Escuro</span>
             </button>
         </div>
 
@@ -75,7 +72,7 @@
 
         <a href="/logout" class="logout">
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            <span>Sair</span>
+            <span data-pt="Sair" data-en="Log out">Sair</span>
         </a>
 
     </aside>
@@ -88,17 +85,11 @@
         <!-- TOPO -->
         <header class="topo">
 
-            <!-- Tradução real via cookie — do seu JS -->
+            <!-- Tradução manual via data-pt / data-en — do JS -->
             <button class="tradutor" type="button" id="btnTraduzir">
                 <i class="fa-solid fa-language"></i>
                 <span id="textoTradutor">Traduzir para inglês</span>
             </button>
-
-            <!-- Elemento invisível do Google Translate -->
-            <div
-                id="google_translate_element"
-                style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);"
-            ></div>
 
             <div class="usuario">
 
@@ -110,9 +101,9 @@
                     </button>
 
                     <div class="painel-notificacoes" id="painelNotificacoes">
-                        <div class="painel-header">Notificações</div>
+                        <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
                         <div id="listaNotificacoes">
-                            <div class="painel-vazio">Carregando...</div>
+                            <div class="painel-vazio" data-pt="Carregando..." data-en="Loading...">Carregando...</div>
                         </div>
                     </div>
                 </div>
@@ -130,10 +121,10 @@
 
                 <div>
                     <h3 id="nomeTerapeuta" style="cursor:pointer" onclick="window.location.href='/PerfilTerapeuta'">Carregando...</h3>
-                    <span id="tipoConta">Terapeuta</span>
+                    <span id="tipoConta" data-pt="Terapeuta" data-en="Therapist">Terapeuta</span>
 
                     <button type="button" class="btn-codigo-copiar" id="btnCodigoCopiar" onclick="copiarCodigo()" title="Copiar código para compartilhar">
-                        <span>Código: <strong id="codigoTerapeuta">...</strong></span>
+                        <span><span data-pt="Código" data-en="Code">Código</span>: <strong id="codigoTerapeuta">...</strong></span>
                         <i class="fa-regular fa-copy"></i>
                     </button>
                 </div>
@@ -156,7 +147,7 @@
                     </div>
                     <div>
                         <strong id="totalPacientes">0</strong>
-                        <span>Pacientes</span>
+                        <span data-pt="Pacientes" data-en="Patients">Pacientes</span>
                     </div>
                 </article>
 
@@ -166,7 +157,7 @@
                     </div>
                     <div>
                         <strong id="totalPendentes">0</strong>
-                        <span>Pendentes</span>
+                        <span data-pt="Pendentes" data-en="Pending">Pendentes</span>
                     </div>
                 </article>
 
@@ -176,7 +167,7 @@
                     </div>
                     <div>
                         <strong id="totalRelatoriosHoje">0</strong>
-                        <span>Relatórios hoje</span>
+                        <span data-pt="Relatórios hoje" data-en="Reports today">Relatórios hoje</span>
                     </div>
                 </article>
 
@@ -190,15 +181,15 @@
                 <!-- SOLICITAÇÕES PENDENTES -->
                 <div class="card-solicitacoes">
 
-                    <h2>Solicitações pendentes</h2>
+                    <h2 data-pt="Solicitações pendentes" data-en="Pending requests">Solicitações pendentes</h2>
 
                     <ul id="listaSolicitacoes">
                         <li class="solicitacao-carregando">
-                            <p>Carregando solicitações...</p>
+                            <p data-pt="Carregando solicitações..." data-en="Loading requests...">Carregando solicitações...</p>
                         </li>
                     </ul>
 
-                    <p id="semSolicitacoes" class="lista-vazia" style="display: none;">
+                    <p id="semSolicitacoes" class="lista-vazia" style="display: none;" data-pt="Nenhuma solicitação pendente no momento." data-en="No pending requests at the moment.">
                         Nenhuma solicitação pendente no momento.
                     </p>
 
@@ -207,15 +198,15 @@
                 <!-- ATIVIDADE RECENTE -->
                 <div class="card-atividade">
 
-                    <h2>Atividade recente</h2>
+                    <h2 data-pt="Atividade recente" data-en="Recent activity">Atividade recente</h2>
 
                     <ul id="listaAtividade">
                         <li class="atividade-carregando">
-                            <p>Carregando atividades...</p>
+                            <p data-pt="Carregando atividades..." data-en="Loading activity...">Carregando atividades...</p>
                         </li>
                     </ul>
 
-                    <p id="semAtividade" class="lista-vazia" style="display: none;">
+                    <p id="semAtividade" class="lista-vazia" style="display: none;" data-pt="Nenhuma atividade recente." data-en="No recent activity.">
                         Nenhuma atividade recente.
                     </p>
 
@@ -238,6 +229,8 @@
                         type="button"
                         id="modalBtnConfirmar"
                         class="btn-confirmar-acao"
+                        data-pt="Confirmar"
+                        data-en="Confirm"
                     >
                         Confirmar
                     </button>
@@ -246,6 +239,8 @@
                         type="button"
                         id="modalBtnCancelar"
                         class="btn-cancelar-acao"
+                        data-pt="Cancelar"
+                        data-en="Cancel"
                     >
                         Cancelar
                     </button>
@@ -261,6 +256,32 @@
 </div>
 
 <script>
+
+    // =========================
+    // TRADUÇÃO MANUAL — dicionário para textos montados via JS
+    // =========================
+
+    let idiomaAtual = localStorage.getItem("idioma") || "pt";
+
+    // Dicionário de textos usados em template strings (fora do HTML estático)
+    const dicionario = {
+        crianca:            { pt: "Criança",                                  en: "Child" },
+        anos:               { pt: "anos",                                     en: "years old" },
+        aceitar:             { pt: "Aceitar",                                 en: "Accept" },
+        confirmarRecusa:     { pt: (nome) => `Tem certeza que deseja recusar a solicitação de ${nome}?`,
+                                en: (nome) => `Are you sure you want to decline ${nome}'s request?` },
+        erroProcessar:        { pt: "Erro ao processar. Tente novamente.",     en: "Something went wrong. Please try again." },
+        ver:                  { pt: "Ver",                                    en: "View" },
+        semNotificacoes:      { pt: "Nenhuma notificação por enquanto.",       en: "No notifications yet." },
+        erroCarregarNotif:    { pt: "Não foi possível carregar.",              en: "Couldn't load notifications." },
+    };
+
+    function t(chave, ...args) {
+        const entrada = dicionario[chave];
+        const valor   = idiomaAtual === "en" ? entrada.en : entrada.pt;
+        return typeof valor === "function" ? valor(...args) : valor;
+    }
+
 
     // =========================
     // COPIAR CÓDIGO DO TERAPEUTA
@@ -368,16 +389,16 @@
             li.dataset.id = item.id;
 
             const foto = document.createElement("img");
+            foto.classList.add("solicitacao-foto");
             foto.src = item.fotoPerfil || "/img/perfilPadrao.png";
             foto.alt = item.nomeResponsavel;
             foto.onerror = () => { foto.src = "/img/perfilPadrao.png"; };
-            foto.classList.add("solicitacao-foto");
 
             const info = document.createElement("div");
             info.classList.add("solicitacao-info");
             info.innerHTML = `
                 <strong>${item.nomeResponsavel}</strong>
-                <span>Criança: ${item.nomeCrianca}, ${item.idadeCrianca} anos</span>
+                <span>${t("crianca")}: ${item.nomeCrianca}, ${item.idadeCrianca} ${t("anos")}</span>
                 <span class="solicitacao-tempo">${item.tempo}</span>
             `;
 
@@ -387,7 +408,7 @@
             const btnAceitar = document.createElement("button");
             btnAceitar.type = "button";
             btnAceitar.classList.add("btn-aceitar");
-            btnAceitar.innerHTML = '<i class="fa-solid fa-check"></i> Aceitar';
+            btnAceitar.innerHTML = `<i class="fa-solid fa-check"></i> ${t("aceitar")}`;
 
             // Aceitar direto — ação positiva, não precisa de confirmação
             btnAceitar.addEventListener("click", () => {
@@ -402,7 +423,7 @@
             // Recusar pede confirmação inline
             btnRecusar.addEventListener("click", () => {
                 abrirConfirmacao(
-                    `Tem certeza que deseja recusar a solicitação de ${item.nomeResponsavel}?`,
+                    t("confirmarRecusa", item.nomeResponsavel),
                     () => responderSolicitacao(item.id, "recusar", li)
                 );
             });
@@ -488,7 +509,7 @@
             const erroEl = document.createElement("p");
             erroEl.style.color    = "#E53E3E";
             erroEl.style.fontSize = "12px";
-            erroEl.textContent    = "Erro ao processar. Tente novamente.";
+            erroEl.textContent    = t("erroProcessar");
             itemEl.appendChild(erroEl);
             setTimeout(() => erroEl.remove(), 3000);
 
@@ -536,7 +557,7 @@
                     onclick="marcarVistoEAbrir(${item.id})"
                 >
                     <i class="fa-regular fa-eye"></i>
-                    Ver
+                    ${t("ver")}
                 </button>
             `;
 
@@ -598,7 +619,7 @@
             const itens = dados.notificacoes || [];
 
             listaNotificacoesEl.innerHTML = itens.length === 0
-                ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+                ? `<div class="painel-vazio">${t("semNotificacoes")}</div>`
                 : itens.map(formatarItemNotificacao).join("");
 
             const naoLidas = itens.filter(i => !i.lida).length;
@@ -610,7 +631,7 @@
                 badge.style.display = "none";
             }
         } catch (_) {
-            listaNotificacoesEl.innerHTML = `<div class="painel-vazio">Não foi possível carregar.</div>`;
+            listaNotificacoesEl.innerHTML = `<div class="painel-vazio">${t("erroCarregarNotif")}</div>`;
         }
     }
 
@@ -648,41 +669,30 @@
 
 
     // =========================
-    // TRADUÇÃO VIA COOKIE
+    // TRADUÇÃO MANUAL
     // =========================
 
-    function lerCookie(nome) {
-        const v = `; ${document.cookie}`;
-        const p = v.split(`; ${nome}=`);
-        if (p.length === 2) return p.pop().split(";").shift();
-        return null;
-    }
+    function aplicarIdiomaEstatico() {
+        document.querySelectorAll("[data-pt]").forEach(el => {
+            el.textContent = idiomaAtual === "en"
+                ? (el.dataset.en || el.dataset.pt)
+                : el.dataset.pt;
+        });
 
-    function iniciarTradutor() {
-        new google.translate.TranslateElement(
-            { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
-            "google_translate_element"
-        );
+        document.getElementById("textoTradutor").textContent =
+            idiomaAtual === "en" ? "Traduzir para português" : "Traduzir para inglês";
     }
 
     document.getElementById("btnTraduzir").addEventListener("click", () => {
-        const atual     = lerCookie("googtrans");
-        const traduzido = atual && atual.includes("/en");
-
-        document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
-        document.cookie = `googtrans=; path=/; domain=${location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
-
-        if (!traduzido) {
-            document.cookie = `googtrans=/pt/en; path=/`;
-            document.cookie = `googtrans=/pt/en; path=/; domain=${location.hostname}`;
-        }
-        window.location.reload();
+        idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+        localStorage.setItem("idioma", idiomaAtual);
+        aplicarIdiomaEstatico();
+        // Solicitações e atividade são montadas via JS (t()) — recarrega para refletir o novo idioma
+        carregarDados();
     });
 
-    // Atualiza o texto do botão conforme o cookie atual
-    const cookieAtual = lerCookie("googtrans");
-    document.getElementById("textoTradutor").textContent =
-        (cookieAtual && cookieAtual.includes("/en")) ? "Voltar para português" : "Traduzir para inglês";
+    // Aplica o idioma salvo ao carregar
+    aplicarIdiomaEstatico();
 
 
     // =========================
