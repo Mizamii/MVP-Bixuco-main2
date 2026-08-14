@@ -273,11 +273,11 @@
         navigator.clipboard.writeText(codigo).then(() => {
             const icone = document.querySelector("#btnCodigoCopiar .fa-copy");
             if (icone) {
-                icone.classList.remove("fa-copy");
-                icone.classList.add("fa-check");
+                icone.classList.remove("fa-regular", "fa-copy");
+                icone.classList.add("fa-solid", "fa-check");
                 setTimeout(() => {
-                    icone.classList.remove("fa-check");
-                    icone.classList.add("fa-copy");
+                    icone.classList.remove("fa-solid", "fa-check");
+                    icone.classList.add("fa-regular", "fa-copy");
                 }, 2000);
             }
         });
