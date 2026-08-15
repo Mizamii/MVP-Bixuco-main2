@@ -14,8 +14,6 @@
     <link rel="stylesheet" href="/css/relatoriosTerapeutaS.css">
     <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
 
-    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
-
 </head>
 
 <body>
@@ -35,28 +33,28 @@
 
             <a href="/homeTerapeuta">
                 <i class="fa-solid fa-house"></i>
-                <span>Início</span>
+                <span data-pt="Início" data-en="Home">Início</span>
             </a>
 
             <!-- aba ativa -->
             <a href="/relatoriosTerapeutaS" class="ativo">
                 <i class="fa-solid fa-chart-line"></i>
-                <span>Relatórios</span>
+                <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
             </a>
 
             <a href="/configuracoesT">
                 <i class="fa-solid fa-gear"></i>
-                <span>Configurações</span>
+                <span data-pt="Configurações" data-en="Settings">Configurações</span>
             </a>
 
             <a href="/sobreT">
                 <i class="fa-solid fa-circle-info"></i>
-                <span>Sobre</span>
+                <span data-pt="Sobre" data-en="About">Sobre</span>
             </a>
 
             <a href="/pacientes">
                 <i class="fa-solid fa-user-plus"></i>
-                <span>Pacientes</span>
+                <span data-pt="Pacientes" data-en="Patients">Pacientes</span>
             </a>
 
         </nav>
@@ -64,11 +62,11 @@
         <div class="tema">
             <button id="btnClaro" class="ativo" type="button">
                 <i class="fa-regular fa-sun"></i>
-                Claro
+                <span data-pt="Claro" data-en="Light">Claro</span>
             </button>
             <button id="btnEscuro" type="button">
                 <i class="fa-regular fa-moon"></i>
-                Escuro
+                <span data-pt="Escuro" data-en="Dark">Escuro</span>
             </button>
         </div>
 
@@ -76,7 +74,7 @@
 
         <a href="/logout" class="logout">
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            <span>Sair</span>
+            <span data-pt="Sair" data-en="Log out">Sair</span>
         </a>
 
     </aside>
@@ -94,10 +92,6 @@
                 <span id="textoTradutor">Traduzir para inglês</span>
             </button>
 
-            <div id="google_translate_element"
-                style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">
-            </div>
-
             <div class="usuario">
 
                 <!-- sininho com painel de notificações -->
@@ -108,9 +102,9 @@
                     </button>
 
                     <div class="painel-notificacoes" id="painelNotificacoes">
-                        <div class="painel-header">Notificações</div>
+                        <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
                         <div id="listaNotificacoes">
-                            <div class="painel-vazio">Carregando...</div>
+                            <div class="painel-vazio" data-pt="Carregando..." data-en="Loading...">Carregando...</div>
                         </div>
                     </div>
                 </div>
@@ -127,8 +121,13 @@
                 >
 
                 <div>
-                    <h3 id="nomeTerapeuta">Carregando...</h3>
-                    <span>Terapeuta</span>
+                    <h3 id="nomeTerapeuta" style="cursor:pointer" onclick="window.location.href='/perfilTerapeuta'">Carregando...</h3>
+                    <span data-pt="Terapeuta" data-en="Therapist">Terapeuta</span>
+
+                    <button type="button" class="btn-codigo-copiar" id="btnCodigoCopiar" onclick="copiarCodigo()" title="Copiar código para compartilhar">
+                        <span><span data-pt="Código" data-en="Code">Código</span>: <strong id="codigoTerapeuta">...</strong></span>
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
                 </div>
 
             </div>
@@ -140,13 +139,13 @@
             <!-- CABEÇALHO DA PÁGINA -->
             <div class="cabecalho-pagina">
                 <div>
-                    <h1>Relatórios</h1>
-                    <p>Acompanhe e visualize os relatórios dos pacientes.</p>
+                    <h1 data-pt="Relatórios" data-en="Reports">Relatórios</h1>
+                    <p data-pt="Acompanhe e visualize os relatórios dos pacientes." data-en="Track and view your patients' reports.">Acompanhe e visualize os relatórios dos pacientes.</p>
                 </div>
                 <img src="/img/gato-relatorio.png" alt="Mascote Bixuco" onerror="this.style.display='none'">
             </div>
 
-            <h2 class="subtitulo-secao">Relatórios dos pacientes</h2>
+            <h2 class="subtitulo-secao" data-pt="Relatórios dos pacientes" data-en="Patient reports">Relatórios dos pacientes</h2>
 
             <!-- ========================= -->
             <!-- LISTA DE PACIENTES -->
@@ -157,15 +156,15 @@
                 <!-- estado de carregamento -->
                 <div class="carregando-relatorios">
                     <i class="fa-solid fa-spinner fa-spin"></i>
-                    Carregando pacientes...
+                    <span data-pt="Carregando pacientes..." data-en="Loading patients...">Carregando pacientes...</span>
                 </div>
             </div>
 
             <!-- aparece quando não tem nenhum paciente vinculado -->
             <div id="semPacientes" style="display:none" class="lista-vazia">
                 <i class="fa-solid fa-users-slash"></i>
-                <p>Nenhum paciente vinculado ainda.</p>
-                <p>Aceite solicitações de vínculo para ver os relatórios aqui.</p>
+                <p data-pt="Nenhum paciente vinculado ainda." data-en="No patients linked yet.">Nenhum paciente vinculado ainda.</p>
+                <p data-pt="Aceite solicitações de vínculo para ver os relatórios aqui." data-en="Accept link requests to see reports here.">Aceite solicitações de vínculo para ver os relatórios aqui.</p>
             </div>
 
         </div>
@@ -176,6 +175,51 @@
 
 
 <script>
+
+    // =========================
+    // TRADUÇÃO MANUAL — dicionário para textos montados via JS
+    // =========================
+
+    let idiomaAtual = localStorage.getItem("idioma") || "pt";
+
+    const dicionario = {
+        responsavel:       { pt: "Responsável",                                    en: "Guardian" },
+        semRelatorios:      { pt: "Sem relatórios",                                 en: "No reports" },
+        crianca:             { pt: "Criança",                                       en: "Child" },
+        erroPacientes:        { pt: "Erro ao carregar os pacientes. Tente recarregar a página.",
+                                 en: "Error loading patients. Try reloading the page." },
+        semNotificacoes:       { pt: "Nenhuma notificação por enquanto.",           en: "No notifications yet." },
+        erroCarregarNotif:      { pt: "Não foi possível carregar.",                 en: "Couldn't load notifications." },
+    };
+
+    function t(chave, ...args) {
+        const entrada = dicionario[chave];
+        const valor   = idiomaAtual === "en" ? entrada.en : entrada.pt;
+        return typeof valor === "function" ? valor(...args) : valor;
+    }
+
+
+    // =========================
+    // COPIAR CÓDIGO DO TERAPEUTA
+    // =========================
+
+    function copiarCodigo() {
+        const codigo = document.getElementById("codigoTerapeuta").textContent;
+        if (!codigo || codigo === "---") return;
+
+        navigator.clipboard.writeText(codigo).then(() => {
+            const icone = document.querySelector("#btnCodigoCopiar .fa-copy");
+            if (icone) {
+                icone.classList.remove("fa-regular", "fa-copy");
+                icone.classList.add("fa-solid", "fa-check");
+                setTimeout(() => {
+                    icone.classList.remove("fa-solid", "fa-check");
+                    icone.classList.add("fa-regular", "fa-copy");
+                }, 2000);
+            }
+        });
+    }
+
 
     // =========================
     // CARREGAR DADOS DO TOPO
@@ -194,6 +238,7 @@
             const dados = await resposta.json();
 
             document.getElementById("nomeTerapeuta").textContent = dados.nome || "Terapeuta";
+            document.getElementById("codigoTerapeuta").textContent = dados.codigo || "---";
 
             if (dados.fotoPerfil) {
                 document.getElementById("fotoUsuario").src = dados.fotoPerfil;
@@ -248,8 +293,8 @@
 
                 // data do último relatório formatada
                 const dataRelatorio = p.ultimoRelatorio
-                    ? new Date(p.ultimoRelatorio).toLocaleDateString("pt-BR")
-                    : "Sem relatórios";
+                    ? new Date(p.ultimoRelatorio).toLocaleDateString(idiomaAtual === "en" ? "en-US" : "pt-BR")
+                    : t("semRelatorios");
 
                 card.innerHTML = `
                     <div class="info">
@@ -260,8 +305,8 @@
                             }
                         </div>
                         <div>
-                            <strong>${p.nomeCrianca || "Criança"}</strong>
-                            <span>Responsável: ${p.nomeResponsavel}</span>
+                            <strong>${p.nomeCrianca || t("crianca")}</strong>
+                            <span>${t("responsavel")}: ${p.nomeResponsavel}</span>
                             <span class="data-relatorio">${dataRelatorio}</span>
                         </div>
                     </div>
@@ -282,7 +327,7 @@
             lista.innerHTML = `
                 <div class="erro-relatorios">
                     <i class="fa-solid fa-triangle-exclamation"></i>
-                    Erro ao carregar os pacientes. Tente recarregar a página.
+                    ${t("erroPacientes")}
                 </div>
             `;
         }
@@ -303,7 +348,7 @@
             const itens = dados.notificacoes || [];
 
             listaNotificacoes.innerHTML = itens.length === 0
-                ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+                ? `<div class="painel-vazio">${t("semNotificacoes")}</div>`
                 : itens.map(item => `
                     <div class="item-notificacao ${item.lida ? "" : "nao-lida"}">
                         <p>${item.mensagem}</p>
@@ -311,7 +356,7 @@
                     </div>
                 `).join("");
         } catch (_) {
-            listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar.</div>`;
+            listaNotificacoes.innerHTML = `<div class="painel-vazio">${t("erroCarregarNotif")}</div>`;
         }
     }
 
@@ -333,38 +378,30 @@
 
 
     // =========================
-    // TRADUÇÃO
+    // TRADUÇÃO MANUAL
     // =========================
-    function lerCookie(nome) {
-        const valor  = `; ${document.cookie}`;
-        const partes = valor.split(`; ${nome}=`);
-        if (partes.length === 2) return partes.pop().split(";").shift();
-        return null;
-    }
 
-    function iniciarTradutor() {
-        new google.translate.TranslateElement(
-            { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
-            "google_translate_element"
-        );
-    }
+    function aplicarIdiomaEstatico() {
+        document.querySelectorAll("[data-pt]").forEach(el => {
+            el.textContent = idiomaAtual === "en"
+                ? (el.dataset.en || el.dataset.pt)
+                : el.dataset.pt;
+        });
 
-    function atualizarTextoBotao() {
-        const cookieAtual = lerCookie("googtrans");
         document.getElementById("textoTradutor").textContent =
-            cookieAtual && cookieAtual.includes("/en")
-                ? "Voltar para português"
-                : "Traduzir para inglês";
+            idiomaAtual === "en" ? "Traduzir para português" : "Traduzir para inglês";
     }
 
     document.getElementById("btnTraduzir").addEventListener("click", () => {
-        const cookieAtual   = lerCookie("googtrans");
-        const estaTraduzido = cookieAtual && cookieAtual.includes("/en");
-        const valor = `/pt/${estaTraduzido ? "pt" : "en"}`;
-        document.cookie = `googtrans=${valor}; path=/`;
-        document.cookie = `googtrans=${valor}; path=/; domain=${location.hostname}`;
-        window.location.reload();
+        idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+        localStorage.setItem("idioma", idiomaAtual);
+        aplicarIdiomaEstatico();
+        // Lista de pacientes é montada via JS (t()) — recarrega pra refletir o novo idioma
+        carregarRelatorios();
     });
+
+    // Aplica o idioma salvo ao carregar
+    aplicarIdiomaEstatico();
 
 
     // =========================
@@ -387,7 +424,6 @@
     // =========================
     const temaSalvo = localStorage.getItem("tema") || "claro";
     aplicarTema(temaSalvo);
-    atualizarTextoBotao();
     carregarUsuario();
     carregarRelatorios();
 
