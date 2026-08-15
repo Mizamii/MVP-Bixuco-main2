@@ -4103,32 +4103,33 @@ app.post("/api/dicas/gerar", estaLogado, async (req, res) => {
             });
         });
 
+        // ===== A PARTE NOVA COMEÇA AQUI =====
+
+        const promptCompleto = `Você é um assistente que ajuda pais de crianças com Transtorno de Processamento Sensorial (TPS). Com base nas respostas do relatório diário, gere de 2 a 3 dicas práticas e específicas.
+
+Responda APENAS com um JSON válido, sem nenhum texto antes ou depois, exatamente neste formato:
+[
+  { "titulo": "Título curto (3-5 palavras)", "texto": "Explicação prática em 1-2 frases." }
+]
+
+Não dê conselhos médicos - foque em estratégias comportamentais e de rotina. Escreva em português do Brasil, tom acolhedor.
+
+Respostas dos relatórios diários dos últimos 7 dias:
+${resumo}
+
+Gere as dicas personalizadas.`;
+
         const respostaIA = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+            `https://generativelanguage.googleapis.com/v1beta/interactions?key=${GEMINI_API_KEY}`,
             {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    systemInstruction: {
-                        parts: [{
-                            text: `Você é um assistente que ajuda pais de crianças com Transtorno de Processamento Sensorial (TPS). Com base nas respostas do relatório diário, gere de 2 a 3 dicas práticas e específicas.
-
-        Responda APENAS com um JSON válido, sem nenhum texto antes ou depois, exatamente neste formato:
-        [
-        { "titulo": "Título curto (3-5 palavras)", "texto": "Explicação prática em 1-2 frases." }
-        ]
-
-        Não dê conselhos médicos - foque em estratégias comportamentais e de rotina. Escreva em português do Brasil, tom acolhedor.`
-                        }]
-                    },
-                    contents: [{
-                        parts: [{
-                            text: `Respostas dos relatórios diários dos últimos 7 dias:\n${resumo}\n\nGere as dicas personalizadas.`
-                        }]
-                    }],
-                    generationConfig: {
-                        maxOutputTokens: 500,
-                        responseMimeType: "application/json"
+                    model: "models/gemini-3-flash-preview",
+                    input: promptCompleto,
+                    generation_config: {
+                        max_output_tokens: 800,
+                        thinking_level: "low"
                     }
                 })
             }
@@ -4141,7 +4142,17 @@ app.post("/api/dicas/gerar", estaLogado, async (req, res) => {
             return res.status(500).json({ erro: "Erro ao gerar dica. Tente novamente." });
         }
 
-        let textoResposta = dadosIA.candidates[0].content.parts[0].text.trim();
+        const stepResposta = dadosIA.steps.find(s => s.type === "model_output");
+
+        if (!stepResposta) {
+            console.log("Resposta do Gemini sem model_output:", dadosIA);
+            return res.status(500).json({ erro: "Erro ao processar a resposta da IA." });
+        }
+
+        let textoResposta = stepResposta.content.map(c => c.text).join("").trim();
+        textoResposta = textoResposta.replace(/```json|```/g, "").trim();
+
+        // ===== A PARTE NOVA TERMINA AQUI =====
 
         let dicasGeradas;
         try {
