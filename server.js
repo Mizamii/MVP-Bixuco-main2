@@ -4036,6 +4036,53 @@ app.get("/api/bixuco/localizacao", estaLogado, async (req, res) => {
     }
 });
 
+const btnGerarDicas = document.getElementById("btnGerarDicas");
+const listaDicas = document.getElementById("listaDicas");
+const textoBtnDicas = document.getElementById("textoBtnDicas");
+
+btnGerarDicas.addEventListener("click", async () => {
+
+    textoBtnDicas.textContent = "Gerando...";
+    btnGerarDicas.disabled = true;
+
+    try {
+
+        const resposta = await fetch("/api/dicas/gerar", { method: "POST" });
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            listaDicas.innerHTML = `<p class="sem-dados">${dados.erro || "Erro ao gerar dicas."}</p>`;
+            textoBtnDicas.textContent = "Tentar novamente";
+            return;
+        }
+
+        listaDicas.innerHTML = "";
+
+        dados.dicas.forEach(dica => {
+            const artigo = document.createElement("article");
+            artigo.className = "dica";
+            artigo.innerHTML = `
+                <div class="icone-dica">
+                    <i class="fa-solid fa-lightbulb"></i>
+                </div>
+                <div>
+                    <h4>${dica.titulo}</h4>
+                    <p>${dica.texto}</p>
+                </div>
+            `;
+            listaDicas.appendChild(artigo);
+        });
+
+        textoBtnDicas.textContent = "Gerar novas dicas";
+
+    } catch (erro) {
+        console.log("Erro ao gerar dicas:", erro);
+        listaDicas.innerHTML = `<p class="sem-dados">Erro de conexão. Tente novamente.</p>`;
+    } finally {
+        btnGerarDicas.disabled = false;
+    }
+
+});
 
 app.post("/api/bixuco/evento", async (req, res) => {
     const { forca, latitude, longitude, crianca_id, duracao_ms, evento } = req.body;
@@ -4050,6 +4097,114 @@ app.post("/api/bixuco/evento", async (req, res) => {
         console.error(erro);
         res.status(500).json({ erro: "Erro interno." });
     }
+});
+
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+
+app.post("/api/dicas/gerar", estaLogado, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+
+        const dicaExistente = await db.query(
+            `SELECT dicas, gerado_em FROM dicas_personalizadas
+             WHERE usuario_id = $1
+             ORDER BY gerado_em DESC
+             LIMIT 1`,
+            [usuarioId]
+        );
+
+        if (dicaExistente.rows.length > 0) {
+            const geradoEm = new Date(dicaExistente.rows[0].gerado_em);
+            const seteDiasAtras = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+            if (geradoEm > seteDiasAtras) {
+                return res.json({ dicas: dicaExistente.rows[0].dicas, novo: false });
+            }
+        }
+
+        const relatoriosRecentes = await db.query(
+            `SELECT respostas FROM relatorios
+             WHERE usuario_id = $1
+             AND data >= NOW() - INTERVAL '7 days'
+             ORDER BY data DESC`,
+            [usuarioId]
+        );
+
+        if (relatoriosRecentes.rows.length === 0) {
+            return res.status(404).json({
+                erro: "Ainda não há relatórios suficientes para gerar dicas personalizadas."
+            });
+        }
+
+        let resumo = "";
+        relatoriosRecentes.rows.forEach((linha, i) => {
+            const respostas = typeof linha.respostas === "string"
+                ? JSON.parse(linha.respostas)
+                : linha.respostas;
+
+            resumo += `\nRelatório ${i + 1}:\n`;
+            respostas.forEach(r => {
+                resumo += `- ${r.pergunta}: ${r.resposta}\n`;
+            });
+        });
+
+        const respostaIA = await fetch("https://api.anthropic.com/v1/messages", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": ANTHROPIC_API_KEY,
+                "anthropic-version": "2023-06-01"
+            },
+            body: JSON.stringify({
+                model: "claude-haiku-4-5-20251001",
+                max_tokens: 500,
+                system: `Você é um assistente que ajuda pais de crianças com Transtorno de Processamento Sensorial (TPS). Com base nas respostas do relatório diário, gere de 2 a 3 dicas práticas e específicas.
+
+Responda APENAS com um JSON válido, sem nenhum texto antes ou depois, exatamente neste formato:
+[
+  { "titulo": "Título curto (3-5 palavras)", "texto": "Explicação prática em 1-2 frases." }
+]
+
+Não dê conselhos médicos - foque em estratégias comportamentais e de rotina. Escreva em português do Brasil, tom acolhedor.`,
+                messages: [
+                    { role: "user", content: `Respostas dos relatórios diários dos últimos 7 dias:\n${resumo}\n\nGere as dicas personalizadas.` }
+                ]
+            })
+        });
+
+        const dadosIA = await respostaIA.json();
+
+        if (!respostaIA.ok) {
+            console.log("Erro na API da Anthropic:", dadosIA);
+            return res.status(500).json({ erro: "Erro ao gerar dica. Tente novamente." });
+        }
+
+        let textoResposta = dadosIA.content[0].text.trim();
+        textoResposta = textoResposta.replace(/```json|```/g, "").trim();
+
+        let dicasGeradas;
+        try {
+            dicasGeradas = JSON.parse(textoResposta);
+        } catch (erroParse) {
+            console.log("Erro ao interpretar resposta da IA:", textoResposta);
+            return res.status(500).json({ erro: "Erro ao processar a resposta da IA." });
+        }
+
+        await db.query(
+            `INSERT INTO dicas_personalizadas (usuario_id, dicas)
+             VALUES ($1, $2)`,
+            [usuarioId, JSON.stringify(dicasGeradas)]
+        );
+
+        res.json({ dicas: dicasGeradas, novo: true });
+
+    } catch (erro) {
+        console.log("Erro ao gerar dica personalizada:", erro);
+        res.status(500).json({ erro: "Erro interno ao gerar dica." });
+    }
+
 });
 
 /* ==========================

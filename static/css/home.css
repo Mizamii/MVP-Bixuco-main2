@@ -535,3 +535,7 @@ text-decoration: underline;
 .badge-bateria.baixa i {
     color: #E24C4C;
 }
+
+#listaDicas {
+    display: contents;
+}
