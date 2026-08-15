@@ -4061,31 +4061,38 @@ app.post("/api/dicas/gerar", estaLogado, async (req, res) => {
 
         const usuarioId = req.session.usuarioId || (req.user && req.user.id);
 
-        // Verifica quantas vezes ja gerou nos ultimos 7 dias (limite de 3x/semana)
+        // Verifica se ja gerou essa semana (limite de 1x/semana)
         const geracoesRecentes = await db.query(
-            `SELECT COUNT(*) AS total FROM dicas_personalizadas
+            `SELECT dicas FROM dicas_personalizadas
              WHERE usuario_id = $1
-             AND gerado_em >= NOW() - INTERVAL '7 days'`,
+             AND gerado_em >= NOW() - INTERVAL '7 days'
+             ORDER BY gerado_em DESC`,
             [usuarioId]
         );
 
-        const totalGeracoes = parseInt(geracoesRecentes.rows[0].total);
-
-        if (totalGeracoes >= 3) {
-
-            const ultimaDica = await db.query(
-                `SELECT dicas FROM dicas_personalizadas
-                 WHERE usuario_id = $1
-                 ORDER BY gerado_em DESC
-                 LIMIT 1`,
-                [usuarioId]
-            );
-
+        if (geracoesRecentes.rows.length >= 1) {
             return res.status(429).json({
-                erro: "Você já gerou o máximo de 3 vezes essa semana. Tente novamente em alguns dias.",
-                dicas: ultimaDica.rows[0]?.dicas || null
+                erro: "Já gerou as dicas dessa semana. Espere até a próxima semana.",
+                dicas: geracoesRecentes.rows[0].dicas
             });
+        }
 
+        // Busca dicas anteriores (ultimas 4 geracoes, sem limite de data)
+        // para instruir a IA a nao repetir as mesmas dicas de novo
+        const dicasAnteriores = await db.query(
+            `SELECT dicas FROM dicas_personalizadas
+             WHERE usuario_id = $1
+             ORDER BY gerado_em DESC
+             LIMIT 4`,
+            [usuarioId]
+        );
+
+        let dicasJaUsadas = "";
+        if (dicasAnteriores.rows.length > 0) {
+            const todasAnteriores = dicasAnteriores.rows.flatMap(r => r.dicas);
+            dicasJaUsadas = todasAnteriores
+                .map(d => `- ${d.titulo}: ${d.texto}`)
+                .join("\n");
         }
 
         // Busca as respostas dos ultimos 7 dias
@@ -4116,7 +4123,10 @@ app.post("/api/dicas/gerar", estaLogado, async (req, res) => {
             });
         });
 
-        // Monta o prompt completo para o Gemini
+        const instrucaoVariedade = dicasJaUsadas
+            ? `\n\nIMPORTANTE: estas dicas já foram dadas antes. Você pode falar sobre o mesmo tema/dificuldade, mas a dica em si (o conselho prático específico) precisa ser DIFERENTE das anteriores, não repita a mesma sugestão:\n${dicasJaUsadas}`
+            : "";
+
         const promptCompleto = `Você é um assistente que ajuda pais de crianças com Transtorno de Processamento Sensorial (TPS). Com base nas respostas do relatório diário, gere de 2 a 3 dicas práticas e específicas.
 
 Responda APENAS com um JSON válido, sem nenhum texto antes ou depois, exatamente neste formato:
@@ -4124,14 +4134,13 @@ Responda APENAS com um JSON válido, sem nenhum texto antes ou depois, exatament
   { "titulo": "Título curto (3-5 palavras)", "texto": "Explicação prática em 1-2 frases." }
 ]
 
-Não dê conselhos médicos - foque em estratégias comportamentais e de rotina. Escreva em português do Brasil, tom acolhedor.
+Não dê conselhos médicos - foque em estratégias comportamentais e de rotina. Escreva em português do Brasil, tom acolhedor.${instrucaoVariedade}
 
 Respostas dos relatórios diários dos últimos 7 dias:
 ${resumo}
 
 Gere as dicas personalizadas.`;
 
-        // Chama a API do Gemini (Interactions API)
         const respostaIA = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/interactions?key=${GEMINI_API_KEY}`,
             {
@@ -4173,18 +4182,13 @@ Gere as dicas personalizadas.`;
             return res.status(500).json({ erro: "Erro ao processar a resposta da IA." });
         }
 
-        // Salva no banco
         await db.query(
             `INSERT INTO dicas_personalizadas (usuario_id, dicas)
              VALUES ($1, $2)`,
             [usuarioId, JSON.stringify(dicasGeradas)]
         );
 
-        res.json({
-            dicas: dicasGeradas,
-            novo: true,
-            geracoesRestantes: 2 - totalGeracoes
-        });
+        res.json({ dicas: dicasGeradas, novo: true });
 
     } catch (erro) {
         console.log("Erro ao gerar dica personalizada:", erro);
