@@ -780,6 +780,55 @@
             }
         });
 
+        const btnGerarDicas = document.getElementById("btnGerarDicas");
+        const listaDicas = document.getElementById("listaDicas");
+        const textoBtnDicas = document.getElementById("textoBtnDicas");
+
+        btnGerarDicas.addEventListener("click", async () => {
+
+            textoBtnDicas.textContent = "Gerando...";
+            btnGerarDicas.disabled = true;
+
+            try {
+
+                const resposta = await fetch("/api/dicas/gerar", { method: "POST" });
+                const dados = await resposta.json();
+
+                if (!resposta.ok) {
+                    listaDicas.innerHTML = `<p class="sem-dados">${dados.erro || "Erro ao gerar dicas."}</p>`;
+                    textoBtnDicas.textContent = "Tentar novamente";
+                    return;
+                }
+
+                listaDicas.innerHTML = "";
+
+                dados.dicas.forEach(dica => {
+                    const artigo = document.createElement("article");
+                    artigo.className = "dica";
+                    artigo.innerHTML = `
+                        <div class="icone-dica">
+                            <i class="fa-solid fa-lightbulb"></i>
+                        </div>
+                        <div>
+                            <h4>${dica.titulo}</h4>
+                            <p>${dica.texto}</p>
+                        </div>
+                    `;
+                    listaDicas.appendChild(artigo);
+                });
+
+                textoBtnDicas.textContent = "Gerar novas dicas";
+
+            } catch (erro) {
+                console.log("Erro ao gerar dicas:", erro);
+                listaDicas.innerHTML = `<p class="sem-dados">Erro de conexão. Tente novamente.</p>`;
+            } finally {
+                btnGerarDicas.disabled = false;
+            }
+
+        });
+
+
         // =========================
         // INICIALIZAÇÃO
         // =========================
