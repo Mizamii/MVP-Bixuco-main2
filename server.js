@@ -4054,29 +4054,42 @@ app.post("/api/bixuco/evento", async (req, res) => {
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
+
+
 app.post("/api/dicas/gerar", estaLogado, async (req, res) => {
 
     try {
 
         const usuarioId = req.session.usuarioId || (req.user && req.user.id);
 
-        const dicaExistente = await db.query(
-            `SELECT dicas, gerado_em FROM dicas_personalizadas
+        // Verifica quantas vezes ja gerou nos ultimos 7 dias (limite de 3x/semana)
+        const geracoesRecentes = await db.query(
+            `SELECT COUNT(*) AS total FROM dicas_personalizadas
              WHERE usuario_id = $1
-             ORDER BY gerado_em DESC
-             LIMIT 1`,
+             AND gerado_em >= NOW() - INTERVAL '7 days'`,
             [usuarioId]
         );
 
-        if (dicaExistente.rows.length > 0) {
-            const geradoEm = new Date(dicaExistente.rows[0].gerado_em);
-            const seteDiasAtras = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        const totalGeracoes = parseInt(geracoesRecentes.rows[0].total);
 
-            if (geradoEm > seteDiasAtras) {
-                return res.json({ dicas: dicaExistente.rows[0].dicas, novo: false });
-            }
+        if (totalGeracoes >= 3) {
+
+            const ultimaDica = await db.query(
+                `SELECT dicas FROM dicas_personalizadas
+                 WHERE usuario_id = $1
+                 ORDER BY gerado_em DESC
+                 LIMIT 1`,
+                [usuarioId]
+            );
+
+            return res.status(429).json({
+                erro: "Você já gerou o máximo de 3 vezes essa semana. Tente novamente em alguns dias.",
+                dicas: ultimaDica.rows[0]?.dicas || null
+            });
+
         }
 
+        // Busca as respostas dos ultimos 7 dias
         const relatoriosRecentes = await db.query(
             `SELECT respostas FROM relatorios
              WHERE usuario_id = $1
@@ -4091,6 +4104,7 @@ app.post("/api/dicas/gerar", estaLogado, async (req, res) => {
             });
         }
 
+        // Monta o resumo em texto para a IA
         let resumo = "";
         relatoriosRecentes.rows.forEach((linha, i) => {
             const respostas = typeof linha.respostas === "string"
@@ -4103,8 +4117,7 @@ app.post("/api/dicas/gerar", estaLogado, async (req, res) => {
             });
         });
 
-        // ===== A PARTE NOVA COMEÇA AQUI =====
-
+        // Monta o prompt completo para o Gemini
         const promptCompleto = `Você é um assistente que ajuda pais de crianças com Transtorno de Processamento Sensorial (TPS). Com base nas respostas do relatório diário, gere de 2 a 3 dicas práticas e específicas.
 
 Responda APENAS com um JSON válido, sem nenhum texto antes ou depois, exatamente neste formato:
@@ -4119,6 +4132,7 @@ ${resumo}
 
 Gere as dicas personalizadas.`;
 
+        // Chama a API do Gemini (Interactions API)
         const respostaIA = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/interactions?key=${GEMINI_API_KEY}`,
             {
@@ -4152,8 +4166,6 @@ Gere as dicas personalizadas.`;
         let textoResposta = stepResposta.content.map(c => c.text).join("").trim();
         textoResposta = textoResposta.replace(/```json|```/g, "").trim();
 
-        // ===== A PARTE NOVA TERMINA AQUI =====
-
         let dicasGeradas;
         try {
             dicasGeradas = JSON.parse(textoResposta);
@@ -4162,17 +4174,53 @@ Gere as dicas personalizadas.`;
             return res.status(500).json({ erro: "Erro ao processar a resposta da IA." });
         }
 
+        // Salva no banco
         await db.query(
             `INSERT INTO dicas_personalizadas (usuario_id, dicas)
              VALUES ($1, $2)`,
             [usuarioId, JSON.stringify(dicasGeradas)]
         );
 
-        res.json({ dicas: dicasGeradas, novo: true });
+        res.json({
+            dicas: dicasGeradas,
+            novo: true,
+            geracoesRestantes: 2 - totalGeracoes
+        });
 
     } catch (erro) {
         console.log("Erro ao gerar dica personalizada:", erro);
         res.status(500).json({ erro: "Erro interno ao gerar dica." });
+    }
+
+});
+
+app.get("/api/dicas", estaLogado, async (req, res) => {
+
+    try {
+        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+
+        const resultado = await db.query(
+            `SELECT dicas, gerado_em FROM dicas_personalizadas
+             WHERE usuario_id = $1
+             AND gerado_em >= NOW() - INTERVAL '7 days'
+             ORDER BY gerado_em DESC
+             LIMIT 1`,
+            [usuarioId]
+        );
+
+        if (resultado.rows.length === 0) {
+            return res.json({ disponivel: false });
+        }
+
+        res.json({
+            disponivel: true,
+            dicas: resultado.rows[0].dicas,
+            geradoEm: resultado.rows[0].gerado_em
+        });
+
+    } catch (erro) {
+        console.log("Erro ao buscar dicas:", erro);
+        res.status(500).json({ erro: "Erro interno." });
     }
 
 });

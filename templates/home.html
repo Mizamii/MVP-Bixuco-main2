@@ -317,6 +317,17 @@
                         <i class="fa-solid fa-chevron-right"></i>
                     </button>
 
+                    <!-- Modal -->
+                    <div id="modalDica" class="modal-dica" style="display:none;">
+                        <div class="modal-dica__conteudo">
+                            <button class="modal-dica__fechar" id="fecharModalDica">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                            <h3 id="modalDicaTitulo"></h3>
+                            <p id="modalDicaTexto"></p>
+                        </div>
+                    </div>
+
                 </section>
 
             </div>
@@ -325,6 +336,8 @@
     </div>
 
     <script>
+
+        
 
         // =========================
         // CARREGAR DADOS DO USUÁRIO
@@ -394,6 +407,96 @@
                 texto.textContent = "Parabéns! Você já mantém um acompanhamento de longa duração.";
             }
         }
+
+        const btnGerarDicas = document.getElementById("btnGerarDicas");
+        const listaDicas = document.getElementById("listaDicas");
+        const textoBtnDicas = document.getElementById("textoBtnDicas");
+        const modalDica = document.getElementById("modalDica");
+
+        function renderizarDicas(dicas) {
+            listaDicas.innerHTML = "";
+
+            dicas.forEach(dica => {
+                const artigo = document.createElement("article");
+                artigo.className = "dica";
+                artigo.innerHTML = `
+                    <div class="icone-dica">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </div>
+                    <div>
+                        <h4>${dica.titulo}</h4>
+                        <p>${dica.texto}</p>
+                    </div>
+                `;
+                artigo.addEventListener("click", () => abrirModalDica(dica));
+                listaDicas.appendChild(artigo);
+            });
+
+            textoBtnDicas.textContent = "Gerar novas dicas";
+        }
+
+        function abrirModalDica(dica) {
+            document.getElementById("modalDicaTitulo").textContent = dica.titulo;
+            document.getElementById("modalDicaTexto").textContent = dica.texto;
+            modalDica.style.display = "flex";
+        }
+
+        document.getElementById("fecharModalDica").addEventListener("click", () => {
+            modalDica.style.display = "none";
+        });
+
+        modalDica.addEventListener("click", (e) => {
+            if (e.target === modalDica) modalDica.style.display = "none";
+        });
+
+        // Carrega automaticamente ao abrir a pagina, sem gastar credito (GET)
+        async function carregarDicasSalvas() {
+            try {
+                const resposta = await fetch("/api/dicas");
+                const dados = await resposta.json();
+
+                if (dados.disponivel) {
+                    renderizarDicas(dados.dicas);
+                }
+            } catch (erro) {
+                console.log("Erro ao carregar dicas salvas:", erro);
+            }
+        }
+
+        btnGerarDicas.addEventListener("click", async () => {
+
+            textoBtnDicas.textContent = "Gerando...";
+            btnGerarDicas.disabled = true;
+
+            try {
+                const resposta = await fetch("/api/dicas/gerar", { method: "POST" });
+                const dados = await resposta.json();
+
+                if (resposta.status === 429) {
+                    if (dados.dicas) renderizarDicas(dados.dicas);
+                    alert(dados.erro);
+                    return;
+                }
+
+                if (!resposta.ok) {
+                    listaDicas.innerHTML = `<p class="sem-dados">${dados.erro || "Erro ao gerar dicas."}</p>`;
+                    textoBtnDicas.textContent = "Tentar novamente";
+                    return;
+                }
+
+                renderizarDicas(dados.dicas);
+
+            } catch (erro) {
+                console.log("Erro ao gerar dicas:", erro);
+                listaDicas.innerHTML = `<p class="sem-dados">Erro de conexão. Tente novamente.</p>`;
+            } finally {
+                btnGerarDicas.disabled = false;
+            }
+
+        });
+
+        // Chama junto com as outras inicializações da pagina
+        carregarDicasSalvas();
 
         // =========================
         // CALENDÁRIO
@@ -780,53 +883,7 @@
             }
         });
 
-        const btnGerarDicas = document.getElementById("btnGerarDicas");
-        const listaDicas = document.getElementById("listaDicas");
-        const textoBtnDicas = document.getElementById("textoBtnDicas");
-
-        btnGerarDicas.addEventListener("click", async () => {
-
-            textoBtnDicas.textContent = "Gerando...";
-            btnGerarDicas.disabled = true;
-
-            try {
-
-                const resposta = await fetch("/api/dicas/gerar", { method: "POST" });
-                const dados = await resposta.json();
-
-                if (!resposta.ok) {
-                    listaDicas.innerHTML = `<p class="sem-dados">${dados.erro || "Erro ao gerar dicas."}</p>`;
-                    textoBtnDicas.textContent = "Tentar novamente";
-                    return;
-                }
-
-                listaDicas.innerHTML = "";
-
-                dados.dicas.forEach(dica => {
-                    const artigo = document.createElement("article");
-                    artigo.className = "dica";
-                    artigo.innerHTML = `
-                        <div class="icone-dica">
-                            <i class="fa-solid fa-lightbulb"></i>
-                        </div>
-                        <div>
-                            <h4>${dica.titulo}</h4>
-                            <p>${dica.texto}</p>
-                        </div>
-                    `;
-                    listaDicas.appendChild(artigo);
-                });
-
-                textoBtnDicas.textContent = "Gerar novas dicas";
-
-            } catch (erro) {
-                console.log("Erro ao gerar dicas:", erro);
-                listaDicas.innerHTML = `<p class="sem-dados">Erro de conexão. Tente novamente.</p>`;
-            } finally {
-                btnGerarDicas.disabled = false;
-            }
-
-        });
+        
 
 
         // =========================
