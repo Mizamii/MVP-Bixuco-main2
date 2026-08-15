@@ -10,9 +10,6 @@
     <!-- Chart.js para os gráficos -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
-    <!-- Google Translate -->
-    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
-
     <!-- favicon -->
     <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
 
@@ -37,18 +34,18 @@
         }
 
         .btn-tipo-grafico button {
-            background: #F5F7FA;
-            border: 1px solid #E0E0E0;
+            background: var(--cor-fundo-pagina);
+            border: 1px solid var(--cor-borda);
             border-radius: 8px;
             padding: 6px 10px;
             cursor: pointer;
-            color: #5A5A5A;
+            color: var(--cor-texto-secundario);
             font-size: 0.85rem;
             transition: all 0.2s;
         }
 
         .btn-tipo-grafico button:hover {
-            background: #E2F0D9;
+            background: var(--cor-fundo-hover);
             border-color: #32C26D;
             color: #32C26D;
         }
@@ -57,6 +54,181 @@
             background: #32C26D;
             border-color: #32C26D;
             color: white;
+        }
+
+        /* ===== Calendário de relatórios por dia (Fase 2 — sugestão do professor) ===== */
+
+        .card-calendario {
+            background: var(--cor-fundo-card);
+            border-radius: 16px;
+            padding: 1.25rem 1.35rem;
+            box-shadow: var(--sombra-card);
+        }
+
+        .calendario-cabecalho {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .calendario-cabecalho button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--cor-texto-secundario);
+            font-size: 1rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 8px;
+        }
+
+        .calendario-cabecalho button:hover {
+            background: var(--cor-fundo-hover);
+        }
+
+        .calendario-mes-label {
+            font-weight: 700;
+            color: var(--cor-texto-principal);
+            text-transform: capitalize;
+        }
+
+        .calendario-grade {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            text-align: center;
+        }
+
+        .calendario-dia-semana {
+            font-size: 0.7rem;
+            color: var(--cor-texto-esmaecido);
+            font-weight: 700;
+            padding-bottom: 4px;
+        }
+
+        .calendario-dia {
+            position: relative;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            border-radius: 10px;
+            background: var(--cor-fundo-pagina);
+            color: var(--cor-texto-principal);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .calendario-dia:hover:not(:disabled) {
+            background: var(--cor-fundo-hover);
+        }
+
+        .calendario-dia:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            background: transparent;
+        }
+
+        .calendario-dia.vazio {
+            visibility: hidden;
+            cursor: default;
+        }
+
+        .calendario-dia.tem-relatorio::after {
+            content: "";
+            position: absolute;
+            bottom: 5px;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #32C26D;
+        }
+
+        .calendario-dia.selecionado {
+            background: #32C26D;
+            color: #fff;
+        }
+
+        .calendario-dia.selecionado.tem-relatorio::after {
+            background: #fff;
+        }
+
+        .painel-dia-selecionado {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--cor-borda);
+        }
+
+        .painel-dia-selecionado h4 {
+            font-size: 0.9rem;
+            color: var(--cor-texto-principal);
+            margin-bottom: 0.75rem;
+            text-transform: capitalize;
+        }
+
+        .lista-respostas-dia {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .lista-respostas-dia li {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 0.55rem 0.7rem;
+            background: var(--cor-fundo-pagina);
+            border-radius: 8px;
+            font-size: 0.82rem;
+        }
+
+        .lista-respostas-dia li strong {
+            color: var(--cor-texto-principal);
+        }
+
+        .lista-respostas-dia li span {
+            color: var(--cor-texto-secundario);
+            text-align: right;
+        }
+
+        .sem-relatorio-dia {
+            text-align: center;
+            padding: 1rem 0;
+            color: var(--cor-texto-esmaecido);
+            font-size: 0.85rem;
+        }
+
+        .nota-dia textarea {
+            width: 100%;
+            resize: vertical;
+            border: 1px solid var(--cor-borda);
+            border-radius: 10px;
+            padding: 0.65rem 0.75rem;
+            font-family: inherit;
+            font-size: 0.85rem;
+            color: var(--cor-texto-principal);
+            background: var(--cor-fundo-pagina);
+            margin-bottom: 0.5rem;
+        }
+
+        .nota-dia button {
+            background: #32C26D;
+            border: none;
+            border-radius: 999px;
+            color: #fff;
+            padding: 0.5rem 1.1rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .nota-dia button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
     </style>
 </head>
@@ -69,7 +241,6 @@
     <!-- ========================= -->
     <aside class="sidebar">
 
-        <!-- logo_nome.png do amigo -->
         <div class="logo">
             <img src="/img/logo_nome.png" alt="Bixuco">
         </div>
@@ -77,48 +248,46 @@
         <nav>
             <a href="/homeTerapeuta">
                 <i class="fa-solid fa-house"></i>
-                <span>Início</span>
+                <span data-pt="Início" data-en="Home">Início</span>
             </a>
 
-            <!-- aba ativa -->
             <a href="/relatoriosTerapeutaS" class="ativo">
                 <i class="fa-solid fa-chart-line"></i>
-                <span>Relatórios</span>
+                <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
             </a>
 
             <a href="/configuracoesT">
                 <i class="fa-solid fa-gear"></i>
-                <span>Configurações</span>
+                <span data-pt="Configurações" data-en="Settings">Configurações</span>
             </a>
 
             <a href="/sobreT">
                 <i class="fa-solid fa-circle-info"></i>
-                <span>Sobre</span>
+                <span data-pt="Sobre" data-en="About">Sobre</span>
             </a>
 
             <a href="/pacientes">
                 <i class="fa-solid fa-user-group"></i>
-                <span>Pacientes</span>
+                <span data-pt="Pacientes" data-en="Patients">Pacientes</span>
             </a>
         </nav>
 
         <div class="tema">
             <button id="btnClaro" class="ativo" type="button">
                 <i class="fa-regular fa-sun"></i>
-                Claro
+                <span data-pt="Claro" data-en="Light">Claro</span>
             </button>
             <button id="btnEscuro" type="button">
                 <i class="fa-regular fa-moon"></i>
-                Escuro
+                <span data-pt="Escuro" data-en="Dark">Escuro</span>
             </button>
         </div>
 
-        <!-- divisor em degradê do amigo -->
         <div class="sidebar-divisor"></div>
 
         <a href="/logout" class="logout">
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            <span>Sair</span>
+            <span data-pt="Sair" data-en="Log out">Sair</span>
         </a>
 
     </aside>
@@ -136,12 +305,6 @@
                 <span id="textoTradutor">Traduzir para inglês</span>
             </button>
 
-            <!-- elemento oculto necessário para o Google Translate -->
-            <div
-                id="google_translate_element"
-                style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);"
-            ></div>
-
             <div class="usuario">
 
                 <!-- sininho com painel de notificações -->
@@ -152,15 +315,14 @@
                     </button>
 
                     <div class="painel-notificacoes" id="painelNotificacoes">
-                        <div class="painel-header">Notificações</div>
+                        <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
                         <div id="listaNotificacoes">
-                            <div class="painel-vazio">Carregando...</div>
+                            <div class="painel-vazio" data-pt="Carregando..." data-en="Loading...">Carregando...</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- foto clicável vai para o perfil — do seu JS -->
-                <!-- onerror garante foto padrão se a foto não carregar -->
                 <img
                     id="fotoUsuario"
                     src="/img/perfilPadrao.png"
@@ -172,16 +334,19 @@
                 >
 
                 <div>
-                    <!-- 🔧 dinâmico — o amigo tinha "Dr. Laura" hardcoded -->
-                    <h3 id="nomeTerapeuta">Carregando...</h3>
-                    <span>Terapeuta</span>
+                    <h3 id="nomeTerapeuta" style="cursor:pointer" onclick="window.location.href='/PerfilTerapeuta'">Carregando...</h3>
+                    <span data-pt="Terapeuta" data-en="Therapist">Terapeuta</span>
+
+                    <button type="button" class="btn-codigo-copiar" id="btnCodigoCopiar" onclick="copiarCodigo()" title="Copiar código para compartilhar">
+                        <span><span data-pt="Código" data-en="Code">Código</span>: <strong id="codigoTerapeuta">...</strong></span>
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
                 </div>
 
             </div>
 
         </header>
 
-        <!-- conteudo-corpo do amigo — scroll interno correto -->
         <div class="conteudo-corpo">
 
             <!-- CABEÇALHO DA PÁGINA com seta de voltar e nome dinâmico -->
@@ -193,8 +358,7 @@
                     </a>
 
                     <div>
-                        <!-- nome do paciente dinâmico via query param -->
-                        <h1>Relatórios de <span id="nomePaciente">...</span></h1>
+                        <h1><span data-pt="Relatórios de" data-en="Reports for">Relatórios de</span> <span id="nomePaciente">...</span></h1>
                     </div>
                 </div>
 
@@ -212,21 +376,21 @@
             <section class="cards-resumo">
 
                 <div class="card-resumo">
-                    <h3>Alertas de estresse</h3>
+                    <h3 data-pt="Alertas de estresse" data-en="Stress alerts">Alertas de estresse</h3>
                     <div class="valor" id="alertasEstresse">
                         <i class="fa-solid fa-arrow-down"></i>
                         0
                     </div>
-                    <p id="comparativoAlertas">carregando...</p>
+                    <p id="comparativoAlertas" data-pt="carregando..." data-en="loading...">carregando...</p>
                 </div>
 
                 <div class="card-resumo">
-                    <h3>Tempo de estresse</h3>
+                    <h3 data-pt="Tempo de estresse" data-en="Stress duration">Tempo de estresse</h3>
                     <div class="valor" id="tempoEstresse">
                         <i class="fa-solid fa-arrow-up"></i>
                         0 min
                     </div>
-                    <p id="comparativoTempo">carregando...</p>
+                    <p id="comparativoTempo" data-pt="carregando..." data-en="loading...">carregando...</p>
                 </div>
 
             </section>
@@ -236,10 +400,9 @@
             <!-- ========================= -->
             <section class="graficos">
 
-                <!-- Gráfico de estresse com botões de tipo -->
                 <article class="card-grafico">
                     <div class="titulo-card">
-                        <h3>Estresse — últimos 7 dias</h3>
+                        <h3 data-pt="Estresse — últimos 7 dias" data-en="Stress — last 7 days">Estresse — últimos 7 dias</h3>
 
                         <div class="btn-tipo-grafico">
                             <button type="button" class="ativo" onclick="trocarTipoEstresse('bar')" title="Barras">
@@ -253,10 +416,9 @@
                     <canvas id="graficoBarras"></canvas>
                 </article>
 
-                <!-- Gráfico de gatilhos com botões de tipo -->
                 <article class="card-grafico">
                     <div class="titulo-card">
-                        <h3>Principais gatilhos — últimos 7 dias</h3>
+                        <h3 data-pt="Principais gatilhos — últimos 7 dias" data-en="Main triggers — last 7 days">Principais gatilhos — últimos 7 dias</h3>
 
                         <div class="btn-tipo-grafico">
                             <button type="button" class="ativo" onclick="trocarTipoGatilhos('doughnut')" title="Rosca">
@@ -277,40 +439,42 @@
             </section>
 
             <!-- ========================= -->
-            <!-- NOTAS CLÍNICAS -->
+            <!-- CALENDÁRIO DE RELATÓRIOS POR DIA -->
             <!-- ========================= -->
-            <section class="bloco bloco-notas">
+            <section class="bloco card-calendario">
 
-                <h3>Notas clínicas</h3>
+                <h3 data-pt="Relatórios por dia" data-en="Reports by day">Relatórios por dia</h3>
 
-                <div id="listaNotas">
-                    <div class="carregando-notas">
-                        <i class="fa-solid fa-spinner fa-spin"></i>
-                        Carregando notas...
-                    </div>
-                </div>
-
-                <textarea
-                    id="novaNota"
-                    placeholder="Adicionar nova nota clínica..."
-                    rows="4"
-                ></textarea>
-
-                <!-- erro inline em vez de alert() -->
-                <span
-                    id="erroNota"
-                    style="display:none; color:#E53E3E; font-size:0.85rem;"
-                ></span>
-
-                <div class="acoes-nota">
-                    <button
-                        type="button"
-                        id="btnSalvarNota"
-                        onclick="salvarNota()"
-                    >
-                        Salvar nota
+                <div class="calendario-cabecalho">
+                    <button type="button" onclick="mesAnterior()" aria-label="Mês anterior">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <span class="calendario-mes-label" id="calendarioMesLabel">...</span>
+                    <button type="button" onclick="mesProximo()" aria-label="Próximo mês">
+                        <i class="fa-solid fa-chevron-right"></i>
                     </button>
                 </div>
+
+                <div class="calendario-grade" id="calendarioDiasSemana"></div>
+                <div class="calendario-grade" id="calendarioGrade"></div>
+
+                <div class="painel-dia-selecionado" id="painelDiaSelecionado" style="display:none;">
+
+                    <h4 id="painelDiaTitulo">...</h4>
+
+                    <div id="painelDiaConteudo"></div>
+
+                    <div class="nota-dia">
+                        <textarea id="notaDoDia" placeholder="Anotação clínica desse dia..." rows="3"></textarea>
+                        <div><span id="erroNotaDia" style="display:none; color:#E53E3E; font-size:0.8rem;"></span></div>
+                        <button type="button" id="btnSalvarNotaDia" onclick="salvarNotaDoDia()">Salvar nota</button>
+                    </div>
+
+                </div>
+
+                <p class="sem-relatorio-dia" id="calendarioSemSelecao" data-pt="Selecione um dia no calendário para ver o relatório." data-en="Select a day on the calendar to see the report.">
+                    Selecione um dia no calendário para ver o relatório.
+                </p>
 
             </section>
 
@@ -320,6 +484,53 @@
 </div>
 
 <script>
+
+    // =========================
+    // TRADUÇÃO MANUAL — dicionário para textos montados via JS
+    // =========================
+
+    let idiomaAtual = localStorage.getItem("idioma") || "pt";
+
+    const dicionario = {
+        semNotificacoes:    { pt: "Nenhuma notificação por enquanto.",              en: "No notifications yet." },
+        erroCarregarNotif:   { pt: "Não foi possível carregar.",                    en: "Couldn't load notifications." },
+        carregando:           { pt: "Carregando...",                               en: "Loading..." },
+        semRelatorioDia:       { pt: "Não teve relatório disponível nesse dia.",    en: "No report available on this day." },
+        erroCarregarDia:        { pt: "Erro ao carregar esse dia. Tente novamente.", en: "Error loading this day. Try again." },
+        digiteNota:               { pt: "Digite uma nota antes de salvar.",         en: "Type a note before saving." },
+        erroSalvarNota:            { pt: "Erro ao salvar a nota. Tente novamente.", en: "Error saving the note. Try again." },
+        salvando:                   { pt: "Salvando...",                           en: "Saving..." },
+        salvarNotaTxt:                { pt: "Salvar nota",                         en: "Save note" },
+    };
+
+    function t(chave) {
+        const entrada = dicionario[chave];
+        return idiomaAtual === "en" ? entrada.en : entrada.pt;
+    }
+
+
+    // =========================
+    // COPIAR CÓDIGO DO TERAPEUTA
+    // =========================
+
+    function copiarCodigo() {
+        const codigo = document.getElementById("codigoTerapeuta").textContent;
+        if (!codigo || codigo === "---") return;
+
+        navigator.clipboard.writeText(codigo).then(() => {
+            const icone = document.querySelector("#btnCodigoCopiar .fa-copy");
+            if (icone) {
+                icone.classList.remove("fa-regular", "fa-copy");
+                icone.classList.add("fa-solid", "fa-check");
+                setTimeout(() => {
+                    icone.classList.remove("fa-solid", "fa-check");
+                    icone.classList.add("fa-regular", "fa-copy");
+                }, 2000);
+            }
+        });
+    }
+
+
     // =========================
     // PEGA O ID DO PACIENTE DA URL
     // Ex: /relatoriosTerapeuta?paciente=42
@@ -327,7 +538,6 @@
     const params     = new URLSearchParams(window.location.search);
     const pacienteId = params.get("paciente");
 
-    // Se não tem ID na URL, volta para a lista
     if (!pacienteId) {
         window.location.href = "/relatoriosTerapeutaS";
     }
@@ -348,13 +558,13 @@
 
             const dados = await resposta.json();
 
-            document.getElementById("nomeTerapeuta").textContent = dados.nome || "Terapeuta";
+            document.getElementById("nomeTerapeuta").textContent   = dados.nome || "Terapeuta";
+            document.getElementById("codigoTerapeuta").textContent = dados.codigoTerapeuta || "---";
 
             if (dados.fotoPerfil) {
                 document.getElementById("fotoUsuario").src = dados.fotoPerfil;
             }
 
-            // Badge de notificações
             const badge = document.getElementById("badgeNotificacoes");
             if (dados.notificacoes > 0) {
                 badge.textContent   = dados.notificacoes;
@@ -367,7 +577,7 @@
     }
 
     // =========================
-    // CARREGAR RELATÓRIO DO PACIENTE
+    // CARREGAR RELATÓRIO DO PACIENTE (resumo semanal + gráficos)
     // =========================
     async function carregarRelatorio() {
         try {
@@ -382,28 +592,20 @@
 
             const dados = await resposta.json();
 
-            // Nome do paciente no título
             document.getElementById("nomePaciente").textContent =
                 dados.nomePaciente || "Paciente";
 
-            // Cards de resumo
             preencherCards(dados);
-
-            // Gráficos
             renderizarGraficos(dados);
-
-            // Notas clínicas
-            renderizarNotas(dados.notas || []);
 
         } catch (e) {
             console.log("Erro ao carregar relatório:", e);
-            // Fallback com dados de exemplo
             usarDadosExemplo();
         }
     }
 
     // =========================
-    // DADOS DE EXEMPLO (fallback)
+    // DADOS DE EXEMPLO (fallback só em caso de erro de rede/servidor)
     // =========================
     function usarDadosExemplo() {
 
@@ -415,13 +617,11 @@
             tempo: "120 min",
             comparativoTempo:   "↑ 1 min comparado à semana passada",
             graficoEstresse:    { labels: ["Sex","Sáb","Dom","Seg","Ter","Qua","Qui"], dados: [3,2,5,7,8,4,2] },
-            graficoGatilhos:    { labels: ["Ambientes barulhentos","Locais lotados","Mudanças de rotina","Texturas"], dados: [42,28,18,12], cores: ["#32C26D","#0AB7FB","#1D8EC9","#C2C2C2"] },
-            notas: []
+            graficoGatilhos:    { labels: ["Ambientes barulhentos","Locais lotados","Mudanças de rotina","Texturas"], dados: [42,28,18,12], cores: ["#32C26D","#0AB7FB","#1D8EC9","#C2C2C2"] }
         };
 
         preencherCards(dadosExemplo);
         renderizarGraficos(dadosExemplo);
-        renderizarNotas([]);
     }
 
     // =========================
@@ -455,42 +655,32 @@
 
     function renderizarGraficos(dados) {
 
-        // Destrói gráficos anteriores se existirem
         Object.values(graficos).forEach(g => g.destroy());
         graficos = {};
 
-        // Salva os dados globalmente para recriar ao trocar o tipo
         dadosEstresseGlobal = dados.graficoEstresse;
         dadosGatilhosGlobal = dados.graficoGatilhos;
 
-        // Cria os gráficos com os tipos padrão
         criarGraficoEstresse("bar");
         criarGraficoGatilhos("doughnut");
     }
-
-    // ==========================
-    // GRÁFICO DE ESTRESSE
-    // ==========================
 
     function criarGraficoEstresse(tipo) {
 
         const VERDE = "#32C26D";
         const dados = dadosEstresseGlobal;
 
-        // Destrói o gráfico anterior se existir
         if (graficos.estresse) {
             graficos.estresse.destroy();
         }
 
         const ctx = document.getElementById("graficoBarras").getContext("2d");
 
-        // Cor de cada barra — vermelho no pico, laranja nos altos, verde nos normais
         const cores = (dados?.dados || []).map(v =>
             v === Math.max(...(dados?.dados || [])) ? "#E53E3E" :
             v > 5 ? "#F6AD55" : VERDE
         );
 
-        // Para linha, usa sempre verde com gradiente
         const gradiente = ctx.createLinearGradient(0, 0, 0, 300);
         gradiente.addColorStop(0,   "rgba(50, 194, 109, 0.35)");
         gradiente.addColorStop(1,   "rgba(50, 194, 109, 0)");
@@ -525,19 +715,11 @@
         });
     }
 
-    // Chamado pelos botões — troca o tipo e atualiza o botão ativo
     function trocarTipoEstresse(tipo) {
-
         criarGraficoEstresse(tipo);
-
-        // Atualiza qual botão está ativo visualmente
         const iconePorTipo = { bar: "fa-chart-column", line: "fa-chart-line" };
         atualizarBotoesTipo("graficoBarras", tipo, iconePorTipo);
     }
-
-    // ==========================
-    // GRÁFICO DE GATILHOS
-    // ==========================
 
     function criarGraficoGatilhos(tipo) {
 
@@ -546,13 +728,11 @@
         const dados   = dadosGatilhosGlobal;
         const legenda = document.getElementById("legendaGatilhos");
 
-        // Destrói o gráfico anterior se existir
         if (graficos.gatilhos) {
             graficos.gatilhos.destroy();
         }
 
         const ctx = document.getElementById("graficoPizza").getContext("2d");
-
         const ehRosca = tipo === "doughnut" || tipo === "pie";
 
         graficos.gatilhos = new Chart(ctx, {
@@ -564,7 +744,6 @@
                     backgroundColor: dados?.cores  || [VERDE, AZUL, "#1D8EC9", "#C2C2C2"],
                     borderWidth:     0,
                     hoverOffset:     8,
-                    // Para barras
                     borderRadius:    tipo === "bar" ? 6 : 0
                 }]
             },
@@ -580,7 +759,6 @@
             }
         });
 
-        // Mostra a legenda customizada só para rosca/pizza
         if (legenda) {
             if (ehRosca) {
                 legenda.innerHTML = "";
@@ -598,11 +776,8 @@
         }
     }
 
-    // Chamado pelos botões — troca o tipo e atualiza o botão ativo
     function trocarTipoGatilhos(tipo) {
-
         criarGraficoGatilhos(tipo);
-
         const iconePorTipo = {
             doughnut: "fa-circle-dot",
             pie:      "fa-chart-pie",
@@ -611,11 +786,6 @@
         atualizarBotoesTipo("graficoPizza", tipo, iconePorTipo);
     }
 
-    // ==========================
-    // ATUALIZAR BOTÃO ATIVO
-    // ==========================
-
-    // Marca o botão do tipo selecionado como ativo e os outros como inativos
     function atualizarBotoesTipo(canvasId, tipoAtivo, iconePorTipo) {
 
         const card   = document.getElementById(canvasId).closest(".card-grafico");
@@ -625,7 +795,6 @@
             const icone = btn.querySelector("i");
             if (!icone) return;
 
-            // Descobre qual tipo esse botão representa pelo ícone
             const tipoBtn = Object.entries(iconePorTipo).find(([, cls]) =>
                 icone.classList.contains(cls)
             )?.[0];
@@ -634,52 +803,153 @@
         });
     }
 
+
     // =========================
-    // NOTAS CLÍNICAS
+    // CALENDÁRIO DE RELATÓRIOS POR DIA
     // =========================
-    function renderizarNotas(notas) {
 
-        const lista = document.getElementById("listaNotas");
+    const diasSemanaAbrev = { pt: ["D","S","T","Q","Q","S","S"], en: ["S","M","T","W","T","F","S"] };
+    const nomesMeses = {
+        pt: ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"],
+        en: ["January","February","March","April","May","June","July","August","September","October","November","December"]
+    };
 
-        if (notas.length === 0) {
-            lista.innerHTML = `<p class="sem-notas">Nenhuma nota clínica ainda.</p>`;
-            return;
-        }
+    let mesAtual         = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    let diaSelecionado   = null;      // "YYYY-MM-DD"
+    let diasComRelatorio = new Set(); // dias do mês atual que têm relatório
 
-        lista.innerHTML = notas.map(nota => `
-            <div class="nota-anterior">
-                <strong>${nota.data} · ${nota.nomeTerapeuta}</strong>
-                <p>${nota.texto}</p>
-            </div>
-        `).join("");
+    function formatarDataISO(date) {
+        return date.toISOString().split("T")[0];
     }
 
-    // =========================
-    // SALVAR NOTA — sem alert()
-    // =========================
-    async function salvarNota() {
+    async function carregarDiasDoMes() {
 
-        const texto    = document.getElementById("novaNota").value.trim();
-        const erroEl   = document.getElementById("erroNota");
-        const btnSalvar = document.getElementById("btnSalvarNota");
+        const mesStr = `${mesAtual.getFullYear()}-${String(mesAtual.getMonth() + 1).padStart(2, "0")}`;
+
+        try {
+            const resposta = await fetch(`/api/relatorio-paciente/dias?paciente=${pacienteId}&mes=${mesStr}`);
+            if (!resposta.ok) throw new Error();
+            const dados = await resposta.json();
+            diasComRelatorio = new Set(dados.dias || []);
+        } catch (_) {
+            diasComRelatorio = new Set();
+        }
+
+        renderizarCalendario();
+    }
+
+    function renderizarCalendario() {
+
+        document.getElementById("calendarioDiasSemana").innerHTML =
+            diasSemanaAbrev[idiomaAtual].map(d => `<div class="calendario-dia-semana">${d}</div>`).join("");
+
+        document.getElementById("calendarioMesLabel").textContent =
+            `${nomesMeses[idiomaAtual][mesAtual.getMonth()]} ${mesAtual.getFullYear()}`;
+
+        const grade        = document.getElementById("calendarioGrade");
+        const primeiroDia   = new Date(mesAtual.getFullYear(), mesAtual.getMonth(), 1);
+        const ultimoDia      = new Date(mesAtual.getFullYear(), mesAtual.getMonth() + 1, 0);
+        const offsetInicio    = primeiroDia.getDay();
+        const hoje             = formatarDataISO(new Date());
+
+        let html = "";
+
+        for (let i = 0; i < offsetInicio; i++) {
+            html += `<div class="calendario-dia vazio"></div>`;
+        }
+
+        for (let dia = 1; dia <= ultimoDia.getDate(); dia++) {
+
+            const dataObj     = new Date(mesAtual.getFullYear(), mesAtual.getMonth(), dia);
+            const dataISO      = formatarDataISO(dataObj);
+            const temDados       = diasComRelatorio.has(dataISO);
+            const futuro          = dataISO > hoje;
+            const estaSelecionado  = dataISO === diaSelecionado;
+
+            html += `
+                <button
+                    type="button"
+                    class="calendario-dia ${temDados ? "tem-relatorio" : ""} ${estaSelecionado ? "selecionado" : ""}"
+                    ${futuro ? "disabled" : ""}
+                    onclick="selecionarDia('${dataISO}')"
+                >${dia}</button>
+            `;
+        }
+
+        grade.innerHTML = html;
+    }
+
+    function mesAnterior() {
+        mesAtual = new Date(mesAtual.getFullYear(), mesAtual.getMonth() - 1, 1);
+        carregarDiasDoMes();
+    }
+
+    function mesProximo() {
+        mesAtual = new Date(mesAtual.getFullYear(), mesAtual.getMonth() + 1, 1);
+        carregarDiasDoMes();
+    }
+
+    async function selecionarDia(dataISO) {
+
+        diaSelecionado = dataISO;
+        renderizarCalendario();
+
+        document.getElementById("calendarioSemSelecao").style.display = "none";
+        document.getElementById("painelDiaSelecionado").style.display = "block";
+
+        document.getElementById("painelDiaTitulo").textContent = t("carregando");
+        document.getElementById("painelDiaConteudo").innerHTML  = "";
+        document.getElementById("notaDoDia").value = "";
+        document.getElementById("erroNotaDia").style.display = "none";
+
+        try {
+
+            const resposta = await fetch(`/api/relatorio-paciente?paciente=${pacienteId}&data=${dataISO}`);
+            if (!resposta.ok) throw new Error();
+            const dados = await resposta.json();
+
+            document.getElementById("painelDiaTitulo").textContent =
+                dados.dataFormatada || new Date(dataISO + "T00:00:00").toLocaleDateString(idiomaAtual === "en" ? "en-US" : "pt-BR");
+
+            document.getElementById("painelDiaConteudo").innerHTML = dados.temRelatorio
+                ? `<ul class="lista-respostas-dia">${(dados.perguntas || []).map(p => `
+                    <li><strong>${p.pergunta || p.id}</strong><span>${p.resposta}</span></li>
+                `).join("")}</ul>`
+                : `<p class="sem-relatorio-dia">${t("semRelatorioDia")}</p>`;
+
+            document.getElementById("notaDoDia").value = dados.nota || "";
+
+        } catch (_) {
+            document.getElementById("painelDiaConteudo").innerHTML =
+                `<p class="sem-relatorio-dia">${t("erroCarregarDia")}</p>`;
+        }
+    }
+
+    async function salvarNotaDoDia() {
+
+        if (!diaSelecionado) return;
+
+        const texto    = document.getElementById("notaDoDia").value.trim();
+        const erroEl    = document.getElementById("erroNotaDia");
+        const btnSalvar  = document.getElementById("btnSalvarNotaDia");
 
         erroEl.style.display = "none";
 
         if (!texto) {
-            erroEl.textContent   = "Digite uma nota antes de salvar.";
+            erroEl.textContent   = t("digiteNota");
             erroEl.style.display = "block";
             return;
         }
 
         btnSalvar.disabled    = true;
-        btnSalvar.textContent = "Salvando...";
+        btnSalvar.textContent = t("salvando");
 
         try {
 
             const resposta = await fetch("/api/nota-clinica", {
                 method:  "POST",
                 headers: { "Content-Type": "application/json" },
-                body:    JSON.stringify({ pacienteId, texto })
+                body:    JSON.stringify({ pacienteId, texto, data: diaSelecionado })
             });
 
             if (resposta.status === 401) {
@@ -687,25 +957,17 @@
                 return;
             }
 
-            if (!resposta.ok) throw new Error("Falha ao salvar");
+            if (!resposta.ok) throw new Error();
 
-            // Limpa o campo e recarrega as notas
-            document.getElementById("novaNota").value = "";
-            await carregarRelatorio();
-
-        } catch (e) {
-
-            console.log("Erro ao salvar nota:", e);
-            erroEl.textContent   = "Erro ao salvar a nota. Tente novamente.";
+        } catch (_) {
+            erroEl.textContent   = t("erroSalvarNota");
             erroEl.style.display = "block";
-
         } finally {
-
             btnSalvar.disabled    = false;
-            btnSalvar.textContent = "Salvar nota";
-
+            btnSalvar.textContent = t("salvarNotaTxt");
         }
     }
+
 
     // =========================
     // PAINEL DE NOTIFICAÇÕES
@@ -720,7 +982,7 @@
             const itens = dados.notificacoes || [];
 
             document.getElementById("listaNotificacoes").innerHTML = itens.length === 0
-                ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+                ? `<div class="painel-vazio">${t("semNotificacoes")}</div>`
                 : itens.map(n => `
                     <div class="item-notificacao ${n.lida ? "" : "nao-lida"}">
                         ${n.mensagem}
@@ -728,7 +990,7 @@
                     </div>`).join("");
         } catch (_) {
             document.getElementById("listaNotificacoes").innerHTML =
-                `<div class="painel-vazio">Não foi possível carregar.</div>`;
+                `<div class="painel-vazio">${t("erroCarregarNotif")}</div>`;
         }
     }
 
@@ -749,40 +1011,31 @@
     });
 
     // =========================
-    // TRADUÇÃO
+    // TRADUÇÃO MANUAL
     // =========================
-    function lerCookie(nome) {
-        const v = `; ${document.cookie}`;
-        const p = v.split(`; ${nome}=`);
-        if (p.length === 2) return p.pop().split(";").shift();
-        return null;
-    }
 
-    function iniciarTradutor() {
-        new google.translate.TranslateElement(
-            { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
-            "google_translate_element"
-        );
+    function aplicarIdiomaEstatico() {
+        document.querySelectorAll("[data-pt]").forEach(el => {
+            el.textContent = idiomaAtual === "en"
+                ? (el.dataset.en || el.dataset.pt)
+                : el.dataset.pt;
+        });
+
+        document.getElementById("textoTradutor").textContent =
+            idiomaAtual === "en" ? "Traduzir para português" : "Traduzir para inglês";
+
+        document.getElementById("btnSalvarNotaDia").textContent = t("salvarNotaTxt");
     }
 
     document.getElementById("btnTraduzir").addEventListener("click", () => {
-        const atual     = lerCookie("googtrans");
-        const traduzido = atual && atual.includes("/en");
-
-        document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
-        document.cookie = `googtrans=; path=/; domain=${location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
-
-        if (!traduzido) {
-            document.cookie = `googtrans=/pt/en; path=/`;
-            document.cookie = `googtrans=/pt/en; path=/; domain=${location.hostname}`;
-        }
-        window.location.reload();
+        idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+        localStorage.setItem("idioma", idiomaAtual);
+        aplicarIdiomaEstatico();
+        renderizarCalendario(); // atualiza nomes de mês/dias da semana
+        if (diaSelecionado) selecionarDia(diaSelecionado); // re-renderiza o dia aberto no novo idioma
     });
 
-    // Atualiza texto do botão conforme cookie
-    const cookieAtual = lerCookie("googtrans");
-    document.getElementById("textoTradutor").textContent =
-        (cookieAtual && cookieAtual.includes("/en")) ? "Voltar para português" : "Traduzir para inglês";
+    aplicarIdiomaEstatico();
 
     // =========================
     // TEMA
@@ -806,6 +1059,8 @@
 
     carregarTerapeuta();
     carregarRelatorio();
+    carregarDiasDoMes();
+
 </script>
 
 </body>

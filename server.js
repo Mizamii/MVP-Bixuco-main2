@@ -1817,19 +1817,18 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
                 dia,
                 COALESCE(cnt.total, 0) AS total
             FROM generate_series(
-                (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '6 days',
-                (NOW() AT TIME ZONE 'America/Sao_Paulo')::date,
+                CURRENT_DATE - INTERVAL '6 days',
+                CURRENT_DATE,
                 INTERVAL '1 day'
             ) AS dia
             LEFT JOIN (
-                SELECT DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') AS dia, COUNT(*) AS total
+                SELECT DATE(data) AS dia, COUNT(*) AS total
                 FROM relatorios
                 WHERE usuario_id = $1
-                ${filtroAlerta}
-                GROUP BY DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')
+                GROUP BY DATE(data)
             ) cnt USING (dia)
             ORDER BY dia`,
-            [usuarioId]
+            [pacienteId]
         );
 
         const diasSemanaPt = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
@@ -4142,7 +4141,7 @@ Gere as dicas personalizadas.`;
                     model: "models/gemini-3-flash-preview",
                     input: promptCompleto,
                     generation_config: {
-                        max_output_tokens: 800,
+                        max_output_tokens: 2000,
                         thinking_level: "low"
                     }
                 })
