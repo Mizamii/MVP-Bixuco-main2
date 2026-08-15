@@ -4052,7 +4052,7 @@ app.post("/api/bixuco/evento", async (req, res) => {
     }
 });
 
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 app.post("/api/dicas/gerar", estaLogado, async (req, res) => {
 
@@ -4103,39 +4103,45 @@ app.post("/api/dicas/gerar", estaLogado, async (req, res) => {
             });
         });
 
-        const respostaIA = await fetch("https://api.anthropic.com/v1/messages", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "x-api-key": ANTHROPIC_API_KEY,
-                "anthropic-version": "2023-06-01"
-            },
-            body: JSON.stringify({
-                model: "claude-haiku-4-5-20251001",
-                max_tokens: 500,
-                system: `Você é um assistente que ajuda pais de crianças com Transtorno de Processamento Sensorial (TPS). Com base nas respostas do relatório diário, gere de 2 a 3 dicas práticas e específicas.
+        const respostaIA = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    systemInstruction: {
+                        parts: [{
+                            text: `Você é um assistente que ajuda pais de crianças com Transtorno de Processamento Sensorial (TPS). Com base nas respostas do relatório diário, gere de 2 a 3 dicas práticas e específicas.
 
-Responda APENAS com um JSON válido, sem nenhum texto antes ou depois, exatamente neste formato:
-[
-  { "titulo": "Título curto (3-5 palavras)", "texto": "Explicação prática em 1-2 frases." }
-]
+        Responda APENAS com um JSON válido, sem nenhum texto antes ou depois, exatamente neste formato:
+        [
+        { "titulo": "Título curto (3-5 palavras)", "texto": "Explicação prática em 1-2 frases." }
+        ]
 
-Não dê conselhos médicos - foque em estratégias comportamentais e de rotina. Escreva em português do Brasil, tom acolhedor.`,
-                messages: [
-                    { role: "user", content: `Respostas dos relatórios diários dos últimos 7 dias:\n${resumo}\n\nGere as dicas personalizadas.` }
-                ]
-            })
-        });
+        Não dê conselhos médicos - foque em estratégias comportamentais e de rotina. Escreva em português do Brasil, tom acolhedor.`
+                        }]
+                    },
+                    contents: [{
+                        parts: [{
+                            text: `Respostas dos relatórios diários dos últimos 7 dias:\n${resumo}\n\nGere as dicas personalizadas.`
+                        }]
+                    }],
+                    generationConfig: {
+                        maxOutputTokens: 500,
+                        responseMimeType: "application/json"
+                    }
+                })
+            }
+        );
 
         const dadosIA = await respostaIA.json();
 
         if (!respostaIA.ok) {
-            console.log("Erro na API da Anthropic:", dadosIA);
+            console.log("Erro na API do Gemini:", dadosIA);
             return res.status(500).json({ erro: "Erro ao gerar dica. Tente novamente." });
         }
 
-        let textoResposta = dadosIA.content[0].text.trim();
-        textoResposta = textoResposta.replace(/```json|```/g, "").trim();
+        let textoResposta = dadosIA.candidates[0].content.parts[0].text.trim();
 
         let dicasGeradas;
         try {
