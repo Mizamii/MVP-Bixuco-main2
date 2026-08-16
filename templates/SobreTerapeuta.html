@@ -8,30 +8,11 @@
     <title>Bixuco • Sobre</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
     <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
 
-    <!-- layout.css: barra lateral e barra de topo padronizadas (compartilhado por todas as páginas) -->
     <link rel="stylesheet" href="/css/layout.css">
 
-    <!--
-        Restante do CSS do seu amigo (tema.css + sobre.css), adaptado
-        para as classes usadas neste HTML mesclado:
-          .cabecalho-sobre  → .cabecalho
-          .grid-sobre       → .cards
-          .card-sobre       → .card (ícone agora é <i> direto, sem .icone--verde/azul)
-          .rodape-sobre     → .frase-final
-          .modal-fechar     → .fechar
-        Sidebar/topo já vêm do layout.css compartilhado — não
-        precisam mais estar aqui. Se quiser manter em arquivos
-        separados, é só dividir este bloco em tema.css / sobre.css
-        como preferir.
-    -->
     <style>
-
-/* ==========================================================
-   tema.css — variáveis de cor compartilhadas (claro/escuro)
-   ========================================================== */
 
 :root {
 
@@ -110,12 +91,6 @@ main.conteudo > .topo {
 padding: 0.9rem 2rem;
 }
 
-/* ==========================================================
-   sobre.css — específico desta página (adaptado)
-   ========================================================== */
-
-/* ---------- Cabeçalho ---------- */
-
 .cabecalho {
     display: flex;
     align-items: center;
@@ -142,9 +117,6 @@ padding: 0.9rem 2rem;
     height: auto;
     flex-shrink: 0;
 }
-
-/* ---------- Grade de cards ---------- */
-/* 8 cards: 4 colunas de base, 2 linhas de 4 */
 
 .cards {
     display: grid;
@@ -195,7 +167,6 @@ padding: 0.9rem 2rem;
     color: var(--cor-texto-esmaecido);
 }
 
-/* Cor do ícone por tópico, seguindo a paleta de marca */
 .cards .card[data-topico="sobre"] i,
 .cards .card[data-topico="funciona"] i,
 .cards .card[data-topico="privacidade"] i,
@@ -215,8 +186,6 @@ padding: 0.9rem 2rem;
     background: rgba(226, 76, 76, 0.12);
     color: #E24C4C;
 }
-
-/* ---------- Frase final ---------- */
 
 .frase-final {
     display: flex;
@@ -257,14 +226,9 @@ padding: 0.9rem 2rem;
     color: #0AB7FB;
 }
 
-/* ---------- Responsivo ---------- */
 @media (max-width: 900px) {
     .cards { grid-template-columns: 1fr 1fr; }
 }
-
-/* ========================= */
-/* MODAL — conteúdo de cada card */
-/* ========================= */
 
 .modal {
     display: none;
@@ -378,9 +342,6 @@ padding: 0.9rem 2rem;
 
 <div class="container">
 
-    <!-- ========================= -->
-    <!-- MENU LATERAL -->
-    <!-- ========================= -->
     <aside class="sidebar">
 
         <div class="logo">
@@ -391,28 +352,27 @@ padding: 0.9rem 2rem;
 
             <a href="/homeTerapeuta">
                 <i class="fa-solid fa-house"></i>
-                <span>Início</span>
+                <span data-pt="Início" data-en="Home">Início</span>
             </a>
 
             <a href="/relatoriosTerapeutaS">
                 <i class="fa-solid fa-chart-line"></i>
-                <span>Relatórios</span>
+                <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
             </a>
 
             <a href="/ConfiguracoesT">
                 <i class="fa-solid fa-gear"></i>
-                <span>Configurações</span>
+                <span data-pt="Configurações" data-en="Settings">Configurações</span>
             </a>
 
-            <!-- aba ativa -->
             <a href="/sobreT" class="ativo">
                 <i class="fa-solid fa-circle-info"></i>
-                <span>Sobre</span>
+                <span data-pt="Sobre" data-en="About">Sobre</span>
             </a>
 
             <a href="/pacientes">
                 <i class="fa-solid fa-user-plus"></i>
-                <span>Pacientes</span>
+                <span data-pt="Pacientes" data-en="Patients">Pacientes</span>
             </a>
 
         </nav>
@@ -420,11 +380,11 @@ padding: 0.9rem 2rem;
         <div class="tema">
             <button id="btnClaro" class="ativo" type="button">
                 <i class="fa-regular fa-sun"></i>
-                Claro
+                <span data-pt="Claro" data-en="Light">Claro</span>
             </button>
             <button id="btnEscuro" type="button">
                 <i class="fa-regular fa-moon"></i>
-                Escuro
+                <span data-pt="Escuro" data-en="Dark">Escuro</span>
             </button>
         </div>
 
@@ -432,14 +392,11 @@ padding: 0.9rem 2rem;
 
         <a href="/logout" class="logout">
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            <span>Sair</span>
+            <span data-pt="Sair" data-en="Log out">Sair</span>
         </a>
 
     </aside>
 
-    <!-- ========================= -->
-    <!-- CONTEÚDO -->
-    <!-- ========================= -->
     <main class="conteudo">
 
         <header class="topo">
@@ -448,10 +405,6 @@ padding: 0.9rem 2rem;
                 <i class="fa-solid fa-language"></i>
                 <span id="textoTradutor">Traduzir para inglês</span>
             </button>
-
-            <div id="google_translate_element"
-                style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">
-            </div>
 
             <div class="usuario">
 
@@ -462,14 +415,13 @@ padding: 0.9rem 2rem;
                     </button>
 
                     <div class="painel-notificacoes" id="painelNotificacoes">
-                        <div class="painel-header">Notificações</div>
+                        <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
                         <div id="listaNotificacoes">
-                            <div class="painel-vazio">Carregando...</div>
+                            <div class="painel-vazio" data-pt="Carregando..." data-en="Loading...">Carregando...</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- foto clicável vai para o perfilTerapeuta -->
                 <img
                     id="fotoUsuario"
                     src="/img/perfilPadrao.png"
@@ -481,85 +433,87 @@ padding: 0.9rem 2rem;
                 >
 
                 <div>
-                    <h3 id="nomeUsuario">Carregando...</h3>
-                    <span id="tipoConta">Terapeuta</span>
+                    <h3 id="nomeUsuario" style="cursor:pointer" onclick="window.location.href='/perfilTerapeuta'">Carregando...</h3>
+                    <span data-pt="Terapeuta" data-en="Therapist">Terapeuta</span>
+
+                    <button type="button" class="btn-codigo-copiar" id="btnCodigoCopiar" onclick="copiarCodigo()" title="Copiar código para compartilhar">
+                        <span><span data-pt="Código" data-en="Code">Código</span>: <strong id="codigoTerapeuta">...</strong></span>
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
                 </div>
 
             </div>
 
         </header>
 
-        <!-- TÍTULO -->
         <section class="cabecalho">
             <div>
-                <h1>Sobre o Bixuco</h1>
-                <p>Conheça nossa história, missão e como trabalhamos para transformar vidas.</p>
+                <h1 data-pt="Sobre o Bixuco" data-en="About Bixuco">Sobre o Bixuco</h1>
+                <p data-pt="Conheça nossa história, missão e como trabalhamos para transformar vidas." data-en="Learn about our history, mission, and how we work to transform lives.">Conheça nossa história, missão e como trabalhamos para transformar vidas.</p>
             </div>
             <img src="/img/bixucomascote.png" alt="Bixuco">
         </section>
 
-        <!-- CARDS -->
         <section class="cards">
 
             <button class="card" type="button" data-topico="sobre">
                 <i class="fa-solid fa-circle-info"></i>
-                <h3>Sobre nós</h3>
-                <p>Nossa história e missão</p>
+                <h3 data-pt="Sobre nós" data-en="About us">Sobre nós</h3>
+                <p data-pt="Nossa história e missão" data-en="Our history and mission">Nossa história e missão</p>
             </button>
 
             <button class="card" type="button" data-topico="ajudamos">
                 <i class="fa-regular fa-heart"></i>
-                <h3>Como ajudamos</h3>
-                <p>O que fazemos por você</p>
+                <h3 data-pt="Como ajudamos" data-en="How we help">Como ajudamos</h3>
+                <p data-pt="O que fazemos por você" data-en="What we do for you">O que fazemos por você</p>
             </button>
 
             <button class="card" type="button" data-topico="funciona">
                 <i class="fa-solid fa-gear"></i>
-                <h3>Como funciona</h3>
-                <p>Pelúcia + aplicativo + relatórios</p>
+                <h3 data-pt="Como funciona" data-en="How it works">Como funciona</h3>
+                <p data-pt="Pelúcia + aplicativo + relatórios" data-en="Plush toy + app + reports">Pelúcia + aplicativo + relatórios</p>
             </button>
 
             <button class="card" type="button" data-topico="publico">
                 <i class="fa-solid fa-users"></i>
-                <h3>Para quem é</h3>
-                <p>Pais e terapeutas</p>
+                <h3 data-pt="Para quem é" data-en="Who it's for">Para quem é</h3>
+                <p data-pt="Pais e terapeutas" data-en="Parents and therapists">Pais e terapeutas</p>
             </button>
 
             <button class="card" type="button" data-topico="naofazemos">
                 <i class="fa-solid fa-ban"></i>
-                <h3>O que não fazemos</h3>
-                <p>Sem diagnósticos</p>
+                <h3 data-pt="O que não fazemos" data-en="What we don't do">O que não fazemos</h3>
+                <p data-pt="Sem diagnósticos" data-en="No diagnoses">Sem diagnósticos</p>
             </button>
 
             <button class="card" type="button" data-topico="privacidade">
                 <i class="fa-solid fa-shield-halved"></i>
-                <h3>Privacidade</h3>
-                <p>Como protegemos seus dados</p>
+                <h3 data-pt="Privacidade" data-en="Privacy">Privacidade</h3>
+                <p data-pt="Como protegemos seus dados" data-en="How we protect your data">Como protegemos seus dados</p>
             </button>
 
             <button class="card" type="button" data-topico="proposito">
                 <i class="fa-solid fa-trophy"></i>
-                <h3>Nosso propósito</h3>
-                <p>Missão, visão e valores</p>
+                <h3 data-pt="Nosso propósito" data-en="Our purpose">Nosso propósito</h3>
+                <p data-pt="Missão, visão e valores" data-en="Mission, vision and values">Missão, visão e valores</p>
             </button>
 
             <button class="card" type="button" data-topico="contato">
                 <i class="fa-solid fa-headset"></i>
-                <h3>Contato e suporte</h3>
-                <p>Fale com nossa equipe</p>
+                <h3 data-pt="Contato e suporte" data-en="Contact and support">Contato e suporte</h3>
+                <p data-pt="Fale com nossa equipe" data-en="Talk to our team">Fale com nossa equipe</p>
             </button>
 
         </section>
 
-        <!-- FRASE FINAL -->
         <section class="frase-final">
             <img src="/img/BixucoDormindo.png" alt="Bixuco">
             <p>
-                Mais do que tecnologia, entregamos
-                <strong>conexão</strong>,
-                <strong>empatia</strong> e
-                <strong>inteligência</strong>
-                para apoiar o desenvolvimento infantil.
+                <span data-pt="Mais do que tecnologia, entregamos" data-en="More than technology, we deliver">Mais do que tecnologia, entregamos</span>
+                <strong data-pt="conexão" data-en="connection">conexão</strong>,
+                <strong data-pt="empatia" data-en="empathy">empatia</strong> <span data-pt="e" data-en="and">e</span>
+                <strong data-pt="inteligência" data-en="intelligence">inteligência</strong>
+                <span data-pt="para apoiar o desenvolvimento infantil." data-en="to support child development.">para apoiar o desenvolvimento infantil.</span>
             </p>
         </section>
 
@@ -567,7 +521,6 @@ padding: 0.9rem 2rem;
 
 </div>
 
-<!-- MODAL -->
 <div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="tituloModal">
 
     <div class="modal-conteudo">
@@ -584,17 +537,39 @@ padding: 0.9rem 2rem;
 
 </div>
 
-<!-- ========================= -->
-<!-- JAVASCRIPT -->
-<!-- ========================= -->
-
 <script>
 
+    let idiomaAtual = localStorage.getItem("idioma") || "pt";
+
+    const dicionario = {
+        semNotificacoes:    { pt: "Nenhuma notificação por enquanto.",         en: "No notifications yet." },
+        erroCarregarNotif:   { pt: "Não foi possível carregar as notificações.", en: "Couldn't load notifications." },
+    };
+
+    function t(chave) {
+        const entrada = dicionario[chave];
+        return idiomaAtual === "en" ? entrada.en : entrada.pt;
+    }
 
 
-    // ==========================
-    // CARREGAR USUÁRIO
-    // ==========================
+    function copiarCodigo() {
+        const codigo = document.getElementById("codigoTerapeuta").textContent;
+        if (!codigo || codigo === "---") return;
+
+        navigator.clipboard.writeText(codigo).then(() => {
+            const icone = document.querySelector("#btnCodigoCopiar .fa-copy");
+            if (icone) {
+                icone.classList.remove("fa-regular", "fa-copy");
+                icone.classList.add("fa-solid", "fa-check");
+                setTimeout(() => {
+                    icone.classList.remove("fa-solid", "fa-check");
+                    icone.classList.add("fa-regular", "fa-copy");
+                }, 2000);
+            }
+        });
+    }
+
+
     async function carregarUsuario() {
         try {
             const resposta = await fetch("/api/home-terapeuta");
@@ -608,8 +583,8 @@ padding: 0.9rem 2rem;
 
             const dados = await resposta.json();
 
-            document.getElementById("nomeUsuario").textContent = dados.nome || "Terapeuta";
-            document.getElementById("tipoConta").textContent   = "Terapeuta";
+            document.getElementById("nomeUsuario").textContent     = dados.nome || "Terapeuta";
+            document.getElementById("codigoTerapeuta").textContent = dados.codigoTerapeuta || "---";
 
             if (dados.fotoPerfil) {
                 document.getElementById("fotoUsuario").src = dados.fotoPerfil;
@@ -628,189 +603,355 @@ padding: 0.9rem 2rem;
     carregarUsuario();
 
 
-    // ==========================
-    // CONTEÚDO DOS CARDS
-    // adaptado para o ponto de vista do terapeuta
-    // ==========================
     const conteudo = {
 
-        sobre: {
-            titulo: "Sobre nós",
-            icone:  "fa-solid fa-circle-info",
-            texto: `
-                <p>
-                    A Bixuco nasceu de uma pergunta simples: como ajudar pais
-                    a entender o que seus filhos estão sentindo, mesmo quando
-                    as palavras não chegam?
-                </p>
-                <p>
-                    Somos uma startup de tecnologia focada no bem-estar infantil,
-                    criada para apoiar famílias que convivem com a hipersensibilidade
-                    sensorial — também conhecida como Transtorno do Processamento
-                    Sensorial (TPS).
-                </p>
-                <p>
-                    Nossa solução une um objeto afetivo, a pelúcia Bixuco, a um
-                    aplicativo inteligente que transforma interações físicas em dados
-                    compreensíveis para pais e terapeutas.
-                </p>
-                <p>
-                    Não somos um diagnóstico. Somos um ponto de apoio no dia a dia.
-                </p>
-            `
+        pt: {
+
+            sobre: {
+                titulo: "Sobre nós",
+                icone:  "fa-solid fa-circle-info",
+                texto: `
+                    <p>
+                        A Bixuco nasceu de uma pergunta simples: como ajudar pais
+                        a entender o que seus filhos estão sentindo, mesmo quando
+                        as palavras não chegam?
+                    </p>
+                    <p>
+                        Somos uma startup de tecnologia focada no bem-estar infantil,
+                        criada para apoiar famílias que convivem com a hipersensibilidade
+                        sensorial — também conhecida como Transtorno do Processamento
+                        Sensorial (TPS).
+                    </p>
+                    <p>
+                        Nossa solução une um objeto afetivo, a pelúcia Bixuco, a um
+                        aplicativo inteligente que transforma interações físicas em dados
+                        compreensíveis para pais e terapeutas.
+                    </p>
+                    <p>
+                        Não somos um diagnóstico. Somos um ponto de apoio no dia a dia.
+                    </p>
+                `
+            },
+
+            ajudamos: {
+                titulo: "Como ajudamos",
+                icone:  "fa-regular fa-heart",
+                texto: `
+                    <p>
+                        Para terapeutas, o Bixuco oferece uma visão estruturada
+                        do cotidiano dos pacientes entre as sessões.
+                    </p>
+                    <p>
+                        Você recebe relatórios diários preenchidos pelos responsáveis,
+                        com dados organizados sobre comportamento, gatilhos e nível de estresse.
+                    </p>
+                    <p>
+                        A pelúcia inteligente detecta sinais de estresse em tempo real
+                        e envia alertas para o aplicativo — informações valiosas para
+                        embasar o acompanhamento clínico.
+                    </p>
+                    <p>
+                        Você também pode registrar notas clínicas diretamente na plataforma,
+                        mantendo um histórico completo e acessível.
+                    </p>
+                `
+            },
+
+            funciona: {
+                titulo: "Como funciona",
+                icone:  "fa-solid fa-gear",
+                texto: `
+                    <ol>
+                        <li>Crie sua conta como terapeuta e informe seu CRP.</li>
+                        <li>Compartilhe seu código de vínculo com os responsáveis dos seus pacientes.</li>
+                        <li>Aceite as solicitações de vínculo no painel de notificações.</li>
+                        <li>Acompanhe os relatórios diários dos pacientes na tela de Relatórios.</li>
+                        <li>Adicione notas clínicas e acompanhe a evolução ao longo do tempo.</li>
+                        <li>Visualize gráficos de estresse e principais gatilhos por paciente.</li>
+                    </ol>
+                `
+            },
+
+            publico: {
+                titulo: "Para quem é",
+                icone:  "fa-solid fa-users",
+                texto: `
+                    <p>O Bixuco foi desenvolvido para:</p>
+                    <ul>
+                        <li><strong>Terapeutas</strong> — psicólogos e terapeutas ocupacionais que acompanham o desenvolvimento.</li>
+                        <li><strong>Responsáveis</strong> — pais e mães que registram o dia a dia da criança.</li>
+                        <li><strong>Profissionais da saúde infantil</strong> — que buscam dados organizados para embasar seu trabalho.</li>
+                    </ul>
+                    <p>
+                        Qualquer profissional que acompanhe crianças com TPS ou
+                        hipersensibilidade sensorial pode se beneficiar do Bixuco.
+                    </p>
+                `
+            },
+
+            naofazemos: {
+                titulo: "O que não fazemos",
+                icone:  "fa-solid fa-ban",
+                texto: `
+                    <p>
+                        É muito importante que fique claro o que o Bixuco <strong>não faz</strong>:
+                    </p>
+                    <ul>
+                        <li>Não realizamos diagnósticos médicos ou psicológicos.</li>
+                        <li>Não substituímos a avaliação clínica do terapeuta.</li>
+                        <li>Não oferecemos laudos ou pareceres técnicos.</li>
+                    </ul>
+                    <p>
+                        Nossa função é organizar as informações do cotidiano e facilitar
+                        o acompanhamento profissional — sempre como ferramenta de apoio,
+                        nunca como substituto da expertise clínica.
+                    </p>
+                `
+            },
+
+            privacidade: {
+                titulo: "Privacidade",
+                icone:  "fa-solid fa-shield-halved",
+                texto: `
+                    <p>
+                        Levamos a privacidade das famílias e dos profissionais muito a sério,
+                        especialmente por lidarmos com dados sensíveis de crianças.
+                    </p>
+                    <ul>
+                        <li>Dados protegidos com criptografia de ponta.</li>
+                        <li>Acesso aos relatórios apenas mediante vínculo autorizado pelo responsável.</li>
+                        <li>Informações armazenadas com segurança em servidores protegidos.</li>
+                        <li>Seguimos as diretrizes da LGPD (Lei Geral de Proteção de Dados).</li>
+                        <li>O responsável pode revogar o acesso a qualquer momento.</li>
+                    </ul>
+                `
+            },
+
+            proposito: {
+                titulo: "Nosso propósito",
+                icone:  "fa-solid fa-trophy",
+                texto: `
+                    <h3>Missão</h3>
+                    <p>
+                        Facilitar o acompanhamento do desenvolvimento infantil utilizando
+                        tecnologia e empatia, promovendo conexão entre famílias e profissionais.
+                    </p>
+
+                    <h3>Visão</h3>
+                    <p>
+                        Ser referência nacional em soluções tecnológicas para acompanhamento
+                        de crianças com hipersensibilidade sensorial.
+                    </p>
+
+                    <h3>Valores</h3>
+                    <ul>
+                        <li>Empatia</li>
+                        <li>Inovação</li>
+                        <li>Segurança</li>
+                        <li>Transparência</li>
+                        <li>Respeito às famílias e profissionais</li>
+                    </ul>
+                `
+            },
+
+            contato: {
+                titulo: "Contato e suporte",
+                icone:  "fa-solid fa-headset",
+                texto: `
+                    <p>Precisa de ajuda? Nossa equipe está aqui para você.</p>
+                    <p>📧 <strong>suporte@bixuco.com</strong></p>
+                    <p>📱 <strong>(11) 99999-9999</strong></p>
+                    <p>Segunda a sexta, das 08h às 18h.</p>
+                    <p>
+                        Também é possível abrir um chamado diretamente pelo
+                        aplicativo nas configurações da sua conta.
+                    </p>
+                `
+            }
+
         },
 
-        ajudamos: {
-            titulo: "Como ajudamos",
-            icone:  "fa-regular fa-heart",
-            texto: `
-                <p>
-                    Para terapeutas, o Bixuco oferece uma visão estruturada
-                    do cotidiano dos pacientes entre as sessões.
-                </p>
-                <p>
-                    Você recebe relatórios diários preenchidos pelos responsáveis,
-                    com dados organizados sobre comportamento, gatilhos e nível de estresse.
-                </p>
-                <p>
-                    A pelúcia inteligente detecta sinais de estresse em tempo real
-                    e envia alertas para o aplicativo — informações valiosas para
-                    embasar o acompanhamento clínico.
-                </p>
-                <p>
-                    Você também pode registrar notas clínicas diretamente na plataforma,
-                    mantendo um histórico completo e acessível.
-                </p>
-            `
-        },
+        en: {
 
-        funciona: {
-            titulo: "Como funciona",
-            icone:  "fa-solid fa-gear",
-            texto: `
-                <ol>
-                    <li>Crie sua conta como terapeuta e informe seu CRP.</li>
-                    <li>Compartilhe seu código de vínculo com os responsáveis dos seus pacientes.</li>
-                    <li>Aceite as solicitações de vínculo no painel de notificações.</li>
-                    <li>Acompanhe os relatórios diários dos pacientes na tela de Relatórios.</li>
-                    <li>Adicione notas clínicas e acompanhe a evolução ao longo do tempo.</li>
-                    <li>Visualize gráficos de estresse e principais gatilhos por paciente.</li>
-                </ol>
-            `
-        },
+            sobre: {
+                titulo: "About us",
+                icone:  "fa-solid fa-circle-info",
+                texto: `
+                    <p>
+                        Bixuco was born from a simple question: how can we help parents
+                        understand what their children are feeling, even when words
+                        don't come easily?
+                    </p>
+                    <p>
+                        We're a technology startup focused on children's well-being,
+                        created to support families living with sensory hypersensitivity —
+                        also known as Sensory Processing Disorder (SPD).
+                    </p>
+                    <p>
+                        Our solution pairs an affective object, the Bixuco plush toy,
+                        with a smart app that turns physical interactions into data
+                        parents and therapists can understand.
+                    </p>
+                    <p>
+                        We are not a diagnosis. We're a daily support tool.
+                    </p>
+                `
+            },
 
-        publico: {
-            titulo: "Para quem é",
-            icone:  "fa-solid fa-users",
-            texto: `
-                <p>O Bixuco foi desenvolvido para:</p>
-                <ul>
-                    <li><strong>Terapeutas</strong> — psicólogos e terapeutas ocupacionais que acompanham o desenvolvimento.</li>
-                    <li><strong>Responsáveis</strong> — pais e mães que registram o dia a dia da criança.</li>
-                    <li><strong>Profissionais da saúde infantil</strong> — que buscam dados organizados para embasar seu trabalho.</li>
-                </ul>
-                <p>
-                    Qualquer profissional que acompanhe crianças com TPS ou
-                    hipersensibilidade sensorial pode se beneficiar do Bixuco.
-                </p>
-            `
-        },
+            ajudamos: {
+                titulo: "How we help",
+                icone:  "fa-regular fa-heart",
+                texto: `
+                    <p>
+                        For therapists, Bixuco offers a structured view of
+                        patients' daily life between sessions.
+                    </p>
+                    <p>
+                        You receive daily reports filled out by guardians, with
+                        organized data on behavior, triggers, and stress levels.
+                    </p>
+                    <p>
+                        The smart plush detects signs of stress in real time and
+                        sends alerts to the app — valuable information to support
+                        clinical follow-up.
+                    </p>
+                    <p>
+                        You can also record clinical notes directly on the platform,
+                        keeping a complete and accessible history.
+                    </p>
+                `
+            },
 
-        naofazemos: {
-            titulo: "O que não fazemos",
-            icone:  "fa-solid fa-ban",
-            texto: `
-                <p>
-                    É muito importante que fique claro o que o Bixuco <strong>não faz</strong>:
-                </p>
-                <ul>
-                    <li>Não realizamos diagnósticos médicos ou psicológicos.</li>
-                    <li>Não substituímos a avaliação clínica do terapeuta.</li>
-                    <li>Não oferecemos laudos ou pareceres técnicos.</li>
-                </ul>
-                <p>
-                    Nossa função é organizar as informações do cotidiano e facilitar
-                    o acompanhamento profissional — sempre como ferramenta de apoio,
-                    nunca como substituto da expertise clínica.
-                </p>
-            `
-        },
+            funciona: {
+                titulo: "How it works",
+                icone:  "fa-solid fa-gear",
+                texto: `
+                    <ol>
+                        <li>Create your therapist account and provide your license number.</li>
+                        <li>Share your linking code with your patients' guardians.</li>
+                        <li>Accept link requests in the notifications panel.</li>
+                        <li>Track patients' daily reports on the Reports screen.</li>
+                        <li>Add clinical notes and track progress over time.</li>
+                        <li>View stress and main-trigger charts per patient.</li>
+                    </ol>
+                `
+            },
 
-        privacidade: {
-            titulo: "Privacidade",
-            icone:  "fa-solid fa-shield-halved",
-            texto: `
-                <p>
-                    Levamos a privacidade das famílias e dos profissionais muito a sério,
-                    especialmente por lidarmos com dados sensíveis de crianças.
-                </p>
-                <ul>
-                    <li>Dados protegidos com criptografia de ponta.</li>
-                    <li>Acesso aos relatórios apenas mediante vínculo autorizado pelo responsável.</li>
-                    <li>Informações armazenadas com segurança em servidores protegidos.</li>
-                    <li>Seguimos as diretrizes da LGPD (Lei Geral de Proteção de Dados).</li>
-                    <li>O responsável pode revogar o acesso a qualquer momento.</li>
-                </ul>
-            `
-        },
+            publico: {
+                titulo: "Who it's for",
+                icone:  "fa-solid fa-users",
+                texto: `
+                    <p>Bixuco was built for:</p>
+                    <ul>
+                        <li><strong>Therapists</strong> — psychologists and occupational therapists tracking development.</li>
+                        <li><strong>Guardians</strong> — parents who log the child's daily life.</li>
+                        <li><strong>Child health professionals</strong> — looking for organized data to support their work.</li>
+                    </ul>
+                    <p>
+                        Any professional working with children with SPD or sensory
+                        hypersensitivity can benefit from Bixuco.
+                    </p>
+                `
+            },
 
-        proposito: {
-            titulo: "Nosso propósito",
-            icone:  "fa-solid fa-trophy",
-            texto: `
-                <h3>Missão</h3>
-                <p>
-                    Facilitar o acompanhamento do desenvolvimento infantil utilizando
-                    tecnologia e empatia, promovendo conexão entre famílias e profissionais.
-                </p>
+            naofazemos: {
+                titulo: "What we don't do",
+                icone:  "fa-solid fa-ban",
+                texto: `
+                    <p>
+                        It's important to be clear about what Bixuco <strong>does not</strong> do:
+                    </p>
+                    <ul>
+                        <li>We do not perform medical or psychological diagnoses.</li>
+                        <li>We do not replace the therapist's clinical assessment.</li>
+                        <li>We do not issue clinical reports or technical opinions.</li>
+                    </ul>
+                    <p>
+                        Our role is to organize everyday information and support
+                        professional follow-up — always as a support tool, never
+                        a substitute for clinical expertise.
+                    </p>
+                `
+            },
 
-                <h3>Visão</h3>
-                <p>
-                    Ser referência nacional em soluções tecnológicas para acompanhamento
-                    de crianças com hipersensibilidade sensorial.
-                </p>
+            privacidade: {
+                titulo: "Privacy",
+                icone:  "fa-solid fa-shield-halved",
+                texto: `
+                    <p>
+                        We take the privacy of families and professionals very
+                        seriously, especially since we handle sensitive data about children.
+                    </p>
+                    <ul>
+                        <li>Data protected with end-to-end encryption.</li>
+                        <li>Report access only through a link authorized by the guardian.</li>
+                        <li>Information securely stored on protected servers.</li>
+                        <li>We follow LGPD guidelines (Brazil's data protection law).</li>
+                        <li>The guardian can revoke access at any time.</li>
+                    </ul>
+                `
+            },
 
-                <h3>Valores</h3>
-                <ul>
-                    <li>Empatia</li>
-                    <li>Inovação</li>
-                    <li>Segurança</li>
-                    <li>Transparência</li>
-                    <li>Respeito às famílias e profissionais</li>
-                </ul>
-            `
-        },
+            proposito: {
+                titulo: "Our purpose",
+                icone:  "fa-solid fa-trophy",
+                texto: `
+                    <h3>Mission</h3>
+                    <p>
+                        Make it easier to track child development through technology
+                        and empathy, fostering connection between families and professionals.
+                    </p>
 
-        contato: {
-            titulo: "Contato e suporte",
-            icone:  "fa-solid fa-headset",
-            texto: `
-                <p>Precisa de ajuda? Nossa equipe está aqui para você.</p>
-                <p>📧 <strong>suporte@bixuco.com</strong></p>
-                <p>📱 <strong>(11) 99999-9999</strong></p>
-                <p>Segunda a sexta, das 08h às 18h.</p>
-                <p>
-                    Também é possível abrir um chamado diretamente pelo
-                    aplicativo nas configurações da sua conta.
-                </p>
-            `
+                    <h3>Vision</h3>
+                    <p>
+                        Be the national reference in technology solutions for
+                        supporting children with sensory hypersensitivity.
+                    </p>
+
+                    <h3>Values</h3>
+                    <ul>
+                        <li>Empathy</li>
+                        <li>Innovation</li>
+                        <li>Security</li>
+                        <li>Transparency</li>
+                        <li>Respect for families and professionals</li>
+                    </ul>
+                `
+            },
+
+            contato: {
+                titulo: "Contact and support",
+                icone:  "fa-solid fa-headset",
+                texto: `
+                    <p>Need help? Our team is here for you.</p>
+                    <p>📧 <strong>suporte@bixuco.com</strong></p>
+                    <p>📱 <strong>(11) 99999-9999</strong></p>
+                    <p>Monday to Friday, 8 AM to 6 PM.</p>
+                    <p>
+                        You can also open a support ticket directly from the
+                        app, under your account settings.
+                    </p>
+                `
+            }
+
         }
 
     };
 
 
-    // ==========================
-    // MODAL
-    // ==========================
     const modal     = document.getElementById("modal");
     const titulo    = document.getElementById("tituloModal");
     const texto     = document.getElementById("textoModal");
     const iconModal = document.getElementById("iconModal");
     const fechar    = document.getElementById("fecharModal");
 
+    let topicoAberto = null;
+
     function abrirModal(id) {
-        const item = conteudo[id];
+        const item = conteudo[idiomaAtual][id];
         if (!item) return;
+
+        topicoAberto = id;
 
         iconModal.innerHTML = `<i class="${item.icone}"></i>`;
         titulo.textContent  = item.titulo;
@@ -824,6 +965,7 @@ padding: 0.9rem 2rem;
     function fecharModal() {
         modal.classList.remove("mostrar");
         document.body.style.overflow = "";
+        topicoAberto = null;
     }
 
     document.querySelectorAll(".card").forEach(card => {
@@ -835,9 +977,6 @@ padding: 0.9rem 2rem;
     fechar.addEventListener("click", fecharModal);
 
 
-    // ==========================
-    // NOTIFICAÇÕES
-    // ==========================
     const painelNotificacoes = document.getElementById("painelNotificacoes");
     const listaNotificacoes  = document.getElementById("listaNotificacoes");
 
@@ -859,7 +998,7 @@ padding: 0.9rem 2rem;
             const itens = dados.notificacoes || [];
 
             listaNotificacoes.innerHTML = itens.length === 0
-                ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+                ? `<div class="painel-vazio">${t("semNotificacoes")}</div>`
                 : itens.map(formatarItemNotificacao).join("");
 
             const naoLidas = itens.filter(item => !item.lida).length;
@@ -867,7 +1006,7 @@ padding: 0.9rem 2rem;
 
         } catch (erro) {
             console.log("Erro ao carregar notificações:", erro);
-            listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar as notificações.</div>`;
+            listaNotificacoes.innerHTML = `<div class="painel-vazio">${t("erroCarregarNotif")}</div>`;
         }
     }
 
@@ -897,52 +1036,28 @@ padding: 0.9rem 2rem;
     });
 
 
-    // ==========================
-    // TRADUÇÃO
-    // ==========================
-    function lerCookie(nome) {
-        const valor  = `; ${document.cookie}`;
-        const partes = valor.split(`; ${nome}=`);
-        if (partes.length === 2) return partes.pop().split(";").shift();
-        return null;
-    }
+    function aplicarIdiomaEstatico() {
+        document.querySelectorAll("[data-pt]").forEach(el => {
+            el.textContent = idiomaAtual === "en"
+                ? (el.dataset.en || el.dataset.pt)
+                : el.dataset.pt;
+        });
 
-    function definirCookieTraducao(destino) {
-        document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
-        document.cookie = `googtrans=; path=/; domain=${location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
-        if (destino) {
-            const valor = `/pt/${destino}`;
-            document.cookie = `googtrans=${valor}; path=/`;
-            document.cookie = `googtrans=${valor}; path=/; domain=${location.hostname}`;
+        document.getElementById("textoTradutor").textContent =
+            idiomaAtual === "en" ? "Traduzir para português" : "Traduzir para inglês";
+
+        if (topicoAberto) {
+            abrirModal(topicoAberto);
         }
     }
 
-    function iniciarTradutor() {
-        new google.translate.TranslateElement(
-            { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
-            "google_translate_element"
-        );
-    }
-
-    function atualizarTextoBotaoTraducao() {
-        const cookieAtual = lerCookie("googtrans");
-        document.getElementById("textoTradutor").textContent =
-            cookieAtual && cookieAtual.includes("/en")
-                ? "Voltar para português"
-                : "Traduzir para inglês";
-    }
-
     document.getElementById("btnTraduzir").addEventListener("click", () => {
-        const cookieAtual   = lerCookie("googtrans");
-        const estaTraduzido = cookieAtual && cookieAtual.includes("/en");
-        definirCookieTraducao(estaTraduzido ? null : "en");
-        window.location.reload();
+        idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+        localStorage.setItem("idioma", idiomaAtual);
+        aplicarIdiomaEstatico();
     });
 
 
-    // ==========================
-    // TEMA
-    // ==========================
     function aplicarTema(tema) {
         document.body.classList.remove("tema-claro", "tema-escuro");
         document.body.classList.add(`tema-${tema}`);
@@ -955,12 +1070,9 @@ padding: 0.9rem 2rem;
     document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
 
 
-    // ==========================
-    // INICIALIZAÇÃO
-    // ==========================
     const temaSalvo = localStorage.getItem("tema") || "claro";
     aplicarTema(temaSalvo);
-    atualizarTextoBotaoTraducao();
+    aplicarIdiomaEstatico();
     carregarNotificacoes();
 
 </script>
