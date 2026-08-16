@@ -3603,9 +3603,8 @@ app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
 
     try {
 
-        const terapeutaId     = req.session.usuarioId || (req.user && req.user.id);
-        const pacienteId      = parseInt(req.query.paciente);
-        const dataSelecionada = req.query.data || null; // "YYYY-MM-DD", opcional (dia clicado no calendário)
+        const terapeutaId = req.session.usuarioId || (req.user && req.user.id);
+        const pacienteId  = parseInt(req.query.paciente);
 
         if (!terapeutaId) {
             return res.status(401).json({ erro: "Não autenticado." });
@@ -3615,12 +3614,9 @@ app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
             return res.status(400).json({ erro: "ID do paciente inválido." });
         }
 
-        // Verifica se o terapeuta tem vínculo ativo com esse paciente
         const vinculo = await db.query(
             `SELECT id FROM vinculos
-             WHERE terapeuta_id = $1
-             AND responsavel_id = $2
-             AND ativo = TRUE`,
+             WHERE terapeuta_id = $1 AND responsavel_id = $2 AND ativo = TRUE`,
             [terapeutaId, pacienteId]
         );
 
@@ -3628,123 +3624,144 @@ app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
             return res.status(403).json({ erro: "Você não tem vínculo com esse paciente." });
         }
 
-        // Nome da criança vinculada ao paciente
         const crianca = await db.query(
-            `SELECT c.nome FROM criancas c
-             WHERE c.usuario_id = $1
-             LIMIT 1`,
+            `SELECT c.nome FROM criancas c WHERE c.usuario_id = $1 LIMIT 1`,
             [pacienteId]
         );
 
         const nomePaciente = crianca.rows[0]?.nome || "Paciente";
 
-        // Fim da janela de 7 dias: o dia selecionado no calendário, ou hoje se nenhum foi escolhido
-        const dataFim = dataSelecionada || new Date().toISOString().split("T")[0];
+        function formatarTempo(ms) {
+            if (ms < 60000) return `${Math.round(ms / 1000)} s`;
+            return `${Math.round(ms / 60000)} min`;
+        }
 
-        // Alertas na janela de 7 dias terminando em dataFim
-        const alertasAtual = await db.query(
-            `SELECT COUNT(*) AS total FROM relatorios
-             WHERE usuario_id = $1
-             AND data >= $2::date - INTERVAL '6 days'
-             AND data <  $2::date + INTERVAL '1 day'`,
-            [pacienteId, dataFim]
+        // =====================
+        // ALERTAS DO MÊS (eventos reais do Bixuco)
+        // =====================
+
+        const alertasMes = await db.query(
+            `SELECT COUNT(*) AS total
+             FROM eventos_bixuco e
+             JOIN criancas c ON c.id = e.crianca_id
+             WHERE c.usuario_id = $1
+             AND EXTRACT(MONTH FROM e.criado_em) = EXTRACT(MONTH FROM NOW())
+             AND EXTRACT(YEAR FROM e.criado_em)  = EXTRACT(YEAR FROM NOW())`,
+            [pacienteId]
         );
 
-        // Janela anterior (7 dias antes dessa), pro comparativo
-        const alertasAnterior = await db.query(
-            `SELECT COUNT(*) AS total FROM relatorios
-             WHERE usuario_id = $1
-             AND data >= $2::date - INTERVAL '13 days'
-             AND data <  $2::date - INTERVAL '6 days'`,
-            [pacienteId, dataFim]
+        const alertasMesAnterior = await db.query(
+            `SELECT COUNT(*) AS total
+             FROM eventos_bixuco e
+             JOIN criancas c ON c.id = e.crianca_id
+             WHERE c.usuario_id = $1
+             AND EXTRACT(MONTH FROM e.criado_em) = EXTRACT(MONTH FROM NOW() - INTERVAL '1 month')
+             AND EXTRACT(YEAR FROM e.criado_em)  = EXTRACT(YEAR FROM NOW() - INTERVAL '1 month')`,
+            [pacienteId]
         );
 
-        const totalAtual    = parseInt(alertasAtual.rows[0].total)    || 0;
-        const totalAnterior = parseInt(alertasAnterior.rows[0].total) || 0;
-        const diff          = totalAtual - totalAnterior;
+        const totalMes         = parseInt(alertasMes.rows[0].total) || 0;
+        const totalMesAnterior = parseInt(alertasMesAnterior.rows[0].total) || 0;
+        const diffAlertas      = totalMes - totalMesAnterior;
 
-        const comparativoAlertas = diff === 0
-            ? "igual à semana anterior"
-            : diff > 0
-                ? `↑ ${diff} comparado à semana anterior`
-                : `↓ ${Math.abs(diff)} comparado à semana anterior`;
+        const comparativoAlertas = totalMesAnterior === 0
+            ? "registrados este mês"
+            : diffAlertas === 0
+                ? "igual ao mês passado"
+                : diffAlertas > 0
+                    ? `↑ ${diffAlertas} comparado ao mês passado`
+                    : `↓ ${Math.abs(diffAlertas)} comparado ao mês passado`;
 
-        // Dados para o gráfico de barras — estresse por dia (7 dias terminando em dataFim)
+        // =====================
+        // TEMPO DE ESTRESSE DO MÊS
+        // =====================
+
+        const tempoMes = await db.query(
+            `SELECT AVG(e.duracao_ms) AS media_ms
+             FROM eventos_bixuco e
+             JOIN criancas c ON c.id = e.crianca_id
+             WHERE c.usuario_id = $1
+             AND e.duracao_ms IS NOT NULL
+             AND EXTRACT(MONTH FROM e.criado_em) = EXTRACT(MONTH FROM NOW())
+             AND EXTRACT(YEAR FROM e.criado_em)  = EXTRACT(YEAR FROM NOW())`,
+            [pacienteId]
+        );
+
+        const tempoMesAnterior = await db.query(
+            `SELECT AVG(e.duracao_ms) AS media_ms
+             FROM eventos_bixuco e
+             JOIN criancas c ON c.id = e.crianca_id
+             WHERE c.usuario_id = $1
+             AND e.duracao_ms IS NOT NULL
+             AND EXTRACT(MONTH FROM e.criado_em) = EXTRACT(MONTH FROM NOW() - INTERVAL '1 month')
+             AND EXTRACT(YEAR FROM e.criado_em)  = EXTRACT(YEAR FROM NOW() - INTERVAL '1 month')`,
+            [pacienteId]
+        );
+
+        const mediaMesMs         = parseFloat(tempoMes.rows[0].media_ms) || 0;
+        const mediaMesAnteriorMs = parseFloat(tempoMesAnterior.rows[0].media_ms) || 0;
+        const diffMinutos        = Math.round((mediaMesMs - mediaMesAnteriorMs) / 60000);
+
+        const comparativoTempo = mediaMesAnteriorMs === 0
+            ? "por episódio"
+            : diffMinutos === 0
+                ? "igual ao mês passado"
+                : diffMinutos > 0
+                    ? `↑ ${diffMinutos} min comparado ao mês passado`
+                    : `↓ ${Math.abs(diffMinutos)} min comparado ao mês passado`;
+
+        // =====================
+        // GRÁFICO — ESTRESSE ÚLTIMOS 7 DIAS (eventos reais do Bixuco, 7 dias fixos)
+        // =====================
+
         const estresseDias = await db.query(
-            `SELECT
-                dia,
-                COALESCE(cnt.total, 0) AS total
-            FROM generate_series(
-                $2::date - INTERVAL '6 days',
-                $2::date,
+            `SELECT dia, COALESCE(cnt.total, 0) AS total
+             FROM generate_series(
+                CURRENT_DATE - INTERVAL '6 days',
+                CURRENT_DATE,
                 INTERVAL '1 day'
-            ) AS dia
-            LEFT JOIN (
-                SELECT DATE(data) AS dia, COUNT(*) AS total
-                FROM relatorios
-                WHERE usuario_id = $1
-                GROUP BY DATE(data)
-            ) cnt USING (dia)
-            ORDER BY dia`,
-            [pacienteId, dataFim]
+             ) AS dia
+             LEFT JOIN (
+                SELECT DATE(e.criado_em) AS dia, COUNT(*) AS total
+                FROM eventos_bixuco e
+                JOIN criancas c ON c.id = e.crianca_id
+                WHERE c.usuario_id = $1
+                GROUP BY DATE(e.criado_em)
+             ) cnt USING (dia)
+             ORDER BY dia`,
+            [pacienteId]
         );
 
-        // =====================================================
-        // GRÁFICO DE ROSCA — GATILHOS (mesma lógica real usada na tela do responsável)
-        // =====================================================
+        const diasSemanaPt = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+        const labelsEstresse = estresseDias.rows.map(r => diasSemanaPt[new Date(r.dia).getUTCDay()]);
+        const dadosEstresse  = estresseDias.rows.map(r => parseInt(r.total));
+
+        // =====================
+        // GRÁFICO — GATILHOS (respostas do relatório diário, últimos 7 dias)
+        // =====================
+
         const gatilhosRaw = await db.query(
             `SELECT
-                COUNT(*) FILTER (
-                    WHERE EXISTS (
-                        SELECT 1 FROM jsonb_array_elements(respostas) AS x
-                        WHERE x->>'id' = 'desconforto_texturas'
-                        AND x->>'resposta' IN ('Sempre', 'Quase sempre')
-                    )
-                ) AS texturas,
-                COUNT(*) FILTER (
-                    WHERE EXISTS (
-                        SELECT 1 FROM jsonb_array_elements(respostas) AS x
-                        WHERE x->>'id' = 'evitou_contato_visual'
-                        AND x->>'resposta' IN ('Sempre', 'Quase sempre')
-                    )
-                ) AS barulho,
-                COUNT(*) FILTER (
-                    WHERE EXISTS (
-                        SELECT 1 FROM jsonb_array_elements(respostas) AS x
-                        WHERE x->>'id' = 'atividades_propostas'
-                        AND x->>'resposta' IN ('Poucas', 'Nenhuma')
-                    )
-                ) AS rotina,
-                COUNT(*) FILTER (
-                    WHERE EXISTS (
-                        SELECT 1 FROM jsonb_array_elements(respostas) AS x
-                        WHERE x->>'id' = 'interacao_social'
-                        AND x->>'resposta' IN ('Pouca', 'Nenhuma')
-                    )
-                ) AS lotados
-            FROM relatorios
-            WHERE usuario_id = $1
-            AND data >= $2::date - INTERVAL '6 days'
-            AND data <  $2::date + INTERVAL '1 day'`,
-            [pacienteId, dataFim]
+                COUNT(*) FILTER (WHERE EXISTS (SELECT 1 FROM jsonb_array_elements(respostas) AS x WHERE x->>'id' = 'desconforto_texturas' AND x->>'resposta' IN ('Sempre', 'Quase sempre'))) AS texturas,
+                COUNT(*) FILTER (WHERE EXISTS (SELECT 1 FROM jsonb_array_elements(respostas) AS x WHERE x->>'id' = 'evitou_contato_visual' AND x->>'resposta' IN ('Sempre', 'Quase sempre'))) AS barulho,
+                COUNT(*) FILTER (WHERE EXISTS (SELECT 1 FROM jsonb_array_elements(respostas) AS x WHERE x->>'id' = 'atividades_propostas' AND x->>'resposta' IN ('Poucas', 'Nenhuma'))) AS rotina,
+                COUNT(*) FILTER (WHERE EXISTS (SELECT 1 FROM jsonb_array_elements(respostas) AS x WHERE x->>'id' = 'interacao_social' AND x->>'resposta' IN ('Pouca', 'Nenhuma'))) AS lotados
+             FROM relatorios
+             WHERE usuario_id = $1
+             AND data >= NOW() - INTERVAL '7 days'`,
+            [pacienteId]
         );
 
-        const g        = gatilhosRaw.rows[0];
+        const g = gatilhosRaw.rows[0];
         const texturas = parseInt(g.texturas) || 0;
         const barulho  = parseInt(g.barulho)  || 0;
         const rotina   = parseInt(g.rotina)   || 0;
         const lotados  = parseInt(g.lotados)  || 0;
-
         const totalGatilhos = texturas + barulho + rotina + lotados;
 
         let graficoGatilhos;
-
         if (totalGatilhos === 0) {
-            graficoGatilhos = {
-                labels: ["Sem dados suficientes ainda"],
-                dados:  [100],
-                cores:  ["#C2C2C2"]
-            };
+            graficoGatilhos = { labels: ["Sem dados suficientes ainda"], dados: [100], cores: ["#C2C2C2"] };
         } else {
             graficoGatilhos = {
                 labels: ["Ambientes barulhentos", "Locais lotados", "Mudanças de rotina", "Texturas de alimentos"],
@@ -3758,60 +3775,14 @@ app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
             };
         }
 
-        // =====================================================
-        // DETALHE DO DIA — só preenchido quando um dia foi clicado no calendário
-        // =====================================================
-        let detalheDia = null;
-
-        if (dataSelecionada) {
-
-            const relatorioDia = await db.query(
-                `SELECT respostas, data FROM relatorios
-                 WHERE usuario_id = $1 AND DATE(data) = $2
-                 LIMIT 1`,
-                [pacienteId, dataSelecionada]
-            );
-
-            const temRelatorio = relatorioDia.rows.length > 0;
-            let perguntas      = [];
-            let dataFormatada  = null;
-
-            if (temRelatorio) {
-                const row     = relatorioDia.rows[0];
-                perguntas     = typeof row.respostas === "string" ? JSON.parse(row.respostas) : row.respostas;
-                dataFormatada = new Date(row.data).toLocaleDateString("pt-BR", {
-                    weekday: "long", day: "numeric", month: "long", year: "numeric"
-                });
-            }
-
-            const notaDia = await db.query(
-                `SELECT texto FROM notas_clinicas
-                 WHERE terapeuta_id = $1 AND paciente_id = $2 AND data_referencia = $3`,
-                [terapeutaId, pacienteId, dataSelecionada]
-            );
-
-            detalheDia = {
-                temRelatorio,
-                dataFormatada,
-                perguntas,
-                nota: notaDia.rows[0]?.texto || ""
-            };
-        }
-
         res.json({
             nomePaciente,
-            alertas:           totalAtual,
+            alertas: totalMes,
             comparativoAlertas,
-            tempo:             "0 min",
-            comparativoTempo:  "dados de IoT em breve",
-
-            graficoEstresse: {
-                labels: estresseDias.rows.map(r => r.dia),
-                dados:  estresseDias.rows.map(r => parseInt(r.total))
-            },
-
-            graficoGatilhos,
-            detalheDia
+            tempo: formatarTempo(mediaMesMs),
+            comparativoTempo,
+            graficoEstresse: { labels: labelsEstresse, dados: dadosEstresse },
+            graficoGatilhos
         });
 
     } catch (erro) {
@@ -3848,10 +3819,10 @@ app.get("/api/relatorio-paciente/dias", estaLogado, async (req, res) => {
         }
 
         const resultado = await db.query(
-            `SELECT DISTINCT DATE(data) AS dia
-             FROM relatorios
-             WHERE usuario_id = $1
-             AND TO_CHAR(data, 'YYYY-MM') = $2`,
+            `SELECT DISTINCT DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') AS dia
+            FROM relatorios
+            WHERE usuario_id = $1
+            AND TO_CHAR(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM') = $2`,
             [pacienteId, mes]
         );
 
@@ -3861,6 +3832,72 @@ app.get("/api/relatorio-paciente/dias", estaLogado, async (req, res) => {
 
     } catch (erro) {
         console.log("Erro na rota /api/relatorio-paciente/dias:", erro);
+        res.status(500).json({ erro: "Erro interno do servidor." });
+    }
+
+});
+
+app.get("/api/relatorio-paciente/dia", estaLogado, async (req, res) => {
+
+    try {
+
+        const terapeutaId = req.session.usuarioId || (req.user && req.user.id);
+        const pacienteId  = parseInt(req.query.paciente);
+        const dataISO     = req.query.data;
+
+        if (!terapeutaId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        if (!pacienteId || !dataISO) {
+            return res.status(400).json({ erro: "Parâmetros inválidos." });
+        }
+
+        const vinculo = await db.query(
+            `SELECT id FROM vinculos
+             WHERE terapeuta_id = $1 AND responsavel_id = $2 AND ativo = TRUE`,
+            [terapeutaId, pacienteId]
+        );
+
+        if (vinculo.rows.length === 0) {
+            return res.status(403).json({ erro: "Você não tem vínculo com esse paciente." });
+        }
+
+        const relatorioDia = await db.query(
+            `SELECT respostas, data FROM relatorios
+             WHERE usuario_id = $1
+             AND DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') = $2
+             LIMIT 1`,
+            [pacienteId, dataISO]
+        );
+
+        const temRelatorio = relatorioDia.rows.length > 0;
+        let perguntas = [];
+
+        if (temRelatorio) {
+            const row = relatorioDia.rows[0];
+            perguntas = typeof row.respostas === "string" ? JSON.parse(row.respostas) : row.respostas;
+        }
+
+        const dataFormatada = new Date(dataISO + "T12:00:00").toLocaleDateString("pt-BR", {
+            weekday: "long", day: "numeric", month: "long", year: "numeric"
+        });
+
+        const notaDia = await db.query(
+            `SELECT texto FROM notas_clinicas
+             WHERE terapeuta_id = $1 AND paciente_id = $2 AND data_referencia = $3`,
+            [terapeutaId, pacienteId, dataISO]
+        );
+
+        res.json({
+            temRelatorio,
+            dataFormatada,
+            perguntas,
+            nota: notaDia.rows[0]?.texto || ""
+        });
+
+    } catch (erro) {
+        console.log("Erro na rota /api/relatorio-paciente/dia:", erro);
         res.status(500).json({ erro: "Erro interno do servidor." });
     }
 
