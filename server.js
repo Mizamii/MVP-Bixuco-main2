@@ -3603,9 +3603,9 @@ app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
 
     try {
 
-        const terapeutaId = req.session.usuarioId || (req.user && req.user.id);
-        const pacienteId  = parseInt(req.query.paciente);
-        const dataQuery   = req.query.data; // "YYYY-MM-DD", opcional (vem do calendário)
+        const terapeutaId     = req.session.usuarioId || (req.user && req.user.id);
+        const pacienteId      = parseInt(req.query.paciente);
+        const dataSelecionada = req.query.data || null; // "YYYY-MM-DD", opcional (dia clicado no calendário)
 
         if (!terapeutaId) {
             return res.status(401).json({ erro: "Não autenticado." });
@@ -3638,16 +3638,138 @@ app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
 
         const nomePaciente = crianca.rows[0]?.nome || "Paciente";
 
+        // Fim da janela de 7 dias: o dia selecionado no calendário, ou hoje se nenhum foi escolhido
+        const dataFim = dataSelecionada || new Date().toISOString().split("T")[0];
+
+        // Alertas na janela de 7 dias terminando em dataFim
+        const alertasAtual = await db.query(
+            `SELECT COUNT(*) AS total FROM relatorios
+             WHERE usuario_id = $1
+             AND data >= $2::date - INTERVAL '6 days'
+             AND data <  $2::date + INTERVAL '1 day'`,
+            [pacienteId, dataFim]
+        );
+
+        // Janela anterior (7 dias antes dessa), pro comparativo
+        const alertasAnterior = await db.query(
+            `SELECT COUNT(*) AS total FROM relatorios
+             WHERE usuario_id = $1
+             AND data >= $2::date - INTERVAL '13 days'
+             AND data <  $2::date - INTERVAL '6 days'`,
+            [pacienteId, dataFim]
+        );
+
+        const totalAtual    = parseInt(alertasAtual.rows[0].total)    || 0;
+        const totalAnterior = parseInt(alertasAnterior.rows[0].total) || 0;
+        const diff          = totalAtual - totalAnterior;
+
+        const comparativoAlertas = diff === 0
+            ? "igual à semana anterior"
+            : diff > 0
+                ? `↑ ${diff} comparado à semana anterior`
+                : `↓ ${Math.abs(diff)} comparado à semana anterior`;
+
+        // Dados para o gráfico de barras — estresse por dia (7 dias terminando em dataFim)
+        const estresseDias = await db.query(
+            `SELECT
+                dia,
+                COALESCE(cnt.total, 0) AS total
+            FROM generate_series(
+                $2::date - INTERVAL '6 days',
+                $2::date,
+                INTERVAL '1 day'
+            ) AS dia
+            LEFT JOIN (
+                SELECT DATE(data) AS dia, COUNT(*) AS total
+                FROM relatorios
+                WHERE usuario_id = $1
+                GROUP BY DATE(data)
+            ) cnt USING (dia)
+            ORDER BY dia`,
+            [pacienteId, dataFim]
+        );
+
         // =====================================================
-        // MODO DIA ESPECÍFICO — usado pelo calendário
+        // GRÁFICO DE ROSCA — GATILHOS (mesma lógica real usada na tela do responsável)
         // =====================================================
-        if (dataQuery) {
+        const gatilhosRaw = await db.query(
+            `SELECT
+                COUNT(*) FILTER (
+                    WHERE EXISTS (
+                        SELECT 1 FROM jsonb_array_elements(respostas) AS x
+                        WHERE x->>'id' = 'desconforto_texturas'
+                        AND x->>'resposta' IN ('Sempre', 'Quase sempre')
+                    )
+                ) AS texturas,
+                COUNT(*) FILTER (
+                    WHERE EXISTS (
+                        SELECT 1 FROM jsonb_array_elements(respostas) AS x
+                        WHERE x->>'id' = 'evitou_contato_visual'
+                        AND x->>'resposta' IN ('Sempre', 'Quase sempre')
+                    )
+                ) AS barulho,
+                COUNT(*) FILTER (
+                    WHERE EXISTS (
+                        SELECT 1 FROM jsonb_array_elements(respostas) AS x
+                        WHERE x->>'id' = 'atividades_propostas'
+                        AND x->>'resposta' IN ('Poucas', 'Nenhuma')
+                    )
+                ) AS rotina,
+                COUNT(*) FILTER (
+                    WHERE EXISTS (
+                        SELECT 1 FROM jsonb_array_elements(respostas) AS x
+                        WHERE x->>'id' = 'interacao_social'
+                        AND x->>'resposta' IN ('Pouca', 'Nenhuma')
+                    )
+                ) AS lotados
+            FROM relatorios
+            WHERE usuario_id = $1
+            AND data >= $2::date - INTERVAL '6 days'
+            AND data <  $2::date + INTERVAL '1 day'`,
+            [pacienteId, dataFim]
+        );
+
+        const g        = gatilhosRaw.rows[0];
+        const texturas = parseInt(g.texturas) || 0;
+        const barulho  = parseInt(g.barulho)  || 0;
+        const rotina   = parseInt(g.rotina)   || 0;
+        const lotados  = parseInt(g.lotados)  || 0;
+
+        const totalGatilhos = texturas + barulho + rotina + lotados;
+
+        let graficoGatilhos;
+
+        if (totalGatilhos === 0) {
+            graficoGatilhos = {
+                labels: ["Sem dados suficientes ainda"],
+                dados:  [100],
+                cores:  ["#C2C2C2"]
+            };
+        } else {
+            graficoGatilhos = {
+                labels: ["Ambientes barulhentos", "Locais lotados", "Mudanças de rotina", "Texturas de alimentos"],
+                dados: [
+                    Math.round((barulho  / totalGatilhos) * 100),
+                    Math.round((lotados  / totalGatilhos) * 100),
+                    Math.round((rotina   / totalGatilhos) * 100),
+                    Math.round((texturas / totalGatilhos) * 100)
+                ],
+                cores: ["#32C26D", "#0AB7FB", "#1D8EC9", "#C2C2C2"]
+            };
+        }
+
+        // =====================================================
+        // DETALHE DO DIA — só preenchido quando um dia foi clicado no calendário
+        // =====================================================
+        let detalheDia = null;
+
+        if (dataSelecionada) {
 
             const relatorioDia = await db.query(
                 `SELECT respostas, data FROM relatorios
                  WHERE usuario_id = $1 AND DATE(data) = $2
                  LIMIT 1`,
-                [pacienteId, dataQuery]
+                [pacienteId, dataSelecionada]
             );
 
             const temRelatorio = relatorioDia.rows.length > 0;
@@ -3665,80 +3787,20 @@ app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
             const notaDia = await db.query(
                 `SELECT texto FROM notas_clinicas
                  WHERE terapeuta_id = $1 AND paciente_id = $2 AND data_referencia = $3`,
-                [terapeutaId, pacienteId, dataQuery]
+                [terapeutaId, pacienteId, dataSelecionada]
             );
 
-            return res.json({
-                nomePaciente,
+            detalheDia = {
                 temRelatorio,
                 dataFormatada,
                 perguntas,
                 nota: notaDia.rows[0]?.texto || ""
-            });
+            };
         }
-
-        // Alertas do mês atual
-        const alertasMes = await db.query(
-            `SELECT COUNT(*) AS total FROM relatorios
-             WHERE usuario_id = $1
-             AND EXTRACT(MONTH FROM (data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(MONTH FROM NOW())
-             AND EXTRACT(YEAR FROM (data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo'))  = EXTRACT(YEAR FROM NOW())`,
-            [pacienteId]
-        );
-
-        // Comparativo com semana anterior
-        const alertasAtual = await db.query(
-            `SELECT COUNT(*) AS total FROM relatorios
-             WHERE usuario_id = $1 AND data >= NOW() - INTERVAL '7 days'`,
-            [pacienteId]
-        );
-
-        const alertasAnterior = await db.query(
-            `SELECT COUNT(*) AS total FROM relatorios
-             WHERE usuario_id = $1
-             AND data >= NOW() - INTERVAL '14 days'
-             AND data <  NOW() - INTERVAL '7 days'`,
-            [pacienteId]
-        );
-
-        const totalAtual    = parseInt(alertasAtual.rows[0].total)    || 0;
-        const totalAnterior = parseInt(alertasAnterior.rows[0].total)  || 0;
-        const diff          = totalAtual - totalAnterior;
-
-        const comparativoAlertas = diff === 0
-            ? "igual à semana passada"
-            : diff > 0
-                ? `↑ ${diff} comparado à semana passada`
-                : `↓ ${Math.abs(diff)} comparado à semana passada`;
-
-        // Dados para o gráfico de barras — estresse por dia (últimos 7 dias)
-        const estresseDias = await db.query(
-            `SELECT
-                dia,
-                COALESCE(cnt.total, 0) AS total
-            FROM generate_series(
-                CURRENT_DATE - INTERVAL '6 days',
-                CURRENT_DATE,
-                INTERVAL '1 day'
-            ) AS dia
-            LEFT JOIN (
-                SELECT DATE(data) AS dia, COUNT(*) AS total
-                FROM relatorios
-                WHERE usuario_id = $1
-                GROUP BY DATE(data)
-            ) cnt USING (dia)
-            ORDER BY dia`,
-            [pacienteId]
-        );
-
-        const diasSemanaPt = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-
-        const labelsEstresse = estresseDias.rows.map(r => diasSemanaPt[new Date(r.dia).getUTCDay()]);
-        const dadosEstresse  = estresseDias.rows.map(r => parseInt(r.total));
 
         res.json({
             nomePaciente,
-            alertas:           parseInt(alertasMes.rows[0].total) || 0,
+            alertas:           totalAtual,
             comparativoAlertas,
             tempo:             "0 min",
             comparativoTempo:  "dados de IoT em breve",
@@ -3748,12 +3810,8 @@ app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
                 dados:  estresseDias.rows.map(r => parseInt(r.total))
             },
 
-            // Gatilhos fixos por ora — integre com sua tabela de respostas quando quiser
-            graficoGatilhos: {
-                labels: ["Ambientes barulhentos","Locais lotados","Mudanças de rotina","Texturas"],
-                dados:  [42, 28, 18, 12],
-                cores:  ["#32C26D","#0AB7FB","#1D8EC9","#C2C2C2"]
-            }
+            graficoGatilhos,
+            detalheDia
         });
 
     } catch (erro) {

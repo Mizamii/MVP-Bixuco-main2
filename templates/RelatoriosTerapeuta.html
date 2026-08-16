@@ -58,11 +58,16 @@
 
         /* ===== Calendário de relatórios por dia (Fase 2 — sugestão do professor) ===== */
 
-        .card-calendario {
+        .card-calendario,
+        .card-dia-detalhe {
             background: var(--cor-fundo-card);
             border-radius: 16px;
             padding: 1.25rem 1.35rem;
             box-shadow: var(--sombra-card);
+        }
+
+        .card-calendario {
+            margin-bottom: 1.25rem;
         }
 
         .calendario-cabecalho {
@@ -155,14 +160,8 @@
             background: #fff;
         }
 
-        .painel-dia-selecionado {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--cor-borda);
-        }
-
-        .painel-dia-selecionado h4 {
-            font-size: 0.9rem;
+        #painelDiaSelecionado h3 {
+            font-size: 0.95rem;
             color: var(--cor-texto-principal);
             margin-bottom: 0.75rem;
             text-transform: capitalize;
@@ -458,9 +457,16 @@
                 <div class="calendario-grade" id="calendarioDiasSemana"></div>
                 <div class="calendario-grade" id="calendarioGrade"></div>
 
-                <div class="painel-dia-selecionado" id="painelDiaSelecionado" style="display:none;">
+            </section>
 
-                    <h4 id="painelDiaTitulo">...</h4>
+            <!-- ========================= -->
+            <!-- DETALHE DO DIA + NOTA CLÍNICA -->
+            <!-- ========================= -->
+            <section class="bloco card-dia-detalhe">
+
+                <div id="painelDiaSelecionado" style="display:none;">
+
+                    <h3 id="painelDiaTitulo">...</h3>
 
                     <div id="painelDiaConteudo"></div>
 
@@ -579,18 +585,27 @@
     // =========================
     // CARREGAR RELATÓRIO DO PACIENTE (resumo semanal + gráficos)
     // =========================
+    async function buscarRelatorio(dataISO) {
+        const url = dataISO
+            ? `/api/relatorio-paciente?paciente=${pacienteId}&data=${dataISO}`
+            : `/api/relatorio-paciente?paciente=${pacienteId}`;
+
+        const resposta = await fetch(url);
+
+        if (resposta.status === 401) {
+            window.location.href = "/logar";
+            return null;
+        }
+
+        if (!resposta.ok) throw new Error("Falha ao carregar relatório");
+
+        return await resposta.json();
+    }
+
     async function carregarRelatorio() {
         try {
-            const resposta = await fetch(`/api/relatorio-paciente?paciente=${pacienteId}`);
-
-            if (resposta.status === 401) {
-                window.location.href = "/logar";
-                return;
-            }
-
-            if (!resposta.ok) throw new Error("Falha ao carregar relatório");
-
-            const dados = await resposta.json();
+            const dados = await buscarRelatorio(null);
+            if (!dados) return;
 
             document.getElementById("nomePaciente").textContent =
                 dados.nomePaciente || "Paciente";
@@ -904,20 +919,25 @@
 
         try {
 
-            const resposta = await fetch(`/api/relatorio-paciente?paciente=${pacienteId}&data=${dataISO}`);
-            if (!resposta.ok) throw new Error();
-            const dados = await resposta.json();
+            const dados = await buscarRelatorio(dataISO);
+            if (!dados) return;
+
+            // os cards e os gráficos de cima passam a refletir a janela de 7 dias terminando nesse dia
+            preencherCards(dados);
+            renderizarGraficos(dados);
+
+            const detalhe = dados.detalheDia || {};
 
             document.getElementById("painelDiaTitulo").textContent =
-                dados.dataFormatada || new Date(dataISO + "T00:00:00").toLocaleDateString(idiomaAtual === "en" ? "en-US" : "pt-BR");
+                detalhe.dataFormatada || new Date(dataISO + "T00:00:00").toLocaleDateString(idiomaAtual === "en" ? "en-US" : "pt-BR");
 
-            document.getElementById("painelDiaConteudo").innerHTML = dados.temRelatorio
-                ? `<ul class="lista-respostas-dia">${(dados.perguntas || []).map(p => `
+            document.getElementById("painelDiaConteudo").innerHTML = detalhe.temRelatorio
+                ? `<ul class="lista-respostas-dia">${(detalhe.perguntas || []).map(p => `
                     <li><strong>${p.pergunta || p.id}</strong><span>${p.resposta}</span></li>
                 `).join("")}</ul>`
                 : `<p class="sem-relatorio-dia">${t("semRelatorioDia")}</p>`;
 
-            document.getElementById("notaDoDia").value = dados.nota || "";
+            document.getElementById("notaDoDia").value = detalhe.nota || "";
 
         } catch (_) {
             document.getElementById("painelDiaConteudo").innerHTML =
