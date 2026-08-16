@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="/css/tema.css">
     <link rel="stylesheet" href="/css/layout.css">
     <link rel="stylesheet" href="/css/configuracoesT.css">
-    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
 <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
 </head>
 <body>
@@ -27,39 +26,39 @@
             <nav>
                 <a href="/homeTerapeuta">
                     <i class="fa-solid fa-house"></i>
-                    <span>Início</span>
+                    <span data-pt="Início" data-en="Home">Início</span>
                 </a>
 
                 <a href="/relatoriosTerapeutaS">
                     <i class="fa-solid fa-chart-line"></i>
-                    <span>Relatórios</span>
+                    <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
                 </a>
 
                 <!-- aba ativa -->
                 <a href="/configuracoesT" class="ativo">
                     <i class="fa-solid fa-gear"></i>
-                    <span>Configurações</span>
+                    <span data-pt="Configurações" data-en="Settings">Configurações</span>
                 </a>
 
                 <a href="/sobreT">
                     <i class="fa-solid fa-circle-info"></i>
-                    <span>Sobre</span>
+                    <span data-pt="Sobre" data-en="About">Sobre</span>
                 </a>
 
                 <a href="/pacientes">
                     <i class="fa-solid fa-user-plus"></i>
-                    <span>Pacientes</span>
+                    <span data-pt="Pacientes" data-en="Patients">Pacientes</span>
                 </a>
             </nav>
 
             <div class="tema">
                 <button id="btnClaro" class="ativo" type="button">
                     <i class="fa-regular fa-sun"></i>
-                    Claro
+                    <span data-pt="Claro" data-en="Light">Claro</span>
                 </button>
                 <button id="btnEscuro" type="button">
                     <i class="fa-regular fa-moon"></i>
-                    Escuro
+                    <span data-pt="Escuro" data-en="Dark">Escuro</span>
                 </button>
             </div>
 
@@ -67,7 +66,7 @@
 
             <a href="/logout" class="logout">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                <span>Sair</span>
+                <span data-pt="Sair" data-en="Log out">Sair</span>
             </a>
 
         </aside>
@@ -85,8 +84,6 @@
                     <span id="textoTradutor">Traduzir para inglês</span>
                 </button>
 
-                <div id="google_translate_element" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);"></div>
-
                 <div class="usuario">
 
                     <div class="notificacoes-wrapper">
@@ -96,9 +93,9 @@
                         </button>
 
                         <div class="painel-notificacoes" id="painelNotificacoes">
-                            <div class="painel-header">Notificações</div>
+                            <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
                             <div id="listaNotificacoes">
-                                <div class="painel-vazio">Carregando...</div>
+                                <div class="painel-vazio" data-pt="Carregando..." data-en="Loading...">Carregando...</div>
                             </div>
                         </div>
                     </div>
@@ -114,8 +111,13 @@
                     >
 
                     <div>
-                        <h3 id="nomeTerapeuta">Carregando...</h3>
-                        <span>Terapeuta</span>
+                        <h3 id="nomeTerapeuta" style="cursor:pointer" onclick="window.location.href='/perfilTerapeuta'">Carregando...</h3>
+                        <span data-pt="Terapeuta" data-en="Therapist">Terapeuta</span>
+
+                        <button type="button" class="btn-codigo-copiar" id="btnCodigoCopiar" onclick="copiarCodigo()" title="Copiar código para compartilhar">
+                            <span><span data-pt="Código" data-en="Code">Código</span>: <strong id="codigoTerapeuta">...</strong></span>
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
                     </div>
                 </div>
             </header>
@@ -125,8 +127,8 @@
                 <!-- CABEÇALHO DA PÁGINA -->
                 <div class="cabecalho-pagina">
                     <div>
-                        <h1>Configurações</h1>
-                        <p>Gerencie suas preferências e mantenha sua conta segura.</p>
+                        <h1 data-pt="Configurações" data-en="Settings">Configurações</h1>
+                        <p data-pt="Gerencie suas preferências e mantenha sua conta segura." data-en="Manage your preferences and keep your account secure.">Gerencie suas preferências e mantenha sua conta segura.</p>
                     </div>
                     <img src="/img/BixucoConfig.png" alt="Mascote Bixuco" onerror="this.style.display='none'">
                 </div>
@@ -135,7 +137,7 @@
                 <!-- NOTIFICAÇÕES -->
                 <!-- ========================= -->
                 <div class="card">
-                    <h2>Notificações</h2>
+                    <h2 data-pt="Notificações" data-en="Notifications">Notificações</h2>
 
                     <!-- toggle: lembrete de relatório -->
                     <div class="linha-toggle">
@@ -143,7 +145,7 @@
                             <div class="linha-toggle__icone linha-toggle__icone--verde">
                                 <i class="fa-regular fa-bell"></i>
                             </div>
-                            <span>Lembrete do relatório</span>
+                            <span data-pt="Lembrete do relatório" data-en="Report reminder">Lembrete do relatório</span>
                         </div>
                         <label class="switch">
                             <input type="checkbox" id="toggleRelatorio" checked>
@@ -157,7 +159,7 @@
                             <div class="linha-toggle__icone linha-toggle__icone--azul">
                                 <i class="fa-regular fa-envelope"></i>
                             </div>
-                            <span>Nova solicitação</span>
+                            <span data-pt="Nova solicitação" data-en="New request">Nova solicitação</span>
                         </div>
                         <label class="switch">
                             <input type="checkbox" id="toggleSolicitacao" checked>
@@ -174,14 +176,14 @@
 
                     <div class="privacidade-esquerda">
 
-                        <h2>Privacidade</h2>
+                        <h2 data-pt="Privacidade" data-en="Privacy">Privacidade</h2>
 
                         <!-- alterar senha -->
                         <button type="button" class="botao-opcao" id="btnAlterarSenha">
                             <div class="botao-opcao__icone botao-opcao__icone--verde">
                                 <i class="fa-solid fa-lock"></i>
                             </div>
-                            <span>Alterar senha</span>
+                            <span data-pt="Alterar senha" data-en="Change password">Alterar senha</span>
                             <i class="fa-solid fa-chevron-right seta"></i>
                         </button>
 
@@ -190,18 +192,18 @@
                             <div class="botao-opcao__icone botao-opcao__icone--vermelho">
                                 <i class="fa-regular fa-trash-can"></i>
                             </div>
-                            <span>Excluir minha conta</span>
+                            <span data-pt="Excluir minha conta" data-en="Delete my account">Excluir minha conta</span>
                             <i class="fa-solid fa-chevron-right seta"></i>
                         </button>
 
                     </div>
 
                     <div class="privacidade-direita">
-                        <h3>Sua segurança<br>é nossa <span class="destaque">prioridade</span></h3>
-                        <p>Utilizamos criptografia e boas práticas para proteger suas informações e das crianças.</p>
+                        <h3><span data-pt="Sua segurança" data-en="Your security">Sua segurança</span><br><span data-pt="é nossa" data-en="is our">é nossa</span> <span class="destaque" data-pt="prioridade" data-en="priority">prioridade</span></h3>
+                        <p data-pt="Utilizamos criptografia e boas práticas para proteger suas informações e das crianças." data-en="We use encryption and best practices to protect your information and children's information.">Utilizamos criptografia e boas práticas para proteger suas informações e das crianças.</p>
                         <p class="dados-protegidos">
                             <i class="fa-solid fa-circle-check"></i>
-                            Seus dados estão protegidos.
+                            <span data-pt="Seus dados estão protegidos." data-en="Your data is protected.">Seus dados estão protegidos.</span>
                         </p>
                         <img src="/img/BixucoSeguranca.png" alt="" onerror="this.style.display='none'">
                     </div>
@@ -220,11 +222,11 @@
     <div id="modalExcluir" class="modal" style="display:none" onclick="fecharModalFora(event)">
         <div class="modal-conteudo">
             <i class="fa-solid fa-triangle-exclamation icone-alerta"></i>
-            <h2>Excluir conta?</h2>
-            <p>Esta ação é permanente e todos os seus dados serão removidos.</p>
+            <h2 data-pt="Excluir conta?" data-en="Delete account?">Excluir conta?</h2>
+            <p data-pt="Esta ação é permanente e todos os seus dados serão removidos." data-en="This action is permanent and all your data will be removed.">Esta ação é permanente e todos os seus dados serão removidos.</p>
             <div class="modal-acoes">
-                <button type="button" id="btnCancelarExcluir" class="btn-cancelar">Cancelar</button>
-                <button type="button" id="btnConfirmarExcluir" class="btn-confirmar">Excluir</button>
+                <button type="button" id="btnCancelarExcluir" class="btn-cancelar" data-pt="Cancelar" data-en="Cancel">Cancelar</button>
+                <button type="button" id="btnConfirmarExcluir" class="btn-confirmar" data-pt="Excluir" data-en="Delete">Excluir</button>
             </div>
         </div>
     </div>
@@ -237,18 +239,61 @@
     <div id="modalSenha" class="modal" style="display:none" onclick="fecharModalSenhaFora(event)">
         <div class="modal-conteudo">
             <i class="fa-solid fa-lock icone-info"></i>
-            <h2>Alterar senha</h2>
-            <p>Enviaremos um link de redefinição para o seu email cadastrado.</p>
-            <p id="msgEmailSenha" style="display:none;color:#32C26D;font-weight:600;">✓ Email enviado!</p>
+            <h2 data-pt="Alterar senha" data-en="Change password">Alterar senha</h2>
+            <p data-pt="Enviaremos um link de redefinição para o seu email cadastrado." data-en="We'll send a reset link to your registered email.">Enviaremos um link de redefinição para o seu email cadastrado.</p>
+            <p id="msgEmailSenha" style="display:none;color:#32C26D;font-weight:600;">✓ <span data-pt="Email enviado!" data-en="Email sent!">Email enviado!</span></p>
             <div class="modal-acoes">
-                <button type="button" id="btnCancelarSenha" class="btn-cancelar">Cancelar</button>
-                <button type="button" id="btnEnviarSenha" class="btn-confirmar">Enviar email</button>
+                <button type="button" id="btnCancelarSenha" class="btn-cancelar" data-pt="Cancelar" data-en="Cancel">Cancelar</button>
+                <button type="button" id="btnEnviarSenha" class="btn-confirmar" data-pt="Enviar email" data-en="Send email">Enviar email</button>
             </div>
         </div>
     </div>
 
 
     <script>
+
+        // =========================
+        // TRADUÇÃO MANUAL — dicionário para textos montados via JS
+        // =========================
+
+        let idiomaAtual = localStorage.getItem("idioma") || "pt";
+
+        const dicionario = {
+            semNotificacoes:    { pt: "Nenhuma notificação por enquanto.",  en: "No notifications yet." },
+            erroCarregarNotif:   { pt: "Não foi possível carregar.",        en: "Couldn't load notifications." },
+            enviando:             { pt: "Enviando...",                     en: "Sending..." },
+            enviado:               { pt: "Enviado!",                       en: "Sent!" },
+            erroEnviar:              { pt: "Erro — tente de novo",         en: "Error — try again" },
+            erroExcluirConta:         { pt: "Erro ao excluir conta. Tente novamente.", en: "Error deleting account. Please try again." },
+        };
+
+        function t(chave) {
+            const entrada = dicionario[chave];
+            return idiomaAtual === "en" ? entrada.en : entrada.pt;
+        }
+
+
+        // =========================
+        // COPIAR CÓDIGO DO TERAPEUTA
+        // =========================
+
+        function copiarCodigo() {
+            const codigo = document.getElementById("codigoTerapeuta").textContent;
+            if (!codigo || codigo === "---") return;
+
+            navigator.clipboard.writeText(codigo).then(() => {
+                const icone = document.querySelector("#btnCodigoCopiar .fa-copy");
+                if (icone) {
+                    icone.classList.remove("fa-regular", "fa-copy");
+                    icone.classList.add("fa-solid", "fa-check");
+                    setTimeout(() => {
+                        icone.classList.remove("fa-solid", "fa-check");
+                        icone.classList.add("fa-regular", "fa-copy");
+                    }, 2000);
+                }
+            });
+        }
+
 
         // =========================
         // CARREGAR DADOS DO TOPO
@@ -260,7 +305,9 @@
                 if (!resposta.ok) return;
                 const dados = await resposta.json();
 
-                document.getElementById("nomeTerapeuta").textContent = dados.nome || "Terapeuta";
+                document.getElementById("nomeTerapeuta").textContent   = dados.nome || "Terapeuta";
+                document.getElementById("codigoTerapeuta").textContent = dados.codigoTerapeuta || "---";
+
                 if (dados.fotoPerfil) document.getElementById("fotoUsuario").src = dados.fotoPerfil;
 
                 const badge = document.getElementById("badgeNotificacoes");
@@ -319,7 +366,7 @@
         document.getElementById("btnEnviarSenha").addEventListener("click", async () => {
             const btn = document.getElementById("btnEnviarSenha");
             btn.disabled    = true;
-            btn.textContent = "Enviando...";
+            btn.textContent = t("enviando");
             try {
                 // busca o email do usuário logado e envia o link
                 const me = await fetch("/api/home-terapeuta").then(r => r.json());
@@ -329,9 +376,9 @@
                     body:    JSON.stringify({ email: me.email })
                 });
                 document.getElementById("msgEmailSenha").style.display = "block";
-                btn.textContent = "Enviado!";
+                btn.textContent = t("enviado");
             } catch (_) {
-                btn.textContent = "Erro — tente de novo";
+                btn.textContent = t("erroEnviar");
                 btn.disabled    = false;
             }
         });
@@ -358,9 +405,9 @@
             try {
                 const resposta = await fetch("/api/conta/excluir", { method: "DELETE" });
                 if (resposta.ok) window.location.href = "/";
-                else alert("Erro ao excluir conta. Tente novamente.");
+                else alert(t("erroExcluirConta"));
             } catch (_) {
-                alert("Erro ao excluir conta. Tente novamente.");
+                alert(t("erroExcluirConta"));
             }
         });
 
@@ -392,7 +439,7 @@
                 const itens = dados.notificacoes || [];
 
                 listaNotificacoes.innerHTML = itens.length === 0
-                    ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+                    ? `<div class="painel-vazio">${t("semNotificacoes")}</div>`
                     : itens.map(item => `
                         <div class="item-notificacao ${item.lida ? "" : "nao-lida"}">
                             <p>${item.mensagem}</p>
@@ -400,7 +447,7 @@
                         </div>
                     `).join("");
             } catch (_) {
-                listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar.</div>`;
+                listaNotificacoes.innerHTML = `<div class="painel-vazio">${t("erroCarregarNotif")}</div>`;
             }
         }
 
@@ -422,38 +469,27 @@
 
 
         // =========================
-        // TRADUÇÃO
+        // TRADUÇÃO MANUAL
         // =========================
-        function lerCookie(nome) {
-            const valor  = `; ${document.cookie}`;
-            const partes = valor.split(`; ${nome}=`);
-            if (partes.length === 2) return partes.pop().split(";").shift();
-            return null;
-        }
 
-        function iniciarTradutor() {
-            new google.translate.TranslateElement(
-                { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
-                "google_translate_element"
-            );
-        }
+        function aplicarIdiomaEstatico() {
+            document.querySelectorAll("[data-pt]").forEach(el => {
+                el.textContent = idiomaAtual === "en"
+                    ? (el.dataset.en || el.dataset.pt)
+                    : el.dataset.pt;
+            });
 
-        function atualizarTextoBotao() {
-            const cookieAtual = lerCookie("googtrans");
             document.getElementById("textoTradutor").textContent =
-                cookieAtual && cookieAtual.includes("/en")
-                    ? "Voltar para português"
-                    : "Traduzir para inglês";
+                idiomaAtual === "en" ? "Traduzir para português" : "Traduzir para inglês";
         }
 
         document.getElementById("btnTraduzir").addEventListener("click", () => {
-            const cookieAtual   = lerCookie("googtrans");
-            const estaTraduzido = cookieAtual && cookieAtual.includes("/en");
-            const valor = `/pt/${estaTraduzido ? "pt" : "en"}`;
-            document.cookie = `googtrans=${valor}; path=/`;
-            document.cookie = `googtrans=${valor}; path=/; domain=${location.hostname}`;
-            window.location.reload();
+            idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+            localStorage.setItem("idioma", idiomaAtual);
+            aplicarIdiomaEstatico();
         });
+
+        aplicarIdiomaEstatico();
 
 
         // =========================
@@ -476,7 +512,6 @@
         // =========================
         const temaSalvo = localStorage.getItem("tema") || "claro";
         aplicarTema(temaSalvo);
-        atualizarTextoBotao();
         carregarUsuario();
         carregarPreferencias();
 
