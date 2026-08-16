@@ -3605,6 +3605,7 @@ app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
 
         const terapeutaId = req.session.usuarioId || (req.user && req.user.id);
         const pacienteId  = parseInt(req.query.paciente);
+        const dataQuery   = req.query.data; // "YYYY-MM-DD", opcional (vem do calendário)
 
         if (!terapeutaId) {
             return res.status(401).json({ erro: "Não autenticado." });
@@ -3636,6 +3637,45 @@ app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
         );
 
         const nomePaciente = crianca.rows[0]?.nome || "Paciente";
+
+        // =====================================================
+        // MODO DIA ESPECÍFICO — usado pelo calendário
+        // =====================================================
+        if (dataQuery) {
+
+            const relatorioDia = await db.query(
+                `SELECT respostas, data FROM relatorios
+                 WHERE usuario_id = $1 AND DATE(data) = $2
+                 LIMIT 1`,
+                [pacienteId, dataQuery]
+            );
+
+            const temRelatorio = relatorioDia.rows.length > 0;
+            let perguntas      = [];
+            let dataFormatada  = null;
+
+            if (temRelatorio) {
+                const row     = relatorioDia.rows[0];
+                perguntas     = typeof row.respostas === "string" ? JSON.parse(row.respostas) : row.respostas;
+                dataFormatada = new Date(row.data).toLocaleDateString("pt-BR", {
+                    weekday: "long", day: "numeric", month: "long", year: "numeric"
+                });
+            }
+
+            const notaDia = await db.query(
+                `SELECT texto FROM notas_clinicas
+                 WHERE terapeuta_id = $1 AND paciente_id = $2 AND data_referencia = $3`,
+                [terapeutaId, pacienteId, dataQuery]
+            );
+
+            return res.json({
+                nomePaciente,
+                temRelatorio,
+                dataFormatada,
+                perguntas,
+                nota: notaDia.rows[0]?.texto || ""
+            });
+        }
 
         // Alertas do mês atual
         const alertasMes = await db.query(
@@ -3685,30 +3725,16 @@ app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
                 SELECT DATE(data) AS dia, COUNT(*) AS total
                 FROM relatorios
                 WHERE usuario_id = $1
-                ${filtroAlerta}
                 GROUP BY DATE(data)
             ) cnt USING (dia)
             ORDER BY dia`,
-            [usuarioId]
+            [pacienteId]
         );
 
         const diasSemanaPt = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
         const labelsEstresse = estresseDias.rows.map(r => diasSemanaPt[new Date(r.dia).getUTCDay()]);
         const dadosEstresse  = estresseDias.rows.map(r => parseInt(r.total));
-
-        // Notas clínicas desse paciente feitas por esse terapeuta
-        const notas = await db.query(
-            `SELECT n.texto,
-                    TO_CHAR(n.criado_em, 'DD/MM/YYYY') AS data,
-                    u.nome AS nome_terapeuta
-             FROM notas_clinicas n
-             JOIN usuarios u ON u.id = n.terapeuta_id
-             WHERE n.paciente_id  = $1
-             AND   n.terapeuta_id = $2
-             ORDER BY n.criado_em DESC`,
-            [pacienteId, terapeutaId]
-        );
 
         res.json({
             nomePaciente,
@@ -3727,17 +3753,56 @@ app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
                 labels: ["Ambientes barulhentos","Locais lotados","Mudanças de rotina","Texturas"],
                 dados:  [42, 28, 18, 12],
                 cores:  ["#32C26D","#0AB7FB","#1D8EC9","#C2C2C2"]
-            },
-
-            notas: notas.rows.map(n => ({
-                data:          n.data,
-                nomeTerapeuta: n.nome_terapeuta,
-                texto:         n.texto
-            }))
+            }
         });
 
     } catch (erro) {
         console.log("Erro na rota /api/relatorio-paciente:", erro);
+        res.status(500).json({ erro: "Erro interno do servidor." });
+    }
+
+});
+
+app.get("/api/relatorio-paciente/dias", estaLogado, async (req, res) => {
+
+    try {
+
+        const terapeutaId = req.session.usuarioId || (req.user && req.user.id);
+        const pacienteId  = parseInt(req.query.paciente);
+        const mes         = req.query.mes; // "YYYY-MM"
+
+        if (!terapeutaId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        if (!pacienteId || !mes) {
+            return res.status(400).json({ erro: "Parâmetros inválidos." });
+        }
+
+        const vinculo = await db.query(
+            `SELECT id FROM vinculos
+             WHERE terapeuta_id = $1 AND responsavel_id = $2 AND ativo = TRUE`,
+            [terapeutaId, pacienteId]
+        );
+
+        if (vinculo.rows.length === 0) {
+            return res.status(403).json({ erro: "Você não tem vínculo com esse paciente." });
+        }
+
+        const resultado = await db.query(
+            `SELECT DISTINCT DATE(data) AS dia
+             FROM relatorios
+             WHERE usuario_id = $1
+             AND TO_CHAR(data, 'YYYY-MM') = $2`,
+            [pacienteId, mes]
+        );
+
+        res.json({
+            dias: resultado.rows.map(r => r.dia.toISOString().split("T")[0])
+        });
+
+    } catch (erro) {
+        console.log("Erro na rota /api/relatorio-paciente/dias:", erro);
         res.status(500).json({ erro: "Erro interno do servidor." });
     }
 
@@ -3832,9 +3897,9 @@ app.post("/api/nota-clinica", estaLogado, async (req, res) => {
             return res.status(401).json({ erro: "Não autenticado." });
         }
 
-        const { pacienteId, texto } = req.body;
+        const { pacienteId, texto, data } = req.body;
 
-        if (!pacienteId || !texto?.trim()) {
+        if (!pacienteId || !texto?.trim() || !data) {
             return res.status(400).json({ erro: "Dados inválidos." });
         }
 
@@ -3850,9 +3915,11 @@ app.post("/api/nota-clinica", estaLogado, async (req, res) => {
         }
 
         await db.query(
-            `INSERT INTO notas_clinicas (terapeuta_id, paciente_id, texto)
-             VALUES ($1, $2, $3)`,
-            [terapeutaId, parseInt(pacienteId), texto.trim()]
+            `INSERT INTO notas_clinicas (terapeuta_id, paciente_id, data_referencia, texto)
+             VALUES ($1, $2, $3, $4)
+             ON CONFLICT (terapeuta_id, paciente_id, data_referencia)
+             DO UPDATE SET texto = EXCLUDED.texto, criado_em = NOW()`,
+            [terapeutaId, parseInt(pacienteId), data, texto.trim()]
         );
 
         return res.status(201).json({ mensagem: "Nota salva com sucesso." });
