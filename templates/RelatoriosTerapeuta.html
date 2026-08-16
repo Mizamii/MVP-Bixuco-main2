@@ -358,6 +358,15 @@
 
                     <div>
                         <h1><span data-pt="Relatórios de" data-en="Reports for">Relatórios de</span> <span id="nomePaciente">...</span></h1>
+
+                        <div class="abas">
+                            <button id="btnVisao" class="ativa" type="button" data-pt="Visão geral" data-en="Overview">
+                                Visão geral
+                            </button>
+                            <button id="btnDiario" type="button" data-pt="Diário" data-en="Daily">
+                                Diário
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -368,6 +377,11 @@
                 >
 
             </div>
+
+            <!-- ================================= -->
+            <!-- ABA — VISÃO GERAL -->
+            <!-- ================================= -->
+            <section id="abaVisao" class="aba-conteudo ativa">
 
             <!-- ========================= -->
             <!-- CARDS DE RESUMO -->
@@ -437,6 +451,13 @@
 
             </section>
 
+            </section><!-- fim #abaVisao -->
+
+            <!-- ================================= -->
+            <!-- ABA — DIÁRIO -->
+            <!-- ================================= -->
+            <section id="abaDiario" class="aba-conteudo" style="display: none;">
+
             <!-- ========================= -->
             <!-- CALENDÁRIO DE RELATÓRIOS POR DIA -->
             <!-- ========================= -->
@@ -483,6 +504,8 @@
                 </p>
 
             </section>
+
+            </section><!-- fim #abaDiario -->
 
         </div><!-- fim .conteudo-corpo -->
 
@@ -1070,6 +1093,28 @@
 
     document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema("claro"));
     document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
+
+    // =========================
+    // ALTERNAR ABAS
+    // =========================
+    const btnVisao  = document.getElementById("btnVisao");
+    const btnDiario = document.getElementById("btnDiario");
+    const abaVisao  = document.getElementById("abaVisao");
+    const abaDiario = document.getElementById("abaDiario");
+
+    btnVisao.addEventListener("click", () => {
+        btnVisao.classList.add("ativa");
+        btnDiario.classList.remove("ativa");
+        abaVisao.style.display  = "block";
+        abaDiario.style.display = "none";
+    });
+
+    btnDiario.addEventListener("click", () => {
+        btnDiario.classList.add("ativa");
+        btnVisao.classList.remove("ativa");
+        abaVisao.style.display  = "none";
+        abaDiario.style.display = "block";
+    });
 
     // =========================
     // INICIALIZAÇÃO
