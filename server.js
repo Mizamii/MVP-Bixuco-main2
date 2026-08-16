@@ -1806,27 +1806,31 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
                     : `↓ ${Math.abs(diffAlertas)} comparado à semana passada`;
 
         // =====================
-        // GRÁFICO DE BARRAS — ESTRESSE POR DIA (últimos 7 dias)
+        // =====================
+        // GRÁFICO DE BARRAS — ESTRESSE POR DIA (nesta semana, dom-sáb)
         // 🔧 Agora só entra no gráfico o dia em que houve alerta (Sim)
         // =====================
 
         const estresseDias = await db.query(
-            `SELECT
+            `WITH semana AS (
+                SELECT date_trunc('week', (NOW() AT TIME ZONE 'America/Sao_Paulo')::date) - INTERVAL '1 day' AS inicio
+            )
+            SELECT
                 dia,
                 COALESCE(cnt.total, 0) AS total
-            FROM generate_series(
-                CURRENT_DATE - INTERVAL '6 days',
-                CURRENT_DATE,
+            FROM semana, generate_series(
+                semana.inicio,
+                semana.inicio + INTERVAL '6 days',
                 INTERVAL '1 day'
             ) AS dia
             LEFT JOIN (
-                SELECT DATE(data) AS dia, COUNT(*) AS total
+                SELECT DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') AS dia, COUNT(*) AS total
                 FROM relatorios
                 WHERE usuario_id = $1
-                GROUP BY DATE(data)
+                GROUP BY DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')
             ) cnt USING (dia)
             ORDER BY dia`,
-            [pacienteId]
+            [usuarioId]
         );
 
         const diasSemanaPt = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
@@ -1872,7 +1876,7 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
                 ) AS lotados
             FROM relatorios
             WHERE usuario_id = $1
-            AND data >= NOW() - INTERVAL '7 days'`,
+            AND date_trunc('week', (data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')::date) = date_trunc('week', (NOW() AT TIME ZONE 'America/Sao_Paulo')::date)`,
             [usuarioId]
         );
 
@@ -1916,33 +1920,41 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
         }
 
         // =====================
-        // GRÁFICO DE LINHA — EVOLUÇÃO (últimos 7 dias)
+        // GRÁFICO DE LINHA — EVOLUÇÃO (nesta semana, dom-sáb)
+        // 🔧 Consulta original tinha SQL inválido (parênteses/FROM
+        // ausentes); corrigida mantendo a mesma lógica pretendida.
         // =====================
 
         const evolucaoDias = await db.query(
-            `SELECT
-                dia,
-                COALESCE((
-                    SELECT CASE x->>'resposta'
-                        WHEN 'Nenhuma'      THEN 0
-                        WHEN 'Poucas'       THEN 1
-                        WHEN 'Algumas'      THEN 2
-                        WHEN 'Sim, várias'  THEN 3
-                        ELSE NULL
-                    END
-                    FROM generate_series(
-                        (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '6 days',
-                        (NOW() AT TIME ZONE 'America/Sao_Paulo')::date,
-                        INTERVAL '1 day'
-                    ) AS dia
-                    LEFT JOIN (
-                        SELECT DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') AS dia, COUNT(*) AS total
-                        FROM relatorios
-                        WHERE usuario_id = $1
-                        ${filtroAlerta}
-                        GROUP BY DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')
-                    ) cnt USING (dia)
-                    ORDER BY dia`,
+            `WITH semana AS (
+                SELECT date_trunc('week', (NOW() AT TIME ZONE 'America/Sao_Paulo')::date) - INTERVAL '1 day' AS inicio
+            ),
+            dias AS (
+                SELECT dia FROM semana, generate_series(semana.inicio, semana.inicio + INTERVAL '6 days', INTERVAL '1 day') AS dia
+            ),
+            niveis AS (
+                SELECT
+                    DATE(r.data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') AS dia,
+                    MAX(
+                        CASE x->>'resposta'
+                            WHEN 'Nenhuma'      THEN 0
+                            WHEN 'Poucas'       THEN 1
+                            WHEN 'Algumas'      THEN 2
+                            WHEN 'Sim, várias'  THEN 3
+                            ELSE NULL
+                        END
+                    ) AS nivel_estresse
+                FROM relatorios r
+                LEFT JOIN LATERAL jsonb_array_elements(r.respostas) AS x ON true
+                WHERE r.usuario_id = $1
+                GROUP BY DATE(r.data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')
+            )
+            SELECT
+                d.dia,
+                n.nivel_estresse
+            FROM dias d
+            LEFT JOIN niveis n USING (dia)
+            ORDER BY d.dia`,
             [usuarioId]
         );
 
