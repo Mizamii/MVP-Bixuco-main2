@@ -230,13 +230,13 @@
             <div class="cards-relatorio">
 
                 <div class="card">
-                    <h3 data-pt="Alertas de estresse neste mês" data-en="Stress alerts this month">Alertas de estresse neste mês</h3>
+                    <h3 data-pt="Alertas de estresse nesta semana" data-en="Stress alerts this week">Alertas de estresse nesta semana</h3>
                     <span id="alertasEstresse" class="valor-destaque">0</span>
-                    <p id="comparativoAlertas">registrados este mês</p>
+                    <p id="comparativoAlertas">registrados nesta semana</p>
                 </div>
 
                 <div class="card">
-                    <h3 data-pt="Tempo de estresse médio neste mês" data-en="Average stress time this month">Tempo de estresse médio neste mês</h3>
+                    <h3 data-pt="Tempo de estresse médio nesta semana" data-en="Average stress time this week">Tempo de estresse médio nesta semana</h3>
                     <span id="tempoEstresse" class="valor-destaque">0 min</span>
                     <p id="comparativoTempo">por episódio</p>
                 </div>
@@ -407,8 +407,8 @@
     let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
     const dicionario = {
-        "registrados este mês":                "registered this month",
-        "igual ao mês passado":                 "same as last month",
+        "registrados nesta semana":             "registered this week",
+        "igual à semana passada":               "same as last week",
         "por episódio":                         "per episode",
         "igual a ontem":                        "same as yesterday",
         "registrados hoje":                     "registered today",
@@ -431,7 +431,7 @@
         if (dicionario[texto]) return dicionario[texto];
 
         return String(texto)
-            .replace("comparado ao mês passado", "compared to last month")
+            .replace("comparado à semana passada", "compared to last week")
             .replace("comparado a ontem", "compared to yesterday");
     }
 
@@ -530,9 +530,9 @@
 
         const dadosExemplo = {
             alertas: 18,
-            comparativoAlertas: "↓ 2 comparado ao mês passado",
+            comparativoAlertas: "↓ 2 comparado à semana passada",
             tempo: "120 min",
-            comparativoTempo: "↑ 1 min comparado ao mês passado",
+            comparativoTempo: "↑ 1 min comparado à semana passada",
 
             graficoEstresse: {
                 labels: ["Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui"],
@@ -585,7 +585,7 @@
             dados.alertas ?? 0;
 
         document.getElementById("comparativoAlertas").textContent =
-            traduzir(dados.comparativoAlertas || "registrados este mês");
+            traduzir(dados.comparativoAlertas || "registrados nesta semana");
 
         document.getElementById("tempoEstresse").textContent =
             dados.tempo || "0 min";

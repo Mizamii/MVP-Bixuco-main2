@@ -1736,25 +1736,23 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
         `;
 
         // =====================
-        // ALERTAS DO MÊS
+        // ALERTAS DA SEMANA
         // =====================
 
-        const alertasMes = await db.query(
+        const alertasSemana = await db.query(
             `SELECT COUNT(*) AS total
              FROM relatorios
              WHERE usuario_id = $1
-             AND EXTRACT(MONTH FROM data) = EXTRACT(MONTH FROM NOW())
-             AND EXTRACT(YEAR FROM data)  = EXTRACT(YEAR FROM NOW())
+             AND date_trunc('week', (data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = date_trunc('week', (NOW() AT TIME ZONE 'America/Sao_Paulo'))
              ${filtroAlerta}`,
             [usuarioId]
         );
 
-        const alertasMesAnterior = await db.query(
+        const alertasSemanaAnterior = await db.query(
             `SELECT COUNT(*) AS total
              FROM relatorios
              WHERE usuario_id = $1
-             AND EXTRACT(MONTH FROM (data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(MONTH FROM NOW() - INTERVAL '1 month')
-             AND EXTRACT(YEAR FROM (data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo'))  = EXTRACT(YEAR FROM NOW() - INTERVAL '1 month')
+             AND date_trunc('week', (data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = date_trunc('week', (NOW() AT TIME ZONE 'America/Sao_Paulo') - INTERVAL '1 week')
              ${filtroAlerta}`,
             [usuarioId]
         );
@@ -1793,19 +1791,19 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
 
         const mediaHojeMs = parseFloat(tempoHojeResultado.rows[0].media_ms) || 0;
 
-        const totalMes         = parseInt(alertasMes.rows[0].total) || 0;
-        const totalMesAnterior = parseInt(alertasMesAnterior.rows[0].total) || 0;
-        const diffAlertas      = totalMes - totalMesAnterior;
+        const totalSemana         = parseInt(alertasSemana.rows[0].total) || 0;
+        const totalSemanaAnterior = parseInt(alertasSemanaAnterior.rows[0].total) || 0;
+        const diffAlertas      = totalSemana - totalSemanaAnterior;
 
         const comparativoAlertasDiario = diffDiario === 0 ? "igual a ontem" : diffDiario > 0 ? `↑ ${diffDiario} comparado a ontem` : `↓ ${Math.abs(diffDiario)} comparado a ontem`;
 
-        const comparativoAlertas = totalMesAnterior === 0
-            ? "registrados este mês"
+        const comparativoAlertas = totalSemanaAnterior === 0
+            ? "registrados nesta semana"
             : diffAlertas === 0
-                ? "igual ao mês passado"
+                ? "igual à semana passada"
                 : diffAlertas > 0
-                    ? `↑ ${diffAlertas} comparado ao mês passado`
-                    : `↓ ${Math.abs(diffAlertas)} comparado ao mês passado`;
+                    ? `↑ ${diffAlertas} comparado à semana passada`
+                    : `↓ ${Math.abs(diffAlertas)} comparado à semana passada`;
 
         // =====================
         // GRÁFICO DE BARRAS — ESTRESSE POR DIA (últimos 7 dias)
@@ -1991,30 +1989,28 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
         // TEMPO DE ESTRESSE (a partir dos eventos reais do Bixuco)
         // =====================
 
-        const tempoMesResultado = await db.query(
+        const tempoSemanaResultado = await db.query(
             `SELECT AVG(e.duracao_ms) AS media_ms
             FROM eventos_bixuco e
             JOIN criancas c ON c.id = e.crianca_id
             WHERE c.usuario_id = $1
             AND e.duracao_ms IS NOT NULL
-            AND EXTRACT(MONTH FROM e.criado_em) = EXTRACT(MONTH FROM NOW())
-            AND EXTRACT(YEAR FROM e.criado_em)  = EXTRACT(YEAR FROM NOW())`,
+            AND date_trunc('week', (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = date_trunc('week', (NOW() AT TIME ZONE 'America/Sao_Paulo'))`,
             [usuarioId]
         );
 
-        const tempoMesAnteriorResultado = await db.query(
+        const tempoSemanaAnteriorResultado = await db.query(
             `SELECT AVG(e.duracao_ms) AS media_ms
             FROM eventos_bixuco e
             JOIN criancas c ON c.id = e.crianca_id
             WHERE c.usuario_id = $1
             AND e.duracao_ms IS NOT NULL
-            AND EXTRACT(MONTH FROM e.criado_em) = EXTRACT(MONTH FROM NOW() - INTERVAL '1 month')
-            AND EXTRACT(YEAR FROM e.criado_em)  = EXTRACT(YEAR FROM NOW() - INTERVAL '1 month')`,
+            AND date_trunc('week', (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = date_trunc('week', (NOW() AT TIME ZONE 'America/Sao_Paulo') - INTERVAL '1 week')`,
             [usuarioId]
         );
 
-        const mediaMesMs         = parseFloat(tempoMesResultado.rows[0].media_ms) || 0;
-        const mediaMesAnteriorMs = parseFloat(tempoMesAnteriorResultado.rows[0].media_ms) || 0;
+        const mediaSemanaMs         = parseFloat(tempoSemanaResultado.rows[0].media_ms) || 0;
+        const mediaSemanaAnteriorMs = parseFloat(tempoSemanaAnteriorResultado.rows[0].media_ms) || 0;
 
         function formatarTempo(ms) {
             if (ms < 60000) {
@@ -2025,17 +2021,17 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
             return `${minutos} min`;
         }
 
-        const tempoFormatado    = formatarTempo(mediaMesMs);
+        const tempoFormatado    = formatarTempo(mediaSemanaMs);
         const tempoHojeFormatado = formatarTempo(mediaHojeMs);
-        const diffMinutos       = Math.round((mediaMesMs - mediaMesAnteriorMs) / 60000);
+        const diffMinutos       = Math.round((mediaSemanaMs - mediaSemanaAnteriorMs) / 60000);
 
-        const comparativoTempo = mediaMesAnteriorMs === 0
+        const comparativoTempo = mediaSemanaAnteriorMs === 0
             ? "por episódio"
             : diffMinutos === 0
-                ? "igual ao mês passado"
+                ? "igual à semana passada"
                 : diffMinutos > 0
-                    ? `↑ ${diffMinutos} min comparado ao mês passado`
-                    : `↓ ${Math.abs(diffMinutos)} min comparado ao mês passado`;
+                    ? `↑ ${diffMinutos} min comparado à semana passada`
+                    : `↓ ${Math.abs(diffMinutos)} min comparado à semana passada`;
 
         // =====================
         // RETORNA TUDO
@@ -2043,7 +2039,7 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
 
         res.json({
 
-            alertas:             totalMes,
+            alertas:             totalSemana,
             comparativoAlertas,
             alertasHoje:       totalHoje,
             comparativoAlertasDiario,
