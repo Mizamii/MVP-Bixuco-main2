@@ -230,13 +230,13 @@
             <div class="cards-relatorio">
 
                 <div class="card">
-                    <h3 data-pt="Alertas de estresse nesta semana" data-en="Stress alerts this week">Alertas de estresse nesta semana</h3>
+                    <h3 data-pt="Alertas de estresse neste mês" data-en="Stress alerts this month">Alertas de estresse neste mês</h3>
                     <span id="alertasEstresse" class="valor-destaque">0</span>
-                    <p id="comparativoAlertas">registrados nesta semana</p>
+                    <p id="comparativoAlertas">registrados este mês</p>
                 </div>
 
                 <div class="card">
-                    <h3 data-pt="Tempo de estresse médio nesta semana" data-en="Average stress time this week">Tempo de estresse médio nesta semana</h3>
+                    <h3 data-pt="Tempo de estresse médio neste mês" data-en="Average stress time this month">Tempo de estresse médio neste mês</h3>
                     <span id="tempoEstresse" class="valor-destaque">0 min</span>
                     <p id="comparativoTempo">por episódio</p>
                 </div>
@@ -249,7 +249,7 @@
                     <div class="titulo-card">
                         <h2>
                             <i class="fa-solid fa-chart-bar"></i>
-                            <span data-pt="Estresse — nesta semana" data-en="Stress — this week">Estresse — nesta semana</span>
+                            <span data-pt="Estresse — últimos 7 dias" data-en="Stress — last 7 days">Estresse — últimos 7 dias</span>
                         </h2>
                         <div class="btn-tipo-grafico">
                             <button type="button" class="ativo" onclick="trocarTipoEstresse('bar')" title="Barras">
@@ -267,7 +267,7 @@
                     <div class="titulo-card">
                         <h2>
                             <i class="fa-solid fa-circle-nodes"></i>
-                            <span data-pt="Principais gatilhos — nesta semana" data-en="Main triggers — this week">Principais gatilhos — nesta semana</span>
+                            <span data-pt="Principais gatilhos — últimos 7 dias" data-en="Main triggers — last 7 days">Principais gatilhos — últimos 7 dias</span>
                         </h2>
                         <div class="btn-tipo-grafico">
                             <button type="button" class="ativo" onclick="trocarTipoGatilhos('doughnut')" title="Rosca">
@@ -296,7 +296,7 @@
                     <div class="titulo-card">
                         <h2>
                             <i class="fa-solid fa-chart-line"></i>
-                            <span data-pt="Evolução de crises sensoriais — nesta semana" data-en="Sensory crisis evolution — this week">Evolução de crises sensoriais — nesta semana</span>
+                            <span data-pt="Evolução de crises sensoriais — últimos 7 dias" data-en="Sensory crisis evolution — last 7 days">Evolução de crises sensoriais — últimos 7 dias</span>
                         </h2>
                         <div class="btn-tipo-grafico">
                             <button type="button" class="ativo" onclick="trocarTipoEvolucao('line')" title="Linha">
@@ -407,8 +407,8 @@
     let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
     const dicionario = {
-        "registrados nesta semana":             "registered this week",
-        "igual à semana passada":               "same as last week",
+        "registrados este mês":                "registered this month",
+        "igual ao mês passado":                 "same as last month",
         "por episódio":                         "per episode",
         "igual a ontem":                        "same as yesterday",
         "registrados hoje":                     "registered today",
@@ -431,7 +431,7 @@
         if (dicionario[texto]) return dicionario[texto];
 
         return String(texto)
-            .replace("comparado à semana passada", "compared to last week")
+            .replace("comparado ao mês passado", "compared to last month")
             .replace("comparado a ontem", "compared to yesterday");
     }
 
@@ -530,9 +530,9 @@
 
         const dadosExemplo = {
             alertas: 18,
-            comparativoAlertas: "↓ 2 comparado à semana passada",
+            comparativoAlertas: "↓ 2 comparado ao mês passado",
             tempo: "120 min",
-            comparativoTempo: "↑ 1 min comparado à semana passada",
+            comparativoTempo: "↑ 1 min comparado ao mês passado",
 
             graficoEstresse: {
                 labels: ["Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui"],
@@ -585,7 +585,7 @@
             dados.alertas ?? 0;
 
         document.getElementById("comparativoAlertas").textContent =
-            traduzir(dados.comparativoAlertas || "registrados nesta semana");
+            traduzir(dados.comparativoAlertas || "registrados este mês");
 
         document.getElementById("tempoEstresse").textContent =
             dados.tempo || "0 min";

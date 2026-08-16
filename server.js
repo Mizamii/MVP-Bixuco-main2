@@ -1736,23 +1736,25 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
         `;
 
         // =====================
-        // ALERTAS DA SEMANA
+        // ALERTAS DO MÊS
         // =====================
 
-        const alertasSemana = await db.query(
+        const alertasMes = await db.query(
             `SELECT COUNT(*) AS total
              FROM relatorios
              WHERE usuario_id = $1
-             AND date_trunc('week', (data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = date_trunc('week', (NOW() AT TIME ZONE 'America/Sao_Paulo'))
+             AND EXTRACT(MONTH FROM data) = EXTRACT(MONTH FROM NOW())
+             AND EXTRACT(YEAR FROM data)  = EXTRACT(YEAR FROM NOW())
              ${filtroAlerta}`,
             [usuarioId]
         );
 
-        const alertasSemanaAnterior = await db.query(
+        const alertasMesAnterior = await db.query(
             `SELECT COUNT(*) AS total
              FROM relatorios
              WHERE usuario_id = $1
-             AND date_trunc('week', (data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = date_trunc('week', (NOW() AT TIME ZONE 'America/Sao_Paulo') - INTERVAL '1 week')
+             AND EXTRACT(MONTH FROM (data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(MONTH FROM NOW() - INTERVAL '1 month')
+             AND EXTRACT(YEAR FROM (data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo'))  = EXTRACT(YEAR FROM NOW() - INTERVAL '1 month')
              ${filtroAlerta}`,
             [usuarioId]
         );
@@ -1791,46 +1793,42 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
 
         const mediaHojeMs = parseFloat(tempoHojeResultado.rows[0].media_ms) || 0;
 
-        const totalSemana         = parseInt(alertasSemana.rows[0].total) || 0;
-        const totalSemanaAnterior = parseInt(alertasSemanaAnterior.rows[0].total) || 0;
-        const diffAlertas      = totalSemana - totalSemanaAnterior;
+        const totalMes         = parseInt(alertasMes.rows[0].total) || 0;
+        const totalMesAnterior = parseInt(alertasMesAnterior.rows[0].total) || 0;
+        const diffAlertas      = totalMes - totalMesAnterior;
 
         const comparativoAlertasDiario = diffDiario === 0 ? "igual a ontem" : diffDiario > 0 ? `↑ ${diffDiario} comparado a ontem` : `↓ ${Math.abs(diffDiario)} comparado a ontem`;
 
-        const comparativoAlertas = totalSemanaAnterior === 0
-            ? "registrados nesta semana"
+        const comparativoAlertas = totalMesAnterior === 0
+            ? "registrados este mês"
             : diffAlertas === 0
-                ? "igual à semana passada"
+                ? "igual ao mês passado"
                 : diffAlertas > 0
-                    ? `↑ ${diffAlertas} comparado à semana passada`
-                    : `↓ ${Math.abs(diffAlertas)} comparado à semana passada`;
+                    ? `↑ ${diffAlertas} comparado ao mês passado`
+                    : `↓ ${Math.abs(diffAlertas)} comparado ao mês passado`;
 
         // =====================
-        // =====================
-        // GRÁFICO DE BARRAS — ESTRESSE POR DIA (nesta semana, dom-sáb)
+        // GRÁFICO DE BARRAS — ESTRESSE POR DIA (últimos 7 dias)
         // 🔧 Agora só entra no gráfico o dia em que houve alerta (Sim)
         // =====================
 
         const estresseDias = await db.query(
-            `WITH semana AS (
-                SELECT date_trunc('week', (NOW() AT TIME ZONE 'America/Sao_Paulo')::date) - INTERVAL '1 day' AS inicio
-            )
-            SELECT
+            `SELECT
                 dia,
                 COALESCE(cnt.total, 0) AS total
-            FROM semana, generate_series(
-                semana.inicio,
-                semana.inicio + INTERVAL '6 days',
+            FROM generate_series(
+                CURRENT_DATE - INTERVAL '6 days',
+                CURRENT_DATE,
                 INTERVAL '1 day'
             ) AS dia
             LEFT JOIN (
-                SELECT DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') AS dia, COUNT(*) AS total
+                SELECT DATE(data) AS dia, COUNT(*) AS total
                 FROM relatorios
                 WHERE usuario_id = $1
-                GROUP BY DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')
+                GROUP BY DATE(data)
             ) cnt USING (dia)
             ORDER BY dia`,
-            [usuarioId]
+            [pacienteId]
         );
 
         const diasSemanaPt = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
@@ -1876,7 +1874,7 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
                 ) AS lotados
             FROM relatorios
             WHERE usuario_id = $1
-            AND date_trunc('week', (data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')::date) = date_trunc('week', (NOW() AT TIME ZONE 'America/Sao_Paulo')::date)`,
+            AND data >= NOW() - INTERVAL '7 days'`,
             [usuarioId]
         );
 
@@ -1920,41 +1918,33 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
         }
 
         // =====================
-        // GRÁFICO DE LINHA — EVOLUÇÃO (nesta semana, dom-sáb)
-        // 🔧 Consulta original tinha SQL inválido (parênteses/FROM
-        // ausentes); corrigida mantendo a mesma lógica pretendida.
+        // GRÁFICO DE LINHA — EVOLUÇÃO (últimos 7 dias)
         // =====================
 
         const evolucaoDias = await db.query(
-            `WITH semana AS (
-                SELECT date_trunc('week', (NOW() AT TIME ZONE 'America/Sao_Paulo')::date) - INTERVAL '1 day' AS inicio
-            ),
-            dias AS (
-                SELECT dia FROM semana, generate_series(semana.inicio, semana.inicio + INTERVAL '6 days', INTERVAL '1 day') AS dia
-            ),
-            niveis AS (
-                SELECT
-                    DATE(r.data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') AS dia,
-                    MAX(
-                        CASE x->>'resposta'
-                            WHEN 'Nenhuma'      THEN 0
-                            WHEN 'Poucas'       THEN 1
-                            WHEN 'Algumas'      THEN 2
-                            WHEN 'Sim, várias'  THEN 3
-                            ELSE NULL
-                        END
-                    ) AS nivel_estresse
-                FROM relatorios r
-                LEFT JOIN LATERAL jsonb_array_elements(r.respostas) AS x ON true
-                WHERE r.usuario_id = $1
-                GROUP BY DATE(r.data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')
-            )
-            SELECT
-                d.dia,
-                n.nivel_estresse
-            FROM dias d
-            LEFT JOIN niveis n USING (dia)
-            ORDER BY d.dia`,
+            `SELECT
+                dia,
+                COALESCE((
+                    SELECT CASE x->>'resposta'
+                        WHEN 'Nenhuma'      THEN 0
+                        WHEN 'Poucas'       THEN 1
+                        WHEN 'Algumas'      THEN 2
+                        WHEN 'Sim, várias'  THEN 3
+                        ELSE NULL
+                    END
+                    FROM generate_series(
+                        (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '6 days',
+                        (NOW() AT TIME ZONE 'America/Sao_Paulo')::date,
+                        INTERVAL '1 day'
+                    ) AS dia
+                    LEFT JOIN (
+                        SELECT DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') AS dia, COUNT(*) AS total
+                        FROM relatorios
+                        WHERE usuario_id = $1
+                        ${filtroAlerta}
+                        GROUP BY DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')
+                    ) cnt USING (dia)
+                    ORDER BY dia`,
             [usuarioId]
         );
 
@@ -2001,28 +1991,30 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
         // TEMPO DE ESTRESSE (a partir dos eventos reais do Bixuco)
         // =====================
 
-        const tempoSemanaResultado = await db.query(
+        const tempoMesResultado = await db.query(
             `SELECT AVG(e.duracao_ms) AS media_ms
             FROM eventos_bixuco e
             JOIN criancas c ON c.id = e.crianca_id
             WHERE c.usuario_id = $1
             AND e.duracao_ms IS NOT NULL
-            AND date_trunc('week', (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = date_trunc('week', (NOW() AT TIME ZONE 'America/Sao_Paulo'))`,
+            AND EXTRACT(MONTH FROM e.criado_em) = EXTRACT(MONTH FROM NOW())
+            AND EXTRACT(YEAR FROM e.criado_em)  = EXTRACT(YEAR FROM NOW())`,
             [usuarioId]
         );
 
-        const tempoSemanaAnteriorResultado = await db.query(
+        const tempoMesAnteriorResultado = await db.query(
             `SELECT AVG(e.duracao_ms) AS media_ms
             FROM eventos_bixuco e
             JOIN criancas c ON c.id = e.crianca_id
             WHERE c.usuario_id = $1
             AND e.duracao_ms IS NOT NULL
-            AND date_trunc('week', (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = date_trunc('week', (NOW() AT TIME ZONE 'America/Sao_Paulo') - INTERVAL '1 week')`,
+            AND EXTRACT(MONTH FROM e.criado_em) = EXTRACT(MONTH FROM NOW() - INTERVAL '1 month')
+            AND EXTRACT(YEAR FROM e.criado_em)  = EXTRACT(YEAR FROM NOW() - INTERVAL '1 month')`,
             [usuarioId]
         );
 
-        const mediaSemanaMs         = parseFloat(tempoSemanaResultado.rows[0].media_ms) || 0;
-        const mediaSemanaAnteriorMs = parseFloat(tempoSemanaAnteriorResultado.rows[0].media_ms) || 0;
+        const mediaMesMs         = parseFloat(tempoMesResultado.rows[0].media_ms) || 0;
+        const mediaMesAnteriorMs = parseFloat(tempoMesAnteriorResultado.rows[0].media_ms) || 0;
 
         function formatarTempo(ms) {
             if (ms < 60000) {
@@ -2033,17 +2025,17 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
             return `${minutos} min`;
         }
 
-        const tempoFormatado    = formatarTempo(mediaSemanaMs);
+        const tempoFormatado    = formatarTempo(mediaMesMs);
         const tempoHojeFormatado = formatarTempo(mediaHojeMs);
-        const diffMinutos       = Math.round((mediaSemanaMs - mediaSemanaAnteriorMs) / 60000);
+        const diffMinutos       = Math.round((mediaMesMs - mediaMesAnteriorMs) / 60000);
 
-        const comparativoTempo = mediaSemanaAnteriorMs === 0
+        const comparativoTempo = mediaMesAnteriorMs === 0
             ? "por episódio"
             : diffMinutos === 0
-                ? "igual à semana passada"
+                ? "igual ao mês passado"
                 : diffMinutos > 0
-                    ? `↑ ${diffMinutos} min comparado à semana passada`
-                    : `↓ ${Math.abs(diffMinutos)} min comparado à semana passada`;
+                    ? `↑ ${diffMinutos} min comparado ao mês passado`
+                    : `↓ ${Math.abs(diffMinutos)} min comparado ao mês passado`;
 
         // =====================
         // RETORNA TUDO
@@ -2051,7 +2043,7 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
 
         res.json({
 
-            alertas:             totalSemana,
+            alertas:             totalMes,
             comparativoAlertas,
             alertasHoje:       totalHoje,
             comparativoAlertasDiario,
