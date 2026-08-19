@@ -3720,25 +3720,32 @@ app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
         // GRÁFICO — ESTRESSE ÚLTIMOS 7 DIAS (eventos reais do Bixuco, 7 dias fixos)
         // =====================
 
+        // =====================
+        // GRÁFICO DE BARRAS — ESTRESSE POR DIA (últimos 7 dias)
+        // =====================
+
         const estresseDias = await db.query(
-            `SELECT dia, COALESCE(cnt.total, 0) AS total
-             FROM generate_series(
+            `SELECT
+                dia,
+                COALESCE(cnt.total, 0) AS total
+            FROM generate_series(
                 CURRENT_DATE - INTERVAL '6 days',
                 CURRENT_DATE,
                 INTERVAL '1 day'
-             ) AS dia
-             LEFT JOIN (
-                SELECT DATE(e.criado_em) AS dia, COUNT(*) AS total
+            ) AS dia
+            LEFT JOIN (
+                SELECT DATE(e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') AS dia, COUNT(*) AS total
                 FROM eventos_bixuco e
                 JOIN criancas c ON c.id = e.crianca_id
                 WHERE c.usuario_id = $1
-                GROUP BY DATE(e.criado_em)
-             ) cnt USING (dia)
-             ORDER BY dia`,
-            [pacienteId]
+                GROUP BY DATE(e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')
+            ) cnt USING (dia)
+            ORDER BY dia`,
+            [usuarioId]
         );
 
         const diasSemanaPt = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
         const labelsEstresse = estresseDias.rows.map(r => diasSemanaPt[new Date(r.dia).getUTCDay()]);
         const dadosEstresse  = estresseDias.rows.map(r => parseInt(r.total));
 
@@ -3755,7 +3762,7 @@ app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
              FROM relatorios
              WHERE usuario_id = $1
              AND data >= NOW() - INTERVAL '7 days'`,
-            [pacienteId]
+            [usuarioId]
         );
 
         const g = gatilhosRaw.rows[0];
