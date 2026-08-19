@@ -1922,41 +1922,103 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
         // =====================
 
         // =====================
-        // GRÁFICO DE LINHA — EVOLUÇÃO (últimos 7 dias)
+        // GRÁFICO DE LINHA — EVOLUÇÃO DE CRISES SENSORIAIS (últimos 7 dias)
+        // Índice combinado 0-10: 40% quantidade de eventos, 30% duração média,
+        // 20% força média (tudo do Bixuco/IoT) + 10% nível percebido no relatório.
+        // Normalização é dinâmica (relativa ao pico da própria janela de 7 dias),
+        // então funciona mesmo se a pergunta do relatório mudar/sumir no futuro.
         // =====================
 
-        const evolucaoDias = await db.query(
+        const eventosPorDia = await db.query(
             `SELECT
                 dia,
-                COALESCE(
-                    (
-                        SELECT CASE elem->>'resposta'
-                            WHEN 'Nenhuma'      THEN 0
-                            WHEN 'Poucas'       THEN 1
-                            WHEN 'Algumas'      THEN 2
-                            WHEN 'Sim, várias'  THEN 3
-                            ELSE NULL
-                        END
-                        FROM relatorios r
-                        CROSS JOIN LATERAL jsonb_array_elements(r.respostas) AS elem
-                        WHERE r.usuario_id = $1
-                        AND DATE(r.data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') = dia
-                        AND elem->>'id' = 'crises_sensoriais'
-                        LIMIT 1
-                    ), 0
+                COALESCE(cnt.total, 0)          AS eventos,
+                COALESCE(cnt.duracao_media, 0)  AS duracao_media,
+                COALESCE(cnt.forca_media, 0)    AS forca_media
+            FROM generate_series(
+                CURRENT_DATE - INTERVAL '6 days',
+                CURRENT_DATE,
+                INTERVAL '1 day'
+            ) AS dia
+            LEFT JOIN (
+                SELECT
+                    DATE(e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') AS dia,
+                    COUNT(*)             AS total,
+                    AVG(e.duracao_ms)    AS duracao_media,
+                    AVG(e.forca)         AS forca_media
+                FROM eventos_bixuco e
+                JOIN criancas c ON c.id = e.crianca_id
+                WHERE c.usuario_id = $1
+                GROUP BY DATE(e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')
+            ) cnt USING (dia)
+            ORDER BY dia`,
+            [usuarioId]
+        );
+
+        const percebidoPorDia = await db.query(
+            `SELECT
+                dia,
+                (
+                    SELECT CASE elem->>'resposta'
+                        WHEN 'Nenhuma'      THEN 0
+                        WHEN 'Poucas'       THEN 1
+                        WHEN 'Algumas'      THEN 2
+                        WHEN 'Sim, várias'  THEN 3
+                        ELSE NULL
+                    END
+                    FROM relatorios r
+                    CROSS JOIN LATERAL jsonb_array_elements(r.respostas) AS elem
+                    WHERE r.usuario_id = $1
+                    AND DATE(r.data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') = dia
+                    AND elem->>'id' = 'crises_sensoriais'
+                    LIMIT 1
                 ) AS nivel
             FROM generate_series(
-                (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '6 days',
-                (NOW() AT TIME ZONE 'America/Sao_Paulo')::date,
+                CURRENT_DATE - INTERVAL '6 days',
+                CURRENT_DATE,
                 INTERVAL '1 day'
             ) AS dia
             ORDER BY dia`,
             [usuarioId]
         );
 
-        const labelsEvolucao = evolucaoDias.rows.map(r => diasSemanaPt[new Date(r.dia).getUTCDay()]);
-        const dadosEvolucao  = evolucaoDias.rows.map(r => r.nivel);
+        // Junta os dois resultados por dia (índices batem pois os generate_series são iguais)
+        const diasCombinados = eventosPorDia.rows.map((linha, i) => ({
+            dia:           linha.dia,
+            eventos:       parseInt(linha.eventos) || 0,
+            duracaoMedia:  parseFloat(linha.duracao_media) || 0,
+            forcaMedia:    parseFloat(linha.forca_media) || 0,
+            percebido:     percebidoPorDia.rows[i]?.nivel ?? null
+        }));
 
+        function normalizar(valor, max) {
+            if (!max || max <= 0) return 0;
+            return Math.min(valor / max, 1);
+        }
+
+        const maxEventos  = Math.max(...diasCombinados.map(d => d.eventos), 1);
+        const maxDuracao  = Math.max(...diasCombinados.map(d => d.duracaoMedia), 1);
+        const maxForca    = Math.max(...diasCombinados.map(d => d.forcaMedia), 1);
+
+        const dadosEvolucao = diasCombinados.map(d => {
+
+            const eventosNorm   = normalizar(d.eventos, maxEventos);
+            const duracaoNorm   = normalizar(d.duracaoMedia, maxDuracao);
+            const forcaNorm     = normalizar(d.forcaMedia, maxForca);
+            const percebidoNorm = d.percebido !== null ? d.percebido / 3 : 0;
+
+            const indice = (
+                eventosNorm   * 0.4 +
+                duracaoNorm   * 0.3 +
+                forcaNorm     * 0.2 +
+                percebidoNorm * 0.1
+            ) * 10;
+
+            return Math.round(indice * 10) / 10; // 1 casa decimal
+
+        });
+
+        const labelsEvolucao = diasCombinados.map(d => diasSemanaPt[new Date(d.dia).getUTCDay()]);
 
         // =====================
         // ÚLTIMO RELATÓRIO DIÁRIO

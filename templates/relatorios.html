@@ -307,6 +307,9 @@
                             </button>
                         </div>
                     </div>
+                    <p style="font-size: 0.72rem; color: #999; margin-top: -0.5rem; margin-bottom: 0.5rem;" data-pt="Índice combinado: força, duração e frequência dos apertos captados pelo Bixuco, com pequeno ajuste do relatório diário" data-en="Combined index: grip force, duration and frequency captured by Bixuco, with a small adjustment from the daily report">
+                        Índice combinado: força, duração e frequência dos apertos captados pelo Bixuco, com pequeno ajuste do relatório diário
+                    </p>
                     <canvas id="graficoEvolucao"></canvas>
                 </div>
 
@@ -771,7 +774,7 @@
             data: {
                 labels: labelsArr,
                 datasets: [{
-                    label:           "Crises sensoriais",
+                    label:           "Índice de crise sensorial",
                     data:            dadosArr,
                     borderColor:     VERDE,
                     backgroundColor: tipo === "line" ? gradiente : VERDE,
@@ -788,9 +791,20 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (contexto) => `Índice: ${contexto.parsed.y.toFixed(1)} / 10`
+                        }
+                    }
+                },
                 scales: {
-                    y: { beginAtZero: true, ticks: { stepSize: 2 } }
+                    y: {
+                        beginAtZero: true,
+                        max: 10,
+                        ticks: { stepSize: 2 }
+                    }
                 }
             }
         });
