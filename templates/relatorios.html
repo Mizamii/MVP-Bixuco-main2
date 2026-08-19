@@ -142,7 +142,7 @@
 
             <button class="tradutor" type="button" id="btnTraduzir">
                 <i class="fa-solid fa-language"></i>
-                <span id="textoTradutor">EN</span>
+                <span id="textoTradutor">Traduzir para o inglês</span>
             </button>
 
             <div class="usuario">
@@ -446,7 +446,7 @@
         });
 
         document.getElementById("textoTradutor").textContent =
-            idiomaAtual === "en" ? "PT" : "EN";
+            idiomaAtual === "en" ? "Traduzir para o português" : "Translate to English";
     }
 
     document.getElementById("btnTraduzir").addEventListener("click", () => {
