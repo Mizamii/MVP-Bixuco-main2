@@ -1839,7 +1839,7 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
 
 
         // =====================
-        // GRÁFICO DE ROSCA — GATILHOS (aproximação)
+        // GRÁFICO — GATILHOS (resposta real do relatório diário, últimos 30 dias)
         // =====================
 
         const gatilhosRaw = await db.query(
@@ -1847,45 +1847,45 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
                 COUNT(*) FILTER (
                     WHERE EXISTS (
                         SELECT 1 FROM jsonb_array_elements(respostas) AS x
-                        WHERE x->>'id' = 'desconforto_texturas'
-                        AND x->>'resposta' IN ('Sempre', 'Quase sempre')
-                    )
-                ) AS texturas,
-                COUNT(*) FILTER (
-                    WHERE EXISTS (
-                        SELECT 1 FROM jsonb_array_elements(respostas) AS x
-                        WHERE x->>'id' = 'evitou_contato_visual'
-                        AND x->>'resposta' IN ('Sempre', 'Quase sempre')
+                        WHERE x->>'id' = 'gatilho_principal'
+                        AND x->>'resposta' = 'Ambientes barulhentos'
                     )
                 ) AS barulho,
                 COUNT(*) FILTER (
                     WHERE EXISTS (
                         SELECT 1 FROM jsonb_array_elements(respostas) AS x
-                        WHERE x->>'id' = 'atividades_propostas'
-                        AND x->>'resposta' IN ('Poucas', 'Nenhuma')
+                        WHERE x->>'id' = 'gatilho_principal'
+                        AND x->>'resposta' = 'Locais lotados'
+                    )
+                ) AS lotados,
+                COUNT(*) FILTER (
+                    WHERE EXISTS (
+                        SELECT 1 FROM jsonb_array_elements(respostas) AS x
+                        WHERE x->>'id' = 'gatilho_principal'
+                        AND x->>'resposta' = 'Mudança de rotina'
                     )
                 ) AS rotina,
                 COUNT(*) FILTER (
                     WHERE EXISTS (
                         SELECT 1 FROM jsonb_array_elements(respostas) AS x
-                        WHERE x->>'id' = 'interacao_social'
-                        AND x->>'resposta' IN ('Pouca', 'Nenhuma')
+                        WHERE x->>'id' = 'gatilho_principal'
+                        AND x->>'resposta' = 'Não identificado'
                     )
-                ) AS lotados
+                ) AS nao_identificado
             FROM relatorios
             WHERE usuario_id = $1
-            AND data >= NOW() - INTERVAL '7 days'`,
+            AND data >= NOW() - INTERVAL '30 days'`,
             [usuarioId]
         );
 
         const g = gatilhosRaw.rows[0];
 
-        const texturas = parseInt(g.texturas) || 0;
-        const barulho   = parseInt(g.barulho)  || 0;
-        const rotina    = parseInt(g.rotina)   || 0;
-        const lotados   = parseInt(g.lotados)  || 0;
+        const barulho         = parseInt(g.barulho)          || 0;
+        const lotados         = parseInt(g.lotados)          || 0;
+        const rotina          = parseInt(g.rotina)           || 0;
+        const naoIdentificado = parseInt(g.nao_identificado) || 0;
 
-        const totalGatilhos = texturas + barulho + rotina + lotados;
+        const totalGatilhos = barulho + lotados + rotina + naoIdentificado;
 
         let graficoGatilhos;
 
@@ -1903,14 +1903,14 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
                 labels: [
                     "Ambientes barulhentos",
                     "Locais lotados",
-                    "Mudanças de rotina",
-                    "Texturas de alimentos"
+                    "Mudança de rotina",
+                    "Não identificado"
                 ],
                 dados: [
-                    Math.round((barulho  / totalGatilhos) * 100),
-                    Math.round((lotados  / totalGatilhos) * 100),
-                    Math.round((rotina   / totalGatilhos) * 100),
-                    Math.round((texturas / totalGatilhos) * 100)
+                    Math.round((barulho         / totalGatilhos) * 100),
+                    Math.round((lotados         / totalGatilhos) * 100),
+                    Math.round((rotina          / totalGatilhos) * 100),
+                    Math.round((naoIdentificado / totalGatilhos) * 100)
                 ],
                 cores: ["#32C26D", "#0AB7FB", "#1D8EC9", "#C2C2C2"]
             };
@@ -3806,42 +3806,78 @@ app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
         const dadosEstresse  = estresseDias.rows.map(r => parseInt(r.total));
 
         // =====================
-        // GRÁFICO — GATILHOS (respostas do relatório diário, últimos 7 dias)
+        // GRÁFICO — GATILHOS (resposta real do relatório diário, últimos 30 dias)
         // =====================
 
         const gatilhosRaw = await db.query(
             `SELECT
-                COUNT(*) FILTER (WHERE EXISTS (SELECT 1 FROM jsonb_array_elements(respostas) AS x WHERE x->>'id' = 'desconforto_texturas' AND x->>'resposta' IN ('Sempre', 'Quase sempre'))) AS texturas,
-                COUNT(*) FILTER (WHERE EXISTS (SELECT 1 FROM jsonb_array_elements(respostas) AS x WHERE x->>'id' = 'evitou_contato_visual' AND x->>'resposta' IN ('Sempre', 'Quase sempre'))) AS barulho,
-                COUNT(*) FILTER (WHERE EXISTS (SELECT 1 FROM jsonb_array_elements(respostas) AS x WHERE x->>'id' = 'atividades_propostas' AND x->>'resposta' IN ('Poucas', 'Nenhuma'))) AS rotina,
-                COUNT(*) FILTER (WHERE EXISTS (SELECT 1 FROM jsonb_array_elements(respostas) AS x WHERE x->>'id' = 'interacao_social' AND x->>'resposta' IN ('Pouca', 'Nenhuma'))) AS lotados
+                COUNT(*) FILTER (
+                    WHERE EXISTS (
+                        SELECT 1 FROM jsonb_array_elements(respostas) AS x
+                        WHERE x->>'id' = 'gatilho_principal'
+                        AND x->>'resposta' = 'Ambientes barulhentos'
+                    )
+                ) AS barulho,
+                COUNT(*) FILTER (
+                    WHERE EXISTS (
+                        SELECT 1 FROM jsonb_array_elements(respostas) AS x
+                        WHERE x->>'id' = 'gatilho_principal'
+                        AND x->>'resposta' = 'Locais lotados'
+                    )
+                ) AS lotados,
+                COUNT(*) FILTER (
+                    WHERE EXISTS (
+                        SELECT 1 FROM jsonb_array_elements(respostas) AS x
+                        WHERE x->>'id' = 'gatilho_principal'
+                        AND x->>'resposta' = 'Mudança de rotina'
+                    )
+                ) AS rotina,
+                COUNT(*) FILTER (
+                    WHERE EXISTS (
+                        SELECT 1 FROM jsonb_array_elements(respostas) AS x
+                        WHERE x->>'id' = 'gatilho_principal'
+                        AND x->>'resposta' = 'Não identificado'
+                    )
+                ) AS nao_identificado
              FROM relatorios
              WHERE usuario_id = $1
-             AND data >= NOW() - INTERVAL '7 days'`,
-            [usuarioId]
+             AND data >= NOW() - INTERVAL '30 days'`,
+            [pacienteId]
         );
 
         const g = gatilhosRaw.rows[0];
-        const texturas = parseInt(g.texturas) || 0;
-        const barulho  = parseInt(g.barulho)  || 0;
-        const rotina   = parseInt(g.rotina)   || 0;
-        const lotados  = parseInt(g.lotados)  || 0;
-        const totalGatilhos = texturas + barulho + rotina + lotados;
+
+        const barulho         = parseInt(g.barulho)          || 0;
+        const lotados         = parseInt(g.lotados)          || 0;
+        const rotina          = parseInt(g.rotina)           || 0;
+        const naoIdentificado = parseInt(g.nao_identificado) || 0;
+
+        const totalGatilhos = barulho + lotados + rotina + naoIdentificado;
 
         let graficoGatilhos;
+
         if (totalGatilhos === 0) {
+
             graficoGatilhos = { labels: ["Sem dados suficientes ainda"], dados: [100], cores: ["#C2C2C2"] };
+
         } else {
+
             graficoGatilhos = {
-                labels: ["Ambientes barulhentos", "Locais lotados", "Mudanças de rotina", "Texturas de alimentos"],
+                labels: [
+                    "Ambientes barulhentos",
+                    "Locais lotados",
+                    "Mudança de rotina",
+                    "Não identificado"
+                ],
                 dados: [
-                    Math.round((barulho  / totalGatilhos) * 100),
-                    Math.round((lotados  / totalGatilhos) * 100),
-                    Math.round((rotina   / totalGatilhos) * 100),
-                    Math.round((texturas / totalGatilhos) * 100)
+                    Math.round((barulho         / totalGatilhos) * 100),
+                    Math.round((lotados         / totalGatilhos) * 100),
+                    Math.round((rotina          / totalGatilhos) * 100),
+                    Math.round((naoIdentificado / totalGatilhos) * 100)
                 ],
                 cores: ["#32C26D", "#0AB7FB", "#1D8EC9", "#C2C2C2"]
             };
+
         }
 
         res.json({
