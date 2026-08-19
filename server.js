@@ -1809,7 +1809,6 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
 
         // =====================
         // GRÁFICO DE BARRAS — ESTRESSE POR DIA (últimos 7 dias)
-        // 🔧 Agora só entra no gráfico o dia em que houve alerta (Sim)
         // =====================
 
         const estresseDias = await db.query(
@@ -1822,10 +1821,11 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
                 INTERVAL '1 day'
             ) AS dia
             LEFT JOIN (
-                SELECT DATE(data) AS dia, COUNT(*) AS total
-                FROM relatorios
-                WHERE usuario_id = $1
-                GROUP BY DATE(data)
+                SELECT DATE(e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') AS dia, COUNT(*) AS total
+                FROM eventos_bixuco e
+                JOIN criancas c ON c.id = e.crianca_id
+                WHERE c.usuario_id = $1
+                GROUP BY DATE(e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')
             ) cnt USING (dia)
             ORDER BY dia`,
             [usuarioId]
@@ -3716,13 +3716,7 @@ app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
                     ? `↑ ${diffMinutos} min comparado ao mês passado`
                     : `↓ ${Math.abs(diffMinutos)} min comparado ao mês passado`;
 
-        // =====================
-        // GRÁFICO — ESTRESSE ÚLTIMOS 7 DIAS (eventos reais do Bixuco, 7 dias fixos)
-        // =====================
 
-        // =====================
-        // GRÁFICO DE BARRAS — ESTRESSE POR DIA (últimos 7 dias)
-        // =====================
 
         const estresseDias = await db.query(
             `SELECT
