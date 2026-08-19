@@ -1828,7 +1828,7 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
                 GROUP BY DATE(data)
             ) cnt USING (dia)
             ORDER BY dia`,
-            [pacienteId]
+            [usuarioId]
         );
 
         const diasSemanaPt = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
@@ -1921,35 +1921,41 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
         // GRÁFICO DE LINHA — EVOLUÇÃO (últimos 7 dias)
         // =====================
 
+        // =====================
+        // GRÁFICO DE LINHA — EVOLUÇÃO (últimos 7 dias)
+        // =====================
+
         const evolucaoDias = await db.query(
             `SELECT
                 dia,
-                COALESCE((
-                    SELECT CASE x->>'resposta'
-                        WHEN 'Nenhuma'      THEN 0
-                        WHEN 'Poucas'       THEN 1
-                        WHEN 'Algumas'      THEN 2
-                        WHEN 'Sim, várias'  THEN 3
-                        ELSE NULL
-                    END
-                    FROM generate_series(
-                        (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '6 days',
-                        (NOW() AT TIME ZONE 'America/Sao_Paulo')::date,
-                        INTERVAL '1 day'
-                    ) AS dia
-                    LEFT JOIN (
-                        SELECT DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') AS dia, COUNT(*) AS total
-                        FROM relatorios
-                        WHERE usuario_id = $1
-                        ${filtroAlerta}
-                        GROUP BY DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')
-                    ) cnt USING (dia)
-                    ORDER BY dia`,
+                COALESCE(
+                    (
+                        SELECT CASE elem->>'resposta'
+                            WHEN 'Nenhuma'      THEN 0
+                            WHEN 'Poucas'       THEN 1
+                            WHEN 'Algumas'      THEN 2
+                            WHEN 'Sim, várias'  THEN 3
+                            ELSE NULL
+                        END
+                        FROM relatorios r
+                        CROSS JOIN LATERAL jsonb_array_elements(r.respostas) AS elem
+                        WHERE r.usuario_id = $1
+                        AND DATE(r.data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') = dia
+                        AND elem->>'id' = 'crises_sensoriais'
+                        LIMIT 1
+                    ), 0
+                ) AS nivel
+            FROM generate_series(
+                (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '6 days',
+                (NOW() AT TIME ZONE 'America/Sao_Paulo')::date,
+                INTERVAL '1 day'
+            ) AS dia
+            ORDER BY dia`,
             [usuarioId]
         );
 
         const labelsEvolucao = evolucaoDias.rows.map(r => diasSemanaPt[new Date(r.dia).getUTCDay()]);
-        const dadosEvolucao  = evolucaoDias.rows.map(r => r.nivel_estresse);
+        const dadosEvolucao  = evolucaoDias.rows.map(r => r.nivel);
 
 
         // =====================
