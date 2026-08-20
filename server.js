@@ -406,6 +406,13 @@ app.get("/onboarding-google", estaLogado, (req, res) => {
 
 });
 
+app.get('/FormularioEntrega', autenticado, (req, res) => res.sendFile(path.join(__dirname, 'templates/FormularioEntrega.html')));
+app.get('/PedidoConfirmado', autenticado, (req, res) => res.sendFile(path.join(__dirname, 'templates/PedidoConfirmado.html')));
+app.get('/AcompanharPedido', autenticado, (req, res) => res.sendFile(path.join(__dirname, 'templates/AcompanharPedido.html')));
+app.get('/BixucoEntregue', autenticado, (req, res) => res.sendFile(path.join(__dirname, 'templates/BixucoEntregue.html')));
+app.get('/VincularIdentidade', autenticado, (req, res) => res.sendFile(path.join(__dirname, 'templates/VincularIdentidade.html')));
+app.get('/VincularSucesso', autenticado, (req, res) => res.sendFile(path.join(__dirname, 'templates/VincularSucesso.html')));
+
 app.get("/PerfilTerapeuta", estaLogado, (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "PerfilTerapeuta.html"));
@@ -762,6 +769,101 @@ app.post("/api/planos/assinar", estaLogado, async (req, res) => {
 
 });
 
+
+app.post('/api/pedidos/endereco', autenticado, async (req, res) => {
+  const { cep, rua, numero, complemento, bairro, cidade, estado } = req.body;
+
+  await pool.query(
+    `INSERT INTO pedidos (usuario_id, cep, rua, numero, complemento, bairro, cidade, estado, codigo_rastreio, previsao_entrega)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+    [req.session.usuario_id, cep, rua, numero, complemento, bairro, cidade, estado,
+     'BR' + Math.floor(1000000000 + Math.random() * 9000000000),
+     new Date(Date.now() + 15 * 24 * 60 * 60 * 1000)] // +15 dias, exemplo
+  );
+
+  res.sendStatus(200);
+});
+
+app.get('/api/pedidos/status', autenticado, async (req, res) => {
+  const resultado = await pool.query(
+    'SELECT * FROM pedidos WHERE usuario_id = $1 ORDER BY id DESC LIMIT 1',
+    [req.session.usuario_id]
+  );
+
+  if (resultado.rows.length === 0) return res.status(404).json({});
+  res.json(resultado.rows[0]);
+});
+
+// GET /api/bixuco/status
+app.get('/api/bixuco/status', autenticado, async (req, res) => {
+  const dispositivo = await pool.query(
+    'SELECT * FROM dispositivos WHERE usuario_id = $1',
+    [req.session.usuario_id]
+  );
+
+  if (dispositivo.rows.length > 0) {
+    return res.json({ estado: 'vinculado' });
+  }
+
+  const pedido = await pool.query(
+    'SELECT * FROM pedidos WHERE usuario_id = $1 ORDER BY id DESC LIMIT 1',
+    [req.session.usuario_id]
+  );
+
+  if (pedido.rows.length === 0) {
+    return res.json({ estado: 'sem_pedido' });
+  }
+
+  if (pedido.rows[0].status !== 'entregue') {
+    return res.json({ estado: 'em_andamento', ...pedido.rows[0] });
+  }
+
+  return res.json({ estado: 'entregue_nao_vinculado' });
+});
+
+
+app.post('/api/dispositivos/vincular', autenticado, async (req, res) => {
+  const { device_id } = req.body; // ex: "bixuco_001"
+
+  if (!device_id || device_id.trim().length === 0) {
+    return res.status(400).json({ mensagem: 'Código do dispositivo é obrigatório.' });
+  }
+
+  try {
+    const dispositivo = await pool.query(
+      'SELECT * FROM dispositivos WHERE dispositivo_id = $1',
+      [device_id.trim()]
+    );
+
+    if (dispositivo.rows.length === 0) {
+      return res.status(404).json({ mensagem: 'Código não encontrado.' });
+    }
+
+    if (dispositivo.rows[0].usuario_id && dispositivo.rows[0].usuario_id !== req.session.usuario_id) {
+      return res.status(409).json({ mensagem: 'Este Bixuco já está vinculado a outra conta.' });
+    }
+
+    // Pega a crianca cadastrada dessa conta (ajuste se o responsável puder ter mais de uma)
+    const crianca = await pool.query(
+      'SELECT id FROM criancas WHERE usuario_id = $1 LIMIT 1',
+      [req.session.usuario_id]
+    );
+
+    if (crianca.rows.length === 0) {
+      return res.status(400).json({ mensagem: 'Cadastre uma criança antes de vincular o Bixuco.' });
+    }
+
+    await pool.query(
+      'UPDATE dispositivos SET usuario_id = $1, crianca_id = $2, vinculado_em = NOW() WHERE dispositivo_id = $3',
+      [req.session.usuario_id, crianca.rows[0].id, device_id.trim()]
+    );
+
+    res.sendStatus(200);
+  } catch (erro) {
+    console.log('Erro ao vincular dispositivo:', erro);
+    res.status(500).json({ mensagem: 'Erro no servidor. Tente novamente.' });
+  }
+});
 
 
 app.get("/pagamento/sucesso", estaLogado, async (req, res) => {

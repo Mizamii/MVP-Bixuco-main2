@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Pedido confirmado</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f4f6fa;
+    padding: 24px;
+  }
+
+  #card {
+    width: 100%;
+    max-width: 440px;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 36px;
+    text-align: center;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  }
+
+  #mascote {
+    width: 130px;
+    height: 130px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: #f1f3f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #mascote i {
+    font-size: 54px;
+    background: linear-gradient(135deg, #4ade80, #22d3ee);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  h1 { font-size: 22px; color: #1f2937; margin-bottom: 8px; }
+  #subtitulo { font-size: 14px; color: #6b7280; margin-bottom: 26px; line-height: 1.5; }
+
+  #timeline { text-align: left; margin-bottom: 26px; }
+
+  .etapa {
+    display: flex;
+    gap: 14px;
+    position: relative;
+    padding-bottom: 22px;
+  }
+
+  .etapa:last-child { padding-bottom: 0; }
+
+  .etapa::before {
+    content: "";
+    position: absolute;
+    left: 7px;
+    top: 18px;
+    bottom: -4px;
+    width: 2px;
+    background: #e5e7eb;
+  }
+
+  .etapa:last-child::before { display: none; }
+
+  .ponto {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #e5e7eb;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .etapa.concluida .ponto { background: #22c55e; }
+  .etapa.atual .ponto { background: #22d3ee; }
+
+  .etapa strong { display: block; font-size: 14px; color: #1f2937; }
+  .etapa span { font-size: 12px; color: #9ca3af; }
+
+  #previsao {
+    background: #ecfeff;
+    border: 1px solid #a5f3fc;
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-align: left;
+    margin-bottom: 24px;
+  }
+
+  #previsao span { font-size: 12px; color: #0891b2; font-weight: 600; }
+  #previsao strong { display: block; font-size: 16px; color: #0e7490; margin: 2px 0 4px; }
+  #previsao p { font-size: 12px; color: #6b7280; }
+
+  #btn-rastreamento {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #4ade80, #22d3ee);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+  <div id="card">
+    <div id="mascote"><i class="fa-solid fa-box-open"></i></div>
+
+    <h1>Pedido confirmado!</h1>
+    <p id="subtitulo">Seu Bixuco está sendo preparado com muito carinho pra vocês.</p>
+
+    <div id="timeline">
+      <div class="etapa concluida">
+        <div class="ponto"></div>
+        <div>
+          <strong>Pedido recebido!</strong>
+          <span>Recebemos seu pedido com sucesso.</span>
+        </div>
+      </div>
+      <div class="etapa atual">
+        <div class="ponto"></div>
+        <div>
+          <strong>Em produção</strong>
+          <span>Seu pedido está sendo preparado.</span>
+        </div>
+      </div>
+      <div class="etapa">
+        <div class="ponto"></div>
+        <div>
+          <strong>Enviado</strong>
+          <span>Ainda não enviado.</span>
+        </div>
+      </div>
+      <div class="etapa">
+        <div class="ponto"></div>
+        <div>
+          <strong>Em transporte</strong>
+          <span>Aguardando envio.</span>
+        </div>
+      </div>
+      <div class="etapa">
+        <div class="ponto"></div>
+        <div>
+          <strong>Entregue</strong>
+          <span>Aguardando entrega.</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="previsao">
+      <span>PREVISÃO DE ENTREGA</span>
+      <strong id="data-previsao">15 de junho de 2026</strong>
+      <p>Enviaremos um aviso quando seu Bixuco for enviado.</p>
+    </div>
+
+    <button id="btn-rastreamento" type="button">Ver rastreamento</button>
+  </div>
+
+<script>
+  document.getElementById('btn-rastreamento').addEventListener('click', () => {
+    window.location.href = '/AcompanharPedido';
+  });
+</script>
+
+</body>
+</html>

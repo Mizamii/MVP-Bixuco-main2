@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Identificar Bixuco</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f4f6fa;
+    padding: 24px;
+  }
+
+  #card {
+    width: 100%;
+    max-width: 420px;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 40px 36px;
+    text-align: center;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  }
+
+  #icon-wrap {
+    width: 88px;
+    height: 88px;
+    margin: 0 auto 24px;
+    border-radius: 50%;
+    background: #e3f6e5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #icon-wrap i {
+    font-size: 34px;
+    background: linear-gradient(90deg, #4ade80, #22d3ee);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  h1 {
+    font-size: 22px;
+    color: #1f2937;
+    margin-bottom: 8px;
+  }
+
+  #subtitle {
+    font-size: 14px;
+    color: #6b7280;
+    line-height: 1.5;
+    margin-bottom: 28px;
+  }
+
+  #campo-codigo {
+    text-align: left;
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 6px;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 13px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 15px;
+    letter-spacing: 1px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  input[type="text"]:focus {
+    border-color: #22d3ee;
+  }
+
+  #dica {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 6px;
+  }
+
+  #divisor {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #9ca3af;
+    font-size: 13px;
+    margin: 22px 0;
+  }
+
+  #divisor::before, #divisor::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #e5e7eb;
+  }
+
+  #btn-scan {
+    width: 100%;
+    padding: 13px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    color: #1f2937;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    transition: background 0.15s;
+  }
+
+  #btn-scan:hover {
+    background: #f9fafb;
+  }
+
+  #btn-continuar {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #4ade80, #22d3ee);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  #btn-continuar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  #link-ajuda {
+    display: block;
+    margin-top: 18px;
+    font-size: 13px;
+    color: #22d3ee;
+    text-decoration: none;
+  }
+
+  #link-ajuda:hover {
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+
+  <div id="card">
+    <div id="icon-wrap">
+      <i class="fa-solid fa-paw"></i>
+    </div>
+
+    <h1>Identifique seu Bixuco</h1>
+    <p id="subtitle">
+      Digite o código impresso na etiqueta do seu Bixuco ou na caixa de entrega para começar a vinculação.
+    </p>
+
+    <div id="campo-codigo">
+      <label for="codigo">Código do dispositivo</label>
+      <input type="text" id="codigo" placeholder="BX-XXXXXX" maxlength="12" autocomplete="off">
+      <div id="dica">O código fica na etiqueta costurada na pata do Bixuco.</div>
+    </div>
+
+    <div id="divisor">ou</div>
+
+    <button id="btn-scan" type="button">
+      <i class="fa-solid fa-qrcode"></i>
+      Escanear QR code
+    </button>
+
+    <button id="btn-continuar" type="button" disabled>Continuar</button>
+
+    <a id="link-ajuda" href="#">Não encontro o código do meu Bixuco</a>
+  </div>
+
+<script>
+  const input = document.getElementById('codigo');
+  const btnContinuar = document.getElementById('btn-continuar');
+
+  input.addEventListener('input', () => {
+    btnContinuar.disabled = input.value.trim().length < 4;
+  });
+
+  btnContinuar.addEventListener('click', async () => {
+    const codigo = input.value.trim();
+    try {
+      const resp = await fetch('/api/dispositivos/vincular', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ device_id: codigo })
+      });
+
+      if (resp.status === 401) {
+        window.location.href = '/logar';
+        return;
+      }
+
+      if (!resp.ok) {
+        const erro = await resp.json().catch(() => ({}));
+        alert(erro.mensagem || 'Não encontramos esse código. Confira e tente novamente.');
+        return;
+      }
+
+      window.location.href = '/VincularSucesso';
+    } catch (e) {
+      alert('Não foi possível conectar. Verifique sua internet e tente novamente.');
+    }
+  });
+
+  document.getElementById('btn-scan').addEventListener('click', () => {
+    // Placeholder: abrir modal/leitor de câmera para QR code
+    alert('Leitor de QR code em desenvolvimento.');
+  });
+</script>
+
+</body>
+</html>

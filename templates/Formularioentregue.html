@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Endereço de entrega — Bixuco</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+
+  body { background: #f4f6fa; min-height: 100vh; display: flex; }
+
+  #sidebar {
+    width: 240px;
+    background: #ffffff;
+    border-right: 1px solid #eef0f3;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  #logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 20px;
+    font-weight: 800;
+    color: #16a34a;
+    margin-bottom: 32px;
+  }
+
+  #logo i {
+    background: linear-gradient(135deg, #4ade80, #22d3ee);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-size: 24px;
+  }
+
+  nav ul { list-style: none; }
+
+  nav li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 12px;
+    border-radius: 10px;
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    cursor: pointer;
+  }
+
+  nav li.ativo {
+    background: #ecfdf3;
+    color: #16a34a;
+  }
+
+  nav li i { width: 18px; text-align: center; }
+
+  #theme-toggle {
+    margin-top: auto;
+    display: flex;
+    background: #f1f3f5;
+    border-radius: 20px;
+    padding: 4px;
+  }
+
+  #theme-toggle button {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 8px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #6b7280;
+    border-radius: 16px;
+    cursor: pointer;
+  }
+
+  #theme-toggle button.ativo {
+    background: #ffffff;
+    color: #1f2937;
+  }
+
+  #sair {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 4px 4px;
+    margin-top: 16px;
+    border-top: 1px solid #eef0f3;
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  #main { flex: 1; display: flex; flex-direction: column; }
+
+  #topbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 20px;
+    padding: 16px 32px;
+    background: #ffffff;
+    border-bottom: 1px solid #eef0f3;
+  }
+
+  #btn-traduzir {
+    border: 1px solid #bbf7d0;
+    color: #16a34a;
+    background: #ecfdf3;
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+  }
+
+  #usuario {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+  }
+
+  #usuario-info { line-height: 1.2; font-size: 13px; }
+  #usuario-info strong { display: block; color: #1f2937; }
+  #usuario-info span { color: #9ca3af; }
+
+  #conteudo {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 48px 24px;
+  }
+
+  #card-form {
+    width: 100%;
+    max-width: 620px;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+  }
+
+  #card-form h1 { font-size: 22px; color: #1f2937; margin-bottom: 6px; }
+  #card-form p { font-size: 14px; color: #6b7280; margin-bottom: 24px; }
+
+  #link-cep {
+    display: flex;
+    justify-content: flex-end;
+    font-size: 13px;
+    color: #22d3ee;
+    text-decoration: none;
+    margin-bottom: -6px;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 16px 0 6px;
+  }
+
+  input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 14px;
+    outline: none;
+  }
+
+  input:focus { border-color: #22d3ee; }
+
+  select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 14px;
+    background: #ffffff;
+    outline: none;
+  }
+
+  #linha-dupla {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  #linha-tripla {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+
+  #aviso-seguranca {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-top: 22px;
+    font-size: 13px;
+    color: #166534;
+  }
+
+  #aviso-seguranca i { color: #16a34a; font-size: 16px; }
+
+  #btn-continuar {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #4ade80, #22d3ee);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    margin-top: 22px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+  <div id="sidebar">
+    <div id="logo"><i class="fa-solid fa-cat"></i> BIXUCO</div>
+    <nav>
+      <ul>
+        <li class="ativo"><i class="fa-solid fa-house"></i> Início</li>
+        <li><i class="fa-solid fa-chart-line"></i> Relatórios</li>
+        <li><i class="fa-solid fa-gear"></i> Configurações</li>
+        <li><i class="fa-solid fa-circle-info"></i> Sobre</li>
+      </ul>
+    </nav>
+    <div id="theme-toggle">
+      <button class="ativo" type="button"><i class="fa-solid fa-sun"></i> Claro</button>
+      <button type="button"><i class="fa-solid fa-moon"></i> Escuro</button>
+    </div>
+    <div id="sair"><i class="fa-solid fa-right-from-bracket"></i> Sair</div>
+  </div>
+
+  <div id="main">
+    <div id="topbar">
+      <button id="btn-traduzir" type="button"><i class="fa-solid fa-globe"></i> Traduzir para o inglês</button>
+      <i class="fa-regular fa-bell" style="color:#6b7280;"></i>
+      <div id="usuario">
+        <div id="avatar"><i class="fa-solid fa-user"></i></div>
+        <div id="usuario-info">
+          <strong id="nome-usuario">Lucas</strong>
+          <span>Responsável</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="conteudo">
+      <div id="card-form">
+        <h1>Onde vamos entregar o Bixuco?</h1>
+        <p>Preencha o endereço para podermos entregá-lo</p>
+
+        <label for="cep">CEP</label>
+        <a id="link-cep" href="#">Não sei o meu CEP</a>
+        <input type="text" id="cep" placeholder="00000-000" maxlength="9">
+
+        <div id="linha-dupla">
+          <div>
+            <label for="rua">Rua</label>
+            <input type="text" id="rua" placeholder="Nome da rua">
+          </div>
+          <div>
+            <label for="numero">Número</label>
+            <input type="text" id="numero" placeholder="Nº">
+          </div>
+        </div>
+
+        <label for="complemento">Complemento</label>
+        <input type="text" id="complemento" placeholder="Apto, bloco, referência...">
+
+        <div id="linha-tripla">
+          <div>
+            <label for="bairro">Bairro</label>
+            <input type="text" id="bairro" placeholder="Bairro">
+          </div>
+          <div>
+            <label for="cidade">Cidade</label>
+            <input type="text" id="cidade" placeholder="Cidade">
+          </div>
+          <div>
+            <label for="estado">Estado</label>
+            <select id="estado">
+              <option value="SP" selected>SP</option>
+              <option value="RJ">RJ</option>
+              <option value="MG">MG</option>
+              <option value="PR">PR</option>
+              <option value="RS">RS</option>
+              <option value="OUTRO">Outro</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="aviso-seguranca">
+          <i class="fa-solid fa-shield-halved"></i>
+          <div>
+            <strong>Seus dados estão seguros</strong><br>
+            Usamos suas informações apenas para entrega do Bixuco
+          </div>
+        </div>
+
+        <button id="btn-continuar" type="button">Continuar</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  document.getElementById('cep').addEventListener('blur', async (e) => {
+    const cep = e.target.value.replace(/\D/g, '');
+    if (cep.length !== 8) return;
+
+    try {
+      const resp = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const dados = await resp.json();
+      if (dados.erro) return;
+
+      document.getElementById('rua').value = dados.logradouro || '';
+      document.getElementById('bairro').value = dados.bairro || '';
+      document.getElementById('cidade').value = dados.localidade || '';
+      document.getElementById('estado').value = dados.uf || 'SP';
+    } catch (err) {
+      console.error('Erro ao buscar CEP', err);
+    }
+  });
+
+  document.getElementById('btn-continuar').addEventListener('click', async () => {
+    const endereco = {
+      cep: document.getElementById('cep').value,
+      rua: document.getElementById('rua').value,
+      numero: document.getElementById('numero').value,
+      complemento: document.getElementById('complemento').value,
+      bairro: document.getElementById('bairro').value,
+      cidade: document.getElementById('cidade').value,
+      estado: document.getElementById('estado').value
+    };
+
+    try {
+      const resp = await fetch('/api/pedidos/endereco', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(endereco)
+      });
+
+      if (resp.status === 401) {
+        window.location.href = '/logar';
+        return;
+      }
+
+      if (!resp.ok) {
+        alert('Não foi possível salvar o endereço. Confira os campos e tente novamente.');
+        return;
+      }
+
+      window.location.href = '/PedidoConfirmado';
+    } catch (e) {
+      alert('Não foi possível conectar. Verifique sua internet e tente novamente.');
+    }
+  });
+</script>
+
+</body>
+</html>
