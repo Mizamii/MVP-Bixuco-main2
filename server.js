@@ -406,12 +406,30 @@ app.get("/onboarding-google", estaLogado, (req, res) => {
 
 });
 
-app.get('/FormularioEntrega', autenticado, (req, res) => res.sendFile(path.join(__dirname, 'templates/FormularioEntrega.html')));
-app.get('/PedidoConfirmado', autenticado, (req, res) => res.sendFile(path.join(__dirname, 'templates/PedidoConfirmado.html')));
-app.get('/AcompanharPedido', autenticado, (req, res) => res.sendFile(path.join(__dirname, 'templates/AcompanharPedido.html')));
-app.get('/BixucoEntregue', autenticado, (req, res) => res.sendFile(path.join(__dirname, 'templates/BixucoEntregue.html')));
-app.get('/VincularIdentidade', autenticado, (req, res) => res.sendFile(path.join(__dirname, 'templates/VincularIdentidade.html')));
-app.get('/VincularSucesso', autenticado, (req, res) => res.sendFile(path.join(__dirname, 'templates/VincularSucesso.html')));
+app.get("/FormularioEntrega", estaLogado, precisaPlano("Médio"), (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "FormularioEntrega.html"));
+});
+
+app.get("/PedidoConfirmado", estaLogado, precisaPlano("Médio"), (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "PedidoConfirmado.html"));
+});
+
+app.get("/AcompanharPedido", estaLogado, precisaPlano("Médio"), (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "AcompanharPedido.html"));
+});
+
+app.get("/BixucoEntregue", estaLogado, precisaPlano("Médio"), (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "BixucoEntregue.html"));
+});
+
+app.get("/VincularIdentidade", estaLogado, precisaPlano("Médio"), (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "VincularIdentidade.html"));
+});
+
+app.get("/VincularSucesso", estaLogado, precisaPlano("Médio"), (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "VincularSucesso.html"));
+});
+
 
 app.get("/PerfilTerapeuta", estaLogado, (req, res) => {
 
@@ -770,100 +788,119 @@ app.post("/api/planos/assinar", estaLogado, async (req, res) => {
 });
 
 
-app.post('/api/pedidos/endereco', autenticado, async (req, res) => {
-  const { cep, rua, numero, complemento, bairro, cidade, estado } = req.body;
+app.post('/api/pedidos/endereco', estaLogado, precisaPlano("Médio"), async (req, res) => {
+    const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+    const { cep, rua, numero, complemento, bairro, cidade, estado } = req.body;
 
-  await pool.query(
-    `INSERT INTO pedidos (usuario_id, cep, rua, numero, complemento, bairro, cidade, estado, codigo_rastreio, previsao_entrega)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
-    [req.session.usuario_id, cep, rua, numero, complemento, bairro, cidade, estado,
-     'BR' + Math.floor(1000000000 + Math.random() * 9000000000),
-     new Date(Date.now() + 15 * 24 * 60 * 60 * 1000)] // +15 dias, exemplo
-  );
+    try {
+        await db.query(
+            `INSERT INTO pedidos (usuario_id, cep, rua, numero, complemento, bairro, cidade, estado, codigo_rastreio, previsao_entrega)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+            [usuarioId, cep, rua, numero, complemento, bairro, cidade, estado,
+             'BR' + Math.floor(1000000000 + Math.random() * 9000000000),
+             new Date(Date.now() + 15 * 24 * 60 * 60 * 1000)]
+        );
 
-  res.sendStatus(200);
+        res.sendStatus(200);
+    } catch (erro) {
+        console.error("Erro ao salvar endereço:", erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
 });
 
-app.get('/api/pedidos/status', autenticado, async (req, res) => {
-  const resultado = await pool.query(
-    'SELECT * FROM pedidos WHERE usuario_id = $1 ORDER BY id DESC LIMIT 1',
-    [req.session.usuario_id]
-  );
+app.get('/api/pedidos/status', estaLogado, precisaPlano("Médio"), async (req, res) => {
+    const usuarioId = req.session.usuarioId || (req.user && req.user.id);
 
-  if (resultado.rows.length === 0) return res.status(404).json({});
-  res.json(resultado.rows[0]);
+    try {
+        const resultado = await db.query(
+            'SELECT * FROM pedidos WHERE usuario_id = $1 ORDER BY id DESC LIMIT 1',
+            [usuarioId]
+        );
+
+        if (resultado.rows.length === 0) return res.status(404).json({});
+        res.json(resultado.rows[0]);
+    } catch (erro) {
+        console.error("Erro ao buscar status do pedido:", erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
 });
 
-// GET /api/bixuco/status
-app.get('/api/bixuco/status', autenticado, async (req, res) => {
-  const dispositivo = await pool.query(
-    'SELECT * FROM dispositivos WHERE usuario_id = $1',
-    [req.session.usuario_id]
-  );
+app.get('/api/bixuco/status', estaLogado, precisaPlano("Médio"), async (req, res) => {
+    const usuarioId = req.session.usuarioId || (req.user && req.user.id);
 
-  if (dispositivo.rows.length > 0) {
-    return res.json({ estado: 'vinculado' });
-  }
+    try {
+        const dispositivo = await db.query(
+            'SELECT * FROM dispositivos WHERE usuario_id = $1',
+            [usuarioId]
+        );
 
-  const pedido = await pool.query(
-    'SELECT * FROM pedidos WHERE usuario_id = $1 ORDER BY id DESC LIMIT 1',
-    [req.session.usuario_id]
-  );
+        if (dispositivo.rows.length > 0) {
+            return res.json({ estado: 'vinculado' });
+        }
 
-  if (pedido.rows.length === 0) {
-    return res.json({ estado: 'sem_pedido' });
-  }
+        const pedido = await db.query(
+            'SELECT * FROM pedidos WHERE usuario_id = $1 ORDER BY id DESC LIMIT 1',
+            [usuarioId]
+        );
 
-  if (pedido.rows[0].status !== 'entregue') {
-    return res.json({ estado: 'em_andamento', ...pedido.rows[0] });
-  }
+        if (pedido.rows.length === 0) {
+            return res.json({ estado: 'sem_pedido' });
+        }
 
-  return res.json({ estado: 'entregue_nao_vinculado' });
+        if (pedido.rows[0].status !== 'entregue') {
+            return res.json({ estado: 'em_andamento', ...pedido.rows[0] });
+        }
+
+        return res.json({ estado: 'entregue_nao_vinculado' });
+    } catch (erro) {
+        console.error("Erro ao buscar status do Bixuco:", erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
 });
 
+app.post('/api/dispositivos/vincular', estaLogado, precisaPlano("Médio"), async (req, res) => {
+    const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+    const { device_id } = req.body;
 
-app.post('/api/dispositivos/vincular', autenticado, async (req, res) => {
-  const { device_id } = req.body; // ex: "bixuco_001"
-
-  if (!device_id || device_id.trim().length === 0) {
-    return res.status(400).json({ mensagem: 'Código do dispositivo é obrigatório.' });
-  }
-
-  try {
-    const dispositivo = await pool.query(
-      'SELECT * FROM dispositivos WHERE dispositivo_id = $1',
-      [device_id.trim()]
-    );
-
-    if (dispositivo.rows.length === 0) {
-      return res.status(404).json({ mensagem: 'Código não encontrado.' });
+    if (!device_id || device_id.trim().length === 0) {
+        return res.status(400).json({ mensagem: 'Código do dispositivo é obrigatório.' });
     }
 
-    if (dispositivo.rows[0].usuario_id && dispositivo.rows[0].usuario_id !== req.session.usuario_id) {
-      return res.status(409).json({ mensagem: 'Este Bixuco já está vinculado a outra conta.' });
+    try {
+        const dispositivo = await db.query(
+            'SELECT * FROM dispositivos WHERE dispositivo_id = $1',
+            [device_id.trim()]
+        );
+
+        if (dispositivo.rows.length === 0) {
+            return res.status(404).json({ mensagem: 'Código não encontrado.' });
+        }
+
+        if (dispositivo.rows[0].usuario_id && dispositivo.rows[0].usuario_id !== usuarioId) {
+            return res.status(409).json({ mensagem: 'Este Bixuco já está vinculado a outra conta.' });
+        }
+
+        const crianca = await db.query(
+            'SELECT id FROM criancas WHERE usuario_id = $1 LIMIT 1',
+            [usuarioId]
+        );
+
+        if (crianca.rows.length === 0) {
+            return res.status(400).json({ mensagem: 'Cadastre uma criança antes de vincular o Bixuco.' });
+        }
+
+        await db.query(
+            'UPDATE dispositivos SET usuario_id = $1, crianca_id = $2, vinculado_em = NOW() WHERE dispositivo_id = $3',
+            [usuarioId, crianca.rows[0].id, device_id.trim()]
+        );
+
+        res.sendStatus(200);
+    } catch (erro) {
+        console.error('Erro ao vincular dispositivo:', erro);
+        res.status(500).json({ mensagem: 'Erro no servidor. Tente novamente.' });
     }
-
-    // Pega a crianca cadastrada dessa conta (ajuste se o responsável puder ter mais de uma)
-    const crianca = await pool.query(
-      'SELECT id FROM criancas WHERE usuario_id = $1 LIMIT 1',
-      [req.session.usuario_id]
-    );
-
-    if (crianca.rows.length === 0) {
-      return res.status(400).json({ mensagem: 'Cadastre uma criança antes de vincular o Bixuco.' });
-    }
-
-    await pool.query(
-      'UPDATE dispositivos SET usuario_id = $1, crianca_id = $2, vinculado_em = NOW() WHERE dispositivo_id = $3',
-      [req.session.usuario_id, crianca.rows[0].id, device_id.trim()]
-    );
-
-    res.sendStatus(200);
-  } catch (erro) {
-    console.log('Erro ao vincular dispositivo:', erro);
-    res.status(500).json({ mensagem: 'Erro no servidor. Tente novamente.' });
-  }
 });
+
 
 
 app.get("/pagamento/sucesso", estaLogado, async (req, res) => {
@@ -4300,22 +4337,20 @@ app.post("/esqueceu-senha", async (req, res) => {
     }
 });
 
-app.post("/api/bixuco/localizacao", async (req, res) => {
+aapp.post("/api/bixuco/localizacao", async (req, res) => {
     const { dispositivo_id, latitude, longitude, bateria } = req.body;
 
     try {
-        // Descobre qual crianca_id corresponde a esse dispositivo
-        // (por enquanto, fixo pro bixuco_001 -> ajustaremos quando tiver
-        // vinculo dispositivo -> crianca configuravel)
-        const criancaResultado = await db.query(
-            `SELECT id FROM criancas WHERE id = 24 LIMIT 1` // TEMPORARIO - ver nota abaixo
+        const vinculo = await db.query(
+            'SELECT crianca_id FROM dispositivos WHERE dispositivo_id = $1',
+            [dispositivo_id]
         );
 
-        if (criancaResultado.rows.length === 0) {
-            return res.status(404).json({ erro: "Crianca nao encontrada para este dispositivo." });
+        if (vinculo.rows.length === 0 || !vinculo.rows[0].crianca_id) {
+            return res.sendStatus(202); // dispositivo ainda não vinculado
         }
 
-        const criancaId = criancaResultado.rows[0].id;
+        const criancaId = vinculo.rows[0].crianca_id;
 
         await db.query(
             `INSERT INTO localizacoes_bixuco (crianca_id, latitude, longitude, bateria, criado_em)
@@ -4330,6 +4365,7 @@ app.post("/api/bixuco/localizacao", async (req, res) => {
         res.status(500).json({ erro: "Erro interno." });
     }
 });
+
 
 app.get("/api/bixuco/eventos-hoje", estaLogado, async (req, res) => {
     const usuarioId = req.session.usuarioId || (req.user && req.user.id);
@@ -4409,20 +4445,24 @@ app.post("/api/bixuco/evento", async (req, res) => {
 
     const { dispositivo_id, evento, forca, duracao_ms, latitude, longitude } = req.body;
 
-    const vinculo = await pool.query(
-        'SELECT crianca_id FROM dispositivos WHERE dispositivo_id = $1',
-        [dispositivo_id]
-    );
-
-    if (vinculo.rows.length === 0 || !vinculo.rows[0].crianca_id) {
-        return res.sendStatus(202); // dispositivo existe mas ainda não tem dono
-    }
     try {
+        const vinculo = await db.query(
+            'SELECT crianca_id FROM dispositivos WHERE dispositivo_id = $1',
+            [dispositivo_id]
+        );
+
+        if (vinculo.rows.length === 0 || !vinculo.rows[0].crianca_id) {
+            return res.sendStatus(202); // dispositivo existe mas ainda não tem dono
+        }
+
+        const criancaId = vinculo.rows[0].crianca_id;
+
         await db.query(
             `INSERT INTO eventos_bixuco (crianca_id, forca, latitude, longitude, duracao_ms, tipo_evento, criado_em)
              VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
-            [crianca_id, forca, latitude, longitude, duracao_ms || null, evento || 'aperto_forte']
+            [criancaId, forca, latitude, longitude, duracao_ms || null, evento || 'aperto_forte']
         );
+
         res.json({ sucesso: true });
     } catch (erro) {
         console.error(erro);
