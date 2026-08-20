@@ -1,391 +1,594 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Endereço de entrega — Bixuco</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Endereço de entrega</title>
 
-  body { background: #f4f6fa; min-height: 100vh; display: flex; }
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
-  #sidebar {
-    width: 240px;
-    background: #ffffff;
-    border-right: 1px solid #eef0f3;
-    padding: 24px 20px;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-
-  #logo {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 20px;
-    font-weight: 800;
-    color: #16a34a;
-    margin-bottom: 32px;
-  }
-
-  #logo i {
-    background: linear-gradient(135deg, #4ade80, #22d3ee);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    font-size: 24px;
-  }
-
-  nav ul { list-style: none; }
-
-  nav li {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 11px 12px;
-    border-radius: 10px;
-    color: #6b7280;
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 4px;
-    cursor: pointer;
-  }
-
-  nav li.ativo {
-    background: #ecfdf3;
-    color: #16a34a;
-  }
-
-  nav li i { width: 18px; text-align: center; }
-
-  #theme-toggle {
-    margin-top: auto;
-    display: flex;
-    background: #f1f3f5;
-    border-radius: 20px;
-    padding: 4px;
-  }
-
-  #theme-toggle button {
-    flex: 1;
-    border: none;
-    background: transparent;
-    padding: 8px 0;
-    font-size: 13px;
-    font-weight: 600;
-    color: #6b7280;
-    border-radius: 16px;
-    cursor: pointer;
-  }
-
-  #theme-toggle button.ativo {
-    background: #ffffff;
-    color: #1f2937;
-  }
-
-  #sair {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 14px 4px 4px;
-    margin-top: 16px;
-    border-top: 1px solid #eef0f3;
-    color: #6b7280;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  #main { flex: 1; display: flex; flex-direction: column; }
-
-  #topbar {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 20px;
-    padding: 16px 32px;
-    background: #ffffff;
-    border-bottom: 1px solid #eef0f3;
-  }
-
-  #btn-traduzir {
-    border: 1px solid #bbf7d0;
-    color: #16a34a;
-    background: #ecfdf3;
-    padding: 7px 14px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-  }
-
-  #usuario {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  #avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: #e5e7eb;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #9ca3af;
-  }
-
-  #usuario-info { line-height: 1.2; font-size: 13px; }
-  #usuario-info strong { display: block; color: #1f2937; }
-  #usuario-info span { color: #9ca3af; }
-
-  #conteudo {
-    flex: 1;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 48px 24px;
-  }
-
-  #card-form {
-    width: 100%;
-    max-width: 620px;
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 32px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.04);
-  }
-
-  #card-form h1 { font-size: 22px; color: #1f2937; margin-bottom: 6px; }
-  #card-form p { font-size: 14px; color: #6b7280; margin-bottom: 24px; }
-
-  #link-cep {
-    display: flex;
-    justify-content: flex-end;
-    font-size: 13px;
-    color: #22d3ee;
-    text-decoration: none;
-    margin-bottom: -6px;
-  }
-
-  label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: #1f2937;
-    margin: 16px 0 6px;
-  }
-
-  input {
-    width: 100%;
-    padding: 12px 14px;
-    border: 1px solid #d1d5db;
-    border-radius: 10px;
-    font-size: 14px;
-    outline: none;
-  }
-
-  input:focus { border-color: #22d3ee; }
-
-  select {
-    width: 100%;
-    padding: 12px 14px;
-    border: 1px solid #d1d5db;
-    border-radius: 10px;
-    font-size: 14px;
-    background: #ffffff;
-    outline: none;
-  }
-
-  #linha-dupla {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-
-  #linha-tripla {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 16px;
-  }
-
-  #aviso-seguranca {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
-    border-radius: 10px;
-    padding: 12px 14px;
-    margin-top: 22px;
-    font-size: 13px;
-    color: #166534;
-  }
-
-  #aviso-seguranca i { color: #16a34a; font-size: 16px; }
-
-  #btn-continuar {
-    width: 100%;
-    padding: 14px;
-    border: none;
-    border-radius: 10px;
-    background: linear-gradient(90deg, #4ade80, #22d3ee);
-    color: #ffffff;
-    font-size: 15px;
-    font-weight: 700;
-    margin-top: 22px;
-    cursor: pointer;
-  }
-</style>
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
 </head>
+
 <body>
 
-  <div id="sidebar">
-    <div id="logo"><i class="fa-solid fa-cat"></i> BIXUCO</div>
-    <nav>
-      <ul>
-        <li class="ativo"><i class="fa-solid fa-house"></i> Início</li>
-        <li><i class="fa-solid fa-chart-line"></i> Relatórios</li>
-        <li><i class="fa-solid fa-gear"></i> Configurações</li>
-        <li><i class="fa-solid fa-circle-info"></i> Sobre</li>
-      </ul>
-    </nav>
-    <div id="theme-toggle">
-      <button class="ativo" type="button"><i class="fa-solid fa-sun"></i> Claro</button>
-      <button type="button"><i class="fa-solid fa-moon"></i> Escuro</button>
+    <div class="container">
+
+        <!-- ===================== -->
+        <!-- MENU LATERAL — mesma estrutura/classes da home.html -->
+        <!-- ===================== -->
+        <aside class="sidebar">
+
+            <div class="logo">
+                <img src="/img/logo_nome.png" alt="Logo Bixuco">
+            </div>
+
+            <nav>
+                <a href="/home">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Início</span>
+                </a>
+
+                <a href="/relatorios">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Relatórios</span>
+                </a>
+
+                <a href="/sobre">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>Sobre</span>
+                </a>
+
+                <a href="/configuracoes">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Configurações</span>
+                </a>
+            </nav>
+
+            <div class="tema">
+                <button id="btnClaro" class="ativo" type="button">
+                    <i class="fa-regular fa-sun"></i>
+                    Claro
+                </button>
+
+                <button id="btnEscuro" type="button">
+                    <i class="fa-regular fa-moon"></i>
+                    Escuro
+                </button>
+            </div>
+
+            <div class="sidebar-divisor"></div>
+
+            <a href="/logout" class="logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Sair</span>
+            </a>
+        </aside>
+
+        <!-- ===================== -->
+        <!-- CONTEÚDO PRINCIPAL -->
+        <!-- ===================== -->
+        <main class="conteudo">
+
+            <header class="topo">
+
+                <button class="tradutor" type="button" id="btnTraduzir">
+                    <i class="fa-solid fa-language"></i>
+                    <span id="textoTradutor">Traduzir para inglês</span>
+                </button>
+
+                <div class="usuario">
+                    <img
+                        id="fotoUsuario"
+                        src="/img/perfilPadrao.png"
+                        alt="Foto do usuário"
+                        onerror="this.src='/img/perfilPadrao.png'"
+                    >
+                    <div>
+                        <h3 id="nomeUsuario">Carregando...</h3>
+                        <span id="tipoConta">...</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="conteudo-corpo">
+
+                <section class="entrega-intro">
+                    <h1>Onde vamos entregar o Bixuco?</h1>
+                    <p>Preencha o endereço para podermos entregá-lo com segurança. Só pedimos o CEP aqui — não é preciso informar de novo em outra etapa.</p>
+                </section>
+
+                <section class="card entrega-card">
+
+                    <form id="formEndereco" class="entrega-form" novalidate>
+
+                        <div class="entrega-form__grupo">
+                            <div class="entrega-form__label-linha">
+                                <label for="cep">CEP</label>
+                                <a
+                                    id="linkNaoSeiCep"
+                                    href="https://buscacepinter.correios.com.br/app/endereco/index.php"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    Não sei o meu CEP
+                                </a>
+                            </div>
+                            <input type="text" id="cep" placeholder="00000-000" maxlength="9" inputmode="numeric" required>
+                            <span class="entrega-form__erro" id="erro-cep"></span>
+                        </div>
+
+                        <div class="entrega-form__linha">
+                            <div class="entrega-form__grupo entrega-form__grupo--grande">
+                                <label for="rua">Rua</label>
+                                <input type="text" id="rua" placeholder="Nome da rua" required>
+                                <span class="entrega-form__erro" id="erro-rua"></span>
+                            </div>
+                            <div class="entrega-form__grupo">
+                                <label for="numero">Número</label>
+                                <input type="text" id="numero" placeholder="Nº" inputmode="numeric" required>
+                                <span class="entrega-form__erro" id="erro-numero"></span>
+                            </div>
+                        </div>
+
+                        <div class="entrega-form__grupo">
+                            <label for="complemento">Complemento (opcional)</label>
+                            <input type="text" id="complemento" placeholder="Apto, bloco, referência...">
+                        </div>
+
+                        <div class="entrega-form__linha entrega-form__linha--tripla">
+                            <div class="entrega-form__grupo">
+                                <label for="bairro">Bairro</label>
+                                <input type="text" id="bairro" placeholder="Bairro" required>
+                                <span class="entrega-form__erro" id="erro-bairro"></span>
+                            </div>
+                            <div class="entrega-form__grupo">
+                                <label for="cidade">Cidade</label>
+                                <input type="text" id="cidade" placeholder="Cidade" required>
+                                <span class="entrega-form__erro" id="erro-cidade"></span>
+                            </div>
+                            <div class="entrega-form__grupo">
+                                <label for="estado">Estado</label>
+                                <select id="estado" required>
+                                    <option value="" disabled selected>UF</option>
+                                    <option value="AC">AC — Acre</option>
+                                    <option value="AL">AL — Alagoas</option>
+                                    <option value="AP">AP — Amapá</option>
+                                    <option value="AM">AM — Amazonas</option>
+                                    <option value="BA">BA — Bahia</option>
+                                    <option value="CE">CE — Ceará</option>
+                                    <option value="DF">DF — Distrito Federal</option>
+                                    <option value="ES">ES — Espírito Santo</option>
+                                    <option value="GO">GO — Goiás</option>
+                                    <option value="MA">MA — Maranhão</option>
+                                    <option value="MT">MT — Mato Grosso</option>
+                                    <option value="MS">MS — Mato Grosso do Sul</option>
+                                    <option value="MG">MG — Minas Gerais</option>
+                                    <option value="PA">PA — Pará</option>
+                                    <option value="PB">PB — Paraíba</option>
+                                    <option value="PR">PR — Paraná</option>
+                                    <option value="PE">PE — Pernambuco</option>
+                                    <option value="PI">PI — Piauí</option>
+                                    <option value="RJ">RJ — Rio de Janeiro</option>
+                                    <option value="RN">RN — Rio Grande do Norte</option>
+                                    <option value="RS">RS — Rio Grande do Sul</option>
+                                    <option value="RO">RO — Rondônia</option>
+                                    <option value="RR">RR — Roraima</option>
+                                    <option value="SC">SC — Santa Catarina</option>
+                                    <option value="SP">SP — São Paulo</option>
+                                    <option value="SE">SE — Sergipe</option>
+                                    <option value="TO">TO — Tocantins</option>
+                                </select>
+                                <span class="entrega-form__erro" id="erro-estado"></span>
+                            </div>
+                        </div>
+
+                        <div class="entrega-aviso">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <div>
+                                <strong>Seus dados estão seguros</strong>
+                                <p>Usamos suas informações apenas para a entrega do Bixuco.</p>
+                            </div>
+                        </div>
+
+                        <span class="entrega-form__erro entrega-form__erro--geral" id="erro-geral" style="display:none;"></span>
+
+                        <button type="submit" class="entrega-btn" id="btnContinuar">
+                            <span id="textoBtnContinuar">Continuar</span>
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+
+                    </form>
+                </section>
+
+            </div>
+
+        </main>
     </div>
-    <div id="sair"><i class="fa-solid fa-right-from-bracket"></i> Sair</div>
-  </div>
 
-  <div id="main">
-    <div id="topbar">
-      <button id="btn-traduzir" type="button"><i class="fa-solid fa-globe"></i> Traduzir para o inglês</button>
-      <i class="fa-regular fa-bell" style="color:#6b7280;"></i>
-      <div id="usuario">
-        <div id="avatar"><i class="fa-solid fa-user"></i></div>
-        <div id="usuario-info">
-          <strong id="nome-usuario">Lucas</strong>
-          <span>Responsável</span>
-        </div>
-      </div>
-    </div>
+    <!-- Estilos específicos desta página — tudo prefixado com "entrega-" para não colidir com home.css -->
+    <style>
+        .entrega-intro {
+            margin-bottom: 1.5rem;
+        }
 
-    <div id="conteudo">
-      <div id="card-form">
-        <h1>Onde vamos entregar o Bixuco?</h1>
-        <p>Preencha o endereço para podermos entregá-lo</p>
+        .entrega-intro h1 {
+            font-size: 1.5rem;
+            margin: 0 0 0.4rem;
+        }
 
-        <label for="cep">CEP</label>
-        <a id="link-cep" href="#">Não sei o meu CEP</a>
-        <input type="text" id="cep" placeholder="00000-000" maxlength="9">
+        .entrega-intro p {
+            margin: 0;
+            opacity: 0.75;
+            font-size: 0.95rem;
+        }
 
-        <div id="linha-dupla">
-          <div>
-            <label for="rua">Rua</label>
-            <input type="text" id="rua" placeholder="Nome da rua">
-          </div>
-          <div>
-            <label for="numero">Número</label>
-            <input type="text" id="numero" placeholder="Nº">
-          </div>
-        </div>
+        .entrega-card {
+            max-width: 640px;
+        }
 
-        <label for="complemento">Complemento</label>
-        <input type="text" id="complemento" placeholder="Apto, bloco, referência...">
+        .entrega-form__grupo {
+            margin-bottom: 1rem;
+        }
 
-        <div id="linha-tripla">
-          <div>
-            <label for="bairro">Bairro</label>
-            <input type="text" id="bairro" placeholder="Bairro">
-          </div>
-          <div>
-            <label for="cidade">Cidade</label>
-            <input type="text" id="cidade" placeholder="Cidade">
-          </div>
-          <div>
-            <label for="estado">Estado</label>
-            <select id="estado">
-              <option value="SP" selected>SP</option>
-              <option value="RJ">RJ</option>
-              <option value="MG">MG</option>
-              <option value="PR">PR</option>
-              <option value="RS">RS</option>
-              <option value="OUTRO">Outro</option>
-            </select>
-          </div>
-        </div>
+        .entrega-form__label-linha {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
 
-        <div id="aviso-seguranca">
-          <i class="fa-solid fa-shield-halved"></i>
-          <div>
-            <strong>Seus dados estão seguros</strong><br>
-            Usamos suas informações apenas para entrega do Bixuco
-          </div>
-        </div>
+        .entrega-form label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+        }
 
-        <button id="btn-continuar" type="button">Continuar</button>
-      </div>
-    </div>
-  </div>
+        #linkNaoSeiCep {
+            font-size: 0.8rem;
+            color: #22d3ee;
+            text-decoration: none;
+        }
 
-<script>
-  document.getElementById('cep').addEventListener('blur', async (e) => {
-    const cep = e.target.value.replace(/\D/g, '');
-    if (cep.length !== 8) return;
+        #linkNaoSeiCep:hover {
+            text-decoration: underline;
+        }
 
-    try {
-      const resp = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-      const dados = await resp.json();
-      if (dados.erro) return;
+        .entrega-form input,
+        .entrega-form select {
+            width: 100%;
+            padding: 0.75rem 0.9rem;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            outline: none;
+            background: #fff;
+            color: inherit;
+        }
 
-      document.getElementById('rua').value = dados.logradouro || '';
-      document.getElementById('bairro').value = dados.bairro || '';
-      document.getElementById('cidade').value = dados.localidade || '';
-      document.getElementById('estado').value = dados.uf || 'SP';
-    } catch (err) {
-      console.error('Erro ao buscar CEP', err);
-    }
-  });
+        .entrega-form input:focus,
+        .entrega-form select:focus {
+            border-color: #22d3ee;
+        }
 
-  document.getElementById('btn-continuar').addEventListener('click', async () => {
-    const endereco = {
-      cep: document.getElementById('cep').value,
-      rua: document.getElementById('rua').value,
-      numero: document.getElementById('numero').value,
-      complemento: document.getElementById('complemento').value,
-      bairro: document.getElementById('bairro').value,
-      cidade: document.getElementById('cidade').value,
-      estado: document.getElementById('estado').value
-    };
+        .entrega-form__linha {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 1rem;
+        }
 
-    try {
-      const resp = await fetch('/api/pedidos/endereco', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(endereco)
-      });
+        .entrega-form__linha--tripla {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
 
-      if (resp.status === 401) {
-        window.location.href = '/logar';
-        return;
-      }
+        .entrega-form__erro {
+            display: block;
+            color: #dc2626;
+            font-size: 0.78rem;
+            margin-top: 0.3rem;
+            min-height: 1em;
+        }
 
-      if (!resp.ok) {
-        alert('Não foi possível salvar o endereço. Confira os campos e tente novamente.');
-        return;
-      }
+        .entrega-form__erro--geral {
+            margin-top: 0.5rem;
+            text-align: center;
+        }
 
-      window.location.href = '/PedidoConfirmado';
-    } catch (e) {
-      alert('Não foi possível conectar. Verifique sua internet e tente novamente.');
-    }
-  });
-</script>
+        .entrega-aviso {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 10px;
+            padding: 0.8rem 0.9rem;
+            margin-top: 1.3rem;
+            font-size: 0.82rem;
+            color: #166534;
+        }
+
+        .entrega-aviso i {
+            color: #16a34a;
+            font-size: 1.1rem;
+        }
+
+        .entrega-aviso p {
+            margin: 0.15rem 0 0;
+            color: #166534;
+            opacity: 0.85;
+        }
+
+        .entrega-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.9rem;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #4ade80, #22d3ee);
+            color: #fff;
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-top: 1.4rem;
+            cursor: pointer;
+        }
+
+        .entrega-btn:disabled {
+            opacity: 0.7;
+            cursor: default;
+        }
+
+        @media (max-width: 640px) {
+            .entrega-form__linha,
+            .entrega-form__linha--tripla {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <script>
+
+        // =========================
+        // DADOS DO USUÁRIO NO TOPO — mesmo endpoint/lógica da home.html
+        // =========================
+
+        async function carregarDadosUsuario() {
+            try {
+                const resposta = await fetch("/api/home");
+
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
+                }
+
+                if (!resposta.ok) throw new Error(`Falha ao carregar dados do usuário (status ${resposta.status})`);
+
+                const dados = await resposta.json();
+
+                document.getElementById("nomeUsuario").textContent = dados.nome || "Usuário";
+                document.getElementById("tipoConta").textContent   = dados.tipoConta || "Responsável";
+
+                if (dados.fotoPerfil) {
+                    document.getElementById("fotoUsuario").src = dados.fotoPerfil;
+                }
+
+            } catch (erro) {
+                console.log("Erro ao carregar dados do usuário:", erro);
+                document.getElementById("nomeUsuario").textContent = "Usuário";
+                document.getElementById("tipoConta").textContent   = "Responsável";
+            }
+        }
+
+        carregarDadosUsuario();
+
+        // =========================
+        // MÁSCARA E BUSCA DO CEP
+        // =========================
+
+        function mascaraCEP(valor) {
+            valor = valor.replace(/\D/g, "").slice(0, 8);
+            if (valor.length > 5) valor = valor.replace(/(\d{5})(\d{0,3})/, "$1-$2");
+            return valor;
+        }
+
+        const campoCep = document.getElementById("cep");
+
+        campoCep.addEventListener("input", () => {
+            campoCep.value = mascaraCEP(campoCep.value);
+        });
+
+        campoCep.addEventListener("blur", async () => {
+
+            const cep = campoCep.value.replace(/\D/g, "");
+            if (cep.length !== 8) return;
+
+            try {
+                const resposta = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                const dados = await resposta.json();
+
+                if (dados.erro) {
+                    mostrarErro("cep", "erro-cep", "CEP não encontrado.");
+                    return;
+                }
+
+                document.getElementById("rua").value    = dados.logradouro || "";
+                document.getElementById("bairro").value = dados.bairro || "";
+                document.getElementById("cidade").value = dados.localidade || "";
+                document.getElementById("estado").value = dados.uf || "";
+
+                limparErroCampo("cep", "erro-cep");
+
+            } catch (erro) {
+                console.log("Erro ao buscar CEP:", erro);
+            }
+        });
+
+        // =========================
+        // ERROS
+        // =========================
+
+        function mostrarErro(inputId, erroId, mensagem) {
+            const input = document.getElementById(inputId);
+            const erro  = document.getElementById(erroId);
+            if (!input || !erro) return;
+            erro.textContent = mensagem;
+        }
+
+        function limparErroCampo(inputId, erroId) {
+            const erro = document.getElementById(erroId);
+            if (erro) erro.textContent = "";
+        }
+
+        function limparErros() {
+            ["cep", "rua", "numero", "bairro", "cidade", "estado"].forEach(id => limparErroCampo(id, "erro-" + id));
+            document.getElementById("erro-geral").style.display = "none";
+        }
+
+        function validarCampos() {
+            limparErros();
+            let valido = true;
+
+            const cep     = campoCep.value.replace(/\D/g, "");
+            const rua     = document.getElementById("rua").value.trim();
+            const numero  = document.getElementById("numero").value.trim();
+            const bairro  = document.getElementById("bairro").value.trim();
+            const cidade  = document.getElementById("cidade").value.trim();
+            const estado  = document.getElementById("estado").value;
+
+            if (cep.length !== 8) {
+                mostrarErro("cep", "erro-cep", "Digite um CEP válido.");
+                valido = false;
+            }
+            if (!rua) {
+                mostrarErro("rua", "erro-rua", "Informe a rua.");
+                valido = false;
+            }
+            if (!numero) {
+                mostrarErro("numero", "erro-numero", "Informe o número.");
+                valido = false;
+            }
+            if (!bairro) {
+                mostrarErro("bairro", "erro-bairro", "Informe o bairro.");
+                valido = false;
+            }
+            if (!cidade) {
+                mostrarErro("cidade", "erro-cidade", "Informe a cidade.");
+                valido = false;
+            }
+            if (!estado) {
+                mostrarErro("estado", "erro-estado", "Selecione o estado.");
+                valido = false;
+            }
+
+            return valido;
+        }
+
+        // =========================
+        // ENVIO
+        // =========================
+
+        document.getElementById("formEndereco").addEventListener("submit", async (evento) => {
+
+            evento.preventDefault();
+            if (!validarCampos()) return;
+
+            const btnContinuar    = document.getElementById("btnContinuar");
+            const textoBtn        = document.getElementById("textoBtnContinuar");
+            const erroGeral       = document.getElementById("erro-geral");
+
+            btnContinuar.disabled = true;
+            textoBtn.textContent  = "Enviando...";
+
+            const endereco = {
+                cep:         campoCep.value,
+                rua:         document.getElementById("rua").value.trim(),
+                numero:      document.getElementById("numero").value.trim(),
+                complemento: document.getElementById("complemento").value.trim(),
+                bairro:      document.getElementById("bairro").value.trim(),
+                cidade:      document.getElementById("cidade").value.trim(),
+                estado:      document.getElementById("estado").value
+            };
+
+            try {
+                const resposta = await fetch("/api/pedidos/endereco", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(endereco)
+                });
+
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
+                }
+
+                if (!resposta.ok) {
+                    erroGeral.textContent   = "Não foi possível salvar o endereço. Confira os campos e tente novamente.";
+                    erroGeral.style.display = "block";
+                    return;
+                }
+
+                window.location.href = "/PedidoConfirmado";
+
+            } catch (erro) {
+                console.log("Erro ao salvar endereço:", erro);
+                erroGeral.textContent   = "Não foi possível conectar. Verifique sua internet e tente novamente.";
+                erroGeral.style.display = "block";
+            } finally {
+                btnContinuar.disabled = false;
+                textoBtn.textContent  = "Continuar";
+            }
+        });
+
+        // =========================
+        // TRADUÇÃO — mesma implementação usada hoje no resto do site
+        // (ainda com o Google Translate; a versão manual está pendente)
+        // =========================
+
+        function lerCookie(nome) {
+            const valor = `; ${document.cookie}`;
+            const partes = valor.split(`; ${nome}=`);
+            if (partes.length === 2) return partes.pop().split(";").shift();
+            return null;
+        }
+
+        function definirCookieTraducao(destino) {
+            document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+            document.cookie = `googtrans=; path=/; domain=${location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
+
+            if (destino) {
+                const valor = `/pt/${destino}`;
+                document.cookie = `googtrans=${valor}; path=/`;
+                document.cookie = `googtrans=${valor}; path=/; domain=${location.hostname}`;
+            }
+        }
+
+        function atualizarTextoBotaoTraducao() {
+            const cookieAtual = lerCookie("googtrans");
+            const textoBotao  = document.getElementById("textoTradutor");
+            textoBotao.textContent = (cookieAtual && cookieAtual.includes("/en"))
+                ? "Voltar para português"
+                : "Traduzir para inglês";
+        }
+
+        document.getElementById("btnTraduzir").addEventListener("click", () => {
+            const cookieAtual    = lerCookie("googtrans");
+            const estaTraduzido  = cookieAtual && cookieAtual.includes("/en");
+            definirCookieTraducao(estaTraduzido ? null : "en");
+            window.location.reload();
+        });
+
+        atualizarTextoBotaoTraducao();
+
+    </script>
+
+    <!-- Tema claro/escuro compartilhado — precisa vir depois dos botões #btnClaro/#btnEscuro existirem -->
+    <script src="/js/tema.js"></script>
 
 </body>
 </html>
