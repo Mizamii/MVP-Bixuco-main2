@@ -167,6 +167,10 @@
                     <img src="/img/Bixuco_home.png" alt="Mascote Bixuco">
                 </section>
 
+                <!-- STATUS DO BIXUCO FÍSICO -->
+                <!-- Vazio até carregarStatusBixuco() preencher; some sozinho quando já vinculado -->
+                <div id="bixuco-widget"></div>
+
                 <!-- CARDS SUPERIORES -->
                 <section class="linha-superior">
 
@@ -405,6 +409,98 @@
                 texto.textContent = "Ótimo progresso! Seu acompanhamento está ficando consistente.";
             } else {
                 texto.textContent = "Parabéns! Você já mantém um acompanhamento de longa duração.";
+            }
+        }
+
+        // =========================
+        // STATUS DO BIXUCO FÍSICO
+        // =========================
+
+        async function carregarStatusBixuco() {
+            const widget = document.getElementById("bixuco-widget");
+
+            try {
+                const resposta = await fetch("/api/bixuco/status");
+
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
+                }
+
+                if (!resposta.ok) throw new Error("Falha ao carregar status do Bixuco");
+
+                const dados = await resposta.json();
+                renderizarWidgetBixuco(dados.estado);
+
+            } catch (erro) {
+                console.log("Erro ao carregar status do Bixuco:", erro);
+                // Se der erro, não mostra nada — evita quebrar a home por causa disso
+                widget.innerHTML = "";
+            }
+        }
+
+        function renderizarWidgetBixuco(estado) {
+            const widget = document.getElementById("bixuco-widget");
+
+            if (estado === "vinculado") {
+                widget.innerHTML = "";
+                return;
+            }
+
+            if (estado === "sem_pedido") {
+                widget.innerHTML = `
+                    <article class="card card-relatorio" id="cardBixuco">
+                        <div class="icone">
+                            <i class="fa-solid fa-box"></i>
+                        </div>
+                        <div>
+                            <h2>Peça seu Bixuco</h2>
+                            <p>Comece a jornada de acompanhamento com a pelúcia sensorizada.</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-right seta"></i>
+                    </article>
+                `;
+                document.getElementById("cardBixuco").addEventListener("click", () => {
+                    window.location.href = "/FormularioEntrega";
+                });
+                return;
+            }
+
+            if (estado === "em_andamento") {
+                widget.innerHTML = `
+                    <article class="card card-relatorio" id="cardBixuco">
+                        <div class="icone">
+                            <i class="fa-solid fa-truck"></i>
+                        </div>
+                        <div>
+                            <h2>Seu Bixuco está a caminho</h2>
+                            <p>Acompanhe o status da entrega.</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-right seta"></i>
+                    </article>
+                `;
+                document.getElementById("cardBixuco").addEventListener("click", () => {
+                    window.location.href = "/AcompanharPedido";
+                });
+                return;
+            }
+
+            if (estado === "entregue_nao_vinculado") {
+                widget.innerHTML = `
+                    <article class="card card-relatorio" id="cardBixuco">
+                        <div class="icone">
+                            <i class="fa-solid fa-link"></i>
+                        </div>
+                        <div>
+                            <h2>Vincular meu Bixuco</h2>
+                            <p>Seu Bixuco chegou! Vincule para começar a jornada.</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-right seta"></i>
+                    </article>
+                `;
+                document.getElementById("cardBixuco").addEventListener("click", () => {
+                    window.location.href = "/VincularIdentidade";
+                });
             }
         }
 
@@ -897,6 +993,7 @@
         iniciarMapa();
         atualizarTextoBotaoTraducao();
         carregarContagemInicial();
+        carregarStatusBixuco();
 
     </script>
 

@@ -4406,7 +4406,17 @@ app.get("/api/bixuco/localizacao", estaLogado, async (req, res) => {
 
 
 app.post("/api/bixuco/evento", async (req, res) => {
-    const { forca, latitude, longitude, crianca_id, duracao_ms, evento } = req.body;
+
+    const { dispositivo_id, evento, forca, duracao_ms, latitude, longitude } = req.body;
+
+    const vinculo = await pool.query(
+        'SELECT crianca_id FROM dispositivos WHERE dispositivo_id = $1',
+        [dispositivo_id]
+    );
+
+    if (vinculo.rows.length === 0 || !vinculo.rows[0].crianca_id) {
+        return res.sendStatus(202); // dispositivo existe mas ainda não tem dono
+    }
     try {
         await db.query(
             `INSERT INTO eventos_bixuco (crianca_id, forca, latitude, longitude, duracao_ms, tipo_evento, criado_em)
