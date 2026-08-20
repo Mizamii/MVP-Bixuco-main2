@@ -4337,7 +4337,7 @@ app.post("/esqueceu-senha", async (req, res) => {
     }
 });
 
-aapp.post("/api/bixuco/localizacao", async (req, res) => {
+app.post("/api/bixuco/localizacao", async (req, res) => {
     const { dispositivo_id, latitude, longitude, bateria } = req.body;
 
     try {
