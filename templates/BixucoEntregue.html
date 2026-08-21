@@ -1,252 +1,350 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Bixuco entregue!</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Entregue!</title>
 
-  body { background: #f4f6fa; min-height: 100vh; display: flex; }
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
-  #sidebar {
-    width: 240px;
-    background: #ffffff;
-    border-right: 1px solid #eef0f3;
-    padding: 24px 20px;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-
-  #logo {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 20px;
-    font-weight: 800;
-    color: #16a34a;
-    margin-bottom: 32px;
-  }
-
-  #logo i {
-    background: linear-gradient(135deg, #4ade80, #22d3ee);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    font-size: 24px;
-  }
-
-  nav ul { list-style: none; }
-
-  nav li {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 11px 12px;
-    border-radius: 10px;
-    color: #6b7280;
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 4px;
-    cursor: pointer;
-  }
-
-  nav li.ativo { background: #ecfdf3; color: #16a34a; }
-  nav li i { width: 18px; text-align: center; }
-
-  #theme-toggle {
-    margin-top: auto;
-    display: flex;
-    background: #f1f3f5;
-    border-radius: 20px;
-    padding: 4px;
-  }
-
-  #theme-toggle button {
-    flex: 1;
-    border: none;
-    background: transparent;
-    padding: 8px 0;
-    font-size: 13px;
-    font-weight: 600;
-    color: #6b7280;
-    border-radius: 16px;
-    cursor: pointer;
-  }
-
-  #theme-toggle button.ativo { background: #ffffff; color: #1f2937; }
-
-  #sair {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 14px 4px 4px;
-    margin-top: 16px;
-    border-top: 1px solid #eef0f3;
-    color: #6b7280;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  #main { flex: 1; display: flex; flex-direction: column; }
-
-  #topbar {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 20px;
-    padding: 16px 32px;
-    background: #ffffff;
-    border-bottom: 1px solid #eef0f3;
-  }
-
-  #btn-traduzir {
-    border: 1px solid #bbf7d0;
-    color: #16a34a;
-    background: #ecfdf3;
-    padding: 7px 14px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-  }
-
-  #usuario { display: flex; align-items: center; gap: 10px; }
-
-  #avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: #e5e7eb;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #9ca3af;
-  }
-
-  #usuario-info { line-height: 1.2; font-size: 13px; }
-  #usuario-info strong { display: block; color: #1f2937; }
-  #usuario-info span { color: #9ca3af; }
-
-  #conteudo { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px; }
-
-  #painel {
-    width: 100%;
-    max-width: 460px;
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 40px;
-    text-align: center;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.04);
-  }
-
-  #moldura {
-    width: 100%;
-    aspect-ratio: 4/3;
-    background: #f1f3f5;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 24px;
-  }
-
-  #moldura i {
-    font-size: 64px;
-    background: linear-gradient(135deg, #4ade80, #22d3ee);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
-  h1 { font-size: 22px; color: #1f2937; margin-bottom: 10px; }
-  #subtitulo { font-size: 14px; color: #6b7280; line-height: 1.5; margin-bottom: 24px; }
-
-  #dica {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: #ecfdf3;
-    border-radius: 10px;
-    padding: 12px 14px;
-    font-size: 13px;
-    color: #166534;
-    text-align: left;
-    margin-bottom: 22px;
-  }
-
-  #btn-vincular {
-    width: 100%;
-    padding: 14px;
-    border: none;
-    border-radius: 10px;
-    background: linear-gradient(90deg, #4ade80, #22d3ee);
-    color: #ffffff;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-  }
-</style>
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
 </head>
+
 <body>
 
-  <div id="sidebar">
-    <div id="logo"><i class="fa-solid fa-cat"></i> BIXUCO</div>
-    <nav>
-      <ul>
-        <li class="ativo"><i class="fa-solid fa-house"></i> Início</li>
-        <li><i class="fa-solid fa-chart-line"></i> Relatórios</li>
-        <li><i class="fa-solid fa-gear"></i> Configurações</li>
-        <li><i class="fa-solid fa-circle-info"></i> Sobre</li>
-      </ul>
-    </nav>
-    <div id="theme-toggle">
-      <button class="ativo" type="button"><i class="fa-solid fa-sun"></i> Claro</button>
-      <button type="button"><i class="fa-solid fa-moon"></i> Escuro</button>
+    <div class="container">
+
+        <!-- ===================== -->
+        <!-- MENU LATERAL — mesma estrutura da relatorios.html -->
+        <!-- ===================== -->
+        <aside class="sidebar">
+
+            <div class="logo">
+                <img src="/img/logo_nome.png" alt="Logo Bixuco">
+            </div>
+
+            <nav>
+                <a href="/home">
+                    <i class="fa-solid fa-house"></i>
+                    <span data-pt="Início" data-en="Home">Início</span>
+                </a>
+
+                <a href="/relatorios">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+                </a>
+
+                <a href="/sobre">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span data-pt="Sobre" data-en="About">Sobre</span>
+                </a>
+
+                <a href="/configuracoes">
+                    <i class="fa-solid fa-gear"></i>
+                    <span data-pt="Configurações" data-en="Settings">Configurações</span>
+                </a>
+            </nav>
+
+            <button
+                class="btn-relatorio"
+                type="button"
+                onclick="location.href='/RelatorioDiario'"
+                data-pt="Relatório diário"
+                data-en="Daily report"
+            >
+                Relatório diário
+            </button>
+
+            <div class="tema">
+                <button id="btnClaro" class="ativo" type="button">
+                    <i class="fa-regular fa-sun"></i> <span data-pt="Claro" data-en="Light">Claro</span>
+                </button>
+
+                <button id="btnEscuro" type="button">
+                    <i class="fa-regular fa-moon"></i> <span data-pt="Escuro" data-en="Dark">Escuro</span>
+                </button>
+            </div>
+
+            <div class="sidebar-divisor"></div>
+
+            <a href="/logout" class="logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span data-pt="Sair" data-en="Log out">Sair</span>
+            </a>
+        </aside>
+
+        <!-- ===================== -->
+        <!-- CONTEÚDO PRINCIPAL -->
+        <!-- ===================== -->
+        <main class="conteudo">
+
+            <header class="topo">
+
+                <button class="tradutor" type="button" id="btnTraduzir">
+                    <i class="fa-solid fa-language"></i>
+                    <span id="textoTradutor">Traduzir para o inglês</span>
+                </button>
+
+                <div class="usuario">
+
+                    <div class="notificacoes-wrapper">
+                        <button class="notificacoes" type="button" id="btnNotificacoes">
+                            <i class="fa-regular fa-bell"></i>
+                            <span id="quantidadeNotificacoes" class="badge">0</span>
+                        </button>
+
+                        <div class="painel-notificacoes" id="painelNotificacoes">
+                            <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
+                            <div id="listaNotificacoes">
+                                <div class="painel-vazio">Carregando...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <img
+                        id="fotoUsuario"
+                        src="/img/perfilPadrao.png"
+                        alt="Foto do usuário"
+                        title="Ver perfil"
+                        style="cursor: pointer;"
+                        onclick="window.location.href='/perfil'"
+                        onerror="this.src='/img/perfilPadrao.png'"
+                    >
+
+                    <div
+                        style="cursor: pointer;"
+                        title="Ver perfil"
+                        onclick="window.location.href='/perfil'"
+                    >
+                        <h3 id="nomeUsuario">Carregando...</h3>
+                        <span id="tipoConta">...</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="conteudo-corpo entregue-corpo">
+
+                <section class="card entregue-card">
+
+                    <div class="entregue-moldura">
+                        <i class="fa-solid fa-cat"></i>
+                    </div>
+
+                    <h1 data-pt="Bixuco entregue!" data-en="Bixuco delivered!">Bixuco entregue!</h1>
+                    <p class="entregue-subtitulo" data-pt="Seu Bixuco chegou! Esperamos que vocês tenham momentos incríveis juntos." data-en="Your Bixuco has arrived! We hope you have amazing moments together.">Seu Bixuco chegou! Esperamos que vocês tenham momentos incríveis juntos.</p>
+
+                    <div class="entregue-dica">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span data-pt="Agora é hora de vincular o Bixuco à conta da criança para começar a jornada!" data-en="Now it's time to link the Bixuco to your child's account to start the journey!">Agora é hora de vincular o Bixuco à conta da criança para começar a jornada!</span>
+                    </div>
+
+                    <button id="btn-vincular" type="button">
+                        <span data-pt="Vincular meu Bixuco" data-en="Link my Bixuco">Vincular meu Bixuco</span>
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+
+                </section>
+
+            </div>
+
+        </main>
     </div>
-    <div id="sair"><i class="fa-solid fa-right-from-bracket"></i> Sair</div>
-  </div>
 
-  <div id="main">
-    <div id="topbar">
-      <button id="btn-traduzir" type="button"><i class="fa-solid fa-globe"></i> Traduzir para o inglês</button>
-      <i class="fa-regular fa-bell" style="color:#6b7280;"></i>
-      <div id="usuario">
-        <div id="avatar"><i class="fa-solid fa-user"></i></div>
-        <div id="usuario-info">
-          <strong id="nome-usuario">Lucas</strong>
-          <span>Responsável</span>
-        </div>
-      </div>
-    </div>
+    <!-- Estilos específicos desta página — prefixados com "entregue-" para não colidir com home.css -->
+    <style>
+        .entregue-corpo { display: flex; align-items: center; justify-content: center; min-height: 60vh; }
 
-    <div id="conteudo">
-      <div id="painel">
-        <div id="moldura"><i class="fa-solid fa-cat"></i></div>
+        .entregue-card {
+            width: 100%; max-width: 440px; text-align: center; padding: 2.2rem;
+        }
 
-        <h1>Bixuco entregue!</h1>
-        <p id="subtitulo">Seu Bixuco chegou! Esperamos que vocês tenham momentos incríveis juntos.</p>
+        .entregue-moldura {
+            width: 100%; aspect-ratio: 4/3; background: rgba(0,0,0,0.03); border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; margin-bottom: 1.4rem;
+        }
 
-        <div id="dica">
-          <i class="fa-solid fa-circle-check" style="color:#16a34a;"></i>
-          Agora é hora de vincular o Bixuco à conta da criança para começar a jornada!
-        </div>
+        .entregue-moldura i {
+            font-size: 3.6rem;
+            background: linear-gradient(135deg, #4ade80, #22d3ee);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
 
-        <button id="btn-vincular" type="button">Vincular meu Bixuco</button>
-      </div>
-    </div>
-  </div>
+        .entregue-card h1 { font-size: 1.35rem; margin-bottom: 0.55rem; }
+        .entregue-subtitulo { font-size: 0.88rem; opacity: 0.75; line-height: 1.5; margin-bottom: 1.4rem; }
 
-<script>
-  document.getElementById('btn-vincular').addEventListener('click', () => {
-    window.location.href = '/VincularIdentidade';
-  });
-</script>
+        .entregue-dica {
+            display: flex; align-items: center; gap: 0.6rem; text-align: left;
+            background: #ecfdf3; border-radius: 10px; padding: 0.75rem 0.9rem;
+            font-size: 0.82rem; color: #166534; margin-bottom: 1.3rem;
+        }
+        .entregue-dica i { color: #16a34a; font-size: 1rem; flex-shrink: 0; }
+
+        #btn-vincular {
+            width: 100%; padding: 0.9rem; border: none; border-radius: 10px;
+            background: linear-gradient(90deg, #4ade80, #22d3ee); color: #fff;
+            font-size: 0.95rem; font-weight: 700; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+        }
+    </style>
+
+    <script>
+
+        // ==========================
+        // TEMA
+        // ==========================
+
+        function aplicarTema(tema) {
+            document.body.classList.remove("tema-claro", "tema-escuro");
+            document.body.classList.add(`tema-${tema}`);
+            document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
+            document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
+            localStorage.setItem("tema", tema);
+        }
+
+        document.getElementById("btnClaro").addEventListener("click", () => aplicarTema("claro"));
+        document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
+
+        aplicarTema(localStorage.getItem("tema") || "claro");
+
+        // ==========================
+        // TRADUÇÃO MANUAL
+        // ==========================
+
+        let idiomaAtual = localStorage.getItem("idioma") || "pt";
+
+        function aplicarIdiomaEstatico() {
+            document.querySelectorAll("[data-pt]").forEach(el => {
+                el.textContent = idiomaAtual === "en"
+                    ? (el.dataset.en || el.dataset.pt)
+                    : el.dataset.pt;
+            });
+
+            document.getElementById("textoTradutor").textContent =
+                idiomaAtual === "en" ? "Traduzir para o português" : "Translate to English";
+        }
+
+        document.getElementById("btnTraduzir").addEventListener("click", () => {
+            idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+            localStorage.setItem("idioma", idiomaAtual);
+            aplicarIdiomaEstatico();
+        });
+
+        aplicarIdiomaEstatico();
+
+        // =========================
+        // DADOS DO USUÁRIO NO TOPO
+        // =========================
+
+        async function carregarDadosUsuario() {
+            try {
+                const resposta = await fetch("/api/home");
+
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
+                }
+
+                if (!resposta.ok) throw new Error(`Falha ao carregar dados do usuário (status ${resposta.status})`);
+
+                const dados = await resposta.json();
+
+                document.getElementById("nomeUsuario").textContent = dados.nome || "Usuário";
+                document.getElementById("tipoConta").textContent   = dados.tipoConta || "Responsável";
+
+                if (dados.fotoPerfil) {
+                    document.getElementById("fotoUsuario").src = dados.fotoPerfil;
+                }
+
+            } catch (erro) {
+                console.log("Erro ao carregar dados do usuário:", erro);
+                document.getElementById("nomeUsuario").textContent = "Usuário";
+                document.getElementById("tipoConta").textContent   = "Responsável";
+            }
+        }
+
+        carregarDadosUsuario();
+
+        // =========================
+        // NOTIFICAÇÕES
+        // =========================
+
+        const painelNotificacoes = document.getElementById("painelNotificacoes");
+        const listaNotificacoes  = document.getElementById("listaNotificacoes");
+
+        function formatarItemNotificacao(item) {
+            const classeExtra = item.lida ? "" : "nao-lida";
+            return `
+                <div class="item-notificacao ${classeExtra}">
+                    ${item.mensagem}
+                    <span class="tempo-notificacao">${item.tempo}</span>
+                </div>
+            `;
+        }
+
+        async function carregarNotificacoes() {
+            try {
+                const resposta = await fetch("/api/notificacoes");
+                if (!resposta.ok) throw new Error();
+
+                const dados = await resposta.json();
+                const itens = dados.notificacoes || [];
+
+                listaNotificacoes.innerHTML = itens.length === 0
+                    ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+                    : itens.map(formatarItemNotificacao).join("");
+
+                const naoLidas = itens.filter(item => !item.lida).length;
+                document.getElementById("quantidadeNotificacoes").textContent = naoLidas;
+
+            } catch (erro) {
+                console.log("Erro ao carregar notificações:", erro);
+                listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar as notificações.</div>`;
+            }
+        }
+
+        async function marcarNotificacoesComoLidas() {
+            try {
+                await fetch("/api/notificacoes/marcar-lidas", { method: "POST" });
+                document.getElementById("quantidadeNotificacoes").textContent = "0";
+            } catch (erro) {
+                console.log("Erro ao marcar notificações como lidas:", erro);
+            }
+        }
+
+        document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
+            e.stopPropagation();
+
+            const estaAberto = painelNotificacoes.classList.contains("aberto");
+            if (estaAberto) {
+                painelNotificacoes.classList.remove("aberto");
+                return;
+            }
+
+            painelNotificacoes.classList.add("aberto");
+            await carregarNotificacoes();
+            marcarNotificacoesComoLidas();
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!painelNotificacoes.contains(e.target)) {
+                painelNotificacoes.classList.remove("aberto");
+            }
+        });
+
+        carregarNotificacoes();
+
+        // =========================
+        // AÇÃO PRINCIPAL
+        // =========================
+
+        document.getElementById("btn-vincular").addEventListener("click", () => {
+            window.location.href = "/VincularIdentidade";
+        });
+
+    </script>
 
 </body>
 </html>
