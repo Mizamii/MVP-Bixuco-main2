@@ -18,7 +18,7 @@
     <div class="container">
 
         <!-- ===================== -->
-        <!-- MENU LATERAL — mesma estrutura/classes da home.html -->
+        <!-- MENU LATERAL — mesma estrutura da relatorios.html -->
         <!-- ===================== -->
         <aside class="sidebar">
 
@@ -29,34 +29,42 @@
             <nav>
                 <a href="/home">
                     <i class="fa-solid fa-house"></i>
-                    <span>Início</span>
+                    <span data-pt="Início" data-en="Home">Início</span>
                 </a>
 
                 <a href="/relatorios">
                     <i class="fa-solid fa-chart-line"></i>
-                    <span>Relatórios</span>
+                    <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
                 </a>
 
                 <a href="/sobre">
                     <i class="fa-solid fa-circle-info"></i>
-                    <span>Sobre</span>
+                    <span data-pt="Sobre" data-en="About">Sobre</span>
                 </a>
 
                 <a href="/configuracoes">
                     <i class="fa-solid fa-gear"></i>
-                    <span>Configurações</span>
+                    <span data-pt="Configurações" data-en="Settings">Configurações</span>
                 </a>
             </nav>
 
+            <button
+                class="btn-relatorio"
+                type="button"
+                onclick="location.href='/RelatorioDiario'"
+                data-pt="Relatório diário"
+                data-en="Daily report"
+            >
+                Relatório diário
+            </button>
+
             <div class="tema">
                 <button id="btnClaro" class="ativo" type="button">
-                    <i class="fa-regular fa-sun"></i>
-                    Claro
+                    <i class="fa-regular fa-sun"></i> <span data-pt="Claro" data-en="Light">Claro</span>
                 </button>
 
                 <button id="btnEscuro" type="button">
-                    <i class="fa-regular fa-moon"></i>
-                    Escuro
+                    <i class="fa-regular fa-moon"></i> <span data-pt="Escuro" data-en="Dark">Escuro</span>
                 </button>
             </div>
 
@@ -64,7 +72,7 @@
 
             <a href="/logout" class="logout">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                <span>Sair</span>
+                <span data-pt="Sair" data-en="Log out">Sair</span>
             </a>
         </aside>
 
@@ -77,17 +85,40 @@
 
                 <button class="tradutor" type="button" id="btnTraduzir">
                     <i class="fa-solid fa-language"></i>
-                    <span id="textoTradutor">Traduzir para inglês</span>
+                    <span id="textoTradutor">Traduzir para o inglês</span>
                 </button>
 
                 <div class="usuario">
+
+                    <div class="notificacoes-wrapper">
+                        <button class="notificacoes" type="button" id="btnNotificacoes">
+                            <i class="fa-regular fa-bell"></i>
+                            <span id="quantidadeNotificacoes" class="badge">0</span>
+                        </button>
+
+                        <div class="painel-notificacoes" id="painelNotificacoes">
+                            <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
+                            <div id="listaNotificacoes">
+                                <div class="painel-vazio">Carregando...</div>
+                            </div>
+                        </div>
+                    </div>
+
                     <img
                         id="fotoUsuario"
                         src="/img/perfilPadrao.png"
                         alt="Foto do usuário"
+                        title="Ver perfil"
+                        style="cursor: pointer;"
+                        onclick="window.location.href='/perfil'"
                         onerror="this.src='/img/perfilPadrao.png'"
                     >
-                    <div>
+
+                    <div
+                        style="cursor: pointer;"
+                        title="Ver perfil"
+                        onclick="window.location.href='/perfil'"
+                    >
                         <h3 id="nomeUsuario">Carregando...</h3>
                         <span id="tipoConta">...</span>
                     </div>
@@ -97,8 +128,8 @@
             <div class="conteudo-corpo">
 
                 <section class="entrega-intro">
-                    <h1>Onde vamos entregar o Bixuco?</h1>
-                    <p>Preencha o endereço para podermos entregá-lo com segurança. Só pedimos o CEP aqui — não é preciso informar de novo em outra etapa.</p>
+                    <h1 data-pt="Onde vamos entregar o Bixuco?" data-en="Where should we deliver the Bixuco?">Onde vamos entregar o Bixuco?</h1>
+                    <p data-pt="Preencha o endereço para podermos entregá-lo com segurança. Só pedimos o CEP aqui — não é preciso informar de novo em outra etapa." data-en="Fill in the address so we can deliver it safely. We only ask for the ZIP code here — no need to enter it again in another step.">Preencha o endereço para podermos entregá-lo com segurança. Só pedimos o CEP aqui — não é preciso informar de novo em outra etapa.</p>
                 </section>
 
                 <section class="card entrega-card">
@@ -107,12 +138,14 @@
 
                         <div class="entrega-form__grupo">
                             <div class="entrega-form__label-linha">
-                                <label for="cep">CEP</label>
+                                <label for="cep" data-pt="CEP" data-en="ZIP code">CEP</label>
                                 <a
                                     id="linkNaoSeiCep"
                                     href="https://buscacepinter.correios.com.br/app/endereco/index.php"
                                     target="_blank"
                                     rel="noopener noreferrer"
+                                    data-pt="Não sei o meu CEP"
+                                    data-en="I don't know my ZIP code"
                                 >
                                     Não sei o meu CEP
                                 </a>
@@ -123,35 +156,35 @@
 
                         <div class="entrega-form__linha">
                             <div class="entrega-form__grupo entrega-form__grupo--grande">
-                                <label for="rua">Rua</label>
+                                <label for="rua" data-pt="Rua" data-en="Street">Rua</label>
                                 <input type="text" id="rua" placeholder="Nome da rua" required>
                                 <span class="entrega-form__erro" id="erro-rua"></span>
                             </div>
                             <div class="entrega-form__grupo">
-                                <label for="numero">Número</label>
+                                <label for="numero" data-pt="Número" data-en="Number">Número</label>
                                 <input type="text" id="numero" placeholder="Nº" inputmode="numeric" required>
                                 <span class="entrega-form__erro" id="erro-numero"></span>
                             </div>
                         </div>
 
                         <div class="entrega-form__grupo">
-                            <label for="complemento">Complemento (opcional)</label>
+                            <label for="complemento" data-pt="Complemento (opcional)" data-en="Additional info (optional)">Complemento (opcional)</label>
                             <input type="text" id="complemento" placeholder="Apto, bloco, referência...">
                         </div>
 
                         <div class="entrega-form__linha entrega-form__linha--tripla">
                             <div class="entrega-form__grupo">
-                                <label for="bairro">Bairro</label>
+                                <label for="bairro" data-pt="Bairro" data-en="Neighborhood">Bairro</label>
                                 <input type="text" id="bairro" placeholder="Bairro" required>
                                 <span class="entrega-form__erro" id="erro-bairro"></span>
                             </div>
                             <div class="entrega-form__grupo">
-                                <label for="cidade">Cidade</label>
+                                <label for="cidade" data-pt="Cidade" data-en="City">Cidade</label>
                                 <input type="text" id="cidade" placeholder="Cidade" required>
                                 <span class="entrega-form__erro" id="erro-cidade"></span>
                             </div>
                             <div class="entrega-form__grupo">
-                                <label for="estado">Estado</label>
+                                <label for="estado" data-pt="Estado" data-en="State">Estado</label>
                                 <select id="estado" required>
                                     <option value="" disabled selected>UF</option>
                                     <option value="AC">AC — Acre</option>
@@ -189,15 +222,15 @@
                         <div class="entrega-aviso">
                             <i class="fa-solid fa-shield-halved"></i>
                             <div>
-                                <strong>Seus dados estão seguros</strong>
-                                <p>Usamos suas informações apenas para a entrega do Bixuco.</p>
+                                <strong data-pt="Seus dados estão seguros" data-en="Your data is safe">Seus dados estão seguros</strong>
+                                <p data-pt="Usamos suas informações apenas para a entrega do Bixuco." data-en="We only use your information to deliver the Bixuco.">Usamos suas informações apenas para a entrega do Bixuco.</p>
                             </div>
                         </div>
 
                         <span class="entrega-form__erro entrega-form__erro--geral" id="erro-geral" style="display:none;"></span>
 
                         <button type="submit" class="entrega-btn" id="btnContinuar">
-                            <span id="textoBtnContinuar">Continuar</span>
+                            <span id="textoBtnContinuar" data-pt="Continuar" data-en="Continue">Continuar</span>
                             <i class="fa-solid fa-chevron-right"></i>
                         </button>
 
@@ -209,153 +242,113 @@
         </main>
     </div>
 
-    <!-- Estilos específicos desta página — tudo prefixado com "entrega-" para não colidir com home.css -->
+    <!-- Estilos específicos desta página — prefixados com "entrega-" para não colidir com home.css -->
     <style>
-        .entrega-intro {
-            margin-bottom: 1.5rem;
+        .entrega-intro { margin-bottom: 1.5rem; }
+        .entrega-intro h1 { font-size: 1.5rem; margin: 0 0 0.4rem; }
+        .entrega-intro p { margin: 0; opacity: 0.75; font-size: 0.95rem; }
+        .entrega-card { max-width: 640px; }
+        .entrega-form__grupo { margin-bottom: 1rem; }
+        .entrega-form__label-linha { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; }
+        .entrega-form label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; }
+        #linkNaoSeiCep { font-size: 0.8rem; color: #22d3ee; text-decoration: none; }
+        #linkNaoSeiCep:hover { text-decoration: underline; }
+        .entrega-form input, .entrega-form select {
+            width: 100%; padding: 0.75rem 0.9rem; border: 1px solid #d1d5db;
+            border-radius: 10px; font-size: 0.9rem; outline: none; background: #fff; color: inherit;
         }
-
-        .entrega-intro h1 {
-            font-size: 1.5rem;
-            margin: 0 0 0.4rem;
-        }
-
-        .entrega-intro p {
-            margin: 0;
-            opacity: 0.75;
-            font-size: 0.95rem;
-        }
-
-        .entrega-card {
-            max-width: 640px;
-        }
-
-        .entrega-form__grupo {
-            margin-bottom: 1rem;
-        }
-
-        .entrega-form__label-linha {
-            display: flex;
-            align-items: baseline;
-            justify-content: space-between;
-            gap: 0.5rem;
-        }
-
-        .entrega-form label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 0.4rem;
-        }
-
-        #linkNaoSeiCep {
-            font-size: 0.8rem;
-            color: #22d3ee;
-            text-decoration: none;
-        }
-
-        #linkNaoSeiCep:hover {
-            text-decoration: underline;
-        }
-
-        .entrega-form input,
-        .entrega-form select {
-            width: 100%;
-            padding: 0.75rem 0.9rem;
-            border: 1px solid #d1d5db;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            outline: none;
-            background: #fff;
-            color: inherit;
-        }
-
-        .entrega-form input:focus,
-        .entrega-form select:focus {
-            border-color: #22d3ee;
-        }
-
-        .entrega-form__linha {
-            display: grid;
-            grid-template-columns: 3fr 1fr;
-            gap: 1rem;
-        }
-
-        .entrega-form__linha--tripla {
-            grid-template-columns: 1fr 1fr 1fr;
-        }
-
-        .entrega-form__erro {
-            display: block;
-            color: #dc2626;
-            font-size: 0.78rem;
-            margin-top: 0.3rem;
-            min-height: 1em;
-        }
-
-        .entrega-form__erro--geral {
-            margin-top: 0.5rem;
-            text-align: center;
-        }
-
+        .entrega-form input:focus, .entrega-form select:focus { border-color: #22d3ee; }
+        .entrega-form__linha { display: grid; grid-template-columns: 3fr 1fr; gap: 1rem; }
+        .entrega-form__linha--tripla { grid-template-columns: 1fr 1fr 1fr; }
+        .entrega-form__erro { display: block; color: #dc2626; font-size: 0.78rem; margin-top: 0.3rem; min-height: 1em; }
+        .entrega-form__erro--geral { margin-top: 0.5rem; text-align: center; }
         .entrega-aviso {
-            display: flex;
-            align-items: center;
-            gap: 0.7rem;
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            border-radius: 10px;
-            padding: 0.8rem 0.9rem;
-            margin-top: 1.3rem;
-            font-size: 0.82rem;
-            color: #166534;
+            display: flex; align-items: center; gap: 0.7rem; background: #f0fdf4;
+            border: 1px solid #bbf7d0; border-radius: 10px; padding: 0.8rem 0.9rem;
+            margin-top: 1.3rem; font-size: 0.82rem; color: #166534;
         }
-
-        .entrega-aviso i {
-            color: #16a34a;
-            font-size: 1.1rem;
-        }
-
-        .entrega-aviso p {
-            margin: 0.15rem 0 0;
-            color: #166534;
-            opacity: 0.85;
-        }
-
+        .entrega-aviso i { color: #16a34a; font-size: 1.1rem; }
+        .entrega-aviso p { margin: 0.15rem 0 0; color: #166534; opacity: 0.85; }
         .entrega-btn {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            padding: 0.9rem;
-            border: none;
-            border-radius: 10px;
-            background: linear-gradient(90deg, #4ade80, #22d3ee);
-            color: #fff;
-            font-size: 0.95rem;
-            font-weight: 700;
-            margin-top: 1.4rem;
-            cursor: pointer;
+            width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            padding: 0.9rem; border: none; border-radius: 10px;
+            background: linear-gradient(90deg, #4ade80, #22d3ee); color: #fff;
+            font-size: 0.95rem; font-weight: 700; margin-top: 1.4rem; cursor: pointer;
         }
-
-        .entrega-btn:disabled {
-            opacity: 0.7;
-            cursor: default;
-        }
-
+        .entrega-btn:disabled { opacity: 0.7; cursor: default; }
         @media (max-width: 640px) {
-            .entrega-form__linha,
-            .entrega-form__linha--tripla {
-                grid-template-columns: 1fr;
-            }
+            .entrega-form__linha, .entrega-form__linha--tripla { grid-template-columns: 1fr; }
         }
     </style>
 
     <script>
 
+        // ==========================
+        // TEMA — mesma implementação da relatorios.html
+        // ==========================
+
+        function aplicarTema(tema) {
+            document.body.classList.remove("tema-claro", "tema-escuro");
+            document.body.classList.add(`tema-${tema}`);
+            document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
+            document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
+            localStorage.setItem("tema", tema);
+        }
+
+        document.getElementById("btnClaro").addEventListener("click", () => aplicarTema("claro"));
+        document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
+
+        const temaSalvo = localStorage.getItem("tema") || "claro";
+        aplicarTema(temaSalvo);
+
+        // ==========================
+        // TRADUÇÃO MANUAL — mesmo sistema da relatorios.html
+        // ==========================
+
+        let idiomaAtual = localStorage.getItem("idioma") || "pt";
+
+        const dicionario = {
+            "CEP não encontrado.":                                      "ZIP code not found.",
+            "Digite um CEP válido.":                                    "Enter a valid ZIP code.",
+            "Informe a rua.":                                           "Enter the street.",
+            "Informe o número.":                                        "Enter the number.",
+            "Informe o bairro.":                                        "Enter the neighborhood.",
+            "Informe a cidade.":                                        "Enter the city.",
+            "Selecione o estado.":                                      "Select the state.",
+            "Enviando...":                                              "Sending...",
+            "Continuar":                                                "Continue",
+            "Não foi possível salvar o endereço. Confira os campos e tente novamente.":
+                                                                          "Couldn't save the address. Check the fields and try again.",
+            "Não foi possível conectar. Verifique sua internet e tente novamente.":
+                                                                          "Couldn't connect. Check your internet and try again."
+        };
+
+        function traduzir(texto) {
+            if (idiomaAtual === "pt" || texto == null) return texto;
+            return dicionario[texto] || texto;
+        }
+
+        function aplicarIdiomaEstatico() {
+            document.querySelectorAll("[data-pt]").forEach(el => {
+                el.textContent = idiomaAtual === "en"
+                    ? (el.dataset.en || el.dataset.pt)
+                    : el.dataset.pt;
+            });
+
+            document.getElementById("textoTradutor").textContent =
+                idiomaAtual === "en" ? "Traduzir para o português" : "Translate to English";
+        }
+
+        document.getElementById("btnTraduzir").addEventListener("click", () => {
+            idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+            localStorage.setItem("idioma", idiomaAtual);
+            aplicarIdiomaEstatico();
+        });
+
+        aplicarIdiomaEstatico();
+
         // =========================
-        // DADOS DO USUÁRIO NO TOPO — mesmo endpoint/lógica da home.html
+        // DADOS DO USUÁRIO NO TOPO
         // =========================
 
         async function carregarDadosUsuario() {
@@ -388,6 +381,75 @@
         carregarDadosUsuario();
 
         // =========================
+        // NOTIFICAÇÕES
+        // =========================
+
+        const painelNotificacoes = document.getElementById("painelNotificacoes");
+        const listaNotificacoes  = document.getElementById("listaNotificacoes");
+
+        function formatarItemNotificacao(item) {
+            const classeExtra = item.lida ? "" : "nao-lida";
+            return `
+                <div class="item-notificacao ${classeExtra}">
+                    ${item.mensagem}
+                    <span class="tempo-notificacao">${item.tempo}</span>
+                </div>
+            `;
+        }
+
+        async function carregarNotificacoes() {
+            try {
+                const resposta = await fetch("/api/notificacoes");
+                if (!resposta.ok) throw new Error();
+
+                const dados = await resposta.json();
+                const itens = dados.notificacoes || [];
+
+                listaNotificacoes.innerHTML = itens.length === 0
+                    ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+                    : itens.map(formatarItemNotificacao).join("");
+
+                const naoLidas = itens.filter(item => !item.lida).length;
+                document.getElementById("quantidadeNotificacoes").textContent = naoLidas;
+
+            } catch (erro) {
+                console.log("Erro ao carregar notificações:", erro);
+                listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar as notificações.</div>`;
+            }
+        }
+
+        async function marcarNotificacoesComoLidas() {
+            try {
+                await fetch("/api/notificacoes/marcar-lidas", { method: "POST" });
+                document.getElementById("quantidadeNotificacoes").textContent = "0";
+            } catch (erro) {
+                console.log("Erro ao marcar notificações como lidas:", erro);
+            }
+        }
+
+        document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
+            e.stopPropagation();
+
+            const estaAberto = painelNotificacoes.classList.contains("aberto");
+            if (estaAberto) {
+                painelNotificacoes.classList.remove("aberto");
+                return;
+            }
+
+            painelNotificacoes.classList.add("aberto");
+            await carregarNotificacoes();
+            marcarNotificacoesComoLidas();
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!painelNotificacoes.contains(e.target)) {
+                painelNotificacoes.classList.remove("aberto");
+            }
+        });
+
+        carregarNotificacoes();
+
+        // =========================
         // MÁSCARA E BUSCA DO CEP
         // =========================
 
@@ -413,7 +475,7 @@
                 const dados = await resposta.json();
 
                 if (dados.erro) {
-                    mostrarErro("cep", "erro-cep", "CEP não encontrado.");
+                    mostrarErro("cep", "erro-cep", traduzir("CEP não encontrado."));
                     return;
                 }
 
@@ -462,27 +524,27 @@
             const estado  = document.getElementById("estado").value;
 
             if (cep.length !== 8) {
-                mostrarErro("cep", "erro-cep", "Digite um CEP válido.");
+                mostrarErro("cep", "erro-cep", traduzir("Digite um CEP válido."));
                 valido = false;
             }
             if (!rua) {
-                mostrarErro("rua", "erro-rua", "Informe a rua.");
+                mostrarErro("rua", "erro-rua", traduzir("Informe a rua."));
                 valido = false;
             }
             if (!numero) {
-                mostrarErro("numero", "erro-numero", "Informe o número.");
+                mostrarErro("numero", "erro-numero", traduzir("Informe o número."));
                 valido = false;
             }
             if (!bairro) {
-                mostrarErro("bairro", "erro-bairro", "Informe o bairro.");
+                mostrarErro("bairro", "erro-bairro", traduzir("Informe o bairro."));
                 valido = false;
             }
             if (!cidade) {
-                mostrarErro("cidade", "erro-cidade", "Informe a cidade.");
+                mostrarErro("cidade", "erro-cidade", traduzir("Informe a cidade."));
                 valido = false;
             }
             if (!estado) {
-                mostrarErro("estado", "erro-estado", "Selecione o estado.");
+                mostrarErro("estado", "erro-estado", traduzir("Selecione o estado."));
                 valido = false;
             }
 
@@ -498,12 +560,12 @@
             evento.preventDefault();
             if (!validarCampos()) return;
 
-            const btnContinuar    = document.getElementById("btnContinuar");
-            const textoBtn        = document.getElementById("textoBtnContinuar");
-            const erroGeral       = document.getElementById("erro-geral");
+            const btnContinuar = document.getElementById("btnContinuar");
+            const textoBtn     = document.getElementById("textoBtnContinuar");
+            const erroGeral    = document.getElementById("erro-geral");
 
             btnContinuar.disabled = true;
-            textoBtn.textContent  = "Enviando...";
+            textoBtn.textContent  = traduzir("Enviando...");
 
             const endereco = {
                 cep:         campoCep.value,
@@ -528,7 +590,7 @@
                 }
 
                 if (!resposta.ok) {
-                    erroGeral.textContent   = "Não foi possível salvar o endereço. Confira os campos e tente novamente.";
+                    erroGeral.textContent   = traduzir("Não foi possível salvar o endereço. Confira os campos e tente novamente.");
                     erroGeral.style.display = "block";
                     return;
                 }
@@ -537,57 +599,16 @@
 
             } catch (erro) {
                 console.log("Erro ao salvar endereço:", erro);
-                erroGeral.textContent   = "Não foi possível conectar. Verifique sua internet e tente novamente.";
+                erroGeral.textContent   = traduzir("Não foi possível conectar. Verifique sua internet e tente novamente.");
                 erroGeral.style.display = "block";
             } finally {
                 btnContinuar.disabled = false;
-                textoBtn.textContent  = "Continuar";
+                textoBtn.textContent  = traduzir("Continuar");
             }
         });
-
-        // =========================
-        // TRADUÇÃO — mesma implementação usada hoje no resto do site
-        // (ainda com o Google Translate; a versão manual está pendente)
-        // =========================
-
-        function lerCookie(nome) {
-            const valor = `; ${document.cookie}`;
-            const partes = valor.split(`; ${nome}=`);
-            if (partes.length === 2) return partes.pop().split(";").shift();
-            return null;
-        }
-
-        function definirCookieTraducao(destino) {
-            document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
-            document.cookie = `googtrans=; path=/; domain=${location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
-
-            if (destino) {
-                const valor = `/pt/${destino}`;
-                document.cookie = `googtrans=${valor}; path=/`;
-                document.cookie = `googtrans=${valor}; path=/; domain=${location.hostname}`;
-            }
-        }
-
-        function atualizarTextoBotaoTraducao() {
-            const cookieAtual = lerCookie("googtrans");
-            const textoBotao  = document.getElementById("textoTradutor");
-            textoBotao.textContent = (cookieAtual && cookieAtual.includes("/en"))
-                ? "Voltar para português"
-                : "Traduzir para inglês";
-        }
-
-        document.getElementById("btnTraduzir").addEventListener("click", () => {
-            const cookieAtual    = lerCookie("googtrans");
-            const estaTraduzido  = cookieAtual && cookieAtual.includes("/en");
-            definirCookieTraducao(estaTraduzido ? null : "en");
-            window.location.reload();
-        });
-
-        atualizarTextoBotaoTraducao();
 
     </script>
 
-    <!-- Tema claro/escuro compartilhado — precisa vir depois dos botões #btnClaro/#btnEscuro existirem -->
     <script src="/js/tema.js"></script>
 
 </body>
