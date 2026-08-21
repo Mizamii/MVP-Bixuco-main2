@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Admin: Pedidos</title>
+
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #F5F7FA;
+            padding: 2rem;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 480px;
+            background: #fff;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            font-size: 1.3rem;
+            color: #141414;
+            margin-bottom: 0.4rem;
+        }
+
+        p.subtitulo {
+            font-size: 0.85rem;
+            color: #5A5A5A;
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #141414;
+            margin-bottom: 0.4rem;
+            margin-top: 1rem;
+        }
+
+        input[type="password"],
+        input[type="email"] {
+            width: 100%;
+            padding: 0.75rem 0.9rem;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-family: inherit;
+        }
+
+        #btnBuscar {
+            width: 100%;
+            margin-top: 1rem;
+            padding: 0.7rem;
+            background: #F5F7FA;
+            border: 1px solid #ddd;
+            color: #141414;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        #resultadoPedido {
+            display: none;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 12px;
+            background: #F5F7FA;
+        }
+
+        #resultadoPedido.visivel { display: block; }
+
+        #resultadoPedido p {
+            font-size: 0.85rem;
+            color: #5A5A5A;
+            margin-bottom: 0.6rem;
+        }
+
+        #resultadoPedido strong { color: #141414; }
+
+        .etapas {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 0.8rem;
+        }
+
+        .etapas button {
+            padding: 0.7rem 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background: #fff;
+            color: #141414;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .etapas button:hover {
+            border-color: #32C26D;
+            color: #32C26D;
+        }
+
+        .etapas button.atual {
+            background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+            border-color: transparent;
+            color: #fff;
+        }
+
+        .etapas button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .status {
+            display: none;
+            margin-top: 1rem;
+            padding: 0.75rem 0.9rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .status.visivel { display: block; }
+
+        .status.sucesso {
+            background: rgba(50, 194, 109, 0.12);
+            color: #1E8E4F;
+        }
+
+        .status.erro {
+            background: rgba(255, 68, 68, 0.1);
+            color: #C0392B;
+        }
+    </style>
+
+</head>
+<body>
+
+    <div class="card">
+
+        <h1>Controlar status do pedido</h1>
+        <p class="subtitulo">
+            Ferramenta temporária pra avançar manualmente a etapa de entrega
+            de um pedido enquanto não há rastreamento real integrado.
+        </p>
+
+        <label for="chaveAdmin">Senha de admin</label>
+        <input type="password" id="chaveAdmin" required autocomplete="off">
+
+        <label for="emailUsuario">E-mail do usuário</label>
+        <input type="email" id="emailUsuario" required placeholder="responsavel@exemplo.com">
+
+        <button id="btnBuscar" type="button">Buscar pedido</button>
+
+        <div id="resultadoPedido">
+            <p>Pedido de <strong id="nomeUsuarioEncontrado"></strong> — status atual: <strong id="statusAtual"></strong></p>
+
+            <div class="etapas" id="etapas">
+                <button type="button" data-status="em_producao">Em produção</button>
+                <button type="button" data-status="enviado">Enviado</button>
+                <button type="button" data-status="em_transito">Em trânsito</button>
+                <button type="button" data-status="entregue">Entregue</button>
+            </div>
+        </div>
+
+        <p id="statusEnvio" class="status"></p>
+
+    </div>
+
+    <script>
+
+        const chaveAdmin      = document.getElementById("chaveAdmin");
+        const emailUsuario    = document.getElementById("emailUsuario");
+        const btnBuscar       = document.getElementById("btnBuscar");
+        const resultadoPedido = document.getElementById("resultadoPedido");
+        const nomeUsuarioEl   = document.getElementById("nomeUsuarioEncontrado");
+        const statusAtualEl   = document.getElementById("statusAtual");
+        const etapas          = document.getElementById("etapas");
+        const statusEnvio     = document.getElementById("statusEnvio");
+
+        function mostrarStatus(texto, tipo) {
+            statusEnvio.textContent = texto;
+            statusEnvio.className   = `status visivel ${tipo}`;
+        }
+
+        function marcarEtapaAtual(status) {
+            etapas.querySelectorAll("button").forEach(btn => {
+                btn.classList.toggle("atual", btn.dataset.status === status);
+            });
+        }
+
+        btnBuscar.addEventListener("click", async () => {
+
+            if (!chaveAdmin.value || !emailUsuario.value) {
+                mostrarStatus("Preencha a senha de admin e o e-mail.", "erro");
+                return;
+            }
+
+            btnBuscar.disabled    = true;
+            btnBuscar.textContent = "Buscando...";
+
+            try {
+                const resposta = await fetch("/api/admin/pedido-status", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        chave: chaveAdmin.value,
+                        email: emailUsuario.value
+                    })
+                });
+
+                const dados = await resposta.json();
+
+                if (!resposta.ok) throw new Error(dados.erro || "Erro ao buscar pedido.");
+
+                nomeUsuarioEl.textContent = dados.nome;
+                statusAtualEl.textContent = dados.status;
+                marcarEtapaAtual(dados.status);
+                resultadoPedido.classList.add("visivel");
+                statusEnvio.className = "status";
+
+            } catch (erro) {
+                resultadoPedido.classList.remove("visivel");
+                mostrarStatus(erro.message, "erro");
+            } finally {
+                btnBuscar.disabled    = false;
+                btnBuscar.textContent = "Buscar pedido";
+            }
+
+        });
+
+        etapas.addEventListener("click", async (e) => {
+
+            const botao = e.target.closest("button[data-status]");
+            if (!botao) return;
+
+            const novoStatus = botao.dataset.status;
+
+            etapas.querySelectorAll("button").forEach(b => b.disabled = true);
+
+            try {
+                const resposta = await fetch("/api/admin/pedido-status", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        chave: chaveAdmin.value,
+                        email: emailUsuario.value,
+                        novoStatus
+                    })
+                });
+
+                const dados = await resposta.json();
+
+                if (!resposta.ok) throw new Error(dados.erro || "Erro ao atualizar status.");
+
+                statusAtualEl.textContent = novoStatus;
+                marcarEtapaAtual(novoStatus);
+                mostrarStatus(dados.mensagem, "sucesso");
+
+            } catch (erro) {
+                mostrarStatus(erro.message, "erro");
+            } finally {
+                etapas.querySelectorAll("button").forEach(b => b.disabled = false);
+            }
+
+        });
+
+    </script>
+
+</body>
+</html>

@@ -410,6 +410,10 @@ app.get("/FormularioEntrega", estaLogado, precisaPlano("Médio"), (req, res) => 
     res.sendFile(path.join(__dirname, "templates", "FormularioEntrega.html"));
 });
 
+app.get("/admin/pedidos", (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "AdminPedidos.html"));
+});
+
 app.get("/PedidoConfirmado", estaLogado, precisaPlano("Médio"), (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "PedidoConfirmado.html"));
 });
@@ -599,6 +603,68 @@ app.get(
     }
 
 );
+
+app.post("/api/admin/pedido-status", async (req, res) => {
+
+    const { chave, email, novoStatus } = req.body;
+
+    if (!process.env.ADMIN_SECRET || chave !== process.env.ADMIN_SECRET) {
+        return res.status(401).json({ erro: "Chave de admin inválida." });
+    }
+
+    if (!email) {
+        return res.status(400).json({ erro: "Informe o e-mail do usuário." });
+    }
+
+    try {
+        const usuario = await db.query(
+            "SELECT id, nome FROM usuarios WHERE email = $1",
+            [email]
+        );
+
+        if (usuario.rows.length === 0) {
+            return res.status(404).json({ erro: "Usuário não encontrado." });
+        }
+
+        const usuarioId = usuario.rows[0].id;
+
+        // Sem novoStatus → só consulta o status atual (usado pelo "Buscar pedido")
+        if (!novoStatus) {
+            const pedido = await db.query(
+                "SELECT status FROM pedidos WHERE usuario_id = $1 ORDER BY id DESC LIMIT 1",
+                [usuarioId]
+            );
+
+            if (pedido.rows.length === 0) {
+                return res.status(404).json({ erro: "Esse usuário ainda não tem pedido." });
+            }
+
+            return res.json({ nome: usuario.rows[0].nome, status: pedido.rows[0].status });
+        }
+
+        const statusesValidos = ["em_producao", "enviado", "em_transito", "entregue"];
+        if (!statusesValidos.includes(novoStatus)) {
+            return res.status(400).json({ erro: "Status inválido." });
+        }
+
+        const atualizado = await db.query(
+            `UPDATE pedidos SET status = $1
+             WHERE id = (SELECT id FROM pedidos WHERE usuario_id = $2 ORDER BY id DESC LIMIT 1)
+             RETURNING id`,
+            [novoStatus, usuarioId]
+        );
+
+        if (atualizado.rows.length === 0) {
+            return res.status(404).json({ erro: "Esse usuário ainda não tem pedido." });
+        }
+
+        res.json({ mensagem: `Status atualizado para "${novoStatus}".` });
+
+    } catch (erro) {
+        console.log("Erro ao atualizar status do pedido:", erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
+});
 
 
 app.post("/api/planos/criar-planos", async (req, res) => {
