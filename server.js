@@ -438,9 +438,6 @@ app.get("/PerfilTerapeuta", estaLogado, (req, res) => {
 });
 
 
-app.get("/AcompanharPedido", estaLogado, (req, res) => {
-    res.sendFile(path.join(__dirname, "templates", "AcompanharPedido.html"));
-});
 
 // 🔒 FIX 2 (aplicado): /home agora exige login
 app.get("/home", estaLogado, precisaPlano("Médio"), (req, res) => {
