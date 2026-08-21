@@ -1,380 +1,560 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Acompanhar pedido — Bixuco</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Acompanhar pedido</title>
 
-  body { background: #f4f6fa; min-height: 100vh; display: flex; }
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
-  #sidebar {
-    width: 240px;
-    background: #ffffff;
-    border-right: 1px solid #eef0f3;
-    padding: 24px 20px;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-
-  #logo {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 20px;
-    font-weight: 800;
-    color: #16a34a;
-    margin-bottom: 32px;
-  }
-
-  #logo i {
-    background: linear-gradient(135deg, #4ade80, #22d3ee);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    font-size: 24px;
-  }
-
-  nav ul { list-style: none; }
-
-  nav li {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 11px 12px;
-    border-radius: 10px;
-    color: #6b7280;
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 4px;
-    cursor: pointer;
-  }
-
-  nav li.ativo { background: #ecfdf3; color: #16a34a; }
-  nav li i { width: 18px; text-align: center; }
-
-  #theme-toggle {
-    margin-top: auto;
-    display: flex;
-    background: #f1f3f5;
-    border-radius: 20px;
-    padding: 4px;
-  }
-
-  #theme-toggle button {
-    flex: 1;
-    border: none;
-    background: transparent;
-    padding: 8px 0;
-    font-size: 13px;
-    font-weight: 600;
-    color: #6b7280;
-    border-radius: 16px;
-    cursor: pointer;
-  }
-
-  #theme-toggle button.ativo { background: #ffffff; color: #1f2937; }
-
-  #sair {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 14px 4px 4px;
-    margin-top: 16px;
-    border-top: 1px solid #eef0f3;
-    color: #6b7280;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  #main { flex: 1; display: flex; flex-direction: column; }
-
-  #topbar {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 20px;
-    padding: 16px 32px;
-    background: #ffffff;
-    border-bottom: 1px solid #eef0f3;
-  }
-
-  #btn-traduzir {
-    border: 1px solid #bbf7d0;
-    color: #16a34a;
-    background: #ecfdf3;
-    padding: 7px 14px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-  }
-
-  #usuario { display: flex; align-items: center; gap: 10px; }
-
-  #avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: #e5e7eb;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #9ca3af;
-  }
-
-  #usuario-info { line-height: 1.2; font-size: 13px; }
-  #usuario-info strong { display: block; color: #1f2937; }
-  #usuario-info span { color: #9ca3af; }
-
-  #conteudo { flex: 1; padding: 40px; display: flex; justify-content: center; }
-
-  #painel {
-    width: 100%;
-    max-width: 900px;
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 32px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.04);
-  }
-
-  #banner {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    background: #ecfeff;
-    border: 1px solid #a5f3fc;
-    border-radius: 12px;
-    padding: 16px 18px;
-    margin-bottom: 28px;
-  }
-
-  #banner i { font-size: 22px; color: #0891b2; }
-  #banner strong { display: block; font-size: 15px; color: #0e7490; }
-  #banner span { font-size: 13px; color: #6b7280; }
-
-  #grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 32px; }
-
-  #timeline .etapa { display: flex; gap: 14px; position: relative; padding-bottom: 26px; }
-  #timeline .etapa:last-child { padding-bottom: 0; }
-
-  #timeline .etapa::before {
-    content: "";
-    position: absolute;
-    left: 8px;
-    top: 20px;
-    bottom: -6px;
-    width: 2px;
-    background: #e5e7eb;
-  }
-
-  #timeline .etapa:last-child::before { display: none; }
-
-  #timeline .ponto {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: #e5e7eb;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-
-  #timeline .etapa.concluida .ponto { background: #22c55e; }
-  #timeline .etapa.atual .ponto { background: #22d3ee; }
-
-  #timeline .etapa strong { display: block; font-size: 15px; color: #1f2937; }
-  #timeline .etapa span { font-size: 13px; color: #9ca3af; }
-
-  #card-rastreio {
-    border: 1px solid #eef0f3;
-    border-radius: 14px;
-    padding: 22px;
-    height: fit-content;
-  }
-
-  #card-rastreio h3 { font-size: 14px; color: #6b7280; margin-bottom: 6px; }
-
-  #codigo-rastreio {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 18px;
-    font-weight: 700;
-    color: #1f2937;
-    margin-bottom: 18px;
-  }
-
-  #codigo-rastreio i { font-size: 14px; color: #9ca3af; cursor: pointer; }
-
-  #transportadora { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  #transportadora div span { display: block; font-size: 12px; color: #9ca3af; }
-  #transportadora div strong { font-size: 14px; color: #1f2937; }
-  #transportadora i { font-size: 20px; color: #f59e0b; }
-
-  #btn-acompanhar {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #a5f3fc;
-    border-radius: 10px;
-    background: #ecfeff;
-    color: #0e7490;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    margin-bottom: 20px;
-  }
-
-  #previsao-lateral {
-    border: 1px solid #a5f3fc;
-    border-radius: 10px;
-    padding: 14px;
-    background: #ecfeff;
-  }
-
-  #previsao-lateral span { font-size: 12px; color: #0891b2; font-weight: 600; }
-  #previsao-lateral strong { display: block; font-size: 15px; color: #0e7490; margin: 4px 0; }
-  #previsao-lateral p { font-size: 12px; color: #6b7280; }
-</style>
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
 </head>
+
 <body>
 
-  <div id="sidebar">
-    <div id="logo"><i class="fa-solid fa-cat"></i> BIXUCO</div>
-    <nav>
-      <ul>
-        <li class="ativo"><i class="fa-solid fa-house"></i> Início</li>
-        <li><i class="fa-solid fa-chart-line"></i> Relatórios</li>
-        <li><i class="fa-solid fa-gear"></i> Configurações</li>
-        <li><i class="fa-solid fa-circle-info"></i> Sobre</li>
-      </ul>
-    </nav>
-    <div id="theme-toggle">
-      <button class="ativo" type="button"><i class="fa-solid fa-sun"></i> Claro</button>
-      <button type="button"><i class="fa-solid fa-moon"></i> Escuro</button>
-    </div>
-    <div id="sair"><i class="fa-solid fa-right-from-bracket"></i> Sair</div>
-  </div>
+    <div class="container">
 
-  <div id="main">
-    <div id="topbar">
-      <button id="btn-traduzir" type="button"><i class="fa-solid fa-globe"></i> Traduzir para o inglês</button>
-      <i class="fa-regular fa-bell" style="color:#6b7280;"></i>
-      <div id="usuario">
-        <div id="avatar"><i class="fa-solid fa-user"></i></div>
-        <div id="usuario-info">
-          <strong id="nome-usuario">Lucas</strong>
-          <span>Responsável</span>
-        </div>
-      </div>
-    </div>
+        <!-- ===================== -->
+        <!-- MENU LATERAL — mesma estrutura da relatorios.html -->
+        <!-- ===================== -->
+        <aside class="sidebar">
 
-    <div id="conteudo">
-      <div id="painel">
-        <div id="banner">
-          <i class="fa-solid fa-truck"></i>
-          <div>
-            <strong>Seu Bixuco está a caminho!</strong>
-            <span>Ele já foi postado e está com a transportadora.</span>
-          </div>
-        </div>
-
-        <div id="grid">
-          <div id="timeline">
-            <div class="etapa concluida">
-              <div class="ponto"></div>
-              <div><strong>Pedido recebido!</strong><span>Recebemos seu pedido com sucesso.</span></div>
-            </div>
-            <div class="etapa concluida">
-              <div class="ponto"></div>
-              <div><strong>Em produção</strong><span>Seu pedido está sendo preparado.</span></div>
-            </div>
-            <div class="etapa atual">
-              <div class="ponto"></div>
-              <div><strong>Enviado</strong><span>Postado com a transportadora.</span></div>
-            </div>
-            <div class="etapa">
-              <div class="ponto"></div>
-              <div><strong>Em transporte</strong><span>Aguardando envio.</span></div>
-            </div>
-            <div class="etapa">
-              <div class="ponto"></div>
-              <div><strong>Entregue</strong><span>Aguardando entrega.</span></div>
-            </div>
-          </div>
-
-          <div id="card-rastreio">
-            <h3>Código de rastreio</h3>
-            <div id="codigo-rastreio">
-              <span id="codigo-texto">BR1234567890</span>
-              <i class="fa-regular fa-copy" id="btn-copiar"></i>
+            <div class="logo">
+                <img src="/img/logo_nome.png" alt="Logo Bixuco">
             </div>
 
-            <div id="transportadora">
-              <div>
-                <span>Transportadora</span>
-                <strong>Mercado Livre</strong>
-              </div>
-              <i class="fa-solid fa-handshake"></i>
-            </div>
+            <nav>
+                <a href="/home">
+                    <i class="fa-solid fa-house"></i>
+                    <span data-pt="Início" data-en="Home">Início</span>
+                </a>
 
-            <button id="btn-acompanhar" type="button">
-              Acompanhar entrega <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                <a href="/relatorios">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+                </a>
+
+                <a href="/sobre">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span data-pt="Sobre" data-en="About">Sobre</span>
+                </a>
+
+                <a href="/configuracoes">
+                    <i class="fa-solid fa-gear"></i>
+                    <span data-pt="Configurações" data-en="Settings">Configurações</span>
+                </a>
+            </nav>
+
+            <button
+                class="btn-relatorio"
+                type="button"
+                onclick="location.href='/RelatorioDiario'"
+                data-pt="Relatório diário"
+                data-en="Daily report"
+            >
+                Relatório diário
             </button>
 
-            <div id="previsao-lateral">
-              <span>PREVISÃO DE ENTREGA</span>
-              <strong id="data-previsao">15 de Junho de 2026</strong>
-              <p>Enviaremos um aviso quando seu Bixuco for entregue.</p>
+            <div class="tema">
+                <button id="btnClaro" class="ativo" type="button">
+                    <i class="fa-regular fa-sun"></i> <span data-pt="Claro" data-en="Light">Claro</span>
+                </button>
+
+                <button id="btnEscuro" type="button">
+                    <i class="fa-regular fa-moon"></i> <span data-pt="Escuro" data-en="Dark">Escuro</span>
+                </button>
             </div>
-          </div>
-        </div>
-      </div>
+
+            <div class="sidebar-divisor"></div>
+
+            <a href="/logout" class="logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span data-pt="Sair" data-en="Log out">Sair</span>
+            </a>
+        </aside>
+
+        <!-- ===================== -->
+        <!-- CONTEÚDO PRINCIPAL -->
+        <!-- ===================== -->
+        <main class="conteudo">
+
+            <header class="topo">
+
+                <button class="tradutor" type="button" id="btnTraduzir">
+                    <i class="fa-solid fa-language"></i>
+                    <span id="textoTradutor">Traduzir para o inglês</span>
+                </button>
+
+                <div class="usuario">
+
+                    <div class="notificacoes-wrapper">
+                        <button class="notificacoes" type="button" id="btnNotificacoes">
+                            <i class="fa-regular fa-bell"></i>
+                            <span id="quantidadeNotificacoes" class="badge">0</span>
+                        </button>
+
+                        <div class="painel-notificacoes" id="painelNotificacoes">
+                            <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
+                            <div id="listaNotificacoes">
+                                <div class="painel-vazio">Carregando...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <img
+                        id="fotoUsuario"
+                        src="/img/perfilPadrao.png"
+                        alt="Foto do usuário"
+                        title="Ver perfil"
+                        style="cursor: pointer;"
+                        onclick="window.location.href='/perfil'"
+                        onerror="this.src='/img/perfilPadrao.png'"
+                    >
+
+                    <div
+                        style="cursor: pointer;"
+                        title="Ver perfil"
+                        onclick="window.location.href='/perfil'"
+                    >
+                        <h3 id="nomeUsuario">Carregando...</h3>
+                        <span id="tipoConta">...</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="conteudo-corpo">
+
+                <section class="rastreio-banner" id="banner">
+                    <i class="fa-solid fa-truck" id="banner-icone"></i>
+                    <div>
+                        <strong id="banner-titulo" data-pt="Seu Bixuco está a caminho!" data-en="Your Bixuco is on its way!">Seu Bixuco está a caminho!</strong>
+                        <span id="banner-subtitulo" data-pt="Ele já foi postado e está com a transportadora." data-en="It has already been posted and is with the carrier.">Ele já foi postado e está com a transportadora.</span>
+                    </div>
+                </section>
+
+                <div class="rastreio-grid">
+
+                    <div class="card rastreio-timeline" id="timeline">
+
+                        <div class="etapa" data-etapa="0">
+                            <div class="ponto"></div>
+                            <div>
+                                <strong data-pt="Pedido recebido!" data-en="Order received!">Pedido recebido!</strong>
+                                <span data-pt="Recebemos seu pedido com sucesso." data-en="We successfully received your order.">Recebemos seu pedido com sucesso.</span>
+                            </div>
+                        </div>
+
+                        <div class="etapa" data-etapa="1">
+                            <div class="ponto"></div>
+                            <div>
+                                <strong data-pt="Em produção" data-en="In production">Em produção</strong>
+                                <span data-pt="Seu pedido está sendo preparado." data-en="Your order is being prepared.">Seu pedido está sendo preparado.</span>
+                            </div>
+                        </div>
+
+                        <div class="etapa" data-etapa="2">
+                            <div class="ponto"></div>
+                            <div>
+                                <strong data-pt="Enviado" data-en="Shipped">Enviado</strong>
+                                <span data-pt="Postado com a transportadora." data-en="Handed off to the carrier.">Postado com a transportadora.</span>
+                            </div>
+                        </div>
+
+                        <div class="etapa" data-etapa="3">
+                            <div class="ponto"></div>
+                            <div>
+                                <strong data-pt="Em transporte" data-en="In transit">Em transporte</strong>
+                                <span data-pt="A caminho do seu endereço." data-en="On its way to your address.">A caminho do seu endereço.</span>
+                            </div>
+                        </div>
+
+                        <div class="etapa" data-etapa="4">
+                            <div class="ponto"></div>
+                            <div>
+                                <strong data-pt="Entregue" data-en="Delivered">Entregue</strong>
+                                <span data-pt="Aguardando entrega." data-en="Awaiting delivery.">Aguardando entrega.</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="card rastreio-lateral">
+
+                        <h3 data-pt="Código de rastreio" data-en="Tracking code">Código de rastreio</h3>
+
+                        <div class="rastreio-codigo">
+                            <span id="codigo-texto">—</span>
+                            <i class="fa-regular fa-copy" id="btn-copiar" title="Copiar"></i>
+                        </div>
+
+                        <div class="rastreio-transportadora">
+                            <div>
+                                <span data-pt="Transportadora" data-en="Carrier">Transportadora</span>
+                                <strong>Mercado Livre</strong>
+                            </div>
+                            <i class="fa-solid fa-handshake"></i>
+                        </div>
+
+                        <button id="btn-acompanhar" type="button" data-pt="Acompanhar entrega" data-en="Track delivery">
+                            <span data-pt="Acompanhar entrega" data-en="Track delivery">Acompanhar entrega</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </button>
+
+                        <div class="rastreio-previsao">
+                            <span data-pt="PREVISÃO DE ENTREGA" data-en="ESTIMATED DELIVERY">PREVISÃO DE ENTREGA</span>
+                            <strong id="data-previsao">—</strong>
+                            <p data-pt="Enviaremos um aviso quando seu Bixuco for entregue." data-en="We'll notify you when your Bixuco is delivered.">Enviaremos um aviso quando seu Bixuco for entregue.</p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
     </div>
-  </div>
 
-<script>
-  document.getElementById('btn-copiar').addEventListener('click', () => {
-    const codigo = document.getElementById('codigo-texto').textContent;
-    navigator.clipboard.writeText(codigo);
-  });
+    <!-- Estilos específicos desta página — prefixados com "rastreio-" para não colidir com home.css -->
+    <style>
+        .rastreio-banner {
+            display: flex; align-items: center; gap: 0.9rem;
+            background: #ecfeff; border: 1px solid #a5f3fc; border-radius: 12px;
+            padding: 1rem 1.1rem; margin-bottom: 1.6rem;
+        }
+        .rastreio-banner i { font-size: 1.4rem; color: #0891b2; }
+        .rastreio-banner strong { display: block; font-size: 0.95rem; color: #0e7490; }
+        .rastreio-banner span { font-size: 0.82rem; color: #6b7280; }
 
-  document.getElementById('btn-acompanhar').addEventListener('click', () => {
-    window.open('https://www.mercadolivre.com.br/gz/tracking', '_blank');
-  });
+        .rastreio-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 1.6rem; }
 
-  async function carregarStatusPedido() {
-    try {
-      const resp = await fetch('/api/pedidos/status');
-      if (resp.status === 401) {
-        window.location.href = '/logar';
-        return;
-      }
-      if (!resp.ok) return;
-      const dados = await resp.json();
+        .rastreio-timeline .etapa { display: flex; gap: 0.9rem; position: relative; padding-bottom: 1.5rem; }
+        .rastreio-timeline .etapa:last-child { padding-bottom: 0; }
+        .rastreio-timeline .etapa::before {
+            content: ""; position: absolute; left: 8px; top: 20px; bottom: -6px;
+            width: 2px; background: #e5e7eb;
+        }
+        .rastreio-timeline .etapa:last-child::before { display: none; }
+        .rastreio-timeline .ponto { width: 18px; height: 18px; border-radius: 50%; background: #e5e7eb; flex-shrink: 0; margin-top: 2px; }
+        .rastreio-timeline .etapa.concluida .ponto { background: #22c55e; }
+        .rastreio-timeline .etapa.atual .ponto { background: #22d3ee; }
+        .rastreio-timeline .etapa strong { display: block; font-size: 0.9rem; }
+        .rastreio-timeline .etapa span { font-size: 0.78rem; opacity: 0.65; }
 
-      if (dados.codigo_rastreio) {
-        document.getElementById('codigo-texto').textContent = dados.codigo_rastreio;
-      }
-      if (dados.previsao_entrega) {
-        document.getElementById('data-previsao').textContent = dados.previsao_entrega;
-      }
+        .rastreio-lateral h3 { font-size: 0.82rem; opacity: 0.7; margin-bottom: 0.4rem; font-weight: 600; }
 
-      if (dados.status === 'entregue') {
-        window.location.href = '/BixucoEntregue';
-      }
-    } catch (e) {
-      console.error('Não foi possível atualizar o status do pedido.', e);
-    }
-  }
+        .rastreio-codigo {
+            display: flex; align-items: center; gap: 0.6rem;
+            font-size: 1.05rem; font-weight: 700; margin-bottom: 1.1rem;
+        }
+        .rastreio-codigo i { font-size: 0.85rem; opacity: 0.55; cursor: pointer; }
 
-  carregarStatusPedido();
-</script>
+        .rastreio-transportadora { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; }
+        .rastreio-transportadora span { display: block; font-size: 0.75rem; opacity: 0.6; }
+        .rastreio-transportadora strong { font-size: 0.85rem; }
+        .rastreio-transportadora i { font-size: 1.2rem; color: #f59e0b; }
+
+        #btn-acompanhar {
+            width: 100%; padding: 0.75rem; border: 1px solid #a5f3fc; border-radius: 10px;
+            background: #ecfeff; color: #0e7490; font-size: 0.85rem; font-weight: 700;
+            cursor: pointer; margin-bottom: 1.2rem; display: flex; align-items: center;
+            justify-content: center; gap: 0.5rem;
+        }
+
+        .rastreio-previsao { border: 1px solid #a5f3fc; border-radius: 10px; padding: 0.85rem; background: #ecfeff; }
+        .rastreio-previsao span { font-size: 0.72rem; color: #0891b2; font-weight: 600; }
+        .rastreio-previsao strong { display: block; font-size: 0.9rem; color: #0e7490; margin: 0.25rem 0; }
+        .rastreio-previsao p { font-size: 0.72rem; color: #6b7280; }
+
+        @media (max-width: 800px) {
+            .rastreio-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+
+    <script>
+
+        // ==========================
+        // TEMA
+        // ==========================
+
+        function aplicarTema(tema) {
+            document.body.classList.remove("tema-claro", "tema-escuro");
+            document.body.classList.add(`tema-${tema}`);
+            document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
+            document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
+            localStorage.setItem("tema", tema);
+        }
+
+        document.getElementById("btnClaro").addEventListener("click", () => aplicarTema("claro"));
+        document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
+
+        aplicarTema(localStorage.getItem("tema") || "claro");
+
+        // ==========================
+        // TRADUÇÃO MANUAL
+        // ==========================
+
+        let idiomaAtual = localStorage.getItem("idioma") || "pt";
+
+        const dicionario = {
+            "Seu Bixuco está a caminho!":                              "Your Bixuco is on its way!",
+            "Ele já foi postado e está com a transportadora.":         "It has already been posted and is with the carrier.",
+            "Seu pedido está sendo preparado com muito carinho.":      "Your order is being carefully prepared.",
+            "Seu Bixuco foi entregue!":                                "Your Bixuco has been delivered!",
+            "Seu pedido chegou. Vamos vinculá-lo?":                    "Your order has arrived. Let's link it?"
+        };
+
+        function traduzir(texto) {
+            if (idiomaAtual === "pt" || texto == null) return texto;
+            return dicionario[texto] || texto;
+        }
+
+        function aplicarIdiomaEstatico() {
+            document.querySelectorAll("[data-pt]").forEach(el => {
+                el.textContent = idiomaAtual === "en"
+                    ? (el.dataset.en || el.dataset.pt)
+                    : el.dataset.pt;
+            });
+
+            document.getElementById("textoTradutor").textContent =
+                idiomaAtual === "en" ? "Traduzir para o português" : "Translate to English";
+        }
+
+        document.getElementById("btnTraduzir").addEventListener("click", () => {
+            idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+            localStorage.setItem("idioma", idiomaAtual);
+            aplicarIdiomaEstatico();
+            atualizarBanner(ultimoStatus);
+        });
+
+        aplicarIdiomaEstatico();
+
+        // =========================
+        // DADOS DO USUÁRIO NO TOPO
+        // =========================
+
+        async function carregarDadosUsuario() {
+            try {
+                const resposta = await fetch("/api/home");
+
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
+                }
+
+                if (!resposta.ok) throw new Error(`Falha ao carregar dados do usuário (status ${resposta.status})`);
+
+                const dados = await resposta.json();
+
+                document.getElementById("nomeUsuario").textContent = dados.nome || "Usuário";
+                document.getElementById("tipoConta").textContent   = dados.tipoConta || "Responsável";
+
+                if (dados.fotoPerfil) {
+                    document.getElementById("fotoUsuario").src = dados.fotoPerfil;
+                }
+
+            } catch (erro) {
+                console.log("Erro ao carregar dados do usuário:", erro);
+                document.getElementById("nomeUsuario").textContent = "Usuário";
+                document.getElementById("tipoConta").textContent   = "Responsável";
+            }
+        }
+
+        carregarDadosUsuario();
+
+        // =========================
+        // NOTIFICAÇÕES
+        // =========================
+
+        const painelNotificacoes = document.getElementById("painelNotificacoes");
+        const listaNotificacoes  = document.getElementById("listaNotificacoes");
+
+        function formatarItemNotificacao(item) {
+            const classeExtra = item.lida ? "" : "nao-lida";
+            return `
+                <div class="item-notificacao ${classeExtra}">
+                    ${item.mensagem}
+                    <span class="tempo-notificacao">${item.tempo}</span>
+                </div>
+            `;
+        }
+
+        async function carregarNotificacoes() {
+            try {
+                const resposta = await fetch("/api/notificacoes");
+                if (!resposta.ok) throw new Error();
+
+                const dados = await resposta.json();
+                const itens = dados.notificacoes || [];
+
+                listaNotificacoes.innerHTML = itens.length === 0
+                    ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+                    : itens.map(formatarItemNotificacao).join("");
+
+                const naoLidas = itens.filter(item => !item.lida).length;
+                document.getElementById("quantidadeNotificacoes").textContent = naoLidas;
+
+            } catch (erro) {
+                console.log("Erro ao carregar notificações:", erro);
+                listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar as notificações.</div>`;
+            }
+        }
+
+        async function marcarNotificacoesComoLidas() {
+            try {
+                await fetch("/api/notificacoes/marcar-lidas", { method: "POST" });
+                document.getElementById("quantidadeNotificacoes").textContent = "0";
+            } catch (erro) {
+                console.log("Erro ao marcar notificações como lidas:", erro);
+            }
+        }
+
+        document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
+            e.stopPropagation();
+
+            const estaAberto = painelNotificacoes.classList.contains("aberto");
+            if (estaAberto) {
+                painelNotificacoes.classList.remove("aberto");
+                return;
+            }
+
+            painelNotificacoes.classList.add("aberto");
+            await carregarNotificacoes();
+            marcarNotificacoesComoLidas();
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!painelNotificacoes.contains(e.target)) {
+                painelNotificacoes.classList.remove("aberto");
+            }
+        });
+
+        carregarNotificacoes();
+
+        // =========================
+        // CÓDIGO DE RASTREIO / ACOMPANHAR
+        // =========================
+
+        document.getElementById("btn-copiar").addEventListener("click", () => {
+            const codigo = document.getElementById("codigo-texto").textContent;
+            navigator.clipboard.writeText(codigo);
+        });
+
+        document.getElementById("btn-acompanhar").addEventListener("click", () => {
+            window.open("https://www.mercadolivre.com.br/gz/tracking", "_blank");
+        });
+
+        // =========================
+        // TIMELINE E BANNER — dinâmicos, de acordo com o status real do pedido
+        // =========================
+
+        const ORDEM_ETAPAS = ["em_producao", "enviado", "em_transito", "entregue"];
+        // índice da etapa da timeline (0 a 4) alcançada por cada status:
+        // etapa 0 (Pedido recebido) sempre concluída assim que existe um pedido
+        const ETAPA_POR_STATUS = {
+            em_producao: 1,
+            enviado:     2,
+            em_transito: 3,
+            entregue:    4
+        };
+
+        const BANNER_POR_STATUS = {
+            em_producao: {
+                icone:  "fa-solid fa-box",
+                titulo: "Seu pedido está sendo preparado com muito carinho.",
+                sub:    null
+            },
+            enviado: {
+                icone:  "fa-solid fa-truck",
+                titulo: "Seu Bixuco está a caminho!",
+                sub:    "Ele já foi postado e está com a transportadora."
+            },
+            em_transito: {
+                icone:  "fa-solid fa-truck-fast",
+                titulo: "Seu Bixuco está a caminho!",
+                sub:    "Ele já foi postado e está com a transportadora."
+            },
+            entregue: {
+                icone:  "fa-solid fa-circle-check",
+                titulo: "Seu Bixuco foi entregue!",
+                sub:    "Seu pedido chegou. Vamos vinculá-lo?"
+            }
+        };
+
+        let ultimoStatus = "em_producao";
+
+        function atualizarTimeline(status) {
+            const etapaAtingida = ETAPA_POR_STATUS[status] ?? 1;
+
+            document.querySelectorAll("#timeline .etapa").forEach(el => {
+                const indice = parseInt(el.dataset.etapa, 10);
+                el.classList.remove("concluida", "atual");
+
+                if (indice < etapaAtingida) el.classList.add("concluida");
+                else if (indice === etapaAtingida) el.classList.add("atual");
+            });
+        }
+
+        function atualizarBanner(status) {
+            const info = BANNER_POR_STATUS[status] || BANNER_POR_STATUS.em_producao;
+            const icone = document.getElementById("banner-icone");
+            const titulo = document.getElementById("banner-titulo");
+            const sub = document.getElementById("banner-subtitulo");
+
+            icone.className = info.icone;
+            titulo.textContent = traduzir(info.titulo);
+
+            if (info.sub) {
+                sub.textContent = traduzir(info.sub);
+                sub.style.display = "block";
+            } else {
+                sub.style.display = "none";
+            }
+        }
+
+        async function carregarStatusPedido() {
+            try {
+                const resposta = await fetch("/api/pedidos/status");
+
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
+                }
+
+                if (!resposta.ok) return;
+
+                const dados = await resposta.json();
+
+                ultimoStatus = dados.status || "em_producao";
+
+                if (dados.codigo_rastreio) {
+                    document.getElementById("codigo-texto").textContent = dados.codigo_rastreio;
+                }
+
+                if (dados.previsao_entrega) {
+                    const data = new Date(dados.previsao_entrega);
+                    document.getElementById("data-previsao").textContent =
+                        data.toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" });
+                }
+
+                atualizarTimeline(ultimoStatus);
+                atualizarBanner(ultimoStatus);
+
+                if (ultimoStatus === "entregue") {
+                    window.location.href = "/BixucoEntregue";
+                }
+
+            } catch (erro) {
+                console.log("Não foi possível atualizar o status do pedido.", erro);
+            }
+        }
+
+        carregarStatusPedido();
+
+    </script>
 
 </body>
 </html>
