@@ -2,8 +2,11 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Bixuco vinculado</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bixuco — Vinculado!</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link rel="stylesheet" href="/css/tema.css">
+<link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
 
@@ -14,7 +17,10 @@
     justify-content: center;
     background: #f4f6fa;
     padding: 24px;
+    transition: background 0.15s;
   }
+
+  body.tema-escuro { background: #14161a; color: #f1f1f1; }
 
   #card {
     width: 100%;
@@ -34,20 +40,13 @@
     justify-content: center;
   }
 
-  #icon-wrap i {
-    font-size: 46px;
-    color: #22c55e;
-  }
+  #icon-wrap i { font-size: 46px; color: #22c55e; }
 
-  h1 {
-    font-size: 24px;
-    color: #1f2937;
-    margin-bottom: 10px;
-  }
+  h1 { font-size: 24px; margin-bottom: 10px; }
 
   #subtitle {
     font-size: 14px;
-    color: #6b7280;
+    opacity: 0.75;
     line-height: 1.6;
     margin-bottom: 32px;
   }
@@ -72,15 +71,27 @@
       <i class="fa-solid fa-check"></i>
     </div>
 
-    <h1>Bixuco vinculado!</h1>
-    <p id="subtitle">
+    <h1 data-pt="Bixuco vinculado!" data-en="Bixuco linked!">Bixuco vinculado!</h1>
+    <p id="subtitle" data-pt="Tudo pronto. Agora vocês estão prontos para começar a jornada juntos." data-en="All set. You're both ready to start the journey together.">
       Tudo pronto. Agora vocês estão prontos para começar a jornada juntos.
     </p>
 
-    <button id="btn-inicio" type="button">Ir para o início</button>
+    <button id="btn-inicio" type="button" data-pt="Ir para o início" data-en="Go to home">Ir para o início</button>
   </div>
 
 <script>
+  // Respeita o tema salvo, já que essa tela não tem o toggle de tema
+  const temaSalvo = localStorage.getItem("tema") || "claro";
+  document.body.classList.add(`tema-${temaSalvo}`);
+
+  // Aplica a tradução manual salva, já que essa tela não tem botão de traduzir próprio
+  const idiomaAtual = localStorage.getItem("idioma") || "pt";
+  if (idiomaAtual === "en") {
+    document.querySelectorAll("[data-pt]").forEach(el => {
+      el.textContent = el.dataset.en || el.dataset.pt;
+    });
+  }
+
   document.getElementById('btn-inicio').addEventListener('click', () => {
     window.location.href = '/home';
   });

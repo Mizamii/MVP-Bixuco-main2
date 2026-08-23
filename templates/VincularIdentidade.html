@@ -1,234 +1,423 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Identificar Bixuco</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Identificar dispositivo</title>
 
-  body {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f4f6fa;
-    padding: 24px;
-  }
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
-  #card {
-    width: 100%;
-    max-width: 420px;
-    background: #ffffff;
-    border-radius: 20px;
-    padding: 40px 36px;
-    text-align: center;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
-  }
-
-  #icon-wrap {
-    width: 88px;
-    height: 88px;
-    margin: 0 auto 24px;
-    border-radius: 50%;
-    background: #e3f6e5;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  #icon-wrap i {
-    font-size: 34px;
-    background: linear-gradient(90deg, #4ade80, #22d3ee);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
-  h1 {
-    font-size: 22px;
-    color: #1f2937;
-    margin-bottom: 8px;
-  }
-
-  #subtitle {
-    font-size: 14px;
-    color: #6b7280;
-    line-height: 1.5;
-    margin-bottom: 28px;
-  }
-
-  #campo-codigo {
-    text-align: left;
-    margin-bottom: 20px;
-  }
-
-  label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: #1f2937;
-    margin-bottom: 6px;
-  }
-
-  input[type="text"] {
-    width: 100%;
-    padding: 13px 14px;
-    border: 1px solid #d1d5db;
-    border-radius: 10px;
-    font-size: 15px;
-    letter-spacing: 1px;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-
-  input[type="text"]:focus {
-    border-color: #22d3ee;
-  }
-
-  #dica {
-    font-size: 12px;
-    color: #9ca3af;
-    margin-top: 6px;
-  }
-
-  #divisor {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: #9ca3af;
-    font-size: 13px;
-    margin: 22px 0;
-  }
-
-  #divisor::before, #divisor::after {
-    content: "";
-    flex: 1;
-    height: 1px;
-    background: #e5e7eb;
-  }
-
-  #btn-scan {
-    width: 100%;
-    padding: 13px;
-    border-radius: 10px;
-    border: 1px solid #d1d5db;
-    background: #ffffff;
-    color: #1f2937;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 24px;
-    transition: background 0.15s;
-  }
-
-  #btn-scan:hover {
-    background: #f9fafb;
-  }
-
-  #btn-continuar {
-    width: 100%;
-    padding: 14px;
-    border: none;
-    border-radius: 10px;
-    background: linear-gradient(90deg, #4ade80, #22d3ee);
-    color: #ffffff;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-  }
-
-  #btn-continuar:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  #link-ajuda {
-    display: block;
-    margin-top: 18px;
-    font-size: 13px;
-    color: #22d3ee;
-    text-decoration: none;
-  }
-
-  #link-ajuda:hover {
-    text-decoration: underline;
-  }
-</style>
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
 </head>
+
 <body>
 
-  <div id="card">
-    <div id="icon-wrap">
-      <i class="fa-solid fa-paw"></i>
+    <div class="container">
+
+        <aside class="sidebar">
+
+            <div class="logo">
+                <img src="/img/logo_nome.png" alt="Logo Bixuco">
+            </div>
+
+            <nav>
+                <a href="/home">
+                    <i class="fa-solid fa-house"></i>
+                    <span data-pt="Início" data-en="Home">Início</span>
+                </a>
+
+                <a href="/relatorios">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+                </a>
+
+                <a href="/sobre">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span data-pt="Sobre" data-en="About">Sobre</span>
+                </a>
+
+                <a href="/configuracoes">
+                    <i class="fa-solid fa-gear"></i>
+                    <span data-pt="Configurações" data-en="Settings">Configurações</span>
+                </a>
+            </nav>
+
+            <button
+                class="btn-relatorio"
+                type="button"
+                onclick="location.href='/RelatorioDiario'"
+                data-pt="Relatório diário"
+                data-en="Daily report"
+            >
+                Relatório diário
+            </button>
+
+            <div class="tema">
+                <button id="btnClaro" class="ativo" type="button">
+                    <i class="fa-regular fa-sun"></i> <span data-pt="Claro" data-en="Light">Claro</span>
+                </button>
+
+                <button id="btnEscuro" type="button">
+                    <i class="fa-regular fa-moon"></i> <span data-pt="Escuro" data-en="Dark">Escuro</span>
+                </button>
+            </div>
+
+            <div class="sidebar-divisor"></div>
+
+            <a href="/logout" class="logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span data-pt="Sair" data-en="Log out">Sair</span>
+            </a>
+        </aside>
+
+        <main class="conteudo">
+
+            <header class="topo">
+
+                <button class="tradutor" type="button" id="btnTraduzir">
+                    <i class="fa-solid fa-language"></i>
+                    <span id="textoTradutor">Traduzir para o inglês</span>
+                </button>
+
+                <div class="usuario">
+
+                    <div class="notificacoes-wrapper">
+                        <button class="notificacoes" type="button" id="btnNotificacoes">
+                            <i class="fa-regular fa-bell"></i>
+                            <span id="quantidadeNotificacoes" class="badge">0</span>
+                        </button>
+
+                        <div class="painel-notificacoes" id="painelNotificacoes">
+                            <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
+                            <div id="listaNotificacoes">
+                                <div class="painel-vazio">Carregando...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <img
+                        id="fotoUsuario"
+                        src="/img/perfilPadrao.png"
+                        alt="Foto do usuário"
+                        title="Ver perfil"
+                        style="cursor: pointer;"
+                        onclick="window.location.href='/perfil'"
+                        onerror="this.src='/img/perfilPadrao.png'"
+                    >
+
+                    <div
+                        style="cursor: pointer;"
+                        title="Ver perfil"
+                        onclick="window.location.href='/perfil'"
+                    >
+                        <h3 id="nomeUsuario">Carregando...</h3>
+                        <span id="tipoConta">...</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="conteudo-corpo vincular-corpo">
+
+                <section class="card vincular-card">
+
+                    <div class="vincular-icone">
+                        <i class="fa-solid fa-paw"></i>
+                    </div>
+
+                    <h1 data-pt="Identifique seu Bixuco" data-en="Identify your Bixuco">Identifique seu Bixuco</h1>
+                    <p class="vincular-subtitulo" data-pt="Digite o código impresso na etiqueta do seu Bixuco ou na caixa de entrega para começar a vinculação." data-en="Enter the code printed on your Bixuco's tag or on the delivery box to start linking.">Digite o código impresso na etiqueta do seu Bixuco ou na caixa de entrega para começar a vinculação.</p>
+
+                    <div class="vincular-campo">
+                        <label for="codigo" data-pt="Código do dispositivo" data-en="Device code">Código do dispositivo</label>
+                        <input type="text" id="codigo" placeholder="BX-XXXXXX" maxlength="12" autocomplete="off">
+                        <div class="vincular-dica" data-pt="O código fica na etiqueta costurada na pata do Bixuco." data-en="The code is on the tag sewn onto the Bixuco's paw.">O código fica na etiqueta costurada na pata do Bixuco.</div>
+                    </div>
+
+                    <div class="vincular-divisor" data-pt="ou" data-en="or">ou</div>
+
+                    <button id="btn-scan" type="button">
+                        <i class="fa-solid fa-qrcode"></i>
+                        <span data-pt="Escanear QR code" data-en="Scan QR code">Escanear QR code</span>
+                    </button>
+
+                    <button id="btn-continuar" type="button" disabled>
+                        <span data-pt="Continuar" data-en="Continue">Continuar</span>
+                    </button>
+
+                    <a id="link-ajuda" href="#" data-pt="Não encontro o código do meu Bixuco" data-en="I can't find my Bixuco's code">Não encontro o código do meu Bixuco</a>
+
+                </section>
+
+            </div>
+
+        </main>
     </div>
 
-    <h1>Identifique seu Bixuco</h1>
-    <p id="subtitle">
-      Digite o código impresso na etiqueta do seu Bixuco ou na caixa de entrega para começar a vinculação.
-    </p>
+    <!-- Estilos específicos desta página — prefixados com "vincular-" para não colidir com home.css -->
+    <style>
+        .vincular-corpo { display: flex; align-items: center; justify-content: center; min-height: 60vh; }
 
-    <div id="campo-codigo">
-      <label for="codigo">Código do dispositivo</label>
-      <input type="text" id="codigo" placeholder="BX-XXXXXX" maxlength="12" autocomplete="off">
-      <div id="dica">O código fica na etiqueta costurada na pata do Bixuco.</div>
-    </div>
+        .vincular-card { width: 100%; max-width: 440px; text-align: center; padding: 2.2rem; }
 
-    <div id="divisor">ou</div>
+        .vincular-icone {
+            width: 5.2rem; height: 5.2rem; margin: 0 auto 1.4rem; border-radius: 50%;
+            background: #e3f6e5; display: flex; align-items: center; justify-content: center;
+        }
+        .vincular-icone i {
+            font-size: 2rem;
+            background: linear-gradient(90deg, #4ade80, #22d3ee);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
 
-    <button id="btn-scan" type="button">
-      <i class="fa-solid fa-qrcode"></i>
-      Escanear QR code
-    </button>
+        .vincular-card h1 { font-size: 1.35rem; margin-bottom: 0.5rem; }
+        .vincular-subtitulo { font-size: 0.85rem; opacity: 0.75; line-height: 1.5; margin-bottom: 1.6rem; }
 
-    <button id="btn-continuar" type="button" disabled>Continuar</button>
+        .vincular-campo { text-align: left; margin-bottom: 1.2rem; }
+        .vincular-campo label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.4rem; }
 
-    <a id="link-ajuda" href="#">Não encontro o código do meu Bixuco</a>
-  </div>
+        .vincular-campo input {
+            width: 100%; padding: 0.8rem 0.9rem; border: 1px solid #d1d5db; border-radius: 10px;
+            font-size: 0.92rem; letter-spacing: 0.5px; outline: none; background: #fff; color: inherit;
+        }
+        .vincular-campo input:focus { border-color: #22d3ee; }
 
-<script>
-  const input = document.getElementById('codigo');
-  const btnContinuar = document.getElementById('btn-continuar');
+        .vincular-dica { font-size: 0.75rem; opacity: 0.55; margin-top: 0.4rem; }
 
-  input.addEventListener('input', () => {
-    btnContinuar.disabled = input.value.trim().length < 4;
-  });
+        .vincular-divisor {
+            display: flex; align-items: center; gap: 0.7rem; opacity: 0.55;
+            font-size: 0.8rem; margin: 1.3rem 0;
+        }
+        .vincular-divisor::before, .vincular-divisor::after { content: ""; flex: 1; height: 1px; background: currentColor; opacity: 0.25; }
 
-  btnContinuar.addEventListener('click', async () => {
-    const codigo = input.value.trim();
-    try {
-      const resp = await fetch('/api/dispositivos/vincular', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ device_id: codigo })
-      });
+        #btn-scan {
+            width: 100%; padding: 0.8rem; border-radius: 10px; border: 1px solid #d1d5db;
+            background: transparent; color: inherit; font-size: 0.92rem; font-weight: 600;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            gap: 0.5rem; margin-bottom: 1.4rem;
+        }
 
-      if (resp.status === 401) {
-        window.location.href = '/logar';
-        return;
-      }
+        #btn-continuar {
+            width: 100%; padding: 0.9rem; border: none; border-radius: 10px;
+            background: linear-gradient(90deg, #4ade80, #22d3ee); color: #fff;
+            font-size: 0.95rem; font-weight: 700; cursor: pointer;
+        }
+        #btn-continuar:disabled { opacity: 0.5; cursor: not-allowed; }
 
-      if (!resp.ok) {
-        const erro = await resp.json().catch(() => ({}));
-        alert(erro.mensagem || 'Não encontramos esse código. Confira e tente novamente.');
-        return;
-      }
+        #link-ajuda { display: block; margin-top: 1.1rem; font-size: 0.8rem; color: #22d3ee; text-decoration: none; }
+        #link-ajuda:hover { text-decoration: underline; }
+    </style>
 
-      window.location.href = '/VincularSucesso';
-    } catch (e) {
-      alert('Não foi possível conectar. Verifique sua internet e tente novamente.');
-    }
-  });
+    <script>
 
-  document.getElementById('btn-scan').addEventListener('click', () => {
-    // Placeholder: abrir modal/leitor de câmera para QR code
-    alert('Leitor de QR code em desenvolvimento.');
-  });
-</script>
+        // ==========================
+        // TEMA
+        // ==========================
+
+        function aplicarTema(tema) {
+            document.body.classList.remove("tema-claro", "tema-escuro");
+            document.body.classList.add(`tema-${tema}`);
+            document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
+            document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
+            localStorage.setItem("tema", tema);
+        }
+
+        document.getElementById("btnClaro").addEventListener("click", () => aplicarTema("claro"));
+        document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
+
+        aplicarTema(localStorage.getItem("tema") || "claro");
+
+        // ==========================
+        // TRADUÇÃO MANUAL
+        // ==========================
+
+        let idiomaAtual = localStorage.getItem("idioma") || "pt";
+
+        const dicionario = {
+            "Não encontramos esse código. Confira e tente novamente.":
+                "We couldn't find that code. Check it and try again.",
+            "Este Bixuco já está vinculado a outra conta.":
+                "This Bixuco is already linked to another account.",
+            "Cadastre uma criança antes de vincular o Bixuco.":
+                "Register a child before linking the Bixuco.",
+            "Não foi possível conectar. Verifique sua internet e tente novamente.":
+                "Couldn't connect. Check your internet and try again.",
+            "Leitor de QR code em desenvolvimento.":
+                "QR code reader in development."
+        };
+
+        function traduzir(texto) {
+            if (idiomaAtual === "pt" || texto == null) return texto;
+            return dicionario[texto] || texto;
+        }
+
+        function aplicarIdiomaEstatico() {
+            document.querySelectorAll("[data-pt]").forEach(el => {
+                el.textContent = idiomaAtual === "en"
+                    ? (el.dataset.en || el.dataset.pt)
+                    : el.dataset.pt;
+            });
+
+            document.getElementById("textoTradutor").textContent =
+                idiomaAtual === "en" ? "Traduzir para o português" : "Translate to English";
+        }
+
+        document.getElementById("btnTraduzir").addEventListener("click", () => {
+            idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+            localStorage.setItem("idioma", idiomaAtual);
+            aplicarIdiomaEstatico();
+        });
+
+        aplicarIdiomaEstatico();
+
+        // =========================
+        // DADOS DO USUÁRIO NO TOPO
+        // =========================
+
+        async function carregarDadosUsuario() {
+            try {
+                const resposta = await fetch("/api/home");
+
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
+                }
+
+                if (!resposta.ok) throw new Error(`Falha ao carregar dados do usuário (status ${resposta.status})`);
+
+                const dados = await resposta.json();
+
+                document.getElementById("nomeUsuario").textContent = dados.nome || "Usuário";
+                document.getElementById("tipoConta").textContent   = dados.tipoConta || "Responsável";
+
+                if (dados.fotoPerfil) {
+                    document.getElementById("fotoUsuario").src = dados.fotoPerfil;
+                }
+
+            } catch (erro) {
+                console.log("Erro ao carregar dados do usuário:", erro);
+                document.getElementById("nomeUsuario").textContent = "Usuário";
+                document.getElementById("tipoConta").textContent   = "Responsável";
+            }
+        }
+
+        carregarDadosUsuario();
+
+        // =========================
+        // NOTIFICAÇÕES
+        // =========================
+
+        const painelNotificacoes = document.getElementById("painelNotificacoes");
+        const listaNotificacoes  = document.getElementById("listaNotificacoes");
+
+        function formatarItemNotificacao(item) {
+            const classeExtra = item.lida ? "" : "nao-lida";
+            return `
+                <div class="item-notificacao ${classeExtra}">
+                    ${item.mensagem}
+                    <span class="tempo-notificacao">${item.tempo}</span>
+                </div>
+            `;
+        }
+
+        async function carregarNotificacoes() {
+            try {
+                const resposta = await fetch("/api/notificacoes");
+                if (!resposta.ok) throw new Error();
+
+                const dados = await resposta.json();
+                const itens = dados.notificacoes || [];
+
+                listaNotificacoes.innerHTML = itens.length === 0
+                    ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+                    : itens.map(formatarItemNotificacao).join("");
+
+                const naoLidas = itens.filter(item => !item.lida).length;
+                document.getElementById("quantidadeNotificacoes").textContent = naoLidas;
+
+            } catch (erro) {
+                console.log("Erro ao carregar notificações:", erro);
+                listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar as notificações.</div>`;
+            }
+        }
+
+        async function marcarNotificacoesComoLidas() {
+            try {
+                await fetch("/api/notificacoes/marcar-lidas", { method: "POST" });
+                document.getElementById("quantidadeNotificacoes").textContent = "0";
+            } catch (erro) {
+                console.log("Erro ao marcar notificações como lidas:", erro);
+            }
+        }
+
+        document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
+            e.stopPropagation();
+
+            const estaAberto = painelNotificacoes.classList.contains("aberto");
+            if (estaAberto) {
+                painelNotificacoes.classList.remove("aberto");
+                return;
+            }
+
+            painelNotificacoes.classList.add("aberto");
+            await carregarNotificacoes();
+            marcarNotificacoesComoLidas();
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!painelNotificacoes.contains(e.target)) {
+                painelNotificacoes.classList.remove("aberto");
+            }
+        });
+
+        carregarNotificacoes();
+
+        // =========================
+        // FORMULÁRIO DE VINCULAÇÃO
+        // =========================
+
+        const input         = document.getElementById("codigo");
+        const btnContinuar   = document.getElementById("btn-continuar");
+
+        input.addEventListener("input", () => {
+            btnContinuar.disabled = input.value.trim().length < 4;
+        });
+
+        btnContinuar.addEventListener("click", async () => {
+            const codigo = input.value.trim();
+
+            try {
+                const resposta = await fetch("/api/dispositivos/vincular", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ device_id: codigo })
+                });
+
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
+                }
+
+                if (!resposta.ok) {
+                    const erro = await resposta.json().catch(() => ({}));
+                    alert(traduzir(erro.mensagem) || traduzir("Não encontramos esse código. Confira e tente novamente."));
+                    return;
+                }
+
+                window.location.href = "/VincularSucesso";
+            } catch (erro) {
+                alert(traduzir("Não foi possível conectar. Verifique sua internet e tente novamente."));
+            }
+        });
+
+        document.getElementById("btn-scan").addEventListener("click", () => {
+            // Placeholder: abrir modal/leitor de câmera para QR code
+            alert(traduzir("Leitor de QR code em desenvolvimento."));
+        });
+
+    </script>
 
 </body>
 </html>
