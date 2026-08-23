@@ -11,9 +11,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 
-    <!-- Google Translate widget gratuito -->
-    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
-
     <link rel="stylesheet" href="/css/tema.css">
     <link rel="stylesheet" href="/css/layout.css">
     <link rel="stylesheet" href="/css/home.css">
@@ -41,22 +38,22 @@
             <nav>
                 <a href="/home" class="ativo">
                     <i class="fa-solid fa-house"></i>
-                    <span>Início</span>
+                    <span data-pt="Início" data-en="Home">Início</span>
                 </a>
 
                 <a href="/relatorios">
                     <i class="fa-solid fa-chart-line"></i>
-                    <span>Relatórios</span>
+                    <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
                 </a>
 
                 <a href="/sobre">
                     <i class="fa-solid fa-circle-info"></i>
-                    <span>Sobre</span>
+                    <span data-pt="Sobre" data-en="About">Sobre</span>
                 </a>
 
                 <a href="/configuracoes">
                     <i class="fa-solid fa-gear"></i>
-                    <span>Configurações</span>
+                    <span data-pt="Configurações" data-en="Settings">Configurações</span>
                 </a>
             </nav>
 
@@ -64,6 +61,8 @@
                 class="btn-relatorio"
                 type="button"
                 onclick="window.location.href='/RelatorioDiario'"
+                data-pt="Fazer relatório diário"
+                data-en="Fill daily report"
             >
                 Fazer relatório diário
             </button>
@@ -72,12 +71,12 @@
             <div class="tema">
                 <button id="btnClaro" class="ativo" type="button">
                     <i class="fa-regular fa-sun"></i>
-                    Claro
+                    <span data-pt="Claro" data-en="Light">Claro</span>
                 </button>
 
                 <button id="btnEscuro" type="button">
                     <i class="fa-regular fa-moon"></i>
-                    Escuro
+                    <span data-pt="Escuro" data-en="Dark">Escuro</span>
                 </button>
             </div>
 
@@ -86,7 +85,7 @@
 
             <a href="/logout" class="logout">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                <span>Sair</span>
+                <span data-pt="Sair" data-en="Log out">Sair</span>
             </a>
         </aside>
 
@@ -100,15 +99,8 @@
 
                 <button class="tradutor" type="button" id="btnTraduzir">
                     <i class="fa-solid fa-language"></i>
-                    <span id="textoTradutor">Traduzir para inglês</span>
+                    <span id="textoTradutor">Traduzir para o inglês</span>
                 </button>
-
-                <!-- Elemento do Google Translate — precisa continuar "renderizável"
-                     para o widget inicializar direito, por isso não usamos display:none -->
-                <div
-                    id="google_translate_element"
-                    style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0);"
-                ></div>
 
                 <div class="usuario">
 
@@ -119,7 +111,7 @@
                         </button>
 
                         <div class="painel-notificacoes" id="painelNotificacoes">
-                            <div class="painel-header">Notificações</div>
+                            <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
                             <div id="listaNotificacoes">
                                 <div class="painel-vazio">Carregando...</div>
                             </div>
@@ -154,13 +146,13 @@
                 <section class="saudacao">
                     <div>
                         <h1>
-                            Olá, <span id="primeiroNome">Usuário</span>!
+                            <span data-pt="Olá" data-en="Hello">Olá</span>, <span id="primeiroNome">Usuário</span>!
                         </h1>
 
                         <p>
-                            Acompanhe a rotina do
+                            <span data-pt="Acompanhe a rotina do" data-en="Follow">Acompanhe a rotina do</span>
                             <strong id="nomeBixuco">Bixuco</strong>
-                            com carinho e praticidade.
+                            <span data-pt="com carinho e praticidade." data-en="'s routine with care and convenience.">com carinho e praticidade.</span>
                         </p>
                     </div>
 
@@ -183,7 +175,7 @@
                         <div>
                             <h2>
                                 <span id="diasConsecutivos">0</span>
-                                dias consecutivos
+                                <span data-pt="dias consecutivos" data-en="day streak">dias consecutivos</span>
                             </h2>
 
                             <p id="textoSequencia">
@@ -202,8 +194,8 @@
                         </div>
 
                         <div>
-                            <h2>Relatório diário</h2>
-                            <p>Clique para registrar o relatório de hoje.</p>
+                            <h2 data-pt="Relatório diário" data-en="Daily report">Relatório diário</h2>
+                            <p data-pt="Clique para registrar o relatório de hoje." data-en="Click to log today's report.">Clique para registrar o relatório de hoje.</p>
                         </div>
 
                         <i class="fa-solid fa-chevron-right seta"></i>
@@ -232,21 +224,21 @@
                             <div class="badge-sequencia">
                                 <i class="fa-solid fa-fire"></i>
                                 <div>
-                                    <strong><span id="diasConsecutivosBadge">0</span> dias</strong>
-                                    <span>Máxima ofensiva</span>
+                                    <strong><span id="diasConsecutivosBadge">0</span> <span data-pt="dias" data-en="days">dias</span></strong>
+                                    <span data-pt="Máxima ofensiva" data-en="Best streak">Máxima ofensiva</span>
                                 </div>
                             </div>
 
                         </div>
 
                         <div class="dias-semana">
-                            <span>Dom</span>
-                            <span>Seg</span>
-                            <span>Ter</span>
-                            <span>Qua</span>
-                            <span>Qui</span>
-                            <span>Sex</span>
-                            <span>Sáb</span>
+                            <span data-pt="Dom" data-en="Sun">Dom</span>
+                            <span data-pt="Seg" data-en="Mon">Seg</span>
+                            <span data-pt="Ter" data-en="Tue">Ter</span>
+                            <span data-pt="Qua" data-en="Wed">Qua</span>
+                            <span data-pt="Qui" data-en="Thu">Qui</span>
+                            <span data-pt="Sex" data-en="Fri">Sex</span>
+                            <span data-pt="Sáb" data-en="Sat">Sáb</span>
                         </div>
 
                         <div id="diasCalendario" class="dias-calendario"></div>
@@ -255,15 +247,15 @@
                         <div class="legenda">
                             <span>
                                 <span class="ponto ponto--com-relatorio"></span>
-                                Com relatório
+                                <span data-pt="Com relatório" data-en="Reported">Com relatório</span>
                             </span>
                             <span>
                                 <span class="ponto ponto--hoje"></span>
-                                Hoje
+                                <span data-pt="Hoje" data-en="Today">Hoje</span>
                             </span>
                             <span>
                                 <span class="ponto ponto--sem-relatorio"></span>
-                                Sem relatório
+                                <span data-pt="Sem relatório" data-en="Not reported">Sem relatório</span>
                             </span>
                         </div>
                     </section>
@@ -274,7 +266,7 @@
                         <div class="mapa-header">
                             <h3>
                                 <i class="fa-solid fa-location-dot"></i>
-                                Localização do <span id="nomeBixucoTitulo">Bixuco</span>
+                                <span data-pt="Localização do" data-en="Location of">Localização do</span> <span id="nomeBixucoTitulo">Bixuco</span>
                             </h3>
 
                             <div style="display:flex; align-items:center; gap:0.6rem;">
@@ -293,7 +285,7 @@
 
                         <p class="mapa-status">
                             <i class="fa-solid fa-circle" style="color: #C2C2C2; font-size: 0.6rem;"></i>
-                            Rastreamento em tempo real disponível em breve
+                            <span id="textoMapaStatus" data-pt="Rastreamento em tempo real disponível em breve" data-en="Real-time tracking available soon">Rastreamento em tempo real disponível em breve</span>
                         </p>
 
                     </section>
@@ -309,8 +301,8 @@
                             <i class="fa-solid fa-lightbulb"></i>
                         </div>
                         <div>
-                            <h3>Dicas personalizadas</h3>
-                            <p>Sugestões para o desenvolvimento do <span id="nomeBixucoDicas">Fluffy</span></p>
+                            <h3 data-pt="Dicas personalizadas" data-en="Personalized tips">Dicas personalizadas</h3>
+                            <p><span data-pt="Sugestões para o desenvolvimento do" data-en="Suggestions for">Sugestões para o desenvolvimento do</span> <span id="nomeBixucoDicas">Fluffy</span></p>
                         </div>
                     </div>
 
@@ -341,11 +333,82 @@
 
     <script>
 
-        
+        // =========================
+        // TRADUÇÃO MANUAL
+        // =========================
+
+        let idiomaAtual = localStorage.getItem("idioma") || "pt";
+
+        const dicionario = {
+            "Continue registrando seus relatórios diariamente.": "Keep logging your daily reports.",
+            "Você já começou bem! Continue acompanhando o dia a dia.": "You're off to a good start! Keep tracking day by day.",
+            "Muito bom! Você está criando uma rotina de acompanhamento.": "Great! You're building a tracking routine.",
+            "Ótimo progresso! Seu acompanhamento está ficando consistente.": "Great progress! Your tracking is getting consistent.",
+            "Parabéns! Você já mantém um acompanhamento de longa duração.": "Congrats! You've kept up long-term tracking.",
+            "Carregando localização...": "Loading location...",
+            "Última localização conhecida": "Last known location",
+            "Nenhuma localização registrada ainda": "No location registered yet",
+            "Não foi possível carregar a localização": "Could not load location",
+            "Rastreamento em tempo real disponível em breve": "Real-time tracking available soon",
+            "Atualizado em": "Updated on",
+            "Nenhuma notificação por enquanto.": "No notifications for now.",
+            "Não foi possível carregar as notificações.": "Could not load notifications.",
+            "Erro ao gerar dicas.": "Error generating tips.",
+            "Erro de conexão. Tente novamente.": "Connection error. Try again.",
+            "Ver dicas personalizadas": "View personalized tips",
+            "Gerando...": "Generating...",
+            "Gerar novas dicas": "Generate new tips",
+            "Tentar novamente": "Try again",
+            "Carregando...": "Loading...",
+            "Peça seu Bixuco": "Order your Bixuco",
+            "Comece a jornada de acompanhamento com a pelúcia sensorizada.": "Start your tracking journey with the sensory plush.",
+            "Seu Bixuco está a caminho": "Your Bixuco is on the way",
+            "Acompanhe o status da entrega.": "Track your delivery status.",
+            "Vincular meu Bixuco": "Link my Bixuco",
+            "Seu Bixuco chegou! Vincule para começar a jornada.": "Your Bixuco has arrived! Link it to start the journey."
+        };
+
+        function traduzir(texto) {
+            if (idiomaAtual === "pt" || texto == null) return texto;
+            return dicionario[texto] || texto;
+        }
+
+        function aplicarIdiomaEstatico() {
+            document.querySelectorAll("[data-pt]").forEach(el => {
+                el.textContent = idiomaAtual === "en"
+                    ? (el.dataset.en || el.dataset.pt)
+                    : el.dataset.pt;
+            });
+
+            document.getElementById("textoTradutor").textContent =
+                idiomaAtual === "en" ? "Traduzir para o português" : "Traduzir para o inglês";
+        }
+
+        document.getElementById("btnTraduzir").addEventListener("click", () => {
+            idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+            localStorage.setItem("idioma", idiomaAtual);
+
+            aplicarIdiomaEstatico();
+
+            // Reaplica textos dinâmicos que dependem do idioma
+            atualizarTextoSequencia(diasConsecutivosAtual);
+            renderizarStatusMapa();
+            atualizarTextoBotaoDicas();
+
+            if (painelNotificacoes.classList.contains("aberto")) {
+                carregarNotificacoes();
+            }
+
+            if (ultimoEstadoBixuco) {
+                renderizarWidgetBixuco(ultimoEstadoBixuco);
+            }
+        });
 
         // =========================
         // CARREGAR DADOS DO USUÁRIO
         // =========================
+
+        let diasConsecutivosAtual = 0;
 
         async function carregarDadosUsuario() {
             try {
@@ -378,10 +441,10 @@
                     document.getElementById("fotoUsuario").src = dados.fotoPerfil;
                 }
 
-                atualizarTextoSequencia(dados.diasConsecutivos ?? 0);
+                diasConsecutivosAtual = dados.diasConsecutivos ?? 0;
+                atualizarTextoSequencia(diasConsecutivosAtual);
 
             } catch (erro) {
-                // Loga o erro real no console para facilitar o diagnóstico
                 console.log("Erro ao carregar dados do usuário:", erro);
 
                 document.getElementById("nomeUsuario").textContent  = "Usuário";
@@ -392,29 +455,37 @@
                 document.getElementById("quantidadeNotificacoes").textContent = "0";
                 document.getElementById("diasConsecutivos").textContent       = "0";
                 document.getElementById("diasConsecutivosBadge").textContent  = "0";
-                document.getElementById("textoSequencia").textContent = "Continue registrando seus relatórios diariamente.";
+
+                diasConsecutivosAtual = 0;
+                atualizarTextoSequencia(0);
             }
         }
 
         function atualizarTextoSequencia(dias) {
+            diasConsecutivosAtual = dias;
             const texto = document.getElementById("textoSequencia");
+            let chave;
 
             if (dias <= 0) {
-                texto.textContent = "Continue registrando seus relatórios diariamente.";
+                chave = "Continue registrando seus relatórios diariamente.";
             } else if (dias === 1) {
-                texto.textContent = "Você já começou bem! Continue acompanhando o dia a dia.";
+                chave = "Você já começou bem! Continue acompanhando o dia a dia.";
             } else if (dias < 7) {
-                texto.textContent = "Muito bom! Você está criando uma rotina de acompanhamento.";
+                chave = "Muito bom! Você está criando uma rotina de acompanhamento.";
             } else if (dias < 30) {
-                texto.textContent = "Ótimo progresso! Seu acompanhamento está ficando consistente.";
+                chave = "Ótimo progresso! Seu acompanhamento está ficando consistente.";
             } else {
-                texto.textContent = "Parabéns! Você já mantém um acompanhamento de longa duração.";
+                chave = "Parabéns! Você já mantém um acompanhamento de longa duração.";
             }
+
+            texto.textContent = traduzir(chave);
         }
 
         // =========================
         // STATUS DO BIXUCO FÍSICO
         // =========================
+
+        let ultimoEstadoBixuco = null;
 
         async function carregarStatusBixuco() {
             const widget = document.getElementById("bixuco-widget");
@@ -430,6 +501,7 @@
                 if (!resposta.ok) throw new Error("Falha ao carregar status do Bixuco");
 
                 const dados = await resposta.json();
+                ultimoEstadoBixuco = dados.estado;
                 renderizarWidgetBixuco(dados.estado);
 
             } catch (erro) {
@@ -454,8 +526,8 @@
                             <i class="fa-solid fa-box"></i>
                         </div>
                         <div>
-                            <h2>Peça seu Bixuco</h2>
-                            <p>Comece a jornada de acompanhamento com a pelúcia sensorizada.</p>
+                            <h2>${traduzir("Peça seu Bixuco")}</h2>
+                            <p>${traduzir("Comece a jornada de acompanhamento com a pelúcia sensorizada.")}</p>
                         </div>
                         <i class="fa-solid fa-chevron-right seta"></i>
                     </article>
@@ -473,8 +545,8 @@
                             <i class="fa-solid fa-truck"></i>
                         </div>
                         <div>
-                            <h2>Seu Bixuco está a caminho</h2>
-                            <p>Acompanhe o status da entrega.</p>
+                            <h2>${traduzir("Seu Bixuco está a caminho")}</h2>
+                            <p>${traduzir("Acompanhe o status da entrega.")}</p>
                         </div>
                         <i class="fa-solid fa-chevron-right seta"></i>
                     </article>
@@ -492,8 +564,8 @@
                             <i class="fa-solid fa-link"></i>
                         </div>
                         <div>
-                            <h2>Vincular meu Bixuco</h2>
-                            <p>Seu Bixuco chegou! Vincule para começar a jornada.</p>
+                            <h2>${traduzir("Vincular meu Bixuco")}</h2>
+                            <p>${traduzir("Seu Bixuco chegou! Vincule para começar a jornada.")}</p>
                         </div>
                         <i class="fa-solid fa-chevron-right seta"></i>
                     </article>
@@ -508,6 +580,14 @@
         const listaDicas = document.getElementById("listaDicas");
         const textoBtnDicas = document.getElementById("textoBtnDicas");
         const modalDica = document.getElementById("modalDica");
+
+        let dicasJaGeradas = false;
+
+        function atualizarTextoBotaoDicas() {
+            textoBtnDicas.textContent = dicasJaGeradas
+                ? traduzir("Gerar novas dicas")
+                : traduzir("Ver dicas personalizadas");
+        }
 
         function renderizarDicas(dicas) {
             listaDicas.innerHTML = "";
@@ -528,7 +608,8 @@
                 listaDicas.appendChild(artigo);
             });
 
-            textoBtnDicas.textContent = "Gerar novas dicas";
+            dicasJaGeradas = true;
+            atualizarTextoBotaoDicas();
         }
 
         function abrirModalDica(dica) {
@@ -561,7 +642,7 @@
 
         btnGerarDicas.addEventListener("click", async () => {
 
-            textoBtnDicas.textContent = "Gerando...";
+            textoBtnDicas.textContent = traduzir("Gerando...");
             btnGerarDicas.disabled = true;
 
             try {
@@ -575,8 +656,8 @@
                 }
 
                 if (!resposta.ok) {
-                    listaDicas.innerHTML = `<p class="sem-dados">${dados.erro || "Erro ao gerar dicas."}</p>`;
-                    textoBtnDicas.textContent = "Tentar novamente";
+                    listaDicas.innerHTML = `<p class="sem-dados">${dados.erro || traduzir("Erro ao gerar dicas.")}</p>`;
+                    textoBtnDicas.textContent = traduzir("Tentar novamente");
                     return;
                 }
 
@@ -584,7 +665,7 @@
 
             } catch (erro) {
                 console.log("Erro ao gerar dicas:", erro);
-                listaDicas.innerHTML = `<p class="sem-dados">Erro de conexão. Tente novamente.</p>`;
+                listaDicas.innerHTML = `<p class="sem-dados">${traduzir("Erro de conexão. Tente novamente.")}</p>`;
             } finally {
                 btnGerarDicas.disabled = false;
             }
@@ -600,6 +681,16 @@
 
         let dataAtual = new Date();
         let diasComRelatorio = [];
+
+        const mesesPt = [
+            "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+            "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
+        ];
+
+        const mesesEn = [
+            "January","February","March","April","May","June",
+            "July","August","September","October","November","December"
+        ];
 
         async function carregarDiasRelatorio() {
             try {
@@ -626,10 +717,7 @@
 
             dias.innerHTML = "";
 
-            const meses = [
-                "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
-                "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
-            ];
+            const meses = idiomaAtual === "en" ? mesesEn : mesesPt;
 
             titulo.textContent = `${meses[dataAtual.getMonth()]} ${dataAtual.getFullYear()}`;
 
@@ -676,76 +764,6 @@
         // Tema claro/escuro vem de /js/tema.js (compartilhado com todas as páginas)
 
         // =========================
-        // TRADUÇÃO COM GOOGLE TRANSLATE
-        // =========================
-
-        // Estratégia via cookie "googtrans", que o próprio Google Translate lê
-        // ao carregar a página — mecanismo oficial, mais confiável do que
-        // simular clique no <select> escondido do widget.
-
-        function lerCookie(nome) {
-            const valor = `; ${document.cookie}`;
-            const partes = valor.split(`; ${nome}=`);
-            if (partes.length === 2) return partes.pop().split(";").shift();
-            return null;
-        }
-
-        function definirCookieTraducao(destino) {
-            // destino: "en" para traduzir, null para remover a tradução
-
-            // Remove cookie antigo em possíveis variações de domínio/path
-            document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
-            document.cookie = `googtrans=; path=/; domain=${location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
-
-            if (destino) {
-                const valor = `/pt/${destino}`;
-                document.cookie = `googtrans=${valor}; path=/`;
-                document.cookie = `googtrans=${valor}; path=/; domain=${location.hostname}`;
-            }
-        }
-
-        // Callback chamado pelo script do Google Translate após carregar
-        function iniciarTradutor() {
-            new google.translate.TranslateElement(
-                {
-                    pageLanguage: "pt",
-                    includedLanguages: "en",
-                    autoDisplay: false
-                },
-                "google_translate_element"
-            );
-        }
-
-        // Atualiza o texto do botão com base no cookie atual, ao carregar a página
-        function atualizarTextoBotaoTraducao() {
-            const cookieAtual = lerCookie("googtrans");
-            const textoBotao = document.getElementById("textoTradutor");
-
-            if (cookieAtual && cookieAtual.includes("/en")) {
-                textoBotao.textContent = "Voltar para português";
-            } else {
-                textoBotao.textContent = "Traduzir para inglês";
-            }
-        }
-
-        document.getElementById("btnTraduzir").addEventListener("click", () => {
-
-            const cookieAtual = lerCookie("googtrans");
-            const estaTraduzido = cookieAtual && cookieAtual.includes("/en");
-
-            if (estaTraduzido) {
-                definirCookieTraducao(null);
-            } else {
-                definirCookieTraducao("en");
-            }
-
-            // Recarrega a página — o Google Translate lê o cookie
-            // assim que a página carrega e aplica a tradução sozinho
-            window.location.reload();
-
-        });
-
-        // =========================
         // PAINEL DE NOTIFICAÇÕES
         // =========================
 
@@ -774,14 +792,14 @@
                 const itens = dados.notificacoes || [];
 
                 if (itens.length === 0) {
-                    listaNotificacoes.innerHTML = `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`;
+                    listaNotificacoes.innerHTML = `<div class="painel-vazio">${traduzir("Nenhuma notificação por enquanto.")}</div>`;
                 } else {
                     listaNotificacoes.innerHTML = itens.map(formatarItemNotificacao).join("");
                 }
 
             } catch (erro) {
                 console.log("Erro ao carregar notificações:", erro);
-                listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar as notificações.</div>`;
+                listaNotificacoes.innerHTML = `<div class="painel-vazio">${traduzir("Não foi possível carregar as notificações.")}</div>`;
             }
 
         }
@@ -868,7 +886,7 @@
 
             marcador = L.marker([latAtual, lngAtual], { icon: iconeBixuco })
                 .addTo(mapaLeaflet)
-                .bindPopup("<b>Bixuco</b><br>Carregando localização...")
+                .bindPopup(`<b>Bixuco</b><br>${traduzir("Carregando localização...")}`)
                 .openPopup();
 
             carregarLocalizacaoReal();
@@ -882,8 +900,31 @@
             camadaMapa.getMaplibreMap().setStyle(novoEstilo);
         }
 
+        // Guarda o último status recebido da API para poder re-renderizar
+        // o texto do mapa quando o idioma for trocado, sem precisar re-buscar.
+        let ultimoStatusMapa = { tipo: "inicial" };
+
+        function renderizarStatusMapa() {
+            const el = document.getElementById("textoMapaStatus");
+            const iconeStatus = document.querySelector(".mapa-status i");
+            if (!el) return;
+
+            if (ultimoStatusMapa.tipo === "inicial") {
+                el.textContent = traduzir("Rastreamento em tempo real disponível em breve");
+                if (iconeStatus) iconeStatus.style.color = "#C2C2C2";
+            } else if (ultimoStatusMapa.tipo === "sem-local") {
+                el.textContent = traduzir("Nenhuma localização registrada ainda");
+                if (iconeStatus) iconeStatus.style.color = "#C2C2C2";
+            } else if (ultimoStatusMapa.tipo === "atualizado") {
+                el.textContent = `${traduzir("Atualizado em")} ${ultimoStatusMapa.dataFormatada}, ${ultimoStatusMapa.horario}`;
+                if (iconeStatus) iconeStatus.style.color = "#32C26D";
+            } else if (ultimoStatusMapa.tipo === "erro") {
+                el.textContent = traduzir("Não foi possível carregar a localização");
+                if (iconeStatus) iconeStatus.style.color = "#C2C2C2";
+            }
+        }
+
         async function carregarLocalizacaoReal() {
-            const statusEl = document.querySelector(".mapa-status");
 
             try {
                 const resposta = await fetch("/api/bixuco/localizacao");
@@ -892,8 +933,8 @@
                 const dados = await resposta.json();
 
                 if (!dados.disponivel) {
-                    if (statusEl) statusEl.innerHTML =
-                        '<i class="fa-solid fa-circle" style="color:#C2C2C2;font-size:0.6rem;"></i> Nenhuma localização registrada ainda';
+                    ultimoStatusMapa = { tipo: "sem-local" };
+                    renderizarStatusMapa();
                     return;
                 }
 
@@ -920,7 +961,7 @@
                     marcador.setIcon(iconeComFoto);
                 }
 
-                marcador.setPopupContent("<b>Bixuco</b><br>Última localização conhecida");
+                marcador.setPopupContent(`<b>Bixuco</b><br>${traduzir("Última localização conhecida")}`);
                 marcador.openPopup();
 
                 if (dados.bateria !== null && dados.bateria !== undefined) {
@@ -938,15 +979,17 @@
                     bateriaEl.classList.toggle("baixa", dados.bateria <= 20);
                 }
 
-                if (statusEl) {
-                    statusEl.innerHTML =
-                        `<i class="fa-solid fa-circle" style="color:#32C26D;font-size:0.6rem;"></i> Atualizado em ${dados.dataFormatada}, ${dados.horario}`;
-                }
+                ultimoStatusMapa = {
+                    tipo: "atualizado",
+                    dataFormatada: dados.dataFormatada,
+                    horario: dados.horario
+                };
+                renderizarStatusMapa();
 
             } catch (erro) {
                 console.log("Erro ao carregar localização:", erro);
-                if (statusEl) statusEl.innerHTML =
-                    '<i class="fa-solid fa-circle" style="color:#C2C2C2;font-size:0.6rem;"></i> Não foi possível carregar a localização';
+                ultimoStatusMapa = { tipo: "erro" };
+                renderizarStatusMapa();
             }
         }
 
@@ -979,19 +1022,15 @@
             }
         });
 
-        
-
 
         // =========================
         // INICIALIZAÇÃO
         // =========================
 
-        
-
+        aplicarIdiomaEstatico();
         carregarDadosUsuario();
         carregarDiasRelatorio();
         iniciarMapa();
-        atualizarTextoBotaoTraducao();
         carregarContagemInicial();
         carregarStatusBixuco();
 
