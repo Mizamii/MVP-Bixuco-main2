@@ -254,7 +254,7 @@ html, body {
     padding: 0.9rem;
     border: 1px solid #0AB7FB;
     border-radius: 15px;
-    color: #141414;
+    color: #0AB7FB;
     text-decoration: none;
     font-weight: 500;
     font-size: 1rem;
@@ -388,6 +388,7 @@ html, body {
     .recuperar-texto {
         font-size: 0.9rem;
         margin-bottom: 1.5rem;
+        padding: 0 0.5rem;
     }
 
     .recuperar-form,
