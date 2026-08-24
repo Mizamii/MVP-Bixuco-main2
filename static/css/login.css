@@ -367,7 +367,7 @@ html, body {
 
     .login-esquerda__ilustracao-wrapper {
         margin-top: 0;
-        margin-bottom: -10px; /* deixa a ilustração "tocar" a curva */
+        margin-bottom: 10px; /* deixa a ilustração "tocar" a curva */
         padding: 0 1.5rem 0;
         display: flex;
         justify-content: center;
