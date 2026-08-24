@@ -285,6 +285,14 @@ function exigePremium(req, res, next) {
     return res.status(403).json({ erro: "plano_insuficiente", planoAtual: req.plano });
 }
 
+app.get("/.well-known/assetlinks.json", (req, res) => {
+    console.log("Rota assetlinks foi chamada!");
+    const caminho = path.join(__dirname, ".well-known", "assetlinks.json");
+    console.log("Tentando servir:", caminho);
+    console.log("Existe?", fs.existsSync(caminho));
+    res.sendFile(caminho);
+});
+
 app.get("/debug-arquivos", (req, res) => {
     try {
         const raizArquivos = fs.readdirSync(__dirname);
