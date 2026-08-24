@@ -290,7 +290,9 @@ function exigePremium(req, res, next) {
 /* ==========================
    ROTAS GET
 ========================== */
-
+app.get("/.well-known/assetlinks.json", (req, res) => {
+    res.sendFile(path.join(__dirname, ".well-known", "assetlinks.json"));
+});
 // ─────────────────────────────────────────
 // PLANO DO USUÁRIO LOGADO
 // ─────────────────────────────────────────
@@ -389,9 +391,7 @@ app.get("/configuracoesSemAssinatura", estaLogado, (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "ConfiguracoesSemAssinatura.html"));
 });
 
-app.get("/.well-known/assetlinks.json", (req, res) => {
-    res.sendFile(path.join(__dirname, ".well-known", "assetlinks.json"));
-});
+
 
 app.get("/perfilSemAssinatura", estaLogado, (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "PerfilSemAssinatura.html"));
