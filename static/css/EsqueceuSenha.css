@@ -263,3 +263,148 @@ html, body {
 .recuperar-voltar-link:hover {
     background: #F5F7FA;
 }
+
+@media (max-width: 768px) {
+
+    html, body {
+        overflow-y: auto;
+        height: auto;
+    }
+
+    .pagina-login {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+    }
+
+    /* ===== TOPO: banner (igual ao do login) ===== */
+    .login-esquerda {
+        width: 100%;
+        min-height: 300px;
+        clip-path: ellipse(85% 90% at 50% 0%);
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .login-esquerda__conteudo {
+        padding: 1.5rem 1.5rem 0;
+        text-align: center;
+        max-width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .login-esquerda__logo {
+        width: 110px;
+        margin: 0 auto 0.5rem;
+    }
+
+    .login-esquerda__titulo,
+    .login-esquerda__slogan {
+        display: none;
+    }
+
+    .login-esquerda__ilustracao-wrapper {
+        margin-top: 0;
+        margin-bottom: 17px;
+        padding: 0 1.5rem 0;
+        display: flex;
+        justify-content: center;
+    }
+
+    .login-esquerda__foto {
+        max-width: 210px;
+    }
+
+    /* ===== BAIXO: card branco ===== */
+    .login-direita {
+        width: 100%;
+        padding: 2rem 1.5rem 2.5rem;
+        margin-top: -50px;
+        background: #fff;
+        border-radius: 0;
+        position: relative;
+        z-index: 1;
+        overflow-y: visible;
+    }
+
+    .recuperar-header {
+        border-bottom: none;
+        padding: 1rem 0 0;
+        text-align: center;
+    }
+
+    .recuperar-titulo {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        -webkit-text-fill-color: #1a1a1a;
+        background: none;
+    }
+
+    /* Ícone de cadeado com as linhas dos lados */
+    .recuperar-icone-divisor {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.8rem;
+        margin: 1.2rem 0;
+    }
+
+    .recuperar-icone-divisor__linha {
+        flex: 1;
+        height: 1px;
+        background: #ddd;
+        max-width: 70px;
+    }
+
+    .recuperar-icone-divisor__circulo {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: #E8F8EE;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #32C26D;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .recuperar-corpo {
+        padding: 0;
+        justify-content: flex-start;
+    }
+
+    .recuperar-subtitulo {
+        font-size: 1.05rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .recuperar-texto {
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .recuperar-form,
+    .recuperar-voltar-link {
+        max-width: 100%;
+    }
+
+    .recuperar-form__input {
+        border-radius: 12px;
+    }
+
+    .recuperar-form__btn-enviar {
+        border-radius: 12px;
+    }
+
+    .recuperar-voltar-link {
+        border-radius: 12px;
+        margin-top: 0.6rem;
+    }
+}
