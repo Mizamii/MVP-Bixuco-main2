@@ -313,3 +313,113 @@ html, body {
 .login-google:hover {
     opacity: 0.7;
 }
+
+
+/* ==========================================
+   VERSÃO MOBILE — login.css
+   ========================================== */
+
+@media (max-width: 768px) {
+
+    html, body {
+        overflow-y: auto;
+        height: auto;
+    }
+
+    .pagina-login {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+    }
+
+    /* ===== TOPO: banner com gradiente + ilustração ===== */
+    .login-esquerda {
+        width: 100%;
+        min-height: 260px;
+        padding-bottom: 40px;
+        border-radius: 0 0 28px 28px;
+    }
+
+    .login-esquerda__conteudo {
+        padding: 2rem 1.5rem 0;
+        text-align: center;
+        max-width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .login-esquerda__logo {
+        width: 110px;
+        margin: 0 auto 1rem;
+    }
+
+    /* O Figma não mostra título/slogan no banner mobile, só logo + ilustração */
+    .login-esquerda__titulo,
+    .login-esquerda__slogan {
+        display: none;
+    }
+
+    .login-esquerda__ilustracao-wrapper {
+        margin-top: 0;
+        padding: 0 1.5rem 1rem;
+        display: flex;
+        justify-content: center;
+    }
+
+    .login-esquerda__foto {
+        max-width: 200px;
+    }
+
+    /* ===== BAIXO: formulário ===== */
+    .login-direita {
+        width: 100%;
+        padding: 2rem 1.5rem 2.5rem;
+        margin-top: -20px;
+        background: #fff;
+        border-radius: 24px 24px 0 0;
+        position: relative;
+        z-index: 2;
+        overflow-y: visible;
+        align-items: stretch;
+    }
+
+    /* Já tem a logo colorida no banner de cima, esconde a repetida */
+    .login-direita__logo-container {
+        display: none;
+    }
+
+    .login-direita__titulo {
+        font-size: 1.5rem;
+        text-align: left;
+    }
+
+    .login-direita__subtitulo {
+        text-align: left;
+        margin-bottom: 1.5rem;
+    }
+
+    .login-form,
+    .login-divisor,
+    .login-google {
+        max-width: 100%;
+    }
+
+    /* Ajusta o espaçamento estranho que tinha no desktop (gap: 120px não fazia sentido) */
+    .login-form__campo {
+        gap: 0;
+    }
+
+    /* Remove o padding-left de 100px do "esqueci senha" — no mobile ele já fica à direita sozinho */
+    .login-form__esqueci-senha {
+        padding-left: 0;
+    }
+
+    .login-form__btn-entrar {
+        border-radius: 12px;
+    }
+
+    .login-google {
+        border-radius: 12px;
+    }
+}
