@@ -337,7 +337,8 @@ html, body {
         width: 100%;
         min-height: 260px;
         padding-bottom: 40px;
-        border-radius: 0 0 28px 28px;
+        border-radius: 0; /* substituído pelo clip-path abaixo */
+        clip-path: ellipse(75% 100% at 50% 0%);
     }
 
     .login-esquerda__conteudo {
@@ -391,11 +392,17 @@ html, body {
 
     .login-direita__titulo {
         font-size: 1.5rem;
-        text-align: left;
+        text-align: center;
+    }
+
+    /* "de volta!" deve ficar preto, sobrescrevendo o gradiente do desktop */
+    .login-direita__titulo--destaque {
+        color: #1a1a1a;
+        -webkit-text-fill-color: #1a1a1a;
     }
 
     .login-direita__subtitulo {
-        text-align: left;
+        text-align: center;
         margin-bottom: 1.5rem;
     }
 
@@ -413,6 +420,12 @@ html, body {
     /* Remove o padding-left de 100px do "esqueci senha" — no mobile ele já fica à direita sozinho */
     .login-form__esqueci-senha {
         padding-left: 0;
+    }
+
+    /* "Esqueci minha senha" e "Criar agora" com a mesma cor */
+    .login-form__esqueci-senha,
+    .login-criar-conta__link {
+        color: #0AB7FB;
     }
 
     .login-form__btn-entrar {
