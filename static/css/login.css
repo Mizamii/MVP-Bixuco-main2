@@ -336,11 +336,13 @@ html, body {
     .login-esquerda {
         width: 100%;
         min-height: 300px;
-        padding-bottom: 20px;
-        border-radius: 0;
+        padding-bottom: 0; /* removido — a ilustração vai até a borda */
         clip-path: ellipse(85% 90% at 50% 0%);
         position: relative;
         z-index: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between; /* empurra a ilustração pra baixo */
     }
 
     .login-esquerda__conteudo {
@@ -364,7 +366,8 @@ html, body {
     }
 
     .login-esquerda__ilustracao-wrapper {
-        margin-top: 0.5rem;
+        margin-top: 0;
+        margin-bottom: -10px; /* deixa a ilustração "tocar" a curva */
         padding: 0 1.5rem 0;
         display: flex;
         justify-content: center;
@@ -377,7 +380,7 @@ html, body {
     /* ===== BAIXO: formulário ===== */
     .login-direita {
         width: 100%;
-        padding: 2rem 1.5rem 2.5rem;
+        padding: 3.5rem 1.5rem 2.5rem; /* padding-top bem maior = mais respiro após a curva */
         margin-top: -50px;
         background: #fff;
         border-radius: 0;
