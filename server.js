@@ -285,7 +285,23 @@ function exigePremium(req, res, next) {
     return res.status(403).json({ erro: "plano_insuficiente", planoAtual: req.plano });
 }
 
+app.get("/debug-arquivos", (req, res) => {
+    try {
+        const raizArquivos = fs.readdirSync(__dirname);
+        const wellKnownExiste = fs.existsSync(path.join(__dirname, ".well-known"));
+        const wellKnownArquivos = wellKnownExiste
+            ? fs.readdirSync(path.join(__dirname, ".well-known"))
+            : "pasta .well-known não existe";
 
+        res.json({
+            raizDoProjeto: raizArquivos,
+            pastaWellKnownExiste: wellKnownExiste,
+            arquivosDentroDeWellKnown: wellKnownArquivos
+        });
+    } catch (erro) {
+        res.json({ erro: erro.message });
+    }
+});
 
 /* ==========================
    ROTAS GET
