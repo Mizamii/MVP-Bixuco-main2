@@ -318,7 +318,15 @@ app.get("/AdicionarC", estaLogado, (req, res) => {
 });
 
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "templates", "index.html"));
+    const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+    const tipo = req.session.tipo || (req.user && req.user.tipo);
+
+    if (usuarioId) {
+        return res.redirect(tipo === "psicologo" ? "/hometerapeuta" : "/home");
+    }
+
+    return res.sendFile(path.join(__dirname, "templates", "index.html"));
+    // ou res.redirect("/logar") se você não quiser mostrar a index pra ninguém deslogado dentro do app
 });
 
 app.get("/pacientes", estaLogado, (req, res) => {
