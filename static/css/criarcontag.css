@@ -331,3 +331,121 @@ html, body {
 .cadastro-form__link:hover {
     text-decoration: underline;
 }
+
+@media (max-width: 768px) {
+
+    html, body {
+        overflow-y: auto;
+        height: auto;
+    }
+
+    .pagina-login {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+    }
+
+    /* ===== TOPO: banner curvo ===== */
+    .login-esquerda {
+        width: 100%;
+        min-height: 300px;
+        clip-path: ellipse(85% 90% at 50% 0%);
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .login-esquerda__conteudo {
+        padding: 1.5rem 1.5rem 0;
+        text-align: center;
+        max-width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .login-esquerda__logo {
+        width: 110px;
+        margin: 0 auto 0.5rem;
+    }
+
+    .login-esquerda__titulo,
+    .login-esquerda__slogan {
+        display: none;
+    }
+
+    .login-esquerda__ilustracao-wrapper {
+        margin-top: 0;
+        margin-bottom: 17px;
+        padding: 0 1.5rem 0;
+        display: flex;
+        justify-content: center;
+    }
+
+    .login-esquerda__foto {
+        max-width: 210px;
+    }
+
+    /* ===== BAIXO: card branco ===== */
+    .login-direita {
+        width: 100%;
+        padding: 2rem 1.5rem 2.5rem;
+        margin-top: -50px;
+        background: #fff;
+        border-radius: 0;
+        position: relative;
+        z-index: 1;
+        overflow-y: visible;
+    }
+
+    .criarconta-header {
+        border-bottom: none;
+        padding: 1rem 0 0;
+        text-align: center;
+    }
+
+    .criarconta-titulo {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1a1a1a;
+    }
+
+    .criarconta-corpo {
+        padding: 0;
+        align-items: stretch;
+    }
+
+    .cadastro-progresso {
+        margin: 1.2rem 0 1.5rem;
+        max-width: 100%;
+    }
+
+    .criarconta-pergunta {
+        max-width: 100%;
+        font-size: 1.05rem;
+        margin-bottom: 1.2rem;
+        text-align: left;
+    }
+
+    .cadastro-form,
+    .cadastro-form__termos {
+        max-width: 100%;
+    }
+
+    .cadastro-form__input {
+        border-radius: 12px;
+    }
+
+    /* Linhas de campos pareados continuam lado a lado, só reduz o gap */
+    .cadastro-form__linha {
+        gap: 0.7rem;
+    }
+
+    .btn-continuar {
+        max-width: 100%;
+        border-radius: 12px;
+    }
+
+}
