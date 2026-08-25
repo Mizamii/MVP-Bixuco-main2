@@ -240,117 +240,6 @@
 
                     </div>
 
-                    <!-- ========================= -->
-                    <!-- Campos de endereço que o backend espera -->
-                    <!-- /continuar-cadastro-psicologo desestrutura cep, cidade, estado, bairro -->
-                    <!-- ========================= -->
-
-                    <!-- CEP -->
-                    <div class="cadastro-form__grupo">
-
-                        <label for="cep" class="cadastro-form__label">
-                            CEP
-                        </label>
-
-                        <input
-                            class="cadastro-form__input"
-                            type="text"
-                            id="cep"
-                            name="cep"
-                            placeholder="00000-000"
-                            maxlength="9"
-                            inputmode="numeric"
-                            oninput="mascaraCEP(this)"
-                            required
-                        >
-
-                        <span
-                            class="cadastro-form__erro"
-                            id="erro-cep"
-                        ></span>
-
-                    </div>
-
-                    <!-- Linha cidade + estado -->
-                    <div class="cadastro-form__linha">
-
-                        <!-- Cidade -->
-                        <div class="cadastro-form__grupo">
-
-                            <label for="cidade" class="cadastro-form__label">
-                                Cidade
-                            </label>
-
-                            <input
-                                class="cadastro-form__input"
-                                type="text"
-                                id="cidade"
-                                name="cidade"
-                                placeholder="Sua cidade"
-                                autocomplete="address-level2"
-                                required
-                                readonly
-                            >
-
-                            <span
-                                class="cadastro-form__erro"
-                                id="erro-cidade"
-                            ></span>
-
-                        </div>
-
-                        <!-- Estado -->
-                        <div class="cadastro-form__grupo">
-
-                            <label for="estado" class="cadastro-form__label">
-                                Estado
-                            </label>
-
-                            <input
-                                class="cadastro-form__input"
-                                type="text"
-                                id="estado"
-                                name="estado"
-                                placeholder="UF"
-                                maxlength="2"
-                                autocomplete="address-level1"
-                                required
-                                readonly
-                            >
-
-                            <span
-                                class="cadastro-form__erro"
-                                id="erro-estado"
-                            ></span>
-
-                        </div>
-
-                    </div>
-
-                    <!-- Bairro -->
-                    <div class="cadastro-form__grupo">
-
-                        <label for="bairro" class="cadastro-form__label">
-                            Bairro
-                        </label>
-
-                        <input
-                            class="cadastro-form__input"
-                            type="text"
-                            id="bairro"
-                            name="bairro"
-                            placeholder="Seu bairro"
-                            required
-                            readonly
-                        >
-
-                        <span
-                            class="cadastro-form__erro"
-                            id="erro-bairro"
-                        ></span>
-
-                    </div>
-
                     <!-- Erro geral do servidor (substitui o sistema de ?erro= na URL) -->
                     <span
                         id="erro-geral"
@@ -469,64 +358,6 @@
         });
 
         // ==========================
-        // MÁSCARA DO CEP
-        // ==========================
-
-        function mascaraCEP(input) {
-
-            let valor = input.value.replace(/\D/g, "").slice(0, 8);
-
-            if (valor.length > 5) {
-                valor = valor.replace(/(\d{5})(\d{0,3})/, "$1-$2");
-            }
-
-            input.value = valor;
-
-        }
-
-        // ==========================
-        // BUSCA CEP AUTOMATICAMENTE
-        // ==========================
-
-        // Preenche cidade/estado/bairro via ViaCEP ao digitar o CEP
-        document.getElementById("cep").addEventListener("blur", async function () {
-
-            const cep = this.value.replace(/\D/g, "");
-
-            if (cep.length !== 8) return;
-
-            try {
-
-                const resposta = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-                const dados    = await resposta.json();
-
-                if (dados.erro) {
-                    mostrarErro("cep", "erro-cep", "CEP não encontrado.");
-                    return;
-                }
-
-                document.getElementById("cidade").value  = dados.localidade || "";
-                document.getElementById("estado").value  = dados.uf || "";
-                document.getElementById("bairro").value  = dados.bairro || "";
-
-                // Remove readonly do bairro para o usuário corrigir se precisar
-                document.getElementById("bairro").removeAttribute("readonly");
-
-                // Limpa os erros dos campos que acabaram de ser preenchidos
-                limparErroCampo("cep", "erro-cep");
-                limparErroCampo("cidade", "erro-cidade");
-                limparErroCampo("estado", "erro-estado");
-                limparErroCampo("bairro", "erro-bairro");
-
-            } catch (erro) {
-
-                console.log("Erro ao buscar CEP:", erro);
-
-            }
-
-        });
-
-        // ==========================
         // MOSTRAR / LIMPAR ERROS
         // ==========================
 
@@ -554,11 +385,7 @@
                 "email",
                 "telefone",
                 "dataNascimento",
-                "crp",
-                "cep",
-                "cidade",
-                "estado",
-                "bairro"
+                "crp"
             ].forEach(id => {
 
                 const campo = document.getElementById(id);
@@ -687,10 +514,6 @@
             const telefone = document.getElementById("telefone").value.trim();
             const data     = document.getElementById("dataNascimento").value;
             const crp      = document.getElementById("crp").value.trim();
-            const cep      = document.getElementById("cep").value.replace(/\D/g, "");
-            const cidade   = document.getElementById("cidade").value.trim();
-            const estado   = document.getElementById("estado").value.trim();
-            const bairro   = document.getElementById("bairro").value.trim();
 
             const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -722,26 +545,6 @@
                 valido = false;
             }
 
-            if (cep.length !== 8) {
-                mostrarErro("cep", "erro-cep", "Digite um CEP válido.");
-                valido = false;
-            }
-
-            if (!cidade) {
-                mostrarErro("cidade", "erro-cidade", "Cidade não encontrada. Verifique o CEP.");
-                valido = false;
-            }
-
-            if (!estado) {
-                mostrarErro("estado", "erro-estado", "Estado não encontrado. Verifique o CEP.");
-                valido = false;
-            }
-
-            if (!bairro) {
-                mostrarErro("bairro", "erro-bairro", "Informe seu bairro.");
-                valido = false;
-            }
-
             return valido;
 
         }
@@ -757,8 +560,6 @@
         const campoTel   = document.getElementById("telefone");
         const campoData  = document.getElementById("dataNascimento");
         const campoCRP   = document.getElementById("crp");
-        const campoCEP   = document.getElementById("cep");
-        const campoBairroLive = document.getElementById("bairro");
 
         const regexEmailLive = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -833,25 +634,6 @@
             }
         });
 
-        let cepJaFoiValido = false;
-
-        campoCEP.addEventListener("input", () => {
-            const numeros = campoCEP.value.replace(/\D/g, "");
-
-            if (numeros.length === 8) {
-                limparErroCampo("cep", "erro-cep");
-                cepJaFoiValido = true;
-            } else if (cepJaFoiValido) {
-                // Já tinha ficado valido antes, e agora foi apagado/alterado - mostra erro de novo
-                mostrarErro("cep", "erro-cep", "Digite um CEP válido.");
-                cepJaFoiValido = false;
-            }
-        });
-
-        campoBairroLive.addEventListener("input", () => {
-            if (campoBairroLive.value.trim()) limparErroCampo("bairro", "erro-bairro");
-        });
-
         // ==========================
         // ENVIO DO FORMULÁRIO
         // ==========================
@@ -884,11 +666,7 @@
                         email:          document.getElementById("email").value.trim(),
                         telefone:       document.getElementById("telefone").value.trim(),
                         dataNascimento: document.getElementById("dataNascimento").value,
-                        crp:            document.getElementById("crp").value.trim(),
-                        cep:            document.getElementById("cep").value,
-                        cidade:         document.getElementById("cidade").value.trim(),
-                        estado:         document.getElementById("estado").value.trim(),
-                        bairro:         document.getElementById("bairro").value.trim()
+                        crp:            document.getElementById("crp").value.trim()
                     })
                 });
 

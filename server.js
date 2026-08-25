@@ -1647,11 +1647,7 @@ app.post("/continuar-cadastro-psicologo", async (req, res) => {
         email,
         telefone,
         crp,
-        dataNascimento,
-        cep,
-        cidade,
-        estado,
-        bairro
+        dataNascimento
     } = req.body;
 
     const existe = await db.query(
@@ -1690,11 +1686,7 @@ app.post("/continuar-cadastro-psicologo", async (req, res) => {
         email,
         telefone,
         crp,
-        dataNascimento,
-        cep,
-        cidade,
-        estado,
-        bairro
+        dataNascimento
 
     };
 
@@ -1719,14 +1711,7 @@ app.post("/continuar-cadastro-pai", (req, res) => {
         email,
         telefone,
         cpfUser,
-        dataNascimento,
-        cep,
-        rua,
-        numero,
-        complemento,
-        cidade,
-        estado,
-        bairro
+        dataNascimento
     } = req.body;
 
 
@@ -1736,19 +1721,13 @@ app.post("/continuar-cadastro-pai", (req, res) => {
         email,
         telefone,
         cpfUser,
-        dataNascimento,
-        cep,
-        rua,
-        numero,
-        complemento,
-        cidade,
-        estado,
-        bairro
+        dataNascimento
     };
 
     res.redirect("/CriarContaSenha");
 
 });
+
 
 
 
@@ -2441,13 +2420,10 @@ app.post("/cadastro-finalizar", async (req, res) => {
                 // Conta veio do Google e nunca foi completada — assume ela em vez de bloquear
                 const atualizado = await db.query(
                     `UPDATE usuarios
-                    SET nome=$1, cpf=$2, senha=$3, data_nascimento=$4, tipo='pai',
-                        cep=$5, rua=$6, numero=$7, complemento=$8, cidade=$9, estado=$10, bairro=$11, novo_usuario=FALSE
-                    WHERE id=$12
+                    SET nome=$1, cpf=$2, senha=$3, data_nascimento=$4, tipo='pai', novo_usuario=FALSE
+                    WHERE id=$5
                     RETURNING id, tipo`,
-                    [dados.nome, dados.cpfUser, senhaHash, dados.dataNascimento,
-                    dados.cep, dados.rua, dados.numero, dados.complemento,
-                    dados.cidade, dados.estado, dados.bairro, contaPendente.id]
+                    [dados.nome, dados.cpfUser, senhaHash, dados.dataNascimento, contaPendente.id]
                 );
 
                 delete req.session.cadastro;
@@ -2470,22 +2446,15 @@ app.post("/cadastro-finalizar", async (req, res) => {
 
             const novoUsuario = await db.query(
                 `INSERT INTO usuarios
-                (nome, email, cpf, senha, data_nascimento, tipo, cep, rua, numero, complemento, cidade, estado, bairro)
-                VALUES ($1,$2,$3,$4,$5,'pai',$6,$7,$8,$9,$10,$11,$12)
+                (nome, email, cpf, senha, data_nascimento, tipo)
+                VALUES ($1,$2,$3,$4,$5,'pai')
                 RETURNING id, tipo`,
                 [
                     dados.nome,
                     dados.email,
                     dados.cpfUser,
                     senhaHash,
-                    dados.dataNascimento,
-                    dados.cep,
-                    dados.rua,
-                    dados.numero,
-                    dados.complemento,
-                    dados.cidade,
-                    dados.estado,
-                    dados.bairro
+                    dados.dataNascimento
                 ]
             );
 
@@ -2538,16 +2507,14 @@ app.post("/cadastro-finalizar", async (req, res) => {
                 return res.status(409).json({ campo: "crp", erro: "Este CRP já está cadastrado." });
             }
 
-            if (contaPendente) {
+                        if (contaPendente) {
                 // Conta veio do Google e nunca foi completada — assume ela em vez de bloquear
                 const atualizado = await db.query(
                     `UPDATE usuarios
-                    SET nome=$1, crp=$2, senha=$3, data_nascimento=$4, tipo='psicologo',
-                        cep=$5, cidade=$6, estado=$7, bairro=$8, novo_usuario=FALSE
-                    WHERE id=$9
+                    SET nome=$1, crp=$2, senha=$3, data_nascimento=$4, tipo='psicologo', novo_usuario=FALSE
+                    WHERE id=$5
                     RETURNING id, tipo`,
-                    [dados.nome, dados.crp, senhaHash, dados.dataNascimento,
-                    dados.cep, dados.cidade, dados.estado, dados.bairro, contaPendente.id]
+                    [dados.nome, dados.crp, senhaHash, dados.dataNascimento, contaPendente.id]
                 );
 
                 delete req.session.cadastro;
@@ -2564,8 +2531,8 @@ app.post("/cadastro-finalizar", async (req, res) => {
 
             const novoUsuario = await db.query(
                 `INSERT INTO usuarios
-                (nome, email, crp, senha, data_nascimento, tipo, cep, cidade, estado, bairro, codigo_vinculo)
-                VALUES ($1,$2,$3,$4,$5,'psicologo',$6,$7,$8,$9,$10)
+                (nome, email, crp, senha, data_nascimento, tipo, codigo_vinculo)
+                VALUES ($1,$2,$3,$4,$5,'psicologo',$6)
                 RETURNING id, tipo`,
                 [
                     dados.nome,
@@ -2573,10 +2540,6 @@ app.post("/cadastro-finalizar", async (req, res) => {
                     dados.crp,
                     senhaHash,
                     dados.dataNascimento,
-                    dados.cep,
-                    dados.cidade,
-                    dados.estado,
-                    dados.bairro,
                     codigoVinculo
                 ]
             );
