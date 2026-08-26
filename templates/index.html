@@ -398,6 +398,49 @@ document
 
 </script>
 
+<script type="module">
+    import { App } from 'https://cdn.jsdelivr.net/npm/@capacitor/app@8.1.1/dist/esm/index.js';
+    import { Capacitor } from 'https://cdn.jsdelivr.net/npm/@capacitor/core@8.0.4/dist/esm/index.js';
+
+    async function tratarAberturaDoApp() {
+        console.log("Script iniciado. isNativePlatform:", Capacitor.isNativePlatform());
+
+        if (!Capacitor.isNativePlatform()) {
+            console.log("Não é app nativo, parando aqui.");
+            return;
+        }
+
+        const launchUrl = await App.getLaunchUrl();
+        console.log("launchUrl:", launchUrl);
+
+        if (launchUrl && launchUrl.url) {
+            const url = new URL(launchUrl.url);
+            console.log("Redirecionando por launchUrl para:", url.pathname);
+            window.location.href = url.pathname + url.search;
+            return;
+        }
+
+        console.log("Sem launchUrl, buscando destino via API...");
+
+        try {
+            const resposta = await fetch('/api/redirecionar-app');
+            const dados = await resposta.json();
+            console.log("Destino recebido:", dados.destino);
+            window.location.href = dados.destino;
+        } catch (erro) {
+            console.log("Erro ao buscar destino:", erro);
+        }
+    }
+
+    tratarAberturaDoApp();
+
+    App.addListener('appUrlOpen', (evento) => {
+        console.log("appUrlOpen disparado:", evento.url);
+        const url = new URL(evento.url);
+        window.location.href = url.pathname + url.search;
+    });
+</script>
+
 <script src="/js/tema.js"></script>
 
 </body>
