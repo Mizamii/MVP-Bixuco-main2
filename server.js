@@ -597,24 +597,33 @@ app.get(
         req.session.usuarioId = req.user.id;
         req.session.tipo      = req.user.tipo;
 
-        // 🔧 FIX: Usuário novo → manda para o onboarding de escolha de tipo
-        // Usuário existente → manda para a home correta conforme o tipo
-        // Salva o tipo. Psicólogo não tem mais etapas depois disso, então já
-
+        // Calcula qual caminho a pessoa deveria acessar (mesma lógica de antes)
+        let destino;
 
         if (!req.user.tipo || req.user.tipo === "pendente") {
-            return res.redirect("/onboarding-google");
+            destino = "/onboarding-google";
+        } else if (req.user.tipo === "pai" && !req.user.cadastro_completo) {
+            destino = "/AdicionarC";
+        } else if (req.user.tipo === "psicologo") {
+            destino = "/homeTerapeuta";
+        } else {
+            destino = "/home";
         }
 
-        if (req.user.tipo === "pai" && !req.user.cadastro_completo) {
-            return res.redirect("/AdicionarC");
-        }
-
-        if (req.user.tipo === "psicologo") {
-            return res.redirect("/homeTerapeuta");
-        }
-
-        return res.redirect("/home");
+        // Em vez de redirecionar direto (o navegador ficaria preso nele mesmo),
+        // serve uma página que devolve o controle para o app via esquema customizado
+        res.send(`
+            <!DOCTYPE html>
+            <html>
+            <head><meta charset="UTF-8"></head>
+            <body>
+                <script>
+                    window.location.href = "bixuco://${destino}";
+                </script>
+                <p>Redirecionando... se nada acontecer, <a href="https://${req.headers.host}${destino}">clique aqui</a>.</p>
+            </body>
+            </html>
+        `);
 
     }
 
