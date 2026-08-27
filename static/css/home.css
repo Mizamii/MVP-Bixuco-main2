@@ -617,17 +617,9 @@ text-decoration: underline;
     }
 
     .card {
-        flex-direction: column;
-        align-items: flex-start;
-        text-align: left;
-        padding: 0.9rem;
-        gap: 0.5rem;
-    }
-
-    .card-relatorio {
-        flex-direction: row;
-        align-items: center;
-    }
+    padding: 0.9rem;
+    gap: 0.5rem;
+}
 
     .linha-meio {
         flex-direction: column;
@@ -663,5 +655,57 @@ text-decoration: underline;
 
     .dica {
         min-width: 0;
+    }
+
+    html, body {
+        height: auto;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    /* "Vincular meu Bixuco" grudado no resto */
+    #bixuco-widget:not(:empty) {
+        margin-bottom: 0.9rem;
+    }
+
+    /* Deixa os dois cards (dias consecutivos / relatório diário) com o MESMO
+    layout — hoje um tá em coluna e o outro em linha, por isso a diferença
+    de proporção */
+    .linha-superior .card {
+        position: relative;
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .linha-superior .card h2,
+    .linha-superior .card p {
+        padding-right: 1.4rem; /* não passar por baixo da seta */
+    }
+
+    .linha-superior .card .seta {
+        position: absolute;
+        top: 0.9rem;
+        right: 0.9rem;
+        margin-left: 0;
+    }
+
+    /* Cabeçalho do calendário: se não couber tudo numa linha, quebra pra
+    segunda linha em vez de espremer */
+    .calendario-header {
+        flex-wrap: wrap;
+        row-gap: 0.6rem;
+    }
+
+    .badge-sequencia {
+        padding: 0.35rem 0.65rem;
+    }
+
+    .badge-sequencia strong {
+        font-size: 0.72rem;
+    }
+
+    .badge-sequencia span {
+        font-size: 0.62rem;
     }
 }

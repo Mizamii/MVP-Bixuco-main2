@@ -475,4 +475,13 @@ color: var(--cor-texto-esmaecido);
         font-size: 1rem;
         cursor: pointer;
     }
+
+    .painel-notificacoes {
+    position: fixed;
+    top: 62px;
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+    max-height: 65vh;
+}
 }
