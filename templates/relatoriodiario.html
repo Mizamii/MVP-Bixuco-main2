@@ -278,6 +278,11 @@
 
                 </button>
 
+                <!-- Botão de tema — só aparece no mobile via CSS -->
+                <button class="btn-tema-mobile" type="button" id="btnTemaMobile" title="Alternar tema" aria-label="Alternar tema">
+                    <i class="fa-regular fa-moon" id="iconeTemaMobile"></i>
+                </button>
+
                 <div class="usuario">
 
                     <div class="notificacoes-wrapper">
@@ -436,6 +441,35 @@
             </section>
 
         </main>
+
+        <!-- Barra de navegação inferior — só aparece no mobile via CSS -->
+        <nav class="bottom-nav">
+
+            <a href="/sobre">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>Sobre</span>
+            </a>
+
+            <a href="/configuracoes">
+                <i class="fa-solid fa-gear"></i>
+                <span>Config</span>
+            </a>
+
+            <a href="/RelatorioDiario" class="bottom-nav__relatar">
+                <i class="fa-solid fa-plus"></i>
+            </a>
+
+            <a href="/home">
+                <i class="fa-solid fa-house"></i>
+                <span>Início</span>
+            </a>
+
+            <a href="/relatorios">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Relatórios</span>
+            </a>
+
+        </nav>
 
     </div>
 
@@ -949,6 +983,11 @@
             document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
             document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
 
+            // Atualiza também o ícone do botão de tema mobile
+            const iconeMobile = document.getElementById("iconeTemaMobile");
+            iconeMobile.classList.toggle("fa-moon", tema === "claro");
+            iconeMobile.classList.toggle("fa-sun", tema === "escuro");
+
             localStorage.setItem("tema", tema);
 
         }
@@ -959,6 +998,11 @@
 
         document.getElementById("btnEscuro").addEventListener("click", () => {
             aplicarTema("escuro");
+        });
+
+        document.getElementById("btnTemaMobile").addEventListener("click", () => {
+            const novoTema = document.body.classList.contains("tema-escuro") ? "claro" : "escuro";
+            aplicarTema(novoTema);
         });
 
         // ==========================

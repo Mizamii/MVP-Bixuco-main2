@@ -257,3 +257,52 @@
 body.tema-escuro #btnProxima {
     box-shadow: 0 6px 10px rgba(0, 0, 0, 0.45);
 }
+
+@media (max-width: 768px) {
+
+    .conteudo {padding-bottom: 5.5rem; /* espaço pra não ficar atrás da bottom-nav */}
+
+    .cabecalho-relatorio {
+        padding: 1.2rem 1.25rem 0.8rem;
+        margin-bottom: 0.9rem;
+    }
+
+    .cabecalho-relatorio h1 {
+        font-size: 1.2rem;
+    }
+
+    .cabecalho-relatorio p {
+        font-size: 0.8rem;
+        max-width: 100%;
+    }
+
+    .cabecalho-relatorio img {
+        width: 64px;
+    }
+
+    .mensagem-status,
+    .alerta-detectado {
+        margin: 0 1.25rem 1rem;
+    }
+
+    .card-questionario {
+        margin: 0 1.25rem 1.5rem;
+        padding: 1.25rem 1.1rem 1.4rem;
+        border-radius: 14px;
+    }
+
+    #textoPergunta {
+        font-size: 0.98rem;
+        margin-bottom: 1.2rem;
+    }
+
+    .opcao {
+        padding: 0.85rem 1rem;
+        border-radius: 12px;
+    }
+
+    #btnProxima {
+        border-radius: 12px;
+    }
+
+}
