@@ -323,7 +323,8 @@
         <!-- ABA — DIÁRIO -->
         <!-- ================================= -->
 
-        <section id="abaDiario" class="aba-conteudo" style="display: none;">
+        <section
+         id="abaDiario" class="aba-conteudo" style="display: none;">
 
             <div class="cards-relatorio">
 
@@ -957,6 +958,10 @@
     carregarUsuario();
     carregarRelatorios();
     carregarNotificacoes();
+
+    // Atualiza os alertas/tempo de estresse automaticamente, sem precisar recarregar a página
+    // (útil para acompanhar em tempo real quando o Bixuco físico registra um novo evento)
+    setInterval(carregarRelatorios, 10000);
 
 </script>
 

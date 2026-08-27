@@ -691,42 +691,6 @@ app.post("/api/admin/pedido-status", async (req, res) => {
     }
 });
 
-app.post("/api/admin/dispositivos/criar", async (req, res) => {
-
-    const { chave, dispositivo_id } = req.body;
-
-    if (!process.env.ADMIN_SECRET || chave !== process.env.ADMIN_SECRET) {
-        return res.status(401).json({ erro: "Chave de admin inválida." });
-    }
-
-    if (!dispositivo_id || dispositivo_id.trim().length === 0) {
-        return res.status(400).json({ erro: "Informe o dispositivo_id." });
-    }
-
-    try {
-
-        const existente = await db.query(
-            "SELECT id FROM dispositivos WHERE dispositivo_id = $1",
-            [dispositivo_id.trim()]
-        );
-
-        if (existente.rows.length > 0) {
-            return res.status(409).json({ erro: "Esse dispositivo_id já existe." });
-        }
-
-        await db.query(
-            "INSERT INTO dispositivos (dispositivo_id) VALUES ($1)",
-            [dispositivo_id.trim()]
-        );
-
-        res.status(201).json({ mensagem: `Dispositivo ${dispositivo_id} criado com sucesso.` });
-
-    } catch (erro) {
-        console.log("Erro ao criar dispositivo:", erro);
-        res.status(500).json({ erro: "Erro interno." });
-    }
-
-});
 
 app.post("/api/planos/criar-planos", async (req, res) => {
 
@@ -2008,19 +1972,19 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
 
         const alertasHoje = await db.query(
             `SELECT COUNT(*) AS total
-            FROM relatorios
-            WHERE usuario_id = $1
-            AND DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') = (NOW() AT TIME ZONE 'America/Sao_Paulo')::date
-            ${filtroAlerta}`,
+            FROM eventos_bixuco e
+            JOIN criancas c ON c.id = e.crianca_id
+            WHERE c.usuario_id = $1
+            AND DATE((e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = (NOW() AT TIME ZONE 'America/Sao_Paulo')::date`,
             [usuarioId]
         );
 
         const alertasOntem = await db.query(
             `SELECT COUNT(*) AS total
-            FROM relatorios
-            WHERE usuario_id = $1
-            AND DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') = (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '1 day'
-            ${filtroAlerta}`,
+            FROM eventos_bixuco e
+            JOIN criancas c ON c.id = e.crianca_id
+            WHERE c.usuario_id = $1
+            AND DATE((e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '1 day'`,
             [usuarioId]
         );
 
