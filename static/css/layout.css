@@ -372,3 +372,107 @@ color: var(--cor-texto-esmaecido);
 .btn-codigo-copiar i {
     font-size: 0.78rem;
 }
+
+/* Barra inferior escondida por padrão (só aparece no mobile) */
+.bottom-nav {
+    display: none;
+}
+/* fora do media query, junto com a regra do .bottom-nav */
+.btn-tema-mobile {
+    display: none;
+}
+
+@media (max-width: 768px) {
+
+    .sidebar {
+        display: none;
+    }
+
+    .container {
+        display: block;
+        height: auto;
+        min-height: 100vh;
+    }
+
+    .conteudo {
+        height: auto;
+        overflow: visible;
+    }
+
+    .topo {
+        padding: 0.9rem 1.1rem;
+    }
+
+    .tradutor span {
+        display: none; /* some o texto "Traduzir", fica só o ícone */
+    }
+
+    .painel-notificacoes {
+        width: min(320px, calc(100vw - 2rem));
+        right: -0.5rem;
+    }
+
+    .bottom-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 62px;
+        background: var(--cor-fundo-card);
+        border-top: 1px solid var(--cor-borda-suave);
+        z-index: 100;
+        padding: 0 0.5rem;
+    }
+
+    .bottom-nav a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.2rem;
+        text-decoration: none;
+        color: var(--cor-texto-esmaecido);
+        font-size: 0.62rem;
+        font-weight: 600;
+    }
+
+    .bottom-nav a i {
+        font-size: 1.05rem;
+    }
+
+    .bottom-nav a.ativo {
+        color: var(--cor-marca-verde);
+    }
+
+    .bottom-nav__relatar {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+        color: #fff !important;
+        justify-content: center;
+        margin-top: -26px;
+        box-shadow: 0 6px 14px rgba(10, 183, 251, 0.35);
+    }
+
+    .bottom-nav__relatar i {
+        font-size: 1.3rem;
+    }
+    
+    /* dentro do @media (max-width: 768px) já existente, adicione: */
+    .btn-tema-mobile {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: none;
+        background: var(--cor-fundo-hover);
+        color: var(--cor-texto-secundario);
+        font-size: 1rem;
+        cursor: pointer;
+    }
+}

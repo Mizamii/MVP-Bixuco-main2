@@ -17,11 +17,18 @@ function aplicarTema(tema) {
 
     const btnClaro  = document.getElementById("btnClaro");
     const btnEscuro = document.getElementById("btnEscuro");
+    const btnMobile = document.getElementById("btnTemaMobile"); // NOVO
 
     if (btnClaro)  btnClaro.classList.toggle("ativo", tema === "claro");
     if (btnEscuro) btnEscuro.classList.toggle("ativo", tema === "escuro");
 
-    trocarEstiloMapa(tema); // <- adiciona essa linha
+    // NOVO — troca o ícone (sol/lua) do botão mobile, se ele existir na página
+    if (btnMobile) {
+        const icone = btnMobile.querySelector("i");
+        if (icone) icone.className = tema === "claro" ? "fa-regular fa-sun" : "fa-regular fa-moon";
+    }
+
+    trocarEstiloMapa(tema);
     localStorage.setItem("tema", tema);
 
 }
@@ -33,9 +40,18 @@ function iniciarTema() {
 
     const btnClaro  = document.getElementById("btnClaro");
     const btnEscuro = document.getElementById("btnEscuro");
+    const btnMobile = document.getElementById("btnTemaMobile"); // NOVO
 
     if (btnClaro)  btnClaro.addEventListener("click", () => aplicarTema("claro"));
     if (btnEscuro) btnEscuro.addEventListener("click", () => aplicarTema("escuro"));
+
+    // NOVO — um único botão que alterna entre claro/escuro a cada toque
+    if (btnMobile) {
+        btnMobile.addEventListener("click", () => {
+            const atual = document.body.classList.contains("tema-escuro") ? "escuro" : "claro";
+            aplicarTema(atual === "claro" ? "escuro" : "claro");
+        });
+    }
 
 }
 

@@ -587,3 +587,81 @@ text-decoration: underline;
     color: var(--cor-texto-secundario);
     line-height: 1.5;
 }
+
+@media (max-width: 768px) {
+
+    .conteudo-corpo {
+        overflow-y: visible;
+        padding: 1rem 1rem 5.5rem; /* espaço embaixo pra não ficar atrás da barra */
+    }
+
+    .saudacao {
+        margin-bottom: 0.9rem;
+    }
+
+    .saudacao h1 {
+        font-size: 1.25rem;
+    }
+
+    .saudacao p {
+        font-size: 0.8rem;
+    }
+
+    .saudacao img {
+        width: 64px;
+    }
+
+    .linha-superior {
+        gap: 0.7rem;
+        margin-bottom: 0.9rem;
+    }
+
+    .card {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+        padding: 0.9rem;
+        gap: 0.5rem;
+    }
+
+    .card-relatorio {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .linha-meio {
+        flex-direction: column;
+        gap: 0.9rem;
+        margin-bottom: 0.9rem;
+    }
+
+    .calendario-card,
+    .mapa-card {
+        flex: none;
+        width: 100%;
+    }
+
+    .dias-calendario button {
+        width: 30px;
+        height: 30px;
+        font-size: 0.8rem;
+    }
+
+    #mapaBixuco {
+        min-height: 190px;
+    }
+
+    .dicas-card {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.9rem;
+    }
+
+    .dicas-intro {
+        min-width: 0;
+    }
+
+    .dica {
+        min-width: 0;
+    }
+}
