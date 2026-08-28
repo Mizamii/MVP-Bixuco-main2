@@ -267,20 +267,19 @@
             <header class="topo">
                 
 
+                <button class="btn-tema-mobile" type="button" id="btnTemaMobile">
+                    <i class="fa-regular fa-sun"></i>
+                </button>
+
                 <button
                     class="tradutor"
                     type="button"
+                    id="btnTraduzir"
                 >
 
                     <i class="fa-solid fa-language"></i>
+                    <span id="textoTradutor">Traduzir para inglês</span>
 
-                    Traduzir para inglês
-
-                </button>
-
-                <!-- Botão de tema — só aparece no mobile via CSS -->
-                <button class="btn-tema-mobile" type="button" id="btnTemaMobile" title="Alternar tema" aria-label="Alternar tema">
-                    <i class="fa-regular fa-moon" id="iconeTemaMobile"></i>
                 </button>
 
                 <div class="usuario">
@@ -975,31 +974,6 @@
         // TEMA
         // ==========================
 
-        function aplicarTema(tema) {
-
-            document.body.classList.remove("tema-claro", "tema-escuro");
-            document.body.classList.add(`tema-${tema}`);
-
-            document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
-            document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
-
-            // Atualiza também o ícone do botão de tema mobile
-            const iconeMobile = document.getElementById("iconeTemaMobile");
-            iconeMobile.classList.toggle("fa-moon", tema === "claro");
-            iconeMobile.classList.toggle("fa-sun", tema === "escuro");
-
-            localStorage.setItem("tema", tema);
-
-        }
-
-        document.getElementById("btnClaro").addEventListener("click", () => {
-            aplicarTema("claro");
-        });
-
-        document.getElementById("btnEscuro").addEventListener("click", () => {
-            aplicarTema("escuro");
-        });
-
         document.getElementById("btnTemaMobile").addEventListener("click", () => {
             const novoTema = document.body.classList.contains("tema-escuro") ? "claro" : "escuro";
             aplicarTema(novoTema);
@@ -1063,8 +1037,6 @@
         // ==========================
 
         // Aplica o tema salvo ao carregar a página
-        const temaSalvo = localStorage.getItem("tema") || "claro";
-        aplicarTema(temaSalvo);
 
         async function iniciarRelatorio() {
             await verificarAlertaHoje();
