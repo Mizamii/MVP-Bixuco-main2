@@ -142,6 +142,10 @@
 
         <header class="topo">
 
+            <button class="btn-tema-mobile" type="button" id="btnTemaMobile">
+                <i class="fa-regular fa-sun"></i>
+            </button>
+
             <button class="tradutor" type="button" id="btnTraduzir">
                 <i class="fa-solid fa-language"></i>
                 <span id="textoTradutor">Traduzir para o inglês</span>
@@ -247,12 +251,17 @@
 
             <div class="linha-graficos">
 
-                <div class="grafico-card">
+                <div class="grafico-card" id="cardGraficoEstresse">
                     <div class="titulo-card">
                         <h2>
                             <i class="fa-solid fa-chart-bar"></i>
                             <span data-pt="Estresse — últimos 7 dias" data-en="Stress — last 7 days">Estresse — últimos 7 dias</span>
                         </h2>
+                        <button type="button" class="btn-colapsar" onclick="alternarGraficoCard('cardGraficoEstresse')" aria-expanded="true" aria-label="Mostrar ou ocultar gráfico">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div class="grafico-conteudo">
                         <div class="btn-tipo-grafico">
                             <button type="button" class="ativo" onclick="trocarTipoEstresse('bar')" title="Barras">
                                 <i class="fa-solid fa-chart-column"></i>
@@ -261,16 +270,21 @@
                                 <i class="fa-solid fa-chart-line"></i>
                             </button>
                         </div>
+                        <canvas id="graficoEstresse"></canvas>
                     </div>
-                    <canvas id="graficoEstresse"></canvas>
                 </div>
 
-                <div class="grafico-card">
+                <div class="grafico-card" id="cardGraficoGatilhos">
                     <div class="titulo-card">
                         <h2>
                             <i class="fa-solid fa-circle-nodes"></i>
                             <span data-pt="Principais gatilhos — últimos 30 dias" data-en="Main triggers — last 30 days">Principais gatilhos — últimos 30 dias</span>
                         </h2>
+                        <button type="button" class="btn-colapsar" onclick="alternarGraficoCard('cardGraficoGatilhos')" aria-expanded="true" aria-label="Mostrar ou ocultar gráfico">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div class="grafico-conteudo">
                         <div class="btn-tipo-grafico">
                             <button type="button" class="ativo" onclick="trocarTipoGatilhos('doughnut')" title="Rosca">
                                 <i class="fa-solid fa-circle-dot"></i>
@@ -282,24 +296,29 @@
                                 <i class="fa-solid fa-chart-column"></i>
                             </button>
                         </div>
+                        <p style="font-size: 0.72rem; color: #999; margin-top: -0.5rem; margin-bottom: 0.5rem;" data-pt="Estimativa baseada nas respostas do relatório diário" data-en="Estimate based on daily report answers">
+                            Estimativa baseada nas respostas do relatório diário
+                        </p>
+                        <canvas id="graficoGatilhos"></canvas>
+                        <div id="legendaGatilhos" class="legenda-rosca"></div>
                     </div>
-                    <p style="font-size: 0.72rem; color: #999; margin-top: -0.5rem; margin-bottom: 0.5rem;" data-pt="Estimativa baseada nas respostas do relatório diário" data-en="Estimate based on daily report answers">
-                        Estimativa baseada nas respostas do relatório diário
-                    </p>
-                    <canvas id="graficoGatilhos"></canvas>
-                    <div id="legendaGatilhos" class="legenda-rosca"></div>
                 </div>
 
             </div>
 
             <div class="linha-graficos">
 
-                <div class="grafico-card grande">
+                                <div class="grafico-card grande" id="cardGraficoEvolucao">
                     <div class="titulo-card">
                         <h2>
                             <i class="fa-solid fa-chart-line"></i>
                             <span data-pt="Evolução de crises sensoriais — últimos 7 dias" data-en="Sensory crisis evolution — last 7 days">Evolução de crises sensoriais — últimos 7 dias</span>
                         </h2>
+                        <button type="button" class="btn-colapsar" onclick="alternarGraficoCard('cardGraficoEvolucao')" aria-expanded="true" aria-label="Mostrar ou ocultar gráfico">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div class="grafico-conteudo">
                         <div class="btn-tipo-grafico">
                             <button type="button" class="ativo" onclick="trocarTipoEvolucao('line')" title="Linha">
                                 <i class="fa-solid fa-chart-line"></i>
@@ -308,11 +327,11 @@
                                 <i class="fa-solid fa-chart-column"></i>
                             </button>
                         </div>
+                        <p style="font-size: 0.72rem; color: #999; margin-top: -0.5rem; margin-bottom: 0.5rem;" data-pt="Índice combinado: força, duração e frequência dos apertos captados pelo Bixuco, com pequeno ajuste do relatório diário" data-en="Combined index: grip force, duration and frequency captured by Bixuco, with a small adjustment from the daily report">
+                            Índice combinado: força, duração e frequência dos apertos captados pelo Bixuco, com pequeno ajuste do relatório diário
+                        </p>
+                        <canvas id="graficoEvolucao"></canvas>
                     </div>
-                    <p style="font-size: 0.72rem; color: #999; margin-top: -0.5rem; margin-bottom: 0.5rem;" data-pt="Índice combinado: força, duração e frequência dos apertos captados pelo Bixuco, com pequeno ajuste do relatório diário" data-en="Combined index: grip force, duration and frequency captured by Bixuco, with a small adjustment from the daily report">
-                        Índice combinado: força, duração e frequência dos apertos captados pelo Bixuco, com pequeno ajuste do relatório diário
-                    </p>
-                    <canvas id="graficoEvolucao"></canvas>
                 </div>
 
             </div>
@@ -359,27 +378,37 @@
 
     </main>
 
+    <nav class="bottom-nav">
+        <a href="/sobre">
+            <i class="fa-solid fa-circle-info"></i>
+            <span data-pt="Sobre" data-en="About">Sobre</span>
+        </a>
+
+        <a href="/configuracoes">
+            <i class="fa-solid fa-gear"></i>
+            <span data-pt="Config" data-en="Settings">Config</span>
+        </a>
+
+        <a href="/RelatorioDiario" class="bottom-nav__relatar">
+            <i class="fa-solid fa-plus"></i>
+        </a>
+
+        <a href="/home">
+            <i class="fa-solid fa-house"></i>
+            <span data-pt="Início" data-en="Home">Início</span>
+        </a>
+
+        <a href="/relatorios" class="ativo">
+            <i class="fa-solid fa-chart-line"></i>
+            <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+        </a>
+    </nav>
+
 </div>
 
 <script>
 
-    // ==========================
-    // TEMA
-    // ==========================
-
-    function aplicarTema(tema) {
-        document.body.classList.remove("tema-claro", "tema-escuro");
-        document.body.classList.add(`tema-${tema}`);
-        document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
-        document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
-        localStorage.setItem("tema", tema);
-    }
-
-    document.getElementById("btnClaro").addEventListener("click", () => aplicarTema("claro"));
-    document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
-
-    const temaSalvo = localStorage.getItem("tema") || "claro";
-    aplicarTema(temaSalvo);
+    
 
 
     // ==========================
@@ -639,6 +668,8 @@
         criarGraficoGatilhos("doughnut");
         criarGraficoEvolucao("line");
 
+        iniciarColapsoMobile();
+
     }
 
     function criarGraficoEstresse(tipo) {
@@ -834,6 +865,68 @@
 
             btn.classList.toggle("ativo", tipoBtn === tipoAtivo);
         });
+    }
+
+        // ==========================
+    // COLLAPSE DOS CARDS DE GRÁFICO (MOBILE)
+    // ==========================
+
+    function alternarGraficoCard(idCard) {
+
+        const card = document.getElementById(idCard);
+        if (!card) return;
+
+        const btnColapsar = card.querySelector(".btn-colapsar");
+        const estaColapsado = card.classList.toggle("colapsado");
+
+        if (btnColapsar) {
+            btnColapsar.setAttribute("aria-expanded", (!estaColapsado).toString());
+        }
+
+        // O canvas fica com display:none enquanto colapsado, então o
+        // Chart.js não calcula o tamanho certo — força o recálculo ao expandir
+        if (!estaColapsado) {
+
+            const mapaGraficos = {
+                cardGraficoEstresse: "estresse",
+                cardGraficoGatilhos: "gatilhos",
+                cardGraficoEvolucao: "evolucao"
+            };
+
+            const chave = mapaGraficos[idCard];
+
+            if (chave && graficos[chave]) {
+                requestAnimationFrame(() => graficos[chave].resize());
+            }
+
+        }
+
+    }
+
+    // Colapsa os cards automaticamente só na primeira carga em telas mobile —
+    // não repete a cada atualização automática (setInterval), senão fecharia
+    // de novo um card que o usuário tinha aberto manualmente
+    let colapsoJaAplicado = false;
+
+    function iniciarColapsoMobile() {
+
+        if (colapsoJaAplicado) return;
+        if (!window.matchMedia("(max-width: 768px)").matches) return;
+
+        ["cardGraficoEstresse", "cardGraficoGatilhos", "cardGraficoEvolucao"].forEach(id => {
+
+            const card = document.getElementById(id);
+            if (!card) return;
+
+            card.classList.add("colapsado");
+
+            const btn = card.querySelector(".btn-colapsar");
+            if (btn) btn.setAttribute("aria-expanded", "false");
+
+        });
+
+        colapsoJaAplicado = true;
+
     }
 
 

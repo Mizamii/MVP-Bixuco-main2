@@ -263,3 +263,121 @@ font-size: 0.85rem;
 color: #0AB7FB;
 font-weight: 600;
 }
+/* ========================================= */
+/* COLLAPSE DOS CARDS DE GRÁFICO (chevron)    */
+/* ========================================= */
+
+.btn-colapsar {
+    display: none; /* só aparece no mobile */
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: var(--cor-fundo-hover);
+    color: var(--cor-texto-secundario);
+    font-size: 0.8rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.2s;
+}
+
+.btn-colapsar:hover {
+    background: var(--cor-fundo-hover-forte);
+}
+
+.btn-colapsar i {
+    transition: transform 0.25s ease;
+}
+
+.grafico-card.colapsado .btn-colapsar i {
+    transform: rotate(-90deg);
+}
+
+@media (max-width: 768px) {
+
+    /* ---------- Cabeçalho ---------- */
+
+    .cabecalho {
+        margin-bottom: 0.9rem;
+    }
+
+    .cabecalho h1 {
+        font-size: 1.25rem;
+    }
+
+    .cabecalho img {
+        width: 56px;
+    }
+
+    .abas {
+        gap: 1.1rem;
+    }
+
+    .abas button {
+        font-size: 0.8rem;
+    }
+
+    /* ---------- Cards de resumo — continuam lado a lado ---------- */
+
+    .cards-relatorio {
+        gap: 0.7rem;
+        margin-bottom: 0.9rem;
+    }
+
+    .cards-relatorio .card {
+        padding: 0.85rem 0.9rem;
+    }
+
+    .valor-destaque {
+        font-size: 1.2rem;
+    }
+
+    /* ---------- Gráficos — uma coluna, sempre ---------- */
+
+    .linha-graficos {
+        grid-template-columns: 1fr;
+        gap: 0.9rem;
+        margin-bottom: 0.9rem;
+    }
+
+    .grafico-card {
+        padding: 0.9rem 1rem;
+    }
+
+    /* ---------- Collapse ativo no mobile ---------- */
+
+    .btn-colapsar {
+        display: flex;
+    }
+
+    .grafico-card.colapsado .grafico-conteudo {
+        display: none;
+    }
+
+    .titulo-card {
+        margin-bottom: 0; /* some quando colapsado, já que não há mais nada embaixo */
+    }
+
+    .grafico-card:not(.colapsado) .titulo-card {
+        margin-bottom: 0.75rem;
+    }
+
+    /* ---------- Botões de tipo de gráfico dentro do conteúdo expandido ---------- */
+
+    .btn-tipo-grafico {
+        margin-bottom: 0.6rem;
+    }
+
+    /* ---------- Aba Diário ---------- */
+
+    .relatorio-diario {
+        padding: 1rem 1.1rem;
+    }
+
+    .pergunta-item {
+        padding: 0.6rem 0.8rem;
+    }
+
+}
