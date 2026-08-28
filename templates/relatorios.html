@@ -28,16 +28,93 @@
     <link rel="stylesheet" href="/css/relatorios.css">
 
     <style>
+        /* ========================================= */
+        /* SELETOR DE TIPO DE GRÁFICO (dropdown)      */
+        /* ========================================= */
+
         .titulo-card {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
         }
 
-        .btn-tipo-grafico {
+        .seletor-tipo {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .seletor-tipo__atual {
             display: flex;
-            gap: 4px;
+            align-items: center;
+            gap: 0.4rem;
+            background: var(--cor-fundo-pagina);
+            border: 1px solid var(--cor-borda);
+            border-radius: 999px;
+            padding: 0.35rem 0.7rem;
+            color: var(--cor-texto-secundario);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .seletor-tipo__atual:hover {
+            border-color: #32C26D;
+            color: #32C26D;
+        }
+
+        .seletor-tipo__seta {
+            font-size: 0.62rem;
+            transition: transform 0.2s ease;
+        }
+
+        .seletor-tipo.aberto .seletor-tipo__seta {
+            transform: rotate(180deg);
+        }
+
+        .seletor-tipo__menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            min-width: 150px;
+            background: var(--cor-fundo-card);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+            padding: 0.4rem;
+            z-index: 30;
+        }
+
+        .seletor-tipo.aberto .seletor-tipo__menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+        }
+
+        .seletor-tipo__menu button {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            background: none;
+            border: none;
+            text-align: left;
+            padding: 0.55rem 0.65rem;
+            border-radius: 8px;
+            font-size: 0.83rem;
+            color: var(--cor-texto-principal);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .seletor-tipo__menu button:hover {
+            background: var(--cor-fundo-hover);
+        }
+
+        .seletor-tipo__menu button i {
+            width: 16px;
+            text-align: center;
+            color: #32C26D;
+            font-size: 0.85rem;
         }
 
         .btn-tipo-grafico button {
@@ -251,87 +328,97 @@
 
             <div class="linha-graficos">
 
-                <div class="grafico-card" id="cardGraficoEstresse">
+                <div class="grafico-card">
                     <div class="titulo-card">
                         <h2>
                             <i class="fa-solid fa-chart-bar"></i>
                             <span data-pt="Estresse — últimos 7 dias" data-en="Stress — last 7 days">Estresse — últimos 7 dias</span>
                         </h2>
-                        <button type="button" class="btn-colapsar" onclick="alternarGraficoCard('cardGraficoEstresse')" aria-expanded="true" aria-label="Mostrar ou ocultar gráfico">
-                            <i class="fa-solid fa-chevron-down"></i>
-                        </button>
-                    </div>
-                    <div class="grafico-conteudo">
-                        <div class="btn-tipo-grafico">
-                            <button type="button" class="ativo" onclick="trocarTipoEstresse('bar')" title="Barras">
-                                <i class="fa-solid fa-chart-column"></i>
+                        <div class="seletor-tipo" id="seletorEstresse">
+                            <button type="button" class="seletor-tipo__atual" onclick="alternarSeletorTipo('seletorEstresse')" aria-haspopup="true" aria-expanded="false" aria-label="Escolher tipo de gráfico">
+                                <i class="fa-solid fa-chart-column" id="iconeAtualEstresse"></i>
+                                <i class="fa-solid fa-chevron-down seletor-tipo__seta"></i>
                             </button>
-                            <button type="button" onclick="trocarTipoEstresse('line')" title="Linha">
-                                <i class="fa-solid fa-chart-line"></i>
-                            </button>
+                            <div class="seletor-tipo__menu">
+                                <button type="button" onclick="selecionarTipoGrafico('estresse', 'bar')">
+                                    <i class="fa-solid fa-chart-column"></i>
+                                    <span data-pt="Barras" data-en="Bar">Barras</span>
+                                </button>
+                                <button type="button" onclick="selecionarTipoGrafico('estresse', 'line')">
+                                    <i class="fa-solid fa-chart-line"></i>
+                                    <span data-pt="Linha" data-en="Line">Linha</span>
+                                </button>
+                            </div>
                         </div>
-                        <canvas id="graficoEstresse"></canvas>
                     </div>
+                    <canvas id="graficoEstresse"></canvas>
                 </div>
 
-                <div class="grafico-card" id="cardGraficoGatilhos">
+                <div class="grafico-card">
                     <div class="titulo-card">
                         <h2>
                             <i class="fa-solid fa-circle-nodes"></i>
                             <span data-pt="Principais gatilhos — últimos 30 dias" data-en="Main triggers — last 30 days">Principais gatilhos — últimos 30 dias</span>
                         </h2>
-                        <button type="button" class="btn-colapsar" onclick="alternarGraficoCard('cardGraficoGatilhos')" aria-expanded="true" aria-label="Mostrar ou ocultar gráfico">
-                            <i class="fa-solid fa-chevron-down"></i>
-                        </button>
-                    </div>
-                    <div class="grafico-conteudo">
-                        <div class="btn-tipo-grafico">
-                            <button type="button" class="ativo" onclick="trocarTipoGatilhos('doughnut')" title="Rosca">
-                                <i class="fa-solid fa-circle-dot"></i>
+                        <div class="seletor-tipo" id="seletorGatilhos">
+                            <button type="button" class="seletor-tipo__atual" onclick="alternarSeletorTipo('seletorGatilhos')" aria-haspopup="true" aria-expanded="false" aria-label="Escolher tipo de gráfico">
+                                <i class="fa-solid fa-circle-dot" id="iconeAtualGatilhos"></i>
+                                <i class="fa-solid fa-chevron-down seletor-tipo__seta"></i>
                             </button>
-                            <button type="button" onclick="trocarTipoGatilhos('pie')" title="Pizza">
-                                <i class="fa-solid fa-chart-pie"></i>
-                            </button>
-                            <button type="button" onclick="trocarTipoGatilhos('bar')" title="Barras">
-                                <i class="fa-solid fa-chart-column"></i>
-                            </button>
+                            <div class="seletor-tipo__menu">
+                                <button type="button" onclick="selecionarTipoGrafico('gatilhos', 'doughnut')">
+                                    <i class="fa-solid fa-circle-dot"></i>
+                                    <span data-pt="Rosca" data-en="Doughnut">Rosca</span>
+                                </button>
+                                <button type="button" onclick="selecionarTipoGrafico('gatilhos', 'pie')">
+                                    <i class="fa-solid fa-chart-pie"></i>
+                                    <span data-pt="Pizza" data-en="Pie">Pizza</span>
+                                </button>
+                                <button type="button" onclick="selecionarTipoGrafico('gatilhos', 'bar')">
+                                    <i class="fa-solid fa-chart-column"></i>
+                                    <span data-pt="Barras" data-en="Bar">Barras</span>
+                                </button>
+                            </div>
                         </div>
-                        <p style="font-size: 0.72rem; color: #999; margin-top: -0.5rem; margin-bottom: 0.5rem;" data-pt="Estimativa baseada nas respostas do relatório diário" data-en="Estimate based on daily report answers">
-                            Estimativa baseada nas respostas do relatório diário
-                        </p>
-                        <canvas id="graficoGatilhos"></canvas>
-                        <div id="legendaGatilhos" class="legenda-rosca"></div>
                     </div>
+                    <p style="font-size: 0.72rem; color: #999; margin-top: -0.5rem; margin-bottom: 0.5rem;" data-pt="Estimativa baseada nas respostas do relatório diário" data-en="Estimate based on daily report answers">
+                        Estimativa baseada nas respostas do relatório diário
+                    </p>
+                    <canvas id="graficoGatilhos"></canvas>
+                    <div id="legendaGatilhos" class="legenda-rosca"></div>
                 </div>
 
             </div>
 
             <div class="linha-graficos">
 
-                                <div class="grafico-card grande" id="cardGraficoEvolucao">
+                <div class="grafico-card grande">
                     <div class="titulo-card">
                         <h2>
                             <i class="fa-solid fa-chart-line"></i>
                             <span data-pt="Evolução de crises sensoriais — últimos 7 dias" data-en="Sensory crisis evolution — last 7 days">Evolução de crises sensoriais — últimos 7 dias</span>
                         </h2>
-                        <button type="button" class="btn-colapsar" onclick="alternarGraficoCard('cardGraficoEvolucao')" aria-expanded="true" aria-label="Mostrar ou ocultar gráfico">
-                            <i class="fa-solid fa-chevron-down"></i>
-                        </button>
-                    </div>
-                    <div class="grafico-conteudo">
-                        <div class="btn-tipo-grafico">
-                            <button type="button" class="ativo" onclick="trocarTipoEvolucao('line')" title="Linha">
-                                <i class="fa-solid fa-chart-line"></i>
+                        <div class="seletor-tipo" id="seletorEvolucao">
+                            <button type="button" class="seletor-tipo__atual" onclick="alternarSeletorTipo('seletorEvolucao')" aria-haspopup="true" aria-expanded="false" aria-label="Escolher tipo de gráfico">
+                                <i class="fa-solid fa-chart-line" id="iconeAtualEvolucao"></i>
+                                <i class="fa-solid fa-chevron-down seletor-tipo__seta"></i>
                             </button>
-                            <button type="button" onclick="trocarTipoEvolucao('bar')" title="Barras">
-                                <i class="fa-solid fa-chart-column"></i>
-                            </button>
+                            <div class="seletor-tipo__menu">
+                                <button type="button" onclick="selecionarTipoGrafico('evolucao', 'line')">
+                                    <i class="fa-solid fa-chart-line"></i>
+                                    <span data-pt="Linha" data-en="Line">Linha</span>
+                                </button>
+                                <button type="button" onclick="selecionarTipoGrafico('evolucao', 'bar')">
+                                    <i class="fa-solid fa-chart-column"></i>
+                                    <span data-pt="Barras" data-en="Bar">Barras</span>
+                                </button>
+                            </div>
                         </div>
-                        <p style="font-size: 0.72rem; color: #999; margin-top: -0.5rem; margin-bottom: 0.5rem;" data-pt="Índice combinado: força, duração e frequência dos apertos captados pelo Bixuco, com pequeno ajuste do relatório diário" data-en="Combined index: grip force, duration and frequency captured by Bixuco, with a small adjustment from the daily report">
-                            Índice combinado: força, duração e frequência dos apertos captados pelo Bixuco, com pequeno ajuste do relatório diário
-                        </p>
-                        <canvas id="graficoEvolucao"></canvas>
                     </div>
+                    <p style="font-size: 0.72rem; color: #999; margin-top: -0.5rem; margin-bottom: 0.5rem;" data-pt="Índice combinado: força, duração e frequência dos apertos captados pelo Bixuco, com pequeno ajuste do relatório diário" data-en="Combined index: grip force, duration and frequency captured by Bixuco, with a small adjustment from the daily report">
+                        Índice combinado: força, duração e frequência dos apertos captados pelo Bixuco, com pequeno ajuste do relatório diário
+                    </p>
+                    <canvas id="graficoEvolucao"></canvas>
                 </div>
 
             </div>
@@ -655,6 +742,88 @@
     const VERDE = "#32C26D";
     const AZUL  = "#0AB7FB";
 
+        // ==========================
+    // SELETOR DE TIPO DE GRÁFICO (dropdown)
+    // ==========================
+
+    const iconesPorTipo = {
+        bar: "fa-chart-column",
+        line: "fa-chart-line",
+        doughnut: "fa-circle-dot",
+        pie: "fa-chart-pie"
+    };
+
+    function alternarSeletorTipo(idSeletor) {
+
+        // Fecha qualquer outro seletor aberto antes de abrir este
+        document.querySelectorAll(".seletor-tipo").forEach(seletor => {
+            if (seletor.id !== idSeletor) {
+                seletor.classList.remove("aberto");
+                const btn = seletor.querySelector(".seletor-tipo__atual");
+                if (btn) btn.setAttribute("aria-expanded", "false");
+            }
+        });
+
+        const seletor = document.getElementById(idSeletor);
+        if (!seletor) return;
+
+        const estaAberto = seletor.classList.toggle("aberto");
+        const btnAtual = seletor.querySelector(".seletor-tipo__atual");
+        if (btnAtual) btnAtual.setAttribute("aria-expanded", estaAberto.toString());
+
+    }
+
+    // Fecha o seletor aberto ao clicar fora dele
+    document.addEventListener("click", (e) => {
+        document.querySelectorAll(".seletor-tipo.aberto").forEach(seletor => {
+            if (!seletor.contains(e.target)) {
+                seletor.classList.remove("aberto");
+                const btn = seletor.querySelector(".seletor-tipo__atual");
+                if (btn) btn.setAttribute("aria-expanded", "false");
+            }
+        });
+    });
+
+    function selecionarTipoGrafico(grafico, tipo) {
+
+        const mapaFuncoes = {
+            estresse: criarGraficoEstresse,
+            gatilhos: criarGraficoGatilhos,
+            evolucao: criarGraficoEvolucao
+        };
+
+        const mapaIconeId = {
+            estresse: "iconeAtualEstresse",
+            gatilhos: "iconeAtualGatilhos",
+            evolucao: "iconeAtualEvolucao"
+        };
+
+        const mapaSeletorId = {
+            estresse: "seletorEstresse",
+            gatilhos: "seletorGatilhos",
+            evolucao: "seletorEvolucao"
+        };
+
+        const funcaoCriar = mapaFuncoes[grafico];
+        if (funcaoCriar) funcaoCriar(tipo);
+
+        // Atualiza o ícone exibido no botão para refletir o tipo escolhido
+        const icone = document.getElementById(mapaIconeId[grafico]);
+        if (icone) {
+            Object.values(iconesPorTipo).forEach(classe => icone.classList.remove(classe));
+            icone.classList.add(iconesPorTipo[tipo]);
+        }
+
+        // Fecha o menu depois de escolher
+        const seletor = document.getElementById(mapaSeletorId[grafico]);
+        if (seletor) {
+            seletor.classList.remove("aberto");
+            const btn = seletor.querySelector(".seletor-tipo__atual");
+            if (btn) btn.setAttribute("aria-expanded", "false");
+        }
+
+    }
+
     function renderizarGraficos(dados) {
 
         dadosEstresseGlobal = dados.graficoEstresse;
@@ -668,7 +837,6 @@
         criarGraficoGatilhos("doughnut");
         criarGraficoEvolucao("line");
 
-        iniciarColapsoMobile();
 
     }
 
@@ -719,12 +887,6 @@
                 }
             }
         });
-    }
-
-    function trocarTipoEstresse(tipo) {
-        criarGraficoEstresse(tipo);
-        const iconePorTipo = { bar: "fa-chart-column", line: "fa-chart-line" };
-        atualizarBotoesTipo("graficoEstresse", tipo, iconePorTipo);
     }
 
     function criarGraficoGatilhos(tipo) {
@@ -783,11 +945,6 @@
         }
     }
 
-    function trocarTipoGatilhos(tipo) {
-        criarGraficoGatilhos(tipo);
-        const iconePorTipo = { doughnut: "fa-circle-dot", pie: "fa-chart-pie", bar: "fa-chart-column" };
-        atualizarBotoesTipo("graficoGatilhos", tipo, iconePorTipo);
-    }
 
     function criarGraficoEvolucao(tipo) {
 
@@ -844,90 +1001,17 @@
         });
     }
 
-    function trocarTipoEvolucao(tipo) {
-        criarGraficoEvolucao(tipo);
-        const iconePorTipo = { line: "fa-chart-line", bar: "fa-chart-column" };
-        atualizarBotoesTipo("graficoEvolucao", tipo, iconePorTipo);
-    }
 
-    function atualizarBotoesTipo(canvasId, tipoAtivo, iconePorTipo) {
 
-        const card   = document.getElementById(canvasId).closest(".grafico-card");
-        const botoes = card.querySelectorAll(".btn-tipo-grafico button");
+    
 
-        botoes.forEach(btn => {
-            const icone = btn.querySelector("i");
-            if (!icone) return;
-
-            const tipoBtn = Object.entries(iconePorTipo).find(([, cls]) =>
-                icone.classList.contains(cls)
-            )?.[0];
-
-            btn.classList.toggle("ativo", tipoBtn === tipoAtivo);
-        });
-    }
-
-        // ==========================
-    // COLLAPSE DOS CARDS DE GRÁFICO (MOBILE)
-    // ==========================
-
-    function alternarGraficoCard(idCard) {
-
-        const card = document.getElementById(idCard);
-        if (!card) return;
-
-        const btnColapsar = card.querySelector(".btn-colapsar");
-        const estaColapsado = card.classList.toggle("colapsado");
-
-        if (btnColapsar) {
-            btnColapsar.setAttribute("aria-expanded", (!estaColapsado).toString());
-        }
-
-        // O canvas fica com display:none enquanto colapsado, então o
-        // Chart.js não calcula o tamanho certo — força o recálculo ao expandir
-        if (!estaColapsado) {
-
-            const mapaGraficos = {
-                cardGraficoEstresse: "estresse",
-                cardGraficoGatilhos: "gatilhos",
-                cardGraficoEvolucao: "evolucao"
-            };
-
-            const chave = mapaGraficos[idCard];
-
-            if (chave && graficos[chave]) {
-                requestAnimationFrame(() => graficos[chave].resize());
-            }
-
-        }
-
-    }
+       
 
     // Colapsa os cards automaticamente só na primeira carga em telas mobile —
     // não repete a cada atualização automática (setInterval), senão fecharia
     // de novo um card que o usuário tinha aberto manualmente
     let colapsoJaAplicado = false;
 
-    function iniciarColapsoMobile() {
-
-        if (colapsoJaAplicado) return;
-        if (!window.matchMedia("(max-width: 768px)").matches) return;
-
-        ["cardGraficoEstresse", "cardGraficoGatilhos", "cardGraficoEvolucao"].forEach(id => {
-
-            const card = document.getElementById(id);
-            if (!card) return;
-
-            card.classList.add("colapsado");
-
-            const btn = card.querySelector(".btn-colapsar");
-            if (btn) btn.setAttribute("aria-expanded", "false");
-
-        });
-
-        colapsoJaAplicado = true;
-
-    }
 
 
     // ==========================
