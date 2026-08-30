@@ -574,30 +574,27 @@ passport.deserializeUser(async (id, done) => {
 });
 
 app.get(
-
     "/auth/google",
-
+    (req, res, next) => {
+        req.session.origemLogin = req.query.origem === "app" ? "app" : "web";
+        next();
+    },
     passport.authenticate("google", {
         scope: ["profile", "email"],
         prompt: "select_account"
     })
-
 );
 
 app.get(
-
     "/auth/google/callback",
-
     passport.authenticate("google", {
         failureRedirect: "/logar"
     }),
-
     (req, res) => {
 
         req.session.usuarioId = req.user.id;
         req.session.tipo      = req.user.tipo;
 
-        // Calcula qual caminho a pessoa deveria acessar (mesma lógica de antes)
         let destino;
 
         if (!req.user.tipo || req.user.tipo === "pendente") {
@@ -610,23 +607,28 @@ app.get(
             destino = "/home";
         }
 
-        // Em vez de redirecionar direto (o navegador ficaria preso nele mesmo),
-        // serve uma página que devolve o controle para o app via esquema customizado
-        res.send(`
-            <!DOCTYPE html>
-            <html>
-            <head><meta charset="UTF-8"></head>
-            <body>
-                <script>
-                    window.location.href = "bixuco://${destino}";
-                </script>
-                <p>Redirecionando... se nada acontecer, <a href="https://${req.headers.host}${destino}">clique aqui</a>.</p>
-            </body>
-            </html>
-        `);
+        // Veio do app? Tenta o deep link. Veio do navegador (site)? Redireciona normal.
+        const veioDoApp = req.session.origemLogin === "app";
+        delete req.session.origemLogin; // limpa pra não "vazar" pra próxima sessão
+
+        if (veioDoApp) {
+            res.send(`
+                <!DOCTYPE html>
+                <html>
+                <head><meta charset="UTF-8"></head>
+                <body>
+                    <script>
+                        window.location.href = "bixuco://${destino}";
+                    </script>
+                    <p>Redirecionando... se nada acontecer, <a href="https://${req.headers.host}${destino}">clique aqui</a>.</p>
+                </body>
+                </html>
+            `);
+        } else {
+            res.redirect(destino);
+        }
 
     }
-
 );
 
 app.post("/api/admin/pedido-status", async (req, res) => {

@@ -369,7 +369,8 @@
         // ==========================
 
         function loginGoogle() {
-            window.location.href = "/auth/google";
+            var ehApp = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+            window.location.href = ehApp ? "/auth/google?origem=app" : "/auth/google";
         }
 
     </script>
