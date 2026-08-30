@@ -160,17 +160,17 @@ app.get("/api/preferencias", estaLogado, async (req, res) => {
 });
 
 const PLANOS_MP = {
-    economico: {
+    medio: {
         nome:       "Plano Médio Bixuco",
         preco:      29.00,
         planId:     process.env.MP_PLAN_ID_MEDIO    || null,
-        nomeBanco:  "economico"
+        nomeBanco:  "medio"
     },
-    premium: {
+    completo: {
         nome:       "Plano Completo Bixuco",
         preco:      55.00,
         planId:     process.env.MP_PLAN_ID_COMPLETO || null,
-        nomeBanco:  "premium"
+        nomeBanco:  "completo"
     }
 };
 
@@ -273,15 +273,15 @@ async function verificarPlano(req, res, next) {
     }
 }
 
-// exige plano economico ou superior
+// exige plano medio ou superior
 function exigeEconomico(req, res, next) {
-    if (['economico', 'premium', 'terapeuta'].includes(req.plano)) return next();
+    if (['medio', 'completo', 'terapeuta'].includes(req.plano)) return next();
     return res.status(403).json({ erro: "plano_insuficiente", planoAtual: req.plano });
 }
 
-// exige plano premium
+// exige plano completo
 function exigePremium(req, res, next) {
-    if (['premium', 'terapeuta'].includes(req.plano)) return next();
+    if (['completo', 'terapeuta'].includes(req.plano)) return next();
     return res.status(403).json({ erro: "plano_insuficiente", planoAtual: req.plano });
 }
 
@@ -764,8 +764,8 @@ app.post("/api/planos/assinar", estaLogado, async (req, res) => {
 
             const nomesPorPlano = {
                 gratis:   "gratis",
-                economico:    "economico",
-                premium: "premium"
+                economico:    "medio",
+                premium: "completo"
             };
 
             const nomePlano = nomesPorPlano[plano];
@@ -1165,7 +1165,7 @@ async function verificarPlano(req, res, next) {
 // Bloqueia rotas para usuários sem o plano mínimo necessário
 function precisaPlano(planoMinimo) {
 
-    const hierarquia = { "gratis": 0, "economico": 1, "premium": 2, "terapeuta": 99 };
+    const hierarquia = { "gratis": 0, "medio": 1, "completo": 2, "terapeuta": 99 };
 
     return async (req, res, next) => {
         await verificarPlano(req, res, async () => {
