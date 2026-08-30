@@ -3964,22 +3964,52 @@ app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
         // =====================
 
         const alertasMes = await db.query(
-            `SELECT COUNT(*) AS total
-             FROM eventos_bixuco e
-             JOIN criancas c ON c.id = e.crianca_id
-             WHERE c.usuario_id = $1
-             AND EXTRACT(MONTH FROM e.criado_em) = EXTRACT(MONTH FROM NOW())
-             AND EXTRACT(YEAR FROM e.criado_em)  = EXTRACT(YEAR FROM NOW())`,
+            `WITH eventos_ordenados AS (
+                SELECT
+                    e.criado_em,
+                    LAG(e.criado_em) OVER (ORDER BY e.criado_em) AS evento_anterior
+                FROM eventos_bixuco e
+                JOIN criancas c ON c.id = e.crianca_id
+                WHERE c.usuario_id = $1
+                AND EXTRACT(MONTH FROM e.criado_em) = EXTRACT(MONTH FROM NOW())
+                AND EXTRACT(YEAR FROM e.criado_em)  = EXTRACT(YEAR FROM NOW())
+            ),
+            grupos AS (
+                SELECT
+                    criado_em,
+                    SUM(
+                        CASE WHEN evento_anterior IS NULL
+                            OR criado_em - evento_anterior > INTERVAL '5 minutes'
+                        THEN 1 ELSE 0 END
+                    ) OVER (ORDER BY criado_em) AS episodio_id
+                FROM eventos_ordenados
+            )
+            SELECT COUNT(DISTINCT episodio_id) AS total FROM grupos`,
             [pacienteId]
         );
 
         const alertasMesAnterior = await db.query(
-            `SELECT COUNT(*) AS total
-             FROM eventos_bixuco e
-             JOIN criancas c ON c.id = e.crianca_id
-             WHERE c.usuario_id = $1
-             AND EXTRACT(MONTH FROM e.criado_em) = EXTRACT(MONTH FROM NOW() - INTERVAL '1 month')
-             AND EXTRACT(YEAR FROM e.criado_em)  = EXTRACT(YEAR FROM NOW() - INTERVAL '1 month')`,
+            `WITH eventos_ordenados AS (
+                SELECT
+                    e.criado_em,
+                    LAG(e.criado_em) OVER (ORDER BY e.criado_em) AS evento_anterior
+                FROM eventos_bixuco e
+                JOIN criancas c ON c.id = e.crianca_id
+                WHERE c.usuario_id = $1
+                AND EXTRACT(MONTH FROM e.criado_em) = EXTRACT(MONTH FROM NOW() - INTERVAL '1 month')
+                AND EXTRACT(YEAR FROM e.criado_em)  = EXTRACT(YEAR FROM NOW() - INTERVAL '1 month')
+            ),
+            grupos AS (
+                SELECT
+                    criado_em,
+                    SUM(
+                        CASE WHEN evento_anterior IS NULL
+                            OR criado_em - evento_anterior > INTERVAL '5 minutes'
+                        THEN 1 ELSE 0 END
+                    ) OVER (ORDER BY criado_em) AS episodio_id
+                FROM eventos_ordenados
+            )
+            SELECT COUNT(DISTINCT episodio_id) AS total FROM grupos`,
             [pacienteId]
         );
 
