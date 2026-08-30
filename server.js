@@ -1952,21 +1952,21 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
 
         const alertasMes = await db.query(
             `SELECT COUNT(*) AS total
-             FROM relatorios
-             WHERE usuario_id = $1
-             AND EXTRACT(MONTH FROM data) = EXTRACT(MONTH FROM NOW())
-             AND EXTRACT(YEAR FROM data)  = EXTRACT(YEAR FROM NOW())
-             ${filtroAlerta}`,
+            FROM eventos_bixuco e
+            JOIN criancas c ON c.id = e.crianca_id
+            WHERE c.usuario_id = $1
+            AND EXTRACT(MONTH FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(MONTH FROM NOW() AT TIME ZONE 'America/Sao_Paulo')
+            AND EXTRACT(YEAR FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo'))  = EXTRACT(YEAR FROM NOW() AT TIME ZONE 'America/Sao_Paulo')`,
             [usuarioId]
         );
 
         const alertasMesAnterior = await db.query(
             `SELECT COUNT(*) AS total
-             FROM relatorios
-             WHERE usuario_id = $1
-             AND EXTRACT(MONTH FROM (data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(MONTH FROM NOW() - INTERVAL '1 month')
-             AND EXTRACT(YEAR FROM (data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo'))  = EXTRACT(YEAR FROM NOW() - INTERVAL '1 month')
-             ${filtroAlerta}`,
+            FROM eventos_bixuco e
+            JOIN criancas c ON c.id = e.crianca_id
+            WHERE c.usuario_id = $1
+            AND EXTRACT(MONTH FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(MONTH FROM NOW() - INTERVAL '1 month')
+            AND EXTRACT(YEAR FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo'))  = EXTRACT(YEAR FROM NOW() - INTERVAL '1 month')`,
             [usuarioId]
         );
 
