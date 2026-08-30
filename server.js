@@ -763,9 +763,11 @@ app.post("/api/planos/assinar", estaLogado, async (req, res) => {
         if (process.env.NODE_ENV === "test" || process.env.MP_BYPASS === "true") {
 
             const nomesPorPlano = {
+
                 gratis:   "gratis",
-                economico:    "medio",
-                premium: "completo"
+                medio:    "medio",
+                completo: "completo"
+
             };
 
             const nomePlano = nomesPorPlano[plano];
