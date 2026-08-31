@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bixuco — Planos</title>
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
@@ -84,22 +85,34 @@
             ></div>
 
             <div class="usuario">
-                <button class="notificacoes" type="button">
-                    <i class="fa-regular fa-bell"></i>
-                </button>
+                
+                <div class="notificacoes-wrapper">
+                    <button class="notificacoes" type="button" id="btnNotificacoes">
+                        <i class="fa-regular fa-bell"></i>
+                        <span id="quantidadeNotificacoes" class="badge">0</span>
+                    </button>
 
-                <img
+                    <div class="painel-notificacoes" id="painelNotificacoes">
+                        <div class="painel-header">Promoções</div>
+                        <div id="listaNotificacoes">
+                            <div class="painel-vazio">Carregando...</div>
+                        </div>
+                    </div>
+                </div>
+
+               <img
                     id="fotoUsuario"
                     src="/img/perfilPadrao.png"
                     alt="Foto do usuário"
+                    style="cursor: pointer;"
+                    onclick="window.location.href='/perfilSemAssinatura'"
                     onerror="this.src='/img/perfilPadrao.png'"
                 >
 
-                <div>
+                <div style="cursor: pointer;" onclick="window.location.href='/perfilSemAssinatura'">
                     <h3 id="nomeUsuario">Carregando...</h3>
                     <span id="tipoConta">Responsável</span>
                 </div>
-            </div>
 
         </header>
 
@@ -390,6 +403,56 @@
 
     document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema("claro"));
     document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
+
+    const painelNotificacoes = document.getElementById("painelNotificacoes");
+    const listaNotificacoes  = document.getElementById("listaNotificacoes");
+
+    function formatarItemNotificacao(item) {
+        const classeExtra = item.lida ? "" : "nao-lida";
+        return `
+            <div class="item-notificacao ${classeExtra}">
+                ${item.mensagem}
+                <span class="tempo-notificacao">${item.tempo}</span>
+            </div>
+        `;
+    }
+
+    async function carregarNotificacoes() {
+        try {
+            const resposta = await fetch("/api/notificacoes");
+            if (!resposta.ok) throw new Error();
+            const dados = await resposta.json();
+
+            const itens = (dados.notificacoes || []).filter(n => n.tipo === "novidade");
+
+            listaNotificacoes.innerHTML = itens.length === 0
+                ? `<div class="painel-vazio">Nenhuma promoção por enquanto.</div>`
+                : itens.map(formatarItemNotificacao).join("");
+
+            const naoLidas = itens.filter(item => !item.lida).length;
+            document.getElementById("quantidadeNotificacoes").textContent = naoLidas;
+
+        } catch (erro) {
+            listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar.</div>`;
+        }
+    }
+
+    document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
+        e.stopPropagation();
+        const estaAberto = painelNotificacoes.classList.contains("aberto");
+        if (estaAberto) {
+            painelNotificacoes.classList.remove("aberto");
+            return;
+        }
+        painelNotificacoes.classList.add("aberto");
+        await carregarNotificacoes();
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!painelNotificacoes.contains(e.target)) {
+            painelNotificacoes.classList.remove("aberto");
+        }
+    });
 
     // =========================
     // INICIALIZAÇÃO

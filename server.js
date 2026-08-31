@@ -3733,7 +3733,7 @@ app.get('/api/home', estaLogado, async (req, res) => {
             tipoConta,
             fotoPerfil: usuario.foto_perfil || null,
             notificacoes: totalNotificacoes,
-            diasConsecutivos: parseInt(sequencia.rows[0].total) || 0,
+            diasConsecutivos: sequencia.rows.length > 0 ? (parseInt(sequencia.rows[0].total) || 0) : 0,
             nomeBixuco: "Bixuco" // futuramente buscar da tabela de dispositivos vinculados
         });
 
