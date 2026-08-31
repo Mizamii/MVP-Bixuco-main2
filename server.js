@@ -4086,7 +4086,7 @@ app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
                 GROUP BY DATE(e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')
             ) cnt USING (dia)
             ORDER BY dia`,
-            [usuarioId]
+            [pacienteId]
         );
 
         const diasSemanaPt = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
