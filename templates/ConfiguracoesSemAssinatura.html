@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bixuco — Configurações</title>
 
+    <!-- 🔧 FIX: faltava o ícone do site (favicon) -->
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
 
     <link rel="stylesheet" href="/css/tema.css">
     <link rel="stylesheet" href="/css/layout.css">
@@ -33,28 +35,28 @@
         <nav>
             <a href="/planos">
                 <i class="fa-solid fa-dollar-sign"></i>
-                <span>Planos</span>
+                <span data-pt="Planos" data-en="Plans">Planos</span>
             </a>
 
             <a href="/configuracoesSemAssinatura" class="ativo">
                 <i class="fa-solid fa-gear"></i>
-                <span>Configurações</span>
+                <span data-pt="Configurações" data-en="Settings">Configurações</span>
             </a>
 
             <a href="/sobreSemAssinatura">
                 <i class="fa-solid fa-circle-info"></i>
-                <span>Sobre</span>
+                <span data-pt="Sobre" data-en="About">Sobre</span>
             </a>
         </nav>
 
         <div class="tema">
             <button id="btnClaro" class="ativo" type="button">
                 <i class="fa-regular fa-sun"></i>
-                Claro
+                <span data-pt="Claro" data-en="Light">Claro</span>
             </button>
             <button id="btnEscuro" type="button">
                 <i class="fa-regular fa-moon"></i>
-                Escuro
+                <span data-pt="Escuro" data-en="Dark">Escuro</span>
             </button>
         </div>
 
@@ -62,7 +64,7 @@
 
         <a href="/logout" class="logout">
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            <span>Sair</span>
+            <span data-pt="Sair" data-en="Log out">Sair</span>
         </a>
 
     </aside>
@@ -74,32 +76,48 @@
 
         <header class="topo">
 
+            <!-- 🔧 FIX: tradução agora é manual (data-pt/data-en), sem o widget do Google -->
             <button class="tradutor" type="button" id="btnTraduzir">
                 <i class="fa-solid fa-language"></i>
                 <span id="textoTradutor">Traduzir para inglês</span>
             </button>
 
-            <div
-                id="google_translate_element"
-                style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);"
-            ></div>
-
             <div class="usuario">
 
-                <button class="notificacoes" type="button">
-                    <i class="fa-regular fa-bell"></i>
-                </button>
+                <!-- 🔧 FIX: sininho agora abre um painel com as notificações de promoção -->
+                <!-- (mesmo padrão usado na tela de Planos) -->
+                <div class="notificacoes-wrapper">
+                    <button class="notificacoes" type="button" id="btnNotificacoes">
+                        <i class="fa-regular fa-bell"></i>
+                        <span id="quantidadeNotificacoes" class="badge">0</span>
+                    </button>
 
+                    <div class="painel-notificacoes" id="painelNotificacoes">
+                        <div class="painel-header" data-pt="Promoções" data-en="Promotions">Promoções</div>
+                        <div id="listaNotificacoes">
+                            <div class="painel-vazio" data-pt="Carregando..." data-en="Loading...">Carregando...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 🔧 FIX: foto e nome redirecionam para /perfilSemAssinatura -->
                 <img
                     id="fotoUsuario"
                     src="/img/perfilPadrao.png"
                     alt="Foto do usuário"
+                    title="Ver perfil"
+                    style="cursor: pointer;"
+                    onclick="window.location.href='/perfilSemAssinatura'"
                     onerror="this.src='/img/perfilPadrao.png'"
                 >
 
-                <div>
+                <div
+                    style="cursor: pointer;"
+                    onclick="window.location.href='/perfilSemAssinatura'"
+                    title="Ver perfil"
+                >
                     <h3 id="nomeUsuario">Carregando...</h3>
-                    <span id="tipoConta">Responsável</span>
+                    <span id="tipoConta" data-pt="Responsável" data-en="Guardian">Responsável</span>
                 </div>
 
             </div>
@@ -111,14 +129,66 @@
             <!-- Cabeçalho -->
             <section class="cabecalho">
                 <div>
-                    <h1>Configurações</h1>
-                    <p>Gerencie suas preferências e mantenha sua conta segura.</p>
+                    <h1 data-pt="Configurações" data-en="Settings">Configurações</h1>
+                    <p data-pt="Gerencie suas preferências e mantenha sua conta segura." data-en="Manage your preferences and keep your account secure.">Gerencie suas preferências e mantenha sua conta segura.</p>
                 </div>
                 <img
                     src="/img/bixucomascote.png"
                     alt="Mascote"
                     onerror="this.style.display='none'"
                 >
+            </section>
+
+            <!-- ========================= -->
+            <!-- 🔧 NOVA LINHA — Notificações + Indique o Bixuco -->
+            <!-- ========================= -->
+            <section class="linha">
+
+                <!-- Card Notificações -->
+                <div class="card notificacoes-card">
+
+                    <h2 data-pt="Notificações" data-en="Notifications">Notificações</h2>
+
+                    <div class="item-config">
+
+                        <div class="icone azul">
+                            <i class="fa-regular fa-envelope"></i>
+                        </div>
+
+                        <div class="texto">
+                            <h3 data-pt="Novidades e promoções" data-en="News and promotions">Novidades e promoções</h3>
+                        </div>
+
+                        <label class="switch">
+                            <input type="checkbox" id="notifNovidades">
+                            <span class="slider"></span>
+                        </label>
+
+                    </div>
+
+                </div>
+
+                <!-- Card Indique o Bixuco -->
+                <div class="card compartilhamento">
+
+                    <h2 data-pt="Indique o Bixuco" data-en="Refer Bixuco">Indique o Bixuco</h2>
+
+                    <button
+                        class="config-btn"
+                        type="button"
+                        id="btnIndicar"
+                    >
+                        <div class="icone verde">
+                            <i class="fa-solid fa-share-nodes"></i>
+                        </div>
+                        <div class="texto">
+                            <h3 data-pt="Compartilhar com um amigo" data-en="Share with a friend">Compartilhar com um amigo</h3>
+                        </div>
+                        <i class="fa-solid fa-chevron-right seta"></i>
+                    </button>
+
+                </div>
+
             </section>
 
             <!-- ========================= -->
@@ -129,7 +199,7 @@
                 <!-- Privacidade -->
                 <div class="card privacidade">
 
-                    <h2>Privacidade</h2>
+                    <h2 data-pt="Privacidade" data-en="Privacy">Privacidade</h2>
 
                     <button
                         class="config-btn"
@@ -140,7 +210,7 @@
                             <i class="fa-solid fa-lock"></i>
                         </div>
                         <div class="texto">
-                            <h3>Alterar senha</h3>
+                            <h3 data-pt="Alterar senha" data-en="Change password">Alterar senha</h3>
                         </div>
                         <i class="fa-solid fa-chevron-right seta"></i>
                     </button>
@@ -154,7 +224,7 @@
                             <i class="fa-regular fa-trash-can"></i>
                         </div>
                         <div class="texto">
-                            <h3>Excluir minha conta</h3>
+                            <h3 data-pt="Excluir minha conta" data-en="Delete my account">Excluir minha conta</h3>
                         </div>
                         <i class="fa-solid fa-chevron-right seta"></i>
                     </button>
@@ -165,7 +235,7 @@
                         class="confirmar-exclusao"
                         style="display: none;"
                     >
-                        <p>
+                        <p data-pt="⚠️ Tem certeza? Esta ação não pode ser desfeita. Todos os seus dados serão removidos permanentemente." data-en="⚠️ Are you sure? This action cannot be undone. All your data will be permanently removed.">
                             ⚠️ Tem certeza? Esta ação não pode ser desfeita.
                             Todos os seus dados serão removidos permanentemente.
                         </p>
@@ -174,6 +244,8 @@
                                 type="button"
                                 id="btnConfirmarExclusao"
                                 class="btn-confirmar-exclusao"
+                                data-pt="Sim, excluir minha conta"
+                                data-en="Yes, delete my account"
                             >
                                 Sim, excluir minha conta
                             </button>
@@ -181,6 +253,8 @@
                                 type="button"
                                 id="btnCancelarExclusao"
                                 class="btn-cancelar-exclusao"
+                                data-pt="Cancelar"
+                                data-en="Cancel"
                             >
                                 Cancelar
                             </button>
@@ -195,19 +269,19 @@
                     <div class="texto-seguranca">
 
                         <h2>
-                            Sua segurança<br>
-                            é nossa
-                            <span>prioridade</span>
+                            <span data-pt="Sua segurança" data-en="Your security">Sua segurança</span><br>
+                            <span data-pt="é nossa" data-en="is our">é nossa</span>
+                            <span data-pt="prioridade" data-en="priority">prioridade</span>
                         </h2>
 
-                        <p>
+                        <p data-pt="Utilizamos criptografia e boas práticas para proteger suas informações e da sua criança." data-en="We use encryption and best practices to protect your information and your child's.">
                             Utilizamos criptografia e boas práticas para proteger
                             suas informações e da sua criança.
                         </p>
 
                         <div class="status-seguranca">
                             <i class="fa-solid fa-circle-check"></i>
-                            <span>Seus dados estão protegidos.</span>
+                            <span data-pt="Seus dados estão protegidos." data-en="Your data is protected.">Seus dados estão protegidos.</span>
                         </div>
 
                     </div>
@@ -260,6 +334,55 @@
             console.log("Erro ao carregar usuário:", e);
         }
     }
+
+    // =========================
+    // 🔧 FIX: TOGGLE DE NOTIFICAÇÕES (NOVIDADES/PROMOÇÕES)
+    // Reaproveita a mesma rota da versão com assinatura,
+    // mas aqui só existe o campo "novidades" (sem lembrete de relatório)
+    // =========================
+    const notifNovidades = document.getElementById("notifNovidades");
+
+    async function carregarPreferenciasNotificacao() {
+        try {
+            const resposta = await fetch("/api/configuracoes/notificacoes");
+            if (!resposta.ok) throw new Error("Falha ao carregar preferências");
+
+            const dados = await resposta.json();
+            notifNovidades.checked = dados.novidades;
+
+        } catch (erro) {
+            console.log("Erro ao carregar preferências de notificação:", erro);
+        }
+    }
+
+    async function salvarNotificacao(dados) {
+        try {
+            await fetch("/api/configuracoes/notificacoes", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(dados)
+            });
+        } catch (erro) {
+            console.log("Erro ao salvar notificação:", erro);
+        }
+    }
+
+    notifNovidades.addEventListener("change", () => {
+        salvarNotificacao({ novidades: notifNovidades.checked });
+    });
+
+    carregarPreferenciasNotificacao();
+
+    // =========================
+    // 🔧 FIX: INDIQUE O BIXUCO (COMPARTILHAR)
+    // =========================
+    document.getElementById("btnIndicar").addEventListener("click", () => {
+        const mensagem = encodeURIComponent(
+            "Olá! Venha conhecer o Bixuco, um aplicativo que ajuda no acompanhamento de crianças com hipersensibilidade sensorial. 🐱\n\n" +
+            "https://mvp-bixuco.onrender.com"
+        );
+        window.open(`https://wa.me/?text=${mensagem}`, "_blank");
+    });
 
     // =========================
     // ALTERAR SENHA
@@ -316,39 +439,85 @@
     });
 
     // =========================
-    // TRADUÇÃO VIA COOKIE
+    // 🔧 FIX: PAINEL DE NOTIFICAÇÕES (SININHO)
+    // Mesmo padrão da tela de Planos — só mostra notificações
+    // do tipo "novidade" (promoções), já que quem não tem
+    // assinatura não recebe lembrete de relatório
     // =========================
-    function lerCookie(nome) {
-        const v = `; ${document.cookie}`;
-        const p = v.split(`; ${nome}=`);
-        if (p.length === 2) return p.pop().split(";").shift();
-        return null;
+    const painelNotificacoes = document.getElementById("painelNotificacoes");
+    const listaNotificacoes  = document.getElementById("listaNotificacoes");
+
+    function formatarItemNotificacao(item) {
+        const classeExtra = item.lida ? "" : "nao-lida";
+        return `
+            <div class="item-notificacao ${classeExtra}">
+                ${item.mensagem}
+                <span class="tempo-notificacao">${item.tempo}</span>
+            </div>
+        `;
     }
 
-    function iniciarTradutor() {
-        new google.translate.TranslateElement(
-            { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
-            "google_translate_element"
-        );
+    async function carregarNotificacoes() {
+        try {
+            const resposta = await fetch("/api/notificacoes");
+            if (!resposta.ok) throw new Error();
+            const dados = await resposta.json();
+
+            const itens = (dados.notificacoes || []).filter(n => n.tipo === "novidade");
+
+            listaNotificacoes.innerHTML = itens.length === 0
+                ? `<div class="painel-vazio">Nenhuma promoção por enquanto.</div>`
+                : itens.map(formatarItemNotificacao).join("");
+
+            const naoLidas = itens.filter(item => !item.lida).length;
+            document.getElementById("quantidadeNotificacoes").textContent = naoLidas;
+
+        } catch (erro) {
+            console.log("Erro ao carregar notificações:", erro);
+            listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar.</div>`;
+        }
+    }
+
+    document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
+        e.stopPropagation();
+        const estaAberto = painelNotificacoes.classList.contains("aberto");
+        if (estaAberto) {
+            painelNotificacoes.classList.remove("aberto");
+            return;
+        }
+        painelNotificacoes.classList.add("aberto");
+        await carregarNotificacoes();
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!painelNotificacoes.contains(e.target)) {
+            painelNotificacoes.classList.remove("aberto");
+        }
+    });
+
+    // =========================
+    // 🔧 FIX: TRADUÇÃO MANUAL (sem Google Translate)
+    // Troca o texto de todo elemento com data-pt/data-en,
+    // igual ao padrão usado na tela de configurações com assinatura
+    // =========================
+    let idiomaAtual = localStorage.getItem("idioma") || "pt";
+
+    function aplicarIdiomaEstatico() {
+        document.querySelectorAll("[data-pt]").forEach(el => {
+            el.textContent = idiomaAtual === "en"
+                ? (el.dataset.en || el.dataset.pt)
+                : el.dataset.pt;
+        });
+
+        document.getElementById("textoTradutor").textContent =
+            idiomaAtual === "en" ? "Traduzir para português" : "Traduzir para inglês";
     }
 
     document.getElementById("btnTraduzir").addEventListener("click", () => {
-        const atual     = lerCookie("googtrans");
-        const traduzido = atual && atual.includes("/en");
-
-        document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
-        document.cookie = `googtrans=; path=/; domain=${location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
-
-        if (!traduzido) {
-            document.cookie = `googtrans=/pt/en; path=/`;
-            document.cookie = `googtrans=/pt/en; path=/; domain=${location.hostname}`;
-        }
-        window.location.reload();
+        idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+        localStorage.setItem("idioma", idiomaAtual);
+        aplicarIdiomaEstatico();
     });
-
-    const cookieAtual = lerCookie("googtrans");
-    document.getElementById("textoTradutor").textContent =
-        (cookieAtual && cookieAtual.includes("/en")) ? "Voltar para português" : "Traduzir para inglês";
 
     // =========================
     // TEMA
@@ -369,6 +538,7 @@
     // =========================
     const temaSalvo = localStorage.getItem("tema") || "claro";
     aplicarTema(temaSalvo);
+    aplicarIdiomaEstatico();
     carregarUsuario();
 
 </script>
