@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bixuco — Meu Perfil</title>
 
+    <!-- 🔧 FIX: faltava o ícone do site (favicon) -->
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
 
     <link rel="stylesheet" href="/css/tema.css">
     <link rel="stylesheet" href="/css/layout.css">
@@ -35,28 +37,28 @@
         <nav>
             <a href="/planos">
                 <i class="fa-solid fa-dollar-sign"></i>
-                <span>Planos</span>
+                <span data-pt="Planos" data-en="Plans">Planos</span>
             </a>
 
             <a href="/configuracoesSemAssinatura">
                 <i class="fa-solid fa-gear"></i>
-                <span>Configurações</span>
+                <span data-pt="Configurações" data-en="Settings">Configurações</span>
             </a>
 
             <a href="/sobreSemAssinatura">
                 <i class="fa-solid fa-circle-info"></i>
-                <span>Sobre</span>
+                <span data-pt="Sobre" data-en="About">Sobre</span>
             </a>
         </nav>
 
         <div class="tema">
             <button id="btnClaro" class="ativo" type="button">
                 <i class="fa-regular fa-sun"></i>
-                Claro
+                <span data-pt="Claro" data-en="Light">Claro</span>
             </button>
             <button id="btnEscuro" type="button">
                 <i class="fa-regular fa-moon"></i>
-                Escuro
+                <span data-pt="Escuro" data-en="Dark">Escuro</span>
             </button>
         </div>
 
@@ -64,7 +66,7 @@
 
         <a href="/logout" class="logout">
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            <span>Sair</span>
+            <span data-pt="Sair" data-en="Log out">Sair</span>
         </a>
 
     </aside>
@@ -76,21 +78,28 @@
 
         <header class="topo">
 
+            <!-- 🔧 FIX: tradução agora é manual (data-pt/data-en), sem o widget do Google -->
             <button class="tradutor" type="button" id="btnTraduzir">
                 <i class="fa-solid fa-language"></i>
                 <span id="textoTradutor">Traduzir para inglês</span>
             </button>
 
-            <div
-                id="google_translate_element"
-                style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);"
-            ></div>
-
             <div class="usuario">
 
-                <button class="notificacoes" type="button">
-                    <i class="fa-regular fa-bell"></i>
-                </button>
+                <!-- Sininho abre o painel de promoções -->
+                <div class="notificacoes-wrapper">
+                    <button class="notificacoes" type="button" id="btnNotificacoes">
+                        <i class="fa-regular fa-bell"></i>
+                        <span id="quantidadeNotificacoes" class="badge">0</span>
+                    </button>
+
+                    <div class="painel-notificacoes" id="painelNotificacoes">
+                        <div class="painel-header" data-pt="Promoções" data-en="Promotions">Promoções</div>
+                        <div id="listaNotificacoes">
+                            <div class="painel-vazio" data-pt="Carregando..." data-en="Loading...">Carregando...</div>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- sem onclick — já está no perfil -->
                 <img
@@ -102,7 +111,7 @@
 
                 <div>
                     <h3 id="nomeUsuario">Carregando...</h3>
-                    <span id="tipoConta">Responsável</span>
+                    <span id="tipoConta" data-pt="Responsável" data-en="Guardian">Responsável</span>
                 </div>
 
             </div>
@@ -114,8 +123,8 @@
             <!-- Cabeçalho -->
             <section class="cabecalho">
                 <div>
-                    <h1>Meu perfil</h1>
-                    <p>Gerencie suas informações e preferências.</p>
+                    <h1 data-pt="Meu perfil" data-en="My profile">Meu perfil</h1>
+                    <p data-pt="Gerencie suas informações e preferências." data-en="Manage your information and preferences.">Gerencie suas informações e preferências.</p>
                 </div>
             </section>
 
@@ -124,7 +133,7 @@
             <!-- ========================= -->
             <div class="grid-perfil">
 
-                <!-- Card perfil — só nome e tipo, sem badges e sem edição -->
+                <!-- Card perfil -->
                 <div class="card card-perfil">
 
                     <div class="perfil-topo">
@@ -143,19 +152,30 @@
                             <p id="perfilDescricao">Responsável</p>
                         </div>
 
+                        <!-- 🔧 FIX: botão para editar nome/foto do usuário -->
+                        <button
+                            type="button"
+                            id="btnEditarPerfil"
+                            title="Editar perfil"
+                            style="margin-left:auto; background:none; border:1px solid #ccc; border-radius:8px; padding:8px 12px; cursor:pointer; display:flex; align-items:center; gap:6px;"
+                        >
+                            <i class="fa-solid fa-pen"></i>
+                            <span data-pt="Editar" data-en="Edit">Editar</span>
+                        </button>
+
                     </div>
 
                     <!-- Banner incentivando upgrade -->
                     <div class="banner-upgrade">
                         <i class="fa-solid fa-star"></i>
                         <div>
-                            <strong>Aprimore seu plano!</strong>
-                            <p>
+                            <strong data-pt="Aprimore seu plano!" data-en="Upgrade your plan!">Aprimore seu plano!</strong>
+                            <p data-pt="Assine agora e acesse relatórios, gráficos e muito mais." data-en="Subscribe now and get access to reports, charts and much more.">
                                 Assine agora e acesse relatórios,
                                 gráficos e muito mais.
                             </p>
                         </div>
-                        <a href="/planos" class="btn-upgrade">
+                        <a href="/planos" class="btn-upgrade" data-pt="Ver planos" data-en="View plans">
                             Ver planos
                         </a>
                     </div>
@@ -168,13 +188,22 @@
                     <!-- Criança -->
                     <section class="card crianca">
 
-                        <h2>Criança cadastrada</h2>
+                        <div style="display:flex; align-items:center; justify-content:space-between;">
+                            <h2 data-pt="Criança cadastrada" data-en="Registered child">Criança cadastrada</h2>
 
-                        <a
-                            href="/planos"
-                            class="item-card"
-                            title="Assine um plano para acompanhar sua criança"
-                        >
+                            <!-- 🔧 FIX: botão para editar nome/foto da criança -->
+                            <button
+                                type="button"
+                                id="btnEditarCrianca"
+                                title="Editar criança"
+                                style="background:none; border:1px solid #ccc; border-radius:8px; padding:6px 10px; cursor:pointer; display:flex; align-items:center; gap:6px;"
+                            >
+                                <i class="fa-solid fa-pen"></i>
+                                <span data-pt="Editar" data-en="Edit">Editar</span>
+                            </button>
+                        </div>
+
+                        <div class="item-card">
                             <div
                                 class="avatar-crianca"
                                 id="avatarCrianca"
@@ -187,9 +216,10 @@
                                 <p id="idadeCrianca">...</p>
                             </div>
 
-                            <i class="fa-solid fa-chevron-right seta"></i>
-
-                        </a>
+                            <a href="/planos" title="Assine um plano para acompanhar sua criança" style="margin-left:auto;">
+                                <i class="fa-solid fa-chevron-right seta"></i>
+                            </a>
+                        </div>
 
                     </section>
 
@@ -209,6 +239,134 @@
 
     </main>
 
+</div>
+
+<!-- ========================= -->
+<!-- MODAL — EDITAR PERFIL -->
+<!-- ========================= -->
+<div
+    id="modalPerfil"
+    style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1000;"
+>
+    <div style="background:#fff; border-radius:12px; padding:24px; width:90%; max-width:420px;">
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h3 style="margin:0;">Editar perfil</h3>
+            <button
+                type="button"
+                id="btnFecharModalPerfil"
+                aria-label="Fechar"
+                style="background:none; border:none; font-size:1.2rem; cursor:pointer;"
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <form id="formEditarPerfil">
+
+            <div style="text-align:center; margin-bottom:16px;">
+                <img
+                    id="previewFotoPerfil"
+                    src="/img/perfilPadrao.png"
+                    alt="Prévia da foto"
+                    style="width:80px; height:80px; border-radius:50%; object-fit:cover;"
+                >
+            </div>
+
+            <label for="inputNomePerfil" style="display:block; margin-bottom:4px;">Nome</label>
+            <input
+                type="text"
+                id="inputNomePerfil"
+                required
+                minlength="2"
+                style="width:100%; padding:8px; margin-bottom:16px; box-sizing:border-box;"
+            >
+
+            <label for="inputFotoPerfil" style="display:block; margin-bottom:4px;">Foto de perfil</label>
+            <input
+                type="file"
+                id="inputFotoPerfil"
+                accept="image/*"
+                style="width:100%; margin-bottom:16px;"
+            >
+
+            <button
+                type="submit"
+                id="btnSalvarPerfil"
+                style="width:100%; padding:10px; border:none; border-radius:8px; background:#32C26D; color:#fff; font-weight:bold; cursor:pointer;"
+            >
+                Salvar alterações
+            </button>
+
+        </form>
+
+        <p id="statusPerfil" style="margin-top:12px; font-size:0.9rem;"></p>
+
+    </div>
+</div>
+
+<!-- ========================= -->
+<!-- MODAL — EDITAR CRIANÇA -->
+<!-- ========================= -->
+<div
+    id="modalCrianca"
+    style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1000;"
+>
+    <div style="background:#fff; border-radius:12px; padding:24px; width:90%; max-width:420px;">
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h3 style="margin:0;">Editar criança</h3>
+            <button
+                type="button"
+                id="btnFecharModalCrianca"
+                aria-label="Fechar"
+                style="background:none; border:none; font-size:1.2rem; cursor:pointer;"
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <form id="formEditarCrianca">
+
+            <div style="text-align:center; margin-bottom:16px;">
+                <img
+                    id="previewFotoCrianca"
+                    src="/img/perfilPadrao.png"
+                    alt="Prévia da foto"
+                    style="width:80px; height:80px; border-radius:50%; object-fit:cover;"
+                >
+            </div>
+
+            <label for="inputNomeCrianca" style="display:block; margin-bottom:4px;">Nome da criança</label>
+            <input
+                type="text"
+                id="inputNomeCrianca"
+                required
+                minlength="2"
+                style="width:100%; padding:8px; margin-bottom:16px; box-sizing:border-box;"
+            >
+
+            <label for="inputFotoCrianca" style="display:block; margin-bottom:4px;">Foto da criança</label>
+            <input
+                type="file"
+                id="inputFotoCrianca"
+                accept="image/*"
+                style="width:100%; margin-bottom:16px;"
+            >
+
+            <button
+                type="submit"
+                id="btnSalvarCrianca"
+                style="width:100%; padding:10px; border:none; border-radius:8px; background:#32C26D; color:#fff; font-weight:bold; cursor:pointer;"
+            >
+                Salvar alterações
+            </button>
+
+        </form>
+
+        <p id="statusCrianca" style="margin-top:12px; font-size:0.9rem;"></p>
+
+    </div>
 </div>
 
 <script>
@@ -276,39 +434,247 @@
     }
 
     // =========================
-    // TRADUÇÃO VIA COOKIE
+    // 🔧 FIX: EDITAR PERFIL (nome/foto do usuário)
     // =========================
-    function lerCookie(nome) {
-        const v = `; ${document.cookie}`;
-        const p = v.split(`; ${nome}=`);
-        if (p.length === 2) return p.pop().split(";").shift();
-        return null;
+    const modalPerfil       = document.getElementById("modalPerfil");
+    const formEditarPerfil  = document.getElementById("formEditarPerfil");
+    const inputNomePerfil   = document.getElementById("inputNomePerfil");
+    const inputFotoPerfil   = document.getElementById("inputFotoPerfil");
+    const previewFotoPerfil = document.getElementById("previewFotoPerfil");
+    const btnSalvarPerfil   = document.getElementById("btnSalvarPerfil");
+    const statusPerfil      = document.getElementById("statusPerfil");
+
+    function abrirModalPerfil() {
+        inputNomePerfil.value   = document.getElementById("perfilNome").textContent;
+        previewFotoPerfil.src   = document.getElementById("fotoPerfil").src;
+        inputFotoPerfil.value   = "";
+        statusPerfil.textContent = "";
+        modalPerfil.style.display = "flex";
+        document.body.style.overflow = "hidden";
     }
 
-    function iniciarTradutor() {
-        new google.translate.TranslateElement(
-            { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
-            "google_translate_element"
-        );
+    function fecharModalPerfil() {
+        modalPerfil.style.display = "none";
+        document.body.style.overflow = "";
+    }
+
+    document.getElementById("btnEditarPerfil").addEventListener("click", abrirModalPerfil);
+    document.getElementById("btnFecharModalPerfil").addEventListener("click", fecharModalPerfil);
+
+    modalPerfil.addEventListener("click", (e) => {
+        if (e.target === modalPerfil) fecharModalPerfil();
+    });
+
+    inputFotoPerfil.addEventListener("change", () => {
+        const arquivo = inputFotoPerfil.files[0];
+        if (arquivo) previewFotoPerfil.src = URL.createObjectURL(arquivo);
+    });
+
+    formEditarPerfil.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const dados = new FormData();
+        dados.append("nome", inputNomePerfil.value.trim());
+        if (inputFotoPerfil.files[0]) {
+            dados.append("fotoPerfil", inputFotoPerfil.files[0]);
+        }
+
+        btnSalvarPerfil.disabled    = true;
+        btnSalvarPerfil.textContent = "Salvando...";
+
+        try {
+            const resposta = await fetch("/api/perfil/atualizar", {
+                method: "POST",
+                body: dados
+            });
+
+            const resultado = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(resultado.erro || "Erro ao salvar.");
+            }
+
+            document.getElementById("nomeUsuario").textContent = resultado.nome;
+            document.getElementById("perfilNome").textContent  = resultado.nome;
+
+            if (resultado.fotoPerfil) {
+                document.getElementById("fotoUsuario").src = resultado.fotoPerfil;
+                document.getElementById("fotoPerfil").src  = resultado.fotoPerfil;
+            }
+
+            statusPerfil.style.color   = "#32C26D";
+            statusPerfil.textContent   = "Perfil atualizado com sucesso!";
+
+            setTimeout(fecharModalPerfil, 1200);
+
+        } catch (erro) {
+            statusPerfil.style.color = "#E53E3E";
+            statusPerfil.textContent = erro.message;
+        } finally {
+            btnSalvarPerfil.disabled    = false;
+            btnSalvarPerfil.textContent = "Salvar alterações";
+        }
+    });
+
+    // =========================
+    // 🔧 FIX: EDITAR CRIANÇA (nome/foto)
+    // =========================
+    const modalCrianca       = document.getElementById("modalCrianca");
+    const formEditarCrianca  = document.getElementById("formEditarCrianca");
+    const inputNomeCrianca2  = document.getElementById("inputNomeCrianca");
+    const inputFotoCrianca   = document.getElementById("inputFotoCrianca");
+    const previewFotoCrianca = document.getElementById("previewFotoCrianca");
+    const btnSalvarCrianca   = document.getElementById("btnSalvarCrianca");
+    const statusCrianca      = document.getElementById("statusCrianca");
+
+    function abrirModalCrianca() {
+        const nomeAtual = document.getElementById("nomeCrianca").textContent;
+        inputNomeCrianca2.value   = nomeAtual === "Nenhuma criança" ? "" : nomeAtual;
+        previewFotoCrianca.src    = "/img/perfilPadrao.png";
+        inputFotoCrianca.value    = "";
+        statusCrianca.textContent = "";
+        modalCrianca.style.display = "flex";
+        document.body.style.overflow = "hidden";
+    }
+
+    function fecharModalCrianca() {
+        modalCrianca.style.display = "none";
+        document.body.style.overflow = "";
+    }
+
+    document.getElementById("btnEditarCrianca").addEventListener("click", abrirModalCrianca);
+    document.getElementById("btnFecharModalCrianca").addEventListener("click", fecharModalCrianca);
+
+    modalCrianca.addEventListener("click", (e) => {
+        if (e.target === modalCrianca) fecharModalCrianca();
+    });
+
+    inputFotoCrianca.addEventListener("change", () => {
+        const arquivo = inputFotoCrianca.files[0];
+        if (arquivo) previewFotoCrianca.src = URL.createObjectURL(arquivo);
+    });
+
+    formEditarCrianca.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const dados = new FormData();
+        dados.append("nome", inputNomeCrianca2.value.trim());
+        if (inputFotoCrianca.files[0]) {
+            dados.append("fotoCrianca", inputFotoCrianca.files[0]);
+        }
+
+        btnSalvarCrianca.disabled    = true;
+        btnSalvarCrianca.textContent = "Salvando...";
+
+        try {
+            const resposta = await fetch("/api/crianca/atualizar", {
+                method: "POST",
+                body: dados
+            });
+
+            const resultado = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(resultado.erro || "Erro ao salvar.");
+            }
+
+            document.getElementById("nomeCrianca").textContent =
+                resultado.nome;
+
+            document.getElementById("avatarCrianca").textContent =
+                resultado.nome.charAt(0).toUpperCase();
+
+            statusCrianca.style.color = "#32C26D";
+            statusCrianca.textContent = "Dados da criança atualizados!";
+
+            setTimeout(fecharModalCrianca, 1200);
+
+        } catch (erro) {
+            statusCrianca.style.color = "#E53E3E";
+            statusCrianca.textContent = erro.message;
+        } finally {
+            btnSalvarCrianca.disabled    = false;
+            btnSalvarCrianca.textContent = "Salvar alterações";
+        }
+    });
+
+    // =========================
+    // 🔧 FIX: PAINEL DE NOTIFICAÇÕES (SININHO)
+    // Mesmo padrão da tela de Planos/Configurações — só mostra
+    // notificações do tipo "novidade" (promoções)
+    // =========================
+    const painelNotificacoes = document.getElementById("painelNotificacoes");
+    const listaNotificacoes  = document.getElementById("listaNotificacoes");
+
+    function formatarItemNotificacao(item) {
+        const classeExtra = item.lida ? "" : "nao-lida";
+        return `
+            <div class="item-notificacao ${classeExtra}">
+                ${item.mensagem}
+                <span class="tempo-notificacao">${item.tempo}</span>
+            </div>
+        `;
+    }
+
+    async function carregarNotificacoes() {
+        try {
+            const resposta = await fetch("/api/notificacoes");
+            if (!resposta.ok) throw new Error();
+            const dados = await resposta.json();
+
+            const itens = (dados.notificacoes || []).filter(n => n.tipo === "novidade");
+
+            listaNotificacoes.innerHTML = itens.length === 0
+                ? `<div class="painel-vazio">Nenhuma promoção por enquanto.</div>`
+                : itens.map(formatarItemNotificacao).join("");
+
+            const naoLidas = itens.filter(item => !item.lida).length;
+            document.getElementById("quantidadeNotificacoes").textContent = naoLidas;
+
+        } catch (erro) {
+            console.log("Erro ao carregar notificações:", erro);
+            listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar.</div>`;
+        }
+    }
+
+    document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
+        e.stopPropagation();
+        const estaAberto = painelNotificacoes.classList.contains("aberto");
+        if (estaAberto) {
+            painelNotificacoes.classList.remove("aberto");
+            return;
+        }
+        painelNotificacoes.classList.add("aberto");
+        await carregarNotificacoes();
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!painelNotificacoes.contains(e.target)) {
+            painelNotificacoes.classList.remove("aberto");
+        }
+    });
+
+    // =========================
+    // 🔧 FIX: TRADUÇÃO MANUAL (sem Google Translate)
+    // =========================
+    let idiomaAtual = localStorage.getItem("idioma") || "pt";
+
+    function aplicarIdiomaEstatico() {
+        document.querySelectorAll("[data-pt]").forEach(el => {
+            el.textContent = idiomaAtual === "en"
+                ? (el.dataset.en || el.dataset.pt)
+                : el.dataset.pt;
+        });
+
+        document.getElementById("textoTradutor").textContent =
+            idiomaAtual === "en" ? "Traduzir para português" : "Traduzir para inglês";
     }
 
     document.getElementById("btnTraduzir").addEventListener("click", () => {
-        const atual     = lerCookie("googtrans");
-        const traduzido = atual && atual.includes("/en");
-
-        document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
-        document.cookie = `googtrans=; path=/; domain=${location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
-
-        if (!traduzido) {
-            document.cookie = `googtrans=/pt/en; path=/`;
-            document.cookie = `googtrans=/pt/en; path=/; domain=${location.hostname}`;
-        }
-        window.location.reload();
+        idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+        localStorage.setItem("idioma", idiomaAtual);
+        aplicarIdiomaEstatico();
     });
-
-    const cookieAtual = lerCookie("googtrans");
-    document.getElementById("textoTradutor").textContent =
-        (cookieAtual && cookieAtual.includes("/en")) ? "Voltar para português" : "Traduzir para inglês";
 
     // =========================
     // TEMA
@@ -329,6 +695,7 @@
     // =========================
     const temaSalvo = localStorage.getItem("tema") || "claro";
     aplicarTema(temaSalvo);
+    aplicarIdiomaEstatico();
     carregarPerfil();
 
 </script>
