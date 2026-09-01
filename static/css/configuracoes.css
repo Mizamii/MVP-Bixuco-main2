@@ -387,6 +387,22 @@ body {
     background: var(--cor-fundo-hover-forte);
 }
 
+/* ---------- Card de privacidade — layout empilhado ----------
+   .card herda display:flex/align-items:center de home.css.
+   Aqui sobrescrevemos pra empilhar Privacidade verticalmente. */
+
+.card.privacidade {
+    display: block;
+}
+
+.card.privacidade h2 {
+    margin-bottom: 0.3rem;
+}
+
+.card.privacidade .config-btn + .config-btn {
+    border-top: 1px solid var(--cor-borda-suave);
+}
+
 /* ---------- Card de segurança (com mascote) ---------- */
 
 .card.seguranca {
