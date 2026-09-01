@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bixuco — Sobre</title>
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
 
     <link
         rel="stylesheet"
@@ -16,9 +17,6 @@
     <link rel="stylesheet" href="/css/home.css">
     <link rel="stylesheet" href="/css/sobre.css">
     <script src="/js/deeplink.js"></script>
-
-
-    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
 
 </head>
 
@@ -35,35 +33,32 @@
                 <img src="/img/logo_nome.png" alt="Logo Bixuco">
             </div>
 
-            <!-- 🔧 Plano Grátis: sidebar reduzida — só Planos, Configurações e Sobre.
-                 Sem Início/Relatórios/Perfil (exigem assinatura paga) e sem o
-                 botão "Fazer relatório diário". -->
             <nav>
                 <a href="/planos">
                     <i class="fa-solid fa-dollar-sign"></i>
-                    <span>Planos</span>
+                    <span data-pt="Planos" data-en="Plans">Planos</span>
                 </a>
 
                 <a href="/configuracoesSemAssinatura">
                     <i class="fa-solid fa-gear"></i>
-                    <span>Configurações</span>
+                    <span data-pt="Configurações" data-en="Settings">Configurações</span>
                 </a>
 
                 <a href="/sobreSemAssinatura" class="ativo">
                     <i class="fa-solid fa-circle-info"></i>
-                    <span>Sobre</span>
+                    <span data-pt="Sobre" data-en="About">Sobre</span>
                 </a>
             </nav>
 
             <div class="tema">
                 <button id="btnClaro" class="ativo" type="button">
                     <i class="fa-regular fa-sun"></i>
-                    Claro
+                    <span data-pt="Claro" data-en="Light">Claro</span>
                 </button>
 
                 <button id="btnEscuro" type="button">
                     <i class="fa-regular fa-moon"></i>
-                    Escuro
+                    <span data-pt="Escuro" data-en="Dark">Escuro</span>
                 </button>
             </div>
 
@@ -71,7 +66,7 @@
 
             <a href="/logout" class="logout">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                <span>Sair</span>
+                <span data-pt="Sair" data-en="Log out">Sair</span>
             </a>
         </aside>
 
@@ -84,13 +79,8 @@
 
                 <button class="tradutor" type="button" id="btnTraduzir">
                     <i class="fa-solid fa-language"></i>
-                    <span id="textoTradutor">Traduzir para inglês</span>
+                    <span id="textoTradutor">Traduzir para o inglês</span>
                 </button>
-
-                <div
-                    id="google_translate_element"
-                    style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0);"
-                ></div>
 
                 <div class="usuario">
 
@@ -101,9 +91,9 @@
                         </button>
 
                         <div class="painel-notificacoes" id="painelNotificacoes">
-                            <div class="painel-header">Notificações</div>
+                            <div class="painel-header" data-pt="Promoções" data-en="Promotions">Promoções</div>
                             <div id="listaNotificacoes">
-                                <div class="painel-vazio">Carregando...</div>
+                                <div class="painel-vazio" data-pt="Carregando..." data-en="Loading...">Carregando...</div>
                             </div>
                         </div>
                     </div>
@@ -118,7 +108,7 @@
                         onerror="this.src='/img/perfilPadrao.png'"
                     >
 
-                    <div>
+                    <div style="cursor: pointer;" onclick="window.location.href='/perfilSemAssinatura'">
                         <h3 id="nomeUsuario">Carregando...</h3>
                         <span id="tipoConta">...</span>
                     </div>
@@ -132,14 +122,13 @@
             <!-- ===================== -->
             <section class="cabecalho">
                 <div>
-                    <h1>Sobre o Bixuco</h1>
-                    <p>
+                    <h1 data-pt="Sobre o Bixuco" data-en="About Bixuco">Sobre o Bixuco</h1>
+                    <p data-pt="Conheça nossa história, missão e como trabalhamos para transformar vidas." data-en="Learn about our story, mission, and how we work to transform lives.">
                         Conheça nossa história, missão e como trabalhamos
                         para transformar vidas.
                     </p>
                 </div>
 
-                <!-- ⚠️ Confirme o nome real desse arquivo em static/img/ -->
                 <img src="/img/BixucoSobre.png" alt="Mascote Bixuco lendo um livro">
             </section>
 
@@ -150,50 +139,50 @@
 
                 <button type="button" class="card" data-topico="sobre" onclick="abrirModal('modal-sobre')">
                     <i class="fa-solid fa-circle-info"></i>
-                    <h3>Sobre nós</h3>
-                    <p>Nossa história e missão</p>
+                    <h3 data-pt="Sobre nós" data-en="About us">Sobre nós</h3>
+                    <p data-pt="Nossa história e missão" data-en="Our story and mission">Nossa história e missão</p>
                 </button>
 
                 <button type="button" class="card" data-topico="ajudamos" onclick="abrirModal('modal-ajudamos')">
                     <i class="fa-solid fa-heart"></i>
-                    <h3>Como ajudamos</h3>
-                    <p>O que fazemos por você</p>
+                    <h3 data-pt="Como ajudamos" data-en="How we help">Como ajudamos</h3>
+                    <p data-pt="O que fazemos por você" data-en="What we do for you">O que fazemos por você</p>
                 </button>
 
                 <button type="button" class="card" data-topico="funciona" onclick="abrirModal('modal-funciona')">
                     <i class="fa-solid fa-gear"></i>
-                    <h3>Como funciona</h3>
-                    <p>Pelúcia + app + relatórios</p>
+                    <h3 data-pt="Como funciona" data-en="How it works">Como funciona</h3>
+                    <p data-pt="Pelúcia + app + relatórios" data-en="Plush toy + app + reports">Pelúcia + app + relatórios</p>
                 </button>
 
                 <button type="button" class="card" data-topico="publico" onclick="abrirModal('modal-publico')">
                     <i class="fa-solid fa-users"></i>
-                    <h3>Para quem é</h3>
-                    <p>Pais e terapeutas</p>
+                    <h3 data-pt="Para quem é" data-en="Who it's for">Para quem é</h3>
+                    <p data-pt="Pais e terapeutas" data-en="Parents and therapists">Pais e terapeutas</p>
                 </button>
 
                 <button type="button" class="card" data-topico="naofazemos" onclick="abrirModal('modal-naofazemos')">
                     <i class="fa-solid fa-ban"></i>
-                    <h3>O que não fazemos</h3>
-                    <p>Sem diagnósticos</p>
+                    <h3 data-pt="O que não fazemos" data-en="What we don't do">O que não fazemos</h3>
+                    <p data-pt="Sem diagnósticos" data-en="No diagnoses">Sem diagnósticos</p>
                 </button>
 
                 <button type="button" class="card" data-topico="privacidade" onclick="abrirModal('modal-privacidade')">
                     <i class="fa-solid fa-shield-halved"></i>
-                    <h3>Privacidade</h3>
-                    <p>Como protegemos seus dados</p>
+                    <h3 data-pt="Privacidade" data-en="Privacy">Privacidade</h3>
+                    <p data-pt="Como protegemos seus dados" data-en="How we protect your data">Como protegemos seus dados</p>
                 </button>
 
                 <button type="button" class="card" data-topico="proposito" onclick="abrirModal('modal-proposito')">
                     <i class="fa-solid fa-trophy"></i>
-                    <h3>Nosso propósito</h3>
-                    <p>Missão, visão e valores da Bixuco</p>
+                    <h3 data-pt="Nosso propósito" data-en="Our purpose">Nosso propósito</h3>
+                    <p data-pt="Missão, visão e valores da Bixuco" data-en="Bixuco's mission, vision, and values">Missão, visão e valores da Bixuco</p>
                 </button>
 
                 <button type="button" class="card" data-topico="contato" onclick="abrirModal('modal-contato')">
                     <i class="fa-solid fa-headset"></i>
-                    <h3>Contato e suporte</h3>
-                    <p>Fale com nossa equipe</p>
+                    <h3 data-pt="Contato e suporte" data-en="Contact and support">Contato e suporte</h3>
+                    <p data-pt="Fale com nossa equipe" data-en="Talk to our team">Fale com nossa equipe</p>
                 </button>
 
             </section>
@@ -202,9 +191,8 @@
             <!-- FRASE FINAL -->
             <!-- ===================== -->
             <section class="frase-final">
-                <!-- ⚠️ Confirme o nome real desse arquivo em static/img/ -->
                 <img src="/img/BixucoMini.png" alt="Mascote Bixuco">
-                <p>
+                <p id="fraseFinalTexto">
                     Mais do que tecnologia, entregamos
                     <strong>conexão</strong>,
                     <strong>empatia</strong>
@@ -227,15 +215,15 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <div class="modal-icone"><i class="fa-solid fa-circle-info"></i></div>
-            <h2>Sobre nós</h2>
+            <h2 data-pt="Sobre nós" data-en="About us">Sobre nós</h2>
             <div class="modal-texto">
-                <p>
+                <p data-pt="O Bixuco nasceu da vontade de aproximar famílias e terapeutas no acompanhamento do desenvolvimento infantil, unindo uma pelúcia sensorial a um aplicativo que transforma o dia a dia da criança em informações úteis e acessíveis." data-en="Bixuco was born from the desire to bring families and therapists closer together in monitoring child development, combining a sensory plush toy with an app that turns the child's day-to-day into useful, accessible information.">
                     O Bixuco nasceu da vontade de aproximar famílias e terapeutas no
                     acompanhamento do desenvolvimento infantil, unindo uma pelúcia
                     sensorial a um aplicativo que transforma o dia a dia da criança
                     em informações úteis e acessíveis.
                 </p>
-                <p>
+                <p data-pt="Somos uma equipe multidisciplinar — desenvolvedores, psicólogos e pais — construindo, com cuidado, uma ferramenta que realmente ajuda quem cuida." data-en="We're a multidisciplinary team — developers, psychologists, and parents — carefully building a tool that truly helps caregivers.">
                     Somos uma equipe multidisciplinar — desenvolvedores, psicólogos
                     e pais — construindo, com cuidado, uma ferramenta que realmente
                     ajuda quem cuida.
@@ -250,16 +238,16 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <div class="modal-icone"><i class="fa-solid fa-heart"></i></div>
-            <h2>Como ajudamos</h2>
+            <h2 data-pt="Como ajudamos" data-en="How we help">Como ajudamos</h2>
             <div class="modal-texto">
-                <p>O Bixuco apoia o dia a dia de quem cuida de uma criança de várias formas:</p>
+                <p data-pt="O Bixuco apoia o dia a dia de quem cuida de uma criança de várias formas:" data-en="Bixuco supports the daily life of caregivers in several ways:">O Bixuco apoia o dia a dia de quem cuida de uma criança de várias formas:</p>
                 <ul>
-                    <li>Registro simples da rotina através de relatórios diários;</li>
-                    <li>Identificação de padrões de comportamento ao longo do tempo;</li>
-                    <li>Compartilhamento de informações com o terapeuta vinculado;</li>
-                    <li>Lembretes gentis para manter a consistência do acompanhamento.</li>
+                    <li data-pt="Registro simples da rotina através de relatórios diários;" data-en="Simple routine tracking through daily reports;">Registro simples da rotina através de relatórios diários;</li>
+                    <li data-pt="Identificação de padrões de comportamento ao longo do tempo;" data-en="Identification of behavior patterns over time;">Identificação de padrões de comportamento ao longo do tempo;</li>
+                    <li data-pt="Compartilhamento de informações com o terapeuta vinculado;" data-en="Sharing information with the linked therapist;">Compartilhamento de informações com o terapeuta vinculado;</li>
+                    <li data-pt="Lembretes gentis para manter a consistência do acompanhamento." data-en="Gentle reminders to keep tracking consistent.">Lembretes gentis para manter a consistência do acompanhamento.</li>
                 </ul>
-                <p>Tudo isso pensado para reduzir a carga mental de quem já cuida tanto.</p>
+                <p data-pt="Tudo isso pensado para reduzir a carga mental de quem já cuida tanto." data-en="All of this designed to reduce the mental load of those who already care so much.">Tudo isso pensado para reduzir a carga mental de quem já cuida tanto.</p>
             </div>
         </div>
     </div>
@@ -270,14 +258,14 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <div class="modal-icone"><i class="fa-solid fa-gear"></i></div>
-            <h2>Como funciona</h2>
+            <h2 data-pt="Como funciona" data-en="How it works">Como funciona</h2>
             <div class="modal-texto">
-                <h3>1. A pelúcia</h3>
-                <p>Acompanha a criança no dia a dia, de forma leve e não invasiva.</p>
-                <h3>2. O aplicativo</h3>
-                <p>Onde você registra observações e acompanha a evolução ao longo do tempo.</p>
-                <h3>3. Os relatórios</h3>
-                <p>Transformam observações soltas em um retrato mais claro da rotina da criança.</p>
+                <h3 data-pt="1. A pelúcia" data-en="1. The plush toy">1. A pelúcia</h3>
+                <p data-pt="Acompanha a criança no dia a dia, de forma leve e não invasiva." data-en="Follows the child day-to-day, in a light and non-invasive way.">Acompanha a criança no dia a dia, de forma leve e não invasiva.</p>
+                <h3 data-pt="2. O aplicativo" data-en="2. The app">2. O aplicativo</h3>
+                <p data-pt="Onde você registra observações e acompanha a evolução ao longo do tempo." data-en="Where you log observations and track progress over time.">Onde você registra observações e acompanha a evolução ao longo do tempo.</p>
+                <h3 data-pt="3. Os relatórios" data-en="3. The reports">3. Os relatórios</h3>
+                <p data-pt="Transformam observações soltas em um retrato mais claro da rotina da criança." data-en="Turn loose observations into a clearer picture of the child's routine.">Transformam observações soltas em um retrato mais claro da rotina da criança.</p>
             </div>
         </div>
     </div>
@@ -288,16 +276,16 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <div class="modal-icone"><i class="fa-solid fa-users"></i></div>
-            <h2>Para quem é</h2>
+            <h2 data-pt="Para quem é" data-en="Who it's for">Para quem é</h2>
             <div class="modal-texto">
-                <p>
+                <p data-pt="O Bixuco foi pensado para dois públicos principais:" data-en="Bixuco was designed for two main audiences:">
                     O Bixuco foi pensado para dois públicos principais:
                 </p>
                 <ul>
-                    <li><strong>Pais e responsáveis</strong>, que acompanham a rotina da criança de perto;</li>
-                    <li><strong>Terapeutas</strong>, que recebem informações organizadas para embasar o acompanhamento profissional.</li>
+                    <li id="modalPublicoLi1"><strong>Pais e responsáveis</strong>, que acompanham a rotina da criança de perto;</li>
+                    <li id="modalPublicoLi2"><strong>Terapeutas</strong>, que recebem informações organizadas para embasar o acompanhamento profissional.</li>
                 </ul>
-                <p>Os dois lados se conectam dentro do app, com a permissão do responsável.</p>
+                <p data-pt="Os dois lados se conectam dentro do app, com a permissão do responsável." data-en="Both sides connect within the app, with the guardian's permission.">Os dois lados se conectam dentro do app, com a permissão do responsável.</p>
             </div>
         </div>
     </div>
@@ -308,14 +296,14 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <div class="modal-icone"><i class="fa-solid fa-ban"></i></div>
-            <h2>O que não fazemos</h2>
+            <h2 data-pt="O que não fazemos" data-en="What we don't do">O que não fazemos</h2>
             <div class="modal-texto">
-                <p>
+                <p id="modalNaofazemosP1">
                     O Bixuco <strong>não</strong> substitui avaliação, diagnóstico ou
                     tratamento profissional. Ele é uma ferramenta de apoio e
                     organização — não um serviço de saúde.
                 </p>
-                <p>
+                <p data-pt="Qualquer preocupação sobre o desenvolvimento da criança deve sempre ser conversada com um profissional qualificado." data-en="Any concern about the child's development should always be discussed with a qualified professional.">
                     Qualquer preocupação sobre o desenvolvimento da criança deve
                     sempre ser conversada com um profissional qualificado.
                 </p>
@@ -329,14 +317,14 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <div class="modal-icone"><i class="fa-solid fa-shield-halved"></i></div>
-            <h2>Privacidade</h2>
+            <h2 data-pt="Privacidade" data-en="Privacy">Privacidade</h2>
             <div class="modal-texto">
-                <p>
+                <p data-pt="Levamos a sério os dados que você compartilha conosco. As informações da criança só são visíveis para você e, quando autorizado, para o terapeuta vinculado." data-en="We take the data you share with us seriously. The child's information is only visible to you and, when authorized, to the linked therapist.">
                     Levamos a sério os dados que você compartilha conosco. As
                     informações da criança só são visíveis para você e, quando
                     autorizado, para o terapeuta vinculado.
                 </p>
-                <p>
+                <p data-pt="Utilizamos boas práticas de segurança e criptografia para proteger os dados armazenados." data-en="We use good security and encryption practices to protect stored data.">
                     Utilizamos boas práticas de segurança e criptografia para
                     proteger os dados armazenados.
                 </p>
@@ -350,15 +338,15 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <div class="modal-icone"><i class="fa-solid fa-trophy"></i></div>
-            <h2>Nosso propósito</h2>
+            <h2 data-pt="Nosso propósito" data-en="Our purpose">Nosso propósito</h2>
             <div class="modal-texto">
-                <p>
+                <p data-pt="Acreditamos que cuidar bem de uma criança começa por entender melhor sua rotina. Nossa missão é dar a pais e terapeutas ferramentas simples para enxergar padrões que, no dia a dia corrido, passam despercebidos." data-en="We believe that caring well for a child starts with understanding their routine better. Our mission is to give parents and therapists simple tools to spot patterns that go unnoticed in the daily rush.">
                     Acreditamos que cuidar bem de uma criança começa por entender
                     melhor sua rotina. Nossa missão é dar a pais e terapeutas
                     ferramentas simples para enxergar padrões que, no dia a dia
                     corrido, passam despercebidos.
                 </p>
-                <p>
+                <p data-pt="Mais organização, mais conexão, mais cuidado." data-en="More organization, more connection, more care.">
                     Mais organização, mais conexão, mais cuidado.
                 </p>
             </div>
@@ -371,18 +359,89 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <div class="modal-icone"><i class="fa-solid fa-headset"></i></div>
-            <h2>Contato e suporte</h2>
+            <h2 data-pt="Contato e suporte" data-en="Contact and support">Contato e suporte</h2>
             <div class="modal-texto">
-                <p>Precisa de ajuda ou tem alguma dúvida? Fale com a gente:</p>
+                <p data-pt="Precisa de ajuda ou tem alguma dúvida? Fale com a gente:" data-en="Need help or have a question? Get in touch:">Precisa de ajuda ou tem alguma dúvida? Fale com a gente:</p>
                 <ul>
-                    <li>E-mail: suporte@bixuco.com.br</li>
-                    <li>Segunda a sexta, das 9h às 18h</li>
+                    <li data-pt="E-mail: suporte@bixuco.com.br" data-en="Email: suporte@bixuco.com.br">E-mail: suporte@bixuco.com.br</li>
+                    <li data-pt="Segunda a sexta, das 9h às 18h" data-en="Monday to Friday, 9am to 6pm">Segunda a sexta, das 9h às 18h</li>
                 </ul>
             </div>
         </div>
     </div>
 
     <script>
+
+        // ==========================
+        // TRADUÇÃO MANUAL
+        // ==========================
+
+        let idiomaAtual = localStorage.getItem("idioma") || "pt";
+
+        // Textos dinâmicos simples (sem tags internas)
+        const dicionario = {
+            "Responsável":                            "Guardian",
+            "Terapeuta":                               "Therapist",
+            "Usuário":                                 "User",
+            "Nenhuma promoção por enquanto.":          "No promotions for now.",
+            "Não foi possível carregar.":              "Could not load."
+        };
+
+        function traduzir(texto) {
+            if (idiomaAtual === "pt" || texto == null) return texto;
+            return dicionario[texto] || texto;
+        }
+
+        // Textos com formatação interna (<strong>, <em>) — traduzidos via innerHTML
+        const textosFormatados = {
+            fraseFinalTexto: {
+                pt: `Mais do que tecnologia, entregamos <strong>conexão</strong>, <strong>empatia</strong> e <strong>inteligência</strong> para apoiar o desenvolvimento infantil.`,
+                en: `More than technology, we deliver <strong>connection</strong>, <strong>empathy</strong>, and <strong>intelligence</strong> to support child development.`
+            },
+            modalPublicoLi1: {
+                pt: `<strong>Pais e responsáveis</strong>, que acompanham a rotina da criança de perto;`,
+                en: `<strong>Parents and guardians</strong>, who closely follow the child's daily routine;`
+            },
+            modalPublicoLi2: {
+                pt: `<strong>Terapeutas</strong>, que recebem informações organizadas para embasar o acompanhamento profissional.`,
+                en: `<strong>Therapists</strong>, who receive organized information to support professional care.`
+            },
+            modalNaofazemosP1: {
+                pt: `O Bixuco <strong>não</strong> substitui avaliação, diagnóstico ou tratamento profissional. Ele é uma ferramenta de apoio e organização — não um serviço de saúde.`,
+                en: `Bixuco <strong>does not</strong> replace professional evaluation, diagnosis, or treatment. It is a support and organization tool — not a health service.`
+            }
+        };
+
+        let ultimoTipoConta = "Responsável";
+
+        function aplicarIdiomaEstatico() {
+
+            document.querySelectorAll("[data-pt]").forEach(el => {
+                el.textContent = idiomaAtual === "en"
+                    ? (el.dataset.en || el.dataset.pt)
+                    : el.dataset.pt;
+            });
+
+            Object.keys(textosFormatados).forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = textosFormatados[id][idiomaAtual];
+            });
+
+            document.getElementById("textoTradutor").textContent =
+                idiomaAtual === "en" ? "Traduzir para o português" : "Traduzir para o inglês";
+
+            document.getElementById("tipoConta").textContent = traduzir(ultimoTipoConta);
+        }
+
+        document.getElementById("btnTraduzir").addEventListener("click", () => {
+            idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+            localStorage.setItem("idioma", idiomaAtual);
+            aplicarIdiomaEstatico();
+
+            if (painelNotificacoes.classList.contains("aberto")) {
+                carregarNotificacoes();
+            }
+        });
 
         // ==========================
         // ABRIR / FECHAR MODAIS
@@ -402,7 +461,6 @@
             document.body.style.overflow = "";
         }
 
-        // Fecha ao clicar fora do conteúdo do modal
         document.querySelectorAll(".modal").forEach(modal => {
             modal.addEventListener("click", (e) => {
                 if (e.target === modal) {
@@ -412,7 +470,6 @@
             });
         });
 
-        // Fecha com Esc (fecha o modal aberto no momento, se houver)
         document.addEventListener("keydown", (e) => {
             if (e.key === "Escape") {
                 document.querySelectorAll(".modal.mostrar").forEach(modal => {
@@ -440,7 +497,9 @@
                 const dados = await resposta.json();
 
                 document.getElementById("nomeUsuario").textContent = dados.nome || "Usuário";
-                document.getElementById("tipoConta").textContent   = dados.tipoConta || "Responsável";
+
+                ultimoTipoConta = dados.tipoConta || "Responsável";
+                document.getElementById("tipoConta").textContent = traduzir(ultimoTipoConta);
 
                 if (dados.fotoPerfil) {
                     document.getElementById("fotoUsuario").src = dados.fotoPerfil;
@@ -452,51 +511,7 @@
         }
 
         // ==========================
-        // TRADUÇÃO — Google Translate via cookie
-        // ==========================
-
-        function lerCookie(nome) {
-            const valor = `; ${document.cookie}`;
-            const partes = valor.split(`; ${nome}=`);
-            if (partes.length === 2) return partes.pop().split(";").shift();
-            return null;
-        }
-
-        function definirCookieTraducao(destino) {
-            document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
-            document.cookie = `googtrans=; path=/; domain=${location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
-
-            if (destino) {
-                const valor = `/pt/${destino}`;
-                document.cookie = `googtrans=${valor}; path=/`;
-                document.cookie = `googtrans=${valor}; path=/; domain=${location.hostname}`;
-            }
-        }
-
-        function iniciarTradutor() {
-            new google.translate.TranslateElement(
-                { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
-                "google_translate_element"
-            );
-        }
-
-        function atualizarTextoBotaoTraducao() {
-            const cookieAtual = lerCookie("googtrans");
-            document.getElementById("textoTradutor").textContent =
-                (cookieAtual && cookieAtual.includes("/en"))
-                    ? "Voltar para português"
-                    : "Traduzir para inglês";
-        }
-
-        document.getElementById("btnTraduzir").addEventListener("click", () => {
-            const cookieAtual = lerCookie("googtrans");
-            const estaTraduzido = cookieAtual && cookieAtual.includes("/en");
-            definirCookieTraducao(estaTraduzido ? null : "en");
-            window.location.reload();
-        });
-
-        // ==========================
-        // PAINEL DE NOTIFICAÇÕES
+        // PAINEL DE NOTIFICAÇÕES (só promoções)
         // ==========================
 
         const painelNotificacoes = document.getElementById("painelNotificacoes");
@@ -518,10 +533,10 @@
                 if (!resposta.ok) throw new Error();
 
                 const dados = await resposta.json();
-                const itens = dados.notificacoes || [];
+                const itens = (dados.notificacoes || []).filter(n => n.tipo === "novidade");
 
                 listaNotificacoes.innerHTML = itens.length === 0
-                    ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+                    ? `<div class="painel-vazio">${traduzir("Nenhuma promoção por enquanto.")}</div>`
                     : itens.map(formatarItemNotificacao).join("");
 
                 const naoLidas = itens.filter(item => !item.lida).length;
@@ -529,16 +544,7 @@
 
             } catch (erro) {
                 console.log("Erro ao carregar notificações:", erro);
-                listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar as notificações.</div>`;
-            }
-        }
-
-        async function marcarNotificacoesComoLidas() {
-            try {
-                await fetch("/api/notificacoes/marcar-lidas", { method: "POST" });
-                document.getElementById("quantidadeNotificacoes").textContent = "0";
-            } catch (erro) {
-                console.log("Erro ao marcar notificações como lidas:", erro);
+                listaNotificacoes.innerHTML = `<div class="painel-vazio">${traduzir("Não foi possível carregar.")}</div>`;
             }
         }
 
@@ -553,7 +559,6 @@
 
             painelNotificacoes.classList.add("aberto");
             await carregarNotificacoes();
-            marcarNotificacoesComoLidas();
         });
 
         document.addEventListener("click", (e) => {
@@ -566,7 +571,7 @@
         // INICIALIZAÇÃO
         // ==========================
 
-        atualizarTextoBotaoTraducao();
+        aplicarIdiomaEstatico();
         carregarUsuario();
         carregarNotificacoes();
 
