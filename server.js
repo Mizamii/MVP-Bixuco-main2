@@ -242,11 +242,9 @@ function estaLogado(req, res, next) {
 // ─────────────────────────────────────────
 // MIDDLEWARE — verifica plano do usuário
 // ─────────────────────────────────────────
-
-// busca o plano ativo do usuário e anexa em req.plano
 async function verificarPlano(req, res, next) {
     const usuarioId = req.session.usuarioId || (req.user && req.user.id);
-    if (!usuarioId) return res.status(401).json({ erro: "Não autenticado." });
+    if (!usuarioId) return res.redirect("/logar");
 
     try {
         // terapeutas não precisam de assinatura
@@ -264,12 +262,13 @@ async function verificarPlano(req, res, next) {
 
         req.plano = resultado.rows.length > 0 
             ? resultado.rows[0].nome_plano.toLowerCase()
-            : 'gratuito';
+            : 'gratis';   // 🔧 antes: 'gratuito' / não existia consistência
 
         next();
     } catch (erro) {
         console.error(erro);
-        res.status(500).json({ erro: "Erro interno." });
+        req.plano = 'gratis';   // 🔧 antes: dava erro 500 e travava a página
+        next();
     }
 }
 
@@ -304,7 +303,7 @@ app.get("/api/meu-plano", estaLogado, verificarPlano, (req, res) => {
 });
 
 
-app.get("/relatorios", estaLogado, precisaPlano("Médio"), (req, res) => {
+app.get("/relatorios", estaLogado, precisaPlano("medio"), (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "relatorios.html"));
 
@@ -421,7 +420,7 @@ app.get("/onboarding-google", estaLogado, (req, res) => {
 
 });
 
-app.get("/FormularioEntrega", estaLogado, precisaPlano("Médio"), (req, res) => {
+app.get("/FormularioEntrega", estaLogado, precisaPlano("medio"), (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "FormularioEntrega.html"));
 });
 
@@ -429,23 +428,23 @@ app.get("/admin/pedidos", (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "AdminPedidos.html"));
 });
 
-app.get("/PedidoConfirmado", estaLogado, precisaPlano("Médio"), (req, res) => {
+app.get("/PedidoConfirmado", estaLogado, precisaPlano("medio"), (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "PedidoConfirmado.html"));
 });
 
-app.get("/AcompanharPedido", estaLogado, precisaPlano("Médio"), (req, res) => {
+app.get("/AcompanharPedido", estaLogado, precisaPlano("medio"), (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "AcompanharPedido.html"));
 });
 
-app.get("/BixucoEntregue", estaLogado, precisaPlano("Médio"), (req, res) => {
+app.get("/BixucoEntregue", estaLogado, precisaPlano("medio"), (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "BixucoEntregue.html"));
 });
 
-app.get("/VincularIdentidade", estaLogado, precisaPlano("Médio"), (req, res) => {
+app.get("/VincularIdentidade", estaLogado, precisaPlano("medio"), (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "VincularIdentidade.html"));
 });
 
-app.get("/VincularSucesso", estaLogado, precisaPlano("Médio"), (req, res) => {
+app.get("/VincularSucesso", estaLogado, precisaPlano("medio"), (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "VincularSucesso.html"));
 });
 
@@ -459,7 +458,7 @@ app.get("/PerfilTerapeuta", estaLogado, (req, res) => {
 
 
 // 🔒 FIX 2 (aplicado): /home agora exige login
-app.get("/home", estaLogado, precisaPlano("Médio"), (req, res) => {
+app.get("/home", estaLogado, precisaPlano("medio"), (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "home.html"));
 });
 
@@ -700,10 +699,10 @@ app.post("/api/planos/criar-planos", async (req, res) => {
 
         const planoMP = new PreApprovalPlan(mpClient);
 
-        // Cria o plano médio
+        // Cria o plano medio
         const planMedio = await planoMP.create({
             body: {
-                reason:            "Plano Médio Bixuco",
+                reason:            "Plano medio Bixuco",
                 auto_recurring: {
                     frequency:          1,
                     frequency_type:     "months",
@@ -885,7 +884,7 @@ app.post("/api/planos/assinar", estaLogado, async (req, res) => {
 });
 
 
-app.post('/api/pedidos/endereco', estaLogado, precisaPlano("Médio"), async (req, res) => {
+app.post('/api/pedidos/endereco', estaLogado, precisaPlano("medio"), async (req, res) => {
     const usuarioId = req.session.usuarioId || (req.user && req.user.id);
     const { cep, rua, numero, complemento, bairro, cidade, estado } = req.body;
 
@@ -905,7 +904,7 @@ app.post('/api/pedidos/endereco', estaLogado, precisaPlano("Médio"), async (req
     }
 });
 
-app.get('/api/pedidos/status', estaLogado, precisaPlano("Médio"), async (req, res) => {
+app.get('/api/pedidos/status', estaLogado, precisaPlano("medio"), async (req, res) => {
     const usuarioId = req.session.usuarioId || (req.user && req.user.id);
 
     try {
@@ -922,7 +921,7 @@ app.get('/api/pedidos/status', estaLogado, precisaPlano("Médio"), async (req, r
     }
 });
 
-app.get('/api/bixuco/status', estaLogado, precisaPlano("Médio"), async (req, res) => {
+app.get('/api/bixuco/status', estaLogado, precisaPlano("medio"), async (req, res) => {
     const usuarioId = req.session.usuarioId || (req.user && req.user.id);
 
     try {
@@ -955,7 +954,7 @@ app.get('/api/bixuco/status', estaLogado, precisaPlano("Médio"), async (req, re
     }
 });
 
-app.post('/api/dispositivos/vincular', estaLogado, precisaPlano("Médio"), async (req, res) => {
+app.post('/api/dispositivos/vincular', estaLogado, precisaPlano("medio"), async (req, res) => {
     const usuarioId = req.session.usuarioId || (req.user && req.user.id);
     const { device_id } = req.body;
 
@@ -1108,7 +1107,7 @@ app.post("/api/planos/webhook", async (req, res) => {
 
             await db.query(
                 `INSERT INTO assinaturas (usuario_id, nome_plano, ativo)
-                 VALUES ($1, 'Grátis', TRUE)`,
+                VALUES ($1, 'gratis', TRUE)`,
                 [parseInt(usuarioId)]
             );
 
@@ -1127,42 +1126,7 @@ app.post("/api/planos/webhook", async (req, res) => {
 
 });
 
-/* ==========================
-   MIDDLEWARE DE PLANO
-   Verifica se o usuário tem o plano necessário
-========================== */
 
-async function verificarPlano(req, res, next) {
-
-    try {
-
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
-
-        if (!usuarioId) return res.redirect("/logar");
-
-        // Terapeuta tem acesso total sem plano
-        if (req.session.tipo === "psicologo") {
-            req.plano = "terapeuta";
-            return next();
-        }
-
-        const resultado = await db.query(
-            `SELECT nome_plano FROM assinaturas
-             WHERE usuario_id = $1 AND ativo = TRUE
-             ORDER BY criado_em DESC LIMIT 1`,
-            [usuarioId]
-        );
-
-        req.plano = resultado.rows[0]?.nome_plano || "Grátis";
-        return next();
-
-    } catch (erro) {
-        console.log("Erro ao verificar plano:", erro);
-        req.plano = "Grátis";
-        return next();
-    }
-
-}
 
 // Bloqueia rotas para usuários sem o plano mínimo necessário
 function precisaPlano(planoMinimo) {
@@ -1172,8 +1136,8 @@ function precisaPlano(planoMinimo) {
     return async (req, res, next) => {
         await verificarPlano(req, res, async () => {
 
-            const nivelUsuario = hierarquia[req.plano] ?? 0;
-            const nivelMinimo  = hierarquia[planoMinimo] ?? 1;
+            const nivelUsuario = hierarquia[(req.plano || "gratis").toLowerCase()] ?? 0;
+            const nivelMinimo  = hierarquia[(planoMinimo || "medio").toLowerCase()] ?? 1;
 
             if (nivelUsuario >= nivelMinimo) return next();
 
@@ -1919,7 +1883,7 @@ app.post("/redefinir-senha", async (req, res) => {
 });
 
 
-app.get("/RelatorioDiario", estaLogado,precisaPlano("Médio"), (req, res) => {
+app.get("/RelatorioDiario", estaLogado,precisaPlano("medio"), (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "relatoriodiario.html"));
 
@@ -2507,8 +2471,8 @@ app.post("/cadastro-finalizar", async (req, res) => {
                 // cria assinatura gratuita para conta Google finalizada
                 await db.query(
                     `INSERT INTO assinaturas (usuario_id, nome_plano, ativo)
-                    VALUES ($1, 'gratuito', true)
-                    ON CONFLICT DO NOTHING`,
+                        VALUES ($1, 'gratis', true)
+                        ON CONFLICT DO NOTHING`,
                     [atualizado.rows[0].id]
                 );
 
@@ -2545,7 +2509,7 @@ app.post("/cadastro-finalizar", async (req, res) => {
             // cria assinatura gratuita para novo responsável
             await db.query(
                 `INSERT INTO assinaturas (usuario_id, nome_plano, ativo)
-                VALUES ($1, 'gratuito', true)`,
+                VALUES ($1, 'gratis', true)`,
                 [novoUsuario.rows[0].id]
             );
 
@@ -3099,7 +3063,7 @@ app.post('/login', async (req, res) => {
 ========================== */
 
 // 🔧 FIX 7: Rota GET /perfil que não existia no server.js
-app.get("/perfil", estaLogado, precisaPlano("Médio"), (req, res) => {
+app.get("/perfil", estaLogado, precisaPlano("medio"), (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "perfil.html"));
 
@@ -3114,7 +3078,7 @@ app.get("/perfil", estaLogado, precisaPlano("Médio"), (req, res) => {
 ========================== */
 
 // 🔧 Rota GET /configuracoes que não existia no server.js
-app.get("/configuracoes", estaLogado, precisaPlano("Médio"), (req, res) => {
+app.get("/configuracoes", estaLogado, precisaPlano("medio"), (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "configuracoes.html"));
 
@@ -3189,7 +3153,7 @@ app.post("/api/configuracoes/notificacoes", estaLogado, async (req, res) => {
    ROTA POST — SALVAR RELATÓRIO DIÁRIO
 ========================== */
 
-app.post("/api/relatorio", estaLogado,precisaPlano("Médio"), async (req, res) => {
+app.post("/api/relatorio", estaLogado,precisaPlano("medio"), async (req, res) => {
 
     try {
 
@@ -3613,7 +3577,7 @@ app.post("/api/perfil/atualizar", estaLogado, upload.single("fotoPerfil"), async
 
 // 🔧 Rota GET /sobre que não existia no server.js
 // Protegida com estaLogado para manter padrão das outras páginas
-app.get("/sobre", estaLogado, precisaPlano("Médio"), (req, res) => {
+app.get("/sobre", estaLogado, precisaPlano("medio"), (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "sobre.html"));
 
