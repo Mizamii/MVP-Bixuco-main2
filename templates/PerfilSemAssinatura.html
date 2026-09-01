@@ -138,11 +138,14 @@
 
                     <div class="perfil-topo">
 
+                        <!-- 🔧 FIX: clicar na foto abre a edição (tirei o botão "Editar") -->
                         <div class="perfil-foto-wrapper">
                             <img
                                 id="fotoPerfil"
                                 src="/img/perfilPadrao.png"
                                 alt="Foto de perfil"
+                                title="Clique para editar seu perfil"
+                                style="cursor:pointer;"
                                 onerror="this.src='/img/perfilPadrao.png'"
                             >
                         </div>
@@ -151,17 +154,6 @@
                             <h2 id="perfilNome">Carregando...</h2>
                             <p id="perfilDescricao">Responsável</p>
                         </div>
-
-                        <!-- 🔧 FIX: botão para editar nome/foto do usuário -->
-                        <button
-                            type="button"
-                            id="btnEditarPerfil"
-                            title="Editar perfil"
-                            style="margin-left:auto; background:none; border:1px solid #ccc; border-radius:8px; padding:8px 12px; cursor:pointer; display:flex; align-items:center; gap:6px;"
-                        >
-                            <i class="fa-solid fa-pen"></i>
-                            <span data-pt="Editar" data-en="Edit">Editar</span>
-                        </button>
 
                     </div>
 
@@ -180,23 +172,21 @@
                         </a>
                     </div>
 
-                    <!-- 🔧 FIX: bloco "Sobre a conta" -->
+                    <!-- 🔧 FIX: bloco "Sobre a conta" — agora em grid (colunas fixas) para não ficar torto -->
                     <div style="margin-top:20px; border-top:1px solid #eee; padding-top:16px;">
                         <h3 data-pt="Sobre a conta" data-en="About your account" style="margin-bottom:12px;">Sobre a conta</h3>
 
-                        <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f0f0f0;">
+                        <div style="display:grid; grid-template-columns:140px 1fr; row-gap:10px; align-items:center;">
+
                             <span data-pt="Email" data-en="Email" style="color:#888;">Email</span>
-                            <span id="infoEmail">—</span>
-                        </div>
+                            <span id="infoEmail" style="text-align:right;">—</span>
 
-                        <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f0f0f0;">
                             <span data-pt="Tipo de conta" data-en="Account type" style="color:#888;">Tipo de conta</span>
-                            <span id="infoTipoConta">—</span>
-                        </div>
+                            <span id="infoTipoConta" style="text-align:right;">—</span>
 
-                        <div style="display:flex; justify-content:space-between; padding:8px 0;">
                             <span data-pt="Membro desde" data-en="Member since" style="color:#888;">Membro desde</span>
-                            <span id="infoAnoCadastro">—</span>
+                            <span id="infoAnoCadastro" style="text-align:right;">—</span>
+
                         </div>
                     </div>
 
@@ -208,22 +198,15 @@
                     <!-- Criança -->
                     <section class="card crianca">
 
-                        <div style="display:flex; align-items:center; justify-content:space-between;">
-                            <h2 data-pt="Criança cadastrada" data-en="Registered child">Criança cadastrada</h2>
+                        <h2 data-pt="Criança cadastrada" data-en="Registered child">Criança cadastrada</h2>
 
-                            <!-- 🔧 FIX: botão para editar nome/foto da criança -->
-                            <button
-                                type="button"
-                                id="btnEditarCrianca"
-                                title="Editar criança"
-                                style="background:none; border:1px solid #ccc; border-radius:8px; padding:6px 10px; cursor:pointer; display:flex; align-items:center; gap:6px;"
-                            >
-                                <i class="fa-solid fa-pen"></i>
-                                <span data-pt="Editar" data-en="Edit">Editar</span>
-                            </button>
-                        </div>
-
-                        <div class="item-card">
+                        <!-- 🔧 FIX: card inteiro clicável para editar a criança (antes ia para /planos) -->
+                        <div
+                            class="item-card"
+                            id="btnEditarCrianca"
+                            title="Clique para editar a criança"
+                            style="cursor:pointer;"
+                        >
                             <div
                                 class="avatar-crianca"
                                 id="avatarCrianca"
@@ -236,9 +219,7 @@
                                 <p id="idadeCrianca">...</p>
                             </div>
 
-                            <a href="/planos" title="Assine um plano para acompanhar sua criança" style="margin-left:auto;">
-                                <i class="fa-solid fa-chevron-right seta"></i>
-                            </a>
+                            <i class="fa-solid fa-pen seta" style="margin-left:auto;"></i>
                         </div>
 
                     </section>
@@ -263,12 +244,13 @@
 
 <!-- ========================= -->
 <!-- MODAL — EDITAR PERFIL -->
+<!-- 🔧 FIX: caixa do modal agora usa a classe "card" (respeita tema claro/escuro) -->
 <!-- ========================= -->
 <div
     id="modalPerfil"
     style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1000;"
 >
-    <div style="background:#fff; border-radius:12px; padding:24px; width:90%; max-width:420px;">
+    <div class="card" style="width:90%; max-width:420px;">
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
             <h3 style="margin:0;">Editar perfil</h3>
@@ -276,7 +258,7 @@
                 type="button"
                 id="btnFecharModalPerfil"
                 aria-label="Fechar"
-                style="background:none; border:none; font-size:1.2rem; cursor:pointer;"
+                style="background:none; border:none; font-size:1.2rem; cursor:pointer; color:inherit;"
             >
                 <i class="fa-solid fa-xmark"></i>
             </button>
@@ -327,12 +309,13 @@
 
 <!-- ========================= -->
 <!-- MODAL — EDITAR CRIANÇA -->
+<!-- 🔧 FIX: caixa do modal agora usa a classe "card" (respeita tema claro/escuro) -->
 <!-- ========================= -->
 <div
-    id="modalCrianca"
+    id="modalCriancaModal"
     style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1000;"
 >
-    <div style="background:#fff; border-radius:12px; padding:24px; width:90%; max-width:420px;">
+    <div class="card" style="width:90%; max-width:420px;">
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
             <h3 style="margin:0;">Editar criança</h3>
@@ -340,7 +323,7 @@
                 type="button"
                 id="btnFecharModalCrianca"
                 aria-label="Fechar"
-                style="background:none; border:none; font-size:1.2rem; cursor:pointer;"
+                style="background:none; border:none; font-size:1.2rem; cursor:pointer; color:inherit;"
             >
                 <i class="fa-solid fa-xmark"></i>
             </button>
@@ -466,7 +449,7 @@
     }
 
     // =========================
-    // 🔧 FIX: EDITAR PERFIL (nome/foto do usuário)
+    // 🔧 FIX: EDITAR PERFIL — agora abre ao clicar na foto
     // =========================
     const modalPerfil       = document.getElementById("modalPerfil");
     const formEditarPerfil  = document.getElementById("formEditarPerfil");
@@ -490,7 +473,7 @@
         document.body.style.overflow = "";
     }
 
-    document.getElementById("btnEditarPerfil").addEventListener("click", abrirModalPerfil);
+    document.getElementById("fotoPerfil").addEventListener("click", abrirModalPerfil);
     document.getElementById("btnFecharModalPerfil").addEventListener("click", fecharModalPerfil);
 
     modalPerfil.addEventListener("click", (e) => {
@@ -549,9 +532,10 @@
     });
 
     // =========================
-    // 🔧 FIX: EDITAR CRIANÇA (nome/foto)
+    // 🔧 FIX: EDITAR CRIANÇA — agora abre ao clicar no card
+    // (antes a setinha levava para /planos)
     // =========================
-    const modalCrianca       = document.getElementById("modalCrianca");
+    const modalCrianca       = document.getElementById("modalCriancaModal");
     const formEditarCrianca  = document.getElementById("formEditarCrianca");
     const inputNomeCrianca2  = document.getElementById("inputNomeCrianca");
     const inputFotoCrianca   = document.getElementById("inputFotoCrianca");
