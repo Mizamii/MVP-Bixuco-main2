@@ -7,14 +7,12 @@
     <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
 
     <link rel="stylesheet" href="/css/tema.css">
     <link rel="stylesheet" href="/css/layout.css">
     <link rel="stylesheet" href="/css/home.css">
     <link rel="stylesheet" href="/css/planos.css">
     <script src="/js/deeplink.js"></script>
-
 
 </head>
 <body>
@@ -33,28 +31,28 @@
         <nav>
             <a href="/planos" class="ativo">
                 <i class="fa-solid fa-dollar-sign"></i>
-                <span>Planos</span>
+                <span data-pt="Planos" data-en="Plans">Planos</span>
             </a>
 
             <a href="/configuracoesSemAssinatura">
                 <i class="fa-solid fa-gear"></i>
-                <span>Configurações</span>
+                <span data-pt="Configurações" data-en="Settings">Configurações</span>
             </a>
 
             <a href="/sobreSemAssinatura">
                 <i class="fa-solid fa-circle-info"></i>
-                <span>Sobre</span>
+                <span data-pt="Sobre" data-en="About">Sobre</span>
             </a>
         </nav>
 
         <div class="tema">
             <button id="btnClaro" class="ativo" type="button">
                 <i class="fa-regular fa-sun"></i>
-                Claro
+                <span data-pt="Claro" data-en="Light">Claro</span>
             </button>
             <button id="btnEscuro" type="button">
                 <i class="fa-regular fa-moon"></i>
-                Escuro
+                <span data-pt="Escuro" data-en="Dark">Escuro</span>
             </button>
         </div>
 
@@ -62,7 +60,7 @@
 
         <a href="/logout" class="logout">
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            <span>Sair</span>
+            <span data-pt="Sair" data-en="Log out">Sair</span>
         </a>
 
     </aside>
@@ -76,16 +74,11 @@
 
             <button class="tradutor" type="button" id="btnTraduzir">
                 <i class="fa-solid fa-language"></i>
-                <span id="textoTradutor">Traduzir para inglês</span>
+                <span id="textoTradutor">Traduzir para o inglês</span>
             </button>
 
-            <div
-                id="google_translate_element"
-                style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);"
-            ></div>
-
             <div class="usuario">
-                
+
                 <div class="notificacoes-wrapper">
                     <button class="notificacoes" type="button" id="btnNotificacoes">
                         <i class="fa-regular fa-bell"></i>
@@ -93,14 +86,14 @@
                     </button>
 
                     <div class="painel-notificacoes" id="painelNotificacoes">
-                        <div class="painel-header">Promoções</div>
+                        <div class="painel-header" data-pt="Promoções" data-en="Promotions">Promoções</div>
                         <div id="listaNotificacoes">
-                            <div class="painel-vazio">Carregando...</div>
+                            <div class="painel-vazio" data-pt="Carregando..." data-en="Loading...">Carregando...</div>
                         </div>
                     </div>
                 </div>
 
-               <img
+                <img
                     id="fotoUsuario"
                     src="/img/perfilPadrao.png"
                     alt="Foto do usuário"
@@ -114,6 +107,8 @@
                     <span id="tipoConta">Responsável</span>
                 </div>
 
+            </div>
+
         </header>
 
         <div class="conteudo-corpo">
@@ -121,8 +116,8 @@
             <!-- Cabeçalho -->
             <section class="cabecalho-planos">
                 <div>
-                    <h1>Planos</h1>
-                    <p>Aprimore seu plano e ganhe mais benefícios</p>
+                    <h1 data-pt="Planos" data-en="Plans">Planos</h1>
+                    <p data-pt="Aprimore seu plano e ganhe mais benefícios" data-en="Upgrade your plan and get more benefits">Aprimore seu plano e ganhe mais benefícios</p>
                 </div>
                 <img
                     src="/img/BixucoPlanos.png"
@@ -133,7 +128,8 @@
 
             <!-- Plano atual -->
             <p id="planoAtualInfo" class="plano-atual-info" style="display:none;">
-                Você está no <strong id="nomePlanoAtual">Grátis</strong>.
+                <span data-pt="Você está no" data-en="You're currently on the">Você está no</span>
+                <strong id="nomePlanoAtual">Grátis</strong>.
             </p>
 
             <!-- Cards de planos -->
@@ -145,59 +141,57 @@
                     id="cardGratis"
                     onclick="selecionarPlano('gratis', this)"
                 >
-                    <h2 class="plano-preco plano-preco--verde">Grátis</h2>
+                    <h2 class="plano-preco plano-preco--verde" data-pt="Grátis" data-en="Free">Grátis</h2>
 
-                    <h3>Benefícios</h3>
+                    <h3 data-pt="Benefícios" data-en="Benefits">Benefícios</h3>
 
                     <ul>
-                        <li>Acesso à aba "Sobre"</li>
-                        <li>Conhecer como o Bixuco funciona</li>
-                        <li>Informações sobre TPS e hipersensibilidade</li>
-                        <li>Entendimento da proposta da plataforma</li>
-                        <li>Sem custo</li>
+                        <li data-pt='Acesso à aba "Sobre"' data-en='Access to the "About" tab'>Acesso à aba "Sobre"</li>
+                        <li data-pt="Conhecer como o Bixuco funciona" data-en="Learn how Bixuco works">Conhecer como o Bixuco funciona</li>
+                        <li data-pt="Informações sobre TPS e hipersensibilidade" data-en="Information about SPD and hypersensitivity">Informações sobre TPS e hipersensibilidade</li>
+                        <li data-pt="Entendimento da proposta da plataforma" data-en="Understanding the platform's proposal">Entendimento da proposta da plataforma</li>
+                        <li data-pt="Sem custo" data-en="No cost">Sem custo</li>
                     </ul>
                 </div>
 
-                <!-- PLANO MÉDIO -->
+                <!-- PLANO BÁSICO -->
                 <div
                     class="card-plano"
                     id="cardMedio"
                     onclick="selecionarPlano('medio', this)"
                 >
-                    <h2 class="plano-preco plano-preco--verde">R$ 29<span>/mês</span></h2>
+                    <h2 class="plano-preco plano-preco--verde">R$ 100<span data-pt="/mês" data-en="/month">/mês</span></h2>
 
-                    <h3>Benefícios</h3>
+                    <h3 data-pt="Benefícios" data-en="Benefits">Benefícios</h3>
 
                     <ul>
-                        <li>Acesso completo ao aplicativo</li>
-                        <li>Registro de relatórios diários</li>
-                        <li>Visualização de gráficos e dados</li>
-                        <li>Acompanhamento do comportamento da criança</li>
-                        <li>Identificação de padrões e possíveis sinais de estresse</li>
-                        <li>Uso da pelúcia sensorizada integrada</li>
+                        <li data-pt="Pelúcia sensorizada" data-en="Sensory plush toy">Pelúcia sensorizada</li>
+                        <li data-pt="Inteligência Artificial" data-en="Artificial Intelligence">Inteligência Artificial</li>
+                        <li data-pt="Rastreamento" data-en="Tracking">Rastreamento</li>
+                        <li style="color: #999;">
+                            <span data-pt="Conexão com psicólogo" data-en="Connection with a psychologist">Conexão com psicólogo</span>
+                            <em data-pt="(não incluído)" data-en="(not included)">(não incluído)</em>
+                        </li>
                     </ul>
                 </div>
 
-                <!-- PLANO COMPLETO -->
+                <!-- PLANO PREMIUM -->
                 <div
                     class="card-plano"
                     id="cardCompleto"
                     onclick="selecionarPlano('completo', this)"
                 >
-                    <h2 class="plano-preco plano-preco--verde">R$ 55<span>/mês</span></h2>
+                    <h2 class="plano-preco plano-preco--verde">R$ 120<span data-pt="/mês" data-en="/month">/mês</span></h2>
 
-                    <h3>Benefícios</h3>
+                    <h3 data-pt="Benefícios" data-en="Benefits">Benefícios</h3>
 
                     <ul>
-                        <li>Tudo do plano Bixuco</li>
-                        <li>Acesso a dicas personalizadas</li>
-                        <li>Suporte com psicólogo</li>
-                        <li>Compartilhamento de dados com profissional vinculado</li>
-                        <li>Acompanhamento mais completo e orientado</li>
-                        <li>Maior segurança no cuidado diário</li>
+                        <li data-pt="Pelúcia sensorizada" data-en="Sensory plush toy">Pelúcia sensorizada</li>
+                        <li data-pt="Inteligência Artificial" data-en="Artificial Intelligence">Inteligência Artificial</li>
+                        <li data-pt="Rastreamento" data-en="Tracking">Rastreamento</li>
+                        <li data-pt="Conexão com psicólogo" data-en="Connection with a psychologist">Conexão com psicólogo</li>
                     </ul>
                 </div>
-
             </section>
 
             <!-- Erro inline -->
@@ -213,7 +207,7 @@
                 class="btn-confirmar-plano"
                 onclick="confirmarPlano()"
             >
-                Confirmar
+                <span data-pt="Confirmar" data-en="Confirm">Confirmar</span>
             </button>
 
         </div>
@@ -223,8 +217,58 @@
 
 <script>
 
+    // =========================
+    // TRADUÇÃO MANUAL
+    // =========================
+
+    let idiomaAtual = localStorage.getItem("idioma") || "pt";
+
+    const dicionario = {
+        "Selecione um plano antes de confirmar.": "Select a plan before confirming.",
+        "Processando...":                        "Processing...",
+        "Confirmar":                              "Confirm",
+        "Erro ao processar.":                     "Error processing.",
+        "Erro ao processar. Tente novamente.":    "Error processing. Try again.",
+        "Nenhuma promoção por enquanto.":         "No promotions for now.",
+        "Não foi possível carregar.":             "Could not load.",
+        "Carregando...":                          "Loading...",
+        "Responsável":                            "Guardian",
+        "Terapeuta":                              "Therapist",
+        "Usuário":                                "User"
+    };
+
+    function traduzir(texto) {
+        if (idiomaAtual === "pt" || texto == null) return texto;
+        return dicionario[texto] || texto;
+    }
+
+    function aplicarIdiomaEstatico() {
+        document.querySelectorAll("[data-pt]").forEach(el => {
+            el.textContent = idiomaAtual === "en"
+                ? (el.dataset.en || el.dataset.pt)
+                : el.dataset.pt;
+        });
+
+        document.getElementById("textoTradutor").textContent =
+            idiomaAtual === "en" ? "Traduzir para o português" : "Traduzir para o inglês";
+
+        // Reaplica textos dinâmicos que dependem do idioma
+        document.getElementById("tipoConta").textContent = traduzir(ultimoTipoConta);
+    }
+
+    document.getElementById("btnTraduzir").addEventListener("click", () => {
+        idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+        localStorage.setItem("idioma", idiomaAtual);
+        aplicarIdiomaEstatico();
+
+        if (painelNotificacoes.classList.contains("aberto")) {
+            carregarNotificacoes();
+        }
+    });
+
     // Plano selecionado pelo usuário
     let planoSelecionado = null;
+    let ultimoTipoConta  = "Responsável";
 
     // =========================
     // CARREGAR USUÁRIO
@@ -245,8 +289,8 @@
             document.getElementById("nomeUsuario").textContent =
                 dados.nome || "Usuário";
 
-            document.getElementById("tipoConta").textContent =
-                dados.tipoConta || "Responsável";
+            ultimoTipoConta = dados.tipoConta || "Responsável";
+            document.getElementById("tipoConta").textContent = traduzir(ultimoTipoConta);
 
             if (dados.fotoPerfil) {
                 document.getElementById("fotoUsuario").src = dados.fotoPerfil;
@@ -298,14 +342,14 @@
 
         if (!planoSelecionado) {
             const erroEl = document.getElementById("erroPlano");
-            erroEl.textContent = "Selecione um plano antes de confirmar.";
+            erroEl.textContent = traduzir("Selecione um plano antes de confirmar.");
             erroEl.style.display = "block";
             return;
         }
 
         const btn = document.getElementById("btnConfirmar");
         btn.disabled    = true;
-        btn.textContent = "Processando...";
+        btn.textContent = traduzir("Processando...");
 
         try {
 
@@ -343,52 +387,17 @@
             console.log("Erro ao confirmar plano:", erro);
 
             const erroEl = document.getElementById("erroPlano");
-            erroEl.textContent = erro.message || "Erro ao processar. Tente novamente.";
+            erroEl.textContent = traduzir(erro.message) || traduzir("Erro ao processar. Tente novamente.");
             erroEl.style.display = "block";
 
         } finally {
 
             btn.disabled    = false;
-            btn.textContent = "Confirmar";
+            btn.textContent = traduzir("Confirmar");
 
         }
 
     }
-
-    // =========================
-    // TRADUÇÃO VIA COOKIE
-    // =========================
-    function lerCookie(nome) {
-        const v = `; ${document.cookie}`;
-        const p = v.split(`; ${nome}=`);
-        if (p.length === 2) return p.pop().split(";").shift();
-        return null;
-    }
-
-    function iniciarTradutor() {
-        new google.translate.TranslateElement(
-            { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
-            "google_translate_element"
-        );
-    }
-
-    document.getElementById("btnTraduzir").addEventListener("click", () => {
-        const atual     = lerCookie("googtrans");
-        const traduzido = atual && atual.includes("/en");
-
-        document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
-        document.cookie = `googtrans=; path=/; domain=${location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
-
-        if (!traduzido) {
-            document.cookie = `googtrans=/pt/en; path=/`;
-            document.cookie = `googtrans=/pt/en; path=/; domain=${location.hostname}`;
-        }
-        window.location.reload();
-    });
-
-    const cookieAtual = lerCookie("googtrans");
-    document.getElementById("textoTradutor").textContent =
-        (cookieAtual && cookieAtual.includes("/en")) ? "Voltar para português" : "Traduzir para inglês";
 
     // =========================
     // TEMA
@@ -404,6 +413,9 @@
     document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema("claro"));
     document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
 
+    // =========================
+    // NOTIFICAÇÕES (só promoções)
+    // =========================
     const painelNotificacoes = document.getElementById("painelNotificacoes");
     const listaNotificacoes  = document.getElementById("listaNotificacoes");
 
@@ -426,14 +438,14 @@
             const itens = (dados.notificacoes || []).filter(n => n.tipo === "novidade");
 
             listaNotificacoes.innerHTML = itens.length === 0
-                ? `<div class="painel-vazio">Nenhuma promoção por enquanto.</div>`
+                ? `<div class="painel-vazio">${traduzir("Nenhuma promoção por enquanto.")}</div>`
                 : itens.map(formatarItemNotificacao).join("");
 
             const naoLidas = itens.filter(item => !item.lida).length;
             document.getElementById("quantidadeNotificacoes").textContent = naoLidas;
 
         } catch (erro) {
-            listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar.</div>`;
+            listaNotificacoes.innerHTML = `<div class="painel-vazio">${traduzir("Não foi possível carregar.")}</div>`;
         }
     }
 
@@ -457,6 +469,7 @@
     // =========================
     // INICIALIZAÇÃO
     // =========================
+    aplicarIdiomaEstatico();
     const temaSalvo = localStorage.getItem("tema") || "claro";
     aplicarTema(temaSalvo);
     carregarUsuario();

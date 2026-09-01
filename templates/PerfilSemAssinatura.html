@@ -180,6 +180,26 @@
                         </a>
                     </div>
 
+                    <!-- 🔧 FIX: bloco "Sobre a conta" -->
+                    <div style="margin-top:20px; border-top:1px solid #eee; padding-top:16px;">
+                        <h3 data-pt="Sobre a conta" data-en="About your account" style="margin-bottom:12px;">Sobre a conta</h3>
+
+                        <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f0f0f0;">
+                            <span data-pt="Email" data-en="Email" style="color:#888;">Email</span>
+                            <span id="infoEmail">—</span>
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f0f0f0;">
+                            <span data-pt="Tipo de conta" data-en="Account type" style="color:#888;">Tipo de conta</span>
+                            <span id="infoTipoConta">—</span>
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; padding:8px 0;">
+                            <span data-pt="Membro desde" data-en="Member since" style="color:#888;">Membro desde</span>
+                            <span id="infoAnoCadastro">—</span>
+                        </div>
+                    </div>
+
                 </div>
 
                 <!-- Coluna direita — só criança cadastrada -->
@@ -405,6 +425,18 @@
                 document.getElementById("fotoUsuario").src = usuario.fotoPerfil;
                 document.getElementById("fotoPerfil").src  = usuario.fotoPerfil;
             }
+
+            // 🔧 FIX: bloco "Sobre a conta"
+            // ⚠️ usuario.email só vem preenchido se você adicionar
+            // "email: usuario.email," no res.json() da rota /api/perfil no server.js
+            document.getElementById("infoEmail").textContent =
+                usuario.email || "—";
+
+            document.getElementById("infoTipoConta").textContent =
+                usuario.tipoConta || "—";
+
+            document.getElementById("infoAnoCadastro").textContent =
+                usuario.anoCadastro || "—";
 
             // Criança
             if (usuario.crianca) {

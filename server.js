@@ -161,14 +161,14 @@ app.get("/api/preferencias", estaLogado, async (req, res) => {
 
 const PLANOS_MP = {
     medio: {
-        nome:       "Plano Médio Bixuco",
-        preco:      29.00,
+        nome:       "Plano Básico Bixuco",
+        preco:      100.00,
         planId:     process.env.MP_PLAN_ID_MEDIO    || null,
         nomeBanco:  "medio"
     },
     completo: {
-        nome:       "Plano Completo Bixuco",
-        preco:      55.00,
+        nome:       "Plano Premium Bixuco",
+        preco:      120.00,
         planId:     process.env.MP_PLAN_ID_COMPLETO || null,
         nomeBanco:  "completo"
     }
@@ -3508,11 +3508,12 @@ app.get("/api/perfil", estaLogado, async (req, res) => {
 
         res.json({
             nome: usuario.nome,
+            email: usuario.email,   // 🔧 ADICIONAR ESTA LINHA
             tipoConta,
             fotoPerfil: usuario.foto_perfil || null,
             anoCadastro: usuario.ano_cadastro || new Date().getFullYear(),
             diasConsecutivos,
-            maiorOfensiva: diasConsecutivos, // 🔧 placeholder — ver nota sobre streak real acima
+            maiorOfensiva: diasConsecutivos,
             plano,
             crianca: criancaDados,
             terapeuta: terapeutaDados
