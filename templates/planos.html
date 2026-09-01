@@ -20,7 +20,7 @@
 <div class="container">
 
     <!-- ========================= -->
-    <!-- MENU LATERAL — reduzido (só Planos, Config, Sobre) -->
+    <!-- MENU LATERAL -->
     <!-- ========================= -->
     <aside class="sidebar">
 
@@ -28,7 +28,40 @@
             <img src="/img/logo_nome.png" alt="Logo Bixuco">
         </div>
 
-        <nav>
+        <!-- Sidebar completa — mostrada pra quem já tem plano pago
+             (medio ou completo). Escondida por padrão até sabermos
+             o plano real do usuário (ver carregarUsuario). -->
+        <nav id="navComPlano" style="display:none;">
+            <a href="/home">
+                <i class="fa-solid fa-house"></i>
+                <span data-pt="Início" data-en="Home">Início</span>
+            </a>
+
+            <a href="/relatorios">
+                <i class="fa-solid fa-chart-line"></i>
+                <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+            </a>
+
+            <a href="/planos" class="ativo">
+                <i class="fa-solid fa-dollar-sign"></i>
+                <span data-pt="Planos" data-en="Plans">Planos</span>
+            </a>
+
+            <a href="/sobre">
+                <i class="fa-solid fa-circle-info"></i>
+                <span data-pt="Sobre" data-en="About">Sobre</span>
+            </a>
+
+            <a href="/configuracoes">
+                <i class="fa-solid fa-gear"></i>
+                <span data-pt="Configurações" data-en="Settings">Configurações</span>
+            </a>
+        </nav>
+
+        <!-- Sidebar reduzida — mostrada pra quem está no plano grátis
+             (nunca assinou ou cancelou), já que /configuracoes, /sobre
+             etc. exigem plano médio+ e redirecionariam de volta pra cá. -->
+        <nav id="navSemPlano">
             <a href="/planos" class="ativo">
                 <i class="fa-solid fa-dollar-sign"></i>
                 <span data-pt="Planos" data-en="Plans">Planos</span>
@@ -98,11 +131,11 @@
                     src="/img/perfilPadrao.png"
                     alt="Foto do usuário"
                     style="cursor: pointer;"
-                    onclick="window.location.href='/perfilSemAssinatura'"
+                    onclick="irParaPerfil()"
                     onerror="this.src='/img/perfilPadrao.png'"
                 >
 
-                <div style="cursor: pointer;" onclick="window.location.href='/perfilSemAssinatura'">
+                <div style="cursor: pointer;" onclick="irParaPerfil()">
                     <h3 id="nomeUsuario">Carregando...</h3>
                     <span id="tipoConta">Responsável</span>
                 </div>
@@ -266,16 +299,44 @@
         }
     });
 
-    // Plano selecionado pelo usuário
+    // Plano selecionado pelo usuário (clique no card)
     let planoSelecionado = null;
     let ultimoTipoConta  = "Responsável";
+
+    // Plano REAL do usuário (gratis / medio / completo), usado pra
+    // decidir a navegação — sidebar e destino da foto/nome de perfil.
+    // Começa em "gratis" até a chamada de carregarUsuario() responder.
+    let planoCodigoAtual = "gratis";
+
+    // Manda pro perfil certo dependendo se o usuário tem plano pago ou não.
+    // Sem isso, todo mundo (até assinante) era mandado pro perfil da
+    // versão sem assinatura.
+    function irParaPerfil() {
+        window.location.href = planoCodigoAtual === "gratis"
+            ? "/perfilSemAssinatura"
+            : "/perfil";
+    }
+
+    // Troca o sidebar reduzido (sem assinatura) pelo completo quando o
+    // usuário já tem um plano pago — pra não deixar assinante preso
+    // navegando só entre Planos/ConfiguraçõesSemAssinatura/Sobre.
+    function atualizarSidebar(planoCodigo) {
+        const temPlanoPago = planoCodigo === "medio" || planoCodigo === "completo";
+        document.getElementById("navComPlano").style.display  = temPlanoPago ? "flex" : "none";
+        document.getElementById("navSemPlano").style.display  = temPlanoPago ? "none"  : "flex";
+    }
 
     // =========================
     // CARREGAR USUÁRIO
     // =========================
     async function carregarUsuario() {
         try {
-            const resposta = await fetch("/api/home");
+            // 🔧 Antes chamava /api/home, que nunca devolveu o campo
+            // "plano" — por isso o card atual nunca era pré-selecionado.
+            // /api/perfil devolve "plano" (nome bonito) e "planoCodigo"
+            // (gratis/medio/completo), que é o que a gente usa pra
+            // decidir tudo aqui.
+            const resposta = await fetch("/api/perfil");
 
             if (resposta.status === 401) {
                 window.location.href = "/logar";
@@ -296,21 +357,28 @@
                 document.getElementById("fotoUsuario").src = dados.fotoPerfil;
             }
 
-            // Mostra o plano atual se já tiver um
+            planoCodigoAtual = dados.planoCodigo || "gratis";
+            atualizarSidebar(planoCodigoAtual);
+
+            // Mostra o plano atual
             if (dados.plano) {
                 document.getElementById("nomePlanoAtual").textContent = dados.plano;
                 document.getElementById("planoAtualInfo").style.display = "block";
+            }
 
-                // Pré-seleciona o card do plano atual
-                const mapa = { "Grátis": "gratis", "Médio": "medio", "Completo": "completo" };
-                const chave = mapa[dados.plano];
-                if (chave) {
-                    const card = document.getElementById(
-                        chave === "gratis" ? "cardGratis" :
-                        chave === "medio" ? "cardMedio" : "cardCompleto"
-                    );
-                    if (card) selecionarPlano(chave, card);
-                }
+            // Pré-seleciona o card do plano atual usando planoCodigo
+            // diretamente — nada de comparar nome de exibição (que pode
+            // mudar) com um mapa de string, como era feito antes.
+            const idsPorCodigo = {
+                gratis:   "cardGratis",
+                medio:    "cardMedio",
+                completo: "cardCompleto"
+            };
+
+            const cardId = idsPorCodigo[planoCodigoAtual];
+            if (cardId) {
+                const card = document.getElementById(cardId);
+                if (card) selecionarPlano(planoCodigoAtual, card);
             }
 
         } catch (e) {

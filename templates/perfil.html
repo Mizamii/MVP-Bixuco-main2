@@ -614,6 +614,41 @@
 
                         </div>
 
+                        <!-- estado 5: recurso bloqueado pro plano atual -->
+                        <div
+                            id="estadoBloqueado"
+                            style="display: none;"
+                        >
+
+                            <div class="notificacao-status notificacao-status--bloqueado">
+
+                                <i class="fa-solid fa-lock"></i>
+
+                                <div>
+
+                                    <strong data-pt="Recurso exclusivo" data-en="Exclusive feature">Recurso exclusivo</strong>
+
+                                    <p data-pt="Vincular um terapeuta está disponível só no plano Premium." data-en="Linking a therapist is only available on the Premium plan.">
+                                        Vincular um terapeuta está disponível só no plano Premium.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                            <a
+                                href="/planos"
+                                class="btn-vincular"
+                            >
+
+                                <i class="fa-solid fa-crown"></i>
+
+                                <span data-pt="Fazer upgrade" data-en="Upgrade plan">Fazer upgrade</span>
+
+                            </a>
+
+                        </div>
+
                     </section>
 
                     <!-- Conta -->
@@ -796,19 +831,60 @@
     </div>
 
     <!-- ===========================
+    MODAL — TERAPEUTA REMOVIDO POR DOWNGRADE
+    =========================== -->
+
+    <div id="modalTerapeutaRemovido">
+        <div class="modal-conteudo">
+
+            <div class="modal-header">
+                <h3 data-pt="Vínculo removido" data-en="Link removed">Vínculo removido</h3>
+                <button
+                    type="button"
+                    class="btn-fechar-modal"
+                    id="btnFecharModalTerapeutaRemovido"
+                    aria-label="Fechar"
+                >
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <p
+                class="modal-descricao"
+                data-pt="Seu vínculo com o terapeuta foi removido porque seu plano atual não inclui esse recurso. Você pode fazer upgrade a qualquer momento para vincular novamente."
+                data-en="Your therapist link was removed because your current plan doesn't include this feature. You can upgrade at any time to link again."
+            >
+                Seu vínculo com o terapeuta foi removido porque seu plano atual não inclui esse recurso. Você pode fazer upgrade a qualquer momento para vincular novamente.
+            </p>
+
+            <button
+                type="button"
+                class="btn-salvar-crianca"
+                id="btnOkTerapeutaRemovido"
+                data-pt="Entendi"
+                data-en="Got it"
+            >
+                Entendi
+            </button>
+
+        </div>
+    </div>
+
+    <!-- ===========================
     JAVASCRIPT
     =========================== -->
 
     <script>
 
         // ==========================
-        // ESTADO GLOBAL DA CRIANÇA
+        // ESTADO GLOBAL
         // ==========================
 
         let criancaAtual = null;
         let perfilCarregado = false;
         let ultimoUsuario = null;
         let ultimoVinculo = null;
+        let planoCodigo = "gratis"; // valor padrão até /api/perfil responder
 
         // ==========================
         // CARREGAR DADOS DO PERFIL
@@ -847,6 +923,11 @@
         }
 
         function preencherPerfil(usuario) {
+
+            // planoCodigo é o valor "cru" (gratis / medio / completo) usado
+            // pra decidir o que mostrar no card do terapeuta — "plano" é
+            // só o nome bonito pra exibir na tela.
+            planoCodigo = usuario.planoCodigo || "gratis";
 
             const nome     = usuario.nome     || traduzir("Usuário");
             const tipoConta = traduzir(usuario.tipoConta || "Responsável");
@@ -918,8 +999,9 @@
             }
 
             // Terapeuta é tratado à parte por carregarVinculo(),
-            // que consulta /api/vinculos/status e cobre os 4 estados
-            // (sem vínculo / pendente / recusado / aceito)
+            // que decide entre os 5 estados (sem vínculo / pendente /
+            // recusado / aceito / bloqueado por plano) usando planoCodigo
+            // já preenchido aqui em cima.
 
         }
 
@@ -1298,8 +1380,20 @@
         const estadoPendente   = document.getElementById("estadoPendente");
         const estadoRecusado   = document.getElementById("estadoRecusado");
         const estadoAceito     = document.getElementById("estadoAceito");
+        const estadoBloqueado  = document.getElementById("estadoBloqueado");
 
         async function carregarVinculo() {
+
+            // Vínculo com terapeuta é exclusivo do plano Premium (completo).
+            // O backend já bloqueia /solicitar, /cancelar e /remover pra
+            // quem não tem o plano — isso aqui é só a parte visual, pra
+            // nem mostrar o botão de vincular pra quem não pode usar, e
+            // pra não gastar uma chamada de API à toa.
+            if (!["completo", "terapeuta"].includes(planoCodigo)) {
+                ultimoVinculo = { status: "bloqueado" };
+                atualizarEstadoVinculo(ultimoVinculo);
+                return;
+            }
 
             try {
 
@@ -1332,8 +1426,13 @@
             estadoPendente.style.display   = "none";
             estadoRecusado.style.display   = "none";
             estadoAceito.style.display     = "none";
+            estadoBloqueado.style.display  = "none";
 
-            if (dados.status === "pendente") {
+            if (dados.status === "bloqueado") {
+
+                estadoBloqueado.style.display = "block";
+
+            } else if (dados.status === "pendente") {
 
                 document.getElementById("nomeTerapeutaPendente").textContent =
                     dados.nomeTerapeuta || "...";
@@ -1569,6 +1668,76 @@
         }
 
         // ==========================
+        // MODAL — TERAPEUTA REMOVIDO POR DOWNGRADE
+        // ==========================
+
+        const modalTerapeutaRemovido = document.getElementById("modalTerapeutaRemovido");
+        const btnFecharModalTerapeutaRemovido = document.getElementById("btnFecharModalTerapeutaRemovido");
+        const btnOkTerapeutaRemovido = document.getElementById("btnOkTerapeutaRemovido");
+
+        let notificacaoDowngradeId = null;
+
+        // Checa se existe uma notificação (não lida) avisando que o
+        // vínculo foi removido por causa de um downgrade de plano.
+        // Se existir, abre o modal contando isso pro usuário.
+        async function verificarRemocaoPorDowngrade() {
+
+            try {
+
+                const resposta = await fetch("/api/notificacoes");
+                if (!resposta.ok) return;
+
+                const dados = await resposta.json();
+
+                const notificacao = (dados.notificacoes || []).find(
+                    n => n.tipo === "vinculo_removido_plano" && !n.lida
+                );
+
+                if (notificacao) {
+                    notificacaoDowngradeId = notificacao.id;
+                    modalTerapeutaRemovido.classList.add("aberto");
+                    document.body.style.overflow = "hidden";
+                }
+
+            } catch (erro) {
+
+                console.log("Erro ao verificar remoção por downgrade:", erro);
+
+            }
+
+        }
+
+        async function fecharModalTerapeutaRemovido() {
+
+            modalTerapeutaRemovido.classList.remove("aberto");
+            document.body.style.overflow = "";
+
+            // Marca só essa notificação como lida — não mexe nas outras,
+            // pra não zerar o sininho de notificações por engano.
+            if (notificacaoDowngradeId) {
+
+                try {
+                    await fetch(`/api/notificacoes/${notificacaoDowngradeId}/marcar-lida`, {
+                        method: "POST"
+                    });
+                } catch (erro) {
+                    console.log("Erro ao marcar notificação como lida:", erro);
+                }
+
+                notificacaoDowngradeId = null;
+
+            }
+
+        }
+
+        btnFecharModalTerapeutaRemovido.addEventListener("click", fecharModalTerapeutaRemovido);
+        btnOkTerapeutaRemovido.addEventListener("click", fecharModalTerapeutaRemovido);
+
+        modalTerapeutaRemovido.addEventListener("click", (e) => {
+            if (e.target === modalTerapeutaRemovido) fecharModalTerapeutaRemovido();
+        });
+
+        // ==========================
         // TRADUÇÃO MANUAL
         // ==========================
 
@@ -1715,12 +1884,19 @@
         // INICIAR
         // ==========================
 
+        // carregarPerfil() precisa terminar ANTES de carregarVinculo(),
+        // porque é ela que preenche planoCodigo — sem esperar, o card do
+        // terapeuta pode decidir com o valor padrão ("gratis") por um
+        // instante, mesmo que o usuário seja premium.
+        async function iniciarPagina() {
+            await carregarPerfil();
+            carregarVinculo();
+            verificarRemocaoPorDowngrade();
+        }
+
         aplicarIdiomaEstatico();
-
         carregarNotificacoes();
-
-        carregarPerfil();
-        carregarVinculo();
+        iniciarPagina();
 
     </script>
 

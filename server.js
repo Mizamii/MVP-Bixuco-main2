@@ -174,6 +174,46 @@ const PLANOS_MP = {
     }
 };
 
+// Ativa um novo plano pro usuário e, se ele estiver perdendo o nível
+// Premium (que dá direito a vínculo com terapeuta), desativa o vínculo
+// atual e avisa via notificação — usado no downgrade, cancelamento e
+// no bypass de teste, pra não duplicar essa regra em três lugares.
+async function ativarPlano(usuarioId, nomePlano) {
+
+    await db.query(
+        `UPDATE assinaturas SET ativo = FALSE WHERE usuario_id = $1 AND ativo = TRUE`,
+        [usuarioId]
+    );
+
+    await db.query(
+        `INSERT INTO assinaturas (usuario_id, nome_plano, ativo)
+         VALUES ($1, $2, TRUE)`,
+        [usuarioId, nomePlano]
+    );
+
+    const hierarquia = { gratis: 0, medio: 1, completo: 2 };
+    const nivelNovo = hierarquia[nomePlano] ?? 0;
+
+    // Perdeu o nível Premium? Remove o vínculo se houver um ativo.
+    if (nivelNovo < hierarquia.completo) {
+
+        const vinculoRemovido = await db.query(
+            `UPDATE vinculos SET ativo = FALSE
+             WHERE responsavel_id = $1 AND ativo = TRUE
+             RETURNING id`,
+            [usuarioId]
+        );
+
+        if (vinculoRemovido.rows.length > 0) {
+            await db.query(
+                `INSERT INTO notificacoes (usuario_id, tipo, mensagem, lida)
+                 VALUES ($1, 'vinculo_removido_plano', $2, FALSE)`,
+                [usuarioId, "Seu vínculo com o terapeuta foi removido porque seu plano atual não inclui esse recurso."]
+            );
+        }
+    }
+}
+
 app.use(express.json());
 
 // POST — salva preferências (terapeuta e pai compartilham a mesma tabela)
@@ -761,35 +801,16 @@ app.post("/api/planos/assinar", estaLogado, async (req, res) => {
         // MODO TESTE — remove isso em produção
         if (process.env.NODE_ENV === "test" || process.env.MP_BYPASS === "true") {
 
-            const nomesPorPlano = {
-
-                gratis:   "gratis",
-                medio:    "medio",
-                completo: "completo"
-
-            };
-
+            const nomesPorPlano = { gratis: "gratis", medio: "medio", completo: "completo" };
             const nomePlano = nomesPorPlano[plano];
 
             if (!nomePlano) {
                 return res.status(400).json({ erro: "Plano inválido." });
             }
 
-            await db.query(
-                `UPDATE assinaturas SET ativo = FALSE WHERE usuario_id = $1 AND ativo = TRUE`,
-                [usuarioId]
-            );
+            await ativarPlano(usuarioId, nomePlano);
 
-            await db.query(
-                `INSERT INTO assinaturas (usuario_id, nome_plano, ativo)
-                 VALUES ($1, $2, TRUE)`,
-                [usuarioId, nomePlano]
-            );
-
-            await db.query(
-                `UPDATE usuarios SET novo_usuario = FALSE WHERE id = $1`,
-                [usuarioId]
-            );
+            await db.query(`UPDATE usuarios SET novo_usuario = FALSE WHERE id = $1`, [usuarioId]);
 
             const destino = plano === "gratis" ? "/sobreSemAssinatura" : "/home";
             return res.json({ destino });
@@ -1075,44 +1096,22 @@ app.post("/api/planos/webhook", async (req, res) => {
         const statusAtual = dados.status;
 
         // Assinatura ativa ou pagamento aprovado → ativa o plano
+        // Assinatura ativa ou pagamento aprovado → ativa o plano
         if (statusAtual === "authorized" || statusAtual === "approved") {
 
-            await db.query(
-                `UPDATE assinaturas SET ativo = FALSE WHERE usuario_id = $1 AND ativo = TRUE`,
-                [parseInt(usuarioId)]
-            );
+            await ativarPlano(parseInt(usuarioId), PLANOS_MP[plano].nomeBanco);
 
-            await db.query(
-                `INSERT INTO assinaturas (usuario_id, nome_plano, ativo)
-                 VALUES ($1, $2, TRUE)`,
-                [parseInt(usuarioId), PLANOS_MP[plano].nomeBanco]
-            );
-
-            await db.query(
-                `UPDATE usuarios SET novo_usuario = FALSE WHERE id = $1`,
-                [parseInt(usuarioId)]
-            );
+            await db.query(`UPDATE usuarios SET novo_usuario = FALSE WHERE id = $1`, [parseInt(usuarioId)]);
 
             console.log(`Plano ${PLANOS_MP[plano].nomeBanco} ativado para usuário ${usuarioId}.`);
-
         }
 
         // Assinatura cancelada ou pausada → volta para grátis
         if (statusAtual === "cancelled" || statusAtual === "paused") {
 
-            await db.query(
-                `UPDATE assinaturas SET ativo = FALSE WHERE usuario_id = $1 AND ativo = TRUE`,
-                [parseInt(usuarioId)]
-            );
-
-            await db.query(
-                `INSERT INTO assinaturas (usuario_id, nome_plano, ativo)
-                VALUES ($1, 'gratis', TRUE)`,
-                [parseInt(usuarioId)]
-            );
+            await ativarPlano(parseInt(usuarioId), "gratis");
 
             console.log(`Plano cancelado para usuário ${usuarioId}. Voltando para Grátis.`);
-
         }
 
         return res.sendStatus(200);
@@ -1126,6 +1125,30 @@ app.post("/api/planos/webhook", async (req, res) => {
 
 });
 
+app.post("/api/notificacoes/:id/marcar-lida", estaLogado, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const notificacaoId = req.params.id;
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        await db.query(
+            `UPDATE notificacoes SET lida = TRUE WHERE id = $1 AND usuario_id = $2`,
+            [notificacaoId, usuarioId]
+        );
+
+        res.json({ sucesso: true });
+
+    } catch (erro) {
+        console.log("Erro ao marcar notificação como lida:", erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
+
+});
 
 
 // Bloqueia rotas para usuários sem o plano mínimo necessário
@@ -3442,17 +3465,27 @@ app.get("/api/perfil", estaLogado, async (req, res) => {
         // Ajuste o nome da tabela conforme o seu banco
         const resultadoPlano = await db.query(
             `SELECT nome_plano
-             FROM assinaturas
-             WHERE usuario_id = $1
-             AND ativo = TRUE
-             ORDER BY criado_em DESC
-             LIMIT 1`,
+            FROM assinaturas
+            WHERE usuario_id = $1
+            AND ativo = TRUE
+            ORDER BY criado_em DESC
+            LIMIT 1`,
             [usuarioId]
         );
 
-        const plano = resultadoPlano.rows.length > 0
-            ? resultadoPlano.rows[0].nome_plano
-            : "Plano gratuito";
+        const planoCodigo = resultadoPlano.rows.length > 0
+            ? resultadoPlano.rows[0].nome_plano.toLowerCase()
+            : "gratis";
+
+        // nome bonito pra EXIBIÇÃO na tela
+        const nomesPlanos = {
+            gratis:    "Plano Grátis",
+            medio:     "Plano Básico Bixuco",
+            completo:  "Plano Premium Bixuco"
+        };
+
+        const plano = nomesPlanos[planoCodigo] || "Plano Grátis";
+
 
         // Busca dias consecutivos de relatório
         const resultadoDias = await db.query(
@@ -3472,13 +3505,14 @@ app.get("/api/perfil", estaLogado, async (req, res) => {
 
         res.json({
             nome: usuario.nome,
-            email: usuario.email,   // 🔧 ADICIONAR ESTA LINHA
+            email: usuario.email,
             tipoConta,
             fotoPerfil: usuario.foto_perfil || null,
             anoCadastro: usuario.ano_cadastro || new Date().getFullYear(),
             diasConsecutivos,
             maiorOfensiva: diasConsecutivos,
             plano,
+            planoCodigo,   // 🆕 pra o front decidir o que mostrar
             crianca: criancaDados,
             terapeuta: terapeutaDados
         });
