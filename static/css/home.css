@@ -78,6 +78,12 @@ width: 82px;
 height: auto;
 }
 
+/* "Peça seu Bixuco" / "Vincular meu Bixuco" grudado no resto (mesmo ajuste
+do mobile, só que faltava aqui no desktop) */
+#bixuco-widget:not(:empty) {
+    margin-bottom: 1.1rem;
+}
+
 /* ========================================= */
 /* CARDS SUPERIORES */
 /* ========================================= */

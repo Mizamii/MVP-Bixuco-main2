@@ -130,6 +130,15 @@ html, body {
   border-bottom: 1px solid #E0E0E0;
 }
 
+/* Logo pequena, usada só no cabeçalho do onboarding-google.html — sem essa
+   regra a imagem renderiza no tamanho original do arquivo e toma a tela toda */
+.criarconta-header__logo {
+  display: block;
+  height: 40px;
+  width: auto;
+  margin: 0 auto 1rem;
+}
+
 .criarconta-titulo {
   font-size: 1.8rem;
   font-weight: 700;

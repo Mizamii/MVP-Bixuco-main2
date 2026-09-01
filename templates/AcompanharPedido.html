@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/css/tema.css">
     <link rel="stylesheet" href="/css/layout.css">
     <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/AcompanharPedido.css">
     <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
     <script src="/js/deeplink.js"></script>
 
@@ -219,62 +220,6 @@
 
         </main>
     </div>
-
-    <!-- Estilos específicos desta página — prefixados com "rastreio-" para não colidir com home.css -->
-    <style>
-        .rastreio-banner {
-            display: flex; align-items: center; gap: 0.9rem;
-            background: #ecfeff; border: 1px solid #a5f3fc; border-radius: 12px;
-            padding: 1rem 1.1rem; margin-bottom: 1.6rem;
-        }
-        .rastreio-banner i { font-size: 1.4rem; color: #0891b2; }
-        .rastreio-banner strong { display: block; font-size: 0.95rem; color: #0e7490; }
-        .rastreio-banner span { font-size: 0.82rem; color: #6b7280; }
-
-        .rastreio-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 1.6rem; }
-
-        .rastreio-timeline .etapa { display: flex; gap: 0.9rem; position: relative; padding-bottom: 1.5rem; }
-        .rastreio-timeline .etapa:last-child { padding-bottom: 0; }
-        .rastreio-timeline .etapa::before {
-            content: ""; position: absolute; left: 8px; top: 20px; bottom: -6px;
-            width: 2px; background: #e5e7eb;
-        }
-        .rastreio-timeline .etapa:last-child::before { display: none; }
-        .rastreio-timeline .ponto { width: 18px; height: 18px; border-radius: 50%; background: #e5e7eb; flex-shrink: 0; margin-top: 2px; }
-        .rastreio-timeline .etapa.concluida .ponto { background: #22c55e; }
-        .rastreio-timeline .etapa.atual .ponto { background: #22d3ee; }
-        .rastreio-timeline .etapa strong { display: block; font-size: 0.9rem; }
-        .rastreio-timeline .etapa span { font-size: 0.78rem; opacity: 0.65; }
-
-        .rastreio-lateral h3 { font-size: 0.82rem; opacity: 0.7; margin-bottom: 0.4rem; font-weight: 600; }
-
-        .rastreio-codigo {
-            display: flex; align-items: center; gap: 0.6rem;
-            font-size: 1.05rem; font-weight: 700; margin-bottom: 1.1rem;
-        }
-        .rastreio-codigo i { font-size: 0.85rem; opacity: 0.55; cursor: pointer; }
-
-        .rastreio-transportadora { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; }
-        .rastreio-transportadora span { display: block; font-size: 0.75rem; opacity: 0.6; }
-        .rastreio-transportadora strong { font-size: 0.85rem; }
-        .rastreio-transportadora i { font-size: 1.2rem; color: #f59e0b; }
-
-        #btn-acompanhar {
-            width: 100%; padding: 0.75rem; border: 1px solid #a5f3fc; border-radius: 10px;
-            background: #ecfeff; color: #0e7490; font-size: 0.85rem; font-weight: 700;
-            cursor: pointer; margin-bottom: 1.2rem; display: flex; align-items: center;
-            justify-content: center; gap: 0.5rem;
-        }
-
-        .rastreio-previsao { border: 1px solid #a5f3fc; border-radius: 10px; padding: 0.85rem; background: #ecfeff; }
-        .rastreio-previsao span { font-size: 0.72rem; color: #0891b2; font-weight: 600; }
-        .rastreio-previsao strong { display: block; font-size: 0.9rem; color: #0e7490; margin: 0.25rem 0; }
-        .rastreio-previsao p { font-size: 0.72rem; color: #6b7280; }
-
-        @media (max-width: 800px) {
-            .rastreio-grid { grid-template-columns: 1fr; }
-        }
-    </style>
 
     <script>
 
