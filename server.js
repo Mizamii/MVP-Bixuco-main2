@@ -2799,7 +2799,7 @@ app.get("/api/home-terapeuta", estaLogado, async (req, res) => {
             fotoPerfil:       terapeuta.foto_perfil || null,
             notificacoes:   parseInt(notificacoesNaoLidas.rows[0].total) || 0,
             totalPacientes: parseInt(totalPacientes.rows[0].total) || 0,
-            totalPendentes: parseInt(relatoriosPendentes.rows[0].total) || 0,
+            totalPendentes: parseInt(totalPendentes.rows[0].total) || 0,
             relatoriosHoje: parseInt(relatoriosHoje.rows[0].total) || 0,
             codigoTerapeuta:     terapeuta.codigo_vinculo || null,
 
