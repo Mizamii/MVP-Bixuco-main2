@@ -138,6 +138,35 @@ cron.schedule('0 19 * * *', async () => {
     timezone: "America/Sao_Paulo"
 });
 
+/* ==========================
+   LIMPEZA DE NOTIFICAÇÕES ANTIGAS
+========================== */
+
+// Roda todo dia às 4h da manhã — remove notificações já lidas com
+// mais de 30 dias. Não lidas não são tocadas, mesmo antigas, pra
+// nunca apagar um aviso que o usuário ainda não viu.
+cron.schedule('0 4 * * *', async () => {
+
+    try {
+
+        const resultado = await db.query(
+            `DELETE FROM notificacoes
+             WHERE lida = TRUE
+             AND criado_em < NOW() - INTERVAL '30 days'`
+        );
+
+        console.log(`Limpeza de notificações: ${resultado.rowCount} removida(s).`);
+
+    } catch (erro) {
+
+        console.log("Erro na limpeza de notificações:", erro);
+
+    }
+
+}, {
+    timezone: "America/Sao_Paulo"
+});
+
 // GET — busca preferências
 app.get("/api/preferencias", estaLogado, async (req, res) => {
     try {
@@ -821,18 +850,12 @@ app.post("/api/planos/assinar", estaLogado, async (req, res) => {
         // ===========================
         // PLANO GRÁTIS
         // ===========================
+                // ===========================
+        // PLANO GRÁTIS
+        // ===========================
         if (plano === "gratis") {
 
-            await db.query(
-                `UPDATE assinaturas SET ativo = FALSE WHERE usuario_id = $1 AND ativo = TRUE`,
-                [usuarioId]
-            );
-
-            await db.query(
-                `INSERT INTO assinaturas (usuario_id, nome_plano, ativo)
-                 VALUES ($1, 'gratis', TRUE)`,
-                [usuarioId]
-            );
+            await ativarPlano(usuarioId, "gratis");
 
             await db.query(
                 `UPDATE usuarios SET novo_usuario = FALSE WHERE id = $1`,

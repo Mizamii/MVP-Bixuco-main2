@@ -15,6 +15,25 @@
 
     <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
 
+        <style>
+        /* Limita a altura da caixa de atividade recente e cria scroll
+           interno, em vez de deixar o card crescer até estourar a página */
+        #listaAtividade {
+            max-height: 420px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        #listaAtividade::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #listaAtividade::-webkit-scrollbar-thumb {
+            background: #C2C2C2;
+            border-radius: 4px;
+        }
+    </style>
+
 </head>
 <body>
 
