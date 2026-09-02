@@ -32,6 +32,15 @@
             background: #C2C2C2;
             border-radius: 4px;
         }
+                .bolinha-nao-visto {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #E53E3E;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
     </style>
 
 </head>
@@ -563,13 +572,20 @@
             const li = document.createElement("li");
             li.classList.add("atividade-item");
 
+                        if (!item.visto) {
+                li.classList.add("atividade-item--nao-visto");
+            }
+
             li.innerHTML = `
                 <div class="atividade-icone atividade-icone--${item.cor || "verde"}">
                     <i class="fa-solid fa-clipboard-list"></i>
                 </div>
 
                 <div class="atividade-info">
-                    <strong>Relatório de ${item.nomeCrianca}</strong>
+                    <strong>
+                        Relatório de ${item.nomeCrianca}
+                        ${!item.visto ? '<span class="bolinha-nao-visto"></span>' : ''}
+                    </strong>
                     <span>${item.nomeResponsavel} · ${item.tempo}</span>
                 </div>
 
