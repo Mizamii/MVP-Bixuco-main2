@@ -2760,9 +2760,11 @@ app.get("/api/home-terapeuta", estaLogado, async (req, res) => {
 
         // Atividade recente — últimos relatórios dos pacientes vinculados
                 // Atividade recente — últimos relatórios dos pacientes vinculados
+                // Atividade recente — últimos relatórios dos pacientes vinculados
         const atividadeRecente = await db.query(
             `SELECT
                 r.id,
+                r.usuario_id AS responsavel_id,
                 r.visto_terapeuta,
                 c.nome AS nome_crianca,
                 u.nome AS nome_responsavel,
@@ -2780,8 +2782,10 @@ app.get("/api/home-terapeuta", estaLogado, async (req, res) => {
 
         // Alterna entre verde e azul nos ícones da atividade
                 // Alterna entre verde e azul nos ícones da atividade
+                // Alterna entre verde e azul nos ícones da atividade
         const atividades = atividadeRecente.rows.map((item, i) => ({
             id:             item.id,
+            responsavelId:  item.responsavel_id,
             nomeCrianca:    item.nome_crianca   || "Criança",
             nomeResponsavel: item.nome_responsavel || "Responsável",
             tempo:          item.tempo,
