@@ -593,7 +593,7 @@
                 <button
                     type="button"
                     class="btn-ver"
-                    onclick="marcarVistoEAbrir(${item.id}, ${item.responsavelId})"
+                    onclick="marcarVistoEAbrir(${item.id}, ${item.responsavelId}, '${item.dataISO}')"
                 >
                     <i class="fa-regular fa-eye"></i>
                     ${t("ver")}
@@ -609,11 +609,13 @@
     // Marca o relatório como visto antes de abrir
             // Marca o relatório como visto antes de abrir, e leva direto
         // pra tela do paciente certo (não pra seleção)
-    async function marcarVistoEAbrir(relatorioId, responsavelId) {
+            // Marca o relatório como visto antes de abrir, leva direto pro
+        // paciente certo E já no dia certo do calendário
+    async function marcarVistoEAbrir(relatorioId, responsavelId, dataISO) {
         try {
             await fetch(`/api/relatorios/${relatorioId}/marcar-visto`, { method: "POST" });
         } catch (_) {}
-        window.location.href = `/relatoriosTerapeuta?paciente=${responsavelId}`;
+        window.location.href = `/relatoriosTerapeuta?paciente=${responsavelId}&data=${dataISO}`;
     }
 
 

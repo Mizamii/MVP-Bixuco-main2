@@ -2758,14 +2758,13 @@ app.get("/api/home-terapeuta", estaLogado, async (req, res) => {
             [usuarioId]
         );
 
-        // Atividade recente — últimos relatórios dos pacientes vinculados
-                // Atividade recente — últimos relatórios dos pacientes vinculados
                 // Atividade recente — últimos relatórios dos pacientes vinculados
         const atividadeRecente = await db.query(
             `SELECT
                 r.id,
                 r.usuario_id AS responsavel_id,
                 r.visto_terapeuta,
+                TO_CHAR(r.data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM-DD') AS data_iso,
                 c.nome AS nome_crianca,
                 u.nome AS nome_responsavel,
                 TO_CHAR(r.data, 'DD/MM/YYYY HH24:MI') AS tempo
@@ -2783,9 +2782,11 @@ app.get("/api/home-terapeuta", estaLogado, async (req, res) => {
         // Alterna entre verde e azul nos ícones da atividade
                 // Alterna entre verde e azul nos ícones da atividade
                 // Alterna entre verde e azul nos ícones da atividade
+                // Alterna entre verde e azul nos ícones da atividade
         const atividades = atividadeRecente.rows.map((item, i) => ({
             id:             item.id,
             responsavelId:  item.responsavel_id,
+            dataISO:        item.data_iso,
             nomeCrianca:    item.nome_crianca   || "Criança",
             nomeResponsavel: item.nome_responsavel || "Responsável",
             tempo:          item.tempo,
