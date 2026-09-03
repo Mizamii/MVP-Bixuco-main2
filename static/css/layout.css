@@ -1,22 +1,3 @@
-/* ==========================================================
-   layout.css
-   CSS COMPARTILHADO — barra lateral (sidebar) e barra de topo
-   Usado por TODAS as páginas internas (terapeuta e responsável)
-   para manter a mesma aparência em qualquer tela.
-
-   Padrão adotado: HomeTerapeuta (homeTerapeuta.css).
-   Deve ser importado DEPOIS de tema.css e ANTES do CSS
-   específico da página, por exemplo:
-
-     <link rel="stylesheet" href="/css/tema.css">
-     <link rel="stylesheet" href="/css/layout.css">
-     <link rel="stylesheet" href="/css/minhapagina.css">
-
-   O CSS específico da página não deve mais redefinir os
-   seletores abaixo — só o conteúdo exclusivo daquela tela.
-   ========================================================== */
-
-/* ---------- Esconde o banner do Google Translate ---------- */
 
 .goog-te-banner-frame { display: none !important; }
 body { top: 0 !important; }
