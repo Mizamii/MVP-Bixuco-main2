@@ -2107,36 +2107,55 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
                     ? `↑ ${diffMinutos} min comparado ao mês passado`
                     : `↓ ${Math.abs(diffMinutos)} min comparado ao mês passado`;
 
-        // =====================
-        // GRÁFICO DE BARRAS — EVENTOS POR DIA (últimos 7 dias)
-        // Ainda mostra todos os eventos crus — a separação crise/isolado
-        // nesse gráfico vem no próximo passo (aba/gráfico dedicado)
+                // =====================
+        // GRÁFICO DE BARRAS — CRISES E ISOLADOS POR DIA (últimos 7 dias)
+        // Usa a mesma classificação de episódios do cartão de cima,
+        // pra os números baterem
         // =====================
 
-        const estresseDias = await db.query(
-            `SELECT
-                dia,
-                COALESCE(cnt.total, 0) AS total
-            FROM generate_series(
-                CURRENT_DATE - INTERVAL '6 days',
-                CURRENT_DATE,
-                INTERVAL '1 day'
-            ) AS dia
-            LEFT JOIN (
-                SELECT DATE(e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') AS dia, COUNT(*) AS total
-                FROM eventos_bixuco e
-                JOIN criancas c ON c.id = e.crianca_id
-                WHERE c.usuario_id = $1
-                GROUP BY DATE(e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')
-            ) cnt USING (dia)
-            ORDER BY dia`,
+        function dataLocalBR(data) {
+            // Brasil não usa horário de verão desde 2019, então UTC-3 é seguro aqui
+            const d = new Date(data);
+            d.setHours(d.getHours() - 3);
+            return d.toISOString().slice(0, 10); // "YYYY-MM-DD"
+        }
+
+        const eventosSemana = await db.query(
+            `SELECT e.criado_em, e.forca, e.duracao_ms
+             FROM eventos_bixuco e
+             JOIN criancas c ON c.id = e.crianca_id
+             WHERE c.usuario_id = $1
+             AND e.criado_em >= NOW() - INTERVAL '8 days'
+             ORDER BY e.criado_em ASC`,
             [usuarioId]
         );
 
+        const episodiosSemana = classificarEpisodios(eventosSemana.rows);
+
         const diasSemanaPt = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
-        const labelsEstresse = estresseDias.rows.map(r => diasSemanaPt[new Date(r.dia).getUTCDay()]);
-        const dadosEstresse  = estresseDias.rows.map(r => parseInt(r.total));
+        const diasArray = [];
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setHours(d.getHours() - 3);
+            d.setDate(d.getDate() - i);
+            diasArray.push(d.toISOString().slice(0, 10));
+        }
+
+        const contagemPorDia = {};
+        diasArray.forEach(dia => { contagemPorDia[dia] = { crises: 0, isolados: 0 }; });
+
+        episodiosSemana.forEach(ep => {
+            const diaLocal = dataLocalBR(ep.inicio);
+            if (contagemPorDia[diaLocal]) {
+                if (ep.classificacao === "crise") contagemPorDia[diaLocal].crises++;
+                else contagemPorDia[diaLocal].isolados++;
+            }
+        });
+
+        const labelsEstresse   = diasArray.map(dia => diasSemanaPt[new Date(dia + "T12:00:00").getDay()]);
+        const dadosEstresse    = diasArray.map(dia => contagemPorDia[dia].crises);
+        const dadosIsolados    = diasArray.map(dia => contagemPorDia[dia].isolados);
 
         // =====================
         // GRÁFICO — GATILHOS (resposta real do relatório diário, últimos 30 dias)
@@ -2365,8 +2384,9 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
             tempoDiario:         tempoHojeFormatado,
 
             graficoEstresse: {
-                labels: labelsEstresse,
-                dados:  dadosEstresse
+                labels:   labelsEstresse,
+                dados:    dadosEstresse,   // crises reais por dia
+                isolados: dadosIsolados    // apertos isolados por dia (opcional pro front mostrar em outra cor)
             },
 
             graficoGatilhos,
