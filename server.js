@@ -3433,10 +3433,10 @@ app.get("/api/perfil", estaLogado, async (req, res) => {
 
         // Busca os dados do usuário
         const resultadoUsuario = await db.query(
-            `SELECT id, nome, email, tipo, foto_perfil,
+            `SELECT id, nome, email, tipo, foto_perfil, codigo_vinculo,
                     EXTRACT(YEAR FROM criado_em) AS ano_cadastro
-             FROM usuarios
-             WHERE id = $1`,
+            FROM usuarios
+            WHERE id = $1`,
             [usuarioId]
         );
 
@@ -3544,7 +3544,8 @@ app.get("/api/perfil", estaLogado, async (req, res) => {
             diasConsecutivos,
             maiorOfensiva: diasConsecutivos,
             plano,
-            planoCodigo,   // 🆕 pra o front decidir o que mostrar
+            planoCodigo,
+            codigoVinculo: usuario.codigo_vinculo || null,
             crianca: criancaDados,
             terapeuta: terapeutaDados
         });
