@@ -48,7 +48,12 @@ app.use(session({
         tableName: 'session',
         createTableIfMissing: true
     }),
-    secret: process.env.SESSION_SECRET || "bixuco2024",
+    secret: (() => {
+    if (!process.env.SESSION_SECRET) {
+        throw new Error("SESSION_SECRET não definida nas variáveis de ambiente.");
+    }
+    return process.env.SESSION_SECRET;
+    })(),
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -1380,6 +1385,85 @@ function validarCRP(crp) {
 
 }
 
+const LIMITES_CRISE = {
+    gapAgrupamentoMs:      5 * 60 * 1000, // eventos a até 5 min de distância = mesmo episódio
+    duracaoMinimaCriseMs:  3000,           // 3s de aperto sustentado
+    forcaMinimaCrise:      1.5,            // força máxima que já basta sozinha
+    quantidadeMinimaEventos: 2             // 2+ apertos no mesmo episódio já basta sozinho
+};
+
+function classificarEpisodios(eventos) {
+    // eventos: [{ criado_em, forca, duracao_ms }], já ordenados por criado_em ASC
+    const episodios = [];
+    let atual = null;
+
+    for (const ev of eventos) {
+        const tempo = new Date(ev.criado_em).getTime();
+
+        if (!atual || tempo - atual.fimMs > LIMITES_CRISE.gapAgrupamentoMs) {
+            if (atual) episodios.push(atual);
+            atual = {
+                inicio: ev.criado_em,
+                fim: ev.criado_em,
+                fimMs: tempo,
+                eventos: [ev],
+                forcaMax: parseFloat(ev.forca) || 0,
+                duracaoTotalMs: ev.duracao_ms || 0
+            };
+        } else {
+            atual.fim = ev.criado_em;
+            atual.fimMs = tempo;
+            atual.eventos.push(ev);
+            atual.forcaMax = Math.max(atual.forcaMax, parseFloat(ev.forca) || 0);
+            atual.duracaoTotalMs += (ev.duracao_ms || 0);
+        }
+    }
+    if (atual) episodios.push(atual);
+
+    return episodios.map(ep => {
+        const ehCrise =
+            ep.duracaoTotalMs >= LIMITES_CRISE.duracaoMinimaCriseMs ||
+            ep.forcaMax        >= LIMITES_CRISE.forcaMinimaCrise ||
+            ep.eventos.length  >= LIMITES_CRISE.quantidadeMinimaEventos;
+
+        return {
+            inicio:          ep.inicio,
+            fim:              ep.fim,
+            forcaMax:         ep.forcaMax,
+            duracaoTotalMs:   ep.duracaoTotalMs,
+            totalEventos:     ep.eventos.length,
+            classificacao:    ehCrise ? "crise" : "isolado"
+        };
+    });
+}
+
+async function contarCrisesEIsolados(usuarioId, condicaoSql) {
+    const eventos = await db.query(
+        `SELECT e.criado_em, e.forca, e.duracao_ms
+         FROM eventos_bixuco e
+         JOIN criancas c ON c.id = e.crianca_id
+         WHERE c.usuario_id = $1
+         ${condicaoSql}
+         ORDER BY e.criado_em ASC`,
+        [usuarioId]
+    );
+
+    const episodios = classificarEpisodios(eventos.rows);
+
+    return {
+        crises:   episodios.filter(e => e.classificacao === "crise").length,
+        isolados: episodios.filter(e => e.classificacao === "isolado").length,
+        episodios // guarda os detalhes pra usar na aba de alertas depois
+    };
+}
+
+function mediaDuracaoCrises(episodios) {
+    const crises = episodios.filter(e => e.classificacao === "crise");
+    if (crises.length === 0) return 0;
+    const soma = crises.reduce((acc, e) => acc + e.duracaoTotalMs, 0);
+    return soma / crises.length;
+}
+
 async function gerarCodigoVinculo() {
 
     // Sem caracteres ambíguos (0/O, 1/I) para facilitar digitar o código
@@ -1825,7 +1909,7 @@ app.post("/api/alterar-senha", estaLogado, async (req, res) => {
         );
 
         if (resultado.rows.length === 0) {
-            return res.status(404).json({ erro: "Usuário não encontrado." });
+            return res.status(401).json({ erro: "E-mail ou senha inválidos." });
         }
 
         const usuario = resultado.rows[0];
@@ -1945,141 +2029,45 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
             return res.status(401).json({ erro: "Não autenticado." });
         }
 
-        // 🔧 Condição reutilizada: só considera "alerta" o dia em que a
-        // pergunta "alerta_estresse" foi respondida com "Sim". Enquanto
-        // não existe conexão real com o Bixuco, é essa resposta que
-        // controla os alertas — ver nota na Parte 1.
-        const filtroAlerta = `
-            AND EXISTS (
-                SELECT 1 FROM jsonb_array_elements(respostas) AS r
-                WHERE r->>'id' = 'alerta_estresse'
-                AND r->>'resposta' = 'Sim'
-            )
-        `;
-
         // =====================
-        // ALERTAS DO MÊS
+        // CRISES E ISOLADOS — hoje, ontem, mês, mês anterior
+        // Usa classificarEpisodios (agrupamento + critérios de crise real)
+        // em vez de contar qualquer evento como "alerta"
         // =====================
 
-        const alertasMes = await db.query(
-            `WITH eventos_ordenados AS (
-                SELECT
-                    e.criado_em,
-                    LAG(e.criado_em) OVER (ORDER BY e.criado_em) AS evento_anterior
-                FROM eventos_bixuco e
-                JOIN criancas c ON c.id = e.crianca_id
-                WHERE c.usuario_id = $1
-                AND EXTRACT(MONTH FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(MONTH FROM NOW() AT TIME ZONE 'America/Sao_Paulo')
-                AND EXTRACT(YEAR FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo'))  = EXTRACT(YEAR FROM NOW() AT TIME ZONE 'America/Sao_Paulo')
-            ),
-            grupos AS (
-                SELECT
-                    criado_em,
-                    SUM(
-                        CASE WHEN evento_anterior IS NULL
-                            OR criado_em - evento_anterior > INTERVAL '5 minutes'
-                        THEN 1 ELSE 0 END
-                    ) OVER (ORDER BY criado_em) AS episodio_id
-                FROM eventos_ordenados
-            )
-            SELECT COUNT(DISTINCT episodio_id) AS total FROM grupos`,
-            [usuarioId]
-        );
+        const crisesHoje = await contarCrisesEIsolados(usuarioId, `
+            AND DATE((e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = (NOW() AT TIME ZONE 'America/Sao_Paulo')::date
+        `);
 
-        const alertasMesAnterior = await db.query(
-            `WITH eventos_ordenados AS (
-                SELECT
-                    e.criado_em,
-                    LAG(e.criado_em) OVER (ORDER BY e.criado_em) AS evento_anterior
-                FROM eventos_bixuco e
-                JOIN criancas c ON c.id = e.crianca_id
-                WHERE c.usuario_id = $1
-                AND EXTRACT(MONTH FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(MONTH FROM NOW() - INTERVAL '1 month')
-                AND EXTRACT(YEAR FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo'))  = EXTRACT(YEAR FROM NOW() - INTERVAL '1 month')
-            ),
-            grupos AS (
-                SELECT
-                    criado_em,
-                    SUM(
-                        CASE WHEN evento_anterior IS NULL
-                            OR criado_em - evento_anterior > INTERVAL '5 minutes'
-                        THEN 1 ELSE 0 END
-                    ) OVER (ORDER BY criado_em) AS episodio_id
-                FROM eventos_ordenados
-            )
-            SELECT COUNT(DISTINCT episodio_id) AS total FROM grupos`,
-            [usuarioId]
-        );
+        const crisesOntem = await contarCrisesEIsolados(usuarioId, `
+            AND DATE((e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '1 day'
+        `);
 
-        const alertasHoje = await db.query(
-            `WITH eventos_ordenados AS (
-                SELECT
-                    e.criado_em,
-                    LAG(e.criado_em) OVER (ORDER BY e.criado_em) AS evento_anterior
-                FROM eventos_bixuco e
-                JOIN criancas c ON c.id = e.crianca_id
-                WHERE c.usuario_id = $1
-                AND DATE((e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = (NOW() AT TIME ZONE 'America/Sao_Paulo')::date
-            ),
-            grupos AS (
-                SELECT
-                    criado_em,
-                    SUM(
-                        CASE WHEN evento_anterior IS NULL
-                            OR criado_em - evento_anterior > INTERVAL '5 minutes'
-                        THEN 1 ELSE 0 END
-                    ) OVER (ORDER BY criado_em) AS episodio_id
-                FROM eventos_ordenados
-            )
-            SELECT COUNT(DISTINCT episodio_id) AS total FROM grupos`,
-            [usuarioId]
-        );
+        const crisesMes = await contarCrisesEIsolados(usuarioId, `
+            AND EXTRACT(MONTH FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(MONTH FROM NOW() AT TIME ZONE 'America/Sao_Paulo')
+            AND EXTRACT(YEAR  FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(YEAR  FROM NOW() AT TIME ZONE 'America/Sao_Paulo')
+        `);
 
-        const alertasOntem = await db.query(
-            `WITH eventos_ordenados AS (
-                SELECT
-                    e.criado_em,
-                    LAG(e.criado_em) OVER (ORDER BY e.criado_em) AS evento_anterior
-                FROM eventos_bixuco e
-                JOIN criancas c ON c.id = e.crianca_id
-                WHERE c.usuario_id = $1
-                AND DATE((e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '1 day'
-            ),
-            grupos AS (
-                SELECT
-                    criado_em,
-                    SUM(
-                        CASE WHEN evento_anterior IS NULL
-                            OR criado_em - evento_anterior > INTERVAL '5 minutes'
-                        THEN 1 ELSE 0 END
-                    ) OVER (ORDER BY criado_em) AS episodio_id
-                FROM eventos_ordenados
-            )
-            SELECT COUNT(DISTINCT episodio_id) AS total FROM grupos`,
-            [usuarioId]
-        );
+        const crisesMesAnterior = await contarCrisesEIsolados(usuarioId, `
+            AND EXTRACT(MONTH FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(MONTH FROM (NOW() AT TIME ZONE 'America/Sao_Paulo') - INTERVAL '1 month')
+            AND EXTRACT(YEAR  FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(YEAR  FROM (NOW() AT TIME ZONE 'America/Sao_Paulo') - INTERVAL '1 month')
+        `);
 
-        const totalHoje  = parseInt(alertasHoje.rows[0].total) || 0;
-        const totalOntem = parseInt(alertasOntem.rows[0].total) || 0;
+        const totalHoje         = crisesHoje.crises;
+        const isoladosHoje      = crisesHoje.isolados;
+        const totalOntem        = crisesOntem.crises;
+        const totalMes          = crisesMes.crises;
+        const isoladosMes       = crisesMes.isolados;
+        const totalMesAnterior  = crisesMesAnterior.crises;
+
         const diffDiario  = totalHoje - totalOntem;
+        const diffAlertas = totalMes  - totalMesAnterior;
 
-        const tempoHojeResultado = await db.query(
-            `SELECT AVG(e.duracao_ms) AS media_ms
-            FROM eventos_bixuco e
-            JOIN criancas c ON c.id = e.crianca_id
-            WHERE c.usuario_id = $1
-            AND e.duracao_ms IS NOT NULL
-            AND DATE((e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = (NOW() AT TIME ZONE 'America/Sao_Paulo')::date`,
-            [usuarioId]
-        );
-
-        const mediaHojeMs = parseFloat(tempoHojeResultado.rows[0].media_ms) || 0;
-
-        const totalMes         = parseInt(alertasMes.rows[0].total) || 0;
-        const totalMesAnterior = parseInt(alertasMesAnterior.rows[0].total) || 0;
-        const diffAlertas      = totalMes - totalMesAnterior;
-
-        const comparativoAlertasDiario = diffDiario === 0 ? "igual a ontem" : diffDiario > 0 ? `↑ ${diffDiario} comparado a ontem` : `↓ ${Math.abs(diffDiario)} comparado a ontem`;
+        const comparativoAlertasDiario = diffDiario === 0
+            ? "igual a ontem"
+            : diffDiario > 0
+                ? `↑ ${diffDiario} comparado a ontem`
+                : `↓ ${Math.abs(diffDiario)} comparado a ontem`;
 
         const comparativoAlertas = totalMesAnterior === 0
             ? "registrados este mês"
@@ -2090,7 +2078,39 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
                     : `↓ ${Math.abs(diffAlertas)} comparado ao mês passado`;
 
         // =====================
-        // GRÁFICO DE BARRAS — ESTRESSE POR DIA (últimos 7 dias)
+        // TEMPO DE ESTRESSE — média de duração só das CRISES reais
+        // (isolados não entram, pra não inflar a média com toques rápidos)
+        // =====================
+
+        const mediaHojeMs        = mediaDuracaoCrises(crisesHoje.episodios);
+        const mediaMesMs         = mediaDuracaoCrises(crisesMes.episodios);
+        const mediaMesAnteriorMs = mediaDuracaoCrises(crisesMesAnterior.episodios);
+
+        function formatarTempo(ms) {
+            if (ms < 60000) {
+                const segundos = Math.round(ms / 1000);
+                return `${segundos} s`;
+            }
+            const minutos = Math.round(ms / 60000);
+            return `${minutos} min`;
+        }
+
+        const tempoFormatado     = formatarTempo(mediaMesMs);
+        const tempoHojeFormatado = formatarTempo(mediaHojeMs);
+        const diffMinutos        = Math.round((mediaMesMs - mediaMesAnteriorMs) / 60000);
+
+        const comparativoTempo = mediaMesAnteriorMs === 0
+            ? "por episódio"
+            : diffMinutos === 0
+                ? "igual ao mês passado"
+                : diffMinutos > 0
+                    ? `↑ ${diffMinutos} min comparado ao mês passado`
+                    : `↓ ${Math.abs(diffMinutos)} min comparado ao mês passado`;
+
+        // =====================
+        // GRÁFICO DE BARRAS — EVENTOS POR DIA (últimos 7 dias)
+        // Ainda mostra todos os eventos crus — a separação crise/isolado
+        // nesse gráfico vem no próximo passo (aba/gráfico dedicado)
         // =====================
 
         const estresseDias = await db.query(
@@ -2117,8 +2137,6 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
 
         const labelsEstresse = estresseDias.rows.map(r => diasSemanaPt[new Date(r.dia).getUTCDay()]);
         const dadosEstresse  = estresseDias.rows.map(r => parseInt(r.total));
-
-
 
         // =====================
         // GRÁFICO — GATILHOS (resposta real do relatório diário, últimos 30 dias)
@@ -2200,15 +2218,7 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
         }
 
         // =====================
-        // GRÁFICO DE LINHA — EVOLUÇÃO (últimos 7 dias)
-        // =====================
-
-        // =====================
         // GRÁFICO DE LINHA — EVOLUÇÃO DE CRISES SENSORIAIS (últimos 7 dias)
-        // Índice combinado 0-10: 40% quantidade de eventos, 30% duração média,
-        // 20% força média (tudo do Bixuco/IoT) + 10% nível percebido no relatório.
-        // Normalização é dinâmica (relativa ao pico da própria janela de 7 dias),
-        // então funciona mesmo se a pergunta do relatório mudar/sumir no futuro.
         // =====================
 
         const eventosPorDia = await db.query(
@@ -2264,7 +2274,6 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
             [usuarioId]
         );
 
-        // Junta os dois resultados por dia (índices batem pois os generate_series são iguais)
         const diasCombinados = eventosPorDia.rows.map((linha, i) => ({
             dia:           linha.dia,
             eventos:       parseInt(linha.eventos) || 0,
@@ -2296,7 +2305,7 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
                 percebidoNorm * 0.1
             ) * 10;
 
-            return Math.round(indice * 10) / 10; // 1 casa decimal
+            return Math.round(indice * 10) / 10;
 
         });
 
@@ -2338,56 +2347,6 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
         }
 
         // =====================
-        // TEMPO DE ESTRESSE (a partir dos eventos reais do Bixuco)
-        // =====================
-
-        const tempoMesResultado = await db.query(
-            `SELECT AVG(e.duracao_ms) AS media_ms
-            FROM eventos_bixuco e
-            JOIN criancas c ON c.id = e.crianca_id
-            WHERE c.usuario_id = $1
-            AND e.duracao_ms IS NOT NULL
-            AND EXTRACT(MONTH FROM e.criado_em) = EXTRACT(MONTH FROM NOW())
-            AND EXTRACT(YEAR FROM e.criado_em)  = EXTRACT(YEAR FROM NOW())`,
-            [usuarioId]
-        );
-
-        const tempoMesAnteriorResultado = await db.query(
-            `SELECT AVG(e.duracao_ms) AS media_ms
-            FROM eventos_bixuco e
-            JOIN criancas c ON c.id = e.crianca_id
-            WHERE c.usuario_id = $1
-            AND e.duracao_ms IS NOT NULL
-            AND EXTRACT(MONTH FROM e.criado_em) = EXTRACT(MONTH FROM NOW() - INTERVAL '1 month')
-            AND EXTRACT(YEAR FROM e.criado_em)  = EXTRACT(YEAR FROM NOW() - INTERVAL '1 month')`,
-            [usuarioId]
-        );
-
-        const mediaMesMs         = parseFloat(tempoMesResultado.rows[0].media_ms) || 0;
-        const mediaMesAnteriorMs = parseFloat(tempoMesAnteriorResultado.rows[0].media_ms) || 0;
-
-        function formatarTempo(ms) {
-            if (ms < 60000) {
-                const segundos = Math.round(ms / 1000);
-                return `${segundos} s`;
-            }
-            const minutos = Math.round(ms / 60000);
-            return `${minutos} min`;
-        }
-
-        const tempoFormatado    = formatarTempo(mediaMesMs);
-        const tempoHojeFormatado = formatarTempo(mediaHojeMs);
-        const diffMinutos       = Math.round((mediaMesMs - mediaMesAnteriorMs) / 60000);
-
-        const comparativoTempo = mediaMesAnteriorMs === 0
-            ? "por episódio"
-            : diffMinutos === 0
-                ? "igual ao mês passado"
-                : diffMinutos > 0
-                    ? `↑ ${diffMinutos} min comparado ao mês passado`
-                    : `↓ ${Math.abs(diffMinutos)} min comparado ao mês passado`;
-
-        // =====================
         // RETORNA TUDO
         // =====================
 
@@ -2395,8 +2354,12 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
 
             alertas:             totalMes,
             comparativoAlertas,
-            alertasHoje:       totalHoje,
+            alertasHoje:         totalHoje,
             comparativoAlertasDiario,
+
+            isoladosMes,
+            isoladosHoje,
+
             tempo:               tempoFormatado,
             comparativoTempo,
             tempoDiario:         tempoHojeFormatado,
@@ -3084,7 +3047,7 @@ app.post('/login', async (req, res) => {
         );
 
         if (!senhaValida) {
-            return res.status(401).json({ erro: "Senha incorreta." });
+            return res.status(401).json({ erro: "E-mail ou senha inválidos." });
         }
 
         // Salva o id E o tipo do usuário na sessão
