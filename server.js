@@ -401,7 +401,7 @@ app.get("/relatorios", estaLogado, precisaPlano("medio"), (req, res) => {
 });
 
 
-app.get("/AdicionarC", estaLogado, (req, res) => {
+app.get("/AdicionarC", (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "AdicionarC.html"));
 
@@ -830,7 +830,7 @@ app.post("/api/planos/criar-planos", async (req, res) => {
     } catch (erro) {
 
         console.log("Erro ao criar planos no MP:", erro);
-        res.status(500).json({ erro: erro.message });
+        res.status(500).json({ erro: "Erro ao criar planos no Mercado Pago." });
 
     }
 
@@ -2438,7 +2438,6 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
 
 app.post("/cadastro-finalizar", async (req, res) => {
 
-    console.log(req.session.cadastro);
 
     const dados = req.session.cadastro;
 
