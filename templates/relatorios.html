@@ -292,6 +292,10 @@
                         Diário
                     </button>
 
+                    <button id="btnAlertas" type="button" data-pt="Alertas" data-en="Alerts">
+                        Alertas
+                    </button>
+
                 </div>
 
             </div>
@@ -461,6 +465,38 @@
 
         </section>
 
+        <section id="abaAlertas" class="aba-conteudo" style="display: none;">
+
+            <div class="topo-diario">
+                <h2 data-pt="Crises registradas" data-en="Recorded crises">Crises registradas</h2>
+                <div class="navegacao-dia">
+                    <button type="button" id="btnDiaAnterior" aria-label="Dia anterior">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <span id="dataAlertasAtual">Hoje</span>
+                    <button type="button" id="btnProximoDia" aria-label="Próximo dia">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="tabela-alertas-wrapper">
+                <table class="tabela-alertas">
+                    <thead>
+                        <tr>
+                            <th data-pt="Horário" data-en="Time">Horário</th>
+                            <th data-pt="Localização" data-en="Location">Localização</th>
+                            <th data-pt="Força" data-en="Force">Força</th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpoTabelaAlertas">
+                        <tr><td colspan="3" data-pt="Carregando..." data-en="Loading...">Carregando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+
         </div>
 
     </main>
@@ -507,18 +543,21 @@
     const abaVisao  = document.getElementById("abaVisao");
     const abaDiario = document.getElementById("abaDiario");
 
-    btnVisao.addEventListener("click", () => {
-        btnVisao.classList.add("ativa");
-        btnDiario.classList.remove("ativa");
-        abaVisao.style.display  = "block";
-        abaDiario.style.display = "none";
-    });
+    const btnAlertas = document.getElementById("btnAlertas");
+    const abaAlertas = document.getElementById("abaAlertas");
 
-    btnDiario.addEventListener("click", () => {
-        btnDiario.classList.add("ativa");
-        btnVisao.classList.remove("ativa");
-        abaVisao.style.display  = "none";
-        abaDiario.style.display = "block";
+    function mostrarAba(botaoAtivo, secaoAtiva) {
+        [btnVisao, btnDiario, btnAlertas].forEach(b => b.classList.remove("ativa"));
+        [abaVisao, abaDiario, abaAlertas].forEach(s => s.style.display = "none");
+        botaoAtivo.classList.add("ativa");
+        secaoAtiva.style.display = "block";
+    }
+
+    btnVisao.addEventListener("click", () => mostrarAba(btnVisao, abaVisao));
+    btnDiario.addEventListener("click", () => mostrarAba(btnDiario, abaDiario));
+    btnAlertas.addEventListener("click", () => {
+        mostrarAba(btnAlertas, abaAlertas);
+        carregarAlertas();
     });
 
 
@@ -545,7 +584,13 @@
         "Texturas de alimentos":                "Food textures",
         "Sem dados suficientes ainda":          "Not enough data yet",
         "Dom": "Sun", "Seg": "Mon", "Ter": "Tue", "Qua": "Wed",
-        "Qui": "Thu", "Sex": "Fri", "Sáb": "Sat"
+        "Qui": "Thu", "Sex": "Fri", "Sáb": "Sat",
+        "Crises registradas":                   "Recorded crises",
+        "Hoje":                                 "Today",
+        "Ver no mapa":                          "View on map",
+        "Não disponível":                       "Not available",
+        "Nenhuma crise registrada neste dia.":  "No crisis recorded on this day.",
+        "Não foi possível carregar os alertas.": "Could not load alerts."
     };
 
     function traduzir(texto) {
@@ -1057,6 +1102,77 @@
         });
 
     }
+
+    let dataAlertasSelecionada = new Date();
+
+    function formatarDataISO(data) {
+        return data.toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" }); // "YYYY-MM-DD"
+    }
+
+    function atualizarLabelDataAlertas() {
+        const hoje       = formatarDataISO(new Date());
+        const selecionada = formatarDataISO(dataAlertasSelecionada);
+        const label = document.getElementById("dataAlertasAtual");
+
+        label.textContent = selecionada === hoje
+            ? traduzir("Hoje")
+            : dataAlertasSelecionada.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
+    }
+
+    async function carregarAlertas() {
+
+        const corpoTabela = document.getElementById("corpoTabelaAlertas");
+        corpoTabela.innerHTML = `<tr><td colspan="3">${traduzir("Carregando...")}</td></tr>`;
+
+        atualizarLabelDataAlertas();
+
+        try {
+            const dataISO = formatarDataISO(dataAlertasSelecionada);
+            const resposta = await fetch(`/api/alertas?data=${dataISO}`);
+
+            if (resposta.status === 401) {
+                window.location.href = "/logar";
+                return;
+            }
+
+            if (!resposta.ok) {
+                corpoTabela.innerHTML = `<tr><td colspan="3">${traduzir("Não foi possível carregar os alertas.")}</td></tr>`;
+                return;
+            }
+
+            const dados = await resposta.json();
+            const crises = dados.crises || [];
+
+            if (crises.length === 0) {
+                corpoTabela.innerHTML = `<tr><td colspan="3">${traduzir("Nenhuma crise registrada neste dia.")}</td></tr>`;
+                return;
+            }
+
+            corpoTabela.innerHTML = crises.map(c => `
+                <tr>
+                    <td>${c.horario}</td>
+                    <td>${(c.latitude && c.longitude)
+                        ? `<a href="https://www.google.com/maps?q=${c.latitude},${c.longitude}" target="_blank" rel="noopener">${traduzir("Ver no mapa")}</a>`
+                        : traduzir("Não disponível")}</td>
+                    <td>${c.forca}</td>
+                </tr>
+            `).join("");
+
+        } catch (erro) {
+            console.log("Erro ao carregar alertas:", erro);
+            corpoTabela.innerHTML = `<tr><td colspan="3">${traduzir("Não foi possível carregar os alertas.")}</td></tr>`;
+        }
+    }
+
+    document.getElementById("btnDiaAnterior").addEventListener("click", () => {
+        dataAlertasSelecionada.setDate(dataAlertasSelecionada.getDate() - 1);
+        carregarAlertas();
+    });
+
+    document.getElementById("btnProximoDia").addEventListener("click", () => {
+        dataAlertasSelecionada.setDate(dataAlertasSelecionada.getDate() + 1);
+        carregarAlertas();
+    });
 
 
     // ==========================

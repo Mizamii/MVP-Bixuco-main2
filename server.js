@@ -401,7 +401,7 @@ app.get("/relatorios", estaLogado, precisaPlano("medio"), (req, res) => {
 });
 
 
-app.get("/AdicionarC", (req, res) => {
+app.get("/AdicionarC", estaLogado, (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "AdicionarC.html"));
 
@@ -447,9 +447,6 @@ app.get("/CriarContaSenha", (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "CriarContaSenha.html"));
 });
 
-app.get("/AdicionarC", (req, res) => {
-    res.sendFile(path.join(__dirname, "templates", "AdicionarC.html"));
-});
 
 app.get("/QuestionarioP", estaLogado, (req, res) => {
 
@@ -1413,12 +1410,13 @@ const LIMITES_CRISE = {
 };
 
 function classificarEpisodios(eventos) {
-    // eventos: [{ criado_em, forca, duracao_ms }], já ordenados por criado_em ASC
+    // eventos: [{ criado_em, forca, duracao_ms, latitude?, longitude? }], já ordenados por criado_em ASC
     const episodios = [];
     let atual = null;
 
     for (const ev of eventos) {
-        const tempo = new Date(ev.criado_em).getTime();
+        const tempo   = new Date(ev.criado_em).getTime();
+        const forcaEv = parseFloat(ev.forca) || 0;
 
         if (!atual || tempo - atual.fimMs > LIMITES_CRISE.gapAgrupamentoMs) {
             if (atual) episodios.push(atual);
@@ -1427,14 +1425,23 @@ function classificarEpisodios(eventos) {
                 fim: ev.criado_em,
                 fimMs: tempo,
                 eventos: [ev],
-                forcaMax: parseFloat(ev.forca) || 0,
-                duracaoTotalMs: ev.duracao_ms || 0
+                forcaMax: forcaEv,
+                duracaoTotalMs: ev.duracao_ms || 0,
+                latitude:  ev.latitude  ?? null,
+                longitude: ev.longitude ?? null
             };
         } else {
             atual.fim = ev.criado_em;
             atual.fimMs = tempo;
             atual.eventos.push(ev);
-            atual.forcaMax = Math.max(atual.forcaMax, parseFloat(ev.forca) || 0);
+
+            // guarda a localização do evento de MAIOR força do episódio
+            if (forcaEv >= atual.forcaMax) {
+                atual.forcaMax  = forcaEv;
+                atual.latitude  = ev.latitude  ?? atual.latitude;
+                atual.longitude = ev.longitude ?? atual.longitude;
+            }
+
             atual.duracaoTotalMs += (ev.duracao_ms || 0);
         }
     }
@@ -1447,16 +1454,17 @@ function classificarEpisodios(eventos) {
             ep.eventos.length  >= LIMITES_CRISE.quantidadeMinimaEventos;
 
         return {
-            inicio:          ep.inicio,
-            fim:              ep.fim,
-            forcaMax:         ep.forcaMax,
-            duracaoTotalMs:   ep.duracaoTotalMs,
-            totalEventos:     ep.eventos.length,
-            classificacao:    ehCrise ? "crise" : "isolado"
+            inicio:        ep.inicio,
+            fim:            ep.fim,
+            forcaMax:       ep.forcaMax,
+            duracaoTotalMs: ep.duracaoTotalMs,
+            totalEventos:   ep.eventos.length,
+            latitude:       ep.latitude,
+            longitude:      ep.longitude,
+            classificacao:  ehCrise ? "crise" : "isolado"
         };
     });
 }
-
 async function contarCrisesEIsolados(usuarioId, condicaoSql) {
     const eventos = await db.query(
         `SELECT e.criado_em, e.forca, e.duracao_ms
@@ -2430,7 +2438,53 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
 
 });
 
+app.get("/api/alertas", estaLogado, async (req, res) => {
 
+    try {
+
+        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        // Data alvo — se não vier, usa hoje (fuso de Brasília)
+        const dataParam  = req.query.data;
+        const dataFiltro = dataParam || new Date().toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
+
+        const eventos = await db.query(
+            `SELECT e.criado_em, e.forca, e.duracao_ms, e.latitude, e.longitude
+             FROM eventos_bixuco e
+             JOIN criancas c ON c.id = e.crianca_id
+             WHERE c.usuario_id = $1
+             AND DATE((e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = $2::date
+             ORDER BY e.criado_em ASC`,
+            [usuarioId, dataFiltro]
+        );
+
+        const episodios = classificarEpisodios(eventos.rows);
+
+        const crises = episodios
+            .filter(ep => ep.classificacao === "crise")
+            .map(ep => ({
+                horario: new Date(ep.inicio).toLocaleTimeString("pt-BR", {
+                    hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo"
+                }),
+                forca:     Math.round(ep.forcaMax * 100) / 100,
+                latitude:  ep.latitude,
+                longitude: ep.longitude
+            }));
+
+        res.json({ data: dataFiltro, crises });
+
+    } catch (erro) {
+
+        console.log("Erro na rota /api/alertas:", erro);
+        res.status(500).json({ erro: "Erro interno do servidor." });
+
+    }
+
+});
 
 /* ==========================
    CADASTRO FINAL
