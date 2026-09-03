@@ -308,6 +308,12 @@ function estaLogado(req, res, next) {
     return res.redirect("/logar");
 }
 
+function exigeAdmin(req, res, next) {
+    const tipo = req.session.tipo || (req.user && req.user.tipo);
+    if (tipo === 'admin') return next();
+    return res.status(403).send("Acesso negado.");
+}
+
 // ─────────────────────────────────────────
 // MIDDLEWARE — verifica plano do usuário
 // ─────────────────────────────────────────
@@ -493,7 +499,7 @@ app.get("/FormularioEntrega", estaLogado, precisaPlano("medio"), (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "FormularioEntrega.html"));
 });
 
-app.get("/admin/pedidos", (req, res) => {
+app.get("/admin/pedidos", estaLogado, exigeAdmin, (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "AdminPedidos.html"));
 });
 
@@ -1242,7 +1248,7 @@ app.post("/api/onboarding-google", estaLogado, async (req, res) => {
 ========================== */
 
 // Página simples para publicar novidades (protegida pela senha admin)
-app.get("/admin/novidades", (req, res) => {
+app.get("/admin/novidades", estaLogado, exigeAdmin, (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "Adminnovidades.html"));
 });
 
@@ -2546,18 +2552,18 @@ app.post("/cadastro-finalizar", async (req, res) => {
 
             req.session.usuarioId = novoUsuario.rows[0].id;
             req.session.tipo = novoUsuario.rows[0].tipo;
-            
+
+            // cria assinatura gratuita para novo responsável
+            await db.query(
+                `INSERT INTO assinaturas (usuario_id, nome_plano)
+                VALUES ($1, 'gratis')`,
+                [novoUsuario.rows[0].id]
+            );
+
             return res.json({
                 sucesso: true,
                 destino: "/AdicionarC"
             });
-
-            // cria assinatura gratuita para novo responsável
-            await db.query(
-                `INSERT INTO assinaturas (usuario_id, nome_plano, ativo)
-                VALUES ($1, 'gratis', true)`,
-                [novoUsuario.rows[0].id]
-            );
 
 
         }
@@ -3528,9 +3534,8 @@ app.get("/api/perfil", estaLogado, async (req, res) => {
             [usuarioId]
         );
 
-        const tipoConta = usuario.tipo === "pai"
-            ? "Responsável"
-            : "Terapeuta";
+        const nomesTipoConta = { pai: "Responsável", psicologo: "Terapeuta", admin: "Administrador" };
+        const tipoConta = nomesTipoConta[usuario.tipo] || "Usuário";
 
         // Monta e retorna o JSON completo para o frontend
         const diasConsecutivos = parseInt(resultadoDias.rows[0].total) || 0;
@@ -3756,9 +3761,8 @@ app.get('/api/home', estaLogado, async (req, res) => {
         }
 
         // Monta o tipo de conta para exibir na tela
-        const tipoConta = usuario.tipo === "pai"
-            ? "Responsável"
-            : "Terapeuta";
+        const nomesTipoConta = { pai: "Responsável", psicologo: "Terapeuta", admin: "Administrador" };
+        const tipoConta = nomesTipoConta[usuario.tipo] || "Usuário";
 
         res.json({
             nome: usuario.nome,
@@ -3885,33 +3889,6 @@ app.get('/api/relatorios/dias', estaLogado, async (req, res) => {
 
 });
 
-/* ==========================
-   LISTAR USUÁRIOS
-========================== */
-
-// 🔒 FIX 9: Rota protegida — antes qualquer pessoa podia acessar /usuarios
-// e ver todos os cadastros sem estar logada
-app.get('/usuarios', estaLogado, async (req, res) => {
-
-    try {
-
-        const resultado = await db.query(`
-            SELECT id, nome, email, tipo, data_nascimento, cidade, estado
-            FROM usuarios
-            ORDER BY id ASC
-        `);
-
-        // Retornando só os campos necessários, sem senha nem dados sensíveis
-        res.json(resultado.rows);
-
-    } catch (erro) {
-
-        console.log(erro);
-        res.status(500).json({ erro: "Erro ao buscar usuários." });
-
-    }
-
-});
 
 
 
