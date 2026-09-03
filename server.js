@@ -29,10 +29,6 @@ const app = express();
 
 const db = new Pool({
 
-    // 🔒 FIX 3: A connection string NUNCA deve ficar hardcoded no código
-    // Crie um arquivo .env na raiz do projeto com a linha:
-    // DATABASE_URL=postgresql://usuario:senha@host/banco?sslmode=require
-    // E adicione .env no seu .gitignore para não subir para o GitHub
     connectionString: process.env.DATABASE_URL,
 
     ssl: {
@@ -48,7 +44,7 @@ const pgSession = require('connect-pg-simple')(session);
 
 app.use(session({
     store: new pgSession({
-        pool: db,              // usa o mesmo Pool do Postgres que você já tem
+        pool: db,              // usa o mesmo Pool do Postgres que eu já tem
         tableName: 'session',
         createTableIfMissing: true
     }),
@@ -86,13 +82,10 @@ const upload = multer({
 
 });
 
-/* ==========================
+/* 
    LEMBRETE DIÁRIO DE RELATÓRIO
-========================== */
+ */
 
-// Roda todo dia às 19h (horário de Brasília)
-// Verifica quem ainda não fez o relatório hoje E tem o lembrete ativado,
-// e cria uma notificação pra essas pessoas — igual o Duolingo faz
 cron.schedule('0 19 * * *', async () => {
 
     try {
@@ -138,13 +131,11 @@ cron.schedule('0 19 * * *', async () => {
     timezone: "America/Sao_Paulo"
 });
 
-/* ==========================
+/* 
    LIMPEZA DE NOTIFICAÇÕES ANTIGAS
-========================== */
+ */
 
-// Roda todo dia às 4h da manhã — remove notificações já lidas com
-// mais de 30 dias. Não lidas não são tocadas, mesmo antigas, pra
-// nunca apagar um aviso que o usuário ainda não viu.
+
 cron.schedule('0 4 * * *', async () => {
 
     try {
@@ -203,10 +194,7 @@ const PLANOS_MP = {
     }
 };
 
-// Ativa um novo plano pro usuário e, se ele estiver perdendo o nível
-// Premium (que dá direito a vínculo com terapeuta), desativa o vínculo
-// atual e avisa via notificação — usado no downgrade, cancelamento e
-// no bypass de teste, pra não duplicar essa regra em três lugares.
+
 async function ativarPlano(usuarioId, nomePlano) {
 
     await db.query(
@@ -223,7 +211,6 @@ async function ativarPlano(usuarioId, nomePlano) {
     const hierarquia = { gratis: 0, medio: 1, completo: 2 };
     const nivelNovo = hierarquia[nomePlano] ?? 0;
 
-    // Perdeu o nível Premium? Remove o vínculo se houver um ativo.
     if (nivelNovo < hierarquia.completo) {
 
         const vinculoRemovido = await db.query(
@@ -295,12 +282,10 @@ app.use(express.urlencoded({
 
 
 
-/* ==========================
+/* 
    MIDDLEWARE DE AUTENTICAÇÃO
-========================== */
+ */
 
-// 🔒 FIX 2: Middleware que protege rotas que exigem login
-// Use estaLogado nas rotas que o usuário precisa estar autenticado para acessar
 function estaLogado(req, res, next) {
     if (req.isAuthenticated() || req.session.usuarioId) {
         return next();
