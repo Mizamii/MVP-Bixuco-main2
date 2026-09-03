@@ -304,6 +304,26 @@ function exigeAdmin(req, res, next) {
     return res.status(403).send("Acesso negado.");
 }
 
+const tentativasAdmin = new Map(); // ip -> { count, resetAt }
+
+function limitarTentativasAdmin(req, res, next) {
+    const ip = req.ip;
+    const agora = Date.now();
+    const registro = tentativasAdmin.get(ip);
+
+    if (!registro || agora > registro.resetAt) {
+        tentativasAdmin.set(ip, { count: 1, resetAt: agora + 15 * 60 * 1000 }); // janela de 15 min
+        return next();
+    }
+
+    if (registro.count >= 5) {
+        return res.status(429).json({ erro: "Muitas tentativas. Tente novamente mais tarde." });
+    }
+
+    registro.count++;
+    next();
+}
+
 function exigeTerapeuta(req, res, next) {
     const tipo = req.session.tipo || (req.user && req.user.tipo);
     if (tipo === 'psicologo') return next();
@@ -701,7 +721,7 @@ app.get(
     }
 );
 
-app.post("/api/admin/pedido-status", async (req, res) => {
+app.post("/api/admin/pedido-status", limitarTentativasAdmin, async (req, res) => {
 
     const { chave, email, novoStatus } = req.body;
 
@@ -1328,7 +1348,7 @@ app.post("/api/crianca/atualizar", estaLogado, upload.single("fotoCrianca"), asy
 
 // Envia a notificação de novidade para todos os usuários
 // que têm "Novidades e dicas" ativado nas configurações
-app.post("/api/admin/novidade", async (req, res) => {
+app.post("/api/admin/novidade", limitarTentativasAdmin, async (req, res) => {
 
     const { chave, mensagem } = req.body;
 
@@ -1388,7 +1408,7 @@ function validarCRP(crp) {
 const LIMITES_CRISE = {
     gapAgrupamentoMs:      5 * 60 * 1000, // eventos a até 5 min de distância = mesmo episódio
     duracaoMinimaCriseMs:  3000,           // 3s de aperto sustentado
-    forcaMinimaCrise:      1.5,            // força máxima que já basta sozinha
+    forcaMinimaCrise:      0.65,            // força máxima que já basta sozinha
     quantidadeMinimaEventos: 2             // 2+ apertos no mesmo episódio já basta sozinho
 };
 
