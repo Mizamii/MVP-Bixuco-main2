@@ -341,7 +341,7 @@
     // CARREGAR DADOS DO TERAPEUTA
     // =========================
 
-    async function carregarDados() {
+        async function carregarDados(atualizacaoSilenciosa = false) {
 
         try {
 
@@ -374,6 +374,8 @@
             if (dados.notificacoes > 0) {
                 badge.textContent   = dados.notificacoes;
                 badge.style.display = "inline";
+            } else {
+                badge.style.display = "none";
             }
 
             renderSolicitacoes(dados.solicitacoes    || []);
@@ -382,6 +384,11 @@
         } catch (erro) {
 
             console.log("Erro ao carregar dados do terapeuta:", erro);
+
+            // Numa atualização silenciosa (polling em segundo plano), não
+            // reseta a tela pra zero por causa de uma falha de rede
+            // passageira — só loga o erro e mantém o que já estava na tela.
+            if (atualizacaoSilenciosa) return;
 
             document.getElementById("nomeTerapeuta").textContent       = "Terapeuta";
             document.getElementById("totalPacientes").textContent      = "0";
@@ -763,6 +770,11 @@
 
     carregarDados();
     carregarBadgeNotificacoes();
+
+    // Verifica solicitações novas a cada 15s, sem precisar recarregar a
+    // página — atualização "silenciosa" (não reseta a tela em caso de
+    // falha passageira de rede)
+    setInterval(() => carregarDados(true), 15000);
 
 </script>
 
