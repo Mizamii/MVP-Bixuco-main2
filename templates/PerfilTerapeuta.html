@@ -20,9 +20,6 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
     >
 
-    <!-- Google Translate -->
-    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
-
     <!-- tema.css define as variáveis de cor -->
     <link rel="stylesheet" href="/css/tema.css">
     <link rel="stylesheet" href="/css/layout.css">
@@ -49,39 +46,34 @@
             <img src="/img/logo_nome.png" alt="Bixuco">
         </div>
 
+        <!-- Mesmos 5 itens das outras telas do terapeuta — o acesso ao
+             perfil é sempre pela foto/nome no header, não por um item
+             separado no menu (por isso não há link "Perfil" aqui). -->
         <nav>
 
             <a href="/homeTerapeuta">
                 <i class="fa-solid fa-house"></i>
-                <span>Início</span>
+                <span data-pt="Início" data-en="Home">Início</span>
             </a>
 
             <a href="/relatoriosTerapeutaS">
                 <i class="fa-solid fa-chart-line"></i>
-                <span>Relatórios</span>
-            </a>
-
-            <a
-                href="/PerfilTerapeuta"
-                class="ativo"
-            >
-                <i class="fa-solid fa-user"></i>
-                <span>Perfil</span>
+                <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
             </a>
 
             <a href="/configuracoesT">
                 <i class="fa-solid fa-gear"></i>
-                <span>Configurações</span>
+                <span data-pt="Configurações" data-en="Settings">Configurações</span>
             </a>
 
             <a href="/sobreT">
                 <i class="fa-solid fa-circle-info"></i>
-                <span>Sobre</span>
+                <span data-pt="Sobre" data-en="About">Sobre</span>
             </a>
 
             <a href="/pacientes">
                 <i class="fa-solid fa-user-plus"></i>
-                <span>Pacientes</span>
+                <span data-pt="Pacientes" data-en="Patients">Pacientes</span>
             </a>
 
         </nav>
@@ -89,12 +81,12 @@
         <div class="tema">
             <button id="btnClaro" class="ativo" type="button">
                 <i class="fa-regular fa-sun"></i>
-                Claro
+                <span data-pt="Claro" data-en="Light">Claro</span>
             </button>
 
             <button id="btnEscuro" type="button">
                 <i class="fa-regular fa-moon"></i>
-                Escuro
+                <span data-pt="Escuro" data-en="Dark">Escuro</span>
             </button>
         </div>
 
@@ -102,7 +94,7 @@
 
         <a href="/logout" class="logout">
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            <span>Sair</span>
+            <span data-pt="Sair" data-en="Log out">Sair</span>
         </a>
 
     </aside>
@@ -122,12 +114,6 @@
                 <span id="textoTradutor">Traduzir para inglês</span>
             </button>
 
-            <!-- Elemento invisível do Google Translate -->
-            <div
-                id="google_translate_element"
-                style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);"
-            ></div>
-
             <div class="usuario">
 
                 <!-- Painel de notificações -->
@@ -139,9 +125,9 @@
                     </button>
 
                     <div class="painel-notificacoes" id="painelNotificacoes">
-                        <div class="painel-header">Notificações</div>
+                        <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
                         <div id="listaNotificacoes">
-                            <div class="painel-vazio">Carregando...</div>
+                            <div class="painel-vazio" data-pt="Carregando..." data-en="Loading...">Carregando...</div>
                         </div>
                     </div>
 
@@ -157,7 +143,19 @@
 
                 <div>
                     <h3 id="nomeUsuario">Carregando...</h3>
-                    <span id="tipoConta">Terapeuta</span>
+                    <span id="tipoConta" data-pt="Terapeuta" data-en="Therapist">Terapeuta</span>
+
+                    <!-- Código de vínculo no header, igual às outras telas do terapeuta -->
+                    <button
+                        type="button"
+                        class="btn-codigo-copiar"
+                        id="btnCodigoCopiarHeader"
+                        onclick="copiarCodigoGenerico('codigoTerapeutaHeader', 'iconeCopiarHeader')"
+                        title="Copiar código para compartilhar"
+                    >
+                        <span><span data-pt="Código" data-en="Code">Código</span>: <strong id="codigoTerapeutaHeader">...</strong></span>
+                        <i class="fa-regular fa-copy" id="iconeCopiarHeader"></i>
+                    </button>
                 </div>
 
             </div>
@@ -171,8 +169,8 @@
 
             <section class="cabecalho">
                 <div>
-                    <h1>Meu perfil</h1>
-                    <p>Gerencie suas informações e preferências.</p>
+                    <h1 data-pt="Meu perfil" data-en="My profile">Meu perfil</h1>
+                    <p data-pt="Gerencie suas informações e preferências." data-en="Manage your information and preferences.">Gerencie suas informações e preferências.</p>
                 </div>
             </section>
 
@@ -218,8 +216,8 @@
                         id="perfilFotoAcoes"
                         style="display:none;"
                     >
-                        <button type="button" id="btnSalvarFoto">Salvar foto</button>
-                        <button type="button" id="btnCancelarFoto">Cancelar</button>
+                        <button type="button" id="btnSalvarFoto" data-pt="Salvar foto" data-en="Save photo">Salvar foto</button>
+                        <button type="button" id="btnCancelarFoto" data-pt="Cancelar" data-en="Cancel">Cancelar</button>
                     </div>
 
                     <!-- Nome editável -->
@@ -242,32 +240,18 @@
                             maxlength="80"
                             placeholder="Seu nome"
                         >
-                        <button type="button" id="btnSalvarNome">Salvar</button>
-                        <button type="button" id="btnCancelarNome">Cancelar</button>
+                        <button type="button" id="btnSalvarNome" data-pt="Salvar" data-en="Save">Salvar</button>
+                        <button type="button" id="btnCancelarNome" data-pt="Cancelar" data-en="Cancel">Cancelar</button>
                         <span id="erroNome" style="display:none; color:#E53E3E; font-size:0.8rem;"></span>
                     </div>
 
                     <!-- Descrição: tipo e desde quando -->
                     <p id="perfilDescricao">Terapeuta</p>
 
-                    <!-- Badges -->
-                    <div class="badges">
-
-                        <span id="badgeDias" class="badge">
-                            🔥 0 dias seguidos
-                        </span>
-
-                        <span id="badgePlano" class="badge">
-                            Plano gratuito
-                        </span>
-
-                    </div>
-
-                    <!-- Mensagem motivacional -->
-                    <div class="mensagem">
-                        <strong>Você está fazendo um ótimo trabalho!</strong>
-                        <p>A consistência no acompanhamento faz toda a diferença.</p>
-                    </div>
+                    <!-- Removidos: badge de "dias seguidos" (ofensiva) e de
+                         "plano" — nenhum dos dois se aplica a uma conta de
+                         terapeuta (que não preenche relatório diário nem
+                         assina plano). -->
 
                 </div>
 
@@ -281,9 +265,9 @@
 
                     <section class="card codigo-vinculo">
 
-                        <h2>Código de vínculo</h2>
+                        <h2 data-pt="Código de vínculo" data-en="Link code">Código de vínculo</h2>
 
-                        <p>
+                        <p data-pt="Compartilhe este código com seus pacientes para que eles possam solicitar o vínculo com você." data-en="Share this code with your patients so they can request to link with you.">
                             Compartilhe este código com seus pacientes
                             para que eles possam solicitar o vínculo com você.
                         </p>
@@ -297,6 +281,7 @@
                                 id="btnCopiarCodigo"
                                 class="btn-copiar"
                                 title="Copiar código"
+                                onclick="copiarCodigoGenerico('codigoVinculo', 'iconeCopiar', 'mensagemCopiado')"
                             >
                                 <i class="fa-regular fa-copy" id="iconeCopiar"></i>
                             </button>
@@ -306,6 +291,8 @@
                         <span
                             id="mensagemCopiado"
                             style="display:none; color:#32C26D; font-size:0.8rem;"
+                            data-pt="✅ Código copiado!"
+                            data-en="✅ Code copied!"
                         >
                             ✅ Código copiado!
                         </span>
@@ -316,7 +303,7 @@
 
                     <section class="card compartilhamento">
 
-                        <h2>Compartilhamento</h2>
+                        <h2 data-pt="Compartilhamento" data-en="Sharing">Compartilhamento</h2>
 
                         <button
                             id="btnNovoPaciente"
@@ -327,7 +314,7 @@
                                 <i class="fa-solid fa-share-nodes"></i>
                             </div>
                             <div class="texto">
-                                <h3>Compartilhar com novo paciente</h3>
+                                <h3 data-pt="Compartilhar com novo paciente" data-en="Share with a new patient">Compartilhar com novo paciente</h3>
                             </div>
                             <i class="fa-solid fa-chevron-right seta"></i>
                         </button>
@@ -361,8 +348,68 @@ JAVASCRIPT
 <script>
 
     // ==========================
+    // TRADUÇÃO MANUAL — mesmo padrão do resto do app
+    // (antes esta página usava Google Translate via cookie + reload;
+    // trocado pelo dicionário manual, sem reload e consistente)
+    // ==========================
+
+    let idiomaAtual = localStorage.getItem("idioma") || "pt";
+
+    const dicionario = {
+        "Terapeuta":                          "Therapist",
+        "Membro desde":                       "Member since",
+        "Digite um nome válido.":             "Enter a valid name.",
+        "Erro ao salvar. Tente novamente.":   "Error saving. Please try again.",
+        "Erro ao salvar o nome.":             "Error saving the name.",
+        "Erro ao salvar a foto.":             "Error saving the photo.",
+        "Salvando...":                        "Saving...",
+        "Salvar foto":                        "Save photo",
+        "Carregando...":                      "Loading...",
+        "Nenhuma notificação por enquanto.":  "No notifications yet.",
+        "Não foi possível carregar.":         "Could not load."
+    };
+
+    function traduzir(texto) {
+        if (idiomaAtual === "pt" || texto == null) return texto;
+        return dicionario[texto] || texto;
+    }
+
+    function aplicarIdiomaEstatico() {
+
+        document.querySelectorAll("[data-pt]").forEach(el => {
+            el.textContent = idiomaAtual === "en"
+                ? (el.dataset.en || el.dataset.pt)
+                : el.dataset.pt;
+        });
+
+        document.getElementById("textoTradutor").textContent =
+            idiomaAtual === "en" ? "Traduzir para português" : "Traduzir para inglês";
+
+    }
+
+    document.getElementById("btnTraduzir").addEventListener("click", () => {
+
+        idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+        localStorage.setItem("idioma", idiomaAtual);
+
+        aplicarIdiomaEstatico();
+
+        // Reaplica a descrição (que tem texto dinâmico interpolado)
+        if (ultimoUsuario) preencherDescricao(ultimoUsuario);
+
+    });
+
+
+    // ==========================
     // CARREGAR DADOS DO PERFIL
     // ==========================
+
+    let ultimoUsuario = null;
+
+    function preencherDescricao(usuario) {
+        document.getElementById("perfilDescricao").textContent =
+            `${traduzir("Terapeuta")} • ${traduzir("Membro desde")} ${usuario.anoCadastro || "2026"}`;
+    }
 
     async function carregarPerfil() {
 
@@ -378,20 +425,17 @@ JAVASCRIPT
             if (!resposta.ok) throw new Error("Erro ao carregar perfil");
 
             const usuario = await resposta.json();
+            ultimoUsuario = usuario;
 
             // Topo
             document.getElementById("nomeUsuario").textContent =
                 usuario.nome || "Terapeuta";
 
-            document.getElementById("tipoConta").textContent =
-                "Terapeuta";
-
             // Card de perfil
             document.getElementById("perfilNome").textContent =
                 usuario.nome || "Terapeuta";
 
-            document.getElementById("perfilDescricao").textContent =
-                `Terapeuta • Membro desde ${usuario.anoCadastro || "2026"}`;
+            preencherDescricao(usuario);
 
             if (usuario.fotoPerfil) {
                 document.getElementById("fotoUsuario").src = usuario.fotoPerfil;
@@ -399,15 +443,10 @@ JAVASCRIPT
                 fotoOriginalSrc = usuario.fotoPerfil;
             }
 
-            document.getElementById("badgeDias").innerHTML =
-                `🔥 ${usuario.diasConsecutivos || 0} dias seguidos`;
-
-            document.getElementById("badgePlano").textContent =
-                usuario.plano || "Plano gratuito";
-
-            // Código de vínculo — vem do banco como codigo_vinculo
-            document.getElementById("codigoVinculo").textContent =
-                usuario.codigoVinculo || "---";
+            // Código de vínculo — no card E no header
+            const codigo = usuario.codigoVinculo || "---";
+            document.getElementById("codigoVinculo").textContent       = codigo;
+            document.getElementById("codigoTerapeutaHeader").textContent = codigo;
 
             // Badge de notificações
             const qtd = usuario.notificacoes ?? 0;
@@ -466,7 +505,7 @@ JAVASCRIPT
         if (!arquivo) return;
 
         btnSalvarFoto.disabled    = true;
-        btnSalvarFoto.textContent = "Salvando...";
+        btnSalvarFoto.textContent = traduzir("Salvando...");
 
         try {
 
@@ -487,7 +526,7 @@ JAVASCRIPT
             const dados = await resposta.json();
 
             if (!resposta.ok || !dados.sucesso) {
-                throw new Error(dados.erro || "Erro ao salvar a foto.");
+                throw new Error(dados.erro || traduzir("Erro ao salvar a foto."));
             }
 
             const novaFoto = dados.fotoPerfil || fotoPerfilImg.src;
@@ -506,14 +545,14 @@ JAVASCRIPT
             const msg = document.createElement("p");
             msg.style.color    = "#E53E3E";
             msg.style.fontSize = "0.8rem";
-            msg.textContent    = erro.message || "Erro ao salvar a foto.";
+            msg.textContent    = erro.message || traduzir("Erro ao salvar a foto.");
             perfilFotoAcoes.after(msg);
             setTimeout(() => msg.remove(), 3000);
 
         } finally {
 
             btnSalvarFoto.disabled    = false;
-            btnSalvarFoto.textContent = "Salvar foto";
+            btnSalvarFoto.textContent = traduzir("Salvar foto");
 
         }
 
@@ -553,7 +592,7 @@ JAVASCRIPT
         const novoNome = inputNome.value.trim();
 
         if (novoNome.length < 2) {
-            erroNome.textContent   = "Digite um nome válido.";
+            erroNome.textContent   = traduzir("Digite um nome válido.");
             erroNome.style.display = "block";
             return;
         }
@@ -578,7 +617,7 @@ JAVASCRIPT
             const dados = await resposta.json();
 
             if (!resposta.ok || !dados.sucesso) {
-                throw new Error(dados.erro || "Erro ao salvar o nome.");
+                throw new Error(dados.erro || traduzir("Erro ao salvar o nome."));
             }
 
             const nomeFinal = dados.nome || novoNome;
@@ -592,7 +631,7 @@ JAVASCRIPT
         } catch (erro) {
 
             console.log("Erro ao salvar nome:", erro);
-            erroNome.textContent   = erro.message || "Erro ao salvar. Tente novamente.";
+            erroNome.textContent   = erro.message || traduzir("Erro ao salvar. Tente novamente.");
             erroNome.style.display = "block";
 
         } finally {
@@ -615,31 +654,37 @@ JAVASCRIPT
 
     // ==========================
     // COPIAR CÓDIGO DE VÍNCULO
+    // Genérica pra funcionar tanto no botão do header quanto no card
     // ==========================
 
-    document.getElementById("btnCopiarCodigo").addEventListener("click", () => {
+    function copiarCodigoGenerico(idCodigo, idIcone, idMensagem) {
 
-        const codigo  = document.getElementById("codigoVinculo").textContent;
-        const icone   = document.getElementById("iconeCopiar");
-        const mensagem = document.getElementById("mensagemCopiado");
+        const codigo   = document.getElementById(idCodigo).textContent;
+        const icone    = document.getElementById(idIcone);
 
         if (!codigo || codigo === "---") return;
 
         navigator.clipboard.writeText(codigo).then(() => {
 
-            icone.classList.remove("fa-copy");
-            icone.classList.add("fa-check");
-            mensagem.style.display = "block";
+            if (icone) {
+                icone.classList.remove("fa-copy");
+                icone.classList.add("fa-check");
+            }
+
+            const mensagem = idMensagem ? document.getElementById(idMensagem) : null;
+            if (mensagem) mensagem.style.display = "block";
 
             setTimeout(() => {
-                icone.classList.remove("fa-check");
-                icone.classList.add("fa-copy");
-                mensagem.style.display = "none";
+                if (icone) {
+                    icone.classList.remove("fa-check");
+                    icone.classList.add("fa-copy");
+                }
+                if (mensagem) mensagem.style.display = "none";
             }, 2000);
 
         });
 
-    });
+    }
 
 
     // ==========================
@@ -677,7 +722,7 @@ JAVASCRIPT
             const itens = dados.notificacoes || [];
 
             listaNotificacoes.innerHTML = itens.length === 0
-                ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+                ? `<div class="painel-vazio">${traduzir("Nenhuma notificação por enquanto.")}</div>`
                 : itens.map(formatarItemNotificacao).join("");
 
             const naoLidas = itens.filter(i => !i.lida).length;
@@ -686,7 +731,7 @@ JAVASCRIPT
         } catch (erro) {
             console.log("Erro ao carregar notificações:", erro);
             listaNotificacoes.innerHTML =
-                `<div class="painel-vazio">Não foi possível carregar.</div>`;
+                `<div class="painel-vazio">${traduzir("Não foi possível carregar.")}</div>`;
         }
     }
 
@@ -717,63 +762,36 @@ JAVASCRIPT
 
 
     // ==========================
-    // TRADUÇÃO VIA COOKIE
+    // TEMA CLARO / ESCURO
+    // (faltava esta parte inteira — por isso os botões não faziam nada)
     // ==========================
 
-    function lerCookie(nome) {
-        const valor  = `; ${document.cookie}`;
-        const partes = valor.split(`; ${nome}=`);
-        if (partes.length === 2) return partes.pop().split(";").shift();
-        return null;
+    function aplicarTema(tema) {
+        document.body.classList.remove("tema-claro", "tema-escuro");
+        document.body.classList.add(`tema-${tema}`);
+        document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
+        document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
+        localStorage.setItem("tema", tema);
     }
 
-    function definirCookieTraducao(destino) {
-        document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
-        document.cookie = `googtrans=; path=/; domain=${location.hostname}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
-        if (destino) {
-            const valor = `/pt/${destino}`;
-            document.cookie = `googtrans=${valor}; path=/`;
-            document.cookie = `googtrans=${valor}; path=/; domain=${location.hostname}`;
-        }
-    }
-
-    function iniciarTradutor() {
-        new google.translate.TranslateElement(
-            { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
-            "google_translate_element"
-        );
-    }
-
-    function atualizarTextoBotaoTraducao() {
-        const cookieAtual = lerCookie("googtrans");
-        document.getElementById("textoTradutor").textContent =
-            (cookieAtual && cookieAtual.includes("/en"))
-                ? "Voltar para português"
-                : "Traduzir para inglês";
-    }
-
-    document.getElementById("btnTraduzir").addEventListener("click", () => {
-        const cookieAtual   = lerCookie("googtrans");
-        const estaTraduzido = cookieAtual && cookieAtual.includes("/en");
-        definirCookieTraducao(estaTraduzido ? null : "en");
-        window.location.reload();
-    });
+    document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema("claro"));
+    document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
 
 
     // ==========================
     // INICIALIZAR
     // ==========================
-    // Tema claro/escuro fica por conta do /js/tema.js (lógica única,
-    // compartilhada por todas as páginas — evita duplicar/entrar em
-    // conflito com os botões #btnClaro/#btnEscuro).
 
-    atualizarTextoBotaoTraducao();
+    const temaSalvo = localStorage.getItem("tema") || "claro";
+    aplicarTema(temaSalvo);
+
+    aplicarIdiomaEstatico();
     carregarPerfil();
     carregarNotificacoes();
 
 </script>
 
-<!-- Tema claro/escuro — lógica única, compartilhada por todas as páginas -->
+<!-- Tema claro/escuro — lógica compartilhada por todas as páginas -->
 <script src="/js/tema.js"></script>
 
 </body>
