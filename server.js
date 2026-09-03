@@ -299,6 +299,12 @@ function exigeAdmin(req, res, next) {
     return res.status(403).send("Acesso negado.");
 }
 
+function exigeTerapeuta(req, res, next) {
+    const tipo = req.session.tipo || (req.user && req.user.tipo);
+    if (tipo === 'psicologo') return next();
+    return res.redirect("/");
+}
+
 // ─────────────────────────────────────────
 // MIDDLEWARE — verifica plano do usuário
 // ─────────────────────────────────────────
@@ -388,7 +394,7 @@ app.get("/", (req, res) => {
     // ou res.redirect("/logar") se você não quiser mostrar a index pra ninguém deslogado dentro do app
 });
 
-app.get("/pacientes", estaLogado, (req, res) => {
+app.get("/pacientes", estaLogado, exigeTerapeuta, (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "Pacientes.html"));
 });
 
@@ -426,11 +432,11 @@ app.get("/QuestionarioP", estaLogado, (req, res) => {
 
 });
 
-app.get("/relatoriosTerapeutaS", estaLogado, (req, res) => {
+app.get("/relatoriosTerapeutaS", estaLogado, exigeTerapeuta, (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "RelatoriosTerapeutaS.html"));
 });
 
-app.get("/relatoriosTerapeuta", estaLogado, (req, res) => {
+app.get("/relatoriosTerapeuta", estaLogado, exigeTerapeuta, (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "RelatoriosTerapeuta.html"));
 });
 
@@ -438,12 +444,12 @@ app.get("/EsqueceuSenha", (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "EsqueceuSenha.html"));
 });
 
-app.get("/sobreT", estaLogado, (req, res) => {
+app.get("/sobreT", estaLogado, exigeTerapeuta, (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "SobreTerapeuta.html"));
 });
 
 
-app.get("/configuracoesT", estaLogado, (req, res) => {
+app.get("/configuracoesT", estaLogado, exigeTerapeuta, (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "ConfiguracoesTerapeuta.html"));
 });
 
@@ -468,7 +474,7 @@ app.get("/perfilSemAssinatura", estaLogado, (req, res) => {
 });
 
 
-app.get("/hometerapeuta", estaLogado, (req, res) => {
+app.get("/hometerapeuta", estaLogado, exigeTerapeuta, (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "HomeTerapeuta.html"));
 
@@ -509,7 +515,7 @@ app.get("/VincularSucesso", estaLogado, precisaPlano("medio"), (req, res) => {
 });
 
 
-app.get("/PerfilTerapeuta", estaLogado, (req, res) => {
+app.get("/PerfilTerapeuta", estaLogado, exigeTerapeuta, (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "PerfilTerapeuta.html"));
 
