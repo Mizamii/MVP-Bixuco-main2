@@ -274,14 +274,12 @@
 
                 todosPacientes = dados.pacientes || [];
 
-                const comAlertas = todosPacientes.filter(p => p.alertas > 0);
-                const ativos     = todosPacientes.filter(p => p.status === "ativo");
-
-                document.getElementById("contadorTodos").textContent   = `(${todosPacientes.length})`;
-                document.getElementById("contadorAtivos").textContent  = `(${ativos.length})`;
-                document.getElementById("contadorAlertas").textContent = `(${comAlertas.length})`;
-
-                renderPacientes(todosPacientes);
+                // Contadores e renderização vêm só de aplicarFiltros() agora —
+                // evita ter duas fontes de verdade calculando "alertas" com
+                // critérios diferentes (era isso que fazia o Arthur, com só
+                // 1 alerta, contar na aba "Alertas" mesmo sem aparecer em
+                // "Requer atenção")
+                aplicarFiltros();
 
             } catch (erro) {
                 console.log("Erro ao carregar pacientes:", erro);
@@ -404,12 +402,6 @@
 
             let lista = [...todosPacientes];
 
-            if (filtroAtual === "ativos") {
-                lista = lista.filter(p => p.status === "ativo");
-            } else if (filtroAtual === "alertas") {
-                lista = lista.filter(p => p.alertas > 0);
-            }
-
             if (busca) {
                 lista = lista.filter(p =>
                     p.nomeResponsavel.toLowerCase().includes(busca) ||
@@ -417,10 +409,24 @@
                 );
             }
 
+            // Mesmo critério usado em "Requer atenção" (>= 3 alertas) —
+            // antes era > 0, o que fazia a aba "Alertas" e a seção "Requer
+            // atenção" discordarem sobre quem é considerado alerta.
+            const ativosNaBusca  = lista.filter(p => p.status === "ativo");
+            const alertasNaBusca = lista.filter(p => p.alertas >= 3);
+
+            document.getElementById("contadorTodos").textContent   = `(${lista.length})`;
+            document.getElementById("contadorAtivos").textContent  = `(${ativosNaBusca.length})`;
+            document.getElementById("contadorAlertas").textContent = `(${alertasNaBusca.length})`;
+
+            if (filtroAtual === "ativos") {
+                lista = ativosNaBusca;
+            } else if (filtroAtual === "alertas") {
+                lista = alertasNaBusca;
+            }
+
             renderPacientes(lista);
         }
-
-
         // =========================
         // NOTIFICAÇÕES
         // =========================
