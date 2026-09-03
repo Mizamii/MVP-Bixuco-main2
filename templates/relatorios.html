@@ -139,6 +139,94 @@
             border-color: #32C26D;
             color: white;
         }
+
+        /* ========================================= */
+        /* ABA DE ALERTAS — navegação de dia e tabela */
+        /* ========================================= */
+
+        .navegacao-dia {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .navegacao-dia button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: var(--cor-fundo-pagina);
+            border: 1px solid var(--cor-borda);
+            border-radius: 50%;
+            color: var(--cor-texto-secundario);
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .navegacao-dia button:hover {
+            border-color: #32C26D;
+            color: #32C26D;
+        }
+
+        #dataAlertasAtual {
+            min-width: 110px;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--cor-texto-principal);
+        }
+
+        .tabela-alertas-wrapper {
+            overflow-x: auto;
+            border: 1px solid var(--cor-borda);
+            border-radius: 12px;
+            margin-top: 1rem;
+        }
+
+        .tabela-alertas {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            min-width: 480px;
+        }
+
+        .tabela-alertas thead th {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            background: var(--cor-fundo-pagina);
+            color: var(--cor-texto-secundario);
+            font-weight: 600;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            border-bottom: 1px solid var(--cor-borda);
+        }
+
+        .tabela-alertas tbody td {
+            padding: 0.75rem 1rem;
+            color: var(--cor-texto-principal);
+            border-bottom: 1px solid var(--cor-borda);
+        }
+
+        .tabela-alertas tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .tabela-alertas tbody tr:hover {
+            background: var(--cor-fundo-hover);
+        }
+
+        .tabela-alertas td a {
+            color: #32C26D;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .tabela-alertas td a:hover {
+            text-decoration: underline;
+        }
     </style>
 
 </head>
