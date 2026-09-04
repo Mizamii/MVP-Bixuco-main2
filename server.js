@@ -1536,6 +1536,15 @@ app.get("/api/relatorio-diario/grafico", estaLogado, async (req, res) => {
 
         const pontos = marcarEventosComCrise(eventos.rows);
 
+        // Garante que o gráfico sempre mostre o dia inteiro (00:00 às 23:59),
+        // mesmo que o primeiro/último evento real do dia não esteja nessas bordas
+        if (pontos.length === 0 || pontos[0].horario !== "00:00") {
+            pontos.unshift({ horario: "00:00", forca: 0, crise: false });
+        }
+        if (pontos[pontos.length - 1].horario !== "23:59") {
+            pontos.push({ horario: "23:59", forca: 0, crise: false });
+        }
+
         // Força acima disso já conta como "segurando o Bixuco" (ativo)
         const LIMIAR_ATIVO = 0.1;
 
