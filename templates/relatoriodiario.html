@@ -1001,11 +1001,18 @@
                         borderColor: "#32C26D",
                         backgroundColor: gradiente,
                         pointBackgroundColor: pontos.map(p => p.pico ? "#E53E3E" : "#32C26D"),
-                        pointRadius: pontos.map(p => p.pico ? 7 : (p.forca > 0 ? 2 : 0)),
-                        pointHoverRadius: 8,
+                        pointRadius: pontos.map(p => p.pico ? 6 : 2),
+                        pointHoverRadius: 7,
                         tension: 0.3,
                         borderWidth: 2,
-                        fill: true
+                        fill: true,
+                        segment: {
+                            borderColor: (contexto) => {
+                                const p0 = pontos[contexto.p0DataIndex];
+                                const p1 = pontos[contexto.p1DataIndex];
+                                return (p0.crise && p1.crise) ? "#E53E3E" : "#32C26D";
+                            }
+                        }
                     }]
                 },
                 options: {
