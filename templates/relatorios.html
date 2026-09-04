@@ -872,6 +872,10 @@
     let dadosGatilhosGlobal = null;
     let dadosEvolucaoGlobal = null;
 
+    let tipoAtualEstresse = "bar";
+    let tipoAtualGatilhos = "doughnut";
+    let tipoAtualEvolucao = "line";
+
     const VERDE = "#32C26D";
     const AZUL  = "#0AB7FB";
 
@@ -937,6 +941,10 @@
             evolucao: "seletorEvolucao"
         };
 
+        if (grafico === "estresse") tipoAtualEstresse = tipo;
+        if (grafico === "gatilhos") tipoAtualGatilhos = tipo;
+        if (grafico === "evolucao") tipoAtualEvolucao = tipo;
+
         const funcaoCriar = mapaFuncoes[grafico];
         if (funcaoCriar) funcaoCriar(tipo);
 
@@ -966,9 +974,9 @@
         Object.values(graficos).forEach(g => g.destroy());
         graficos = {};
 
-        criarGraficoEstresse("bar");
-        criarGraficoGatilhos("doughnut");
-        criarGraficoEvolucao("line");
+        criarGraficoEstresse(tipoAtualEstresse);
+        criarGraficoGatilhos(tipoAtualGatilhos);
+        criarGraficoEvolucao(tipoAtualEvolucao);
 
 
     }
