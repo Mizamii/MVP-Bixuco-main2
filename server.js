@@ -1467,8 +1467,10 @@ function classificarEpisodios(eventos) {
 }
 function marcarEventosComCrise(eventos) {
     // Igual ao classificarEpisodios, mas devolve CADA evento individual
-    // com a flag crise (do episódio a que ele pertence), em vez de
-    // devolver só o resumo agregado por episódio.
+    // com a flag crise (do episódio a que ele pertence) e a flag pico
+    // (true só no evento de MAIOR força do episódio — é o único que
+    // deve aparecer destacado no gráfico, pra não parecer que tem
+    // várias crises quando é uma só, só que longa)
     const episodios = [];
     let atual = null;
 
@@ -1500,13 +1502,25 @@ function marcarEventosComCrise(eventos) {
             ep.forcaMax        >= LIMITES_CRISE.forcaMinimaCrise ||
             ep.eventos.length  >= LIMITES_CRISE.quantidadeMinimaEventos;
 
-        for (const ev of ep.eventos) {
+        // Acha o índice do evento de maior força dentro do episódio
+        let indicePico = 0;
+        let maiorForca = -1;
+        ep.eventos.forEach((ev, i) => {
+            const f = parseFloat(ev.forca) || 0;
+            if (f > maiorForca) {
+                maiorForca = f;
+                indicePico = i;
+            }
+        });
+
+        ep.eventos.forEach((ev, i) => {
             pontos.push({
                 horario: formatarHorarioEvento(ev.criado_em),
                 forca:   parseFloat(ev.forca) || 0,
-                crise:   ehCrise
+                crise:   ehCrise,
+                pico:    ehCrise && i === indicePico
             });
-        }
+        });
     }
     return pontos;
 }
@@ -1534,16 +1548,33 @@ app.get("/api/relatorio-diario/grafico", estaLogado, async (req, res) => {
             [usuarioId, dataFiltro]
         );
 
-        const pontos = marcarEventosComCrise(eventos.rows);
+                const eventosReais = marcarEventosComCrise(eventos.rows);
 
-        // Garante que o gráfico sempre mostre o dia inteiro (00:00 às 23:59),
-        // mesmo que o primeiro/último evento real do dia não esteja nessas bordas
-        if (pontos.length === 0 || pontos[0].horario !== "00:00") {
-            pontos.unshift({ horario: "00:00", forca: 0, crise: false });
+        // Gera uma grade fixa cobrindo o dia inteiro (00:00 a 23:00, de hora
+        // em hora), com força zero. Isso garante que o gráfico sempre mostre
+        // as 24h do dia, mesmo quando os eventos reais só existem numa janela
+        // pequena — sem essa grade, o eixo por categoria esmaga os dados
+        // reais lá pra esquerda.
+        const grade = [];
+        for (let h = 0; h < 24; h++) {
+            grade.push({
+                horario: `${String(h).padStart(2, "0")}:00`,
+                forca:   0,
+                crise:   false,
+                pico:    false,
+                ordem:   h * 60
+            });
         }
-        if (pontos[pontos.length - 1].horario !== "23:59") {
-            pontos.push({ horario: "23:59", forca: 0, crise: false });
-        }
+
+        const pontosReaisComOrdem = eventosReais.map(p => {
+            const [hh, mm] = p.horario.split(":").map(Number);
+            return { ...p, ordem: hh * 60 + mm };
+        });
+
+        // Junta a grade fixa com os eventos reais e ordena tudo por horário
+        const pontos = [...grade, ...pontosReaisComOrdem]
+            .sort((a, b) => a.ordem - b.ordem)
+            .map(({ ordem, ...resto }) => resto);
 
         // Força acima disso já conta como "segurando o Bixuco" (ativo)
         const LIMIAR_ATIVO = 0.1;
@@ -1555,7 +1586,7 @@ app.get("/api/relatorio-diario/grafico", estaLogado, async (req, res) => {
 
         res.json({
             data:      dataFiltro,
-            forca:     pontos,     // [{ horario, forca, crise }]
+            forca:     pontos,     // [{ horario, forca, crise, pico }]
             atividade: atividade   // [{ horario, ativo }]
         });
 

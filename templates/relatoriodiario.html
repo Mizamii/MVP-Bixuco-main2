@@ -1000,9 +1000,9 @@
                         data: pontos.map(p => p.forca),
                         borderColor: "#32C26D",
                         backgroundColor: gradiente,
-                        pointBackgroundColor: pontos.map(p => p.crise ? "#E53E3E" : "#32C26D"),
-                        pointRadius: pontos.map(p => p.crise ? 6 : 2),
-                        pointHoverRadius: 7,
+                        pointBackgroundColor: pontos.map(p => p.pico ? "#E53E3E" : "#32C26D"),
+                        pointRadius: pontos.map(p => p.pico ? 7 : (p.forca > 0 ? 2 : 0)),
+                        pointHoverRadius: 8,
                         tension: 0.3,
                         borderWidth: 2,
                         fill: true
@@ -1016,7 +1016,7 @@
                         tooltip: {
                             callbacks: {
                                 label: (c) => c.raw > 0
-                                    ? `Força: ${c.raw}${pontos[c.dataIndex].crise ? " — crise" : ""}`
+                                    ? `Força: ${c.raw}${pontos[c.dataIndex].pico ? " — pico da crise" : ""}`
                                     : "Sem força registrada"
                             }
                         }
@@ -1113,11 +1113,9 @@
                     }
                 );
 
-                // Mostra a mensagem de alerta detectado
-                const alertaEl = document.getElementById("alertaDetectado");
-                alertaEl.innerHTML =
-                    `<i class="fa-solid fa-triangle-exclamation"></i> Foi detectado um alto nível de estresse hoje às ${dados.horario}.`;
-                alertaEl.classList.add("visivel");
+                // Mensagem visual removida a pedido — a lógica de auto-resposta
+                // e as perguntas extras (acalmou_facilidade, gatilho_principal)
+                // continuam funcionando normalmente, só não aparece mais o aviso.
 
             } catch (erro) {
                 console.log("Erro ao verificar alerta do dia:", erro);
