@@ -21,6 +21,8 @@
     >
     <script src="/js/deeplink.js"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
 
     <!-- Variáveis compartilhadas de tema (claro/escuro) -->
     <link
@@ -35,6 +37,8 @@
         rel="stylesheet"
         href="/css/home.css"
     >
+
+    <link rel="stylesheet" href="/css/relatorios.css">
 
     <!-- CSS específico desta página -->
     <link
@@ -308,6 +312,30 @@
             ></p>
 
             <div id="alertaDetectado" class="alerta-detectado"></div>
+
+            <div class="linha-graficos">
+
+                <div class="grafico-card">
+                    <div class="titulo-card">
+                        <h2>
+                            <i class="fa-solid fa-chart-line"></i>
+                            <span>Força com o passar do tempo</span>
+                        </h2>
+                    </div>
+                    <canvas id="graficoForca"></canvas>
+                </div>
+
+                <div class="grafico-card">
+                    <div class="titulo-card">
+                        <h2>
+                            <i class="fa-solid fa-signal"></i>
+                            <span>Status ativo em relação ao tempo</span>
+                        </h2>
+                    </div>
+                    <canvas id="graficoAtividade"></canvas>
+                </div>
+
+            </div>
 
             <!-- ========================= -->
             <!-- CARD DO RELATÓRIO -->
@@ -927,6 +955,127 @@
         // VERIFICA SE HOUVE ALERTA REAL DO BIXUCO HOJE
         // ==========================
 
+        // ==========================
+        // GRÁFICOS DO DIA (força + atividade)
+        // ==========================
+
+        let graficoForcaChart = null;
+        let graficoAtividadeChart = null;
+
+        async function carregarGraficosDiarios() {
+
+            try {
+
+                const resposta = await fetch("/api/relatorio-diario/grafico");
+
+                if (!resposta.ok) return;
+
+                const dados = await resposta.json();
+
+                desenharGraficoForca(dados.forca || []);
+                desenharGraficoAtividade(dados.atividade || []);
+
+            } catch (erro) {
+                console.log("Erro ao carregar gráficos do dia:", erro);
+            }
+
+        }
+
+        function desenharGraficoForca(pontos) {
+
+            const ctx = document.getElementById("graficoForca").getContext("2d");
+
+            if (graficoForcaChart) graficoForcaChart.destroy();
+
+            const gradiente = ctx.createLinearGradient(0, 0, 0, 300);
+            gradiente.addColorStop(0, "rgba(50, 194, 109, 0.35)");
+            gradiente.addColorStop(1, "rgba(50, 194, 109, 0)");
+
+            graficoForcaChart = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: pontos.map(p => p.horario),
+                    datasets: [{
+                        label: "Força",
+                        data: pontos.map(p => p.forca),
+                        borderColor: "#32C26D",
+                        backgroundColor: gradiente,
+                        pointBackgroundColor: pontos.map(p => p.crise ? "#E53E3E" : "#32C26D"),
+                        pointRadius: pontos.map(p => p.crise ? 6 : 2),
+                        pointHoverRadius: 7,
+                        tension: 0.3,
+                        borderWidth: 2,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (c) => c.raw > 0
+                                    ? `Força: ${c.raw}${pontos[c.dataIndex].crise ? " — crise" : ""}`
+                                    : "Sem força registrada"
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+        }
+
+        function desenharGraficoAtividade(pontos) {
+
+            const ctx = document.getElementById("graficoAtividade").getContext("2d");
+
+            if (graficoAtividadeChart) graficoAtividadeChart.destroy();
+
+            graficoAtividadeChart = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: pontos.map(p => p.horario),
+                    datasets: [{
+                        label: "Status",
+                        data: pontos.map(p => p.ativo),
+                        borderColor: "#0AB7FB",
+                        backgroundColor: "rgba(10, 183, 251, 0.2)",
+                        stepped: true,
+                        pointRadius: 0,
+                        borderWidth: 2,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (c) => c.raw === 1 ? "Ativo (com o Bixuco)" : "Inativo"
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 1,
+                            ticks: {
+                                stepSize: 1,
+                                callback: (v) => v === 1 ? "Ativo" : "Inativo"
+                            }
+                        }
+                    }
+                }
+            });
+
+        }
+
         async function verificarAlertaHoje() {
 
             try {
@@ -985,6 +1134,7 @@
         async function iniciarRelatorio() {
             await verificarAlertaHoje();
             carregarPergunta();
+            carregarGraficosDiarios();
         }
 
         carregarUsuario();

@@ -1465,6 +1465,100 @@ function classificarEpisodios(eventos) {
         };
     });
 }
+function marcarEventosComCrise(eventos) {
+    // Igual ao classificarEpisodios, mas devolve CADA evento individual
+    // com a flag crise (do episódio a que ele pertence), em vez de
+    // devolver só o resumo agregado por episódio.
+    const episodios = [];
+    let atual = null;
+
+    for (const ev of eventos) {
+        const tempo   = new Date(ev.criado_em).getTime();
+        const forcaEv = parseFloat(ev.forca) || 0;
+
+        if (!atual || tempo - atual.fimMs > LIMITES_CRISE.gapAgrupamentoMs) {
+            if (atual) episodios.push(atual);
+            atual = {
+                fimMs: tempo,
+                eventos: [ev],
+                forcaMax: forcaEv,
+                duracaoTotalMs: ev.duracao_ms || 0
+            };
+        } else {
+            atual.fimMs = tempo;
+            atual.eventos.push(ev);
+            if (forcaEv > atual.forcaMax) atual.forcaMax = forcaEv;
+            atual.duracaoTotalMs += (ev.duracao_ms || 0);
+        }
+    }
+    if (atual) episodios.push(atual);
+
+    const pontos = [];
+    for (const ep of episodios) {
+        const ehCrise =
+            ep.duracaoTotalMs >= LIMITES_CRISE.duracaoMinimaCriseMs ||
+            ep.forcaMax        >= LIMITES_CRISE.forcaMinimaCrise ||
+            ep.eventos.length  >= LIMITES_CRISE.quantidadeMinimaEventos;
+
+        for (const ev of ep.eventos) {
+            pontos.push({
+                horario: formatarHorarioEvento(ev.criado_em),
+                forca:   parseFloat(ev.forca) || 0,
+                crise:   ehCrise
+            });
+        }
+    }
+    return pontos;
+}
+
+app.get("/api/relatorio-diario/grafico", estaLogado, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        const dataParam  = req.query.data;
+        const dataFiltro = dataParam || new Date().toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
+
+        const eventos = await db.query(
+            `SELECT e.criado_em, e.forca
+             FROM eventos_bixuco e
+             JOIN criancas c ON c.id = e.crianca_id
+             WHERE c.usuario_id = $1
+             AND DATE((e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = $2::date
+             ORDER BY e.criado_em ASC`,
+            [usuarioId, dataFiltro]
+        );
+
+        const pontos = marcarEventosComCrise(eventos.rows);
+
+        // Força acima disso já conta como "segurando o Bixuco" (ativo)
+        const LIMIAR_ATIVO = 0.1;
+
+        const atividade = pontos.map(p => ({
+            horario: p.horario,
+            ativo:   p.forca > LIMIAR_ATIVO ? 1 : 0
+        }));
+
+        res.json({
+            data:      dataFiltro,
+            forca:     pontos,     // [{ horario, forca, crise }]
+            atividade: atividade   // [{ horario, ativo }]
+        });
+
+    } catch (erro) {
+
+        console.log("Erro na rota /api/relatorio-diario/grafico:", erro);
+        res.status(500).json({ erro: "Erro interno do servidor." });
+
+    }
+
+});
+
 async function contarCrisesEIsolados(usuarioId, condicaoSql) {
     const eventos = await db.query(
         `SELECT e.criado_em, e.forca, e.duracao_ms
@@ -2438,6 +2532,13 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
 
 });
 
+function formatarHorarioEvento(data) {
+    const d  = new Date(data);
+    const hh = String(d.getUTCHours()).padStart(2, "0");
+    const mm = String(d.getUTCMinutes()).padStart(2, "0");
+    return `${hh}:${mm}`;
+}
+
 app.get("/api/alertas", estaLogado, async (req, res) => {
 
     try {
@@ -2467,9 +2568,7 @@ app.get("/api/alertas", estaLogado, async (req, res) => {
         const crises = episodios
             .filter(ep => ep.classificacao === "crise")
             .map(ep => ({
-                horario: new Date(ep.inicio).toLocaleTimeString("pt-BR", {
-                    hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo"
-                }),
+                horario:   formatarHorarioEvento(ep.inicio),
                 forca:     Math.round(ep.forcaMax * 100) / 100,
                 latitude:  ep.latitude,
                 longitude: ep.longitude
