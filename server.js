@@ -49,7 +49,7 @@ const pgSession = require('connect-pg-simple')(session);
 
 app.use(session({
     store: new pgSession({
-        pool: db,              // usa o mesmo Pool do Postgres que eu já tem
+        pool: db,
         tableName: 'session',
         createTableIfMissing: true
     }),
@@ -62,7 +62,10 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        maxAge: 30 * 24 * 60 * 60 * 1000 // 30 dias
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 dias
+        httpOnly: true,                                    // 🔧 impede que JS no navegador leia o cookie (mitiga roubo via XSS)
+        secure: process.env.NODE_ENV === "production",      // 🔧 só envia o cookie por HTTPS em produção
+        sameSite: "lax"                                     // 🔧 ajuda contra CSRF, sem quebrar navegação normal
     }
 }));
 
@@ -333,6 +336,21 @@ function exigeTerapeuta(req, res, next) {
     const tipo = req.session.tipo || (req.user && req.user.tipo);
     if (tipo === 'psicologo') return next();
     return res.redirect("/");
+}
+
+function chavesIguaisSeguro(chaveRecebida, chaveEsperada) {
+
+    if (!chaveRecebida || !chaveEsperada) return false;
+
+    const bufferRecebido = Buffer.from(String(chaveRecebida));
+    const bufferEsperado = Buffer.from(String(chaveEsperada));
+
+    // timingSafeEqual exige buffers do mesmo tamanho, senão lança erro —
+    // por isso comparamos o tamanho primeiro (não é sigiloso, só o conteúdo importa)
+    if (bufferRecebido.length !== bufferEsperado.length) return false;
+
+    return crypto.timingSafeEqual(bufferRecebido, bufferEsperado);
+
 }
 
 // ─────────────────────────────────────────
@@ -724,7 +742,7 @@ app.post("/api/admin/pedido-status", limitarTentativasAdmin, async (req, res) =>
 
     const { chave, email, novoStatus } = req.body;
 
-    if (!process.env.ADMIN_SECRET || chave !== process.env.ADMIN_SECRET) {
+    if (!process.env.ADMIN_SECRET || !chavesIguaisSeguro(chave, process.env.ADMIN_SECRET)) {
         return res.status(401).json({ erro: "Chave de admin inválida." });
     }
 
@@ -1352,7 +1370,7 @@ app.post("/api/admin/novidade", limitarTentativasAdmin, async (req, res) => {
     const { chave, mensagem } = req.body;
 
     // Só continua se a chave enviada bater com a do .env
-    if (!process.env.ADMIN_SECRET || chave !== process.env.ADMIN_SECRET) {
+    if (!process.env.ADMIN_SECRET || !chavesIguaisSeguro(chave, process.env.ADMIN_SECRET)) {
         return res.status(401).json({ erro: "Chave de admin inválida." });
     }
 
