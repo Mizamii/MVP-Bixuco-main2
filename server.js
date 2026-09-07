@@ -29,7 +29,62 @@ const mpClient = new MercadoPagoConfig({
 const app = express();
 
 app.use(helmet({
-    contentSecurityPolicy: false
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+
+            // Scripts: os próprios do site + CDNs usados (Font Awesome, Chart.js,
+            // Leaflet, MapLibre) + o necessário para o login com Google
+            scriptSrc: [
+                "'self'",
+                "https://cdnjs.cloudflare.com",
+                "https://unpkg.com",
+                "https://accounts.google.com"
+            ],
+
+            // Estilos: os próprios + CDNs de CSS (Font Awesome, Leaflet, MapLibre)
+            // 'unsafe-inline' é necessário porque várias páginas usam <style> inline
+            styleSrc: [
+                "'self'",
+                "'unsafe-inline'",
+                "https://cdnjs.cloudflare.com",
+                "https://unpkg.com"
+            ],
+
+            // Fontes usadas pelo Font Awesome
+            fontSrc: [
+                "'self'",
+                "https://cdnjs.cloudflare.com"
+            ],
+
+            // Imagens: as do próprio site + fotos de perfil em base64 (data:)
+            // + tiles do mapa (OpenFreeMap)
+            imgSrc: [
+                "'self'",
+                "data:",
+                "https://tiles.openfreemap.org"
+            ],
+
+            // Chamadas fetch/XHR feitas pelo JavaScript da página
+            connectSrc: [
+                "'self'",
+                "https://viacep.com.br",
+                "https://tiles.openfreemap.org",
+                "https://accounts.google.com"
+            ],
+
+            // Necessário para o botão "Continuar com Google" funcionar
+            frameSrc: [
+                "'self'",
+                "https://accounts.google.com"
+            ],
+
+            // Impede que o site seja carregado dentro de um <iframe> de outro
+            // domínio (proteção contra clickjacking) — equivalente ao antigo
+            // X-Frame-Options, mas via CSP
+            frameAncestors: ["'self'"]
+        }
+    }
 }));
 
 const db = new Pool({
