@@ -28,6 +28,8 @@ const mpClient = new MercadoPagoConfig({
 
 const app = express();
 
+app.set('trust proxy', 1);
+
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
