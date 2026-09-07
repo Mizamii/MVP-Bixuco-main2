@@ -982,16 +982,21 @@ padding: 0.9rem 2rem;
     const painelNotificacoes = document.getElementById("painelNotificacoes");
     const listaNotificacoes  = document.getElementById("listaNotificacoes");
 
+    function escaparHTML(texto) {
+        const div = document.createElement("div");
+        div.textContent = texto ?? "";
+        return div.innerHTML;
+    }
+
     function formatarItemNotificacao(item) {
         const classeExtra = item.lida ? "" : "nao-lida";
         return `
             <div class="item-notificacao ${classeExtra}">
-                ${item.mensagem}
-                <span class="tempo-notificacao">${item.tempo}</span>
+                ${escaparHTML(item.mensagem)}
+                <span class="tempo-notificacao">${escaparHTML(item.tempo)}</span>
             </div>
         `;
     }
-
     async function carregarNotificacoes() {
         try {
             const resposta = await fetch("/api/notificacoes");

@@ -493,6 +493,12 @@
 
 <script>
 
+    function escaparHTML(texto) {
+        const div = document.createElement("div");
+        div.textContent = texto ?? "";
+        return div.innerHTML;
+    }
+
     // =========================
     // TRADUÇÃO MANUAL — dicionário para textos montados via JS
     // =========================
@@ -775,7 +781,7 @@
                     legenda.innerHTML += `
                         <div class="legenda-item">
                             <span class="legenda-cor" style="background:${dados?.cores?.[i] || VERDE}"></span>
-                            <span>${label} ${dados?.dados?.[i]}%</span>
+                            <span>${escaparHTML(label)} ${escaparHTML(dados?.dados?.[i])}%</span>
                         </div>`;
                 });
                 legenda.style.display = "flex";
@@ -935,10 +941,9 @@
 
             document.getElementById("painelDiaConteudo").innerHTML = detalhe.temRelatorio
                 ? `<ul class="lista-respostas-dia">${(detalhe.perguntas || []).map(p => `
-                    <li><strong>${p.pergunta || p.id}</strong><span>${p.resposta}</span></li>
+                    <li><strong>${escaparHTML(p.pergunta || p.id)}</strong><span>${escaparHTML(p.resposta)}</span></li>
                 `).join("")}</ul>`
                 : `<p class="sem-relatorio-dia">${t("semRelatorioDia")}</p>`;
-
             document.getElementById("notaDoDia").value = detalhe.nota || "";
 
         } catch (_) {
@@ -1007,8 +1012,8 @@
                 ? `<div class="painel-vazio">${t("semNotificacoes")}</div>`
                 : itens.map(n => `
                     <div class="item-notificacao ${n.lida ? "" : "nao-lida"}">
-                        ${n.mensagem}
-                        <span class="tempo-notificacao">${n.tempo}</span>
+                        ${escaparHTML(n.mensagem)}
+                        <span class="tempo-notificacao">${escaparHTML(n.tempo)}</span>
                     </div>`).join("");
         } catch (_) {
             document.getElementById("listaNotificacoes").innerHTML =

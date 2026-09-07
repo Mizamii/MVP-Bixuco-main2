@@ -625,6 +625,12 @@
                 : traduzir("Ver dicas personalizadas");
         }
 
+        function escaparHTML(texto) {
+            const div = document.createElement("div");
+            div.textContent = texto ?? "";
+            return div.innerHTML;
+        }
+
         function renderizarDicas(dicas) {
             listaDicas.innerHTML = "";
 
@@ -636,8 +642,8 @@
                         <i class="fa-solid fa-lightbulb"></i>
                     </div>
                     <div>
-                        <h4>${dica.titulo}</h4>
-                        <p>${dica.texto}</p>
+                        <h4>${escaparHTML(dica.titulo)}</h4>
+                        <p>${escaparHTML(dica.texto)}</p>
                     </div>
                 `;
                 artigo.addEventListener("click", () => abrirModalDica(dica));
@@ -806,12 +812,18 @@
         const painelNotificacoes = document.getElementById("painelNotificacoes");
         const listaNotificacoes  = document.getElementById("listaNotificacoes");
 
+        function escaparHTML(texto) {
+            const div = document.createElement("div");
+            div.textContent = texto ?? "";
+            return div.innerHTML;
+        }
+
         function formatarItemNotificacao(item) {
             const classeExtra = item.lida ? "" : "nao-lida";
             return `
                 <div class="item-notificacao ${classeExtra}">
-                    ${item.mensagem}
-                    <span class="tempo-notificacao">${item.tempo}</span>
+                    ${escaparHTML(item.mensagem)}
+                    <span class="tempo-notificacao">${escaparHTML(item.tempo)}</span>
                 </div>
             `;
         }

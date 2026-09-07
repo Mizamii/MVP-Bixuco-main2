@@ -227,6 +227,13 @@
 </div>
 
 <script>
+        function escaparHTML(texto) {
+            const div = document.createElement("div");
+            div.textContent = texto ?? "";
+            return div.innerHTML;
+        }
+
+
         let todosPacientes = [];
         let filtroAtual    = "todos";
 
@@ -325,7 +332,7 @@
             if (temAlerta) card.classList.add("card-paciente--alerta");
 
             const badgeAlerta = temAlerta
-                ? `<p class="badge-alerta">${paciente.alertas} alertas esta semana</p>`
+                ? `<p class="badge-alerta">${escaparHTML(paciente.alertas)} alertas esta semana</p>`
                 : "";
 
             const corEstresse = {
@@ -339,14 +346,14 @@
 
                 <div class="card-cabecalho">
                     <img
-                        src="${paciente.fotoPerfil || '/img/perfilPadrao.png'}"
-                        alt="${paciente.nomeResponsavel}"
+                        src="${escaparHTML(paciente.fotoPerfil || '/img/perfilPadrao.png')}"
+                        alt="${escaparHTML(paciente.nomeResponsavel)}"
                         onerror="this.src='/img/perfilPadrao.png'"
                     >
 
                     <div class="card-info">
-                        <strong>${paciente.nomeResponsavel}</strong>
-                        <span>Criança: ${paciente.nomeCrianca}, ${paciente.idadeCrianca} anos</span>
+                        <strong>${escaparHTML(paciente.nomeResponsavel)}</strong>
+                        <span>Criança: ${escaparHTML(paciente.nomeCrianca)}, ${escaparHTML(paciente.idadeCrianca)} anos</span>
                     </div>
 
                     <span class="status-badge status-badge--${paciente.status}">
@@ -357,27 +364,27 @@
                 <div class="card-metricas">
                     <div class="metrica">
                         <span>Alertas</span>
-                        <strong class="metrica-valor metrica-valor--alerta">${paciente.alertas}</strong>
+                        <strong class="metrica-valor metrica-valor--alerta">${escaparHTML(paciente.alertas)}</strong>
                     </div>
                     <div class="metrica">
                         <span>Estresse</span>
-                        <strong class="metrica-valor ${corEstresse}">${paciente.nivelEstresse}</strong>
+                        <strong class="metrica-valor ${corEstresse}">${escaparHTML(paciente.nivelEstresse)}</strong>
                     </div>
                     <div class="metrica">
                         <span>Último relat.</span>
-                        <strong class="metrica-valor metrica-valor--data">${paciente.ultimoRelatorio}</strong>
+                        <strong class="metrica-valor metrica-valor--data">${escaparHTML(paciente.ultimoRelatorio)}</strong>
                     </div>
                 </div>
 
-                <button
-                    type="button"
-                    class="btn-relatorio"
-                    onclick="window.location.href='/relatoriosTerapeuta?paciente=${paciente.id}'"
-                >
+                <button type="button" class="btn-relatorio">
                     <i class="fa-regular fa-clipboard-list"></i>
                     Relatório
                 </button>
             `;
+
+            card.querySelector(".btn-relatorio").addEventListener("click", () => {
+                window.location.href = `/relatoriosTerapeuta?paciente=${encodeURIComponent(paciente.id)}`;
+            });
 
             return card;
         }
@@ -444,8 +451,8 @@
                     ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
                     : itens.map(item => `
                         <div class="item-notificacao ${item.lida ? "" : "nao-lida"}">
-                            <p>${item.mensagem}</p>
-                            <span class="tempo-notificacao">${item.tempo}</span>
+                            <p>${escaparHTML(item.mensagem)}</p>
+                            <span class="tempo-notificacao">${escaparHTML(item.tempo)}</span>
                         </div>
                     `).join("");
             } catch (_) {

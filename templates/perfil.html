@@ -385,7 +385,7 @@
                              em vez de navegar para /adicionar-crianca -->
 
                         <a
-                            href="/adicionar-crianca"
+                            href="/AdicionarC"
                             class="item-card"
                             id="linkCrianca"
                         >
@@ -876,6 +876,12 @@
 
     <script>
 
+        function escaparHTML(texto) {
+            const div = document.createElement("div");
+            div.textContent = texto ?? "";
+            return div.innerHTML;
+        }
+
         // ==========================
         // ESTADO GLOBAL
         // ==========================
@@ -975,15 +981,11 @@
                     : `${usuario.crianca.idade} anos`;
 
                 if (usuario.crianca.foto) {
-
                     document.getElementById("avatarCrianca").innerHTML =
-                        `<img src="${usuario.crianca.foto}" alt="${usuario.crianca.nome}">`;
-
+                        `<img src="${escaparHTML(usuario.crianca.foto)}" alt="${escaparHTML(usuario.crianca.nome)}">`;
                 } else {
-
                     document.getElementById("avatarCrianca").textContent =
                         usuario.crianca.nome.charAt(0).toUpperCase();
-
                 }
 
             } else {
@@ -1218,19 +1220,13 @@
         // depois de sabermos que os dados do perfil já chegaram
         // (evita race condition levando para /adicionar-crianca por engano).
         linkCrianca.addEventListener("click", (e) => {
-
             e.preventDefault();
-
-            if (!perfilCarregado) {
-                return;
-            }
-
+            if (!perfilCarregado) return;
             if (criancaAtual) {
                 abrirModalCrianca();
             } else {
-                window.location.href = "/adicionar-crianca";
+                window.location.href = "/AdicionarC";
             }
-
         });
 
         function abrirModalCrianca() {
@@ -1338,7 +1334,7 @@
 
                 if (criancaAtual.foto) {
                     document.getElementById("avatarCrianca").innerHTML =
-                        `<img src="${criancaAtual.foto}" alt="${criancaAtual.nome}">`;
+                        `<img src="${escaparHTML(criancaAtual.foto)}" alt="${escaparHTML(criancaAtual.nome)}">`;
                 } else {
                     document.getElementById("avatarCrianca").textContent =
                         criancaAtual.nome.charAt(0).toUpperCase();
@@ -1823,8 +1819,8 @@
             const classeExtra = item.lida ? "" : "nao-lida";
             return `
                 <div class="item-notificacao ${classeExtra}">
-                    ${item.mensagem}
-                    <span class="tempo-notificacao">${item.tempo}</span>
+                    ${escaparHTML(item.mensagem)}
+                    <span class="tempo-notificacao">${escaparHTML(item.tempo)}</span>
                 </div>
             `;
         }

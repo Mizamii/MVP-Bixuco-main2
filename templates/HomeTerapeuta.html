@@ -289,6 +289,12 @@
 
 <script>
 
+    function escaparHTML(texto) {
+        const div = document.createElement("div");
+        div.textContent = texto ?? "";
+        return div.innerHTML;
+    }
+
     // =========================
     // TRADUÇÃO MANUAL — dicionário para textos montados via JS
     // =========================
@@ -436,9 +442,9 @@
             const info = document.createElement("div");
             info.classList.add("solicitacao-info");
             info.innerHTML = `
-                <strong>${item.nomeResponsavel}</strong>
-                <span>${t("crianca")}: ${item.nomeCrianca}, ${item.idadeCrianca} ${t("anos")}</span>
-                <span class="solicitacao-tempo">${item.tempo}</span>
+                <strong>${escaparHTML(item.nomeResponsavel)}</strong>
+                <span>${t("crianca")}: ${escaparHTML(item.nomeCrianca)}, ${escaparHTML(item.idadeCrianca)} ${t("anos")}</span>
+                <span class="solicitacao-tempo">${escaparHTML(item.tempo)}</span>
             `;
 
             const acoes = document.createElement("div");
@@ -585,27 +591,28 @@
             }
 
             li.innerHTML = `
-                <div class="atividade-icone atividade-icone--${item.cor || "verde"}">
+                <div class="atividade-icone atividade-icone--${escaparHTML(item.cor || "verde")}">
                     <i class="fa-solid fa-clipboard-list"></i>
                 </div>
 
                 <div class="atividade-info">
                     <strong>
-                        Relatório de ${item.nomeCrianca}
+                        Relatório de ${escaparHTML(item.nomeCrianca)}
                         ${!item.visto ? '<span class="bolinha-nao-visto"></span>' : ''}
                     </strong>
-                    <span>${item.nomeResponsavel} · ${item.tempo}</span>
+                    <span>${escaparHTML(item.nomeResponsavel)} · ${escaparHTML(item.tempo)}</span>
                 </div>
 
-                <button
-                    type="button"
-                    class="btn-ver"
-                    onclick="marcarVistoEAbrir(${item.id}, ${item.responsavelId}, '${item.dataISO}')"
-                >
+                <button type="button" class="btn-ver">
                     <i class="fa-regular fa-eye"></i>
                     ${t("ver")}
                 </button>
             `;
+
+            // Anexa o listener em vez de usar onclick inline (evita injeção via atributo)
+            li.querySelector(".btn-ver").addEventListener("click", () => {
+                marcarVistoEAbrir(item.id, item.responsavelId, item.dataISO);
+            });
 
             ul.appendChild(li);
 
@@ -653,8 +660,8 @@
                 <div class="notificacao-linha">
                     <i class="fa-solid ${icone} notificacao-icone"></i>
                     <div>
-                        <p>${item.mensagem}</p>
-                        <span class="tempo-notificacao">${item.tempo}</span>
+                        <p>${escaparHTML(item.mensagem)}</p>
+                        <span class="tempo-notificacao">${escaparHTML(item.tempo)}</span>
                     </div>
                 </div>
             </div>

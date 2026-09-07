@@ -272,15 +272,12 @@
 
         // Usa innerHTML (em vez de textContent) para suportar a lista de
         // requisitos da senha com quebras de linha (<br>) — ver validarCampos()
-        function mostrarErro(inputId, erroId, mensagem) {
+        function mostrarErro(inputId, erroId, mensagem, permitirHTML = false) {
 
             const input = document.getElementById(inputId);
             const erro  = document.getElementById(erroId);
 
             if (!input || !erro) {
-                // Campo não existe nesta página (ex: erro de e-mail/CPF que
-                // pertence a uma etapa anterior do cadastro) — mostra no
-                // erro geral em vez de falhar silenciosamente
                 const erroGeral = document.getElementById("erro-geral");
                 if (erroGeral) {
                     erroGeral.textContent   = mensagem;
@@ -290,7 +287,16 @@
             }
 
             input.classList.add("input-erro");
-            erro.innerHTML     = mensagem;
+
+            // Só permite HTML quando explicitamente pedido (lista fixa de requisitos
+            // de senha, escrita pelo próprio código). Qualquer mensagem vinda do
+            // servidor ou de outro lugar usa textContent, sem risco de XSS.
+            if (permitirHTML) {
+                erro.innerHTML = mensagem;
+            } else {
+                erro.textContent = mensagem;
+            }
+
             erro.style.display = "block";
             erro.dataset.jaTentou = "true";
 
@@ -352,7 +358,8 @@
                 mostrarErro(
                     "senha",
                     "erro-senha",
-                    "A senha deve: " + "<br>" + erros.join("<br>")
+                    "A senha deve: " + "<br>" + erros.join("<br>"),
+                    true
                 );
 
                 valido = false;

@@ -10,6 +10,7 @@ const session = require('express-session');
 const crypto = require('crypto');
 const multer = require('multer');
 const cron = require('node-cron');
+const helmet = require('helmet');
 const { MercadoPagoConfig, PreApprovalPlan, PreApproval } = require("mercadopago");
 
 
@@ -26,6 +27,10 @@ const mpClient = new MercadoPagoConfig({
 });
 
 const app = express();
+
+app.use(helmet({
+    contentSecurityPolicy: false
+}));
 
 const db = new Pool({
 
@@ -427,9 +432,6 @@ app.get("/logar", (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "logar.html"));
 });
 
-app.get("/ContaExistente", (req, res) => {
-    res.sendFile(path.join(__dirname, "templates", "ContaExistente.html"));
-});
 
 app.get("/CriarContaS", (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "CriarContaS.html"));
@@ -781,7 +783,7 @@ app.post("/api/admin/pedido-status", limitarTentativasAdmin, async (req, res) =>
 });
 
 
-app.post("/api/planos/criar-planos", async (req, res) => {
+app.post("/api/planos/criar-planos", estaLogado, exigeAdmin, async (req, res) => {
 
     try {
 
@@ -2868,12 +2870,13 @@ app.get("/api/home-terapeuta", estaLogado, async (req, res) => {
         const usuarioId = req.session.usuarioId || (req.user && req.user.id);
 
         if (!usuarioId) {
+
             return res.status(401).json({ erro: "Não autenticado." });
         }
 
         // Dados do terapeuta
         const resultadoUsuario = await db.query(
-            `SELECT nome, foto_perfil, codigo_vinculo FROM usuarios WHERE id = $1`,
+            `SELECT nome, email, foto_perfil, codigo_vinculo FROM usuarios WHERE id = $1`,
             [usuarioId]
         );
 
@@ -2988,6 +2991,7 @@ app.get("/api/home-terapeuta", estaLogado, async (req, res) => {
 
         res.json({
             nome:             terapeuta.nome,
+            email:            terapeuta.email,
             fotoPerfil:       terapeuta.foto_perfil || null,
             notificacoes:   parseInt(notificacoesNaoLidas.rows[0].total) || 0,
             totalPacientes: parseInt(totalPacientes.rows[0].total) || 0,
@@ -3866,8 +3870,6 @@ app.get('/logout', (req, res) => {
    API — DADOS DA HOME
 ========================== */
 
-// 🔧 FIX 7: Rota /api/home que o frontend chamava mas não existia no backend
-// Retorna os dados do usuário logado para preencher a página home
 app.get('/api/home', estaLogado, async (req, res) => {
 
     try {
@@ -3894,6 +3896,19 @@ app.get('/api/home', estaLogado, async (req, res) => {
         }
 
         const usuario = resultado.rows[0];
+
+        // 🔧 NOVO: busca o nome da criança cadastrada por esse usuário —
+        // usado na tela "Relatório salvo!" (RelatorioSalvo.html)
+        let nomeCrianca = null;
+        try {
+            const criancaResultado = await db.query(
+                `SELECT nome FROM criancas WHERE usuario_id = $1 LIMIT 1`,
+                [usuarioId]
+            );
+            nomeCrianca = criancaResultado.rows[0]?.nome || null;
+        } catch (_) {
+            // Sem criança cadastrada ainda — segue sem quebrar a home
+        }
 
         // Busca quantos dias consecutivos o usuário preencheu relatório
         // Ajuste a query conforme sua tabela de relatórios
@@ -3956,7 +3971,8 @@ app.get('/api/home', estaLogado, async (req, res) => {
             fotoPerfil: usuario.foto_perfil || null,
             notificacoes: totalNotificacoes,
             diasConsecutivos: sequencia.rows.length > 0 ? (parseInt(sequencia.rows[0].total) || 0) : 0,
-            nomeBixuco: "Bixuco" // futuramente buscar da tabela de dispositivos vinculados
+            nomeBixuco: "Bixuco", // futuramente buscar da tabela de dispositivos vinculados
+            nomeCrianca // 🔧 NOVO — usado em RelatorioSalvo.html
         });
 
     } catch (erro) {

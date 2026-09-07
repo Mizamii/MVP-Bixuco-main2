@@ -137,8 +137,7 @@ async function carregarDados(){
 
     try{
 
-        const resposta =
-        await fetch("/dados-home");
+        const resposta = await fetch("/api/home");
 
         if(!resposta.ok){
 

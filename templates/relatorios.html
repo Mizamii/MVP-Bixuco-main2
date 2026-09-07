@@ -619,6 +619,12 @@
 
 <script>
 
+    function escaparHTML(texto) {
+        const div = document.createElement("div");
+        div.textContent = texto ?? "";
+        return div.innerHTML;
+    }
+
     
 
 
@@ -1075,7 +1081,7 @@
                     legenda.innerHTML += `
                         <div class="legenda-item">
                             <span class="legenda-cor" style="background:${gatilhos.cores[i] || VERDE}"></span>
-                            <span>${traduzir(label)} ${gatilhos.dados[i]}%</span>
+                            <span>${escaparHTML(traduzir(label))} ${escaparHTML(gatilhos.dados[i])}%</span>
                         </div>
                     `;
                 });
@@ -1184,17 +1190,13 @@
         }
 
         dados.perguntas.forEach(item => {
-
             const div = document.createElement("div");
             div.className = "pergunta-item";
-
             div.innerHTML = `
-                <span class="pergunta-texto">${item.pergunta}</span>
-                <span class="pergunta-badge">${item.resposta}</span>
+                <span class="pergunta-texto">${escaparHTML(item.pergunta)}</span>
+                <span class="pergunta-badge">${escaparHTML(item.resposta)}</span>
             `;
-
             lista.appendChild(div);
-
         });
 
     }
@@ -1246,11 +1248,11 @@
 
             corpoTabela.innerHTML = crises.map(c => `
                 <tr>
-                    <td>${c.horario}</td>
+                    <td>${escaparHTML(c.horario)}</td>
                     <td>${(c.latitude && c.longitude)
-                        ? `<a href="https://www.google.com/maps?q=${c.latitude},${c.longitude}" target="_blank" rel="noopener">${traduzir("Ver no mapa")}</a>`
+                        ? `<a href="https://www.google.com/maps?q=${encodeURIComponent(c.latitude)},${encodeURIComponent(c.longitude)}" target="_blank" rel="noopener">${traduzir("Ver no mapa")}</a>`
                         : traduzir("Não disponível")}</td>
-                    <td>${c.forca}</td>
+                    <td>${escaparHTML(c.forca)}</td>
                 </tr>
             `).join("");
 
@@ -1282,8 +1284,8 @@
         const classeExtra = item.lida ? "" : "nao-lida";
         return `
             <div class="item-notificacao ${classeExtra}">
-                ${item.mensagem}
-                <span class="tempo-notificacao">${item.tempo}</span>
+                ${escaparHTML(item.mensagem)}
+                <span class="tempo-notificacao">${escaparHTML(item.tempo)}</span>
             </div>
         `;
     }

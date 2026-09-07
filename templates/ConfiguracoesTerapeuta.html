@@ -405,7 +405,7 @@
 
         document.getElementById("btnConfirmarExcluir").addEventListener("click", async () => {
             try {
-                const resposta = await fetch("/api/conta/excluir", { method: "DELETE" });
+                const resposta = await fetch("/api/excluir-conta", { method: "DELETE" });
                 if (resposta.ok) window.location.href = "/";
                 else alert(t("erroExcluirConta"));
             } catch (_) {
@@ -433,6 +433,12 @@
         const painelNotificacoes = document.getElementById("painelNotificacoes");
         const listaNotificacoes  = document.getElementById("listaNotificacoes");
 
+        function escaparHTML(texto) {
+            const div = document.createElement("div");
+            div.textContent = texto ?? "";
+            return div.innerHTML;
+        }
+
         async function carregarNotificacoes() {
             try {
                 const resposta = await fetch("/api/notificacoes");
@@ -444,8 +450,8 @@
                     ? `<div class="painel-vazio">${t("semNotificacoes")}</div>`
                     : itens.map(item => `
                         <div class="item-notificacao ${item.lida ? "" : "nao-lida"}">
-                            <p>${item.mensagem}</p>
-                            <span class="tempo-notificacao">${item.tempo}</span>
+                            <p>${escaparHTML(item.mensagem)}</p>
+                            <span class="tempo-notificacao">${escaparHTML(item.tempo)}</span>
                         </div>
                     `).join("");
             } catch (_) {

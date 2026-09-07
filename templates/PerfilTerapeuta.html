@@ -347,6 +347,12 @@ JAVASCRIPT
 
 <script>
 
+    function escaparHTML(texto) {
+        const div = document.createElement("div");
+        div.textContent = texto ?? "";
+        return div.innerHTML;
+    }
+
     // ==========================
     // TRADUÇÃO MANUAL — mesmo padrão do resto do app
     // (antes esta página usava Google Translate via cookie + reload;
@@ -692,7 +698,13 @@ JAVASCRIPT
     // ==========================
 
     document.getElementById("btnNovoPaciente").addEventListener("click", () => {
-        window.location.href = "/CompartilharPaciente";
+        const codigo = document.getElementById("codigoVinculo").textContent;
+        const mensagem = encodeURIComponent(
+            "Olá! Venha conhecer o Bixuco, um aplicativo que ajuda no acompanhamento de crianças com hipersensibilidade sensorial. 🐱\n\n" +
+            `Use meu código de vínculo: ${codigo}\n\n` +
+            "https://mvp-bixuco.onrender.com"
+        );
+        window.open(`https://wa.me/?text=${mensagem}`, "_blank");
     });
 
 
@@ -707,8 +719,8 @@ JAVASCRIPT
         const classeExtra = item.lida ? "" : "nao-lida";
         return `
             <div class="item-notificacao ${classeExtra}">
-                ${item.mensagem}
-                <span class="tempo-notificacao">${item.tempo}</span>
+                ${escaparHTML(item.mensagem)}
+                <span class="tempo-notificacao">${escaparHTML(item.tempo)}</span>
             </div>
         `;
     }
