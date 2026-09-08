@@ -104,11 +104,9 @@
                         alt="Foto do usuário"
                         title="Ver perfil"
                         style="cursor: pointer;"
-                        onclick="window.location.href='/perfilSemAssinatura'"
-                        onerror="this.src='/img/perfilPadrao.png'"
                     >
 
-                    <div style="cursor: pointer;" onclick="window.location.href='/perfilSemAssinatura'">
+                    <div style="cursor: pointer;">
                         <h3 id="nomeUsuario">Carregando...</h3>
                         <span id="tipoConta">...</span>
                     </div>
@@ -137,49 +135,49 @@
             <!-- ===================== -->
             <section class="cards">
 
-                <button type="button" class="card" data-topico="sobre" onclick="abrirModal('modal-sobre')">
+                <button type="button" class="card" data-topico="sobre" >
                     <i class="fa-solid fa-circle-info"></i>
                     <h3 data-pt="Sobre nós" data-en="About us">Sobre nós</h3>
                     <p data-pt="Nossa história e missão" data-en="Our story and mission">Nossa história e missão</p>
                 </button>
 
-                <button type="button" class="card" data-topico="ajudamos" onclick="abrirModal('modal-ajudamos')">
+                <button type="button" class="card" data-topico="ajudamos" >
                     <i class="fa-solid fa-heart"></i>
                     <h3 data-pt="Como ajudamos" data-en="How we help">Como ajudamos</h3>
                     <p data-pt="O que fazemos por você" data-en="What we do for you">O que fazemos por você</p>
                 </button>
 
-                <button type="button" class="card" data-topico="funciona" onclick="abrirModal('modal-funciona')">
+                <button type="button" class="card" data-topico="funciona" >
                     <i class="fa-solid fa-gear"></i>
                     <h3 data-pt="Como funciona" data-en="How it works">Como funciona</h3>
                     <p data-pt="Pelúcia + app + relatórios" data-en="Plush toy + app + reports">Pelúcia + app + relatórios</p>
                 </button>
 
-                <button type="button" class="card" data-topico="publico" onclick="abrirModal('modal-publico')">
+                <button type="button" class="card" data-topico="publico">
                     <i class="fa-solid fa-users"></i>
                     <h3 data-pt="Para quem é" data-en="Who it's for">Para quem é</h3>
                     <p data-pt="Pais e terapeutas" data-en="Parents and therapists">Pais e terapeutas</p>
                 </button>
 
-                <button type="button" class="card" data-topico="naofazemos" onclick="abrirModal('modal-naofazemos')">
+                <button type="button" class="card" data-topico="naofazemos" >
                     <i class="fa-solid fa-ban"></i>
                     <h3 data-pt="O que não fazemos" data-en="What we don't do">O que não fazemos</h3>
                     <p data-pt="Sem diagnósticos" data-en="No diagnoses">Sem diagnósticos</p>
                 </button>
 
-                <button type="button" class="card" data-topico="privacidade" onclick="abrirModal('modal-privacidade')">
+                <button type="button" class="card" data-topico="privacidade" >
                     <i class="fa-solid fa-shield-halved"></i>
                     <h3 data-pt="Privacidade" data-en="Privacy">Privacidade</h3>
                     <p data-pt="Como protegemos seus dados" data-en="How we protect your data">Como protegemos seus dados</p>
                 </button>
 
-                <button type="button" class="card" data-topico="proposito" onclick="abrirModal('modal-proposito')">
+                <button type="button" class="card" data-topico="proposito">
                     <i class="fa-solid fa-trophy"></i>
                     <h3 data-pt="Nosso propósito" data-en="Our purpose">Nosso propósito</h3>
                     <p data-pt="Missão, visão e valores da Bixuco" data-en="Bixuco's mission, vision, and values">Missão, visão e valores da Bixuco</p>
                 </button>
 
-                <button type="button" class="card" data-topico="contato" onclick="abrirModal('modal-contato')">
+                <button type="button" class="card" data-topico="contato" >
                     <i class="fa-solid fa-headset"></i>
                     <h3 data-pt="Contato e suporte" data-en="Contact and support">Contato e suporte</h3>
                     <p data-pt="Fale com nossa equipe" data-en="Talk to our team">Fale com nossa equipe</p>
@@ -211,7 +209,7 @@
 
     <div class="modal" id="modal-sobre">
         <div class="modal-conteudo">
-            <button type="button" class="fechar" onclick="fecharModal('modal-sobre')">
+            <button type="button" class="fechar">
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <div class="modal-icone"><i class="fa-solid fa-circle-info"></i></div>
@@ -234,7 +232,7 @@
 
     <div class="modal" id="modal-ajudamos">
         <div class="modal-conteudo">
-            <button type="button" class="fechar" onclick="fecharModal('modal-ajudamos')">
+            <button type="button" class="fechar" >
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <div class="modal-icone"><i class="fa-solid fa-heart"></i></div>
@@ -254,7 +252,7 @@
 
     <div class="modal" id="modal-funciona">
         <div class="modal-conteudo">
-            <button type="button" class="fechar" onclick="fecharModal('modal-funciona')">
+            <button type="button" class="fechar" >
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <div class="modal-icone"><i class="fa-solid fa-gear"></i></div>
@@ -272,7 +270,7 @@
 
     <div class="modal" id="modal-publico">
         <div class="modal-conteudo">
-            <button type="button" class="fechar" onclick="fecharModal('modal-publico')">
+            <button type="button" class="fechar" >
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <div class="modal-icone"><i class="fa-solid fa-users"></i></div>
@@ -292,7 +290,7 @@
 
     <div class="modal" id="modal-naofazemos">
         <div class="modal-conteudo">
-            <button type="button" class="fechar" onclick="fecharModal('modal-naofazemos')">
+            <button type="button" class="fechar">
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <div class="modal-icone"><i class="fa-solid fa-ban"></i></div>
@@ -313,7 +311,7 @@
 
     <div class="modal" id="modal-privacidade">
         <div class="modal-conteudo">
-            <button type="button" class="fechar" onclick="fecharModal('modal-privacidade')">
+            <button type="button" class="fechar" >
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <div class="modal-icone"><i class="fa-solid fa-shield-halved"></i></div>
@@ -334,7 +332,7 @@
 
     <div class="modal" id="modal-proposito">
         <div class="modal-conteudo">
-            <button type="button" class="fechar" onclick="fecharModal('modal-proposito')">
+            <button type="button" class="fechar" >
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <div class="modal-icone"><i class="fa-solid fa-trophy"></i></div>
@@ -355,7 +353,7 @@
 
     <div class="modal" id="modal-contato">
         <div class="modal-conteudo">
-            <button type="button" class="fechar" onclick="fecharModal('modal-contato')">
+            <button type="button" class="fechar" >
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <div class="modal-icone"><i class="fa-solid fa-headset"></i></div>
@@ -370,219 +368,9 @@
         </div>
     </div>
 
-    <script>
 
-        // ==========================
-        // TRADUÇÃO MANUAL
-        // ==========================
-
-        let idiomaAtual = localStorage.getItem("idioma") || "pt";
-
-        // Textos dinâmicos simples (sem tags internas)
-        const dicionario = {
-            "Responsável":                            "Guardian",
-            "Terapeuta":                               "Therapist",
-            "Usuário":                                 "User",
-            "Nenhuma promoção por enquanto.":          "No promotions for now.",
-            "Não foi possível carregar.":              "Could not load."
-        };
-
-        function traduzir(texto) {
-            if (idiomaAtual === "pt" || texto == null) return texto;
-            return dicionario[texto] || texto;
-        }
-
-        // Textos com formatação interna (<strong>, <em>) — traduzidos via innerHTML
-        const textosFormatados = {
-            fraseFinalTexto: {
-                pt: `Mais do que tecnologia, entregamos <strong>conexão</strong>, <strong>empatia</strong> e <strong>inteligência</strong> para apoiar o desenvolvimento infantil.`,
-                en: `More than technology, we deliver <strong>connection</strong>, <strong>empathy</strong>, and <strong>intelligence</strong> to support child development.`
-            },
-            modalPublicoLi1: {
-                pt: `<strong>Pais e responsáveis</strong>, que acompanham a rotina da criança de perto;`,
-                en: `<strong>Parents and guardians</strong>, who closely follow the child's daily routine;`
-            },
-            modalPublicoLi2: {
-                pt: `<strong>Terapeutas</strong>, que recebem informações organizadas para embasar o acompanhamento profissional.`,
-                en: `<strong>Therapists</strong>, who receive organized information to support professional care.`
-            },
-            modalNaofazemosP1: {
-                pt: `O Bixuco <strong>não</strong> substitui avaliação, diagnóstico ou tratamento profissional. Ele é uma ferramenta de apoio e organização — não um serviço de saúde.`,
-                en: `Bixuco <strong>does not</strong> replace professional evaluation, diagnosis, or treatment. It is a support and organization tool — not a health service.`
-            }
-        };
-
-        let ultimoTipoConta = "Responsável";
-
-        function aplicarIdiomaEstatico() {
-
-            document.querySelectorAll("[data-pt]").forEach(el => {
-                el.textContent = idiomaAtual === "en"
-                    ? (el.dataset.en || el.dataset.pt)
-                    : el.dataset.pt;
-            });
-
-            Object.keys(textosFormatados).forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.innerHTML = textosFormatados[id][idiomaAtual];
-            });
-
-            document.getElementById("textoTradutor").textContent =
-                idiomaAtual === "en" ? "Traduzir para o português" : "Traduzir para o inglês";
-
-            document.getElementById("tipoConta").textContent = traduzir(ultimoTipoConta);
-        }
-
-        document.getElementById("btnTraduzir").addEventListener("click", () => {
-            idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
-            localStorage.setItem("idioma", idiomaAtual);
-            aplicarIdiomaEstatico();
-
-            if (painelNotificacoes.classList.contains("aberto")) {
-                carregarNotificacoes();
-            }
-        });
-
-        // ==========================
-        // ABRIR / FECHAR MODAIS
-        // ==========================
-
-        function abrirModal(id) {
-            const modal = document.getElementById(id);
-            if (!modal) return;
-            modal.classList.add("mostrar");
-            document.body.style.overflow = "hidden";
-        }
-
-        function fecharModal(id) {
-            const modal = document.getElementById(id);
-            if (!modal) return;
-            modal.classList.remove("mostrar");
-            document.body.style.overflow = "";
-        }
-
-        document.querySelectorAll(".modal").forEach(modal => {
-            modal.addEventListener("click", (e) => {
-                if (e.target === modal) {
-                    modal.classList.remove("mostrar");
-                    document.body.style.overflow = "";
-                }
-            });
-        });
-
-        document.addEventListener("keydown", (e) => {
-            if (e.key === "Escape") {
-                document.querySelectorAll(".modal.mostrar").forEach(modal => {
-                    modal.classList.remove("mostrar");
-                });
-                document.body.style.overflow = "";
-            }
-        });
-
-        // ==========================
-        // CARREGAR DADOS DO USUÁRIO (topo)
-        // ==========================
-
-        async function carregarUsuario() {
-            try {
-                const resposta = await fetch("/api/home");
-
-                if (resposta.status === 401) {
-                    window.location.href = "/logar";
-                    return;
-                }
-
-                if (!resposta.ok) return;
-
-                const dados = await resposta.json();
-
-                document.getElementById("nomeUsuario").textContent = dados.nome || "Usuário";
-
-                ultimoTipoConta = dados.tipoConta || "Responsável";
-                document.getElementById("tipoConta").textContent = traduzir(ultimoTipoConta);
-
-                if (dados.fotoPerfil) {
-                    document.getElementById("fotoUsuario").src = dados.fotoPerfil;
-                }
-
-            } catch (erro) {
-                console.log("Erro ao carregar usuário:", erro);
-            }
-        }
-
-        // ==========================
-        // PAINEL DE NOTIFICAÇÕES (só promoções)
-        // ==========================
-
-        const painelNotificacoes = document.getElementById("painelNotificacoes");
-        const listaNotificacoes  = document.getElementById("listaNotificacoes");
-
-        function escaparHTML(texto) {
-            const div = document.createElement("div");
-            div.textContent = texto ?? "";
-            return div.innerHTML;
-        }
-
-        function formatarItemNotificacao(item) {
-            const classeExtra = item.lida ? "" : "nao-lida";
-            return `
-                <div class="item-notificacao ${classeExtra}">
-                    ${escaparHTML(item.mensagem)}
-                    <span class="tempo-notificacao">${escaparHTML(item.tempo)}</span>
-                </div>
-            `;
-        }
-
-        async function carregarNotificacoes() {
-            try {
-                const resposta = await fetch("/api/notificacoes");
-                if (!resposta.ok) throw new Error();
-
-                const dados = await resposta.json();
-                const itens = (dados.notificacoes || []).filter(n => n.tipo === "novidade");
-
-                listaNotificacoes.innerHTML = itens.length === 0
-                    ? `<div class="painel-vazio">${traduzir("Nenhuma promoção por enquanto.")}</div>`
-                    : itens.map(formatarItemNotificacao).join("");
-
-                const naoLidas = itens.filter(item => !item.lida).length;
-                document.getElementById("quantidadeNotificacoes").textContent = naoLidas;
-
-            } catch (erro) {
-                console.log("Erro ao carregar notificações:", erro);
-                listaNotificacoes.innerHTML = `<div class="painel-vazio">${traduzir("Não foi possível carregar.")}</div>`;
-            }
-        }
-
-        document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
-            e.stopPropagation();
-
-            const estaAberto = painelNotificacoes.classList.contains("aberto");
-            if (estaAberto) {
-                painelNotificacoes.classList.remove("aberto");
-                return;
-            }
-
-            painelNotificacoes.classList.add("aberto");
-            await carregarNotificacoes();
-        });
-
-        document.addEventListener("click", (e) => {
-            if (!painelNotificacoes.contains(e.target)) {
-                painelNotificacoes.classList.remove("aberto");
-            }
-        });
-
-        // ==========================
-        // INICIALIZAÇÃO
-        // ==========================
-
-        aplicarIdiomaEstatico();
-        carregarUsuario();
-        carregarNotificacoes();
-
-    </script>
     <script src="/js/tema.js"></script>
+    <script src="/js/SobreSemAssinatura.js"></script>
 
 </body>
 </html>
