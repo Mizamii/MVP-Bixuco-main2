@@ -129,7 +129,7 @@ async function carregarRelatorios() {
                 <div class="info">
                     <div class="avatar">
                         ${p.fotoCrianca
-                            ? `<img src="${escaparHTML(p.fotoCrianca)}" alt="${escaparHTML(p.nomeCrianca)}" onerror="this.parentElement.textContent='${escaparHTML(inicial)}'">`
+                            ? `<img src="${escaparHTML(p.fotoCrianca)}" alt="${escaparHTML(p.nomeCrianca)}">`
                             : escaparHTML(inicial)
                         }
                     </div>
@@ -148,6 +148,13 @@ async function carregarRelatorios() {
             card.addEventListener("click", () => {
                 window.location.href = `/relatoriosTerapeuta?paciente=${p.responsavelId}`;
             });
+
+            const imgAvatar = card.querySelector(".avatar img");
+                if (imgAvatar) {
+                    imgAvatar.addEventListener("error", function () {
+                        this.parentElement.textContent = inicial;
+                    });
+                }
 
             lista.appendChild(card);
         });

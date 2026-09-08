@@ -224,3 +224,11 @@ document.addEventListener("click", (e) => {
 aplicarIdiomaEstatico();
 carregarUsuario();
 carregarNotificacoes();
+
+document.getElementById("fotoUsuario").addEventListener("click", () => {
+    window.location.href = "/perfilSemAssinatura";
+});
+
+document.getElementById("wrapperPerfilTopo").addEventListener("click", () => {
+    window.location.href = "/perfilSemAssinatura";
+});

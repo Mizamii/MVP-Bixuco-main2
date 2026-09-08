@@ -385,3 +385,7 @@ document.addEventListener("click", (e) => {
 
 atualizarTextoBotaoTraducao();
 carregarNotificacoes();
+
+document.getElementById("btnRelatorioDiario").addEventListener("click", () => {
+    location.href = "/RelatorioDiario";
+});

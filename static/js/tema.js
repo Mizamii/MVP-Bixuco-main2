@@ -9,7 +9,6 @@
    Funciona mesmo se a página não tiver os botões — nesse caso
    só aplica a classe do tema no <body> e não quebra nada.
    ========================================================== */
-
 function aplicarTema(tema) {
 
     document.body.classList.remove("tema-claro", "tema-escuro");
@@ -17,18 +16,21 @@ function aplicarTema(tema) {
 
     const btnClaro  = document.getElementById("btnClaro");
     const btnEscuro = document.getElementById("btnEscuro");
-    const btnMobile = document.getElementById("btnTemaMobile"); // NOVO
+    const btnMobile = document.getElementById("btnTemaMobile");
 
     if (btnClaro)  btnClaro.classList.toggle("ativo", tema === "claro");
     if (btnEscuro) btnEscuro.classList.toggle("ativo", tema === "escuro");
 
-    // NOVO — troca o ícone (sol/lua) do botão mobile, se ele existir na página
     if (btnMobile) {
         const icone = btnMobile.querySelector("i");
         if (icone) icone.className = tema === "claro" ? "fa-regular fa-sun" : "fa-regular fa-moon";
     }
 
-    trocarEstiloMapa(tema);
+    // Só existe na Home (definida no home.js) — não quebra as demais páginas
+    if (typeof trocarEstiloMapa === "function") {
+        trocarEstiloMapa(tema);
+    }
+
     localStorage.setItem("tema", tema);
 
 }

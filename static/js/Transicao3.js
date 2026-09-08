@@ -34,6 +34,12 @@ document.addEventListener("touchend",(e)=>{
 
     }
 
+    if(distancia < -80){
+
+        proximaPagina();
+
+    }
+
 });
 
 
@@ -66,6 +72,12 @@ document.addEventListener("mouseup",(e)=>{
     if(distancia > 80){
 
         voltarPagina();
+
+    }
+
+    if(distancia < -80){
+
+        proximaPagina();
 
     }
 

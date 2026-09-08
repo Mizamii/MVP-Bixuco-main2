@@ -119,7 +119,6 @@ function criarCard(paciente, temAlerta) {
             <img
                 src="${escaparHTML(paciente.fotoPerfil || '/img/perfilPadrao.png')}"
                 alt="${escaparHTML(paciente.nomeResponsavel)}"
-                onerror="this.src='/img/perfilPadrao.png'"
             >
 
             <div class="card-info">

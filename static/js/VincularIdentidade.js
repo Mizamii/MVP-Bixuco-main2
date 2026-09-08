@@ -209,3 +209,15 @@ document.getElementById("btn-scan").addEventListener("click", () => {
     // Placeholder: abrir modal/leitor de câmera para QR code
     alert(traduzir("Leitor de QR code em desenvolvimento."));
 });
+
+document.getElementById("btnRelatorioDiario").addEventListener("click", () => {
+    window.location.href = "/RelatorioDiario";
+});
+
+document.getElementById("fotoUsuario").addEventListener("click", () => {
+    window.location.href = "/perfil";
+});
+
+document.getElementById("wrapperPerfilTopo").addEventListener("click", () => {
+    window.location.href = "/perfil";
+});
