@@ -10,6 +10,39 @@ let filtroAtual    = "todos";
 
 
 // =========================
+// TRADUÇÃO MANUAL — dicionário para textos montados via JS
+// =========================
+
+let idiomaAtual = localStorage.getItem("idioma") || "pt";
+
+const dicionario = {
+    crianca:           { pt: "Criança",              en: "Child" },
+    anos:              { pt: "anos",                 en: "years old" },
+    ativo:             { pt: "Ativo",                 en: "Active" },
+    inativo:           { pt: "Inativo",               en: "Inactive" },
+    alertasSemana:     { pt: (n) => `${n} alertas esta semana`, en: (n) => `${n} alerts this week` },
+    alertas:           { pt: "Alertas",               en: "Alerts" },
+    estresse:          { pt: "Estresse",              en: "Stress" },
+    ultimoRelat:       { pt: "Último relat.",          en: "Last report" },
+    relatorio:         { pt: "Relatório",              en: "Report" },
+    nivelAlto:         { pt: "Alto",                   en: "High" },
+    nivelMedio:        { pt: "Médio",                  en: "Medium" },
+    nivelBaixo:        { pt: "Baixo",                  en: "Low" },
+    semNotificacoes:   { pt: "Nenhuma notificação por enquanto.", en: "No notifications yet." },
+    erroCarregarNotif: { pt: "Não foi possível carregar.", en: "Couldn't load notifications." },
+};
+
+function t(chave, ...args) {
+    const entrada = dicionario[chave];
+    const valor   = idiomaAtual === "en" ? entrada.en : entrada.pt;
+    return typeof valor === "function" ? valor(...args) : valor;
+}
+
+// Mapa dos valores de estresse vindos da API (em português) pra chave do dicionário
+const nivelParaChave = { "Alto": "nivelAlto", "Médio": "nivelMedio", "Baixo": "nivelBaixo" };
+
+
+// =========================
 // CARREGAR USUÁRIO (topo)
 // =========================
 async function carregarUsuario() {
@@ -103,7 +136,7 @@ function criarCard(paciente, temAlerta) {
     if (temAlerta) card.classList.add("card-paciente--alerta");
 
     const badgeAlerta = temAlerta
-        ? `<p class="badge-alerta">${escaparHTML(paciente.alertas)} alertas esta semana</p>`
+        ? `<p class="badge-alerta">${escaparHTML(t("alertasSemana", paciente.alertas))}</p>`
         : "";
 
     const corEstresse = {
@@ -111,6 +144,9 @@ function criarCard(paciente, temAlerta) {
         "Médio": "estresse--medio",
         "Baixo": "estresse--baixo"
     }[paciente.nivelEstresse] || "";
+
+    const nivelExibido = t(nivelParaChave[paciente.nivelEstresse]) || paciente.nivelEstresse;
+    const statusExibido = paciente.status === "ativo" ? t("ativo") : t("inativo");
 
     card.innerHTML = `
         ${badgeAlerta}
@@ -123,32 +159,32 @@ function criarCard(paciente, temAlerta) {
 
             <div class="card-info">
                 <strong>${escaparHTML(paciente.nomeResponsavel)}</strong>
-                <span>Criança: ${escaparHTML(paciente.nomeCrianca)}, ${escaparHTML(paciente.idadeCrianca)} anos</span>
+                <span>${t("crianca")}: ${escaparHTML(paciente.nomeCrianca)}, ${escaparHTML(paciente.idadeCrianca)} ${t("anos")}</span>
             </div>
 
             <span class="status-badge status-badge--${paciente.status}">
-                ${paciente.status === "ativo" ? "Ativo" : "Inativo"}
+                ${escaparHTML(statusExibido)}
             </span>
         </div>
 
         <div class="card-metricas">
             <div class="metrica">
-                <span>Alertas</span>
+                <span>${t("alertas")}</span>
                 <strong class="metrica-valor metrica-valor--alerta">${escaparHTML(paciente.alertas)}</strong>
             </div>
             <div class="metrica">
-                <span>Estresse</span>
-                <strong class="metrica-valor ${corEstresse}">${escaparHTML(paciente.nivelEstresse)}</strong>
+                <span>${t("estresse")}</span>
+                <strong class="metrica-valor ${corEstresse}">${escaparHTML(nivelExibido)}</strong>
             </div>
             <div class="metrica">
-                <span>Último relat.</span>
+                <span>${t("ultimoRelat")}</span>
                 <strong class="metrica-valor metrica-valor--data">${escaparHTML(paciente.ultimoRelatorio)}</strong>
             </div>
         </div>
 
         <button type="button" class="btn-relatorio">
             <i class="fa-regular fa-clipboard-list"></i>
-            Relatório
+            ${t("relatorio")}
         </button>
     `;
 
@@ -223,7 +259,7 @@ async function carregarNotificacoes() {
         const itens = dados.notificacoes || [];
 
         listaNotificacoes.innerHTML = itens.length === 0
-            ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+            ? `<div class="painel-vazio">${t("semNotificacoes")}</div>`
             : itens.map(item => `
                 <div class="item-notificacao ${item.lida ? "" : "nao-lida"}">
                     <p>${escaparHTML(item.mensagem)}</p>
@@ -231,7 +267,7 @@ async function carregarNotificacoes() {
                 </div>
             `).join("");
     } catch (_) {
-        listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar.</div>`;
+        listaNotificacoes.innerHTML = `<div class="painel-vazio">${t("erroCarregarNotif")}</div>`;
     }
 }
 
@@ -253,37 +289,38 @@ document.addEventListener("click", (e) => {
 
 
 // =========================
-// TRADUÇÃO
+// TRADUÇÃO MANUAL — texto estático (data-pt/data-en) + placeholder da busca
 // =========================
-function lerCookie(nome) {
-    const valor  = `; ${document.cookie}`;
-    const partes = valor.split(`; ${nome}=`);
-    if (partes.length === 2) return partes.pop().split(";").shift();
-    return null;
-}
 
-function iniciarTradutor() {
-    new google.translate.TranslateElement(
-        { pageLanguage: "pt", includedLanguages: "en", autoDisplay: false },
-        "google_translate_element"
-    );
-}
+function aplicarIdiomaEstatico() {
+    document.querySelectorAll("[data-pt]").forEach(el => {
+        el.textContent = idiomaAtual === "en"
+            ? (el.dataset.en || el.dataset.pt)
+            : el.dataset.pt;
+    });
 
-function atualizarTextoBotao() {
-    const cookieAtual = lerCookie("googtrans");
+    const inputBusca = document.getElementById("inputBusca");
+    if (inputBusca) {
+        inputBusca.placeholder = idiomaAtual === "en"
+            ? inputBusca.dataset.enPlaceholder
+            : inputBusca.dataset.ptPlaceholder;
+    }
+
     document.getElementById("textoTradutor").textContent =
-        cookieAtual && cookieAtual.includes("/en")
-            ? "Voltar para português"
-            : "Traduzir para inglês";
+        idiomaAtual === "en" ? "Traduzir para português" : "Traduzir para inglês";
 }
 
 document.getElementById("btnTraduzir").addEventListener("click", () => {
-    const cookieAtual   = lerCookie("googtrans");
-    const estaTraduzido = cookieAtual && cookieAtual.includes("/en");
-    const valor = `/pt/${estaTraduzido ? "pt" : "en"}`;
-    document.cookie = `googtrans=${valor}; path=/`;
-    document.cookie = `googtrans=${valor}; path=/; domain=${location.hostname}`;
-    window.location.reload();
+    idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+    localStorage.setItem("idioma", idiomaAtual);
+
+    aplicarIdiomaEstatico();
+
+    // Reaplica os cards (texto montado via JS) e o painel de notificações, se aberto
+    aplicarFiltros();
+    if (painelNotificacoes.classList.contains("aberto")) {
+        carregarNotificacoes();
+    }
 });
 
 
@@ -307,11 +344,20 @@ document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema
 // =========================
 const temaSalvo = localStorage.getItem("tema") || "claro";
 aplicarTema(temaSalvo);
-atualizarTextoBotao();
+aplicarIdiomaEstatico();
 carregarUsuario();
 carregarPacientes();
 
 document.getElementById("inputBusca").addEventListener("input", filtrarPacientes);
 document.querySelectorAll(".aba").forEach(botao => {
     botao.addEventListener("click", () => trocarAba(botao));
+});
+
+// Foto e nome levam pro perfil do terapeuta — igual ao Home
+document.getElementById("fotoUsuario").addEventListener("click", () => {
+    window.location.href = "/perfilTerapeuta";
+});
+
+document.getElementById("nomeTerapeuta").addEventListener("click", () => {
+    window.location.href = "/perfilTerapeuta";
 });

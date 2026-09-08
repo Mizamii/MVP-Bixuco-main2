@@ -7,9 +7,6 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
-    <!-- Google Translate -->
-    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
-
     <!-- favicon -->
     <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
 
@@ -38,38 +35,38 @@
         <nav>
             <a href="/homeTerapeuta">
                 <i class="fa-solid fa-house"></i>
-                <span>Início</span>
+                <span data-pt="Início" data-en="Home">Início</span>
             </a>
 
             <a href="/relatoriosTerapeutaS">
                 <i class="fa-solid fa-chart-line"></i>
-                <span>Relatórios</span>
+                <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
             </a>
 
             <a href="/configuracoesT">
                 <i class="fa-solid fa-gear"></i>
-                <span>Configurações</span>
+                <span data-pt="Configurações" data-en="Settings">Configurações</span>
             </a>
 
             <a href="/sobreT">
                 <i class="fa-solid fa-circle-info"></i>
-                <span>Sobre</span>
+                <span data-pt="Sobre" data-en="About">Sobre</span>
             </a>
 
             <a href="/pacientes" class="ativo">
                 <i class="fa-solid fa-user-plus"></i>
-                <span>Pacientes</span>
+                <span data-pt="Pacientes" data-en="Patients">Pacientes</span>
             </a>
         </nav>
 
         <div class="tema">
             <button id="btnClaro" class="ativo" type="button">
                 <i class="fa-regular fa-sun"></i>
-                Claro
+                <span data-pt="Claro" data-en="Light">Claro</span>
             </button>
             <button id="btnEscuro" type="button">
                 <i class="fa-regular fa-moon"></i>
-                Escuro
+                <span data-pt="Escuro" data-en="Dark">Escuro</span>
             </button>
         </div>
 
@@ -78,7 +75,7 @@
 
         <a href="/logout" class="logout">
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            <span>Sair</span>
+            <span data-pt="Sair" data-en="Log out">Sair</span>
         </a>
 
     </aside>
@@ -92,15 +89,9 @@
         <header class="topo">
 
             <button class="tradutor" type="button" id="btnTraduzir">
-                <i class="fa-solid fa-globe"></i>
+                <i class="fa-solid fa-language"></i>
                 <span id="textoTradutor">Traduzir para inglês</span>
             </button>
-
-            <!-- elemento oculto necessário para o Google Translate -->
-            <div
-                id="google_translate_element"
-                style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);"
-            ></div>
 
             <div class="usuario">
 
@@ -112,9 +103,9 @@
                     </button>
 
                     <div class="painel-notificacoes" id="painelNotificacoes">
-                        <div class="painel-header">Notificações</div>
+                        <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
                         <div id="listaNotificacoes">
-                            <div class="painel-vazio">Carregando...</div>
+                            <div class="painel-vazio" data-pt="Carregando..." data-en="Loading...">Carregando...</div>
                         </div>
                     </div>
                 </div>
@@ -124,13 +115,13 @@
                     id="fotoUsuario"
                     src="/img/perfilPadrao.png"
                     alt="Foto do terapeuta"
-                    title="Ver perfil"
+                    title="Clique para ver seu perfil"
                     style="cursor:pointer;"
                 >
 
                 <div>
-                    <h3 id="nomeTerapeuta">Carregando...</h3>
-                    <span>Terapeuta</span>
+                    <h3 id="nomeTerapeuta" style="cursor:pointer">Carregando...</h3>
+                    <span id="tipoConta" data-pt="Terapeuta" data-en="Therapist">Terapeuta</span>
                 </div>
 
             </div>
@@ -141,7 +132,7 @@
         <div class="conteudo-corpo">
 
             <!-- TÍTULO DA PÁGINA -->
-            <h1 class="titulo-pagina">Meus pacientes</h1>
+            <h1 class="titulo-pagina" data-pt="Meus pacientes" data-en="My patients">Meus pacientes</h1>
 
             <!-- BARRA DE BUSCA -->
             <div class="busca">
@@ -149,6 +140,8 @@
                 <input
                     type="text"
                     id="inputBusca"
+                    data-pt-placeholder="Buscar pacientes..."
+                    data-en-placeholder="Search patients..."
                     placeholder="Buscar pacientes..."
                 >
             </div>
@@ -161,7 +154,7 @@
                     id="abaAtiva"
                     data-filtro="todos"
                 >
-                    Todos <span id="contadorTodos">(0)</span>
+                    <span data-pt="Todos" data-en="All">Todos</span> <span id="contadorTodos">(0)</span>
                 </button>
 
                 <button
@@ -169,7 +162,7 @@
                     class="aba"
                     data-filtro="ativos"
                 >
-                    Ativos <span id="contadorAtivos">(0)</span>
+                    <span data-pt="Ativos" data-en="Active">Ativos</span> <span id="contadorAtivos">(0)</span>
                 </button>
 
                 <button
@@ -177,7 +170,7 @@
                     class="aba"
                     data-filtro="alertas"
                 >
-                    Alertas <span id="contadorAlertas">(0)</span>
+                    <span data-pt="Alertas" data-en="Alerts">Alertas</span> <span id="contadorAlertas">(0)</span>
                 </button>
             </div>
 
@@ -188,26 +181,26 @@
 
                 <!-- COLUNA ESQUERDA: pacientes com alertas altos -->
                 <div class="coluna">
-                    <h2 class="coluna-titulo">Requer atenção</h2>
+                    <h2 class="coluna-titulo" data-pt="Requer atenção" data-en="Requires attention">Requer atenção</h2>
 
                     <div id="listaAtencao">
-                        <p class="carregando">Carregando...</p>
+                        <p class="carregando" data-pt="Carregando..." data-en="Loading...">Carregando...</p>
                     </div>
 
-                    <p id="semAtencao" style="display:none" class="lista-vazia">
+                    <p id="semAtencao" style="display:none" class="lista-vazia" data-pt="Nenhum paciente requer atenção no momento." data-en="No patients currently need attention.">
                         Nenhum paciente requer atenção no momento.
                     </p>
                 </div>
 
                 <!-- COLUNA DIREITA: pacientes em monitoramento normal -->
                 <div class="coluna">
-                    <h2 class="coluna-titulo">Monitoramento regular</h2>
+                    <h2 class="coluna-titulo" data-pt="Monitoramento regular" data-en="Regular monitoring">Monitoramento regular</h2>
 
                     <div id="listaRegular">
-                        <p class="carregando">Carregando...</p>
+                        <p class="carregando" data-pt="Carregando..." data-en="Loading...">Carregando...</p>
                     </div>
 
-                    <p id="semRegular" style="display:none" class="lista-vazia">
+                    <p id="semRegular" style="display:none" class="lista-vazia" data-pt="Nenhum paciente em monitoramento regular." data-en="No patients in regular monitoring.">
                         Nenhum paciente em monitoramento regular.
                     </p>
                 </div>
