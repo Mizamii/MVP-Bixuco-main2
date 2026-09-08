@@ -44,6 +44,11 @@ app.use(helmet({
                 "https://accounts.google.com"
             ],
 
+            workerSrc: [
+                "'self'",
+                "blob:"
+            ],
+
             // Estilos: os próprios + CDNs de CSS (Font Awesome, Leaflet, MapLibre)
             // 'unsafe-inline' é necessário porque várias páginas usam <style> inline
             styleSrc: [
