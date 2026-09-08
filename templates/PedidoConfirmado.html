@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Pedido confirmado</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link rel="stylesheet" href="/css/pedidoconfirmado.css"> 
+<script src="/js/deeplink.js"></script>
+
+</head>
+<body>
+
+  <div id="card">
+    <div id="mascote"><i class="fa-solid fa-box-open"></i></div>
+
+    <h1>Pedido confirmado!</h1>
+    <p id="subtitulo">Seu Bixuco está sendo preparado com muito carinho pra vocês.</p>
+
+    <div id="timeline">
+      <div class="etapa concluida">
+        <div class="ponto"></div>
+        <div>
+          <strong>Pedido recebido!</strong>
+          <span>Recebemos seu pedido com sucesso.</span>
+        </div>
+      </div>
+      <div class="etapa atual">
+        <div class="ponto"></div>
+        <div>
+          <strong>Em produção</strong>
+          <span>Seu pedido está sendo preparado.</span>
+        </div>
+      </div>
+      <div class="etapa">
+        <div class="ponto"></div>
+        <div>
+          <strong>Enviado</strong>
+          <span>Ainda não enviado.</span>
+        </div>
+      </div>
+      <div class="etapa">
+        <div class="ponto"></div>
+        <div>
+          <strong>Em transporte</strong>
+          <span>Aguardando envio.</span>
+        </div>
+      </div>
+      <div class="etapa">
+        <div class="ponto"></div>
+        <div>
+          <strong>Entregue</strong>
+          <span>Aguardando entrega.</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="previsao">
+      <span>PREVISÃO DE ENTREGA</span>
+      <strong id="data-previsao">15 de junho de 2026</strong>
+      <p>Enviaremos um aviso quando seu Bixuco for enviado.</p>
+    </div>
+
+    <button id="btn-rastreamento" type="button">Ver rastreamento</button>
+  </div>
+
+  <script src="/js/PedidoConfirmado.js"></script>
+
+
+</body>
+</html>

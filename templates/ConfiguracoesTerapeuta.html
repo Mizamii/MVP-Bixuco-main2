@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Configurações</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/configuracoesT.css">
+    <script src="/js/deeplink.js"></script>
+
+<link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- ========================= -->
+        <!-- MENU LATERAL -->
+        <!-- ========================= -->
+        <aside class="sidebar">
+
+            <div class="logo">
+                <img src="/img/logo_nome.png" alt="Logo Bixuco">
+            </div>
+
+            <nav>
+                <a href="/homeTerapeuta">
+                    <i class="fa-solid fa-house"></i>
+                    <span data-pt="Início" data-en="Home">Início</span>
+                </a>
+
+                <a href="/relatoriosTerapeutaS">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+                </a>
+
+                <!-- aba ativa -->
+                <a href="/configuracoesT" class="ativo">
+                    <i class="fa-solid fa-gear"></i>
+                    <span data-pt="Configurações" data-en="Settings">Configurações</span>
+                </a>
+
+                <a href="/sobreT">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span data-pt="Sobre" data-en="About">Sobre</span>
+                </a>
+
+                <a href="/pacientes">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span data-pt="Pacientes" data-en="Patients">Pacientes</span>
+                </a>
+            </nav>
+
+            <div class="tema">
+                <button id="btnClaro" class="ativo" type="button">
+                    <i class="fa-regular fa-sun"></i>
+                    <span data-pt="Claro" data-en="Light">Claro</span>
+                </button>
+                <button id="btnEscuro" type="button">
+                    <i class="fa-regular fa-moon"></i>
+                    <span data-pt="Escuro" data-en="Dark">Escuro</span>
+                </button>
+            </div>
+
+            <div class="sidebar-divisor"></div>
+
+            <a href="/logout" class="logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span data-pt="Sair" data-en="Log out">Sair</span>
+            </a>
+
+        </aside>
+
+        <!-- ========================= -->
+        <!-- CONTEÚDO PRINCIPAL -->
+        <!-- ========================= -->
+        <main class="conteudo">
+
+            <!-- TOPO -->
+            <header class="topo">
+
+                <button class="tradutor" type="button" id="btnTraduzir">
+                    <i class="fa-solid fa-language"></i>
+                    <span id="textoTradutor">Traduzir para inglês</span>
+                </button>
+
+                <div class="usuario">
+
+                    <div class="notificacoes-wrapper">
+                        <button class="notificacoes" type="button" id="btnNotificacoes">
+                            <i class="fa-regular fa-bell"></i>
+                            <span id="badgeNotificacoes" class="badge" style="display:none">0</span>
+                        </button>
+
+                        <div class="painel-notificacoes" id="painelNotificacoes">
+                            <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
+                            <div id="listaNotificacoes">
+                                <div class="painel-vazio" data-pt="Carregando..." data-en="Loading...">Carregando...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <img
+                        id="fotoUsuario"
+                        src="/img/perfilPadrao.png"
+                        alt="Foto do terapeuta"
+                        style="cursor:pointer;"
+                        title="Ver perfil"
+                    >
+
+                    <div>
+                        <h3 id="nomeTerapeuta" style="cursor:pointer">Carregando...</h3>
+                        <span data-pt="Terapeuta" data-en="Therapist">Terapeuta</span>
+
+                        <button type="button" class="btn-codigo-copiar" id="btnCodigoCopiar" title="Copiar código para compartilhar">
+                            <span><span data-pt="Código" data-en="Code">Código</span>: <strong id="codigoTerapeuta">...</strong></span>
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="conteudo-corpo">
+
+                <!-- CABEÇALHO DA PÁGINA -->
+                <div class="cabecalho-pagina">
+                    <div>
+                        <h1 data-pt="Configurações" data-en="Settings">Configurações</h1>
+                        <p data-pt="Gerencie suas preferências e mantenha sua conta segura." data-en="Manage your preferences and keep your account secure.">Gerencie suas preferências e mantenha sua conta segura.</p>
+                    </div>
+                    <img id="imgMascoteConfig" src="/img/BixucoConfig.png" alt="Mascote Bixuco">
+                </div>
+
+                <!-- ========================= -->
+                <!-- NOTIFICAÇÕES -->
+                <!-- ========================= -->
+                <div class="card">
+                    <h2 data-pt="Notificações" data-en="Notifications">Notificações</h2>
+
+                    <!-- toggle: lembrete de relatório -->
+                    <div class="linha-toggle">
+                        <div class="linha-toggle__info">
+                            <div class="linha-toggle__icone linha-toggle__icone--verde">
+                                <i class="fa-regular fa-bell"></i>
+                            </div>
+                            <span data-pt="Lembrete do relatório" data-en="Report reminder">Lembrete do relatório</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="toggleRelatorio" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- toggle: nova solicitação de vínculo -->
+                    <div class="linha-toggle">
+                        <div class="linha-toggle__info">
+                            <div class="linha-toggle__icone linha-toggle__icone--azul">
+                                <i class="fa-regular fa-envelope"></i>
+                            </div>
+                            <span data-pt="Nova solicitação" data-en="New request">Nova solicitação</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="toggleSolicitacao" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                </div>
+
+                <!-- ========================= -->
+                <!-- PRIVACIDADE -->
+                <!-- ========================= -->
+                <div class="card card-privacidade">
+
+                    <div class="privacidade-esquerda">
+
+                        <h2 data-pt="Privacidade" data-en="Privacy">Privacidade</h2>
+
+                        <!-- alterar senha -->
+                        <button type="button" class="botao-opcao" id="btnAlterarSenha">
+                            <div class="botao-opcao__icone botao-opcao__icone--verde">
+                                <i class="fa-solid fa-lock"></i>
+                            </div>
+                            <span data-pt="Alterar senha" data-en="Change password">Alterar senha</span>
+                            <i class="fa-solid fa-chevron-right seta"></i>
+                        </button>
+
+                        <!-- excluir conta -->
+                        <button type="button" class="botao-opcao botao-opcao--perigo" id="btnExcluirConta">
+                            <div class="botao-opcao__icone botao-opcao__icone--vermelho">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </div>
+                            <span data-pt="Excluir minha conta" data-en="Delete my account">Excluir minha conta</span>
+                            <i class="fa-solid fa-chevron-right seta"></i>
+                        </button>
+
+                    </div>
+
+                    <div class="privacidade-direita">
+                        <h3><span data-pt="Sua segurança" data-en="Your security">Sua segurança</span><br><span data-pt="é nossa" data-en="is our">é nossa</span> <span class="destaque" data-pt="prioridade" data-en="priority">prioridade</span></h3>
+                        <p data-pt="Utilizamos criptografia e boas práticas para proteger suas informações e das crianças." data-en="We use encryption and best practices to protect your information and children's information.">Utilizamos criptografia e boas práticas para proteger suas informações e das crianças.</p>
+                        <p class="dados-protegidos">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span data-pt="Seus dados estão protegidos." data-en="Your data is protected.">Seus dados estão protegidos.</span>
+                        </p>
+                        <img id="imgSeguranca" src="/img/BixucoSeguranca.png" alt="">
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- MODAL: EXCLUIR CONTA -->
+    <!-- ========================= -->
+    <div id="modalExcluir" class="modal" style="display:none">
+        <div class="modal-conteudo">
+            <i class="fa-solid fa-triangle-exclamation icone-alerta"></i>
+            <h2 data-pt="Excluir conta?" data-en="Delete account?">Excluir conta?</h2>
+            <p data-pt="Esta ação é permanente e todos os seus dados serão removidos." data-en="This action is permanent and all your data will be removed.">Esta ação é permanente e todos os seus dados serão removidos.</p>
+            <div class="modal-acoes">
+                <button type="button" id="btnCancelarExcluir" class="btn-cancelar" data-pt="Cancelar" data-en="Cancel">Cancelar</button>
+                <button type="button" id="btnConfirmarExcluir" class="btn-confirmar" data-pt="Excluir" data-en="Delete">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- MODAL: ALTERAR SENHA -->
+    <!-- avisa que o email será enviado -->
+    <!-- ========================= -->
+    <div id="modalSenha" class="modal" style="display:none" >
+        <div class="modal-conteudo">
+            <i class="fa-solid fa-lock icone-info"></i>
+            <h2 data-pt="Alterar senha" data-en="Change password">Alterar senha</h2>
+            <p data-pt="Enviaremos um link de redefinição para o seu email cadastrado." data-en="We'll send a reset link to your registered email.">Enviaremos um link de redefinição para o seu email cadastrado.</p>
+            <p id="msgEmailSenha" style="display:none;color:#32C26D;font-weight:600;">✓ <span data-pt="Email enviado!" data-en="Email sent!">Email enviado!</span></p>
+            <div class="modal-acoes">
+                <button type="button" id="btnCancelarSenha" class="btn-cancelar" data-pt="Cancelar" data-en="Cancel">Cancelar</button>
+                <button type="button" id="btnEnviarSenha" class="btn-confirmar" data-pt="Enviar email" data-en="Send email">Enviar email</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="/js/ConfiguracoesTerapeuta.js"></script>
+
+    <script src="/js/tema.js"></script>
+
+</body>
+</html>

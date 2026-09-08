@@ -1,0 +1,16 @@
+{
+  "appId": "com.bixuco.app",
+  "appName": "Bixuco",
+  "webDir": "www",
+  "server": {
+    "url": "https://mvp-bixuco.onrender.com",
+    "cleartext": false,
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  }
+}
+

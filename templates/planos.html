@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Planos</title>
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/planos.css">
+    <script src="/js/deeplink.js"></script>
+
+</head>
+<body>
+
+<div class="container">
+
+    <!-- ========================= -->
+    <!-- MENU LATERAL -->
+    <!-- ========================= -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <img src="/img/logo_nome.png" alt="Logo Bixuco">
+        </div>
+
+        <!-- Sidebar completa — mostrada pra quem já tem plano pago
+             (medio ou completo). Escondida por padrão até sabermos
+             o plano real do usuário (ver carregarUsuario). -->
+        <nav id="navComPlano" style="display:none;">
+            <a href="/home">
+                <i class="fa-solid fa-house"></i>
+                <span data-pt="Início" data-en="Home">Início</span>
+            </a>
+
+            <a href="/relatorios">
+                <i class="fa-solid fa-chart-line"></i>
+                <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+            </a>
+
+            <a href="/planos" class="ativo">
+                <i class="fa-solid fa-dollar-sign"></i>
+                <span data-pt="Planos" data-en="Plans">Planos</span>
+            </a>
+
+            <a href="/sobre">
+                <i class="fa-solid fa-circle-info"></i>
+                <span data-pt="Sobre" data-en="About">Sobre</span>
+            </a>
+
+            <a href="/configuracoes">
+                <i class="fa-solid fa-gear"></i>
+                <span data-pt="Configurações" data-en="Settings">Configurações</span>
+            </a>
+        </nav>
+
+        <!-- Sidebar reduzida — mostrada pra quem está no plano grátis
+             (nunca assinou ou cancelou), já que /configuracoes, /sobre
+             etc. exigem plano médio+ e redirecionariam de volta pra cá. -->
+        <nav id="navSemPlano">
+            <a href="/planos" class="ativo">
+                <i class="fa-solid fa-dollar-sign"></i>
+                <span data-pt="Planos" data-en="Plans">Planos</span>
+            </a>
+
+            <a href="/configuracoesSemAssinatura">
+                <i class="fa-solid fa-gear"></i>
+                <span data-pt="Configurações" data-en="Settings">Configurações</span>
+            </a>
+
+            <a href="/sobreSemAssinatura">
+                <i class="fa-solid fa-circle-info"></i>
+                <span data-pt="Sobre" data-en="About">Sobre</span>
+            </a>
+        </nav>
+
+        <div class="tema">
+            <button id="btnClaro" class="ativo" type="button">
+                <i class="fa-regular fa-sun"></i>
+                <span data-pt="Claro" data-en="Light">Claro</span>
+            </button>
+            <button id="btnEscuro" type="button">
+                <i class="fa-regular fa-moon"></i>
+                <span data-pt="Escuro" data-en="Dark">Escuro</span>
+            </button>
+        </div>
+
+        <div class="sidebar-divisor"></div>
+
+        <a href="/logout" class="logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span data-pt="Sair" data-en="Log out">Sair</span>
+        </a>
+
+    </aside>
+
+    <!-- ========================= -->
+    <!-- CONTEÚDO -->
+    <!-- ========================= -->
+    <main class="conteudo">
+
+        <header class="topo">
+
+            <button class="tradutor" type="button" id="btnTraduzir">
+                <i class="fa-solid fa-language"></i>
+                <span id="textoTradutor">Traduzir para o inglês</span>
+            </button>
+
+            <div class="usuario">
+
+                <div class="notificacoes-wrapper">
+                    <button class="notificacoes" type="button" id="btnNotificacoes">
+                        <i class="fa-regular fa-bell"></i>
+                        <span id="quantidadeNotificacoes" class="badge">0</span>
+                    </button>
+
+                    <div class="painel-notificacoes" id="painelNotificacoes">
+                        <div class="painel-header" data-pt="Promoções" data-en="Promotions">Promoções</div>
+                        <div id="listaNotificacoes">
+                            <div class="painel-vazio" data-pt="Carregando..." data-en="Loading...">Carregando...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <img
+                    id="fotoUsuario"
+                    src="/img/perfilPadrao.png"
+                    alt="Foto do usuário"
+                    style="cursor: pointer;"
+                >
+
+                <div id="blocoNomeUsuario" style="cursor: pointer;">
+                    <h3 id="nomeUsuario">Carregando...</h3>
+                    <span id="tipoConta">Responsável</span>
+                </div>
+
+            </div>
+
+        </header>
+
+        <div class="conteudo-corpo">
+
+            <!-- Cabeçalho -->
+            <section class="cabecalho-planos">
+                <div>
+                    <h1 data-pt="Planos" data-en="Plans">Planos</h1>
+                    <p data-pt="Aprimore seu plano e ganhe mais benefícios" data-en="Upgrade your plan and get more benefits">Aprimore seu plano e ganhe mais benefícios</p>
+                </div>
+                <img
+                    src="/img/BixucoPlanos.png"
+                    alt="Mascote"
+                    id="imgMascotePlanos"
+                >
+            </section>
+
+            <!-- Plano atual -->
+            <p id="planoAtualInfo" class="plano-atual-info" style="display:none;">
+                <span data-pt="Você está no" data-en="You're currently on the">Você está no</span>
+                <strong id="nomePlanoAtual">Grátis</strong>.
+            </p>
+
+            <!-- Cards de planos -->
+            <section class="cards-planos">
+
+                <!-- PLANO GRÁTIS -->
+                <div
+                    class="card-plano"
+                    id="cardGratis"
+                >
+                    <h2 class="plano-preco plano-preco--verde" data-pt="Grátis" data-en="Free">Grátis</h2>
+
+                    <h3 data-pt="Benefícios" data-en="Benefits">Benefícios</h3>
+
+                    <ul>
+                        <li data-pt='Acesso à aba "Sobre"' data-en='Access to the "About" tab'>Acesso à aba "Sobre"</li>
+                        <li data-pt="Conhecer como o Bixuco funciona" data-en="Learn how Bixuco works">Conhecer como o Bixuco funciona</li>
+                        <li data-pt="Informações sobre TPS e hipersensibilidade" data-en="Information about SPD and hypersensitivity">Informações sobre TPS e hipersensibilidade</li>
+                        <li data-pt="Entendimento da proposta da plataforma" data-en="Understanding the platform's proposal">Entendimento da proposta da plataforma</li>
+                        <li data-pt="Sem custo" data-en="No cost">Sem custo</li>
+                    </ul>
+                </div>
+
+                <!-- PLANO BÁSICO -->
+                <div
+                    class="card-plano"
+                    id="cardMedio"
+                >
+                    <h2 class="plano-preco plano-preco--verde">R$ 100<span data-pt="/mês" data-en="/month">/mês</span></h2>
+
+                    <h3 data-pt="Benefícios" data-en="Benefits">Benefícios</h3>
+
+                    <ul>
+                        <li data-pt="Pelúcia sensorizada" data-en="Sensory plush toy">Pelúcia sensorizada</li>
+                        <li data-pt="Inteligência Artificial" data-en="Artificial Intelligence">Inteligência Artificial</li>
+                        <li data-pt="Rastreamento" data-en="Tracking">Rastreamento</li>
+                        <li style="color: #999;">
+                            <span data-pt="Conexão com psicólogo" data-en="Connection with a psychologist">Conexão com psicólogo</span>
+                            <em data-pt="(não incluído)" data-en="(not included)">(não incluído)</em>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- PLANO PREMIUM -->
+                <div
+                    class="card-plano"
+                    id="cardCompleto"
+                >
+                    <h2 class="plano-preco plano-preco--verde">R$ 120<span data-pt="/mês" data-en="/month">/mês</span></h2>
+
+                    <h3 data-pt="Benefícios" data-en="Benefits">Benefícios</h3>
+
+                    <ul>
+                        <li data-pt="Pelúcia sensorizada" data-en="Sensory plush toy">Pelúcia sensorizada</li>
+                        <li data-pt="Inteligência Artificial" data-en="Artificial Intelligence">Inteligência Artificial</li>
+                        <li data-pt="Rastreamento" data-en="Tracking">Rastreamento</li>
+                        <li data-pt="Conexão com psicólogo" data-en="Connection with a psychologist">Conexão com psicólogo</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Erro inline -->
+            <span
+                id="erroPlano"
+                style="display:none; color:#E53E3E; font-size:0.9rem; text-align:center; display:block; margin-top:0.5rem;"
+            ></span>
+
+            <!-- Botão confirmar -->
+            <button
+                type="button"
+                id="btnConfirmar"
+                class="btn-confirmar-plano"
+            >
+                <span data-pt="Confirmar" data-en="Confirm">Confirmar</span>
+            </button>
+
+        </div>
+
+    </main>
+</div>
+
+<script src="/js/planos.js"></script>
+
+</body>
+</html>

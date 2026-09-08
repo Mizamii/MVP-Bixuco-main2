@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Acompanhar pedido</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/AcompanharPedido.css">
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+    
+    <script src="/js/deeplink.js"></script>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- ===================== -->
+        <!-- MENU LATERAL — mesma estrutura da relatorios.html -->
+        <!-- ===================== -->
+        <aside class="sidebar">
+
+            <div class="logo">
+                <img src="/img/logo_nome.png" alt="Logo Bixuco">
+            </div>
+
+            <nav>
+                <a href="/home">
+                    <i class="fa-solid fa-house"></i>
+                    <span data-pt="Início" data-en="Home">Início</span>
+                </a>
+
+                <a href="/relatorios">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+                </a>
+
+                <a href="/sobre">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span data-pt="Sobre" data-en="About">Sobre</span>
+                </a>
+
+                <a href="/configuracoes">
+                    <i class="fa-solid fa-gear"></i>
+                    <span data-pt="Configurações" data-en="Settings">Configurações</span>
+                </a>
+            </nav>
+
+            <button
+                class="btn-relatorio"
+                type="button"
+                onclick="location.href='/RelatorioDiario'"
+                data-pt="Relatório diário"
+                data-en="Daily report"
+            >
+                Relatório diário
+            </button>
+
+            <div class="tema">
+                <button id="btnClaro" class="ativo" type="button">
+                    <i class="fa-regular fa-sun"></i> <span data-pt="Claro" data-en="Light">Claro</span>
+                </button>
+
+                <button id="btnEscuro" type="button">
+                    <i class="fa-regular fa-moon"></i> <span data-pt="Escuro" data-en="Dark">Escuro</span>
+                </button>
+            </div>
+
+            <div class="sidebar-divisor"></div>
+
+            <a href="/logout" class="logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span data-pt="Sair" data-en="Log out">Sair</span>
+            </a>
+        </aside>
+
+        <!-- ===================== -->
+        <!-- CONTEÚDO PRINCIPAL -->
+        <!-- ===================== -->
+        <main class="conteudo">
+
+            <header class="topo">
+
+                <button class="tradutor" type="button" id="btnTraduzir">
+                    <i class="fa-solid fa-language"></i>
+                    <span id="textoTradutor">Traduzir para o inglês</span>
+                </button>
+
+                <div class="usuario">
+
+                    <div class="notificacoes-wrapper">
+                        <button class="notificacoes" type="button" id="btnNotificacoes">
+                            <i class="fa-regular fa-bell"></i>
+                            <span id="quantidadeNotificacoes" class="badge">0</span>
+                        </button>
+
+                        <div class="painel-notificacoes" id="painelNotificacoes">
+                            <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
+                            <div id="listaNotificacoes">
+                                <div class="painel-vazio">Carregando...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <img
+                        id="fotoUsuario"
+                        src="/img/perfilPadrao.png"
+                        alt="Foto do usuário"
+                        title="Ver perfil"
+                        style="cursor: pointer;"
+                    >
+
+                    <div
+                        id="blocoNomeUsuario"
+                        style="cursor: pointer;"
+                        title="Ver perfil"
+                    >
+                        <h3 id="nomeUsuario">Carregando...</h3>
+                        <span id="tipoConta">...</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="conteudo-corpo">
+
+                <section class="rastreio-banner" id="banner">
+                    <i class="fa-solid fa-truck" id="banner-icone"></i>
+                    <div>
+                        <strong id="banner-titulo" data-pt="Seu Bixuco está a caminho!" data-en="Your Bixuco is on its way!">Seu Bixuco está a caminho!</strong>
+                        <span id="banner-subtitulo" data-pt="Ele já foi postado e está com a transportadora." data-en="It has already been posted and is with the carrier.">Ele já foi postado e está com a transportadora.</span>
+                    </div>
+                </section>
+
+                <div class="rastreio-grid">
+
+                    <div class="card rastreio-timeline" id="timeline">
+
+                        <div class="etapa" data-etapa="0">
+                            <div class="ponto"></div>
+                            <div>
+                                <strong data-pt="Pedido recebido!" data-en="Order received!">Pedido recebido!</strong>
+                                <span data-pt="Recebemos seu pedido com sucesso." data-en="We successfully received your order.">Recebemos seu pedido com sucesso.</span>
+                            </div>
+                        </div>
+
+                        <div class="etapa" data-etapa="1">
+                            <div class="ponto"></div>
+                            <div>
+                                <strong data-pt="Em produção" data-en="In production">Em produção</strong>
+                                <span data-pt="Seu pedido está sendo preparado." data-en="Your order is being prepared.">Seu pedido está sendo preparado.</span>
+                            </div>
+                        </div>
+
+                        <div class="etapa" data-etapa="2">
+                            <div class="ponto"></div>
+                            <div>
+                                <strong data-pt="Enviado" data-en="Shipped">Enviado</strong>
+                                <span data-pt="Postado com a transportadora." data-en="Handed off to the carrier.">Postado com a transportadora.</span>
+                            </div>
+                        </div>
+
+                        <div class="etapa" data-etapa="3">
+                            <div class="ponto"></div>
+                            <div>
+                                <strong data-pt="Em transporte" data-en="In transit">Em transporte</strong>
+                                <span data-pt="A caminho do seu endereço." data-en="On its way to your address.">A caminho do seu endereço.</span>
+                            </div>
+                        </div>
+
+                        <div class="etapa" data-etapa="4">
+                            <div class="ponto"></div>
+                            <div>
+                                <strong data-pt="Entregue" data-en="Delivered">Entregue</strong>
+                                <span data-pt="Aguardando entrega." data-en="Awaiting delivery.">Aguardando entrega.</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="card rastreio-lateral">
+
+                        <h3 data-pt="Código de rastreio" data-en="Tracking code">Código de rastreio</h3>
+
+                        <div class="rastreio-codigo">
+                            <span id="codigo-texto">—</span>
+                            <i class="fa-regular fa-copy" id="btn-copiar" title="Copiar"></i>
+                        </div>
+
+                        <div class="rastreio-transportadora">
+                            <div>
+                                <span data-pt="Transportadora" data-en="Carrier">Transportadora</span>
+                                <strong>Mercado Livre</strong>
+                            </div>
+                            <i class="fa-solid fa-handshake"></i>
+                        </div>
+
+                        <button id="btn-acompanhar" type="button" data-pt="Acompanhar entrega" data-en="Track delivery">
+                            <span data-pt="Acompanhar entrega" data-en="Track delivery">Acompanhar entrega</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </button>
+
+                        <div class="rastreio-previsao">
+                            <span data-pt="PREVISÃO DE ENTREGA" data-en="ESTIMATED DELIVERY">PREVISÃO DE ENTREGA</span>
+                            <strong id="data-previsao">—</strong>
+                            <p data-pt="Enviaremos um aviso quando seu Bixuco for entregue." data-en="We'll notify you when your Bixuco is delivered.">Enviaremos um aviso quando seu Bixuco for entregue.</p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <script src="/js/AcompanharPedido.js"></script>
+    <script src="/js/tema.js"></script>
+
+</body>
+</html>

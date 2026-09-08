@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Configurações</title>
+
+    <!-- 🔧 FIX: faltava o ícone do site (favicon) -->
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <!-- Reaproveitando o CSS das configurações normais -->
+    <link rel="stylesheet" href="/css/configuracoes.css">
+    <script src="/js/deeplink.js"></script>
+
+
+</head>
+<body>
+
+<div class="container">
+
+    <!-- ========================= -->
+    <!-- MENU LATERAL — reduzido -->
+    <!-- ========================= -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <img src="/img/logo_nome.png" alt="Logo Bixuco">
+        </div>
+
+        <nav>
+            <a href="/planos">
+                <i class="fa-solid fa-dollar-sign"></i>
+                <span data-pt="Planos" data-en="Plans">Planos</span>
+            </a>
+
+            <a href="/configuracoesSemAssinatura" class="ativo">
+                <i class="fa-solid fa-gear"></i>
+                <span data-pt="Configurações" data-en="Settings">Configurações</span>
+            </a>
+
+            <a href="/sobreSemAssinatura">
+                <i class="fa-solid fa-circle-info"></i>
+                <span data-pt="Sobre" data-en="About">Sobre</span>
+            </a>
+        </nav>
+
+        <div class="tema">
+            <button id="btnClaro" class="ativo" type="button">
+                <i class="fa-regular fa-sun"></i>
+                <span data-pt="Claro" data-en="Light">Claro</span>
+            </button>
+            <button id="btnEscuro" type="button">
+                <i class="fa-regular fa-moon"></i>
+                <span data-pt="Escuro" data-en="Dark">Escuro</span>
+            </button>
+        </div>
+
+        <div class="sidebar-divisor"></div>
+
+        <a href="/logout" class="logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span data-pt="Sair" data-en="Log out">Sair</span>
+        </a>
+
+    </aside>
+
+    <!-- ========================= -->
+    <!-- CONTEÚDO -->
+    <!-- ========================= -->
+    <main class="conteudo">
+
+        <header class="topo">
+
+            <!-- 🔧 FIX: tradução agora é manual (data-pt/data-en), sem o widget do Google -->
+            <button class="tradutor" type="button" id="btnTraduzir">
+                <i class="fa-solid fa-language"></i>
+                <span id="textoTradutor">Traduzir para inglês</span>
+            </button>
+
+            <div class="usuario">
+
+                <!-- 🔧 FIX: sininho agora abre um painel com as notificações de promoção -->
+                <!-- (mesmo padrão usado na tela de Planos) -->
+                <div class="notificacoes-wrapper">
+                    <button class="notificacoes" type="button" id="btnNotificacoes">
+                        <i class="fa-regular fa-bell"></i>
+                        <span id="quantidadeNotificacoes" class="badge">0</span>
+                    </button>
+
+                    <div class="painel-notificacoes" id="painelNotificacoes">
+                        <div class="painel-header" data-pt="Promoções" data-en="Promotions">Promoções</div>
+                        <div id="listaNotificacoes">
+                            <div class="painel-vazio" data-pt="Carregando..." data-en="Loading...">Carregando...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <img
+                    id="fotoUsuario"
+                    src="/img/perfilPadrao.png"
+                    alt="Foto do usuário"
+                    title="Ver perfil"
+                    style="cursor: pointer;"
+                >
+
+                <div
+                    id="wrapperPerfilTopo"
+                    style="cursor: pointer;"
+                    title="Ver perfil"
+                >
+                    <h3 id="nomeUsuario">Carregando...</h3>
+                    <span id="tipoConta" data-pt="Responsável" data-en="Guardian">Responsável</span>
+                </div>
+
+            </div>
+
+        </header>
+
+        <div class="conteudo-corpo">
+
+            <!-- Cabeçalho -->
+            <section class="cabecalho">
+                <div>
+                    <h1 data-pt="Configurações" data-en="Settings">Configurações</h1>
+                    <p data-pt="Gerencie suas preferências e mantenha sua conta segura." data-en="Manage your preferences and keep your account secure.">Gerencie suas preferências e mantenha sua conta segura.</p>
+                </div>
+                <img
+                    id="imgMascote"
+                    src="/img/bixucomascote.png"
+                    alt="Mascote"
+                >
+            </section>
+
+            <!-- ========================= -->
+            <!-- 🔧 NOVA LINHA — Notificações + Indique o Bixuco -->
+            <!-- ========================= -->
+            <section class="linha">
+
+                <!-- Card Notificações -->
+                <div class="card notificacoes-card">
+
+                    <h2 data-pt="Notificações" data-en="Notifications">Notificações</h2>
+
+                    <div class="item-config">
+
+                        <div class="icone azul">
+                            <i class="fa-regular fa-envelope"></i>
+                        </div>
+
+                        <div class="texto">
+                            <h3 data-pt="Novidades e promoções" data-en="News and promotions">Novidades e promoções</h3>
+                        </div>
+
+                        <label class="switch">
+                            <input type="checkbox" id="notifNovidades">
+                            <span class="slider"></span>
+                        </label>
+
+                    </div>
+
+                </div>
+
+                <!-- Card Indique o Bixuco -->
+                <div class="card compartilhamento">
+
+                    <h2 data-pt="Indique o Bixuco" data-en="Refer Bixuco">Indique o Bixuco</h2>
+
+                    <button
+                        class="config-btn"
+                        type="button"
+                        id="btnIndicar"
+                    >
+                        <div class="icone verde">
+                            <i class="fa-solid fa-share-nodes"></i>
+                        </div>
+                        <div class="texto">
+                            <h3 data-pt="Compartilhar com um amigo" data-en="Share with a friend">Compartilhar com um amigo</h3>
+                        </div>
+                        <i class="fa-solid fa-chevron-right seta"></i>
+                    </button>
+
+                </div>
+
+            </section>
+
+            <!-- ========================= -->
+            <!-- LINHA ÚNICA — Privacidade + Segurança -->
+            <!-- ========================= -->
+            <section class="linha">
+
+                <!-- Privacidade -->
+                <div class="card privacidade">
+
+                    <h2 data-pt="Privacidade" data-en="Privacy">Privacidade</h2>
+
+                    <button
+                        class="config-btn"
+                        type="button"
+                        id="btnAlterarSenha"
+                    >
+                        <div class="icone verde">
+                            <i class="fa-solid fa-lock"></i>
+                        </div>
+                        <div class="texto">
+                            <h3 data-pt="Alterar senha" data-en="Change password">Alterar senha</h3>
+                        </div>
+                        <i class="fa-solid fa-chevron-right seta"></i>
+                    </button>
+
+                    <button
+                        class="config-btn"
+                        type="button"
+                        id="btnExcluirConta"
+                    >
+                        <div class="icone azul">
+                            <i class="fa-regular fa-trash-can"></i>
+                        </div>
+                        <div class="texto">
+                            <h3 data-pt="Excluir minha conta" data-en="Delete my account">Excluir minha conta</h3>
+                        </div>
+                        <i class="fa-solid fa-chevron-right seta"></i>
+                    </button>
+
+                    <!-- Confirmação inline excluir conta -->
+                    <div
+                        id="confirmarExclusao"
+                        class="confirmar-exclusao"
+                        style="display: none;"
+                    >
+                        <p data-pt="⚠️ Tem certeza? Esta ação não pode ser desfeita. Todos os seus dados serão removidos permanentemente." data-en="⚠️ Are you sure? This action cannot be undone. All your data will be permanently removed.">
+                            ⚠️ Tem certeza? Esta ação não pode ser desfeita.
+                            Todos os seus dados serão removidos permanentemente.
+                        </p>
+                        <div class="confirmar-botoes">
+                            <button
+                                type="button"
+                                id="btnConfirmarExclusao"
+                                class="btn-confirmar-exclusao"
+                                data-pt="Sim, excluir minha conta"
+                                data-en="Yes, delete my account"
+                            >
+                                Sim, excluir minha conta
+                            </button>
+                            <button
+                                type="button"
+                                id="btnCancelarExclusao"
+                                class="btn-cancelar-exclusao"
+                                data-pt="Cancelar"
+                                data-en="Cancel"
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Segurança -->
+                <div class="card seguranca">
+
+                    <div class="texto-seguranca">
+
+                        <h2>
+                            <span data-pt="Sua segurança" data-en="Your security">Sua segurança</span><br>
+                            <span data-pt="é nossa" data-en="is our">é nossa</span>
+                            <span data-pt="prioridade" data-en="priority">prioridade</span>
+                        </h2>
+
+                        <p data-pt="Utilizamos criptografia e boas práticas para proteger suas informações e da sua criança." data-en="We use encryption and best practices to protect your information and your child's.">
+                            Utilizamos criptografia e boas práticas para proteger
+                            suas informações e da sua criança.
+                        </p>
+
+                        <div class="status-seguranca">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span data-pt="Seus dados estão protegidos." data-en="Your data is protected.">Seus dados estão protegidos.</span>
+                        </div>
+
+                    </div>
+
+                    <img
+                        id="imgSeguranca"
+                        src="/img/BixucoSeguranca.png"
+                        alt="Segurança"
+                    >
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script src="/js/tema.js"></script>
+
+<script src="/js/ConfiguracoesSemAssinatura.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,456 @@
+/* ==========================================================
+   configuracoesT.css
+   Padronizado para usar os MESMOS estilos visuais de
+   configuracoes.css (cores, switches, ícones, cabeçalho,
+   cards). As variáveis de tema vêm de tema.css — não são
+   redefinidas aqui.
+
+   Diferença proposital em relação à tela normal:
+   Privacidade e Segurança continuam no MESMO card (lado a
+   lado), em vez de dois cards separados.
+   ========================================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    background: var(--cor-fundo-pagina);
+}
+
+body, body * {
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+.painel-notificacoes .tempo-notificacao {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    color: var(--cor-texto-esmaecido);
+}
+
+/* ---------- Corpo com scroll interno (padrão home/relatórios/configurações) ---------- */
+
+.conteudo-corpo {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.25rem 2rem 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* ========================================= */
+/* CABEÇALHO DA PÁGINA (título + mascote)     */
+/* ========================================= */
+
+.cabecalho-pagina {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.1rem;
+}
+
+.cabecalho-pagina h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--cor-texto-principal);
+    margin-bottom: 0.4rem;
+}
+
+.cabecalho-pagina p {
+    font-size: 0.92rem;
+    color: var(--cor-texto-secundario);
+}
+
+.cabecalho-pagina img {
+    width: 92px;
+    height: auto;
+}
+
+/* ========================================= */
+/* CARDS GENÉRICOS                            */
+/* ========================================= */
+
+.card {
+    background: var(--cor-fundo-card);
+    border-radius: 16px;
+    padding: 1.4rem 1.6rem;
+    box-shadow: var(--sombra-card);
+    margin-bottom: 1.25rem;
+}
+
+.card h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--cor-texto-principal);
+    margin-bottom: 1.15rem;
+}
+
+/* ========================================= */
+/* NOTIFICAÇÕES — itens com switch            */
+/* (mesma marcação visual de .item-config)    */
+/* ========================================= */
+
+.linha-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.95rem;
+    background: none;
+    border-radius: 0;
+    padding: 0.75rem 0;
+    margin-bottom: 0;
+}
+
+.linha-toggle__info {
+    display: flex;
+    align-items: center;
+    gap: 0.95rem;
+}
+
+.linha-toggle__info span {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--cor-texto-principal);
+}
+
+.linha-toggle__icone {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+    flex-shrink: 0;
+}
+
+.linha-toggle__icone--verde {
+    background: rgba(50, 194, 109, 0.12);
+    color: #32C26D;
+}
+
+.linha-toggle__icone--azul {
+    background: rgba(10, 183, 251, 0.12);
+    color: #0AB7FB;
+}
+
+/* ---------- Switch (toggle) — idêntico ao padrão normal ---------- */
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 27px;
+    flex-shrink: 0;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    inset: 0;
+    background: var(--cor-fundo-hover-forte);
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.slider::before {
+    content: "";
+    position: absolute;
+    width: 21px;
+    height: 21px;
+    left: 3px;
+    top: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.switch input:checked + .slider {
+    background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+}
+
+.switch input:checked + .slider::before {
+    transform: translateX(21px);
+}
+
+/* ========================================= */
+/* PRIVACIDADE + SEGURANÇA — mesmo card       */
+/* (layout mantido em duas colunas, mas com   */
+/*  as cores/tipografia do padrão normal)     */
+/* ========================================= */
+
+.card-privacidade {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 1.25rem;
+    align-items: stretch;
+    padding: 0;
+    overflow: hidden;
+}
+
+.privacidade-esquerda {
+    padding: 1.4rem 1.6rem;
+}
+
+.privacidade-esquerda h2 {
+    margin-bottom: 0.3rem;
+}
+
+/* ---------- Botão de item clicável (alterar senha / excluir) ---------- */
+
+.botao-opcao {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.95rem;
+    padding: 0.9rem 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: var(--cor-texto-principal);
+    margin-bottom: 0;
+}
+
+.botao-opcao + .botao-opcao {
+    border-top: 1px solid var(--cor-borda-suave);
+}
+
+.botao-opcao:hover {
+    background: none;
+}
+
+.botao-opcao span {
+    flex: 1;
+    font-weight: 600;
+}
+
+.botao-opcao__icone {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+    flex-shrink: 0;
+}
+
+/* Mesmas cores usadas no padrão normal: alterar senha = verde,
+   excluir conta = azul (sem destaque de "perigo") */
+.botao-opcao__icone--verde {
+    background: rgba(50, 194, 109, 0.12);
+    color: #32C26D;
+}
+
+.botao-opcao__icone--vermelho {
+    background: rgba(10, 183, 251, 0.12);
+    color: #0AB7FB;
+}
+
+.botao-opcao .seta {
+    color: var(--cor-texto-esmaecido);
+    font-size: 0.9rem;
+}
+
+.botao-opcao:hover span {
+    color: #0AB7FB;
+}
+
+/* ---------- Bloco de segurança (lado direito do card) ---------- */
+
+.privacidade-direita {
+    position: relative;
+    background: var(--cor-fundo-card);
+    padding: 1.4rem 1.6rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.5rem;
+    border-left: 1px solid var(--cor-borda-suave);
+}
+
+body.tema-escuro .privacidade-direita {
+    background: var(--cor-fundo-card);
+}
+
+.privacidade-direita h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--cor-texto-principal);
+    line-height: 1.35;
+    margin-bottom: 0.75rem;
+}
+
+.privacidade-direita h3 .destaque {
+    background: linear-gradient(90deg, #32C26D 0%, #0AB7FB 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
+.privacidade-direita p {
+    font-size: 0.9rem;
+    color: var(--cor-texto-secundario);
+    line-height: 1.6;
+    max-width: 220px;
+    margin-bottom: 0.25rem;
+}
+
+.privacidade-direita .dados-protegidos {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: #1D8E4F;
+    font-weight: 600;
+    font-size: 0.88rem;
+}
+
+.privacidade-direita .dados-protegidos i {
+    color: #32C26D;
+    font-size: 1rem;
+}
+
+.privacidade-direita img {
+    position: absolute;
+    right: 0.75rem;
+    bottom: 0;
+    width: 100px;
+    height: auto;
+}
+
+/* ========================================= */
+/* MODAIS — mesmas cores/raio do padrão       */
+/* ========================================= */
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 1.5rem;
+}
+
+.modal-conteudo {
+    background: var(--cor-fundo-card);
+    border-radius: 18px;
+    padding: 2rem 1.8rem;
+    max-width: 380px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-conteudo .icone-alerta {
+    font-size: 2rem;
+    color: #E24C4C;
+    margin-bottom: 0.8rem;
+}
+
+.modal-conteudo .icone-info {
+    font-size: 2rem;
+    color: #0AB7FB;
+    margin-bottom: 0.8rem;
+}
+
+.modal-conteudo h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--cor-texto-principal);
+    margin-bottom: 0.6rem;
+}
+
+.modal-conteudo p {
+    font-size: 0.88rem;
+    color: var(--cor-texto-secundario);
+    line-height: 1.5;
+    margin-bottom: 0.4rem;
+}
+
+.modal-acoes {
+    display: flex;
+    gap: 0.7rem;
+    margin-top: 1.3rem;
+}
+
+.modal-acoes button {
+    flex: 1;
+    border: none;
+    border-radius: 999px;
+    padding: 0.7rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.btn-cancelar {
+    background: var(--cor-fundo-hover);
+    color: var(--cor-texto-secundario);
+}
+
+.btn-cancelar:hover {
+    background: var(--cor-fundo-hover-forte);
+}
+
+.btn-confirmar {
+    background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+    color: #fff;
+}
+
+.btn-confirmar:hover {
+    background: linear-gradient(90deg, #32C26D 0%, #1D8EC9 100%);
+}
+
+#modalExcluir .btn-confirmar {
+    background: #E24C4C;
+}
+
+#modalExcluir .btn-confirmar:hover {
+    background: #C93A3A;
+}
+
+.modal-acoes button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 900px) {
+    .card-privacidade {
+        grid-template-columns: 1fr;
+    }
+
+    .privacidade-direita {
+        border-left: none;
+        border-top: 1px solid var(--cor-borda-suave);
+    }
+
+    .privacidade-direita img {
+        display: none;
+    }
+}

@@ -1,0 +1,39 @@
+/* Estilos específicos da página FormularioEntrega — prefixados com
+   "entrega-" para não colidir com home.css */
+
+.entrega-intro { margin-bottom: 1.5rem; }
+.entrega-intro h1 { font-size: 1.5rem; margin: 0 0 0.4rem; }
+.entrega-intro p { margin: 0; opacity: 0.75; font-size: 0.95rem; }
+.entrega-card { max-width: 820px; }
+.entrega-form__grupo { margin-bottom: 1rem; }
+.entrega-form__label-linha { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; }
+.entrega-form label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; }
+#linkNaoSeiCep { font-size: 0.8rem; color: #22d3ee; text-decoration: none; }
+#linkNaoSeiCep:hover { text-decoration: underline; }
+.entrega-form input, .entrega-form select {
+    width: 100%; padding: 0.75rem 0.9rem; border: 1px solid #d1d5db;
+    border-radius: 10px; font-size: 0.9rem; outline: none; background: #fff; color: inherit;
+}
+.entrega-form input:focus, .entrega-form select:focus { border-color: #22d3ee; }
+.entrega-form__linha { display: grid; grid-template-columns: 3fr 1fr; gap: 1rem; }
+.entrega-form__linha--tripla { grid-template-columns: 1fr 1fr 1fr; }
+.entrega-form__erro { display: block; color: #dc2626; font-size: 0.78rem; margin-top: 0.3rem; min-height: 1em; }
+.entrega-form__erro--geral { margin-top: 0.5rem; text-align: center; }
+.entrega-aviso {
+    display: flex; align-items: center; gap: 0.7rem; background: #f0fdf4;
+    border: 1px solid #bbf7d0; border-radius: 10px; padding: 0.8rem 0.9rem;
+    margin-top: 1.3rem; font-size: 0.82rem; color: #166534;
+}
+.entrega-aviso i { color: #16a34a; font-size: 1.1rem; }
+.entrega-aviso p { margin: 0.15rem 0 0; color: #166534; opacity: 0.85; }
+.entrega-btn {
+    width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    padding: 0.9rem; border: none; border-radius: 10px;
+    background: linear-gradient(90deg, #4ade80, #22d3ee); color: #fff;
+    font-size: 0.95rem; font-weight: 700; margin-top: 1.4rem; cursor: pointer;
+}
+.entrega-btn:disabled { opacity: 0.7; cursor: default; }
+
+@media (max-width: 640px) {
+    .entrega-form__linha, .entrega-form__linha--tripla { grid-template-columns: 1fr; }
+}

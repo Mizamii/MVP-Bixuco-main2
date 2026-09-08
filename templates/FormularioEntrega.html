@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Endereço de entrega</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/FormularioEntrega.css">
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+    <script src="/js/deeplink.js"></script>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- ===================== -->
+        <!-- MENU LATERAL — mesma estrutura da relatorios.html -->
+        <!-- ===================== -->
+        <aside class="sidebar">
+
+            <div class="logo">
+                <img src="/img/logo_nome.png" alt="Logo Bixuco">
+            </div>
+
+            <nav>
+                <a href="/home">
+                    <i class="fa-solid fa-house"></i>
+                    <span data-pt="Início" data-en="Home">Início</span>
+                </a>
+
+                <a href="/relatorios">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+                </a>
+
+                <a href="/sobre">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span data-pt="Sobre" data-en="About">Sobre</span>
+                </a>
+
+                <a href="/configuracoes">
+                    <i class="fa-solid fa-gear"></i>
+                    <span data-pt="Configurações" data-en="Settings">Configurações</span>
+                </a>
+            </nav>
+
+            <button
+                class="btn-relatorio"
+                type="button"
+                id="btnRelatorioDiario"
+                data-pt="Relatório diário"
+                data-en="Daily report"
+            >
+                Fazer Relatório diário
+            </button>
+
+            <div class="tema">
+                <button id="btnClaro" class="ativo" type="button">
+                    <i class="fa-regular fa-sun"></i> <span data-pt="Claro" data-en="Light">Claro</span>
+                </button>
+
+                <button id="btnEscuro" type="button">
+                    <i class="fa-regular fa-moon"></i> <span data-pt="Escuro" data-en="Dark">Escuro</span>
+                </button>
+            </div>
+
+            <div class="sidebar-divisor"></div>
+
+            <a href="/logout" class="logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span data-pt="Sair" data-en="Log out">Sair</span>
+            </a>
+        </aside>
+
+        <!-- ===================== -->
+        <!-- CONTEÚDO PRINCIPAL -->
+        <!-- ===================== -->
+        <main class="conteudo">
+
+            <header class="topo">
+
+                <button class="tradutor" type="button" id="btnTraduzir">
+                    <i class="fa-solid fa-language"></i>
+                    <span id="textoTradutor">Traduzir para o inglês</span>
+                </button>
+
+                <div class="usuario">
+
+                    <div class="notificacoes-wrapper">
+                        <button class="notificacoes" type="button" id="btnNotificacoes">
+                            <i class="fa-regular fa-bell"></i>
+                            <span id="quantidadeNotificacoes" class="badge">0</span>
+                        </button>
+
+                        <div class="painel-notificacoes" id="painelNotificacoes">
+                            <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
+                            <div id="listaNotificacoes">
+                                <div class="painel-vazio">Carregando...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <img
+                        id="fotoUsuario"
+                        src="/img/perfilPadrao.png"
+                        alt="Foto do usuário"
+                        title="Ver perfil"
+                        style="cursor: pointer;"
+                    >
+
+                    <div
+                        id="wrapperPerfilTopo"
+                        style="cursor: pointer;"
+                        title="Ver perfil"
+                    >
+                        <h3 id="nomeUsuario">Carregando...</h3>
+                        <span id="tipoConta">...</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="conteudo-corpo">
+
+                <section class="entrega-intro">
+                    <h1 data-pt="Onde vamos entregar o Bixuco?" data-en="Where should we deliver the Bixuco?">Onde vamos entregar o Bixuco?</h1>
+                    <p data-pt="Preencha o endereço para podermos entregá-lo com segurança. Só pedimos o CEP aqui — não é preciso informar de novo em outra etapa." data-en="Fill in the address so we can deliver it safely. We only ask for the ZIP code here — no need to enter it again in another step.">Preencha o endereço para podermos entregá-lo com segurança. Só pedimos o CEP aqui — não é preciso informar de novo em outra etapa.</p>
+                </section>
+
+                <section class="card entrega-card">
+
+                    <form id="formEndereco" class="entrega-form" novalidate>
+
+                        <div class="entrega-form__grupo">
+                            <div class="entrega-form__label-linha">
+                                <label for="cep" data-pt="CEP" data-en="ZIP code">CEP</label>
+                                <a
+                                    id="linkNaoSeiCep"
+                                    href="https://buscacepinter.correios.com.br/app/endereco/index.php"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    data-pt="Não sei o meu CEP"
+                                    data-en="I don't know my ZIP code"
+                                >
+                                    Não sei o meu CEP
+                                </a>
+                            </div>
+                            <input type="text" id="cep" placeholder="00000-000" maxlength="9" inputmode="numeric" required>
+                            <span class="entrega-form__erro" id="erro-cep"></span>
+                        </div>
+
+                        <div class="entrega-form__linha">
+                            <div class="entrega-form__grupo entrega-form__grupo--grande">
+                                <label for="rua" data-pt="Rua" data-en="Street">Rua</label>
+                                <input type="text" id="rua" placeholder="Nome da rua" required>
+                                <span class="entrega-form__erro" id="erro-rua"></span>
+                            </div>
+                            <div class="entrega-form__grupo">
+                                <label for="numero" data-pt="Número" data-en="Number">Número</label>
+                                <input type="text" id="numero" placeholder="Nº" inputmode="numeric" required>
+                                <span class="entrega-form__erro" id="erro-numero"></span>
+                            </div>
+                        </div>
+
+                        <div class="entrega-form__grupo">
+                            <label for="complemento" data-pt="Complemento (opcional)" data-en="Additional info (optional)">Complemento (opcional)</label>
+                            <input type="text" id="complemento" placeholder="Apto, bloco, referência...">
+                        </div>
+
+                        <div class="entrega-form__linha entrega-form__linha--tripla">
+                            <div class="entrega-form__grupo">
+                                <label for="bairro" data-pt="Bairro" data-en="Neighborhood">Bairro</label>
+                                <input type="text" id="bairro" placeholder="Bairro" required>
+                                <span class="entrega-form__erro" id="erro-bairro"></span>
+                            </div>
+                            <div class="entrega-form__grupo">
+                                <label for="cidade" data-pt="Cidade" data-en="City">Cidade</label>
+                                <input type="text" id="cidade" placeholder="Cidade" required>
+                                <span class="entrega-form__erro" id="erro-cidade"></span>
+                            </div>
+                            <div class="entrega-form__grupo">
+                                <label for="estado" data-pt="Estado" data-en="State">Estado</label>
+                                <select id="estado" required>
+                                    <option value="" disabled selected>UF</option>
+                                    <option value="AC">AC — Acre</option>
+                                    <option value="AL">AL — Alagoas</option>
+                                    <option value="AP">AP — Amapá</option>
+                                    <option value="AM">AM — Amazonas</option>
+                                    <option value="BA">BA — Bahia</option>
+                                    <option value="CE">CE — Ceará</option>
+                                    <option value="DF">DF — Distrito Federal</option>
+                                    <option value="ES">ES — Espírito Santo</option>
+                                    <option value="GO">GO — Goiás</option>
+                                    <option value="MA">MA — Maranhão</option>
+                                    <option value="MT">MT — Mato Grosso</option>
+                                    <option value="MS">MS — Mato Grosso do Sul</option>
+                                    <option value="MG">MG — Minas Gerais</option>
+                                    <option value="PA">PA — Pará</option>
+                                    <option value="PB">PB — Paraíba</option>
+                                    <option value="PR">PR — Paraná</option>
+                                    <option value="PE">PE — Pernambuco</option>
+                                    <option value="PI">PI — Piauí</option>
+                                    <option value="RJ">RJ — Rio de Janeiro</option>
+                                    <option value="RN">RN — Rio Grande do Norte</option>
+                                    <option value="RS">RS — Rio Grande do Sul</option>
+                                    <option value="RO">RO — Rondônia</option>
+                                    <option value="RR">RR — Roraima</option>
+                                    <option value="SC">SC — Santa Catarina</option>
+                                    <option value="SP">SP — São Paulo</option>
+                                    <option value="SE">SE — Sergipe</option>
+                                    <option value="TO">TO — Tocantins</option>
+                                </select>
+                                <span class="entrega-form__erro" id="erro-estado"></span>
+                            </div>
+                        </div>
+
+                        <div class="entrega-aviso">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <div>
+                                <strong data-pt="Seus dados estão seguros" data-en="Your data is safe">Seus dados estão seguros</strong>
+                                <p data-pt="Usamos suas informações apenas para a entrega do Bixuco." data-en="We only use your information to deliver the Bixuco.">Usamos suas informações apenas para a entrega do Bixuco.</p>
+                            </div>
+                        </div>
+
+                        <span class="entrega-form__erro entrega-form__erro--geral" id="erro-geral" style="display:none;"></span>
+
+                        <button type="submit" class="entrega-btn" id="btnContinuar">
+                            <span id="textoBtnContinuar" data-pt="Continuar" data-en="Continue">Continuar</span>
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+
+                    </form>
+                </section>
+
+            </div>
+
+        </main>
+    </div>
+
+    <script src="/js/FormularioEntrega.js"></script>
+
+    <script src="/js/tema.js"></script>
+
+</body>
+</html>

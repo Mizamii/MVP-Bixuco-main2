@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco • Relatórios</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/relatoriosTerapeutaS.css">
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+    <script src="/js/deeplink.js"></script>
+
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- ========================= -->
+    <!-- MENU LATERAL -->
+    <!-- ========================= -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <img src="/img/logo_nome.png" alt="Bixuco">
+        </div>
+
+        <nav>
+
+            <a href="/homeTerapeuta">
+                <i class="fa-solid fa-house"></i>
+                <span data-pt="Início" data-en="Home">Início</span>
+            </a>
+
+            <!-- aba ativa -->
+            <a href="/relatoriosTerapeutaS" class="ativo">
+                <i class="fa-solid fa-chart-line"></i>
+                <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+            </a>
+
+            <a href="/configuracoesT">
+                <i class="fa-solid fa-gear"></i>
+                <span data-pt="Configurações" data-en="Settings">Configurações</span>
+            </a>
+
+            <a href="/sobreT">
+                <i class="fa-solid fa-circle-info"></i>
+                <span data-pt="Sobre" data-en="About">Sobre</span>
+            </a>
+
+            <a href="/pacientes">
+                <i class="fa-solid fa-user-plus"></i>
+                <span data-pt="Pacientes" data-en="Patients">Pacientes</span>
+            </a>
+
+        </nav>
+
+        <div class="tema">
+            <button id="btnClaro" class="ativo" type="button">
+                <i class="fa-regular fa-sun"></i>
+                <span data-pt="Claro" data-en="Light">Claro</span>
+            </button>
+            <button id="btnEscuro" type="button">
+                <i class="fa-regular fa-moon"></i>
+                <span data-pt="Escuro" data-en="Dark">Escuro</span>
+            </button>
+        </div>
+
+        <div class="sidebar-divisor"></div>
+
+        <a href="/logout" class="logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span data-pt="Sair" data-en="Log out">Sair</span>
+        </a>
+
+    </aside>
+
+    <!-- ========================= -->
+    <!-- CONTEÚDO PRINCIPAL -->
+    <!-- ========================= -->
+    <main class="conteudo">
+
+        <!-- TOPO — padrão de todas as telas do terapeuta -->
+        <header class="topo">
+
+            <button class="tradutor" type="button" id="btnTraduzir">
+                <i class="fa-solid fa-language"></i>
+                <span id="textoTradutor">Traduzir para inglês</span>
+            </button>
+
+            <div class="usuario">
+
+                <!-- sininho com painel de notificações -->
+                <div class="notificacoes-wrapper">
+                    <button class="notificacoes" type="button" id="btnNotificacoes">
+                        <i class="fa-regular fa-bell"></i>
+                        <span id="badgeNotificacoes" class="badge" style="display:none">0</span>
+                    </button>
+
+                    <div class="painel-notificacoes" id="painelNotificacoes">
+                        <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
+                        <div id="listaNotificacoes">
+                            <div class="painel-vazio" data-pt="Carregando..." data-en="Loading...">Carregando...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- foto clicável vai para o perfil do terapeuta -->
+                <img
+                    id="fotoUsuario"
+                    src="/img/perfilPadrao.png"
+                    alt="Foto do terapeuta"
+                    title="Ver perfil"
+                    style="cursor:pointer;"
+                >
+
+                <div>
+                    <h3 id="nomeTerapeuta" style="cursor:pointer" >Carregando...</h3>
+                    <span data-pt="Terapeuta" data-en="Therapist">Terapeuta</span>
+
+                    <button type="button" class="btn-codigo-copiar" id="btnCodigoCopiar"  title="Copiar código para compartilhar">
+                        <span><span data-pt="Código" data-en="Code">Código</span>: <strong id="codigoTerapeuta">...</strong></span>
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                </div>
+
+            </div>
+
+        </header>
+
+        <div class="conteudo-corpo">
+
+            <!-- CABEÇALHO DA PÁGINA -->
+            <div class="cabecalho-pagina">
+                <div>
+                    <h1 data-pt="Relatórios" data-en="Reports">Relatórios</h1>
+                    <p data-pt="Acompanhe e visualize os relatórios dos pacientes." data-en="Track and view your patients' reports.">Acompanhe e visualize os relatórios dos pacientes.</p>
+                </div>
+                <img src="/img/gato-relatorio.png" alt="Mascote Bixuco" >
+            </div>
+
+            <h2 class="subtitulo-secao" data-pt="Relatórios dos pacientes" data-en="Patient reports">Relatórios dos pacientes</h2>
+
+            <!-- ========================= -->
+            <!-- LISTA DE PACIENTES -->
+            <!-- cada card leva para /relatoriosTerapeuta?paciente=ID -->
+            <!-- gerado pelo JS via /api/pacientes-relatorios -->
+            <!-- ========================= -->
+            <div id="listaRelatorios">
+                <!-- estado de carregamento -->
+                <div class="carregando-relatorios">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    <span data-pt="Carregando pacientes..." data-en="Loading patients...">Carregando pacientes...</span>
+                </div>
+            </div>
+
+            <!-- aparece quando não tem nenhum paciente vinculado -->
+            <div id="semPacientes" style="display:none" class="lista-vazia">
+                <i class="fa-solid fa-users-slash"></i>
+                <p data-pt="Nenhum paciente vinculado ainda." data-en="No patients linked yet.">Nenhum paciente vinculado ainda.</p>
+                <p data-pt="Aceite solicitações de vínculo para ver os relatórios aqui." data-en="Accept link requests to see reports here.">Aceite solicitações de vínculo para ver os relatórios aqui.</p>
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<script src="/js/RelatoriosTerapeutaS.js" ></script>
+
+<script src="/js/tema.js" ></script>
+
+</body>
+
+</html>

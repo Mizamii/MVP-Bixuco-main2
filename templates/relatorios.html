@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco - Relatórios</title>
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+    <script src="/js/deeplink.js"></script>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/relatorios.css">
+
+    <style>
+        /* ========================================= */
+        /* SELETOR DE TIPO DE GRÁFICO (dropdown)      */
+        /* ========================================= */
+
+        .titulo-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .seletor-tipo {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .seletor-tipo__atual {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: var(--cor-fundo-pagina);
+            border: 1px solid var(--cor-borda);
+            border-radius: 999px;
+            padding: 0.35rem 0.7rem;
+            color: var(--cor-texto-secundario);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .seletor-tipo__atual:hover {
+            border-color: #32C26D;
+            color: #32C26D;
+        }
+
+        .seletor-tipo__seta {
+            font-size: 0.62rem;
+            transition: transform 0.2s ease;
+        }
+
+        .seletor-tipo.aberto .seletor-tipo__seta {
+            transform: rotate(180deg);
+        }
+
+        .seletor-tipo__menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            min-width: 150px;
+            background: var(--cor-fundo-card);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+            padding: 0.4rem;
+            z-index: 30;
+        }
+
+        .seletor-tipo.aberto .seletor-tipo__menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+        }
+
+        .seletor-tipo__menu button {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            background: none;
+            border: none;
+            text-align: left;
+            padding: 0.55rem 0.65rem;
+            border-radius: 8px;
+            font-size: 0.83rem;
+            color: var(--cor-texto-principal);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .seletor-tipo__menu button:hover {
+            background: var(--cor-fundo-hover);
+        }
+
+        .seletor-tipo__menu button i {
+            width: 16px;
+            text-align: center;
+            color: #32C26D;
+            font-size: 0.85rem;
+        }
+
+        .btn-tipo-grafico button {
+            background: #F5F7FA;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 6px 10px;
+            cursor: pointer;
+            color: #5A5A5A;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .btn-tipo-grafico button:hover {
+            background: #E2F0D9;
+            border-color: #32C26D;
+            color: #32C26D;
+        }
+
+        .btn-tipo-grafico button.ativo {
+            background: #32C26D;
+            border-color: #32C26D;
+            color: white;
+        }
+
+        /* ========================================= */
+        /* ABA DE ALERTAS — navegação de dia e tabela */
+        /* ========================================= */
+
+        .navegacao-dia {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .navegacao-dia button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: var(--cor-fundo-pagina);
+            border: 1px solid var(--cor-borda);
+            border-radius: 50%;
+            color: var(--cor-texto-secundario);
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .navegacao-dia button:hover {
+            border-color: #32C26D;
+            color: #32C26D;
+        }
+
+        #dataAlertasAtual {
+            min-width: 110px;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--cor-texto-principal);
+        }
+
+        .tabela-alertas-wrapper {
+            overflow-x: auto;
+            border: 1px solid var(--cor-borda);
+            border-radius: 12px;
+            margin-top: 1rem;
+        }
+
+        .tabela-alertas {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            min-width: 480px;
+        }
+
+        .tabela-alertas thead th {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            background: var(--cor-fundo-pagina);
+            color: var(--cor-texto-secundario);
+            font-weight: 600;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            border-bottom: 1px solid var(--cor-borda);
+        }
+
+        .tabela-alertas tbody td {
+            padding: 0.75rem 1rem;
+            color: var(--cor-texto-principal);
+            border-bottom: 1px solid var(--cor-borda);
+        }
+
+        .tabela-alertas tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .tabela-alertas tbody tr:hover {
+            background: var(--cor-fundo-hover);
+        }
+
+        .tabela-alertas td a {
+            color: #32C26D;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .tabela-alertas td a:hover {
+            text-decoration: underline;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- ========================= -->
+    <!-- MENU LATERAL -->
+    <!-- ========================= -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            <img src="/img/logo_nome.png" alt="Bixuco">
+        </div>
+
+        <nav>
+
+            <a href="/home">
+                <i class="fa-solid fa-house"></i>
+                <span data-pt="Início" data-en="Home">Início</span>
+            </a>
+
+            <a href="/relatorios" class="ativo">
+                <i class="fa-solid fa-chart-line"></i>
+                <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+            </a>
+
+            <a href="/sobre">
+                <i class="fa-solid fa-circle-info"></i>
+                <span data-pt="Sobre" data-en="About">Sobre</span>
+            </a>
+
+            <a href="/configuracoes">
+                <i class="fa-solid fa-gear"></i>
+                <span data-pt="Configurações" data-en="Settings">Configurações</span>
+            </a>
+
+        </nav>
+
+        <button
+            class="btn-relatorio"
+            type="button"
+            id="btnRelatorioDiario"
+            data-pt="Relatório diário"
+            data-en="Daily report"
+        >
+            Relatório diário
+        </button>
+
+        <div class="tema">
+
+            <button id="btnClaro" class="ativo" type="button">
+                <i class="fa-regular fa-sun"></i> <span data-pt="Claro" data-en="Light">Claro</span>
+            </button>
+            <button id="btnEscuro" type="button">
+                <i class="fa-regular fa-moon"></i> <span data-pt="Escuro" data-en="Dark">Escuro</span>
+            </button>
+
+        </div>
+
+        <div class="sidebar-divisor"></div>
+
+        <a href="/logout" class="logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span data-pt="Sair" data-en="Log out">Sair</span>
+        </a>
+
+    </aside>
+
+    <!-- ========================= -->
+    <!-- CONTEÚDO -->
+    <!-- ========================= -->
+
+    <main class="conteudo">
+
+        <header class="topo">
+
+            <button class="btn-tema-mobile" type="button" id="btnTemaMobile">
+                <i class="fa-regular fa-sun"></i>
+            </button>
+
+            <button class="tradutor" type="button" id="btnTraduzir">
+                <i class="fa-solid fa-language"></i>
+                <span id="textoTradutor">Traduzir para o inglês</span>
+            </button>
+
+            <div class="usuario">
+
+                <div class="notificacoes-wrapper">
+                    <button class="notificacoes" type="button" id="btnNotificacoes">
+                        <i class="fa-regular fa-bell"></i>
+                        <span id="quantidadeNotificacoes" class="badge">0</span>
+                    </button>
+
+                    <div class="painel-notificacoes" id="painelNotificacoes">
+                        <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
+                        <div id="listaNotificacoes">
+                            <div class="painel-vazio">Carregando...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <img
+                    id="fotoUsuario"
+                    src="/img/perfilPadrao.png"
+                    alt="Foto do usuário"
+                    title="Ver perfil"
+                    style="cursor: pointer;"
+                >
+
+                <div id="blocoNomeUsuario" style="cursor: pointer;" title="Ver perfil">
+                    <h3 id="nomeUsuario">Carregando...</h3>
+                    <span id="tipoConta">...</span>
+                </div>
+
+            </div>
+
+        </header>
+
+        <div class="conteudo-corpo">
+
+        <section class="cabecalho">
+
+            <div>
+
+                <h1 data-pt="Relatórios" data-en="Reports">Relatórios</h1>
+
+                <div class="abas">
+
+                    <button id="btnVisao" class="ativa" type="button" data-pt="Visão geral" data-en="Overview">
+                        Visão geral
+                    </button>
+
+                    <button id="btnDiario" type="button" data-pt="Diário" data-en="Daily">
+                        Diário
+                    </button>
+
+                    <button id="btnAlertas" type="button" data-pt="Alertas" data-en="Alerts">
+                        Alertas
+                    </button>
+
+                </div>
+
+            </div>
+
+            <img
+                src="/img/gatografico.png"
+                class="gato_lendo"
+                alt="Mascote"
+            >
+
+        </section>
+
+        <!-- ================================= -->
+        <!-- ABA — VISÃO GERAL -->
+        <!-- ================================= -->
+
+        <section id="abaVisao" class="aba-conteudo ativa">
+
+            <div class="cards-relatorio">
+
+                <div class="card">
+                    <h3 data-pt="Alertas de estresse neste mês" data-en="Stress alerts this month">Alertas de estresse neste mês</h3>
+                    <span id="alertasEstresse" class="valor-destaque">0</span>
+                    <p id="comparativoAlertas">registrados este mês</p>
+                </div>
+
+                <div class="card">
+                    <h3 data-pt="Tempo de estresse médio neste mês" data-en="Average stress time this month">Tempo de estresse médio neste mês</h3>
+                    <span id="tempoEstresse" class="valor-destaque">0 min</span>
+                    <p id="comparativoTempo">por episódio</p>
+                </div>
+
+            </div>
+
+            <div class="linha-graficos">
+
+                <div class="grafico-card">
+                    <div class="titulo-card">
+                        <h2>
+                            <i class="fa-solid fa-chart-bar"></i>
+                            <span data-pt="Estresse — últimos 7 dias" data-en="Stress — last 7 days">Estresse — últimos 7 dias</span>
+                        </h2>
+                        <div class="seletor-tipo" id="seletorEstresse">
+                            <button type="button" class="seletor-tipo__atual" id="btnToggleEstresse" aria-haspopup="true" aria-expanded="false" aria-label="Escolher tipo de gráfico">
+                                <i class="fa-solid fa-chart-column" id="iconeAtualEstresse"></i>
+                                <i class="fa-solid fa-chevron-down seletor-tipo__seta"></i>
+                            </button>
+                            <div class="seletor-tipo__menu">
+                                <button type="button" id="btnEstresseBar">
+                                    <i class="fa-solid fa-chart-column"></i>
+                                    <span data-pt="Barras" data-en="Bar">Barras</span>
+                                </button>
+                                <button type="button" id="btnEstresseLine">
+                                    <i class="fa-solid fa-chart-line"></i>
+                                    <span data-pt="Linha" data-en="Line">Linha</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <canvas id="graficoEstresse"></canvas>
+                </div>
+
+                <div class="grafico-card">
+                    <div class="titulo-card">
+                        <h2>
+                            <i class="fa-solid fa-circle-nodes"></i>
+                            <span data-pt="Principais gatilhos — últimos 30 dias" data-en="Main triggers — last 30 days">Principais gatilhos — últimos 30 dias</span>
+                        </h2>
+                        <div class="seletor-tipo" id="seletorGatilhos">
+                            <button type="button" class="seletor-tipo__atual" id="btnToggleGatilhos" aria-haspopup="true" aria-expanded="false" aria-label="Escolher tipo de gráfico">
+                                <i class="fa-solid fa-circle-dot" id="iconeAtualGatilhos"></i>
+                                <i class="fa-solid fa-chevron-down seletor-tipo__seta"></i>
+                            </button>
+                            <div class="seletor-tipo__menu">
+                                <button type="button" id="btnGatilhosDoughnut">
+                                    <i class="fa-solid fa-circle-dot"></i>
+                                    <span data-pt="Rosca" data-en="Doughnut">Rosca</span>
+                                </button>
+                                <button type="button" id="btnGatilhosPie">
+                                    <i class="fa-solid fa-chart-pie"></i>
+                                    <span data-pt="Pizza" data-en="Pie">Pizza</span>
+                                </button>
+                                <button type="button" id="btnGatilhosBar">
+                                    <i class="fa-solid fa-chart-column"></i>
+                                    <span data-pt="Barras" data-en="Bar">Barras</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.72rem; color: #999; margin-top: -0.5rem; margin-bottom: 0.5rem;" data-pt="Estimativa baseada nas respostas do relatório diário" data-en="Estimate based on daily report answers">
+                        Estimativa baseada nas respostas do relatório diário
+                    </p>
+                    <canvas id="graficoGatilhos"></canvas>
+                    <div id="legendaGatilhos" class="legenda-rosca"></div>
+                </div>
+
+            </div>
+
+            <div class="linha-graficos">
+
+                <div class="grafico-card grande">
+                    <div class="titulo-card">
+                        <h2>
+                            <i class="fa-solid fa-chart-line"></i>
+                            <span data-pt="Evolução de crises sensoriais — últimos 7 dias" data-en="Sensory crisis evolution — last 7 days">Evolução de crises sensoriais — últimos 7 dias</span>
+                        </h2>
+                        <div class="seletor-tipo" id="seletorEvolucao">
+                            <button type="button" class="seletor-tipo__atual" id="btnToggleEvolucao" aria-haspopup="true" aria-expanded="false" aria-label="Escolher tipo de gráfico">
+                                <i class="fa-solid fa-chart-line" id="iconeAtualEvolucao"></i>
+                                <i class="fa-solid fa-chevron-down seletor-tipo__seta"></i>
+                            </button>
+                            <div class="seletor-tipo__menu">
+                                <button type="button" id="btnEvolucaoLine">
+                                    <i class="fa-solid fa-chart-line"></i>
+                                    <span data-pt="Linha" data-en="Line">Linha</span>
+                                </button>
+                                <button type="button" id="btnEvolucaoBar">
+                                    <i class="fa-solid fa-chart-column"></i>
+                                    <span data-pt="Barras" data-en="Bar">Barras</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.72rem; color: #999; margin-top: -0.5rem; margin-bottom: 0.5rem;" data-pt="Índice combinado: força, duração e frequência dos apertos captados pelo Bixuco, com pequeno ajuste do relatório diário" data-en="Combined index: grip force, duration and frequency captured by Bixuco, with a small adjustment from the daily report">
+                        Índice combinado: força, duração e frequência dos apertos captados pelo Bixuco, com pequeno ajuste do relatório diário
+                    </p>
+                    <canvas id="graficoEvolucao"></canvas>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ================================= -->
+        <!-- ABA — DIÁRIO -->
+        <!-- ================================= -->
+
+        <section
+         id="abaDiario" class="aba-conteudo" style="display: none;">
+
+            <div class="cards-relatorio">
+
+                <div class="card">
+                    <h3 data-pt="Alertas de estresse" data-en="Stress alerts">Alertas de estresse</h3>
+                    <span id="alertasEstresseDiario" class="valor-destaque">0</span>
+                    <p id="comparativoAltasDiario">registrados este mês</p>
+                </div>
+
+                <div class="card">
+                    <h3 data-pt="Tempo de estresse" data-en="Stress time">Tempo de estresse</h3>
+                    <span id="tempoEstresseDiario" class="valor-destaque">0 min</span>
+                    <p id="comparativoTempoDiario">por episódio</p>
+                </div>
+
+            </div>
+
+            <div class="relatorio-diario">
+
+                <div class="topo-diario">
+                    <h2 data-pt="Respostas do relatório diário" data-en="Daily report answers">Respostas do relatório diário</h2>
+                    <p id="dataRelatorio">Carregando...</p>
+                </div>
+
+                <div id="listaPerguntas" class="lista-perguntas"></div>
+
+            </div>
+
+        </section>
+
+        <section id="abaAlertas" class="aba-conteudo" style="display: none;">
+
+            <div class="topo-diario">
+                <h2 data-pt="Crises registradas" data-en="Recorded crises">Crises registradas</h2>
+                <div class="navegacao-dia">
+                    <button type="button" id="btnDiaAnterior" aria-label="Dia anterior">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <span id="dataAlertasAtual">Hoje</span>
+                    <button type="button" id="btnProximoDia" aria-label="Próximo dia">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="tabela-alertas-wrapper">
+                <table class="tabela-alertas">
+                    <thead>
+                        <tr>
+                            <th data-pt="Horário" data-en="Time">Horário</th>
+                            <th data-pt="Localização" data-en="Location">Localização</th>
+                            <th data-pt="Força" data-en="Force">Força</th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpoTabelaAlertas">
+                        <tr><td colspan="3" data-pt="Carregando..." data-en="Loading...">Carregando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+
+        </div>
+
+    </main>
+
+    <nav class="bottom-nav">
+        <a href="/sobre">
+            <i class="fa-solid fa-circle-info"></i>
+            <span data-pt="Sobre" data-en="About">Sobre</span>
+        </a>
+
+        <a href="/configuracoes">
+            <i class="fa-solid fa-gear"></i>
+            <span data-pt="Config" data-en="Settings">Config</span>
+        </a>
+
+        <a href="/RelatorioDiario" class="bottom-nav__relatar">
+            <i class="fa-solid fa-plus"></i>
+        </a>
+
+        <a href="/home">
+            <i class="fa-solid fa-house"></i>
+            <span data-pt="Início" data-en="Home">Início</span>
+        </a>
+
+        <a href="/relatorios" class="ativo">
+            <i class="fa-solid fa-chart-line"></i>
+            <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+        </a>
+    </nav>
+
+</div>
+
+
+<script src="/js/tema.js"></script>
+<script src="/js/relatorios.js"></script>
+
+</body>
+
+</html>

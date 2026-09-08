@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Início Terapeuta</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <!-- tema.css precisa vir ANTES do CSS da página -->
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/homeTerapeuta.css">
+    <script src="/js/deeplink.js"></script>
+
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+
+        <style>
+        /* Limita a altura da caixa de atividade recente e cria scroll
+           interno, em vez de deixar o card crescer até estourar a página */
+        #listaAtividade {
+            max-height: 260px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        #listaAtividade::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #listaAtividade::-webkit-scrollbar-thumb {
+            background: #C2C2C2;
+            border-radius: 4px;
+        }
+                .bolinha-nao-visto {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #E53E3E;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+
+    </style>
+
+</head>
+<body>
+
+<div class="container">
+
+    <!-- ========================= -->
+    <!-- MENU LATERAL -->
+    <!-- ========================= -->
+    <aside class="sidebar">
+
+        <!-- logo_nome.png do amigo (com o nome junto ao logo) -->
+        <div class="logo">
+            <img src="/img/logo_nome.png" alt="Logo Bixuco">
+        </div>
+
+        <nav>
+            <a href="/homeTerapeuta" class="ativo">
+                <i class="fa-solid fa-house"></i>
+                <span data-pt="Início" data-en="Home">Início</span>
+            </a>
+
+            <a href="/relatoriosTerapeutaS">
+                <i class="fa-solid fa-chart-line"></i>
+                <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+            </a>
+
+            <a href="/configuracoesT">
+                <i class="fa-solid fa-gear"></i>
+                <span data-pt="Configurações" data-en="Settings">Configurações</span>
+            </a>
+
+            <a href="/sobreT">
+                <i class="fa-solid fa-circle-info"></i>
+                <span data-pt="Sobre" data-en="About">Sobre</span>
+            </a>
+
+            <a href="/pacientes">
+                <i class="fa-solid fa-user-plus"></i>
+                <span data-pt="Pacientes" data-en="Patients">Pacientes</span>
+            </a>
+        </nav>
+
+        <div class="tema">
+            <button id="btnClaro" class="ativo" type="button">
+                <i class="fa-regular fa-sun"></i>
+                <span data-pt="Claro" data-en="Light">Claro</span>
+            </button>
+
+            <button id="btnEscuro" type="button">
+                <i class="fa-regular fa-moon"></i>
+                <span data-pt="Escuro" data-en="Dark">Escuro</span>
+            </button>
+        </div>
+
+        <!-- Divisor em degradê do amigo — antes do Sair -->
+        <div class="sidebar-divisor"></div>
+
+        <a href="/logout" class="logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span data-pt="Sair" data-en="Log out">Sair</span>
+        </a>
+
+    </aside>
+
+    <!-- ========================= -->
+    <!-- CONTEÚDO PRINCIPAL -->
+    <!-- ========================= -->
+    <main class="conteudo">
+
+        <!-- TOPO -->
+        <header class="topo">
+
+            <!-- Tradução manual via data-pt / data-en — do JS -->
+            <button class="tradutor" type="button" id="btnTraduzir">
+                <i class="fa-solid fa-language"></i>
+                <span id="textoTradutor">Traduzir para inglês</span>
+            </button>
+
+            <div class="usuario">
+
+                <!-- Sininho com painel de notificações -->
+                <div class="notificacoes-wrapper">
+                    <button class="notificacoes" type="button" id="btnNotificacoes">
+                        <i class="fa-regular fa-bell"></i>
+                        <span id="badgeNotificacoes" class="badge" style="display:none">0</span>
+                    </button>
+
+                    <div class="painel-notificacoes" id="painelNotificacoes">
+                        <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
+                        <div id="listaNotificacoes">
+                            <div class="painel-vazio" data-pt="Carregando..." data-en="Loading...">Carregando...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <img
+                    id="fotoUsuario"
+                    src="/img/perfilPadrao.png"
+                    alt="Foto do terapeuta"
+                    style="cursor:pointer"
+                    title="Clique para ver seu perfil"
+                >
+
+                <div>
+                    <h3 id="nomeTerapeuta" style="cursor:pointer" >Carregando...</h3>
+                    <span id="tipoConta" data-pt="Terapeuta" data-en="Therapist">Terapeuta</span>
+
+                    <button type="button" class="btn-codigo-copiar" id="btnCodigoCopiar"  title="Copiar código para compartilhar">
+                        <span><span data-pt="Código" data-en="Code">Código</span>: <strong id="codigoTerapeuta">...</strong></span>
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                </div>
+
+            </div>
+
+        </header>
+
+        <!-- CORPO COM SCROLL INTERNO — do amigo -->
+        <div class="conteudo-corpo">
+
+            <!-- ========================= -->
+            <!-- LINHA DE CONTADORES -->
+            <!-- ========================= -->
+            <section class="linha-contadores">
+
+                <article class="contador">
+                    <div class="contador-icone contador-icone--azul">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                    <div>
+                        <strong id="totalPacientes">0</strong>
+                        <span data-pt="Pacientes" data-en="Patients">Pacientes</span>
+                    </div>
+                </article>
+
+                <article class="contador">
+                    <div class="contador-icone contador-icone--verde">
+                        <i class="fa-solid fa-file-pen"></i>
+                    </div>
+                    <div>
+                        <strong id="totalPendentes">0</strong>
+                        <span data-pt="Pendentes" data-en="Pending">Pendentes</span>
+                    </div>
+                </article>
+
+                <article class="contador">
+                    <div class="contador-icone contador-icone--azul-claro">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                    </div>
+                    <div>
+                        <strong id="totalRelatoriosHoje">0</strong>
+                        <span data-pt="Relatórios hoje" data-en="Reports today">Relatórios hoje</span>
+                    </div>
+                </article>
+
+            </section>
+
+            <!-- ========================= -->
+            <!-- LINHA PRINCIPAL: solicitações + atividade -->
+            <!-- ========================= -->
+            <section class="linha-principal">
+
+                <!-- SOLICITAÇÕES PENDENTES -->
+                <div class="card-solicitacoes">
+
+                    <h2 data-pt="Solicitações pendentes" data-en="Pending requests">Solicitações pendentes</h2>
+
+                    <ul id="listaSolicitacoes">
+                        <li class="solicitacao-carregando">
+                            <p data-pt="Carregando solicitações..." data-en="Loading requests...">Carregando solicitações...</p>
+                        </li>
+                    </ul>
+
+                    <p id="semSolicitacoes" class="lista-vazia" style="display: none;" data-pt="Nenhuma solicitação pendente no momento." data-en="No pending requests at the moment.">
+                        Nenhuma solicitação pendente no momento.
+                    </p>
+
+                </div>
+
+                <!-- ATIVIDADE RECENTE -->
+                <div class="card-atividade">
+
+                    <h2 data-pt="Atividade recente" data-en="Recent activity">Atividade recente</h2>
+
+                    <ul id="listaAtividade">
+                        <li class="atividade-carregando">
+                            <p data-pt="Carregando atividades..." data-en="Loading activity...">Carregando atividades...</p>
+                        </li>
+                    </ul>
+
+                    <p id="semAtividade" class="lista-vazia" style="display: none;" data-pt="Nenhuma atividade recente." data-en="No recent activity.">
+                        Nenhuma atividade recente.
+                    </p>
+
+                </div>
+
+            </section>
+
+        </div><!-- fim .conteudo-corpo -->
+        <br>
+
+        <!-- Modal de confirmação inline (aceitar/recusar solicitações) -->
+        <div id="modalConfirmacao" class="modal-confirmacao" style="display: none;">
+
+            <div class="modal-confirmacao__conteudo">
+
+                <p id="modalConfirmacaoTexto"></p>
+
+                <div class="modal-confirmacao__botoes">
+
+                    <button
+                        type="button"
+                        id="modalBtnConfirmar"
+                        class="btn-confirmar-acao"
+                        data-pt="Confirmar"
+                        data-en="Confirm"
+                    >
+                        Confirmar
+                    </button>
+
+                    <button
+                        type="button"
+                        id="modalBtnCancelar"
+                        class="btn-cancelar-acao"
+                        data-pt="Cancelar"
+                        data-en="Cancel"
+                    >
+                        Cancelar
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script src="/js/HomeTerapeuta.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Relatório do Paciente</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <!-- Chart.js para os gráficos -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+    <!-- favicon -->
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+
+    <!-- CSS externo — o amigo vai ligar aqui -->
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/relatoriodetalhado.css">
+    <script src="/js/deeplink.js"></script>
+
+
+    <style>
+        /* Botões de troca de tipo de gráfico — inline pois são específicos desta página */
+        .titulo-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .btn-tipo-grafico {
+            display: flex;
+            gap: 4px;
+        }
+
+        .btn-tipo-grafico button {
+            background: var(--cor-fundo-pagina);
+            border: 1px solid var(--cor-borda);
+            border-radius: 8px;
+            padding: 6px 10px;
+            cursor: pointer;
+            color: var(--cor-texto-secundario);
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .btn-tipo-grafico button:hover {
+            background: var(--cor-fundo-hover);
+            border-color: #32C26D;
+            color: #32C26D;
+        }
+
+        .btn-tipo-grafico button.ativo {
+            background: #32C26D;
+            border-color: #32C26D;
+            color: white;
+        }
+
+        /* ===== Calendário de relatórios por dia (Fase 2 — sugestão do professor) ===== */
+
+        .card-calendario,
+        .card-dia-detalhe {
+            background: var(--cor-fundo-card);
+            border-radius: 16px;
+            padding: 1.25rem 1.35rem;
+            box-shadow: var(--sombra-card);
+        }
+
+        .card-calendario {
+            margin-bottom: 1.25rem;
+        }
+
+        .calendario-cabecalho {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .calendario-cabecalho button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--cor-texto-secundario);
+            font-size: 1rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 8px;
+        }
+
+        .calendario-cabecalho button:hover {
+            background: var(--cor-fundo-hover);
+        }
+
+        .calendario-mes-label {
+            font-weight: 700;
+            color: var(--cor-texto-principal);
+            text-transform: capitalize;
+        }
+
+        .calendario-grade {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            text-align: center;
+        }
+
+        .calendario-dia-semana {
+            font-size: 0.7rem;
+            color: var(--cor-texto-esmaecido);
+            font-weight: 700;
+            padding-bottom: 4px;
+        }
+
+        .calendario-dia {
+            position: relative;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            border-radius: 10px;
+            background: var(--cor-fundo-pagina);
+            color: var(--cor-texto-principal);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .calendario-dia:hover:not(:disabled) {
+            background: var(--cor-fundo-hover);
+        }
+
+        .calendario-dia:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            background: transparent;
+        }
+
+        .calendario-dia.vazio {
+            visibility: hidden;
+            cursor: default;
+        }
+
+        .calendario-dia.tem-relatorio::after {
+            content: "";
+            position: absolute;
+            bottom: 5px;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #32C26D;
+        }
+
+        .calendario-dia.selecionado {
+            background: #32C26D;
+            color: #fff;
+        }
+
+        .calendario-dia.selecionado.tem-relatorio::after {
+            background: #fff;
+        }
+
+        #painelDiaSelecionado h3 {
+            font-size: 0.95rem;
+            color: var(--cor-texto-principal);
+            margin-bottom: 0.75rem;
+            text-transform: capitalize;
+        }
+
+        .lista-respostas-dia {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .lista-respostas-dia li {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 0.55rem 0.7rem;
+            background: var(--cor-fundo-pagina);
+            border-radius: 8px;
+            font-size: 0.82rem;
+        }
+
+        .lista-respostas-dia li strong {
+            color: var(--cor-texto-principal);
+        }
+
+        .lista-respostas-dia li span {
+            color: var(--cor-texto-secundario);
+            text-align: right;
+        }
+
+        .sem-relatorio-dia {
+            text-align: center;
+            padding: 1rem 0;
+            color: var(--cor-texto-esmaecido);
+            font-size: 0.85rem;
+        }
+
+        .nota-dia textarea {
+            width: 100%;
+            resize: vertical;
+            border: 1px solid var(--cor-borda);
+            border-radius: 10px;
+            padding: 0.65rem 0.75rem;
+            font-family: inherit;
+            font-size: 0.85rem;
+            color: var(--cor-texto-principal);
+            background: var(--cor-fundo-pagina);
+            margin-bottom: 0.5rem;
+        }
+
+        .nota-dia button {
+            background: #32C26D;
+            border: none;
+            border-radius: 999px;
+            color: #fff;
+            padding: 0.5rem 1.1rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .nota-dia button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- ========================= -->
+    <!-- MENU LATERAL -->
+    <!-- ========================= -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <img src="/img/logo_nome.png" alt="Bixuco">
+        </div>
+
+        <nav>
+            <a href="/homeTerapeuta">
+                <i class="fa-solid fa-house"></i>
+                <span data-pt="Início" data-en="Home">Início</span>
+            </a>
+
+            <a href="/relatoriosTerapeutaS" class="ativo">
+                <i class="fa-solid fa-chart-line"></i>
+                <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+            </a>
+
+            <a href="/configuracoesT">
+                <i class="fa-solid fa-gear"></i>
+                <span data-pt="Configurações" data-en="Settings">Configurações</span>
+            </a>
+
+            <a href="/sobreT">
+                <i class="fa-solid fa-circle-info"></i>
+                <span data-pt="Sobre" data-en="About">Sobre</span>
+            </a>
+
+            <a href="/pacientes">
+                <i class="fa-solid fa-user-group"></i>
+                <span data-pt="Pacientes" data-en="Patients">Pacientes</span>
+            </a>
+        </nav>
+
+        <div class="tema">
+            <button id="btnClaro" class="ativo" type="button">
+                <i class="fa-regular fa-sun"></i>
+                <span data-pt="Claro" data-en="Light">Claro</span>
+            </button>
+            <button id="btnEscuro" type="button">
+                <i class="fa-regular fa-moon"></i>
+                <span data-pt="Escuro" data-en="Dark">Escuro</span>
+            </button>
+        </div>
+
+        <div class="sidebar-divisor"></div>
+
+        <a href="/logout" class="logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span data-pt="Sair" data-en="Log out">Sair</span>
+        </a>
+
+    </aside>
+
+    <!-- ========================= -->
+    <!-- CONTEÚDO PRINCIPAL -->
+    <!-- ========================= -->
+    <main class="conteudo">
+
+        <!-- TOPO -->
+        <header class="topo">
+
+            <button class="tradutor" type="button" id="btnTraduzir">
+                <i class="fa-solid fa-globe"></i>
+                <span id="textoTradutor">Traduzir para inglês</span>
+            </button>
+
+            <div class="usuario">
+
+                <!-- sininho com painel de notificações -->
+                <div class="notificacoes-wrapper">
+                    <button class="notificacoes" type="button" id="btnNotificacoes">
+                        <i class="fa-regular fa-bell"></i>
+                        <span id="badgeNotificacoes" class="badge" style="display:none;">0</span>
+                    </button>
+
+                    <div class="painel-notificacoes" id="painelNotificacoes">
+                        <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
+                        <div id="listaNotificacoes">
+                            <div class="painel-vazio" data-pt="Carregando..." data-en="Loading...">Carregando...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- foto clicável vai para o perfil — do seu JS -->
+                <img
+                    id="fotoUsuario"
+                    src="/img/perfilPadrao.png"
+                    alt="Foto do terapeuta"
+                    title="Ver perfil"
+                    style="cursor:pointer;"
+                >
+
+                <div>
+                    <h3 id="nomeTerapeuta" style="cursor:pointer" >Carregando...</h3>
+                    <span data-pt="Terapeuta" data-en="Therapist">Terapeuta</span>
+
+                    <button type="button" class="btn-codigo-copiar" id="btnCodigoCopiar"  title="Copiar código para compartilhar">
+                        <span><span data-pt="Código" data-en="Code">Código</span>: <strong id="codigoTerapeuta">...</strong></span>
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                </div>
+
+            </div>
+
+        </header>
+
+        <div class="conteudo-corpo">
+
+            <!-- CABEÇALHO DA PÁGINA com seta de voltar e nome dinâmico -->
+            <div class="cabecalho-pagina">
+
+                <div class="cabecalho-titulo">
+                    <a href="/relatoriosTerapeutaS" class="btn-voltar">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </a>
+
+                    <div>
+                        <h1><span data-pt="Relatórios de" data-en="Reports for">Relatórios de</span> <span id="nomePaciente">...</span></h1>
+                    </div>
+                </div>
+
+                <img
+                    src="/img/gato-relatorio.png"
+                    alt="Mascote"
+                >
+
+            </div>
+
+            <!-- ========================= -->
+            <!-- CARDS DE RESUMO (do mes, fixos) -->
+            <!-- ========================= -->
+            <section class="cards-resumo">
+
+                <div class="card-resumo">
+                    <h3 data-pt="Alertas de estresse" data-en="Stress alerts">Alertas de estresse</h3>
+                    <div class="valor" id="alertasEstresse">
+                        <i class="fa-solid fa-arrow-down"></i>
+                        0
+                    </div>
+                    <p id="comparativoAlertas" data-pt="carregando..." data-en="loading...">carregando...</p>
+                </div>
+
+                <div class="card-resumo">
+                    <h3 data-pt="Tempo de estresse" data-en="Stress duration">Tempo de estresse</h3>
+                    <div class="valor" id="tempoEstresse">
+                        <i class="fa-solid fa-arrow-up"></i>
+                        0 min
+                    </div>
+                    <p id="comparativoTempo" data-pt="carregando..." data-en="loading...">carregando...</p>
+                </div>
+
+            </section>
+
+            <!-- ========================= -->
+            <!-- GRÁFICOS (do mes, fixos) -->
+            <!-- ========================= -->
+            <section class="graficos">
+
+                <article class="card-grafico">
+                    <div class="titulo-card">
+                        <h3 data-pt="Estresse — últimos 7 dias" data-en="Stress — last 7 days">Estresse — últimos 7 dias</h3>
+
+                        <div class="btn-tipo-grafico">
+                            <button type="button" class="ativo" id="btnEstresseBar" title="Barras">
+                                <i class="fa-solid fa-chart-column"></i>
+                            </button>
+                            <button type="button" id="btnEstresseLine" title="Linha">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <canvas id="graficoBarras"></canvas>
+                </article>
+
+                <article class="card-grafico">
+                    <div class="titulo-card">
+                        <h3 data-pt="Principais gatilhos — últimos 7 dias" data-en="Main triggers — last 7 days">Principais gatilhos — últimos 7 dias</h3>
+
+                        <div class="btn-tipo-grafico">
+                            <button type="button" class="ativo" id="btnGatilhosDoughnut" title="Rosca">
+                                <i class="fa-solid fa-circle-dot"></i>
+                            </button>
+                            <button type="button" id="btnGatilhosPie" title="Pizza">
+                                <i class="fa-solid fa-chart-pie"></i>
+                            </button>
+                            <button type="button" id="btnGatilhosBar" title="Barras">
+                                <i class="fa-solid fa-chart-column"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <canvas id="graficoPizza"></canvas>
+                    <div id="legendaGatilhos" class="legenda-rosca"></div>
+                </article>
+
+            </section>
+
+            <!-- ========================= -->
+            <!-- CALENDÁRIO DE RELATÓRIOS POR DIA -->
+            <!-- ========================= -->
+            <section class="bloco card-calendario">
+
+                <h3 data-pt="Relatórios por dia" data-en="Reports by day">Relatórios por dia</h3>
+
+                <div class="calendario-cabecalho">
+                    <button type="button" id="btnMesAnterior" aria-label="Mês anterior">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <span class="calendario-mes-label" id="calendarioMesLabel">...</span>
+                    <button type="button" id="btnMesProximo" aria-label="Próximo mês">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <div class="calendario-grade" id="calendarioDiasSemana"></div>
+                <div class="calendario-grade" id="calendarioGrade"></div>
+
+            </section>
+
+            <!-- ========================= -->
+            <!-- DETALHE DO DIA + NOTA CLÍNICA -->
+            <!-- ========================= -->
+            <section class="bloco card-dia-detalhe">
+
+                <div id="painelDiaSelecionado" style="display:none;">
+
+                    <h3 id="painelDiaTitulo">...</h3>
+
+                    <div id="painelDiaConteudo"></div>
+
+                    <div class="nota-dia">
+                        <textarea id="notaDoDia" placeholder="Anotação clínica desse dia..." rows="3"></textarea>
+                        <div><span id="erroNotaDia" style="display:none; color:#E53E3E; font-size:0.8rem;"></span></div>
+                        <button type="button" id="btnSalvarNotaDia" >Salvar nota</button>
+                    </div>
+
+                </div>
+
+                <p class="sem-relatorio-dia" id="calendarioSemSelecao" data-pt="Selecione um dia no calendário para ver o relatório." data-en="Select a day on the calendar to see the report.">
+                    Selecione um dia no calendário para ver o relatório.
+                </p>
+
+            </section>
+
+        </div><!-- fim .conteudo-corpo -->
+
+    </main>
+</div>
+
+
+<script src="/js/RelatoriosTerapeuta.js"></script>
+
+</body>
+</html>

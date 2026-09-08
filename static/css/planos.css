@@ -1,0 +1,162 @@
+/* ==========================================================
+   planos.css
+   Estilos exclusivos da tela de Planos.
+   Depende de tema.css (variáveis), layout.css (sidebar/topo)
+   e home.css (.conteudo-corpo, reset, fundo da página) —
+   nada disso é redefinido aqui.
+   ========================================================== */
+
+/* ---------- Cabeçalho ---------- */
+
+.cabecalho-planos {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.1rem;
+}
+
+.cabecalho-planos h1 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--cor-texto-principal);
+    margin-bottom: 0.3rem;
+}
+
+.cabecalho-planos p {
+    font-size: 0.85rem;
+    color: var(--cor-texto-secundario);
+}
+
+.cabecalho-planos img {
+    width: 96px;
+    height: auto;
+}
+
+/* ---------- Plano atual ---------- */
+
+.plano-atual-info {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--cor-texto-secundario);
+    margin-bottom: 1.1rem;
+}
+
+.plano-atual-info strong {
+    color: var(--cor-marca-verde);
+}
+
+/* ---------- Cards de planos ---------- */
+
+.cards-planos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-plano {
+    background: var(--cor-fundo-card);
+    border: 2px solid var(--cor-borda);
+    border-radius: 16px;
+    box-shadow: var(--sombra-card);
+    padding: 1.5rem 1.35rem;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+}
+
+.card-plano:hover {
+    transform: translateY(-3px);
+}
+
+.card-plano--selecionado {
+    border-color: var(--cor-marca-azul);
+}
+
+.card-plano h3 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--cor-texto-principal);
+    margin-bottom: 0.6rem;
+}
+
+.card-plano ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.card-plano li {
+    position: relative;
+    padding-left: 1.1rem;
+    font-size: 0.82rem;
+    line-height: 1.4;
+    color: var(--cor-texto-secundario);
+}
+
+.card-plano li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.5em;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--cor-marca-verde);
+}
+
+/* Preço */
+
+.plano-preco {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.plano-preco span {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--cor-texto-esmaecido);
+}
+
+.plano-preco--verde { color: var(--cor-marca-verde); }
+.plano-preco--azul  { color: var(--cor-marca-azul); }
+
+/* O card completo se destaca em azul, mesmo usando a classe --verde no HTML */
+#cardCompleto .plano-preco { color: var(--cor-marca-azul); }
+
+/* ---------- Botão confirmar ---------- */
+
+.btn-confirmar-plano {
+    display: block;
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 0.85rem;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 6px 14px rgba(10, 183, 251, 0.25);
+    transition: all 0.3s;
+}
+
+.btn-confirmar-plano:hover {
+    background: linear-gradient(90deg, #32C26D 0%, #1D8EC9 100%);
+}
+
+.btn-confirmar-plano:disabled {
+    opacity: 0.7;
+    cursor: default;
+}
+
+/* ---------- Responsivo ---------- */
+
+@media (max-width: 860px) {
+    .cards-planos {
+        grid-template-columns: 1fr;
+    }
+}

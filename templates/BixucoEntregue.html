@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Entregue!</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/bixucoentregue.css">
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+    <script src="/js/deeplink.js"></script>
+ 
+
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- ===================== -->
+        <!-- MENU LATERAL — mesma estrutura da relatorios.html -->
+        <!-- ===================== -->
+        <aside class="sidebar">
+
+            <div class="logo">
+                <img src="/img/logo_nome.png" alt="Logo Bixuco">
+            </div>
+
+            <nav>
+                <a href="/home">
+                    <i class="fa-solid fa-house"></i>
+                    <span data-pt="Início" data-en="Home">Início</span>
+                </a>
+
+                <a href="/relatorios">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+                </a>
+
+                <a href="/sobre">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span data-pt="Sobre" data-en="About">Sobre</span>
+                </a>
+
+                <a href="/configuracoes">
+                    <i class="fa-solid fa-gear"></i>
+                    <span data-pt="Configurações" data-en="Settings">Configurações</span>
+                </a>
+            </nav>
+
+            <button
+                class="btn-relatorio"
+                type="button"
+                id="btnRelatorioDiario"
+                data-pt="Relatório diário"
+                data-en="Daily report"
+            >
+                Relatório diário
+            </button>
+
+            <div class="tema">
+                <button id="btnClaro" class="ativo" type="button">
+                    <i class="fa-regular fa-sun"></i> <span data-pt="Claro" data-en="Light">Claro</span>
+                </button>
+
+                <button id="btnEscuro" type="button">
+                    <i class="fa-regular fa-moon"></i> <span data-pt="Escuro" data-en="Dark">Escuro</span>
+                </button>
+            </div>
+
+            <div class="sidebar-divisor"></div>
+
+            <a href="/logout" class="logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span data-pt="Sair" data-en="Log out">Sair</span>
+            </a>
+        </aside>
+
+        <!-- ===================== -->
+        <!-- CONTEÚDO PRINCIPAL -->
+        <!-- ===================== -->
+        <main class="conteudo">
+
+            <header class="topo">
+
+                <button class="tradutor" type="button" id="btnTraduzir">
+                    <i class="fa-solid fa-language"></i>
+                    <span id="textoTradutor">Traduzir para o inglês</span>
+                </button>
+
+                <div class="usuario">
+
+                    <div class="notificacoes-wrapper">
+                        <button class="notificacoes" type="button" id="btnNotificacoes">
+                            <i class="fa-regular fa-bell"></i>
+                            <span id="quantidadeNotificacoes" class="badge">0</span>
+                        </button>
+
+                        <div class="painel-notificacoes" id="painelNotificacoes">
+                            <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
+                            <div id="listaNotificacoes">
+                                <div class="painel-vazio">Carregando...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <img
+                        id="fotoUsuario"
+                        src="/img/perfilPadrao.png"
+                        alt="Foto do usuário"
+                        title="Ver perfil"
+                        style="cursor: pointer;"
+                    >
+
+                    <div
+                        id="wrapperPerfilTopo"
+                        style="cursor: pointer;"
+                        title="Ver perfil"
+                    >
+                        <h3 id="nomeUsuario">Carregando...</h3>
+                        <span id="tipoConta">...</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="conteudo-corpo entregue-corpo">
+
+                <section class="card entregue-card">
+
+                    <div class="entregue-moldura">
+                        <i class="fa-solid fa-cat"></i>
+                    </div>
+
+                    <h1 data-pt="Bixuco entregue!" data-en="Bixuco delivered!">Bixuco entregue!</h1>
+                    <p class="entregue-subtitulo" data-pt="Seu Bixuco chegou! Esperamos que vocês tenham momentos incríveis juntos." data-en="Your Bixuco has arrived! We hope you have amazing moments together.">Seu Bixuco chegou! Esperamos que vocês tenham momentos incríveis juntos.</p>
+
+                    <div class="entregue-dica">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span data-pt="Agora é hora de vincular o Bixuco à conta da criança para começar a jornada!" data-en="Now it's time to link the Bixuco to your child's account to start the journey!">Agora é hora de vincular o Bixuco à conta da criança para começar a jornada!</span>
+                    </div>
+
+                    <button id="btn-vincular" type="button">
+                        <span data-pt="Vincular meu Bixuco" data-en="Link my Bixuco">Vincular meu Bixuco</span>
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+
+                </section>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Estilos específicos desta página — prefixados com "entregue-" para não colidir com home.css -->
+    <style>
+        .entregue-corpo { display: flex; align-items: center; justify-content: center; min-height: 60vh; }
+
+        .entregue-card {
+            width: 100%; max-width: 440px; text-align: center; padding: 2.2rem;
+        }
+
+        .entregue-moldura {
+            width: 100%; aspect-ratio: 4/3; background: rgba(0,0,0,0.03); border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; margin-bottom: 1.4rem;
+        }
+
+        .entregue-moldura i {
+            font-size: 3.6rem;
+            background: linear-gradient(135deg, #4ade80, #22d3ee);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+
+        .entregue-card h1 { font-size: 1.35rem; margin-bottom: 0.55rem; }
+        .entregue-subtitulo { font-size: 0.88rem; opacity: 0.75; line-height: 1.5; margin-bottom: 1.4rem; }
+
+        .entregue-dica {
+            display: flex; align-items: center; gap: 0.6rem; text-align: left;
+            background: #ecfdf3; border-radius: 10px; padding: 0.75rem 0.9rem;
+            font-size: 0.82rem; color: #166534; margin-bottom: 1.3rem;
+        }
+        .entregue-dica i { color: #16a34a; font-size: 1rem; flex-shrink: 0; }
+
+        #btn-vincular {
+            width: 100%; padding: 0.9rem; border: none; border-radius: 10px;
+            background: linear-gradient(90deg, #4ade80, #22d3ee); color: #fff;
+            font-size: 0.95rem; font-weight: 700; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+        }
+    </style>
+
+    <script src="/js/BixucoEntregue.js"></script>
+
+</body>
+</html>

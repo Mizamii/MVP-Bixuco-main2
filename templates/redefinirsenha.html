@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco — Redefinir senha</title>
+
+    <!-- Biblioteca de ícones -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <!-- Reaproveita o mesmo CSS da tela de criar conta — layout idêntico -->
+    <link
+        rel="stylesheet"
+        href="/css/criarcontasenha.css"
+    >
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+    <script src="/js/deeplink.js"></script>
+
+
+</head>
+
+<body>
+
+    <main class="pagina-login">
+
+        <!-- ========================= -->
+        <!-- LADO ESQUERDO -->
+        <!-- ========================= -->
+
+        <section class="login-esquerda">
+
+            <div class="login-esquerda__geometria"></div>
+            <div class="login-esquerda__overlay"></div>
+
+            <div class="login-esquerda__conteudo">
+
+                <!-- Logo branca -->
+                <img
+                    src="/img/Logo_Branca.png"
+                    alt="Logo Bixuco"
+                    class="login-esquerda__logo"
+                >
+
+                <!-- Título -->
+                <h1 class="login-esquerda__titulo">
+                    Vamos recuperar
+                    seu acesso
+                </h1>
+
+                <!-- Texto -->
+                <p class="login-esquerda__slogan">
+                    Crie uma nova senha para continuar
+                    cuidando do bem-estar da criança.
+                </p>
+
+            </div>
+
+            <!-- Ilustração -->
+            <div class="login-esquerda__ilustracao-wrapper">
+
+                <img
+                    src="/img/familia-bixuco.png"
+                    alt="Família utilizando o Bixuco"
+                    class="login-esquerda__foto"
+                >
+
+            </div>
+
+        </section>
+
+        <!-- ========================= -->
+        <!-- LADO DIREITO -->
+        <!-- ========================= -->
+
+        <section class="login-direita">
+
+            <header class="criarconta-header">
+
+                <h2 class="criarconta-titulo">
+                    Redefinir senha
+                </h2>
+
+            </header>
+
+            <div class="criarconta-corpo">
+
+                <!-- ========================= -->
+                <!-- FORMULÁRIO -->
+                <!-- ========================= -->
+
+                <form id="formRedefinir" class="cadastro-form" novalidate>
+
+                    <!-- Nova senha -->
+                    <div class="cadastro-form__grupo">
+
+                        <label for="senha" class="cadastro-form__label">
+                            Nova senha
+                        </label>
+
+                        <div class="cadastro-form__campo-senha">
+
+                            <input
+                                class="cadastro-form__input"
+                                type="password"
+                                id="senha"
+                                name="senha"
+                                placeholder="Digite sua nova senha"
+                                autocomplete="new-password"
+                                minlength="6"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="cadastro-form__toggle-senha"
+                                id="btnToggleSenha"
+                                aria-label="Mostrar senha"
+                            >
+                                <i class="fa-solid fa-eye" id="iconeSenha"></i>
+                            </button>
+
+                        </div>
+
+                        <span
+                            class="cadastro-form__erro"
+                            id="erro-senha"
+                        ></span>
+
+                    </div>
+
+                    <!-- Confirmar senha -->
+                    <div class="cadastro-form__grupo">
+
+                        <label for="confirmarSenha" class="cadastro-form__label">
+                            Confirmar senha
+                        </label>
+
+                        <div class="cadastro-form__campo-senha">
+
+                            <input
+                                class="cadastro-form__input"
+                                type="password"
+                                id="confirmarSenha"
+                                name="confirmarSenha"
+                                placeholder="Confirme sua nova senha"
+                                autocomplete="new-password"
+                                minlength="6"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="cadastro-form__toggle-senha"
+                                id="btnToggleConfirmarSenha"
+                                aria-label="Mostrar confirmação de senha"
+                            >
+                                <i class="fa-solid fa-eye" id="iconeConfirmarSenha"></i>
+                            </button>
+
+                        </div>
+
+                        <span
+                            class="cadastro-form__erro"
+                            id="erro-confirmarSenha"
+                        ></span>
+
+                    </div>
+
+                    <!-- Erro/sucesso geral vindo do servidor -->
+                    <span
+                        id="erro-geral"
+                        class="cadastro-form__erro cadastro-form__erro--geral"
+                        style="display: none;"
+                    ></span>
+
+                    <button
+                        type="submit"
+                        id="btnContinuar"
+                        class="btn-continuar"
+                    >
+                        Continuar
+                    </button>
+
+                </form>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    
+
+    <script src="/js/redefinirsenha.js"></script>
+
+</body>
+</html>
