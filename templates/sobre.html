@@ -23,8 +23,6 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
     >
 
-    <script src="https://translate.google.com/translate_a/element.js?cb=iniciarTradutor" async></script>
-
     <!-- Variáveis compartilhadas de tema (claro/escuro) -->
     <link
         rel="stylesheet"
@@ -75,7 +73,7 @@
 
                 <i class="fa-solid fa-house"></i>
 
-                <span>Início</span>
+                <span data-pt="Início" data-en="Home">Início</span>
 
             </a>
 
@@ -83,7 +81,18 @@
 
                 <i class="fa-solid fa-chart-line"></i>
 
-                <span>Relatórios</span>
+                <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+
+            </a>
+
+            
+                href="/sobre"
+                class="ativo"
+            >
+
+                <i class="fa-solid fa-circle-info"></i>
+
+                <span data-pt="Sobre" data-en="About">Sobre</span>
 
             </a>
 
@@ -91,18 +100,7 @@
 
                 <i class="fa-solid fa-gear"></i>
 
-                <span>Configurações</span>
-
-            </a>
-
-            <a
-                href="/sobre"
-                class="ativo"
-            >
-
-                <i class="fa-solid fa-circle-info"></i>
-
-                <span>Sobre</span>
+                <span data-pt="Configurações" data-en="Settings">Configurações</span>
 
             </a>
 
@@ -112,6 +110,8 @@
             class="btn-relatorio"
             type="button"
             id="btnRelatorioDiario"
+            data-pt="Relatório diário"
+            data-en="Daily report"
         >
             Relatório diário
         </button>
@@ -126,7 +126,7 @@
 
                 <i class="fa-regular fa-sun"></i>
 
-                Claro
+                <span data-pt="Claro" data-en="Light">Claro</span>
 
             </button>
 
@@ -137,20 +137,20 @@
 
                 <i class="fa-regular fa-moon"></i>
 
-                Escuro
+                <span data-pt="Escuro" data-en="Dark">Escuro</span>
 
             </button>
 
         </div>
         <div class="sidebar-divisor"></div>
-        <a
+        
             href="/logout"
             class="logout"
         >
 
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
 
-            <span>Sair</span>
+            <span data-pt="Sair" data-en="Log out">Sair</span>
 
         </a>
 
@@ -163,18 +163,11 @@
     <main class="conteudo">
 
         <header class="topo">
-            
 
             <button class="tradutor" type="button" id="btnTraduzir">
                 <i class="fa-solid fa-language"></i>
-                <span id="textoTradutor">Traduzir para inglês</span>
+                <span id="textoTradutor">Traduzir para o inglês</span>
             </button>
-
-            <div
-                id="google_translate_element"
-                style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0);"
-            ></div>
-
 
             <div class="usuario">
 
@@ -185,7 +178,7 @@
                     </button>
 
                     <div class="painel-notificacoes" id="painelNotificacoes">
-                        <div class="painel-header">Notificações</div>
+                        <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
                         <div id="listaNotificacoes">
                             <div class="painel-vazio">Carregando...</div>
                         </div>
@@ -228,13 +221,13 @@
 
             <div>
 
-                <h1>
+                <h1 data-pt="Sobre o Bixuco" data-en="About Bixuco">
 
                     Sobre o Bixuco
 
                 </h1>
 
-                <p>
+                <p data-pt="Conheça nossa história, missão e como trabalhamos para transformar vidas." data-en="Learn about our story, mission, and how we work to transform lives.">
 
                     Conheça nossa história, missão e como trabalhamos
                     para transformar vidas.
@@ -264,9 +257,9 @@
 
                 <i class="fa-solid fa-circle-info"></i>
 
-                <h3>Sobre nós</h3>
+                <h3 data-pt="Sobre nós" data-en="About us">Sobre nós</h3>
 
-                <p>Nossa história e missão</p>
+                <p data-pt="Nossa história e missão" data-en="Our story and mission">Nossa história e missão</p>
 
             </button>
 
@@ -278,9 +271,9 @@
 
                 <i class="fa-regular fa-heart"></i>
 
-                <h3>Como ajudamos</h3>
+                <h3 data-pt="Como ajudamos" data-en="How we help">Como ajudamos</h3>
 
-                <p>O que fazemos por você</p>
+                <p data-pt="O que fazemos por você" data-en="What we do for you">O que fazemos por você</p>
 
             </button>
 
@@ -292,9 +285,9 @@
 
                 <i class="fa-solid fa-gear"></i>
 
-                <h3>Como funciona</h3>
+                <h3 data-pt="Como funciona" data-en="How it works">Como funciona</h3>
 
-                <p>Pelúcia + aplicativo + relatórios</p>
+                <p data-pt="Pelúcia + aplicativo + relatórios" data-en="Plush toy + app + reports">Pelúcia + aplicativo + relatórios</p>
 
             </button>
 
@@ -306,9 +299,9 @@
 
                 <i class="fa-solid fa-users"></i>
 
-                <h3>Para quem é</h3>
+                <h3 data-pt="Para quem é" data-en="Who it's for">Para quem é</h3>
 
-                <p>Pais e terapeutas</p>
+                <p data-pt="Pais e terapeutas" data-en="Parents and therapists">Pais e terapeutas</p>
 
             </button>
 
@@ -320,9 +313,9 @@
 
                 <i class="fa-solid fa-ban"></i>
 
-                <h3>O que não fazemos</h3>
+                <h3 data-pt="O que não fazemos" data-en="What we don't do">O que não fazemos</h3>
 
-                <p>Sem diagnósticos</p>
+                <p data-pt="Sem diagnósticos" data-en="No diagnoses">Sem diagnósticos</p>
 
             </button>
 
@@ -334,9 +327,9 @@
 
                 <i class="fa-solid fa-shield-halved"></i>
 
-                <h3>Privacidade</h3>
+                <h3 data-pt="Privacidade" data-en="Privacy">Privacidade</h3>
 
-                <p>Como protegemos seus dados</p>
+                <p data-pt="Como protegemos seus dados" data-en="How we protect your data">Como protegemos seus dados</p>
 
             </button>
 
@@ -348,9 +341,9 @@
 
                 <i class="fa-solid fa-trophy"></i>
 
-                <h3>Nosso propósito</h3>
+                <h3 data-pt="Nosso propósito" data-en="Our purpose">Nosso propósito</h3>
 
-                <p>Missão, visão e valores</p>
+                <p data-pt="Missão, visão e valores" data-en="Mission, vision, and values">Missão, visão e valores</p>
 
             </button>
 
@@ -362,9 +355,9 @@
 
                 <i class="fa-solid fa-headset"></i>
 
-                <h3>Contato e suporte</h3>
+                <h3 data-pt="Contato e suporte" data-en="Contact and support">Contato e suporte</h3>
 
-                <p>Fale com nossa equipe</p>
+                <p data-pt="Fale com nossa equipe" data-en="Talk to our team">Fale com nossa equipe</p>
 
             </button>
 
@@ -381,7 +374,7 @@
                 alt="Bixuco"
             >
 
-            <p>
+            <p id="fraseFinalTexto">
                 Mais do que tecnologia, entregamos
                 <strong>conexão</strong>,
                 <strong>empatia</strong> e
