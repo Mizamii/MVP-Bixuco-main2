@@ -350,18 +350,7 @@ async function finalizarRelatorio() {
             throw new Error("Resposta do servidor com erro");
         }
 
-        // 🔧 FIX: Mostra a mensagem de parabéns antes de voltar para a home
-        // O backend já criou a notificação — aqui é só o feedback imediato na tela
-        mostrarMensagem(
-            "Você acabou de finalizar um relatório. Parabéns! 🎉",
-            "sucesso"
-        );
-
-        cardRelatorio.style.display = "none";
-
-        setTimeout(() => {
-            window.location.href = "/home";
-        }, 1800);
+        window.location.href = "/Transicao4";
 
     } catch (erro) {
 

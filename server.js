@@ -765,6 +765,10 @@ app.get("/Transicao3", estaLogado, (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "Transicao3.html"));
 });
 
+app.get("/Transicao4", estaLogado, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "Transicao4.html"));
+});
+
 /* ==========================
    BANCO DE DADOS
 ========================== */
