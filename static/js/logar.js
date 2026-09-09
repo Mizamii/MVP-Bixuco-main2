@@ -148,6 +148,11 @@ document.getElementById("formLogin").addEventListener("submit", async (evento) =
             erroGeral.style.display = "block";
         }
 
+        if (dados.precisa2fa && dados.destino) {
+            window.location.href = dados.destino;
+            return;
+        }
+
     } catch (erro) {
 
         console.log("Erro na requisição de login:", erro);
