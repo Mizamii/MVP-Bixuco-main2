@@ -376,6 +376,24 @@ function exigeAdmin(req, res, next) {
 
 const tentativasAdmin = new Map(); // ip -> { count, resetAt }
 
+function limitarTentativasAdmin(req, res, next) {
+    const ip = req.ip;
+    const agora = Date.now();
+    const registro = tentativasAdmin.get(ip);
+
+    if (!registro || agora > registro.resetAt) {
+        tentativasAdmin.set(ip, { count: 1, resetAt: agora + 15 * 60 * 1000 }); // janela de 15 min
+        return next();
+    }
+
+    if (registro.count >= 5) {
+        return res.status(429).json({ erro: "Muitas tentativas. Tente novamente mais tarde." });
+    }
+
+    registro.count++;
+    next();
+}
+
 // Fábrica de rate limiter por IP — reaproveitável em qualquer rota
 function criarLimitadorPorIp(limite, janelaMs, mensagem) {
     const registros = new Map(); // ip -> { count, resetAt }
