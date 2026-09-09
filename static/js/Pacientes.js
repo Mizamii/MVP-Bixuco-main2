@@ -53,6 +53,7 @@ async function carregarUsuario() {
         const dados = await resposta.json();
 
         document.getElementById("nomeTerapeuta").textContent = dados.nome || "Terapeuta";
+        document.getElementById("codigoTerapeuta").textContent = dados.codigoTerapeuta || "---";
 
         if (dados.fotoPerfil) {
             document.getElementById("fotoUsuario").src = dados.fotoPerfil;
@@ -66,6 +67,24 @@ async function carregarUsuario() {
     } catch (_) {}
 }
 
+function copiarCodigo() {
+    const codigo = document.getElementById("codigoTerapeuta").textContent;
+    if (!codigo || codigo === "---") return;
+
+    navigator.clipboard.writeText(codigo).then(() => {
+        const icone = document.querySelector("#btnCodigoCopiar .fa-copy");
+        if (icone) {
+            icone.classList.remove("fa-regular", "fa-copy");
+            icone.classList.add("fa-solid", "fa-check");
+            setTimeout(() => {
+                icone.classList.remove("fa-solid", "fa-check");
+                icone.classList.add("fa-regular", "fa-copy");
+            }, 2000);
+        }
+    });
+}
+
+document.getElementById("btnCodigoCopiar").addEventListener("click", copiarCodigo);
 
 // =========================
 // CARREGAR PACIENTES
