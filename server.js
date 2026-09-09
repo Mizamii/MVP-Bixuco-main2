@@ -394,6 +394,8 @@ function limitarTentativasAdmin(req, res, next) {
     next();
 }
 
+
+
 // Fábrica de rate limiter por IP — reaproveitável em qualquer rota
 function criarLimitadorPorIp(limite, janelaMs, mensagem) {
     const registros = new Map(); // ip -> { count, resetAt }
@@ -416,6 +418,20 @@ function criarLimitadorPorIp(limite, janelaMs, mensagem) {
         next();
     };
 }
+
+// Impede tentar adivinhar o código 2FA por força bruta
+const limitarVerificacao2FA = criarLimitadorPorIp(
+    8,
+    10 * 60 * 1000,
+    "Muitas tentativas. Solicite um novo código."
+);
+
+// Reenvio de código — limitado para não virar canal de spam de e-mail
+const limitarReenvio2FA = criarLimitadorPorIp(
+    3,
+    10 * 60 * 1000,
+    "Muitas solicitações de reenvio. Aguarde um pouco."
+);
 
 // Rate limiting do /login — combina IP + email:
 // impede tanto um atacante mirando UM email de vários IPs
@@ -1801,6 +1817,46 @@ async function gerarCodigoVinculo() {
 
 }
 
+async function gerarCodigo2FA() {
+    // 6 dígitos numéricos, com zero à esquerda se precisar
+    return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+async function enviarCodigo2FA(usuario) {
+
+    const codigo = await gerarCodigo2FA();
+    const expiraEm = new Date(Date.now() + 10 * 60 * 1000); // 10 minutos
+
+    // Invalida códigos anteriores ainda não usados desse usuário
+    await db.query(
+        `UPDATE codigos_2fa SET usado = TRUE WHERE usuario_id = $1 AND usado = FALSE`,
+        [usuario.id]
+    );
+
+    await db.query(
+        `INSERT INTO codigos_2fa (usuario_id, codigo, expira_em)
+         VALUES ($1, $2, $3)`,
+        [usuario.id, codigo, expiraEm]
+    );
+
+    await brevoClient.transactionalEmails.sendTransacEmail({
+        sender: { name: "Bixuco", email: process.env.BREVO_FROM_EMAIL || "yasminbertoni7@gmail.com" },
+        to: [{ email: usuario.email }],
+        subject: "Seu código de verificação — Bixuco",
+        htmlContent: `
+            <div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;">
+                <h2 style="color:#32C26D;">Código de verificação</h2>
+                <p>Olá, <strong>${usuario.nome}</strong>!</p>
+                <p>Use o código abaixo para concluir seu login. Ele expira em 10 minutos.</p>
+                <p style="font-size:32px;font-weight:bold;letter-spacing:8px;color:#141414;text-align:center;padding:16px;background:#F5F7FA;border-radius:8px;">
+                    ${codigo}
+                </p>
+                <p style="color:#5A5A5A;font-size:14px;">Se você não tentou fazer login, ignore este e-mail.</p>
+            </div>
+        `
+    });
+
+}
 
 app.post("/api/perfil-sensorial", estaLogado, async (req, res) => {
 
@@ -3416,7 +3472,6 @@ app.post('/login', limitarLoginPorIp, limitarTentativasLogin, async (req, res) =
         const resultado = await db.query(sql, [email]);
 
         if (resultado.rows.length === 0) {
-            // 🔧 Retorna JSON com status 401 — o frontend exibe na tela
             return res.status(401).json({ erro: "Usuário não encontrado." });
         }
 
@@ -3431,11 +3486,22 @@ app.post('/login', limitarLoginPorIp, limitarTentativasLogin, async (req, res) =
             return res.status(401).json({ erro: "E-mail ou senha inválidos." });
         }
 
-        // Salva o id E o tipo do usuário na sessão
+        // 🔐 2FA — obrigatório para pai e psicólogo; admin entra direto
+        if (usuario.tipo === "pai" || usuario.tipo === "psicologo") {
+
+            await enviarCodigo2FA(usuario);
+
+            // Sessão "pendente" — só vira sessão de verdade depois do código certo
+            req.session.pendente2FA = { usuarioId: usuario.id, tipo: usuario.tipo };
+
+            return res.json({ precisa2fa: true, destino: "/verificar-codigo" });
+
+        }
+
+        // Sem 2FA (admin, ou outros tipos futuros)
         req.session.usuarioId = usuario.id;
         req.session.tipo = usuario.tipo;
 
-        // Redireciona conforme o tipo da conta
         if (usuario.tipo === "psicologo") {
             return res.redirect("/homeTerapeuta");
         }
@@ -3445,6 +3511,112 @@ app.post('/login', limitarLoginPorIp, limitarTentativasLogin, async (req, res) =
 
         console.log(erro);
         res.status(500).json({ erro: "Erro no servidor. Tente novamente." });
+
+    }
+
+});
+
+/* ==========================
+   VERIFICAÇÃO 2FA
+========================== */
+
+app.get("/verificar-codigo", (req, res) => {
+
+    if (!req.session.pendente2FA) {
+        return res.redirect("/logar");
+    }
+
+    res.sendFile(path.join(__dirname, "templates", "VerificarCodigo.html"));
+
+});
+
+app.post("/api/2fa/verificar", limitarVerificacao2FA, async (req, res) => {
+
+    try {
+
+        const pendente = req.session.pendente2FA;
+
+        if (!pendente) {
+            return res.status(401).json({ erro: "Sessão expirada. Faça login novamente." });
+        }
+
+        const { codigo } = req.body;
+
+        if (!codigo) {
+            return res.status(400).json({ erro: "Digite o código recebido por e-mail." });
+        }
+
+        const resultado = await db.query(
+            `SELECT * FROM codigos_2fa
+             WHERE usuario_id = $1
+             AND usado = FALSE
+             AND expira_em > NOW()
+             ORDER BY criado_em DESC
+             LIMIT 1`,
+            [pendente.usuarioId]
+        );
+
+        if (resultado.rows.length === 0) {
+            return res.status(400).json({ erro: "Código expirado ou inválido. Solicite um novo." });
+        }
+
+        const registro = resultado.rows[0];
+
+        if (!chavesIguaisSeguro(codigo.trim(), registro.codigo)) {
+            return res.status(401).json({ erro: "Código incorreto." });
+        }
+
+        // Marca o código como usado
+        await db.query(
+            "UPDATE codigos_2fa SET usado = TRUE WHERE id = $1",
+            [registro.id]
+        );
+
+        // Agora sim, abre a sessão de verdade
+        req.session.usuarioId = pendente.usuarioId;
+        req.session.tipo = pendente.tipo;
+        delete req.session.pendente2FA;
+
+        const destino = pendente.tipo === "psicologo" ? "/homeTerapeuta" : "/home";
+
+        return res.json({ sucesso: true, destino });
+
+    } catch (erro) {
+
+        console.log("Erro ao verificar código 2FA:", erro);
+        res.status(500).json({ erro: "Erro interno. Tente novamente." });
+
+    }
+
+});
+
+app.post("/api/2fa/reenviar", limitarReenvio2FA, async (req, res) => {
+
+    try {
+
+        const pendente = req.session.pendente2FA;
+
+        if (!pendente) {
+            return res.status(401).json({ erro: "Sessão expirada. Faça login novamente." });
+        }
+
+        const resultado = await db.query(
+            "SELECT id, nome, email FROM usuarios WHERE id = $1",
+            [pendente.usuarioId]
+        );
+
+        if (resultado.rows.length === 0) {
+            return res.status(404).json({ erro: "Usuário não encontrado." });
+        }
+
+        await enviarCodigo2FA(resultado.rows[0]);
+
+        return res.json({ mensagem: "Novo código enviado!" });
+
+    } catch (erro) {
+
+        console.log("Erro ao reenviar código 2FA:", erro);
+        res.status(500).json({ erro: "Erro interno ao reenviar código." });
 
     }
 
