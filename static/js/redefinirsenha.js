@@ -40,7 +40,7 @@ function toggleSenha(inputId, iconeId) {
 // MOSTRAR / LIMPAR ERROS
 // ==========================
 
-function mostrarErro(inputId, erroId, mensagem) {
+function mostrarErro(inputId, erroId, mensagem, permitirHTML = false) {
 
     const input = document.getElementById(inputId);
     const erro  = document.getElementById(erroId);
@@ -55,7 +55,13 @@ function mostrarErro(inputId, erroId, mensagem) {
     }
 
     input.classList.add("input-erro");
-    erro.textContent   = mensagem;
+
+    if (permitirHTML) {
+        erro.innerHTML = mensagem;
+    } else {
+        erro.textContent = mensagem;
+    }
+
     erro.style.display = "block";
 
     setTimeout(() => {
@@ -93,7 +99,6 @@ function limparErros() {
 // ==========================
 // Mesma regra que o backend realmente aplica em POST /redefinir-senha:
 // mínimo 6 caracteres e as duas senhas iguais.
-
 function validarCampos() {
 
     limparErros();
@@ -101,9 +106,27 @@ function validarCampos() {
 
     const senha          = document.getElementById("senha").value;
     const confirmarSenha = document.getElementById("confirmarSenha").value;
+    let erros = [];
 
     if (senha.length < 6) {
-        mostrarErro("senha", "erro-senha", "A senha deve ter pelo menos 6 caracteres.");
+        erros.push(" -> A senha deve ter pelo menos 6 caracteres.");
+    }
+
+    if (!/[A-Z]/.test(senha)) {
+        erros.push(" -> A senha deve conter pelo menos uma letra maiúscula.");
+    }
+
+    if (!/[!@#$%^&*(),.?":{}|<>_\-\\[\];'/+=]/.test(senha)) {
+        erros.push(" -> A senha deve conter pelo menos um caractere especial.");
+    }
+
+    if (erros.length > 0) {
+        mostrarErro(
+            "senha",
+            "erro-senha",
+            "A senha deve: " + "<br>" + erros.join("<br>"),
+            true
+        );
         valido = false;
     }
 

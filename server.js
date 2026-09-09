@@ -1609,6 +1609,13 @@ function validarCRP(crp) {
 
 }
 
+function senhaAtendeRequisitos(senha) {
+    return typeof senha === "string"
+        && senha.length >= 6
+        && /[A-Z]/.test(senha)
+        && /[!@#$%^&*(),.?":{}|<>_\-\\[\];'/+=]/.test(senha);
+}
+
 const LIMITES_CRISE = {
     gapAgrupamentoMs:      5 * 60 * 1000, // eventos a até 5 min de distância = mesmo episódio
     duracaoMinimaCriseMs:  3000,           // 3s de aperto sustentado
@@ -2308,8 +2315,8 @@ app.post("/api/alterar-senha", estaLogado, async (req, res) => {
             return res.status(400).json({ erro: "As senhas novas não coincidem." });
         }
 
-        if (novaSenha.length < 6) {
-            return res.status(400).json({ erro: "A nova senha deve ter pelo menos 6 caracteres." });
+        if (!senhaAtendeRequisitos(novaSenha)) {
+            return res.status(400).json({ erro: "A nova senha deve ter pelo menos 6 caracteres, uma letra maiúscula e um caractere especial." });
         }
 
         const resultado = await db.query(
@@ -2375,8 +2382,8 @@ app.post("/redefinir-senha", async (req, res) => {
         return res.status(400).json({ erro: "Token inválido." });
     }
 
-    if (!senha || senha.length < 6) {
-        return res.status(400).json({ erro: "A senha deve ter pelo menos 6 caracteres." });
+    if (!senha || !senhaAtendeRequisitos(senha)) {
+        return res.status(400).json({ erro: "A senha deve ter pelo menos 6 caracteres, uma letra maiúscula e um caractere especial." });
     }
 
     if (senha !== confirmarSenha) {
@@ -2905,10 +2912,10 @@ app.post("/cadastro-finalizar", limitarCriacaoConta, async (req, res) => {
         });
     }
 
-    if (!senha || senha.length < 6) {
+    if (!senha || !senhaAtendeRequisitos(senha)) {
         return res.status(400).json({
             campo: "senha",
-            erro: "Senha deve possuir pelo menos 6 caracteres."
+            erro: "A senha deve ter pelo menos 6 caracteres, uma letra maiúscula e um caractere especial."
         });
     }
 

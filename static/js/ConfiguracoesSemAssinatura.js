@@ -126,6 +126,11 @@ formAlterarSenha.addEventListener("submit", async (e) => {
     const novaSenha          = document.getElementById("novaSenha").value;
     const confirmarNovaSenha = document.getElementById("confirmarNovaSenha").value;
 
+    if (novaSenha.length < 6 || !/[A-Z]/.test(novaSenha) || !/[!@#$%^&*(),.?":{}|<>_\-\\[\];'/+=]/.test(novaSenha)) {
+        mostrarStatusSenha("A nova senha deve ter pelo menos 6 caracteres, uma letra maiúscula e um caractere especial.", "erro");
+        return;
+    }
+
     if (novaSenha !== confirmarNovaSenha) {
         mostrarStatusSenha("As senhas novas não coincidem.", "erro");
         return;
