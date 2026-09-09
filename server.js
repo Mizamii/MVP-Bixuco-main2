@@ -41,7 +41,9 @@ app.use(helmet({
                 "'self'",
                 "https://cdnjs.cloudflare.com",
                 "https://unpkg.com",
-                "https://accounts.google.com"
+                "https://accounts.google.com",
+                "https://www.google.com/recaptcha/",
+                "https://www.gstatic.com/recaptcha/"
             ],
 
             workerSrc: [
@@ -83,7 +85,8 @@ app.use(helmet({
             // Necessário para o botão "Continuar com Google" funcionar
             frameSrc: [
                 "'self'",
-                "https://accounts.google.com"
+                "https://accounts.google.com",
+                "https://www.google.com/recaptcha/"
             ],
 
             // Impede que o site seja carregado dentro de um <iframe> de outro
@@ -1616,6 +1619,40 @@ function senhaAtendeRequisitos(senha) {
         && /[!@#$%^&*(),.?":{}|<>_\-\\[\];'/+=]/.test(senha);
 }
 
+// 🔧 Verifica o token do reCAPTCHA v3 com a API do Google.
+// Nota >= 0.5 é o padrão recomendado pelo Google como ponto de partida.
+async function verificarRecaptcha(token, acaoEsperada) {
+
+    if (!token) return { sucesso: false };
+
+    try {
+
+        const resposta = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({
+                secret:   process.env.RECAPTCHA_SECRET_KEY,
+                response: token
+            })
+        });
+
+        const dados = await resposta.json();
+
+        const passou = dados.success === true
+            && dados.action === acaoEsperada
+            && (dados.score ?? 0) >= 0.5;
+
+        return { sucesso: passou, score: dados.score };
+
+    } catch (erro) {
+
+        console.log("Erro ao verificar reCAPTCHA:", erro);
+        return { sucesso: false };
+
+    }
+
+}
+
 const LIMITES_CRISE = {
     gapAgrupamentoMs:      5 * 60 * 1000, // eventos a até 5 min de distância = mesmo episódio
     duracaoMinimaCriseMs:  3000,           // 3s de aperto sustentado
@@ -2903,7 +2940,16 @@ app.post("/cadastro-finalizar", limitarCriacaoConta, async (req, res) => {
         });
     }
 
-    const { senha, confirmarSenha } = req.body;
+    const { senha, confirmarSenha, tokenRecaptcha } = req.body;
+
+    // 🔧 Verifica o reCAPTCHA antes de qualquer outra validação
+    const captcha = await verificarRecaptcha(tokenRecaptcha, "cadastro");
+
+    if (!captcha.sucesso) {
+        return res.status(400).json({
+            erro: "Não conseguimos confirmar que você não é um robô. Tente novamente."
+        });
+    }
 
     if (senha !== confirmarSenha) {
         return res.status(400).json({

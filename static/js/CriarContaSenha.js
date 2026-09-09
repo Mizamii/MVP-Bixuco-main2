@@ -214,6 +214,16 @@ document.getElementById("formSenha").addEventListener("submit", async (evento) =
 
     try {
 
+        // 🔧 Gera o token do reCAPTCHA v3 — roda em segundo plano, sem desafio visual
+        const tokenRecaptcha = await new Promise((resolve, reject) => {
+            grecaptcha.ready(() => {
+                grecaptcha
+                    .execute("6LdPBrMtAAAAAHYhyE43BTtGCG1bpU_0CtPuHWmB", { action: "cadastro" })
+                    .then(resolve)
+                    .catch(reject);
+            });
+        });
+
         const resposta = await fetch("/cadastro-finalizar", {
             method: "POST",
             headers: {
@@ -221,7 +231,8 @@ document.getElementById("formSenha").addEventListener("submit", async (evento) =
             },
             body: JSON.stringify({
                 senha:           document.getElementById("senha").value,
-                confirmarSenha:  document.getElementById("confirmarSenha").value
+                confirmarSenha:  document.getElementById("confirmarSenha").value,
+                tokenRecaptcha:  tokenRecaptcha
             })
         });
 
