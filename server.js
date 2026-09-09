@@ -376,23 +376,70 @@ function exigeAdmin(req, res, next) {
 
 const tentativasAdmin = new Map(); // ip -> { count, resetAt }
 
-function limitarTentativasAdmin(req, res, next) {
-    const ip = req.ip;
+// Fábrica de rate limiter por IP — reaproveitável em qualquer rota
+function criarLimitadorPorIp(limite, janelaMs, mensagem) {
+    const registros = new Map(); // ip -> { count, resetAt }
+
+    return function (req, res, next) {
+        const ip = req.ip;
+        const agora = Date.now();
+        const registro = registros.get(ip);
+
+        if (!registro || agora > registro.resetAt) {
+            registros.set(ip, { count: 1, resetAt: agora + janelaMs });
+            return next();
+        }
+
+        if (registro.count >= limite) {
+            return res.status(429).json({ erro: mensagem });
+        }
+
+        registro.count++;
+        next();
+    };
+}
+
+// Rate limiting do /login — combina IP + email:
+// impede tanto um atacante mirando UM email de vários IPs
+// quanto um bot varrendo vários emails do MESMO IP
+const tentativasLoginPorChave = new Map(); // "ip|email" -> { count, resetAt }
+
+function limitarTentativasLogin(req, res, next) {
+    const ip    = req.ip;
+    const email = String(req.body?.email || "").toLowerCase().trim();
     const agora = Date.now();
-    const registro = tentativasAdmin.get(ip);
+    const janela = 15 * 60 * 1000; // 15 min
+    const limite = 5;
 
-    if (!registro || agora > registro.resetAt) {
-        tentativasAdmin.set(ip, { count: 1, resetAt: agora + 15 * 60 * 1000 }); // janela de 15 min
-        return next();
+    const chave = `${ip}|${email}`;
+    const registroChave = tentativasLoginPorChave.get(chave);
+
+    if (!registroChave || agora > registroChave.resetAt) {
+        tentativasLoginPorChave.set(chave, { count: 1, resetAt: agora + janela });
+    } else {
+        if (registroChave.count >= limite) {
+            return res.status(429).json({ erro: "Muitas tentativas para este e-mail. Tente novamente mais tarde." });
+        }
+        registroChave.count++;
     }
 
-    if (registro.count >= 5) {
-        return res.status(429).json({ erro: "Muitas tentativas. Tente novamente mais tarde." });
-    }
-
-    registro.count++;
     next();
 }
+
+// Rate limiting do IP puro no login — cobre bot varrendo vários emails do mesmo lugar
+const limitarLoginPorIp = criarLimitadorPorIp(
+    15, // mais folgado, cobre Wi-Fi compartilhado
+    15 * 60 * 1000,
+    "Muitas tentativas de login. Tente novamente mais tarde."
+);
+
+// Rate limiting da criação de conta — impede testar várias
+// combinações de CPF/CRP/email até uma dar certo
+const limitarCriacaoConta = criarLimitadorPorIp(
+    10,
+    60 * 60 * 1000, // 1 hora
+    "Muitas tentativas de cadastro. Tente novamente mais tarde."
+);
 
 function exigeTerapeuta(req, res, next) {
     const tipo = req.session.tipo || (req.user && req.user.tipo);
@@ -1989,7 +2036,7 @@ app.post("/api/verificar-disponibilidade", async (req, res) => {
 
 });
 
-app.post("/continuar-cadastro-psicologo", async (req, res) => {
+app.post("/continuar-cadastro-psicologo", limitarCriacaoConta, async (req, res) => {
 
     const {
         nome,
@@ -2053,7 +2100,7 @@ app.post("/continuar-cadastro-psicologo", async (req, res) => {
    PRIMEIRA ETAPA DO CADASTRO
 ========================== */
 
-app.post("/continuar-cadastro-pai", (req, res) => {
+app.post("/continuar-cadastro-pai", limitarCriacaoConta, (req, res) => {
 
     const {
         nome,
@@ -2711,7 +2758,7 @@ app.get("/api/alertas", estaLogado, async (req, res) => {
    CADASTRO FINAL
 ========================== */
 
-app.post("/cadastro-finalizar", async (req, res) => {
+app.post("/cadastro-finalizar", limitarCriacaoConta, async (req, res) => {
 
 
     const dados = req.session.cadastro;
@@ -3336,7 +3383,7 @@ app.get("/api/vinculos/status", estaLogado, async (req, res) => {
 // O frontend agora envia via fetch com Content-Type: application/json
 // então req.body.email e req.body.senha chegam pelo express.json() middleware
 
-app.post('/login', async (req, res) => {
+app.post('/login', limitarLoginPorIp, limitarTentativasLogin, async (req, res) => {
 
     const { email, senha } = req.body;
 
