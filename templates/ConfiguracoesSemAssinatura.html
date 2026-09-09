@@ -299,6 +299,44 @@
 
 </div>
 
+
+<div id="modalSenha">
+    <div class="modal-conteudo">
+
+        <div class="modal-header">
+            <h3>Alterar senha</h3>
+            <button
+                type="button"
+                class="btn-fechar-modal"
+                id="btnFecharModalSenha"
+                aria-label="Fechar"
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <form id="formAlterarSenha">
+
+            <label for="senhaAtual">Senha atual</label>
+            <input type="password" id="senhaAtual" required autocomplete="current-password">
+
+            <label for="novaSenha">Nova senha</label>
+            <input type="password" id="novaSenha" required autocomplete="new-password" minlength="6">
+
+            <label for="confirmarNovaSenha">Confirmar nova senha</label>
+            <input type="password" id="confirmarNovaSenha" required autocomplete="new-password" minlength="6">
+
+            <button type="submit" class="btn-salvar-senha" id="btnSalvarSenha">
+                Salvar nova senha
+            </button>
+
+        </form>
+
+        <p id="statusSenha" class="status-senha"></p>
+
+    </div>
+</div>
+
 <script src="/js/tema.js"></script>
 
 <script src="/js/ConfiguracoesSemAssinatura.js"></script>

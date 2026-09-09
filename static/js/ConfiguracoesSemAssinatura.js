@@ -80,10 +80,100 @@ document.getElementById("btnIndicar").addEventListener("click", () => {
 });
 
 // =========================
-// ALTERAR SENHA
+// 🔧 ALTERAR SENHA — AGORA VIA MODAL
 // =========================
-document.getElementById("btnAlterarSenha").addEventListener("click", () => {
-    window.location.href = "/alterar-senha";
+
+const modalSenha        = document.getElementById("modalSenha");
+const formAlterarSenha  = document.getElementById("formAlterarSenha");
+const btnSalvarSenha    = document.getElementById("btnSalvarSenha");
+const statusSenha       = document.getElementById("statusSenha");
+
+function abrirModalSenha() {
+    modalSenha.classList.add("aberto");
+    document.body.style.overflow = "hidden";
+}
+
+function fecharModalSenha() {
+    modalSenha.classList.remove("aberto");
+    document.body.style.overflow = "";
+    formAlterarSenha.reset();
+    statusSenha.className = "status-senha";
+}
+
+function mostrarStatusSenha(texto, tipo) {
+    statusSenha.textContent = texto;
+    statusSenha.className   = `status-senha visivel ${tipo}`;
+}
+
+document.getElementById("btnAlterarSenha").addEventListener("click", abrirModalSenha);
+document.getElementById("btnFecharModalSenha").addEventListener("click", fecharModalSenha);
+
+modalSenha.addEventListener("click", (e) => {
+    if (e.target === modalSenha) fecharModalSenha();
+});
+
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modalSenha.classList.contains("aberto")) {
+        fecharModalSenha();
+    }
+});
+
+formAlterarSenha.addEventListener("submit", async (e) => {
+
+    e.preventDefault();
+
+    const senhaAtual         = document.getElementById("senhaAtual").value;
+    const novaSenha          = document.getElementById("novaSenha").value;
+    const confirmarNovaSenha = document.getElementById("confirmarNovaSenha").value;
+
+    if (novaSenha !== confirmarNovaSenha) {
+        mostrarStatusSenha("As senhas novas não coincidem.", "erro");
+        return;
+    }
+
+    btnSalvarSenha.disabled    = true;
+    btnSalvarSenha.textContent = "Salvando...";
+
+    try {
+
+        const resposta = await fetch("/api/alterar-senha", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                senhaAtual,
+                novaSenha,
+                confirmarNovaSenha
+            })
+
+        });
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+            throw new Error(dados.erro || "Erro ao alterar a senha.");
+        }
+
+        mostrarStatusSenha(dados.mensagem || "Senha alterada com sucesso!", "sucesso");
+        formAlterarSenha.reset();
+
+        setTimeout(fecharModalSenha, 1800);
+
+    } catch (erro) {
+
+        mostrarStatusSenha(erro.message, "erro");
+
+    } finally {
+
+        btnSalvarSenha.disabled    = false;
+        btnSalvarSenha.textContent = "Salvar nova senha";
+
+    }
+
 });
 
 // =========================
