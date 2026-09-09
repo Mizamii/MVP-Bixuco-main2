@@ -361,11 +361,51 @@ app.use(express.urlencoded({
    MIDDLEWARE DE AUTENTICAÇÃO
  */
 
-function estaLogado(req, res, next) {
-    if (req.isAuthenticated() || req.session.usuarioId) {
+async function estaLogado(req, res, next) {
+
+    // Login via Google (Passport) já busca o usuário fresco do banco
+    // em toda requisição (deserializeUser), então não precisa checar aqui.
+    // Contas Google também não têm senha própria pra trocar.
+    if (req.isAuthenticated()) {
         return next();
     }
+
+    if (req.session.usuarioId) {
+
+        // Sessões criadas antes dessa funcionalidade existir não têm
+        // versaoSessao — deixa passar, pra não deslogar todo mundo no deploy.
+        if (req.session.versaoSessao === undefined) {
+            return next();
+        }
+
+        try {
+
+            const resultado = await db.query(
+                "SELECT versao_sessao FROM usuarios WHERE id = $1",
+                [req.session.usuarioId]
+            );
+
+            if (resultado.rows.length === 0) {
+                return res.redirect("/logar");
+            }
+
+            if (resultado.rows[0].versao_sessao !== req.session.versaoSessao) {
+                // A senha foi trocada em outro lugar — essa sessão foi invalidada
+                req.session.destroy(() => {});
+                return res.redirect("/logar");
+            }
+
+            return next();
+
+        } catch (erro) {
+            console.log("Erro ao verificar versão da sessão:", erro);
+            return next(); // não trava o usuário por erro de infra
+        }
+
+    }
+
     return res.redirect("/logar");
+
 }
 
 function exigeAdmin(req, res, next) {
@@ -2294,10 +2334,18 @@ app.post("/api/alterar-senha", estaLogado, async (req, res) => {
 
         const novaSenhaHash = await bcrypt.hash(novaSenha, 10);
 
-        await db.query(
-            "UPDATE usuarios SET senha = $1 WHERE id = $2",
+        const atualizado = await db.query(
+            `UPDATE usuarios
+             SET senha = $1, versao_sessao = versao_sessao + 1
+             WHERE id = $2
+             RETURNING versao_sessao`,
             [novaSenhaHash, usuarioId]
         );
+
+        // Mantém a sessão ATUAL válida — quem trocou a senha não precisa
+        // logar de novo agora. Mas qualquer OUTRA sessão dessa conta,
+        // aberta em outro dispositivo/navegador, é invalidada.
+        req.session.versaoSessao = atualizado.rows[0].versao_sessao;
 
         return res.status(200).json({ mensagem: "Senha alterada com sucesso!" });
 
@@ -2353,7 +2401,7 @@ app.post("/redefinir-senha", async (req, res) => {
 
         // Atualiza a senha do usuário no banco
         await db.query(
-            "UPDATE usuarios SET senha = $1 WHERE id = $2",
+            "UPDATE usuarios SET senha = $1, versao_sessao = versao_sessao + 1 WHERE id = $2",
             [senhaHash, tokenDados.usuario_id]
         );
 
@@ -2901,13 +2949,14 @@ app.post("/cadastro-finalizar", limitarCriacaoConta, async (req, res) => {
                     `UPDATE usuarios
                     SET nome=$1, cpf=$2, senha=$3, data_nascimento=$4, tipo='pai', novo_usuario=FALSE
                     WHERE id=$5
-                    RETURNING id, tipo`,
+                    RETURNING id, tipo, versao_sessao`,    // 🔴 falta versao_sessao aqui
                     [dados.nome, dados.cpfUser, senhaHash, dados.dataNascimento, contaPendente.id]
                 );
 
                 delete req.session.cadastro;
                 req.session.usuarioId = atualizado.rows[0].id;
                 req.session.tipo = atualizado.rows[0].tipo;
+                req.session.versaoSessao = atualizado.rows[0].versao_sessao; 
 
                 // cria assinatura gratuita para conta Google finalizada
                 await db.query(
@@ -2927,7 +2976,7 @@ app.post("/cadastro-finalizar", limitarCriacaoConta, async (req, res) => {
                 `INSERT INTO usuarios
                 (nome, email, cpf, senha, data_nascimento, tipo)
                 VALUES ($1,$2,$3,$4,$5,'pai')
-                RETURNING id, tipo`,
+                RETURNING id, tipo, versao_sessao`,
                 [
                     dados.nome,
                     dados.email,
@@ -2941,6 +2990,7 @@ app.post("/cadastro-finalizar", limitarCriacaoConta, async (req, res) => {
 
             req.session.usuarioId = novoUsuario.rows[0].id;
             req.session.tipo = novoUsuario.rows[0].tipo;
+            req.session.versaoSessao = novoUsuario.rows[0].versao_sessao;
 
             // cria assinatura gratuita para novo responsável
             await db.query(
@@ -2992,15 +3042,17 @@ app.post("/cadastro-finalizar", limitarCriacaoConta, async (req, res) => {
                     `UPDATE usuarios
                     SET nome=$1, crp=$2, senha=$3, data_nascimento=$4, tipo='psicologo', novo_usuario=FALSE
                     WHERE id=$5
-                    RETURNING id, tipo`,
+                    RETURNING id, tipo, versao_sessao`,
                     [dados.nome, dados.crp, senhaHash, dados.dataNascimento, contaPendente.id]
                 );
 
                 delete req.session.cadastro;
                 req.session.usuarioId = atualizado.rows[0].id;
                 req.session.tipo = atualizado.rows[0].tipo;
+                req.session.versaoSessao = atualizado.rows[0].versao_sessao;
 
                 return res.json({ sucesso: true, destino: "/hometerapeuta" });
+
             }
 
             // nenhuma linha encontrada — segue o INSERT normal que já existe
@@ -3012,7 +3064,7 @@ app.post("/cadastro-finalizar", limitarCriacaoConta, async (req, res) => {
                 `INSERT INTO usuarios
                 (nome, email, crp, senha, data_nascimento, tipo, codigo_vinculo)
                 VALUES ($1,$2,$3,$4,$5,'psicologo',$6)
-                RETURNING id, tipo`,
+                RETURNING id, tipo, versao_sessao`,
                 [
                     dados.nome,
                     dados.email,
@@ -3027,6 +3079,7 @@ app.post("/cadastro-finalizar", limitarCriacaoConta, async (req, res) => {
 
             req.session.usuarioId = novoUsuario.rows[0].id;
             req.session.tipo = novoUsuario.rows[0].tipo;
+            req.session.versaoSessao = novoUsuario.rows[0].versao_sessao;
 
             return res.json({
                 sucesso: true,
@@ -3491,8 +3544,11 @@ app.post('/login', limitarLoginPorIp, limitarTentativasLogin, async (req, res) =
 
             await enviarCodigo2FA(usuario);
 
-            // Sessão "pendente" — só vira sessão de verdade depois do código certo
-            req.session.pendente2FA = { usuarioId: usuario.id, tipo: usuario.tipo };
+            req.session.pendente2FA = {
+                usuarioId: usuario.id,
+                tipo: usuario.tipo,
+                versaoSessao: usuario.versao_sessao   // 🔧 FALTAVA ISSO
+            };
 
             return res.json({ precisa2fa: true, destino: "/verificar-codigo" });
 
@@ -3501,6 +3557,8 @@ app.post('/login', limitarLoginPorIp, limitarTentativasLogin, async (req, res) =
         // Sem 2FA (admin, ou outros tipos futuros)
         req.session.usuarioId = usuario.id;
         req.session.tipo = usuario.tipo;
+        req.session.versaoSessao = usuario.versao_sessao; 
+        
 
         if (usuario.tipo === "psicologo") {
             return res.redirect("/homeTerapeuta");
@@ -3575,6 +3633,7 @@ app.post("/api/2fa/verificar", limitarVerificacao2FA, async (req, res) => {
         // Agora sim, abre a sessão de verdade
         req.session.usuarioId = pendente.usuarioId;
         req.session.tipo = pendente.tipo;
+        req.session.versaoSessao = pendente.versaoSessao;
         delete req.session.pendente2FA;
 
         const destino = pendente.tipo === "psicologo" ? "/homeTerapeuta" : "/home";
