@@ -3002,29 +3002,24 @@ app.post("/cadastro-finalizar", limitarCriacaoConta, async (req, res) => {
 
             if (contaPendente) {
                 // Conta veio do Google e nunca foi completada — assume ela em vez de bloquear
+                // 🔧 FIX: faltava gerar o codigo_vinculo aqui — esse era o motivo do
+                // código do terapeuta não aparecer na tela de configurações
+                const codigoVinculo = await gerarCodigoVinculo();
+
                 const atualizado = await db.query(
                     `UPDATE usuarios
-                    SET nome=$1, cpf=$2, senha=$3, data_nascimento=$4, tipo='pai', novo_usuario=FALSE
-                    WHERE id=$5
-                    RETURNING id, tipo, versao_sessao`,    // 🔴 falta versao_sessao aqui
-                    [dados.nome, dados.cpfUser, senhaHash, dados.dataNascimento, contaPendente.id]
+                    SET nome=$1, crp=$2, senha=$3, data_nascimento=$4, tipo='psicologo', novo_usuario=FALSE, codigo_vinculo=$5
+                    WHERE id=$6
+                    RETURNING id, tipo, versao_sessao`,
+                    [dados.nome, dados.crp, senhaHash, dados.dataNascimento, codigoVinculo, contaPendente.id]
                 );
 
                 delete req.session.cadastro;
                 req.session.usuarioId = atualizado.rows[0].id;
                 req.session.tipo = atualizado.rows[0].tipo;
-                req.session.versaoSessao = atualizado.rows[0].versao_sessao; 
+                req.session.versaoSessao = atualizado.rows[0].versao_sessao;
 
-                // cria assinatura gratuita para conta Google finalizada
-                await db.query(
-                    `INSERT INTO assinaturas (usuario_id, nome_plano, ativo)
-                        VALUES ($1, 'gratis', true)
-                        ON CONFLICT DO NOTHING`,
-                    [atualizado.rows[0].id]
-                );
-
-
-                return res.json({ sucesso: true, destino: "/planos" });
+                return res.json({ sucesso: true, destino: "/hometerapeuta" });
             }
 
             // nenhuma linha encontrada — segue o INSERT normal que já existe
