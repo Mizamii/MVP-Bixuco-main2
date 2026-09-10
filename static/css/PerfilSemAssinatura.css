@@ -1,0 +1,121 @@
+/* ==========================================================
+   PerfilSemAssinatura.css
+   Estilos exclusivos da página "Meu perfil" para contas SEM
+   assinatura. Carregar DEPOIS de perfil.css:
+
+       <link rel="stylesheet" href="/css/tema.css">
+       <link rel="stylesheet" href="/css/layout.css">
+       <link rel="stylesheet" href="/css/home.css">
+       <link rel="stylesheet" href="/css/perfil.css">
+       <link rel="stylesheet" href="/css/PerfilSemAssinatura.css">
+
+   Reaproveita .grid-perfil, .perfil-topo, .perfil-foto-wrapper,
+   .perfil-direita, .item-card e .avatar-crianca, que já vêm de
+   perfil.css. Aqui só entra o que é exclusivo desta versão:
+   cabeçalho, card de perfil sem badges/edição e o banner de
+   upgrade — antes esta página não tinha CSS próprio, então
+   essas classes caíam no estilo padrão do navegador.
+   ========================================================== */
+
+/* ---------- Cabeçalho da página ---------- */
+
+.cabecalho {
+    margin-bottom: 1.1rem;
+}
+
+.cabecalho h1 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--cor-texto-principal);
+    margin-bottom: 0.3rem;
+}
+
+.cabecalho p {
+    font-size: 0.85rem;
+    color: var(--cor-texto-secundario);
+}
+
+/* ---------- Card de perfil (sem badges/edição) ---------- */
+
+.card.card-perfil {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.card-perfil #perfilNome {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--cor-texto-principal);
+    margin-bottom: 0.2rem;
+}
+
+/* ---------- Banner de upgrade ---------- */
+
+.banner-upgrade {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    width: 100%;
+    margin-top: 1.4rem;
+    padding: 1.1rem 1.25rem;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(121, 216, 54, 0.12) 0%, rgba(10, 183, 251, 0.12) 100%);
+    border: 1px solid rgba(10, 183, 251, 0.18);
+}
+
+.banner-upgrade > i.fa-star {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.banner-upgrade strong {
+    display: block;
+    font-size: 0.92rem;
+    color: var(--cor-texto-principal);
+    margin-bottom: 0.25rem;
+}
+
+.banner-upgrade p {
+    font-size: 0.8rem;
+    color: var(--cor-texto-secundario);
+    margin-bottom: 0.8rem;
+}
+
+.btn-upgrade {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1.1rem;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+    color: #fff !important;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.btn-upgrade:hover {
+    opacity: 0.88;
+}
+
+/* ---------- Mascote (coluna direita) ---------- */
+
+.perfil-direita {
+    height: 100%;
+}
+
+.gato-deitado {
+    width: 220px;
+    height: auto;
+    align-self: flex-end;
+    margin-top: auto;
+}

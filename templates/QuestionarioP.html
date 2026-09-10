@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Bixuco — Perfil sensorial
+    </title>
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/css/questionariop.css"
+    >
+    <script src="/js/deeplink.js"></script>
+
+
+</head>
+
+<body>
+
+    <main class="pagina-login">
+
+        <!-- ========================= -->
+        <!-- LADO ESQUERDO -->
+        <!-- ========================= -->
+
+        <section class="login-esquerda">
+
+            <div class="login-esquerda__geometria"></div>
+            <div class="login-esquerda__overlay"></div>
+
+            <div class="login-esquerda__conteudo">
+
+                <!-- Logo -->
+                <img
+                    src="/img/Logo_Branca.png"
+                    alt="Logo Bixuco"
+                    class="login-esquerda__logo"
+                >
+
+                <!-- Título -->
+                <h1 class="login-esquerda__titulo">
+                    Acompanhamento
+                    <br>
+                    infantil
+                    <span>inteligente.</span>
+                </h1>
+
+                <!-- Texto -->
+                <p class="login-esquerda__slogan">
+                    Mais organização,
+                    mais conexão e mais cuidado
+                    para famílias e terapeutas.
+                </p>
+
+            </div>
+
+            <div class="login-esquerda__ilustracao-wrapper">
+
+                <img
+                    src="/img/login-urso.png"
+                    alt="Criança abraçando o Bixuco"
+                    class="login-esquerda__foto"
+                >
+
+            </div>
+
+        </section>
+
+        <!-- ========================= -->
+        <!-- LADO DIREITO -->
+        <!-- ========================= -->
+
+        <section class="login-direita">
+
+            <header class="criarconta-header">
+
+                <h2 class="criarconta-titulo">
+                    Perfil sensorial
+                </h2>
+
+            </header>
+
+            <div class="criarconta-corpo">
+
+                <!-- Barra de progresso -->
+
+                <div class="questionario-progresso">
+
+                    <span id="texto-progresso">
+                        Pergunta 1 de 10
+                    </span>
+
+                    <div
+                        class="questionario-progresso__barra"
+                        id="barra-progresso"
+                    ></div>
+
+                </div>
+
+                <!-- Pergunta -->
+
+                <h3
+                    id="pergunta-texto"
+                    class="criarconta-pergunta"
+                >
+                    Carregando...
+                </h3>
+
+                <!-- Alternativas -->
+
+                <form
+                    id="form-pergunta"
+                    class="cadastro-form"
+                >
+
+                    <div id="opcoes">
+                        <!-- Preenchido pelo JavaScript -->
+                    </div>
+
+                </form>
+
+                <!-- 🔧 FIX 7: Mensagem de erro ao salvar -->
+                <span
+                    id="erro-salvar"
+                    class="cadastro-form__erro cadastro-form__erro--geral"
+                ></span>
+
+                <!-- 🔧 FIX 5 + 6: onclick removido, botão com estado de carregamento -->
+                <button
+                    id="btn-proximo"
+                    class="btn-continuar"
+                    type="button"
+                    disabled
+                >
+                    Próxima pergunta
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="/js/QuestionarioP.js"></script>
+    <script src="/js/tema.js"></script>
+
+</body>
+
+</html>

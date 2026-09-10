@@ -1,0 +1,127 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+}
+
+* {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ========================================= */
+/* TELA */
+/* ========================================= */
+
+.container {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #F5F7FA;
+    padding: 2rem;
+    text-align: center;
+    overflow: hidden;
+}
+
+/* ========================================= */
+/* IMAGEM E TEXTOS */
+/* ========================================= */
+
+.container > img.bixuco {
+    width: 140px;
+    height: auto;
+    margin-bottom: 1.5rem;
+}
+
+.container > h1 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #141414;
+    margin-bottom: 0.75rem;
+}
+
+.container > .descricao {
+    font-size: 0.95rem;
+    color: #5A5A5A;
+    line-height: 1.55;
+    max-width: 340px;
+    margin-bottom: 1.75rem;
+}
+
+/* ========================================= */
+/* CARD DE SEQUÊNCIA (mesma linguagem visual do card de dias consecutivos do Home) */
+/* ========================================= */
+
+.card-sequencia {
+    width: 100%;
+    max-width: 340px;
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    background: #fff;
+    border-radius: 14px;
+    padding: 1rem 1.15rem;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.card-sequencia .icone {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 159, 10, 0.12);
+    color: #FF9F0A;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.card-sequencia .texto-sequencia h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #141414;
+}
+
+.card-sequencia .texto-sequencia h3 #diasSeguidos {
+    color: #32C26D;
+    font-size: 1.1rem;
+}
+
+.card-sequencia .texto-sequencia p {
+    font-size: 0.8rem;
+    color: #5A5A5A;
+    margin-top: 0.1rem;
+}
+
+/* ========================================= */
+/* BOTÃO */
+/* ========================================= */
+
+.container > button#btnInicio {
+    width: 100%;
+    max-width: 340px;
+    padding: 0.9rem;
+    background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+    color: #fff;
+    border: none;
+    border-radius: 15px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.container > button#btnInicio:hover {
+    background: linear-gradient(90deg, #32C26D 0%, #1D8EC9 100%);
+}

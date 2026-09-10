@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+    <title>Bixuco — Criar conta</title>
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+    <link
+        rel="stylesheet"
+        href="/css/criarcontag.css"
+    >
+    <script src="/js/deeplink.js"></script>
+
+
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+</head>
+
+<body>
+    <main class="pagina-login">
+
+        <!-- ========================= -->
+        <!-- LADO ESQUERDO -->
+        <!-- ========================= -->
+        <section class="login-esquerda">
+
+            <div class="login-esquerda__geometria"></div>
+            <div class="login-esquerda__overlay"></div>
+
+            <div class="login-esquerda__conteudo">
+                <!-- Logo branca -->
+                <img
+                    src="/img/Logo_Branca.png"
+                    alt="Logo Bixuco"
+                    class="login-esquerda__logo"
+                >
+
+                <!-- Título -->
+                <h1 class="login-esquerda__titulo">
+                    Crie sua conta
+                </h1>
+
+                <!-- Texto -->
+                <p class="login-esquerda__slogan">
+                    Pais e terapeutas juntos pelo
+                    bem-estar da criança.
+                </p>
+            </div>
+
+            <div class="login-esquerda__ilustracao-wrapper">
+                <img
+                    src="/img/familia-bixuco.png"
+                    alt="Família utilizando o Bixuco"
+                    class="login-esquerda__foto"
+                >
+            </div>
+
+        </section>
+
+        <!-- ========================= -->
+        <!-- LADO DIREITO -->
+        <!-- ========================= -->
+        <section class="login-direita">
+
+            <header class="criarconta-header">
+                <h2 class="criarconta-titulo">
+                    Criar conta
+                </h2>
+            </header>
+
+            <div class="criarconta-corpo">
+
+                <!-- Barra de progresso (Etapa 2) -->
+                <div class="cadastro-progresso">
+                    <span class="ativo"></span>
+                    <span class="ativo ativo--recente"></span>
+                    <span></span>
+                </div>
+
+                <h3 class="criarconta-pergunta">
+                    Informações sobre você
+                </h3>
+
+                <!-- ========================= -->
+                <!-- FORMULÁRIO -->
+                <!-- ========================= -->
+
+                <!-- Envio via fetch para poder exibir erros do servidor na tela -->
+                <form id="formCadastro" class="cadastro-form" novalidate>
+
+                    <!-- Nome -->
+                    <div class="cadastro-form__grupo">
+                        <label for="nome" class="cadastro-form__label">
+                            Nome completo
+                        </label>
+                        <input
+                            class="cadastro-form__input"
+                            type="text"
+                            id="nome"
+                            name="nome"
+                            placeholder="Digite seu nome completo"
+                            autocomplete="name"
+                            required
+                        >
+                        <span
+                            class="cadastro-form__erro"
+                            id="erro-nome"
+                        ></span>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="cadastro-form__grupo">
+                        <label for="email" class="cadastro-form__label">
+                            Email
+                        </label>
+                        <input
+                            class="cadastro-form__input"
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Digite seu e-mail"
+                            autocomplete="email"
+                            required
+                        >
+                        <span
+                            class="cadastro-form__erro"
+                            id="erro-email"
+                        ></span>
+                    </div>
+
+                    <!-- Linha telefone + data -->
+                    <div class="cadastro-form__linha">
+
+                        <!-- Telefone -->
+                        <div class="cadastro-form__grupo">
+                            <label for="telefone" class="cadastro-form__label">
+                                Telefone (opcional)
+                            </label>
+                            <input
+                                class="cadastro-form__input"
+                                type="tel"
+                                id="telefone"
+                                name="telefone"
+                                placeholder="(00) 00000-0000"
+                                autocomplete="tel"
+                            >
+                            <span
+                                class="cadastro-form__erro"
+                                id="erro-telefone"
+                            ></span>
+                        </div>
+
+                        <!-- Data de nascimento -->
+                        <div class="cadastro-form__grupo">
+                            <label for="dataNascimento" class="cadastro-form__label">
+                                Data de nascimento
+                            </label>
+                            <input
+                                class="cadastro-form__input"
+                                type="date"
+                                id="dataNascimento"
+                                name="dataNascimento"
+                                required
+                            >
+                            <span
+                                class="cadastro-form__erro"
+                                id="erro-dataNascimento"
+                            ></span>
+                        </div>
+
+                    </div>
+
+                    <!-- CPF -->
+                    <div class="cadastro-form__grupo">
+                        <label for="cpf" class="cadastro-form__label">
+                            CPF
+                        </label>
+                        <input
+                            class="cadastro-form__input"
+                            type="text"
+                            id="cpf"
+                            name="cpfUser"
+                            placeholder="000.000.000-00"
+                            maxlength="14"
+                            inputmode="numeric"
+                            required
+                        >
+                        <span
+                            class="cadastro-form__erro"
+                            id="erro-cpf"
+                        ></span>
+                    </div>
+
+
+                    <!-- Erro geral do servidor (substitui o sistema de ?erro= na URL) -->
+                    <span
+                        id="erro-geral"
+                        class="cadastro-form__erro cadastro-form__erro--geral"
+                        style="display: none;"
+                    ></span>
+
+                    <button
+                        type="submit"
+                        id="btnContinuar"
+                        class="btn-continuar"
+                    >
+                        Continuar
+                    </button>
+
+                </form>
+
+                <!-- Termos -->
+                <p class="cadastro-form__termos">
+                    Ao criar sua conta você concorda com nossos
+                    <a href="/termos" class="cadastro-form__link--azul">Termos de uso</a>
+                    e
+                    <a href="/privacidade" class="cadastro-form__link--verde">Política de privacidade.</a>
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="/js/CriarContaG.js"></script>
+    
+    <script src="/js/tema.js"></script>
+
+</body>
+</html>

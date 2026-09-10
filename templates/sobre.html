@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco • Sobre</title>
+
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+    <script src="/js/deeplink.js"></script>
+
+
+    <!-- Ícones -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <!-- Variáveis compartilhadas de tema (claro/escuro) -->
+    <link
+        rel="stylesheet"
+        href="/css/tema.css"
+    >
+
+    <link rel="stylesheet" href="/css/layout.css">
+
+    <!-- Layout compartilhado (sidebar, topo, tema claro/escuro) — o mesmo do Home e do Perfil -->
+    <link
+        rel="stylesheet"
+        href="/css/home.css"
+    >
+
+    <!-- CSS específico desta página -->
+    <link
+        rel="stylesheet"
+        href="/css/sobre.css"
+    >
+
+</head>
+
+
+
+
+<body>
+
+<div class="container">
+
+    <!-- ========================= -->
+    <!-- MENU LATERAL -->
+    <!-- ========================= -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <img
+                src="/img/logo_nome.png"
+                alt="Logo Bixuco"
+            >
+
+        </div>
+
+        <nav>
+
+            <a href="/home">
+
+                <i class="fa-solid fa-house"></i>
+
+                <span data-pt="Início" data-en="Home">Início</span>
+
+            </a>
+
+            <a href="/relatorios">
+                <i class="fa-solid fa-chart-line"></i>
+                <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+            </a>
+
+            <a href="/sobre" class="ativo">
+
+                <i class="fa-solid fa-circle-info"></i>
+
+                <span data-pt="Sobre" data-en="About">Sobre</span>
+
+            </a>
+
+            <a href="/configuracoes">
+
+                <i class="fa-solid fa-gear"></i>
+
+                <span data-pt="Configurações" data-en="Settings">Configurações</span>
+
+            </a>
+
+        </nav>
+
+        <button
+            class="btn-relatorio"
+            type="button"
+            id="btnRelatorioDiario"
+            data-pt="Relatório diário"
+            data-en="Daily report"
+        >
+            Relatório diário
+        </button>
+
+        <div class="tema">
+
+            <button
+                id="btnClaro"
+                class="ativo"
+                type="button"
+            >
+
+                <i class="fa-regular fa-sun"></i>
+
+                <span data-pt="Claro" data-en="Light">Claro</span>
+
+            </button>
+
+            <button
+                id="btnEscuro"
+                type="button"
+            >
+
+                <i class="fa-regular fa-moon"></i>
+
+                <span data-pt="Escuro" data-en="Dark">Escuro</span>
+
+            </button>
+
+        </div>
+        <div class="sidebar-divisor"></div>
+        <a
+        
+            href="/logout"
+            class="logout"
+        >
+
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+
+            <span data-pt="Sair" data-en="Log out">Sair</span>
+
+        </a>
+
+    </aside>
+
+    <!-- ========================= -->
+    <!-- CONTEÚDO -->
+    <!-- ========================= -->
+
+    <main class="conteudo">
+
+        <header class="topo">
+
+            <button class="tradutor" type="button" id="btnTraduzir">
+                <i class="fa-solid fa-language"></i>
+                <span id="textoTradutor">Traduzir para o inglês</span>
+            </button>
+
+            <div class="usuario">
+
+                <div class="notificacoes-wrapper">
+                    <button class="notificacoes" type="button" id="btnNotificacoes">
+                        <i class="fa-regular fa-bell"></i>
+                        <span id="quantidadeNotificacoes" class="badge">0</span>
+                    </button>
+
+                    <div class="painel-notificacoes" id="painelNotificacoes">
+                        <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
+                        <div id="listaNotificacoes">
+                            <div class="painel-vazio">Carregando...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <img
+                    id="fotoUsuario"
+                    src="/img/perfilPadrao.png"
+                    alt="Foto do usuário"
+                    title="Ver perfil"
+                    style="cursor: pointer;"
+                >
+
+                <div>
+
+                    <h3 id="nomeUsuario">
+
+                        Carregando...
+
+                    </h3>
+
+                    <span id="tipoConta">
+
+                        ...
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <!-- ========================= -->
+        <!-- TÍTULO -->
+        <!-- ========================= -->
+
+        <section class="cabecalho">
+
+            <div>
+
+                <h1 data-pt="Sobre o Bixuco" data-en="About Bixuco">
+
+                    Sobre o Bixuco
+
+                </h1>
+
+                <p data-pt="Conheça nossa história, missão e como trabalhamos para transformar vidas." data-en="Learn about our story, mission, and how we work to transform lives.">
+
+                    Conheça nossa história, missão e como trabalhamos
+                    para transformar vidas.
+
+                </p>
+
+            </div>
+
+            <img
+                src="/img/bixucomascote.png"
+                alt="Bixuco"
+            >
+
+        </section>
+
+        <!-- ========================= -->
+        <!-- CARDS -->
+        <!-- ========================= -->
+
+        <section class="cards">
+
+            <button
+                class="card"
+                type="button"
+                data-topico="sobre"
+            >
+
+                <i class="fa-solid fa-circle-info"></i>
+
+                <h3 data-pt="Sobre nós" data-en="About us">Sobre nós</h3>
+
+                <p data-pt="Nossa história e missão" data-en="Our story and mission">Nossa história e missão</p>
+
+            </button>
+
+            <button
+                class="card"
+                type="button"
+                data-topico="ajudamos"
+            >
+
+                <i class="fa-regular fa-heart"></i>
+
+                <h3 data-pt="Como ajudamos" data-en="How we help">Como ajudamos</h3>
+
+                <p data-pt="O que fazemos por você" data-en="What we do for you">O que fazemos por você</p>
+
+            </button>
+
+            <button
+                class="card"
+                type="button"
+                data-topico="funciona"
+            >
+
+                <i class="fa-solid fa-gear"></i>
+
+                <h3 data-pt="Como funciona" data-en="How it works">Como funciona</h3>
+
+                <p data-pt="Pelúcia + aplicativo + relatórios" data-en="Plush toy + app + reports">Pelúcia + aplicativo + relatórios</p>
+
+            </button>
+
+            <button
+                class="card"
+                type="button"
+                data-topico="publico"
+            >
+
+                <i class="fa-solid fa-users"></i>
+
+                <h3 data-pt="Para quem é" data-en="Who it's for">Para quem é</h3>
+
+                <p data-pt="Pais e terapeutas" data-en="Parents and therapists">Pais e terapeutas</p>
+
+            </button>
+
+            <button
+                class="card"
+                type="button"
+                data-topico="naofazemos"
+            >
+
+                <i class="fa-solid fa-ban"></i>
+
+                <h3 data-pt="O que não fazemos" data-en="What we don't do">O que não fazemos</h3>
+
+                <p data-pt="Sem diagnósticos" data-en="No diagnoses">Sem diagnósticos</p>
+
+            </button>
+
+            <button
+                class="card"
+                type="button"
+                data-topico="privacidade"
+            >
+
+                <i class="fa-solid fa-shield-halved"></i>
+
+                <h3 data-pt="Privacidade" data-en="Privacy">Privacidade</h3>
+
+                <p data-pt="Como protegemos seus dados" data-en="How we protect your data">Como protegemos seus dados</p>
+
+            </button>
+
+            <button
+                class="card"
+                type="button"
+                data-topico="proposito"
+            >
+
+                <i class="fa-solid fa-trophy"></i>
+
+                <h3 data-pt="Nosso propósito" data-en="Our purpose">Nosso propósito</h3>
+
+                <p data-pt="Missão, visão e valores" data-en="Mission, vision, and values">Missão, visão e valores</p>
+
+            </button>
+
+            <button
+                class="card"
+                type="button"
+                data-topico="contato"
+            >
+
+                <i class="fa-solid fa-headset"></i>
+
+                <h3 data-pt="Contato e suporte" data-en="Contact and support">Contato e suporte</h3>
+
+                <p data-pt="Fale com nossa equipe" data-en="Talk to our team">Fale com nossa equipe</p>
+
+            </button>
+
+        </section>
+
+        <!-- ========================= -->
+        <!-- FRASE FINAL -->
+        <!-- ========================= -->
+
+        <section class="frase-final">
+
+            <img
+                src="/img/BixucoDormindo.png"
+                alt="Bixuco"
+            >
+
+            <p id="fraseFinalTexto">
+                Mais do que tecnologia, entregamos
+                <strong>conexão</strong>,
+                <strong>empatia</strong> e
+                <strong>inteligência</strong>
+                para apoiar o desenvolvimento infantil.
+            </p>
+
+        </section>
+
+    </main>
+
+</div>
+
+<!-- ========================= -->
+<!-- MODAL (fora do container) -->
+<!-- ========================= -->
+
+<div
+    id="modal"
+    class="modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="tituloModal"
+>
+
+    <div class="modal-conteudo">
+
+        <!-- Botão fechar -->
+        <button
+            id="fecharModal"
+            class="fechar"
+            type="button"
+            aria-label="Fechar"
+        >
+
+            <i class="fa-solid fa-xmark"></i>
+
+        </button>
+
+        <!-- Ícone do card selecionado -->
+        <div
+            id="iconModal"
+            class="modal-icone"
+        ></div>
+
+        <!-- Título -->
+        <h2 id="tituloModal"></h2>
+
+        <!-- Conteúdo -->
+        <div
+            id="textoModal"
+            class="modal-texto"
+        ></div>
+
+    </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- JAVASCRIPT -->
+<!-- ========================= -->
+
+<script src="/js/sobre.js"></script>
+
+<script src="/js/tema.js"></script>
+
+</body>
+
+</html>

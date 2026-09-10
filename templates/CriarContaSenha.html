@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco — Criar conta</title>
+
+    <!-- Biblioteca de ícones -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+    <script src="/js/deeplink.js"></script>
+
+
+    <!-- CSS da página -->
+    <link
+        rel="stylesheet"
+        href="/css/criarcontasenha.css"
+    >
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+
+</head>
+
+<body>
+
+    <main class="pagina-login">
+
+        <!-- ========================= -->
+        <!-- LADO ESQUERDO -->
+        <!-- ========================= -->
+
+        <section class="login-esquerda">
+
+            <div class="login-esquerda__geometria"></div>
+            <div class="login-esquerda__overlay"></div>
+
+            <div class="login-esquerda__conteudo">
+
+                <!-- Logo branca -->
+                <img
+                    src="/img/Logo_Branca.png"
+                    alt="Logo Bixuco"
+                    class="login-esquerda__logo"
+                >
+
+                <!-- Título -->
+                <h1 class="login-esquerda__titulo">
+                    Crie sua conta
+                </h1>
+
+                <!-- Texto -->
+                <p class="login-esquerda__slogan">
+                    Pais e terapeutas juntos pelo
+                    bem-estar da criança.
+                </p>
+
+            </div>
+
+            <!-- Ilustração -->
+            <div class="login-esquerda__ilustracao-wrapper">
+
+                <img
+                    src="/img/familia-bixuco.png"
+                    alt="Família utilizando o Bixuco"
+                    class="login-esquerda__foto"
+                >
+
+            </div>
+
+        </section>
+
+        <!-- ========================= -->
+        <!-- LADO DIREITO -->
+        <!-- ========================= -->
+
+        <section class="login-direita">
+
+            <header class="criarconta-header">
+
+                <h2 class="criarconta-titulo">
+                    Criar conta
+                </h2>
+
+            </header>
+
+            <div class="criarconta-corpo">
+
+                <!-- Barra de progresso — etapa 3 de 3 (todas ativas) -->
+                <div class="cadastro-progresso">
+
+                    <span class="ativo"></span>
+                    <span class="ativo"></span>
+                    <span class="ativo ativo--recente"></span>
+
+                </div>
+
+                <!-- Título -->
+                <h3 class="criarconta-pergunta">
+                    Sobre sua segurança
+                </h3>
+
+                <!-- ========================= -->
+                <!-- FORMULÁRIO -->
+                <!-- ========================= -->
+
+                <!-- Envio via fetch para exibir erros do servidor na tela -->
+                <!-- sem recarregar a página ou redirecionar com ?erro= na URL -->
+                <form id="formSenha" class="cadastro-form" novalidate>
+
+                    <!-- Campo da senha -->
+                    <div class="cadastro-form__grupo">
+
+                        <label for="senha" class="cadastro-form__label">
+                            Senha
+                        </label>
+
+                        <div class="cadastro-form__campo-senha">
+
+                            <input
+                                class="cadastro-form__input"
+                                type="password"
+                                id="senha"
+                                name="senha"
+                                placeholder="Digite sua senha"
+                                autocomplete="new-password"
+                                minlength="6"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="cadastro-form__toggle-senha"
+                                id="btnToggleSenha"
+                                aria-label="Mostrar senha"
+                            >
+                                <i class="fa-solid fa-eye" id="iconeSenha"></i>
+                            </button>
+
+                        </div>
+
+                        <span
+                            class="cadastro-form__erro"
+                            id="erro-senha"
+                        ></span>
+
+                    </div>
+
+                    <!-- Confirmar senha -->
+                    <div class="cadastro-form__grupo">
+
+                        <label for="confirmarSenha" class="cadastro-form__label">
+                            Confirmar senha
+                        </label>
+
+                        <div class="cadastro-form__campo-senha">
+
+                            <input
+                                class="cadastro-form__input"
+                                type="password"
+                                id="confirmarSenha"
+                                name="confirmarSenha"
+                                placeholder="Confirme sua senha"
+                                autocomplete="new-password"
+                                minlength="6"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="cadastro-form__toggle-senha"
+                                id="btnToggleConfirmarSenha"
+                                aria-label="Mostrar confirmação de senha"
+                            >
+                                <i class="fa-solid fa-eye" id="iconeConfirmarSenha"></i>
+                            </button>
+
+                        </div>
+
+                        <span
+                            class="cadastro-form__erro"
+                            id="erro-confirmarSenha"
+                        ></span>
+
+                    </div>
+
+                    <!-- Erro geral do servidor (substitui ?erro= na URL) -->
+                    <span
+                        id="erro-geral"
+                        class="cadastro-form__erro cadastro-form__erro--geral"
+                        style="display: none;"
+                    ></span>
+
+                    <button
+                        type="submit"
+                        id="btnContinuar"
+                        class="btn-continuar"
+                    >
+                        Continuar
+                    </button>
+
+                </form>
+
+                <!-- Termos -->
+                <p class="cadastro-form__termos">
+
+                    Ao criar sua conta você concorda com nossos
+
+                    <a href="/termos" class="cadastro-form__link--azul">
+                        Termos de uso
+                    </a>
+
+                    e
+
+                    <a href="/privacidade" class="cadastro-form__link--verde">
+                        Política de privacidade.
+                    </a>
+
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="https://www.google.com/recaptcha/api.js?render=6LdPBrMtAAAAAHYhyE43BTtGCG1bpU_0CtPuHWmB"></script>
+
+    <script src="/js/CriarContaSenha.js"></script>
+
+    <script src="/js/tema.js"></script>
+
+</body>
+</html>
