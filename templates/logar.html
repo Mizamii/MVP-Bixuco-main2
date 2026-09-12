@@ -45,13 +45,17 @@
                 >
 
                 <h1 class="login-esquerda__titulo">
-                    Acompanhamento
+                    <span data-pt="Acompanhamento" data-en="Smart child">Acompanhamento</span>
                     <br>
-                    infantil
-                    <span>inteligente.</span>
+                    <span data-pt="infantil" data-en="tracking,">infantil</span>
+                    <span data-pt="inteligente." data-en="made simple.">inteligente.</span>
                 </h1>
 
-                <p class="login-esquerda__slogan">
+                <p
+                    class="login-esquerda__slogan"
+                    data-pt="Mais organização, mais conexão e mais cuidado para famílias e terapeutas."
+                    data-en="More organization, more connection and more care for families and therapists."
+                >
                     Mais organização, mais conexão e mais cuidado
                     para famílias e terapeutas.
                 </p>
@@ -72,6 +76,11 @@
         <!-- ========================= -->
         <section class="login-direita">
 
+            <button type="button" class="tradutor tradutor--login" id="btnTraduzir">
+                <i class="fa-solid fa-language"></i>
+                <span id="textoTradutor">Traduzir para o inglês</span>
+            </button>
+
             <div class="login-direita__logo-container">
                 <img
                     src="/img/logo-bixuco-colorida.png"
@@ -81,11 +90,19 @@
             </div>
 
             <h2 class="login-direita__titulo">
-                Bem-vindo
-                <span class="login-direita__titulo--destaque">de volta!</span>
+                <span data-pt="Bem-vindo" data-en="Welcome">Bem-vindo</span>
+                <span
+                    class="login-direita__titulo--destaque"
+                    data-pt="de volta!"
+                    data-en="back!"
+                >de volta!</span>
             </h2>
 
-            <p class="login-direita__subtitulo">
+            <p
+                class="login-direita__subtitulo"
+                data-pt="Acesse sua conta para continuar"
+                data-en="Sign in to continue"
+            >
                 Acesse sua conta para continuar
             </p>
 
@@ -93,7 +110,7 @@
 
                 <!-- Email -->
                 <div class="login-form__campo">
-                    <label for="email" class="login-form__label">
+                    <label for="email" class="login-form__label" data-pt="Email" data-en="Email">
                         Email
                     </label>
 
@@ -104,6 +121,8 @@
                             id="email"
                             name="email"
                             placeholder="Digite seu e-mail"
+                            data-pt-placeholder="Digite seu e-mail"
+                            data-en-placeholder="Enter your email"
                             autocomplete="username"
                             required
                         >
@@ -118,11 +137,16 @@
                 <!-- Senha -->
                 <div class="login-form__campo">
                     <div class="login-form__senha-cabecalho">
-                        <label for="senha" class="login-form__label">
+                        <label for="senha" class="login-form__label" data-pt="Senha" data-en="Password">
                             Senha
                         </label>
 
-                        <a href="/EsqueceuSenha" class="login-form__esqueci-senha">
+                        <a
+                            href="/EsqueceuSenha"
+                            class="login-form__esqueci-senha"
+                            data-pt="Esqueci minha senha"
+                            data-en="Forgot my password"
+                        >
                             Esqueci minha senha
                         </a>
                     </div>
@@ -134,6 +158,8 @@
                             id="senha"
                             name="senha"
                             placeholder="Digite sua senha"
+                            data-pt-placeholder="Digite sua senha"
+                            data-en-placeholder="Enter your password"
                             autocomplete="current-password"
                             required
                         >
@@ -157,7 +183,7 @@
                     ></span>
                 </div>
 
-                
+
 
                 <span
                     class="login-form__erro login-form__erro--geral"
@@ -168,6 +194,8 @@
                     type="submit"
                     id="btnEntrar"
                     class="login-form__btn-entrar"
+                    data-pt="Entrar"
+                    data-en="Log in"
                 >
                     Entrar
                 </button>
@@ -176,7 +204,7 @@
 
             <div class="login-divisor">
                 <span class="login-divisor__linha"></span>
-                <p class="login-divisor__texto">ou</p>
+                <p class="login-divisor__texto" data-pt="ou" data-en="or">ou</p>
                 <span class="login-divisor__linha"></span>
             </div>
 
@@ -185,14 +213,19 @@
                     src="/img/google.webp"
                     alt="Google"
                 >
-                <span>Continuar com Google</span>
+                <span data-pt="Continuar com Google" data-en="Continue with Google">Continuar com Google</span>
             </button>
 
             <div class="login-criar-conta">
-                <p>
+                <p data-pt="Não tem conta?" data-en="Don't have an account?">
                     Não tem conta?
                 </p>
-                <a href="/CriarContaS" class="login-criar-conta__link">
+                <a
+                    href="/CriarContaS"
+                    class="login-criar-conta__link"
+                    data-pt="Criar agora"
+                    data-en="Sign up now"
+                >
                     Criar agora
                 </a>
             </div>
