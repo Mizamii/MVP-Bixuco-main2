@@ -84,7 +84,7 @@ html, body {
   margin-bottom: 1.25rem;
 }
 
-.login-esquerda__titulo span {
+.login-esquerda__titulo .destaque {
   color: #79D836;
 }
 
@@ -146,6 +146,11 @@ html, body {
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
+}
+
+.login-direita__titulo-base {
+    color: #1a1a1a;
+    -webkit-text-fill-color: #1a1a1a;
 }
 
 .login-direita__titulo--destaque {
