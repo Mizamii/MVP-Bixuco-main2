@@ -1,3 +1,32 @@
+// ==========================
+// TRADUÇÃO MANUAL
+// ==========================
+
+let idiomaAtual = localStorage.getItem("idioma") || "pt";
+
+function aplicarIdiomaEstatico() {
+    document.querySelectorAll("[data-pt]").forEach(el => {
+        el.textContent = idiomaAtual === "en"
+            ? (el.dataset.en || el.dataset.pt)
+            : el.dataset.pt;
+    });
+
+    document.getElementById("textoTradutor").textContent =
+        idiomaAtual === "en" ? "Traduzir para o português" : "Traduzir para o inglês";
+}
+
+document.getElementById("btnTraduzir").addEventListener("click", () => {
+    idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+    localStorage.setItem("idioma", idiomaAtual);
+    aplicarIdiomaEstatico();
+});
+
+aplicarIdiomaEstatico();
+
+// ==========================
+// SELEÇÃO DE TIPO DE CONTA
+// ==========================
+
 // Guarda o tipo selecionado pelo usuário
 let tipoSelecionado = null;
 

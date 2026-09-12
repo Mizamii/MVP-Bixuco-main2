@@ -40,11 +40,15 @@
                     class="login-esquerda__logo"
                 >
 
-                <h1 class="login-esquerda__titulo">
+                <h1 class="login-esquerda__titulo" data-pt="Crie sua conta" data-en="Create your account">
                     Crie sua conta
                 </h1>
 
-                <p class="login-esquerda__slogan">
+                <p
+                    class="login-esquerda__slogan"
+                    data-pt="Pais e terapeutas juntos pelo bem-estar da criança."
+                    data-en="Parents and therapists together for the child's well-being."
+                >
                     Pais e terapeutas juntos pelo bem-estar da criança.
                 </p>
             </div>
@@ -65,9 +69,14 @@
         <!-- ========================= -->
         <section class="login-direita">
 
+            <button type="button" class="tradutor tradutor--login" id="btnTraduzir">
+                <i class="fa-solid fa-language"></i>
+                <span id="textoTradutor">Traduzir para o inglês</span>
+            </button>
+
             <!-- Cabeçalho fixo no topo, com linha -->
             <div class="criarconta-header">
-                <h2 class="criarconta-titulo">
+                <h2 class="criarconta-titulo" data-pt="Criar conta" data-en="Create account">
                     Criar conta
                 </h2>
             </div>
@@ -82,11 +91,15 @@
                     <span></span>
                 </div>
 
-                <h3 class="criarconta-pergunta">
+                <h3 class="criarconta-pergunta" data-pt="Como você vai utilizar o Bixuco?" data-en="How will you use Bixuco?">
                     Como você vai utilizar o Bixuco?
                 </h3>
 
-                <p class="criarconta-ajuda">
+                <p
+                    class="criarconta-ajuda"
+                    data-pt="Isso vai nos ajudar a personalizar sua experiência."
+                    data-en="This will help us personalize your experience."
+                >
                     Isso vai nos ajudar a personalizar sua experiência.
                 </p>
 
@@ -102,11 +115,15 @@
                         aria-pressed="false"
                     >
                         <div class="tipo-card__conteudo">
-                            <h4 class="tipo-card__titulo">
+                            <h4 class="tipo-card__titulo" data-pt="Sou responsável" data-en="I'm a parent/guardian">
                                 Sou responsável
                             </h4>
 
-                            <p class="tipo-card__descricao">
+                            <p
+                                class="tipo-card__descricao"
+                                data-pt="Acompanho o desenvolvimento do meu filho(a)."
+                                data-en="I track my child's development."
+                            >
                                 Acompanho o desenvolvimento do meu filho(a).
                             </p>
                         </div>
@@ -121,15 +138,19 @@
                         aria-pressed="false"
                     >
                         <div class="tipo-card__conteudo">
-                            <h4 class="tipo-card__titulo">
+                            <h4 class="tipo-card__titulo" data-pt="Sou terapeuta" data-en="I'm a therapist">
                                 Sou terapeuta
                             </h4>
 
-                            <p class="tipo-card__descricao">
+                            <p
+                                class="tipo-card__descricao"
+                                data-pt="Acompanho pacientes profissionalmente."
+                                data-en="I professionally track patients."
+                            >
                                 Acompanho pacientes profissionalmente.
                             </p>
 
-                            <div class="tag-crp">
+                            <div class="tag-crp" data-pt="Requer validação de CRP" data-en="Requires CRP validation">
                                 Requer validação de CRP
                             </div>
                         </div>
@@ -143,6 +164,8 @@
                     id="erro-selecao"
                     class="erro-selecao"
                     style="display: none;"
+                    data-pt="Selecione como deseja utilizar o Bixuco."
+                    data-en="Select how you want to use Bixuco."
                 >
                     Selecione como deseja utilizar o Bixuco.
                 </span>
@@ -152,7 +175,8 @@
                     type="button"
                     id="btnContinuar"
                     class="btn-continuar"
-                    
+                    data-pt="Continuar"
+                    data-en="Continue"
                     disabled
                 >
                     Continuar
@@ -162,8 +186,8 @@
 
                 <!-- Link para login -->
                 <p class="login-direita__rodape">
-                    Já possui uma conta?
-                    <a href="/logar" class="login-direita__link">
+                    <span data-pt="Já possui uma conta?" data-en="Already have an account?">Já possui uma conta?</span>
+                    <a href="/logar" class="login-direita__link" data-pt="Fazer login" data-en="Log in">
                         Fazer login
                     </a>
                 </p>
