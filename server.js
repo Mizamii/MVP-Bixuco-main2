@@ -3002,16 +3002,12 @@ app.post("/cadastro-finalizar", limitarCriacaoConta, async (req, res) => {
 
             if (contaPendente) {
                 // Conta veio do Google e nunca foi completada — assume ela em vez de bloquear
-                // 🔧 FIX: faltava gerar o codigo_vinculo aqui — esse era o motivo do
-                // código do terapeuta não aparecer na tela de configurações
-                const codigoVinculo = await gerarCodigoVinculo();
-
                 const atualizado = await db.query(
                     `UPDATE usuarios
-                    SET nome=$1, crp=$2, senha=$3, data_nascimento=$4, tipo='psicologo', novo_usuario=FALSE, codigo_vinculo=$5
-                    WHERE id=$6
+                    SET nome=$1, cpf=$2, senha=$3, data_nascimento=$4, tipo='pai', novo_usuario=FALSE
+                    WHERE id=$5
                     RETURNING id, tipo, versao_sessao`,
-                    [dados.nome, dados.crp, senhaHash, dados.dataNascimento, codigoVinculo, contaPendente.id]
+                    [dados.nome, dados.cpfUser, senhaHash, dados.dataNascimento, contaPendente.id]
                 );
 
                 delete req.session.cadastro;
@@ -3019,7 +3015,16 @@ app.post("/cadastro-finalizar", limitarCriacaoConta, async (req, res) => {
                 req.session.tipo = atualizado.rows[0].tipo;
                 req.session.versaoSessao = atualizado.rows[0].versao_sessao;
 
-                return res.json({ sucesso: true, destino: "/hometerapeuta" });
+                // cria assinatura gratuita para conta Google finalizada
+                await db.query(
+                    `INSERT INTO assinaturas (usuario_id, nome_plano, ativo)
+                        VALUES ($1, 'gratis', true)
+                        ON CONFLICT DO NOTHING`,
+                    [atualizado.rows[0].id]
+                );
+
+
+                return res.json({ sucesso: true, destino: "/planos" });
             }
 
             // nenhuma linha encontrada — segue o INSERT normal que já existe
@@ -3088,14 +3093,18 @@ app.post("/cadastro-finalizar", limitarCriacaoConta, async (req, res) => {
                 return res.status(409).json({ campo: "crp", erro: "Este CRP já está cadastrado." });
             }
 
-                        if (contaPendente) {
+            if (contaPendente) {
                 // Conta veio do Google e nunca foi completada — assume ela em vez de bloquear
+                // 🔧 FIX: faltava gerar o codigo_vinculo aqui — esse era o motivo do
+                // código do terapeuta não aparecer na tela de configurações
+                const codigoVinculo = await gerarCodigoVinculo();
+
                 const atualizado = await db.query(
                     `UPDATE usuarios
-                    SET nome=$1, crp=$2, senha=$3, data_nascimento=$4, tipo='psicologo', novo_usuario=FALSE
-                    WHERE id=$5
+                    SET nome=$1, crp=$2, senha=$3, data_nascimento=$4, tipo='psicologo', novo_usuario=FALSE, codigo_vinculo=$5
+                    WHERE id=$6
                     RETURNING id, tipo, versao_sessao`,
-                    [dados.nome, dados.crp, senhaHash, dados.dataNascimento, contaPendente.id]
+                    [dados.nome, dados.crp, senhaHash, dados.dataNascimento, codigoVinculo, contaPendente.id]
                 );
 
                 delete req.session.cadastro;
@@ -3106,7 +3115,6 @@ app.post("/cadastro-finalizar", limitarCriacaoConta, async (req, res) => {
                 return res.json({ sucesso: true, destino: "/hometerapeuta" });
 
             }
-
             // nenhuma linha encontrada — segue o INSERT normal que já existe
 
             
@@ -5141,10 +5149,13 @@ app.post("/api/bixuco/localizacao", async (req, res) => {
 
         const criancaId = vinculo.rows[0].crianca_id;
 
+        // 🔧 FIX: "bateria || null" transformava 0% em null (0 é "falsy" em JS),
+        // fazendo a bateria não aparecer no badge quando estava descarregada.
+        // "?? null" só cai pra null se o valor for realmente null/undefined.
         await db.query(
             `INSERT INTO localizacoes_bixuco (crianca_id, latitude, longitude, bateria, criado_em)
              VALUES ($1, $2, $3, $4, NOW())`,
-            [criancaId, latitude, longitude, bateria || null]
+            [criancaId, latitude, longitude, bateria ?? null]
         );
 
         res.json({ sucesso: true });
