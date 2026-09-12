@@ -15,7 +15,10 @@ const dicionario = {
     "Carregando...":                          "Loading...",
     "Responsável":                            "Guardian",
     "Terapeuta":                              "Therapist",
-    "Usuário":                                "User"
+    "Usuário":                                "User",
+    "Pagamento ainda não aprovado. Aguarde a confirmação do Mercado Pago antes de acessar a home.": "Payment has not been approved yet. Wait for Mercado Pago confirmation before accessing the home page.",
+    "Pagamento não aprovado. Tente novamente ou escolha outra forma de pagamento.": "Payment was not approved. Try again or choose another payment method.",
+    "Não foi possível validar esse pagamento. Tente novamente.": "We could not validate this payment. Please try again."
 };
 
 function traduzir(texto) {
@@ -289,12 +292,44 @@ document.addEventListener("click", (e) => {
 });
 
 // =========================
+// FEEDBACK DO RETORNO DO MERCADO PAGO
+// =========================
+function mostrarFeedbackPagamento() {
+    const params = new URLSearchParams(window.location.search);
+    const info = params.get("info");
+    const erro = params.get("erro");
+
+    let mensagem = null;
+    let cor = "#E53E3E";
+
+    if (info === "pagamento_pendente") {
+        mensagem = "Pagamento ainda não aprovado. Aguarde a confirmação do Mercado Pago antes de acessar a home.";
+        cor = "#2252BD";
+    } else if (erro === "pagamento_falhou") {
+        mensagem = "Pagamento não aprovado. Tente novamente ou escolha outra forma de pagamento.";
+    } else if (erro === "pagamento_invalido") {
+        mensagem = "Não foi possível validar esse pagamento. Tente novamente.";
+    }
+
+    if (!mensagem) return;
+
+    const feedback = document.getElementById("erroPlano");
+    feedback.textContent = traduzir(mensagem);
+    feedback.style.color = cor;
+    feedback.style.display = "block";
+
+    // Remove os parâmetros depois de exibir para não repetir a mensagem ao atualizar.
+    window.history.replaceState({}, document.title, window.location.pathname);
+}
+
+// =========================
 // INICIALIZAÇÃO
 // =========================
 aplicarIdiomaEstatico();
 const temaSalvo = localStorage.getItem("tema") || "claro";
 aplicarTema(temaSalvo);
 carregarUsuario();
+mostrarFeedbackPagamento();
 
 // Substitui os antigos onclick/onerror inline (removidos por causa do CSP)
 

@@ -524,6 +524,45 @@ function exigeTerapeuta(req, res, next) {
     return res.redirect("/");
 }
 
+// Planos e checkout são exclusivos do usuário responsável (tipo "pai").
+// A checagem também existe no backend para impedir que terapeuta/admin
+// abra a tela ou inicie um pagamento digitando a URL manualmente.
+async function exigeResponsavel(req, res, next) {
+    try {
+        let tipo = req.session.tipo || (req.user && req.user.tipo);
+
+        if (!tipo) {
+            const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+            if (usuarioId) {
+                const resultado = await db.query(
+                    `SELECT tipo FROM usuarios WHERE id = $1`,
+                    [usuarioId]
+                );
+                tipo = resultado.rows[0]?.tipo;
+            }
+        }
+
+        if (tipo === "pai") return next();
+
+        if (req.originalUrl.startsWith("/api/")) {
+            return res.status(403).json({
+                erro: "A contratação de planos está disponível somente para o usuário responsável."
+            });
+        }
+
+        return res.redirect(tipo === "psicologo" ? "/hometerapeuta" : "/");
+
+    } catch (erro) {
+        console.log("Erro ao validar usuário responsável:", erro);
+
+        if (req.originalUrl.startsWith("/api/")) {
+            return res.status(500).json({ erro: "Não foi possível validar o tipo de usuário." });
+        }
+
+        return res.redirect("/");
+    }
+}
+
 function chavesIguaisSeguro(chaveRecebida, chaveEsperada) {
 
     if (!chaveRecebida || !chaveEsperada) return false;
@@ -683,7 +722,7 @@ app.get("/configuracoesT", estaLogado, exigeTerapeuta, (req, res) => {
 
 
 
-app.get("/planos", estaLogado, (req, res) => {
+app.get("/planos", estaLogado, exigeResponsavel, (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "planos.html"));
 });
 
@@ -1044,7 +1083,7 @@ app.post("/api/planos/criar-planos", estaLogado, exigeAdmin, async (req, res) =>
 });
 
 
-app.post("/api/planos/assinar", estaLogado, async (req, res) => {
+app.post("/api/planos/assinar", estaLogado, exigeResponsavel, async (req, res) => {
 
     try {
 
@@ -1056,30 +1095,7 @@ app.post("/api/planos/assinar", estaLogado, async (req, res) => {
 
         const { plano } = req.body;
 
-        // MODO TESTE — remove isso em produção
-        if (process.env.NODE_ENV === "test" || process.env.MP_BYPASS === "true") {
-
-            const nomesPorPlano = { gratis: "gratis", medio: "medio", completo: "completo" };
-            const nomePlano = nomesPorPlano[plano];
-
-            if (!nomePlano) {
-                return res.status(400).json({ erro: "Plano inválido." });
-            }
-
-            await ativarPlano(usuarioId, nomePlano);
-
-            await db.query(`UPDATE usuarios SET novo_usuario = FALSE WHERE id = $1`, [usuarioId]);
-
-            const destino = plano === "gratis" ? "/sobreSemAssinatura" : "/home";
-            return res.json({ destino });
-        }
-
-
-
         // ===========================
-        // PLANO GRÁTIS
-        // ===========================
-                // ===========================
         // PLANO GRÁTIS
         // ===========================
         if (plano === "gratis") {
@@ -1104,12 +1120,6 @@ app.post("/api/planos/assinar", estaLogado, async (req, res) => {
 
         const dadosPlano = PLANOS_MP[plano];
 
-        if (!dadosPlano.planId) {
-            return res.status(500).json({
-                erro: "Plano ainda não configurado. Execute POST /api/planos/criar-planos primeiro."
-            });
-        }
-
         // Busca email do usuário para o MP
         const resultadoUsuario = await db.query(
             `SELECT nome, email FROM usuarios WHERE id = $1`,
@@ -1118,10 +1128,9 @@ app.post("/api/planos/assinar", estaLogado, async (req, res) => {
 
         const usuario = resultadoUsuario.rows[0];
 
-        // Cria a assinatura no Mercado Pago
-        const { MercadoPagoConfig, Preference } = require("mercadopago");
-
-        // Troque PreApproval por Preference
+        // Cria a preferência de pagamento no Checkout Pro do Mercado Pago.
+        // Preference não depende de MP_PLAN_ID_*; basta o Access Token válido.
+        const { Preference } = require("mercadopago");
         const preference = new Preference(mpClient);
 
         const pagamento = await preference.create({
@@ -1135,7 +1144,9 @@ app.post("/api/planos/assinar", estaLogado, async (req, res) => {
                 }],
                 payer: { email: usuario.email },
                 back_urls: {
-                    success: `${process.env.BASE_URL}/pagamento/sucesso?plano=${plano}&usuario=${usuarioId}`,
+                    // O servidor deriva usuário/plano do pagamento consultado no MP.
+                    // Não confiamos em parâmetros de usuário/plano vindos da URL.
+                    success: `${process.env.BASE_URL}/pagamento/sucesso`,
                     failure: `${process.env.BASE_URL}/pagamento/falha`,
                     pending: `${process.env.BASE_URL}/pagamento/pendente`
                 },
@@ -1272,38 +1283,94 @@ app.post('/api/dispositivos/vincular', estaLogado, precisaPlano("medio"), async 
 
 
 
-app.get("/pagamento/sucesso", estaLogado, async (req, res) => {
+app.get("/pagamento/sucesso", estaLogado, exigeResponsavel, async (req, res) => {
 
     try {
+        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const paymentId = req.query.payment_id || req.query.collection_id;
 
-        const { plano, usuario: usuarioIdParam, status } = req.query;
-        const usuarioId = req.session.usuarioId || parseInt(usuarioIdParam);
+        // Nunca libera a home apenas porque a URL contém status=approved.
+        // O ID recebido no retorno é consultado diretamente na API do Mercado Pago.
+        if (!paymentId) {
+            return res.redirect("/planos?info=pagamento_pendente");
+        }
 
-        // O MP pode demorar alguns segundos para confirmar
-        // então não dependemos só do status da URL — o webhook cuida da ativação
-        // Aqui só mostramos uma tela de aguardo/confirmação
+        const respostaPagamento = await fetch(
+            `https://api.mercadopago.com/v1/payments/${encodeURIComponent(String(paymentId))}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`
+                }
+            }
+        );
 
-        if (status === "approved") {
+        if (!respostaPagamento.ok) {
+            console.log("Não foi possível confirmar pagamento no MP:", respostaPagamento.status);
+            return res.redirect("/planos?info=pagamento_pendente");
+        }
+
+        const pagamento = await respostaPagamento.json();
+        const referencia = String(pagamento.external_reference || "");
+        const [usuarioReferencia, plano] = referencia.split("|");
+        const dadosPlano = PLANOS_MP[plano];
+
+        // Confere se o pagamento pertence ao usuário logado e a um plano válido.
+        if (Number(usuarioReferencia) !== Number(usuarioId) || !dadosPlano) {
+            console.log("Retorno de pagamento com referência inválida:", referencia);
+            return res.redirect("/planos?erro=pagamento_invalido");
+        }
+
+        // Confere também valor e moeda antes de ativar o plano.
+        const valorCorreto = Number(pagamento.transaction_amount) === Number(dadosPlano.preco);
+        const moedaCorreta = pagamento.currency_id === "BRL";
+
+        if (!valorCorreto || !moedaCorreta) {
+            console.log("Pagamento com valor/moeda divergente para a referência:", referencia);
+            return res.redirect("/planos?erro=pagamento_invalido");
+        }
+
+        // Só aqui, depois da confirmação real pela API do Mercado Pago,
+        // o plano é ativado e o usuário pode seguir para a home.
+        if (pagamento.status === "approved") {
+            const assinaturaAtual = await db.query(
+                `SELECT nome_plano FROM assinaturas
+                 WHERE usuario_id = $1 AND ativo = TRUE
+                 ORDER BY criado_em DESC LIMIT 1`,
+                [usuarioId]
+            );
+
+            const planoAtual = assinaturaAtual.rows[0]?.nome_plano?.toLowerCase();
+            if (planoAtual !== dadosPlano.nomeBanco) {
+                await ativarPlano(usuarioId, dadosPlano.nomeBanco);
+            }
+
+            await db.query(
+                `UPDATE usuarios SET novo_usuario = FALSE WHERE id = $1`,
+                [usuarioId]
+            );
+
             return res.redirect("/home");
         }
 
-        // Pendente — webhook vai ativar quando confirmar
+        // Qualquer estado não aprovado permanece fora da home.
+        if (["rejected", "cancelled", "refunded", "charged_back"].includes(pagamento.status)) {
+            return res.redirect("/planos?erro=pagamento_falhou");
+        }
+
         return res.redirect("/planos?info=pagamento_pendente");
 
     } catch (erro) {
-
         console.log("Erro no retorno do pagamento:", erro);
-        res.redirect("/planos");
-
+        return res.redirect("/planos?info=pagamento_pendente");
     }
 
 });
 
-app.get("/pagamento/falha", estaLogado, (req, res) => {
+app.get("/pagamento/falha", estaLogado, exigeResponsavel, (req, res) => {
     res.redirect("/planos?erro=pagamento_falhou");
 });
 
-app.get("/pagamento/pendente", estaLogado, (req, res) => {
+app.get("/pagamento/pendente", estaLogado, exigeResponsavel, (req, res) => {
     res.redirect("/planos?info=pagamento_pendente");
 });
 
@@ -3022,8 +3089,6 @@ app.post("/cadastro-finalizar", limitarCriacaoConta, async (req, res) => {
                         ON CONFLICT DO NOTHING`,
                     [atualizado.rows[0].id]
                 );
-
-
                 return res.json({ sucesso: true, destino: "/planos" });
             }
 
