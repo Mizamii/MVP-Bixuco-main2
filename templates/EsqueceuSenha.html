@@ -40,13 +40,17 @@
                 >
 
                 <h1 class="login-esquerda__titulo">
-                    Acompanhamento
+                    <span data-pt="Acompanhamento" data-en="Smart child">Acompanhamento</span>
                     <br>
-                    infantil
-                    <span>inteligente.</span>
+                    <span data-pt="infantil" data-en="tracking,">infantil</span>
+                    <span class="destaque" data-pt="inteligente." data-en="made simple.">inteligente.</span>
                 </h1>
 
-                <p class="login-esquerda__slogan">
+                <p
+                    class="login-esquerda__slogan"
+                    data-pt="Mais organização, mais conexão e mais cuidado para famílias e terapeutas."
+                    data-en="More organization, more connection and more care for families and therapists."
+                >
                     Mais organização, mais conexão e mais cuidado
                     para famílias e terapeutas.
                 </p>
@@ -67,9 +71,14 @@
         <!-- ========================= -->
         <section class="login-direita">
 
+            <button type="button" class="tradutor tradutor--login" id="btnTraduzir">
+                <i class="fa-solid fa-language"></i>
+                <span id="textoTradutor">Traduzir para o inglês</span>
+            </button>
+
             <!-- Cabeçalho fixo no topo, com linha -->
             <div class="recuperar-header">
-                <h2 class="recuperar-titulo">
+                <h2 class="recuperar-titulo" data-pt="Recuperar senha" data-en="Recover password">
                     Recuperar senha
                 </h2>
             </div>
@@ -85,11 +94,15 @@
             <!-- Corpo centralizado no restante do espaço -->
             <div class="recuperar-corpo">
 
-                <h3 class="recuperar-subtitulo">
+                <h3 class="recuperar-subtitulo" data-pt="Esqueceu sua senha?" data-en="Forgot your password?">
                     Esqueceu sua senha?
                 </h3>
 
-                <p class="recuperar-texto">
+                <p
+                    class="recuperar-texto"
+                    data-pt="Informe o e-mail cadastrado em sua conta. Enviaremos um link para que você possa criar uma nova senha com segurança."
+                    data-en="Enter the email registered to your account. We'll send you a link so you can safely create a new password."
+                >
                     Informe o e-mail cadastrado em sua conta.
                     Enviaremos um link para que você possa criar
                     uma nova senha com segurança.
@@ -104,7 +117,7 @@
 
                     <!-- Campo de e-mail -->
                     <div class="recuperar-form__campo">
-                        <label for="email" class="recuperar-form__label">
+                        <label for="email" class="recuperar-form__label" data-pt="Email cadastrado" data-en="Registered email">
                             Email cadastrado
                         </label>
 
@@ -115,6 +128,8 @@
                                 id="email"
                                 name="email"
                                 placeholder="Digite seu e-mail"
+                                data-pt-placeholder="Digite seu e-mail"
+                                data-en-placeholder="Enter your email"
                                 autocomplete="email"
                                 required
                             >
@@ -138,6 +153,8 @@
                         type="submit"
                         id="btnEnviar"
                         class="recuperar-form__btn-enviar"
+                        data-pt="Enviar link"
+                        data-en="Send link"
                     >
                         Enviar link
                     </button>
@@ -145,7 +162,12 @@
                 </form>
 
                 <!-- Botão para voltar ao login -->
-                <a href="/logar" class="recuperar-voltar-link">
+                <a
+                    href="/logar"
+                    class="recuperar-voltar-link"
+                    data-pt="Voltar para a tela do login"
+                    data-en="Back to login"
+                >
                     Voltar para a tela do login
                 </a>
 

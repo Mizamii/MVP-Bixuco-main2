@@ -1,3 +1,47 @@
+// ==========================
+// TRADUÇÃO MANUAL
+// ==========================
+
+let idiomaAtual = localStorage.getItem("idioma") || "pt";
+
+const dicionarioRecuperar = {
+    "Digite um e-mail válido.": "Enter a valid email.",
+    "Enviando...": "Sending...",
+    "Enviar link": "Send link",
+    "Link enviado!": "Link sent!",
+    "Erro ao enviar. Tente novamente.": "Error sending. Try again.",
+    "Erro de conexão. Verifique sua internet e tente novamente.": "Connection error. Check your internet and try again."
+};
+
+function traduzir(texto) {
+    if (idiomaAtual === "pt" || texto == null) return texto;
+    return dicionarioRecuperar[texto] || texto;
+}
+
+function aplicarIdiomaEstatico() {
+    document.querySelectorAll("[data-pt]").forEach(el => {
+        el.textContent = idiomaAtual === "en"
+            ? (el.dataset.en || el.dataset.pt)
+            : el.dataset.pt;
+    });
+
+    document.querySelectorAll("[data-pt-placeholder]").forEach(el => {
+        el.placeholder = idiomaAtual === "en"
+            ? (el.dataset.enPlaceholder || el.dataset.ptPlaceholder)
+            : el.dataset.ptPlaceholder;
+    });
+
+    document.getElementById("textoTradutor").textContent =
+        idiomaAtual === "en" ? "Traduzir para o português" : "Traduzir para o inglês";
+}
+
+document.getElementById("btnTraduzir").addEventListener("click", () => {
+    idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+    localStorage.setItem("idioma", idiomaAtual);
+    aplicarIdiomaEstatico();
+});
+
+aplicarIdiomaEstatico();
 
 // ==========================
 // EXIBIR / LIMPAR ERROS
@@ -55,7 +99,7 @@ function validarCampos() {
         mostrarErro(
             "email",
             "erro-email",
-            "Digite um e-mail válido."
+            traduzir("Digite um e-mail válido.")
         );
 
         valido = false;
@@ -85,7 +129,7 @@ document.getElementById("formRecuperar").addEventListener("submit", async (event
 
     // Desabilita botão enquanto o servidor processa
     btnEnviar.disabled = true;
-    btnEnviar.textContent = "Enviando...";
+    btnEnviar.textContent = traduzir("Enviando...");
 
     try {
 
@@ -112,18 +156,18 @@ document.getElementById("formRecuperar").addEventListener("submit", async (event
             document.getElementById("email").value = "";
             document.getElementById("email").disabled = true;
             btnEnviar.disabled = true;
-            btnEnviar.textContent = "Link enviado!";
+            btnEnviar.textContent = traduzir("Link enviado!");
 
         } else {
 
             // Mostra o erro do servidor na tela
-            feedback.textContent = "❌ " + (dados.erro || "Erro ao enviar. Tente novamente.");
+            feedback.textContent = "❌ " + (dados.erro || traduzir("Erro ao enviar. Tente novamente."));
             feedback.classList.add("recuperar-form__feedback--erro");
             feedback.style.display = "block";
 
             // Reabilita o botão para tentar novamente
             btnEnviar.disabled = false;
-            btnEnviar.textContent = "Enviar link de recuperação";
+            btnEnviar.textContent = traduzir("Enviar link");
 
         }
 
@@ -131,12 +175,12 @@ document.getElementById("formRecuperar").addEventListener("submit", async (event
 
         console.log("Erro na requisição:", erro);
 
-        feedback.textContent = "❌ Erro de conexão. Verifique sua internet e tente novamente.";
+        feedback.textContent = "❌ " + traduzir("Erro de conexão. Verifique sua internet e tente novamente.");
         feedback.classList.add("recuperar-form__feedback--erro");
         feedback.style.display = "block";
 
         btnEnviar.disabled = false;
-        btnEnviar.textContent = "Enviar link de recuperação";
+        btnEnviar.textContent = traduzir("Enviar link");
 
     }
 

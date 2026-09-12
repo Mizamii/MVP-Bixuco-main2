@@ -84,7 +84,7 @@ html, body {
   margin-bottom: 1.25rem;
 }
 
-.login-esquerda__titulo span {
+.login-esquerda__titulo .destaque {
   color: #79D836;
 }
 
@@ -122,6 +122,37 @@ html, body {
     align-items: stretch;
     padding: 0;
     overflow-y: auto;
+    position: relative; /* adicionar isso na regra já existente */
+}
+
+.tradutor {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: #0AB7FB;
+    cursor: pointer;
+    z-index: 4;
+}
+
+.tradutor:hover {
+    background: #f5f7fa;
+}
+
+@media (max-width: 768px) {
+    .tradutor {
+        top: 1rem;
+        right: 1rem;
+        font-size: 0.75rem;
+        padding: 0.4rem 0.8rem;
+    }
 }
 
 .recuperar-header {
