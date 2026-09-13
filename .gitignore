@@ -5,6 +5,7 @@ npm-debug.log
 
 # Variáveis de ambiente (nunca subir isso!)
 .env
+.env.bak
 
 # Android
 android/app/build/
