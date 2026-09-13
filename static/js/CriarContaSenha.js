@@ -1,3 +1,55 @@
+// ==========================
+// TRADUÇÃO MANUAL
+// ==========================
+
+let idiomaAtual = localStorage.getItem("idioma") || "pt";
+
+const dicionarioCriarContaSenha = {
+    "Mostrar senha": "Show password",
+    "Esconder senha": "Hide password",
+    "Mostrar confirmação de senha": "Show password confirmation",
+    "Esconder confirmação de senha": "Hide password confirmation",
+    "A senha deve: ": "Password must: ",
+    " -> A senha deve ter pelo menos 6 caracteres.": " -> Password must be at least 6 characters.",
+    " -> A senha deve conter pelo menos uma letra maiúscula.": " -> Password must contain at least one uppercase letter.",
+    " -> A senha deve conter pelo menos um caractere especial.": " -> Password must contain at least one special character.",
+    "As senhas não coincidem.": "Passwords do not match.",
+    "A senha ainda não atende aos requisitos.": "Password still doesn't meet the requirements.",
+    "Criando conta...": "Creating account...",
+    "Continuar": "Continue",
+    "Erro ao criar conta. Tente novamente.": "Error creating account. Try again.",
+    "Erro de conexão. Verifique sua internet e tente novamente.": "Connection error. Check your internet and try again."
+};
+
+function traduzir(texto) {
+    if (idiomaAtual === "pt" || texto == null) return texto;
+    return dicionarioCriarContaSenha[texto] || texto;
+}
+
+function aplicarIdiomaEstatico() {
+    document.querySelectorAll("[data-pt]").forEach(el => {
+        el.textContent = idiomaAtual === "en"
+            ? (el.dataset.en || el.dataset.pt)
+            : el.dataset.pt;
+    });
+
+    document.querySelectorAll("[data-pt-placeholder]").forEach(el => {
+        el.placeholder = idiomaAtual === "en"
+            ? (el.dataset.enPlaceholder || el.dataset.ptPlaceholder)
+            : el.dataset.ptPlaceholder;
+    });
+
+    document.getElementById("textoTradutor").textContent =
+        idiomaAtual === "en" ? "Traduzir para o português" : "Traduzir para o inglês";
+}
+
+document.getElementById("btnTraduzir").addEventListener("click", () => {
+    idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+    localStorage.setItem("idioma", idiomaAtual);
+    aplicarIdiomaEstatico();
+});
+
+aplicarIdiomaEstatico();
 
 // ==========================
 // MOSTRAR / ESCONDER SENHA
@@ -7,18 +59,25 @@ function toggleSenha(inputId, iconeId) {
 
     const input = document.getElementById(inputId);
     const icone = document.getElementById(iconeId);
+    const botao = icone.closest("button");
+
+    const ehConfirmacao = inputId === "confirmarSenha";
+    const rotuloMostrar  = ehConfirmacao ? "Mostrar confirmação de senha" : "Mostrar senha";
+    const rotuloEsconder = ehConfirmacao ? "Esconder confirmação de senha" : "Esconder senha";
 
     if (input.type === "password") {
 
         input.type = "text";
         icone.classList.remove("fa-eye");
         icone.classList.add("fa-eye-slash");
+        if (botao) botao.setAttribute("aria-label", traduzir(rotuloEsconder));
 
     } else {
 
         input.type = "password";
         icone.classList.remove("fa-eye-slash");
         icone.classList.add("fa-eye");
+        if (botao) botao.setAttribute("aria-label", traduzir(rotuloMostrar));
 
     }
 
@@ -100,15 +159,15 @@ function validarCampos() {
     let erros = [];
 
     if (senha.length < 6) {
-        erros.push(" -> A senha deve ter pelo menos 6 caracteres.");
+        erros.push(traduzir(" -> A senha deve ter pelo menos 6 caracteres."));
     }
 
     if (!/[A-Z]/.test(senha)) {
-        erros.push(" -> A senha deve conter pelo menos uma letra maiúscula.");
+        erros.push(traduzir(" -> A senha deve conter pelo menos uma letra maiúscula."));
     }
 
     if (!/[!@#$%^&*(),.?":{}|<>_\-\\[\];'/+=]/.test(senha)) {
-        erros.push(" -> A senha deve conter pelo menos um caractere especial.");
+        erros.push(traduzir(" -> A senha deve conter pelo menos um caractere especial."));
     }
 
     if (erros.length > 0) {
@@ -116,7 +175,7 @@ function validarCampos() {
         mostrarErro(
             "senha",
             "erro-senha",
-            "A senha deve: " + "<br>" + erros.join("<br>"),
+            traduzir("A senha deve: ") + "<br>" + erros.join("<br>"),
             true
         );
 
@@ -131,7 +190,7 @@ function validarCampos() {
         mostrarErro(
             "confirmarSenha",
             "erro-confirmarSenha",
-            "As senhas não coincidem."
+            traduzir("As senhas não coincidem.")
         );
 
         valido = false;
@@ -162,7 +221,7 @@ campoSenha.addEventListener("input", () => {
         // Se ja tinha passado por validacao (usuario tentou enviar) e agora ficou invalida de novo, mostra erro
         const erroEl = document.getElementById("erro-senha");
         if (erroEl && erroEl.dataset.jaTentou === "true") {
-            mostrarErro("senha", "erro-senha", "A senha ainda não atende aos requisitos.");
+            mostrarErro("senha", "erro-senha", traduzir("A senha ainda não atende aos requisitos."));
         }
     }
 });
@@ -176,7 +235,7 @@ campoConfirmar.addEventListener("input", () => {
     } else if (confirmar) {
         const erroEl = document.getElementById("erro-confirmarSenha");
         if (erroEl && erroEl.dataset.jaTentou === "true") {
-            mostrarErro("confirmarSenha", "erro-confirmarSenha", "As senhas não coincidem.");
+            mostrarErro("confirmarSenha", "erro-confirmarSenha", traduzir("As senhas não coincidem."));
         }
     }
 });
@@ -210,7 +269,7 @@ document.getElementById("formSenha").addEventListener("submit", async (evento) =
 
     // Desabilita o botão enquanto processa
     btnContinuar.disabled    = true;
-    btnContinuar.textContent = "Criando conta...";
+    btnContinuar.textContent = traduzir("Criando conta...");
 
     try {
 
@@ -246,9 +305,9 @@ document.getElementById("formSenha").addEventListener("submit", async (evento) =
         if (!resposta.ok) {
 
             if (dados.campo) {
-                mostrarErro(dados.campo, "erro-" + dados.campo, dados.erro);
+                mostrarErro(dados.campo, "erro-" + dados.campo, traduzir(dados.erro));
             } else {
-                erroGeral.textContent   = dados.erro || "Erro ao criar conta. Tente novamente.";
+                erroGeral.textContent   = traduzir(dados.erro) || traduzir("Erro ao criar conta. Tente novamente.");
                 erroGeral.style.display = "block";
             }
 
@@ -258,14 +317,14 @@ document.getElementById("formSenha").addEventListener("submit", async (evento) =
 
         console.log("Erro na requisição:", erro);
 
-        erroGeral.textContent   = "Erro de conexão. Verifique sua internet e tente novamente.";
+        erroGeral.textContent   = traduzir("Erro de conexão. Verifique sua internet e tente novamente.");
         erroGeral.style.display = "block";
 
     } finally {
 
         // Reabilita o botão independente do resultado
         btnContinuar.disabled    = false;
-        btnContinuar.textContent = "Continuar";
+        btnContinuar.textContent = traduzir("Continuar");
 
     }
 

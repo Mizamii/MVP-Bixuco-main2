@@ -50,12 +50,16 @@
                 >
 
                 <!-- Título -->
-                <h1 class="login-esquerda__titulo">
+                <h1 class="login-esquerda__titulo" data-pt="Crie sua conta" data-en="Create your account">
                     Crie sua conta
                 </h1>
 
                 <!-- Texto -->
-                <p class="login-esquerda__slogan">
+                <p
+                    class="login-esquerda__slogan"
+                    data-pt="Pais e terapeutas juntos pelo bem-estar da criança."
+                    data-en="Parents and therapists together for the child's well-being."
+                >
                     Pais e terapeutas juntos pelo
                     bem-estar da criança.
                 </p>
@@ -81,9 +85,14 @@
 
         <section class="login-direita">
 
+            <button type="button" class="tradutor tradutor--login" id="btnTraduzir">
+                <i class="fa-solid fa-language"></i>
+                <span id="textoTradutor">Traduzir para o inglês</span>
+            </button>
+
             <header class="criarconta-header">
 
-                <h2 class="criarconta-titulo">
+                <h2 class="criarconta-titulo" data-pt="Criar conta" data-en="Create account">
                     Criar conta
                 </h2>
 
@@ -101,7 +110,7 @@
                 </div>
 
                 <!-- Título -->
-                <h3 class="criarconta-pergunta">
+                <h3 class="criarconta-pergunta" data-pt="Sobre sua segurança" data-en="About your security">
                     Sobre sua segurança
                 </h3>
 
@@ -116,7 +125,7 @@
                     <!-- Campo da senha -->
                     <div class="cadastro-form__grupo">
 
-                        <label for="senha" class="cadastro-form__label">
+                        <label for="senha" class="cadastro-form__label" data-pt="Senha" data-en="Password">
                             Senha
                         </label>
 
@@ -128,6 +137,8 @@
                                 id="senha"
                                 name="senha"
                                 placeholder="Digite sua senha"
+                                data-pt-placeholder="Digite sua senha"
+                                data-en-placeholder="Enter your password"
                                 autocomplete="new-password"
                                 minlength="6"
                                 required
@@ -154,7 +165,7 @@
                     <!-- Confirmar senha -->
                     <div class="cadastro-form__grupo">
 
-                        <label for="confirmarSenha" class="cadastro-form__label">
+                        <label for="confirmarSenha" class="cadastro-form__label" data-pt="Confirmar senha" data-en="Confirm password">
                             Confirmar senha
                         </label>
 
@@ -166,6 +177,8 @@
                                 id="confirmarSenha"
                                 name="confirmarSenha"
                                 placeholder="Confirme sua senha"
+                                data-pt-placeholder="Confirme sua senha"
+                                data-en-placeholder="Confirm your password"
                                 autocomplete="new-password"
                                 minlength="6"
                                 required
@@ -200,6 +213,8 @@
                         type="submit"
                         id="btnContinuar"
                         class="btn-continuar"
+                        data-pt="Continuar"
+                        data-en="Continue"
                     >
                         Continuar
                     </button>
@@ -208,19 +223,14 @@
 
                 <!-- Termos -->
                 <p class="cadastro-form__termos">
-
-                    Ao criar sua conta você concorda com nossos
-
-                    <a href="/termos" class="cadastro-form__link--azul">
+                    <span data-pt="Ao criar sua conta você concorda com nossos" data-en="By creating your account you agree to our">Ao criar sua conta você concorda com nossos</span>
+                    <a href="/termos" class="cadastro-form__link--azul" data-pt="Termos de uso" data-en="Terms of use">
                         Termos de uso
                     </a>
-
-                    e
-
-                    <a href="/privacidade" class="cadastro-form__link--verde">
+                    <span data-pt="e" data-en="and">e</span>
+                    <a href="/privacidade" class="cadastro-form__link--verde" data-pt="Política de privacidade." data-en="Privacy policy.">
                         Política de privacidade.
                     </a>
-
                 </p>
 
             </div>

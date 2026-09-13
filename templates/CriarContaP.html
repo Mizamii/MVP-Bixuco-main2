@@ -51,12 +51,16 @@
                 >
 
                 <!-- Título -->
-                <h1 class="login-esquerda__titulo">
+                <h1 class="login-esquerda__titulo" data-pt="Crie sua conta" data-en="Create your account">
                     Crie sua conta
                 </h1>
 
                 <!-- Texto -->
-                <p class="login-esquerda__slogan">
+                <p
+                    class="login-esquerda__slogan"
+                    data-pt="Pais e terapeutas juntos pelo bem-estar da criança."
+                    data-en="Parents and therapists together for the child's well-being."
+                >
                     Pais e terapeutas juntos pelo
                     bem-estar da criança.
                 </p>
@@ -82,10 +86,15 @@
 
         <section class="login-direita">
 
+            <button type="button" class="tradutor tradutor--login" id="btnTraduzir">
+                <i class="fa-solid fa-language"></i>
+                <span id="textoTradutor">Traduzir para o inglês</span>
+            </button>
+
             <!-- Cabeçalho -->
             <header class="criarconta-header">
 
-                <h2 class="criarconta-titulo">
+                <h2 class="criarconta-titulo" data-pt="Criar conta" data-en="Create account">
                     Criar conta
                 </h2>
 
@@ -104,7 +113,7 @@
                 </div>
 
                 <!-- Título -->
-                <h3 class="criarconta-pergunta">
+                <h3 class="criarconta-pergunta" data-pt="Informações sobre você" data-en="Your information">
                     Informações sobre você
                 </h3>
 
@@ -119,7 +128,7 @@
                     <!-- Nome -->
                     <div class="cadastro-form__grupo">
 
-                        <label for="nome" class="cadastro-form__label">
+                        <label for="nome" class="cadastro-form__label" data-pt="Nome completo" data-en="Full name">
                             Nome completo
                         </label>
 
@@ -129,6 +138,8 @@
                             id="nome"
                             name="nome"
                             placeholder="Digite seu nome completo"
+                            data-pt-placeholder="Digite seu nome completo"
+                            data-en-placeholder="Enter your full name"
                             autocomplete="name"
                             required
                         >
@@ -143,7 +154,7 @@
                     <!-- Email -->
                     <div class="cadastro-form__grupo">
 
-                        <label for="email" class="cadastro-form__label">
+                        <label for="email" class="cadastro-form__label" data-pt="Email" data-en="Email">
                             Email
                         </label>
 
@@ -153,6 +164,8 @@
                             id="email"
                             name="email"
                             placeholder="Digite seu e-mail"
+                            data-pt-placeholder="Digite seu e-mail"
+                            data-en-placeholder="Enter your email"
                             autocomplete="email"
                             required
                         >
@@ -170,7 +183,7 @@
                         <!-- Telefone -->
                         <div class="cadastro-form__grupo">
 
-                            <label for="telefone" class="cadastro-form__label">
+                            <label for="telefone" class="cadastro-form__label" data-pt="Telefone (opcional)" data-en="Phone (optional)">
                                 Telefone (opcional)
                             </label>
 
@@ -193,7 +206,7 @@
                         <!-- Data de nascimento -->
                         <div class="cadastro-form__grupo">
 
-                            <label for="dataNascimento" class="cadastro-form__label">
+                            <label for="dataNascimento" class="cadastro-form__label" data-pt="Data de nascimento" data-en="Date of birth">
                                 Data de nascimento
                             </label>
 
@@ -217,7 +230,7 @@
                     <!-- CRP -->
                     <div class="cadastro-form__grupo">
 
-                        <label for="crp" class="cadastro-form__label">
+                        <label for="crp" class="cadastro-form__label" data-pt="CRP" data-en="CRP">
                             CRP
                         </label>
 
@@ -228,6 +241,8 @@
                             id="crp"
                             name="crp"
                             placeholder="Ex: CRP-06/12345"
+                            data-pt-placeholder="Ex: CRP-06/12345"
+                            data-en-placeholder="E.g.: CRP-06/12345"
                             inputmode="numeric"
                             maxlength="13"
                             required
@@ -251,6 +266,8 @@
                         type="submit"
                         id="btnContinuar"
                         class="btn-continuar"
+                        data-pt="Continuar"
+                        data-en="Continue"
                     >
                         Continuar
                     </button>
@@ -259,19 +276,14 @@
 
                 <!-- Termos -->
                 <p class="cadastro-form__termos">
-
-                    Ao criar sua conta você concorda com nossos
-
-                    <a href="/termos" class="cadastro-form__link--azul">
+                    <span data-pt="Ao criar sua conta você concorda com nossos" data-en="By creating your account you agree to our">Ao criar sua conta você concorda com nossos</span>
+                    <a href="/termos" class="cadastro-form__link--azul" data-pt="Termos de uso" data-en="Terms of use">
                         Termos de uso
                     </a>
-
-                    e
-
-                    <a href="/privacidade" class="cadastro-form__link--verde">
+                    <span data-pt="e" data-en="and">e</span>
+                    <a href="/privacidade" class="cadastro-form__link--verde" data-pt="Política de privacidade." data-en="Privacy policy.">
                         Política de privacidade.
                     </a>
-
                 </p>
 
             </div>

@@ -50,13 +50,21 @@
                 >
 
                 <!-- Título -->
-                <h1 class="login-esquerda__titulo">
+                <h1
+                    class="login-esquerda__titulo"
+                    data-pt="Vamos recuperar seu acesso"
+                    data-en="Let's recover your access"
+                >
                     Vamos recuperar
                     seu acesso
                 </h1>
 
                 <!-- Texto -->
-                <p class="login-esquerda__slogan">
+                <p
+                    class="login-esquerda__slogan"
+                    data-pt="Crie uma nova senha para continuar cuidando do bem-estar da criança."
+                    data-en="Create a new password to keep caring for the child's well-being."
+                >
                     Crie uma nova senha para continuar
                     cuidando do bem-estar da criança.
                 </p>
@@ -82,9 +90,14 @@
 
         <section class="login-direita">
 
+            <button type="button" class="tradutor tradutor--login" id="btnTraduzir">
+                <i class="fa-solid fa-language"></i>
+                <span id="textoTradutor">Traduzir para o inglês</span>
+            </button>
+
             <header class="criarconta-header">
 
-                <h2 class="criarconta-titulo">
+                <h2 class="criarconta-titulo" data-pt="Redefinir senha" data-en="Reset password">
                     Redefinir senha
                 </h2>
 
@@ -101,7 +114,7 @@
                     <!-- Nova senha -->
                     <div class="cadastro-form__grupo">
 
-                        <label for="senha" class="cadastro-form__label">
+                        <label for="senha" class="cadastro-form__label" data-pt="Nova senha" data-en="New password">
                             Nova senha
                         </label>
 
@@ -113,6 +126,8 @@
                                 id="senha"
                                 name="senha"
                                 placeholder="Digite sua nova senha"
+                                data-pt-placeholder="Digite sua nova senha"
+                                data-en-placeholder="Enter your new password"
                                 autocomplete="new-password"
                                 minlength="6"
                                 required
@@ -139,7 +154,7 @@
                     <!-- Confirmar senha -->
                     <div class="cadastro-form__grupo">
 
-                        <label for="confirmarSenha" class="cadastro-form__label">
+                        <label for="confirmarSenha" class="cadastro-form__label" data-pt="Confirmar senha" data-en="Confirm password">
                             Confirmar senha
                         </label>
 
@@ -151,6 +166,8 @@
                                 id="confirmarSenha"
                                 name="confirmarSenha"
                                 placeholder="Confirme sua nova senha"
+                                data-pt-placeholder="Confirme sua nova senha"
+                                data-en-placeholder="Confirm your new password"
                                 autocomplete="new-password"
                                 minlength="6"
                                 required
@@ -185,6 +202,8 @@
                         type="submit"
                         id="btnContinuar"
                         class="btn-continuar"
+                        data-pt="Continuar"
+                        data-en="Continue"
                     >
                         Continuar
                     </button>

@@ -1,3 +1,55 @@
+// ==========================
+// TRADUÇÃO MANUAL
+// ==========================
+
+let idiomaAtual = localStorage.getItem("idioma") || "pt";
+
+const dicionarioAdicionarC = {
+    "Digite o nome da criança.": "Enter the child's name.",
+    "Informe a data de nascimento.": "Enter the date of birth.",
+    "A data não pode ser no futuro.": "The date cannot be in the future.",
+    "Selecione o sexo.": "Select the gender.",
+    "Salvando...": "Saving...",
+    "Ir para o Perfil sensorial": "Go to Sensory Profile",
+    "Erro ao salvar. Tente novamente.": "Error saving. Try again.",
+    "Erro de conexão. Verifique sua internet e tente novamente.": "Connection error. Check your internet and try again."
+};
+
+function traduzir(texto) {
+    if (idiomaAtual === "pt" || texto == null) return texto;
+    return dicionarioAdicionarC[texto] || texto;
+}
+
+function aplicarIdiomaEstatico() {
+    document.querySelectorAll("[data-pt]").forEach(el => {
+        el.textContent = idiomaAtual === "en"
+            ? (el.dataset.en || el.dataset.pt)
+            : el.dataset.pt;
+    });
+
+    document.querySelectorAll("[data-pt-placeholder]").forEach(el => {
+        el.placeholder = idiomaAtual === "en"
+            ? (el.dataset.enPlaceholder || el.dataset.ptPlaceholder)
+            : el.dataset.ptPlaceholder;
+    });
+
+    document.querySelectorAll("[data-pt-title]").forEach(el => {
+        el.title = idiomaAtual === "en"
+            ? (el.dataset.enTitle || el.dataset.ptTitle)
+            : el.dataset.ptTitle;
+    });
+
+    document.getElementById("textoTradutor").textContent =
+        idiomaAtual === "en" ? "Traduzir para o português" : "Traduzir para o inglês";
+}
+
+document.getElementById("btnTraduzir").addEventListener("click", () => {
+    idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+    localStorage.setItem("idioma", idiomaAtual);
+    aplicarIdiomaEstatico();
+});
+
+aplicarIdiomaEstatico();
 
 // ==========================
 // PREVIEW DA FOTO
@@ -88,20 +140,20 @@ function validarCampos() {
     const sexo = document.getElementById("sexo").value;
 
     if (nome.length < 2) {
-        mostrarErro("nomeCrianca", "erro-nomeCrianca", "Digite o nome da criança.");
+        mostrarErro("nomeCrianca", "erro-nomeCrianca", traduzir("Digite o nome da criança."));
         valido = false;
     }
 
     if (!data) {
-        mostrarErro("dataNascimento", "erro-dataNascimento", "Informe a data de nascimento.");
+        mostrarErro("dataNascimento", "erro-dataNascimento", traduzir("Informe a data de nascimento."));
         valido = false;
     } else if (dataNoFuturo(data)) {
-        mostrarErro("dataNascimento", "erro-dataNascimento", "A data não pode ser no futuro.");
+        mostrarErro("dataNascimento", "erro-dataNascimento", traduzir("A data não pode ser no futuro."));
         valido = false;
     }
 
     if (!sexo) {
-        mostrarErro("sexo", "erro-sexo", "Selecione o sexo.");
+        mostrarErro("sexo", "erro-sexo", traduzir("Selecione o sexo."));
         valido = false;
     }
 
@@ -128,7 +180,7 @@ document.getElementById("formCrianca").addEventListener("submit", async (evento)
 
     // Desabilita o botão enquanto processa
     btnIr.disabled    = true;
-    btnIr.textContent = "Salvando...";
+    btnIr.textContent = traduzir("Salvando...");
 
     try {
 
@@ -171,9 +223,9 @@ document.getElementById("formCrianca").addEventListener("submit", async (evento)
 
             // Exibe erro do servidor no campo correto
             if (dados.campo) {
-                mostrarErro(dados.campo, "erro-" + dados.campo, dados.erro);
+                mostrarErro(dados.campo, "erro-" + dados.campo, traduzir(dados.erro));
             } else {
-                erroGeral.textContent   = dados.erro || "Erro ao salvar. Tente novamente.";
+                erroGeral.textContent   = traduzir(dados.erro) || traduzir("Erro ao salvar. Tente novamente.");
                 erroGeral.style.display = "block";
             }
 
@@ -183,13 +235,13 @@ document.getElementById("formCrianca").addEventListener("submit", async (evento)
 
         console.log("Erro ao adicionar criança:", erro);
 
-        erroGeral.textContent   = "Erro de conexão. Verifique sua internet e tente novamente.";
+        erroGeral.textContent   = traduzir("Erro de conexão. Verifique sua internet e tente novamente.");
         erroGeral.style.display = "block";
 
     } finally {
 
         btnIr.disabled    = false;
-        btnIr.textContent = "Ir para o Perfil sensorial";
+        btnIr.textContent = traduzir("Ir para o Perfil sensorial");
 
     }
 

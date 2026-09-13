@@ -50,14 +50,18 @@
 
                 <!-- Título -->
                 <h1 class="login-esquerda__titulo">
-                    Acompanhamento
+                    <span data-pt="Acompanhamento" data-en="Smart child">Acompanhamento</span>
                     <br>
-                    infantil
-                    <span>inteligente</span>
+                    <span data-pt="infantil" data-en="tracking,">infantil</span>
+                    <span class="destaque" data-pt="inteligente" data-en="made simple">inteligente</span>
                 </h1>
 
                 <!-- Texto -->
-                <p class="login-esquerda__slogan">
+                <p
+                    class="login-esquerda__slogan"
+                    data-pt="Mais organização, mais conexão e mais cuidado para famílias e terapeutas."
+                    data-en="More organization, more connection and more care for families and therapists."
+                >
                     Mais organização,
                     mais conexão e
                     mais cuidado para
@@ -85,9 +89,14 @@
 
         <section class="login-direita">
 
+            <button type="button" class="tradutor tradutor--login" id="btnTraduzir">
+                <i class="fa-solid fa-language"></i>
+                <span id="textoTradutor">Traduzir para o inglês</span>
+            </button>
+
             <header class="criarconta-header">
 
-                <h2 class="criarconta-titulo">
+                <h2 class="criarconta-titulo" data-pt="Adicionar criança" data-en="Add child">
                     Adicionar criança
                 </h2>
 
@@ -96,7 +105,11 @@
             <div class="criarconta-corpo">
 
                 <!-- Descrição -->
-                <p class="cadastro-form__descricao">
+                <p
+                    class="cadastro-form__descricao"
+                    data-pt="Cadastre o(a) filho(a) que você vai acompanhar."
+                    data-en="Register the child you'll be tracking."
+                >
                     Cadastre o(a) filho(a)
                     que você vai acompanhar.
                 </p>
@@ -113,6 +126,8 @@
                         class="cadastro-form__foto"
                         id="wrapperFotoCrianca"
                         title="Clique para adicionar uma foto"
+                        data-pt-title="Clique para adicionar uma foto"
+                        data-en-title="Click to add a photo"
                     >
 
                         <img
@@ -141,7 +156,7 @@
                     <!-- Nome da criança -->
                     <div class="cadastro-form__grupo">
 
-                        <label for="nomeCrianca" class="cadastro-form__label">
+                        <label for="nomeCrianca" class="cadastro-form__label" data-pt="Nome da criança" data-en="Child's name">
                             Nome da criança
                         </label>
 
@@ -151,6 +166,8 @@
                             id="nomeCrianca"
                             name="nomeCrianca"
                             placeholder="Digite o nome da criança"
+                            data-pt-placeholder="Digite o nome da criança"
+                            data-en-placeholder="Enter the child's name"
                             autocomplete="off"
                             required
                         >
@@ -168,7 +185,7 @@
                         <!-- Data de nascimento -->
                         <div class="cadastro-form__grupo">
 
-                            <label for="dataNascimento" class="cadastro-form__label">
+                            <label for="dataNascimento" class="cadastro-form__label" data-pt="Data de nascimento" data-en="Date of birth">
                                 Data de nascimento
                             </label>
 
@@ -190,7 +207,7 @@
                         <!-- Sexo -->
                         <div class="cadastro-form__grupo">
 
-                            <label for="sexo" class="cadastro-form__label">
+                            <label for="sexo" class="cadastro-form__label" data-pt="Sexo" data-en="Gender">
                                 Sexo
                             </label>
 
@@ -201,19 +218,19 @@
                                 required
                             >
 
-                                <option value="" selected disabled>
+                                <option value="" selected disabled data-pt="Selecione" data-en="Select">
                                     Selecione
                                 </option>
 
-                                <option value="masculino">
+                                <option value="masculino" data-pt="Masculino" data-en="Male">
                                     Masculino
                                 </option>
 
-                                <option value="feminino">
+                                <option value="feminino" data-pt="Feminino" data-en="Female">
                                     Feminino
                                 </option>
 
-                                <option value="outro">
+                                <option value="outro" data-pt="Prefiro não informar" data-en="Prefer not to say">
                                     Prefiro não informar
                                 </option>
 
@@ -231,7 +248,7 @@
                     <!-- Nome da pelúcia -->
                     <div class="cadastro-form__grupo">
 
-                        <label for="nomePelucia" class="cadastro-form__label">
+                        <label for="nomePelucia" class="cadastro-form__label" data-pt="Nome da pelúcia (opcional)" data-en="Plush toy's name (optional)">
                             Nome da pelúcia (opcional)
                         </label>
 
@@ -241,6 +258,8 @@
                             id="nomePelucia"
                             name="nomePelucia"
                             placeholder="Ex: Bixuco"
+                            data-pt-placeholder="Ex: Bixuco"
+                            data-en-placeholder="E.g.: Bixuco"
                         >
 
                     </div>
@@ -256,6 +275,8 @@
                         type="submit"
                         id="btnIr"
                         class="btn-continuar"
+                        data-pt="Ir para o Perfil sensorial"
+                        data-en="Go to Sensory Profile"
                     >
                         Ir para o Perfil sensorial
                     </button>

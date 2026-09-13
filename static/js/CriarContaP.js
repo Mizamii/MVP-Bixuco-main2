@@ -1,3 +1,53 @@
+// ==========================
+// TRADUÇÃO MANUAL
+// ==========================
+
+let idiomaAtual = localStorage.getItem("idioma") || "pt";
+
+const dicionarioCriarContaP = {
+    "Digite seu nome completo.": "Enter your full name.",
+    "Digite um e-mail válido.": "Enter a valid email.",
+    "Telefone inválido.": "Invalid phone number.",
+    "Informe sua data de nascimento.": "Enter your date of birth.",
+    "Você precisa ter pelo menos 18 anos.": "You must be at least 18 years old.",
+    "Digite um CRP válido. Ex: CRP-06/12345": "Enter a valid CRP. E.g.: CRP-06/12345",
+    "Este e-mail já está cadastrado.": "This email is already registered.",
+    "Este CRP já está cadastrado.": "This CRP is already registered.",
+    "Erro ao continuar. Tente novamente.": "Error continuing. Try again.",
+    "Erro de conexão. Verifique sua internet e tente novamente.": "Connection error. Check your internet and try again.",
+    "Enviando...": "Sending...",
+    "Continuar": "Continue"
+};
+
+function traduzir(texto) {
+    if (idiomaAtual === "pt" || texto == null) return texto;
+    return dicionarioCriarContaP[texto] || texto;
+}
+
+function aplicarIdiomaEstatico() {
+    document.querySelectorAll("[data-pt]").forEach(el => {
+        el.textContent = idiomaAtual === "en"
+            ? (el.dataset.en || el.dataset.pt)
+            : el.dataset.pt;
+    });
+
+    document.querySelectorAll("[data-pt-placeholder]").forEach(el => {
+        el.placeholder = idiomaAtual === "en"
+            ? (el.dataset.enPlaceholder || el.dataset.ptPlaceholder)
+            : el.dataset.ptPlaceholder;
+    });
+
+    document.getElementById("textoTradutor").textContent =
+        idiomaAtual === "en" ? "Traduzir para o português" : "Traduzir para o inglês";
+}
+
+document.getElementById("btnTraduzir").addEventListener("click", () => {
+    idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+    localStorage.setItem("idioma", idiomaAtual);
+    aplicarIdiomaEstatico();
+});
+
+aplicarIdiomaEstatico();
 
 // ==========================
 // MÁSCARA DO CRP
@@ -235,30 +285,30 @@ function validarCampos() {
     const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (nome.split(" ").filter(p => p).length < 2) {
-        mostrarErro("nome", "erro-nome", "Digite seu nome completo.");
+        mostrarErro("nome", "erro-nome", traduzir("Digite seu nome completo."));
         valido = false;
     }
 
     if (!regexEmail.test(email)) {
-        mostrarErro("email", "erro-email", "Digite um e-mail válido.");
+        mostrarErro("email", "erro-email", traduzir("Digite um e-mail válido."));
         valido = false;
     }
 
     if (telefone && telefone.replace(/\D/g, "").length < 10) {
-        mostrarErro("telefone", "erro-telefone", "Telefone inválido.");
+        mostrarErro("telefone", "erro-telefone", traduzir("Telefone inválido."));
         valido = false;
     }
 
     if (!data) {
-        mostrarErro("dataNascimento", "erro-dataNascimento", "Informe sua data de nascimento.");
+        mostrarErro("dataNascimento", "erro-dataNascimento", traduzir("Informe sua data de nascimento."));
         valido = false;
     } else if (!maiorIdade(data)) {
-        mostrarErro("dataNascimento", "erro-dataNascimento", "Você precisa ter pelo menos 18 anos.");
+        mostrarErro("dataNascimento", "erro-dataNascimento", traduzir("Você precisa ter pelo menos 18 anos."));
         valido = false;
     }
 
     if (!validarCRP(crp)) {
-        mostrarErro("crp", "erro-crp", "Digite um CRP válido. Ex: CRP-06/12345");
+        mostrarErro("crp", "erro-crp", traduzir("Digite um CRP válido. Ex: CRP-06/12345"));
         valido = false;
     }
 
@@ -298,7 +348,7 @@ const checarEmailDisponivel = debounce(async () => {
     if (campoEmail.value.trim() !== valor) return;
 
     if (!disponivel) {
-        mostrarErro("email", "erro-email", "Este e-mail já está cadastrado.");
+        mostrarErro("email", "erro-email", traduzir("Este e-mail já está cadastrado."));
     } else {
         limparErroCampo("email", "erro-email");
     }
@@ -337,7 +387,7 @@ const checarCRPDisponivel = debounce(async () => {
     if (campoCRP.value.trim() !== valor) return;
 
     if (!disponivel) {
-        mostrarErro("crp", "erro-crp", "Este CRP já está cadastrado.");
+        mostrarErro("crp", "erro-crp", traduzir("Este CRP já está cadastrado."));
     } else {
         limparErroCampo("crp", "erro-crp");
     }
@@ -369,7 +419,7 @@ document.getElementById("formCadastro").addEventListener("submit", async (evento
 
     // Desabilita o botão enquanto processa
     btnContinuar.disabled    = true;
-    btnContinuar.textContent = "Enviando...";
+    btnContinuar.textContent = traduzir("Enviando...");
 
     try {
 
@@ -397,9 +447,9 @@ document.getElementById("formCadastro").addEventListener("submit", async (evento
         if (!resposta.ok) {
 
             if (dados.campo) {
-                mostrarErro(dados.campo, "erro-" + dados.campo, dados.erro);
+                mostrarErro(dados.campo, "erro-" + dados.campo, traduzir(dados.erro));
             } else {
-                erroGeral.textContent   = dados.erro || "Erro ao continuar. Tente novamente.";
+                erroGeral.textContent   = traduzir(dados.erro) || traduzir("Erro ao continuar. Tente novamente.");
                 erroGeral.style.display = "block";
             }
 
@@ -409,13 +459,13 @@ document.getElementById("formCadastro").addEventListener("submit", async (evento
 
         console.log("Erro na requisição:", erro);
 
-        erroGeral.textContent   = "Erro de conexão. Verifique sua internet e tente novamente.";
+        erroGeral.textContent   = traduzir("Erro de conexão. Verifique sua internet e tente novamente.");
         erroGeral.style.display = "block";
 
     } finally {
 
         btnContinuar.disabled    = false;
-        btnContinuar.textContent = "Continuar";
+        btnContinuar.textContent = traduzir("Continuar");
 
     }
 
