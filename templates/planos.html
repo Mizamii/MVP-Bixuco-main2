@@ -105,6 +105,10 @@
 
         <header class="topo">
 
+            <button class="btn-tema-mobile" type="button" id="btnTemaMobile">
+                <i class="fa-regular fa-sun"></i>
+            </button>
+
             <button class="tradutor" type="button" id="btnTraduzir">
                 <i class="fa-solid fa-language"></i>
                 <span id="textoTradutor">Traduzir para o inglês</span>
@@ -240,6 +244,51 @@
         </div>
 
     </main>
+
+    <!-- ===================== -->
+    <!-- MENU INFERIOR (só mobile) -->
+    <!-- ===================== -->
+
+    <!-- Versão para quem já tem plano pago -->
+    <nav class="bottom-nav" id="bottomNavComPlano" style="display:none;">
+        <a href="/sobre">
+            <i class="fa-solid fa-circle-info"></i>
+            <span data-pt="Sobre" data-en="About">Sobre</span>
+        </a>
+        <a href="/configuracoes">
+            <i class="fa-solid fa-gear"></i>
+            <span data-pt="Config" data-en="Settings">Config</span>
+        </a>
+        <a href="/home">
+            <i class="fa-solid fa-house"></i>
+            <span data-pt="Início" data-en="Home">Início</span>
+        </a>
+        <a href="/relatorios">
+            <i class="fa-solid fa-chart-line"></i>
+            <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+        </a>
+        <a href="/planos" class="ativo">
+            <i class="fa-solid fa-dollar-sign"></i>
+            <span data-pt="Planos" data-en="Plans">Planos</span>
+        </a>
+    </nav>
+
+    <!-- Versão para quem está no plano grátis -->
+    <nav class="bottom-nav" id="bottomNavSemPlano">
+        <a href="/planos" class="ativo">
+            <i class="fa-solid fa-dollar-sign"></i>
+            <span data-pt="Planos" data-en="Plans">Planos</span>
+        </a>
+        <a href="/configuracoesSemAssinatura">
+            <i class="fa-solid fa-gear"></i>
+            <span data-pt="Config" data-en="Settings">Config</span>
+        </a>
+        <a href="/sobreSemAssinatura">
+            <i class="fa-solid fa-circle-info"></i>
+            <span data-pt="Sobre" data-en="About">Sobre</span>
+        </a>
+    </nav>
+
 </div>
 
 <script src="/js/planos.js"></script>

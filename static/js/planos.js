@@ -71,10 +71,19 @@ function irParaPerfil() {
 // Troca o sidebar reduzido (sem assinatura) pelo completo quando o
 // usuário já tem um plano pago — pra não deixar assinante preso
 // navegando só entre Planos/ConfiguraçõesSemAssinatura/Sobre.
+// Também controla as duas versões da barra inferior (mobile) do mesmo jeito.
 function atualizarSidebar(planoCodigo) {
     const temPlanoPago = planoCodigo === "medio" || planoCodigo === "completo";
+
     document.getElementById("navComPlano").style.display  = temPlanoPago ? "flex" : "none";
     document.getElementById("navSemPlano").style.display  = temPlanoPago ? "none"  : "flex";
+
+    // Aqui NÃO forçamos "flex" — só limpamos o display (deixando o CSS/media
+    // query decidir se aparece) ou forçamos "none" pra esconder de vez.
+    // Assim a barra continua escondida no desktop e só some/aparece
+    // certo dentro do breakpoint mobile do layout.css.
+    document.getElementById("bottomNavComPlano").style.display = temPlanoPago ? "" : "none";
+    document.getElementById("bottomNavSemPlano").style.display = temPlanoPago ? "none" : "";
 }
 
 // =========================
@@ -227,10 +236,21 @@ function aplicarTema(tema) {
     document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
     document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
     localStorage.setItem("tema", tema);
+
+    // Ícone do botão de tema no mobile (sol quando claro, lua quando escuro)
+    const iconeMobile = document.querySelector("#btnTemaMobile i");
+    if (iconeMobile) {
+        iconeMobile.className = tema === "claro" ? "fa-regular fa-sun" : "fa-regular fa-moon";
+    }
 }
 
 document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema("claro"));
 document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
+
+document.getElementById("btnTemaMobile").addEventListener("click", () => {
+    const temaAtual = document.body.classList.contains("tema-escuro") ? "escuro" : "claro";
+    aplicarTema(temaAtual === "claro" ? "escuro" : "claro");
+});
 
 // =========================
 // NOTIFICAÇÕES (só promoções)
