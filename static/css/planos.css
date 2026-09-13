@@ -155,8 +155,69 @@
 
 /* ---------- Responsivo ---------- */
 
-@media (max-width: 860px) {
+@media (max-width: 768px) {
+
+    /* ---------- Cabeçalho ---------- */
+
+    .cabecalho-planos {
+        margin-bottom: 0.9rem;
+    }
+
+    .cabecalho-planos h1 {
+        font-size: 1.25rem;
+    }
+
+    .cabecalho-planos p {
+        font-size: 0.8rem;
+    }
+
+    .cabecalho-planos img {
+        width: 64px;
+    }
+
+    /* ---------- Plano atual ---------- */
+
+    .plano-atual-info {
+        font-size: 0.8rem;
+        margin-bottom: 0.9rem;
+    }
+
+    /* ---------- Cards de planos ---------- */
+
     .cards-planos {
         grid-template-columns: 1fr;
+        gap: 0.9rem;
+        margin-bottom: 1.2rem;
+    }
+
+    .card-plano {
+        padding: 1.15rem 1.1rem;
+    }
+
+    .card-plano h3 {
+        font-size: 0.8rem;
+    }
+
+    .card-plano li {
+        font-size: 0.8rem;
+    }
+
+    .plano-preco {
+        font-size: 1.4rem;
+        margin-bottom: 0.85rem;
+    }
+
+    /* ---------- Botão confirmar ---------- */
+
+    .btn-confirmar-plano {
+        max-width: none;
+        padding: 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    /* Espaço extra embaixo pra não ficar atrás da bottom-nav,
+       igual o home.css faz em .conteudo-corpo */
+    .btn-confirmar-plano {
+        margin-bottom: 1rem;
     }
 }
