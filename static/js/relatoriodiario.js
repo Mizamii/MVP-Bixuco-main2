@@ -1,3 +1,129 @@
+// ==========================
+// TRADUÇÃO MANUAL
+// (mesmo padrão do home.js — idioma salvo no localStorage,
+// aplicado nos textos estáticos via data-pt/data-en e nos
+// textos dinâmicos via traduzir())
+// ==========================
+
+let idiomaAtual = localStorage.getItem("idioma") || "pt";
+
+const dicionario = {
+
+    // ---- Notificações (mesmas chaves do home.js) ----
+    "Carregando...": "Loading...",
+    "Nenhuma notificação por enquanto.": "No notifications for now.",
+    "Não foi possível carregar as notificações.": "Could not load notifications.",
+
+    // ---- Contador / barra de progresso ----
+    "Pergunta": "Question",
+    "de": "of",
+    "concluído": "completed",
+
+    // ---- Botão "próxima pergunta" ----
+    "Próxima pergunta": "Next question",
+    "Salvando...": "Saving...",
+    "Tentar novamente": "Try again",
+
+    // ---- Mensagens de status do envio do relatório ----
+    "Você já preencheu o relatório de hoje. Volte amanhã!": "You've already filled in today's report. Come back tomorrow!",
+    "Erro ao salvar o relatório. Tente novamente.": "Error saving the report. Please try again.",
+
+    // ---- Tooltips dos gráficos ----
+    "Sem força registrada": "No strength recorded",
+    " — pico da crise": " — crisis peak",
+    "Força": "Strength",
+    "Ativo (com o Bixuco)": "Active (with Bixuco)",
+    "Inativo": "Inactive",
+
+    // ---- Perguntas do questionário ----
+    "Teve algum alerta de estresse hoje?": "Was there a stress alert today?",
+    "Ela demonstra desconforto com texturas de roupas ou alimentos?": "Does she show discomfort with clothing or food textures?",
+    "Hoje ela evitou contato visual?": "Did she avoid eye contact today?",
+    "Como foi a comunicação hoje?": "How was communication today?",
+    "Como estava o humor durante o dia?": "How was her mood during the day?",
+    "Apresentou crises sensoriais?": "Did she have sensory meltdowns?",
+    "Dormiu bem?": "Did she sleep well?",
+    "Como foi a alimentação?": "How was eating today?",
+    "Realizou atividades propostas?": "Did she complete the proposed activities?",
+    "Como foi a interação social?": "How was social interaction?",
+    "Como você avaliaria o dia de hoje?": "How would you rate today?",
+    "Ela conseguiu se acalmar com facilidade?": "Was she able to calm down easily?",
+    "Qual foi o principal gatilho do episódio?": "What was the main trigger for the episode?",
+
+    // ---- Respostas do questionário ----
+    // (a tradução é só visual — o valor salvo/enviado pra API
+    // continua sempre em português, ver comentário em carregarPergunta)
+    "Sim": "Yes",
+    "Não": "No",
+    "Sempre": "Always",
+    "Quase sempre": "Almost always",
+    "Raramente": "Rarely",
+    "Nunca": "Never",
+    "Muito boa": "Very good",
+    "Boa": "Good",
+    "Pouca": "Little",
+    "Nenhuma": "None",
+    "Muito calmo": "Very calm",
+    "Calmo": "Calm",
+    "Agitado": "Agitated",
+    "Muito agitado": "Very agitated",
+    "Sim, várias": "Yes, several",
+    "Algumas": "Some",
+    "Poucas": "A few",
+    "Muito bem": "Very well",
+    "Bem": "Well",
+    "Pouco": "Little",
+    "Muito pouco": "Very little",
+    "Regular": "Fair",
+    "Ruim": "Poor",
+    "Todas": "All",
+    "Quase todas": "Almost all",
+    "Excelente": "Excellent",
+    "Bom": "Good",
+    "Difícil": "Difficult",
+    "Sim, rapidamente": "Yes, quickly",
+    "Sim, mas demorou": "Yes, but it took a while",
+    "Não, precisou de ajuda": "No, she needed help",
+    "Não se acalmou": "She didn't calm down",
+    "Ambientes barulhentos": "Noisy environments",
+    "Locais lotados": "Crowded places",
+    "Mudança de rotina": "Change in routine",
+    "Não identificado": "Not identified"
+
+};
+
+function traduzir(texto) {
+    if (idiomaAtual === "pt" || texto == null) return texto;
+    return dicionario[texto] || texto;
+}
+
+function aplicarIdiomaEstatico() {
+    document.querySelectorAll("[data-pt]").forEach(el => {
+        el.textContent = idiomaAtual === "en"
+            ? (el.dataset.en || el.dataset.pt)
+            : el.dataset.pt;
+    });
+
+    document.getElementById("textoTradutor").textContent =
+        idiomaAtual === "en" ? "Traduzir para o português" : "Traduzir para o inglês";
+}
+
+document.getElementById("btnTraduzir").addEventListener("click", () => {
+
+    idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+    localStorage.setItem("idioma", idiomaAtual);
+
+    aplicarIdiomaEstatico();
+
+    // Reconstrói a pergunta atual e o painel de notificações já traduzidos,
+    // sem perder o progresso do questionário
+    carregarPergunta();
+
+    if (painelNotificacoes.classList.contains("aberto")) {
+        carregarNotificacoes();
+    }
+
+});
 
 // ==========================
 // DADOS DO RELATÓRIO
@@ -167,7 +293,7 @@ const mensagemStatus =
 function mostrarMensagem(texto, tipo) {
 
     // tipo: "sucesso" | "aviso" | "erro"
-    mensagemStatus.textContent = texto;
+    mensagemStatus.textContent = traduzir(texto);
     mensagemStatus.className = `mensagem-status visivel ${tipo}`;
 
 }
@@ -211,16 +337,19 @@ function carregarPergunta() {
     respostaSelecionada = null;
 
     btnProxima.disabled = true;
+    btnProxima.textContent = traduzir("Próxima pergunta");
 
     const atual = perguntas[perguntaAtual];
 
-    textoPergunta.textContent = atual.pergunta;
+    // 🔧 Exibição traduzida — o texto da pergunta em si (atual.pergunta)
+    // NUNCA é alterado, só o que aparece na tela
+    textoPergunta.textContent = traduzir(atual.pergunta);
 
     contador.textContent =
-        `Pergunta ${perguntaAtual + 1} de ${perguntas.length}`;
+        `${traduzir("Pergunta")} ${perguntaAtual + 1} ${traduzir("de")} ${perguntas.length}`;
 
     porcentagem.textContent =
-        `${Math.round((perguntaAtual / perguntas.length) * 100)}% concluído`;
+        `${Math.round((perguntaAtual / perguntas.length) * 100)}% ${traduzir("concluído")}`;
 
     atualizarBarra();
 
@@ -234,7 +363,12 @@ function carregarPergunta() {
 
         botao.className = "opcao";
 
-        botao.textContent = opcao;
+        // 🔧 Só o texto exibido é traduzido — "opcao" (o valor real,
+        // em português) continua sendo o que vai pra respostaSelecionada
+        // e, depois, pro backend. Isso é necessário porque o server.js
+        // compara essas respostas literalmente (ex: "Ambientes barulhentos")
+        // pros gráficos de gatilhos — traduzir o valor quebraria essa lógica.
+        botao.textContent = traduzir(opcao);
 
         botao.onclick = () => {
 
@@ -304,7 +438,7 @@ async function finalizarRelatorio() {
 
     // Desabilita o botão para evitar duplo envio enquanto salva
     btnProxima.disabled = true;
-    btnProxima.textContent = "Salvando...";
+    btnProxima.textContent = traduzir("Salvando...");
 
     try {
 
@@ -358,7 +492,7 @@ async function finalizarRelatorio() {
 
         // Reabilita o botão para o usuário tentar de novo
         btnProxima.disabled = false;
-        btnProxima.textContent = "Tentar novamente";
+        btnProxima.textContent = traduzir("Tentar novamente");
 
         mostrarMensagem(
             "Erro ao salvar o relatório. Tente novamente.",
@@ -404,14 +538,14 @@ async function carregarNotificacoes() {
         const itens = dados.notificacoes || [];
 
         if (itens.length === 0) {
-            listaNotificacoes.innerHTML = `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`;
+            listaNotificacoes.innerHTML = `<div class="painel-vazio">${traduzir("Nenhuma notificação por enquanto.")}</div>`;
         } else {
             listaNotificacoes.innerHTML = itens.map(formatarItemNotificacao).join("");
         }
 
     } catch (erro) {
         console.log("Erro ao carregar notificações:", erro);
-        listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar as notificações.</div>`;
+        listaNotificacoes.innerHTML = `<div class="painel-vazio">${traduzir("Não foi possível carregar as notificações.")}</div>`;
     }
 
 }
@@ -571,8 +705,8 @@ function desenharGraficoForca(pontos) {
                 tooltip: {
                     callbacks: {
                         label: (c) => c.raw > 0
-                            ? `Força: ${c.raw}${pontos[c.dataIndex].pico ? " — pico da crise" : ""}`
-                            : "Sem força registrada"
+                            ? `${traduzir("Força")}: ${c.raw}${pontos[c.dataIndex].pico ? traduzir(" — pico da crise") : ""}`
+                            : traduzir("Sem força registrada")
                     }
                 }
             },
@@ -612,7 +746,7 @@ function desenharGraficoAtividade(pontos) {
                 legend: { display: false },
                 tooltip: {
                     callbacks: {
-                        label: (c) => c.raw === 1 ? "Ativo (com o Bixuco)" : "Inativo"
+                        label: (c) => c.raw === 1 ? traduzir("Ativo (com o Bixuco)") : traduzir("Inativo")
                     }
                 }
             },
@@ -622,7 +756,7 @@ function desenharGraficoAtividade(pontos) {
                     max: 1,
                     ticks: {
                         stepSize: 1,
-                        callback: (v) => v === 1 ? "Ativo" : "Inativo"
+                        callback: (v) => v === 1 ? traduzir("Ativo (com o Bixuco)") : traduzir("Inativo")
                     }
                 }
             }
@@ -689,6 +823,10 @@ async function iniciarRelatorio() {
     carregarPergunta();
     carregarGraficosDiarios();
 }
+
+// Aplica o idioma salvo (ex: usuário trocou pra inglês em outra página)
+// antes de montar a primeira pergunta
+aplicarIdiomaEstatico();
 
 carregarUsuario();
 iniciarRelatorio();
