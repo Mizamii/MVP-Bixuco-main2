@@ -554,3 +554,80 @@ body {
     background: rgba(255, 68, 68, 0.1);
     color: #C0392B;
 }
+
+/* ---------- Responsivo ---------- */
+
+@media (max-width: 768px) {
+
+    /* configuracoes.css carrega DEPOIS de home.css e redefine html/body/
+       .conteudo-corpo — então o tratamento mobile do home.css (scroll,
+       padding pra não ficar atrás da bottom-nav) não chega até aqui.
+       Repetindo o mesmo aqui. */
+
+    html, body {
+        height: auto;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .conteudo-corpo {
+        overflow-y: visible;
+        padding: 1rem 1rem 5.5rem;
+    }
+
+    .cabecalho {
+        margin-bottom: 0.9rem;
+    }
+
+    .cabecalho h1 {
+        font-size: 1.25rem;
+    }
+
+    .cabecalho p {
+        font-size: 0.8rem;
+    }
+
+    .cabecalho img {
+        width: 64px;
+    }
+
+    .linha {
+        flex-direction: column;
+        gap: 0.9rem;
+        margin-bottom: 0.9rem;
+    }
+
+    .card {
+        padding: 1.1rem 1.2rem;
+    }
+
+    .card h2 {
+        font-size: 1rem;
+        margin-bottom: 0.9rem;
+    }
+
+    .linha-itens-config {
+        gap: 0.4rem 1.5rem;
+    }
+
+    .card.seguranca {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .card.seguranca img {
+        display: none; /* some no celular pra não competir por espaço com o texto */
+    }
+
+    .texto-seguranca h2 {
+        font-size: 1rem;
+    }
+
+    #modalSenha .modal-conteudo {
+        padding: 1.4rem;
+    }
+
+    #modalSenha h3 {
+        font-size: 1.05rem;
+    }
+}

@@ -1,4 +1,3 @@
-
 .goog-te-banner-frame { display: none !important; }
 body { top: 0 !important; }
 .goog-te-gadget { font-size: 0 !important; }
@@ -363,6 +362,12 @@ color: var(--cor-texto-esmaecido);
     display: none;
 }
 
+/* Botão de logout do cabeçalho — só existe visualmente no mobile,
+   já que no desktop o logout já está na sidebar */
+.btn-logout-mobile {
+    display: none;
+}
+
 @media (max-width: 768px) {
 
     .sidebar {
@@ -391,6 +396,29 @@ color: var(--cor-texto-esmaecido);
     .painel-notificacoes {
         width: min(320px, calc(100vw - 2rem));
         right: -0.5rem;
+    }
+
+    /* No mobile a barra inferior já cobre a navegação principal, então
+       o nome/cargo no cabeçalho vira espaço apertado sem necessidade —
+       tira o texto e deixa só a foto (clicável, vai pro perfil) +
+       o botão de logout no lugar dele. */
+    #wrapperPerfilTopo {
+        display: none;
+    }
+
+    .btn-logout-mobile {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: none;
+        background: rgba(226, 76, 76, 0.12);
+        color: #E24C4C;
+        font-size: 1rem;
+        text-decoration: none;
+        flex-shrink: 0;
     }
 
     .bottom-nav {

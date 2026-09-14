@@ -1,4 +1,3 @@
-
 // =========================
 // CARREGAR USUÁRIO
 // =========================
@@ -318,22 +317,14 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 // =========================
 // TEMA
 // =========================
-function aplicarTema(tema) {
-    document.body.classList.remove("tema-claro", "tema-escuro");
-    document.body.classList.add(`tema-${tema}`);
-    document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
-    document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
-    localStorage.setItem("tema", tema);
-}
-
-document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema("claro"));
-document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
+// 🔧 A lógica de tema (claro/escuro, incluindo o botão mobile) já vem
+// inteira do /js/tema.js compartilhado — não redefinimos nada aqui.
+// Ter uma segunda cópia era o que causava o botão mobile "não fazer
+// nada" na tela de Perfil (dois listeners alternando e se cancelando).
 
 // =========================
 // INICIALIZAÇÃO
 // =========================
-const temaSalvo = localStorage.getItem("tema") || "claro";
-aplicarTema(temaSalvo);
 aplicarIdiomaEstatico();
 carregarUsuario();
 
