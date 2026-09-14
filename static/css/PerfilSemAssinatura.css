@@ -35,6 +35,17 @@
     color: var(--cor-texto-secundario);
 }
 
+/* ---------- Grid de uma coluna só ---------- */
+/* perfil.css define .grid-perfil como 1.4fr 1fr (pensado para a versão
+   com assinatura, que tem uma segunda coluna). Aqui só existe
+   .perfil-coluna-esquerda — sem essa sobrescrita, o grid reserva ~42%
+   da largura pra uma coluna vazia, espremendo o conteúdo na fração
+   menor (e ainda mais visível/apertado no celular). */
+
+.grid-perfil {
+    grid-template-columns: 1fr;
+}
+
 /* ---------- Card de perfil (sem badges/edição) ---------- */
 
 .card.card-perfil {

@@ -571,35 +571,15 @@ document.addEventListener("click", (e) => {
 // ==========================
 // TEMA
 // ==========================
-
-function aplicarTema(tema) {
-    document.body.classList.remove("tema-claro", "tema-escuro");
-    document.body.classList.add(`tema-${tema}`);
-    document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
-    document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
-    localStorage.setItem("tema", tema);
-
-    // Ícone do botão de tema no mobile (sol quando claro, lua quando escuro)
-    const iconeMobile = document.querySelector("#btnTemaMobile i");
-    if (iconeMobile) {
-        iconeMobile.className = tema === "claro" ? "fa-regular fa-sun" : "fa-regular fa-moon";
-    }
-}
-
-document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema("claro"));
-document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
-
-document.getElementById("btnTemaMobile").addEventListener("click", () => {
-    const temaAtual = document.body.classList.contains("tema-escuro") ? "escuro" : "claro";
-    aplicarTema(temaAtual === "claro" ? "escuro" : "claro");
-});
+// 🔧 A lógica de tema (claro/escuro, incluindo o botão mobile) já vem
+// inteira do /js/tema.js compartilhado — não redefinimos nada aqui.
+// Ter uma segunda cópia era exatamente o que causava o botão mobile
+// "não fazer nada": os dois listeners alternavam o tema em sequência
+// e um cancelava o outro.
 
 // ==========================
 // INICIAR
 // ==========================
-
-const temaSalvo = localStorage.getItem("tema") || "claro";
-aplicarTema(temaSalvo);
 
 aplicarIdiomaEstatico();
 carregarNotificacoes();
