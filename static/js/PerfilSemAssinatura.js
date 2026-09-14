@@ -1,4 +1,3 @@
-
 function escaparHTML(texto) {
     const div = document.createElement("div");
     div.textContent = texto ?? "";
@@ -579,10 +578,21 @@ function aplicarTema(tema) {
     document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
     document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
     localStorage.setItem("tema", tema);
+
+    // Ícone do botão de tema no mobile (sol quando claro, lua quando escuro)
+    const iconeMobile = document.querySelector("#btnTemaMobile i");
+    if (iconeMobile) {
+        iconeMobile.className = tema === "claro" ? "fa-regular fa-sun" : "fa-regular fa-moon";
+    }
 }
 
 document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema("claro"));
 document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
+
+document.getElementById("btnTemaMobile").addEventListener("click", () => {
+    const temaAtual = document.body.classList.contains("tema-escuro") ? "escuro" : "claro";
+    aplicarTema(temaAtual === "claro" ? "escuro" : "claro");
+});
 
 // ==========================
 // INICIAR

@@ -119,3 +119,55 @@
     align-self: flex-end;
     margin-top: auto;
 }
+
+/* ---------- Responsivo ---------- */
+
+@media (max-width: 768px) {
+
+    .cabecalho {
+        margin-bottom: 0.9rem;
+    }
+
+    .cabecalho h1 {
+        font-size: 1.25rem;
+    }
+
+    .cabecalho p {
+        font-size: 0.8rem;
+    }
+
+    .banner-upgrade {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.7rem;
+        padding: 1rem;
+        margin-top: 1.1rem;
+    }
+
+    .banner-upgrade > i.fa-star {
+        width: 30px;
+        height: 30px;
+        font-size: 0.75rem;
+    }
+
+    .banner-upgrade strong {
+        font-size: 0.88rem;
+    }
+
+    .banner-upgrade p {
+        font-size: 0.78rem;
+        margin-bottom: 0;
+    }
+
+    .btn-upgrade {
+        width: 100%;
+        justify-content: center;
+        padding: 0.65rem 1rem;
+    }
+
+    /* Some no celular pra não brigar por espaço com o resto do
+       conteúdo + a barra inferior fixa */
+    .gato-deitado {
+        display: none;
+    }
+}
