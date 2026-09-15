@@ -655,6 +655,12 @@ app.get("/AdicionarC", estaLogado, (req, res) => {
 
 });
 
+// Detecta se a requisição veio de dentro do app (Capacitor) e não do navegador.
+// O marcador "BixucoApp" é adicionado pelo appendUserAgent do capacitor.config.json.
+function veioDoApp(req) {
+    return String(req.get("user-agent") || "").includes("BixucoApp");
+}
+
 app.get("/", (req, res) => {
     const usuarioId = req.session.usuarioId || (req.user && req.user.id);
     const tipo = req.session.tipo || (req.user && req.user.tipo);
@@ -663,8 +669,13 @@ app.get("/", (req, res) => {
         return res.redirect(tipo === "psicologo" ? "/hometerapeuta" : "/home");
     }
 
+    // Dentro do app não existe "landing page" — quem não está logado
+    // vai direto pro login.
+    if (veioDoApp(req)) {
+        return res.redirect("/logar");
+    }
+
     return res.sendFile(path.join(__dirname, "templates", "index.html"));
-    // ou res.redirect("/logar") se você não quiser mostrar a index pra ninguém deslogado dentro do app
 });
 
 app.get("/pacientes", estaLogado, exigeTerapeuta, (req, res) => {

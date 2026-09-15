@@ -7,10 +7,12 @@
     "cleartext": false,
     "androidScheme": "https"
   },
+  "android": {
+    "appendUserAgent": "BixucoApp"
+  },
   "plugins": {
     "CapacitorHttp": {
       "enabled": true
     }
   }
 }
-
