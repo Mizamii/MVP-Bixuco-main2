@@ -224,6 +224,11 @@ cron.schedule('0 4 * * *', async () => {
              AND criado_em < NOW() - INTERVAL '30 days'`
         );
 
+        await db.query(
+            `DELETE FROM tokens_app
+             WHERE usado = TRUE OR expira_em < NOW()`
+        );
+
         console.log(`Limpeza de notificações: ${resultado.rowCount} removida(s).`);
 
     } catch (erro) {
@@ -417,6 +422,24 @@ function exigeAdmin(req, res, next) {
     return res.status(403).send("Acesso negado.");
 }
 
+// Autentica o hardware do Bixuco. Sem isso, qualquer pessoa na internet
+// consegue injetar eventos e localizações falsas em qualquer conta.
+function exigeDispositivo(req, res, next) {
+
+    const chave = req.get("x-device-key");
+
+    if (!process.env.DEVICE_API_KEY) {
+        console.log("DEVICE_API_KEY não configurada — bloqueando requisição de dispositivo.");
+        return res.status(503).json({ erro: "Serviço indisponível." });
+    }
+
+    if (!chavesIguaisSeguro(chave, process.env.DEVICE_API_KEY)) {
+        return res.status(401).json({ erro: "Dispositivo não autorizado." });
+    }
+
+    next();
+}
+
 const tentativasAdmin = new Map(); // ip -> { count, resetAt }
 
 function limitarTentativasAdmin(req, res, next) {
@@ -438,10 +461,13 @@ function limitarTentativasAdmin(req, res, next) {
 }
 
 
+// Todos os mapas de rate limit ficam registrados aqui pra poderem
+// ser limpos periodicamente (senão crescem pra sempre na memória).
+const mapasDeRateLimit = [];
 
-// Fábrica de rate limiter por IP — reaproveitável em qualquer rota
 function criarLimitadorPorIp(limite, janelaMs, mensagem) {
     const registros = new Map(); // ip -> { count, resetAt }
+    mapasDeRateLimit.push(registros);
 
     return function (req, res, next) {
         const ip = req.ip;
@@ -937,7 +963,7 @@ app.get(
     passport.authenticate("google", {
         failureRedirect: "/logar"
     }),
-    (req, res) => {
+    async (req, res) => {
 
         req.session.usuarioId = req.user.id;
         req.session.tipo      = req.user.tipo;
@@ -954,29 +980,83 @@ app.get(
             destino = "/home";
         }
 
-        // Veio do app? Tenta o deep link. Veio do navegador (site)? Redireciona normal.
-        const veioDoApp = req.session.origemLogin === "app";
-        delete req.session.origemLogin; // limpa pra não "vazar" pra próxima sessão
+        const eraApp = req.session.origemLogin === "app";
+        delete req.session.origemLogin;
 
-        if (veioDoApp) {
-            res.send(`
-                <!DOCTYPE html>
-                <html>
-                <head><meta charset="UTF-8"></head>
-                <body>
-                    <script>
-                        window.location.href = "bixuco://${destino}";
-                    </script>
-                    <p>Redirecionando... se nada acontecer, <a href="https://${req.headers.host}${destino}">clique aqui</a>.</p>
-                </body>
-                </html>
-            `);
-        } else {
-            res.redirect(destino);
+        // Navegador comum: redireciona normal, a sessão já está valendo aqui.
+        if (!eraApp) {
+            return res.redirect(destino);
+        }
+
+        // Veio do app: o login aconteceu no navegador do sistema, então a
+        // WebView do app NÃO tem esse cookie de sessão. Geramos um token de
+        // uso único; o app troca esse token por uma sessão própria.
+        try {
+
+            const token = crypto.randomBytes(32).toString("hex");
+            const expiraEm = new Date(Date.now() + 5 * 60 * 1000); // 5 minutos
+
+            await db.query(
+                `INSERT INTO tokens_app (token, usuario_id, destino, expira_em)
+                 VALUES ($1, $2, $3, $4)`,
+                [token, req.user.id, destino, expiraEm]
+            );
+
+            // Redirect direto (sem <script> inline, que o CSP bloqueia).
+            return res.redirect(`bixuco://auth?token=${token}`);
+
+        } catch (erro) {
+            console.log("Erro ao gerar token de login do app:", erro);
+            return res.redirect("/logar");
         }
 
     }
 );
+
+// O app chama esta rota DENTRO da WebView, com o token que recebeu pelo
+// deep link. É aqui que a sessão do app é criada de fato.
+app.get("/auth/app-token", async (req, res) => {
+
+    const { token } = req.query;
+
+    if (!token) return res.redirect("/logar");
+
+    try {
+
+        const resultado = await db.query(
+            `SELECT t.usuario_id, t.destino, u.tipo, u.versao_sessao
+             FROM tokens_app t
+             JOIN usuarios u ON u.id = t.usuario_id
+             WHERE t.token = $1
+             AND t.usado = FALSE
+             AND t.expira_em > NOW()`,
+            [token]
+        );
+
+        if (resultado.rows.length === 0) {
+            return res.redirect("/logar?erro=token-invalido");
+        }
+
+        // Uso único: queima o token imediatamente.
+        await db.query(
+            "UPDATE tokens_app SET usado = TRUE WHERE token = $1",
+            [token]
+        );
+
+        const dados = resultado.rows[0];
+
+        req.session.usuarioId    = dados.usuario_id;
+        req.session.tipo         = dados.tipo;
+        req.session.versaoSessao = dados.versao_sessao;
+
+        return res.redirect(dados.destino || "/home");
+
+    } catch (erro) {
+        console.log("Erro ao validar token do app:", erro);
+        return res.redirect("/logar");
+    }
+
+});
 
 app.post("/api/admin/pedido-status", limitarTentativasAdmin, async (req, res) => {
 
@@ -1040,6 +1120,17 @@ app.post("/api/admin/pedido-status", limitarTentativasAdmin, async (req, res) =>
     }
 });
 
+mapasDeRateLimit.push(tentativasAdmin, tentativasLoginPorChave);
+
+// Limpa entradas expiradas a cada hora
+setInterval(() => {
+    const agora = Date.now();
+    for (const mapa of mapasDeRateLimit) {
+        for (const [chave, registro] of mapa) {
+            if (agora > registro.resetAt) mapa.delete(chave);
+        }
+    }
+}, 60 * 60 * 1000);
 
 app.post("/api/planos/criar-planos", estaLogado, exigeAdmin, async (req, res) => {
 
@@ -1054,7 +1145,7 @@ app.post("/api/planos/criar-planos", estaLogado, exigeAdmin, async (req, res) =>
                 auto_recurring: {
                     frequency:          1,
                     frequency_type:     "months",
-                    transaction_amount: 29.00,
+                    transaction_amount: PLANOS_MP.medio.preco,
                     currency_id:        "BRL"
                 },
                 back_url: `${process.env.BASE_URL}/pagamento/sucesso`,
@@ -1069,7 +1160,7 @@ app.post("/api/planos/criar-planos", estaLogado, exigeAdmin, async (req, res) =>
                 auto_recurring: {
                     frequency:          1,
                     frequency_type:     "months",
-                    transaction_amount: 55.00,
+                    transaction_amount: PLANOS_MP.completo.preco,
                     currency_id:        "BRL"
                 },
                 back_url: `${process.env.BASE_URL}/pagamento/sucesso`,
@@ -1428,6 +1519,19 @@ app.post("/api/planos/webhook", async (req, res) => {
         // Assinatura ativa ou pagamento aprovado → ativa o plano
         // Assinatura ativa ou pagamento aprovado → ativa o plano
         if (statusAtual === "authorized" || statusAtual === "approved") {
+
+            // Mesma checagem de valor/moeda que /pagamento/sucesso já faz.
+            // Sem isso, o webhook é o caminho mais frouxo pra ativar um plano.
+            if (type === "payment") {
+
+                const valorCorreto = Number(dados.transaction_amount) === Number(PLANOS_MP[plano].preco);
+                const moedaCorreta = dados.currency_id === "BRL";
+
+                if (!valorCorreto || !moedaCorreta) {
+                    console.log("Webhook com valor/moeda divergente:", referencia, dados.transaction_amount);
+                    return res.sendStatus(200);
+                }
+            }
 
             await ativarPlano(parseInt(usuarioId), PLANOS_MP[plano].nomeBanco);
 
@@ -1953,6 +2057,81 @@ function mediaDuracaoCrises(episodios) {
     if (crises.length === 0) return 0;
     const soma = crises.reduce((acc, e) => acc + e.duracaoTotalMs, 0);
     return soma / crises.length;
+}
+
+// Calcula a sequência REAL de dias consecutivos com relatório.
+// Agrupa dias seguidos em "ilhas" e pega a mais recente, só contando
+// como sequência ativa se o último dia foi hoje ou ontem.
+async function calcularDiasConsecutivos(usuarioId) {
+
+    const resultado = await db.query(
+        `WITH dias AS (
+            SELECT DISTINCT DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') AS dia
+            FROM relatorios
+            WHERE usuario_id = $1
+        ),
+        ilhas AS (
+            SELECT dia,
+                dia - (ROW_NUMBER() OVER (ORDER BY dia))::int AS grupo
+            FROM dias
+        ),
+        ultima_ilha AS (
+            SELECT MAX(dia) AS fim, COUNT(*) AS tamanho
+            FROM ilhas
+            GROUP BY grupo
+            ORDER BY MAX(dia) DESC
+            LIMIT 1
+        )
+        SELECT
+            CASE
+                WHEN fim >= (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '1 day' THEN tamanho
+                ELSE 0
+            END AS total
+        FROM ultima_ilha`,
+        [usuarioId]
+    );
+
+    return resultado.rows.length > 0
+        ? (parseInt(resultado.rows[0].total) || 0)
+        : 0;
+}
+
+// Maior sequência já alcançada (histórico), independente de estar ativa
+async function calcularMaiorOfensiva(usuarioId) {
+
+    const resultado = await db.query(
+        `WITH dias AS (
+            SELECT DISTINCT DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') AS dia
+            FROM relatorios
+            WHERE usuario_id = $1
+        ),
+        ilhas AS (
+            SELECT dia,
+                dia - (ROW_NUMBER() OVER (ORDER BY dia))::int AS grupo
+            FROM dias
+        )
+        SELECT COALESCE(MAX(tamanho), 0) AS total
+        FROM (SELECT COUNT(*) AS tamanho FROM ilhas GROUP BY grupo) t`,
+        [usuarioId]
+    );
+
+    return parseInt(resultado.rows[0].total) || 0;
+}
+
+function calcularIdade(dataNascimento) {
+    if (!dataNascimento) return 0;
+
+    const hoje = new Date();
+    const nasc = new Date(dataNascimento);
+
+    let idade = hoje.getFullYear() - nasc.getFullYear();
+
+    const mes = hoje.getMonth() - nasc.getMonth();
+    if (mes < 0 || (mes === 0 && hoje.getDate() < nasc.getDate())) {
+        idade--;
+    }
+
+    return idade;
 }
 
 async function gerarCodigoVinculo() {
@@ -2950,10 +3129,14 @@ app.get("/api/relatorios", estaLogado, async (req, res) => {
 });
 
 function formatarHorarioEvento(data) {
-    const d  = new Date(data);
-    const hh = String(d.getUTCHours()).padStart(2, "0");
-    const mm = String(d.getUTCMinutes()).padStart(2, "0");
-    return `${hh}:${mm}`;
+    // Precisa do fuso de Brasília aqui: usar getUTCHours() jogava
+    // todos os horários 3h pra frente no gráfico e nos alertas.
+    return new Date(data).toLocaleTimeString("pt-BR", {
+        hour:     "2-digit",
+        minute:   "2-digit",
+        hour12:   false,
+        timeZone: "America/Sao_Paulo"
+    });
 }
 
 app.get("/api/alertas", estaLogado, async (req, res) => {
@@ -3661,15 +3844,21 @@ app.post('/login', limitarLoginPorIp, limitarTentativasLogin, async (req, res) =
         const resultado = await db.query(sql, [email]);
 
         if (resultado.rows.length === 0) {
-            return res.status(401).json({ erro: "Usuário não encontrado." });
+            // Mesma mensagem do caso "senha errada": não revelamos
+            // se o e-mail existe ou não no sistema.
+            return res.status(401).json({ erro: "E-mail ou senha inválidos." });
         }
 
         const usuario = resultado.rows[0];
 
-        const senhaValida = await bcrypt.compare(
-            senha,
-            usuario.senha
-        );
+        // Conta criada via Google não tem senha própria
+        if (!usuario.senha) {
+            return res.status(401).json({
+                erro: "Esta conta usa login com Google. Use o botão 'Continuar com Google'."
+            });
+        }
+
+        const senhaValida = await bcrypt.compare(senha, usuario.senha);
 
         if (!senhaValida) {
             return res.status(401).json({ erro: "E-mail ou senha inválidos." });
@@ -4051,55 +4240,102 @@ app.delete("/api/excluir-conta", estaLogado, async (req, res) => {
 
         // 🔧 Perfil sensorial referencia tanto usuario_id quanto crianca_id —
         // precisa ser apagado antes da tabela criancas
+                // A ordem importa por causa das chaves estrangeiras.
+        // Regra: primeiro quem APONTA para criança, depois quem aponta
+        // para usuário, e só no fim o próprio usuário.
+
+        // --- Tudo que referencia a(s) criança(s) do usuário ---
+
+        await db.query(
+            `DELETE FROM eventos_bixuco
+             WHERE crianca_id IN (SELECT id FROM criancas WHERE usuario_id = $1)`,
+            [usuarioId]
+        );
+
+        await db.query(
+            `DELETE FROM localizacoes_bixuco
+             WHERE crianca_id IN (SELECT id FROM criancas WHERE usuario_id = $1)`,
+            [usuarioId]
+        );
+
+        // Dispositivo é hardware físico — não apagamos o registro,
+        // só desvinculamos pra poder ser reaproveitado depois.
+        await db.query(
+            `UPDATE dispositivos
+             SET usuario_id = NULL, crianca_id = NULL, vinculado_em = NULL
+             WHERE usuario_id = $1`,
+            [usuarioId]
+        );
+
         await db.query(
             "DELETE FROM perfil_sensorial WHERE usuario_id = $1",
             [usuarioId]
         );
 
-        // Remove relatórios
+        // --- Tudo que referencia o usuário ---
+
         await db.query(
             "DELETE FROM relatorios WHERE usuario_id = $1",
             [usuarioId]
         );
 
-        // Remove vínculos com terapeutas
+        await db.query(
+            "DELETE FROM notas_clinicas WHERE paciente_id = $1 OR terapeuta_id = $1",
+            [usuarioId]
+        );
+
         await db.query(
             "DELETE FROM vinculos WHERE responsavel_id = $1 OR terapeuta_id = $1",
             [usuarioId]
         );
 
-        // Remove tokens de recuperação de senha
         await db.query(
             "DELETE FROM tokens_recuperacao WHERE usuario_id = $1",
             [usuarioId]
         );
 
-        // Remove preferências
+        await db.query(
+            "DELETE FROM codigos_2fa WHERE usuario_id = $1",
+            [usuarioId]
+        );
+
+        await db.query(
+            "DELETE FROM tokens_app WHERE usuario_id = $1",
+            [usuarioId]
+        );
+
+        await db.query(
+            "DELETE FROM dicas_personalizadas WHERE usuario_id = $1",
+            [usuarioId]
+        );
+
+        await db.query(
+            "DELETE FROM pedidos WHERE usuario_id = $1",
+            [usuarioId]
+        );
+
         await db.query(
             "DELETE FROM preferencias_usuario WHERE usuario_id = $1",
             [usuarioId]
         );
 
-        // 🔧 Remove notificações
         await db.query(
             "DELETE FROM notificacoes WHERE usuario_id = $1",
             [usuarioId]
         );
 
-        // 🔧 Remove assinaturas
         await db.query(
             "DELETE FROM assinaturas WHERE usuario_id = $1",
             [usuarioId]
         );
 
-        // 🔧 Remove a criança vinculada — precisa vir depois de perfil_sensorial,
-        // e antes do usuário
+        // --- Criança e usuário por último ---
+
         await db.query(
             "DELETE FROM criancas WHERE usuario_id = $1",
             [usuarioId]
         );
 
-        // Remove o usuário em si — por último, já que ninguém mais aponta pra ele agora
         await db.query(
             "DELETE FROM usuarios WHERE id = $1",
             [usuarioId]
@@ -4170,14 +4406,11 @@ app.get("/api/perfil", estaLogado, async (req, res) => {
         if (resultadoCrianca.rows.length > 0) {
 
             const crianca = resultadoCrianca.rows[0];
-
-            const nascimento = new Date(crianca.data_nascimento);
-            const hoje = new Date();
-            const idade = hoje.getFullYear() - nascimento.getFullYear();
+            
 
             criancaDados = {
                 nome: crianca.nome,
-                idade,
+                idade: calcularIdade(crianca.data_nascimento),
                 foto: crianca.foto_url || null
             };
 
@@ -4228,19 +4461,14 @@ app.get("/api/perfil", estaLogado, async (req, res) => {
 
 
         // Busca dias consecutivos de relatório
-        const resultadoDias = await db.query(
-            `SELECT COUNT(*) AS total
-             FROM relatorios
-             WHERE usuario_id = $1
-             AND data >= CURRENT_DATE - INTERVAL '30 days'`,
-            [usuarioId]
-        );
+        
 
         const nomesTipoConta = { pai: "Responsável", psicologo: "Terapeuta", admin: "Administrador" };
         const tipoConta = nomesTipoConta[usuario.tipo] || "Usuário";
 
         // Monta e retorna o JSON completo para o frontend
-        const diasConsecutivos = parseInt(resultadoDias.rows[0].total) || 0;
+        const diasConsecutivos = await calcularDiasConsecutivos(usuarioId);
+        const maiorOfensiva    = await calcularMaiorOfensiva(usuarioId);
 
         res.json({
             nome: usuario.nome,
@@ -4249,7 +4477,7 @@ app.get("/api/perfil", estaLogado, async (req, res) => {
             fotoPerfil: usuario.foto_perfil || null,
             anoCadastro: usuario.ano_cadastro || new Date().getFullYear(),
             diasConsecutivos,
-            maiorOfensiva: diasConsecutivos,
+            maiorOfensiva: maiorOfensiva,
             plano,
             planoCodigo,
             codigoVinculo: usuario.codigo_vinculo || null,
@@ -4698,8 +4926,8 @@ app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
                 FROM eventos_bixuco e
                 JOIN criancas c ON c.id = e.crianca_id
                 WHERE c.usuario_id = $1
-                AND EXTRACT(MONTH FROM e.criado_em) = EXTRACT(MONTH FROM NOW())
-                AND EXTRACT(YEAR FROM e.criado_em)  = EXTRACT(YEAR FROM NOW())
+                AND EXTRACT(MONTH FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(MONTH FROM NOW())
+                AND EXTRACT(YEAR  FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo'))  = EXTRACT(YEAR FROM NOW())
             ),
             grupos AS (
                 SELECT
@@ -4723,8 +4951,8 @@ app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
                 FROM eventos_bixuco e
                 JOIN criancas c ON c.id = e.crianca_id
                 WHERE c.usuario_id = $1
-                AND EXTRACT(MONTH FROM e.criado_em) = EXTRACT(MONTH FROM NOW() - INTERVAL '1 month')
-                AND EXTRACT(YEAR FROM e.criado_em)  = EXTRACT(YEAR FROM NOW() - INTERVAL '1 month')
+                AND EXTRACT(MONTH FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(MONTH FROM NOW() - INTERVAL '1 month')
+                AND EXTRACT(YEAR  FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo'))  = EXTRACT(YEAR FROM NOW() - INTERVAL '1 month')
             ),
             grupos AS (
                 SELECT
@@ -4762,8 +4990,8 @@ app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
              JOIN criancas c ON c.id = e.crianca_id
              WHERE c.usuario_id = $1
              AND e.duracao_ms IS NOT NULL
-             AND EXTRACT(MONTH FROM e.criado_em) = EXTRACT(MONTH FROM NOW())
-             AND EXTRACT(YEAR FROM e.criado_em)  = EXTRACT(YEAR FROM NOW())`,
+             AND EXTRACT(MONTH FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(MONTH FROM NOW())
+             AND EXTRACT(YEAR  FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo'))  = EXTRACT(YEAR FROM NOW())`,
             [pacienteId]
         );
 
@@ -4773,8 +5001,8 @@ app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
              JOIN criancas c ON c.id = e.crianca_id
              WHERE c.usuario_id = $1
              AND e.duracao_ms IS NOT NULL
-             AND EXTRACT(MONTH FROM e.criado_em) = EXTRACT(MONTH FROM NOW() - INTERVAL '1 month')
-             AND EXTRACT(YEAR FROM e.criado_em)  = EXTRACT(YEAR FROM NOW() - INTERVAL '1 month')`,
+             AND EXTRACT(MONTH FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(MONTH FROM NOW() - INTERVAL '1 month')
+             AND EXTRACT(YEAR  FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo'))  = EXTRACT(YEAR FROM NOW() - INTERVAL '1 month')`,
             [pacienteId]
         );
 
@@ -5210,7 +5438,7 @@ app.post("/esqueceu-senha", async (req, res) => {
     }
 });
 
-app.post("/api/bixuco/localizacao", async (req, res) => {
+app.post("/api/bixuco/localizacao",exigeDispositivo, async (req, res) => {
     const { dispositivo_id, latitude, longitude, bateria } = req.body;
 
     try {
@@ -5317,7 +5545,7 @@ app.get("/api/bixuco/localizacao", estaLogado, async (req, res) => {
 });
 
 
-app.post("/api/bixuco/evento", async (req, res) => {
+app.post("/api/bixuco/evento", exigeDispositivo, async (req, res) => {
 
     const { dispositivo_id, evento, forca, duracao_ms, latitude, longitude } = req.body;
 
