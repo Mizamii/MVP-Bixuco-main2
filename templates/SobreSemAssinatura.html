@@ -77,6 +77,10 @@
 
             <header class="topo">
 
+                <button class="btn-tema-mobile" type="button" id="btnTemaMobile">
+                    <i class="fa-regular fa-sun"></i>
+                </button>
+
                 <button class="tradutor" type="button" id="btnTraduzir">
                     <i class="fa-solid fa-language"></i>
                     <span id="textoTradutor">Traduzir para o inglês</span>
@@ -110,6 +114,11 @@
                         <h3 id="nomeUsuario">Carregando...</h3>
                         <span id="tipoConta">...</span>
                     </div>
+
+                    <!-- Só aparece no mobile (o desktop já tem "Sair" na sidebar) -->
+                    <a href="/logout" class="btn-logout-mobile" title="Sair" aria-label="Sair">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    </a>
 
                 </div>
 
@@ -201,6 +210,29 @@
             </section>
 
         </main>
+
+        <!-- ===================== -->
+        <!-- MENU INFERIOR (só mobile) -->
+        <!-- ===================== -->
+
+        <!-- Página só existe pra quem está no plano grátis, então
+             a barra inferior espelha direto a sidebar reduzida
+             acima, sem precisar de duas versões. -->
+        <nav class="bottom-nav">
+            <a href="/planos">
+                <i class="fa-solid fa-dollar-sign"></i>
+                <span data-pt="Planos" data-en="Plans">Planos</span>
+            </a>
+            <a href="/configuracoesSemAssinatura">
+                <i class="fa-solid fa-gear"></i>
+                <span data-pt="Config" data-en="Settings">Config</span>
+            </a>
+            <a href="/sobreSemAssinatura" class="ativo">
+                <i class="fa-solid fa-circle-info"></i>
+                <span data-pt="Sobre" data-en="About">Sobre</span>
+            </a>
+        </nav>
+
     </div>
 
     <!-- ===================== -->

@@ -1,6 +1,4 @@
-
-
-    .modal {
+.modal {
         display: none;
         position: fixed;
         inset: 0;
@@ -547,4 +545,84 @@ margin-bottom: 1.1rem;
 
 .modal-texto h3:first-child {
     margin-top: 0;
+}
+
+/* ---------- Responsivo ---------- */
+/* sobre.css carrega DEPOIS de home.css e redefine html/body — então
+   o tratamento mobile do home.css (scroll, etc.) não chega até aqui.
+   Repetindo o necessário e ajustando cabeçalho/cards/frase-final
+   pra telas estreitas. */
+
+@media (max-width: 768px) {
+
+    html, body {
+        height: auto;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .cabecalho {
+        padding: 1rem 1rem 0;
+        margin-bottom: 1rem;
+    }
+
+    .cabecalho h1 {
+        font-size: 1.2rem;
+    }
+
+    .cabecalho p {
+        font-size: 0.78rem;
+        max-width: none;
+    }
+
+    .cabecalho img {
+        width: 64px;
+    }
+
+    .cards {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+        padding: 0 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .cards .card:nth-child(-n+2),
+    .cards .card:nth-child(n+3) {
+        grid-column: span 1;
+    }
+
+    .cards .card {
+        flex-direction: row;
+        text-align: left;
+        padding: 1rem 1.1rem;
+    }
+
+    .cards .card i {
+        width: 38px;
+        height: 38px;
+        font-size: 0.95rem;
+        flex-shrink: 0;
+    }
+
+    .frase-final {
+        margin: 0 1rem 5.5rem;
+        padding: 0.9rem 1.1rem;
+    }
+
+    .frase-final img {
+        width: 42px;
+    }
+
+    .frase-final p {
+        font-size: 0.82rem;
+    }
+
+    .modal-conteudo {
+        padding: 1.4rem;
+        max-height: 85vh;
+    }
+
+    .modal-conteudo h2 {
+        font-size: 1.1rem;
+    }
 }
