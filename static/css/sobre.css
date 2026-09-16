@@ -269,21 +269,21 @@ gap: 1.1rem;
 margin-bottom: 1.1rem;
 }
 /* ==========================================================
-   sobre.css
-   Estilos EXCLUSIVOS da página "Sobre". Sidebar, topo, tema
-   claro/escuro, tradutor, notificações etc. já vêm do
-   home.css — não duplicar aqui.
-   Inclua depois de tema.css e home.css:
+sobre.css
+Estilos EXCLUSIVOS da página "Sobre". Sidebar, topo, tema
+claro/escuro, tradutor, notificações etc. já vêm do
+home.css — não duplicar aqui.
+Inclua depois de tema.css e home.css:
 
-       <link rel="stylesheet" href="/css/tema.css">
-       <link rel="stylesheet" href="/css/home.css">
-       <link rel="stylesheet" href="/css/sobre.css">
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/sobre.css">
 
-   ========================================================== */
+========================================================== */
 
 /* ---------- Cabeçalho ---------- */
 /* padding lateral igual ao de Configurações, já que .conteudo
-   (home.css) não tem padding próprio */
+(home.css) não tem padding próprio */
 
 .cabecalho {
     display: flex;
@@ -315,8 +315,8 @@ margin-bottom: 1.1rem;
 
 /* ---------- Grade de cards ---------- */
 /* 6 colunas de base: os 2 primeiros cards ocupam metade cada
-   (span 3), os 6 seguintes ocupam um terço cada (span 2) —
-   reproduz o layout 2 + 3 + 3 do design. */
+(span 3), os 6 seguintes ocupam um terço cada (span 2) —
+reproduz o layout 2 + 3 + 3 do design. */
 
 .cards {
     display: grid;
@@ -549,9 +549,9 @@ margin-bottom: 1.1rem;
 
 /* ---------- Responsivo ---------- */
 /* sobre.css carrega DEPOIS de home.css e redefine html/body — então
-   o tratamento mobile do home.css (scroll, etc.) não chega até aqui.
-   Repetindo o necessário e ajustando cabeçalho/cards/frase-final
-   pra telas estreitas. */
+o tratamento mobile do home.css (scroll, etc.) não chega até aqui.
+Repetindo o necessário e ajustando cabeçalho/cards/frase-final
+pra telas estreitas. */
 
 @media (max-width: 768px) {
 
