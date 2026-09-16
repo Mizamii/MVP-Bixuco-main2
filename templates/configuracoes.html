@@ -143,6 +143,11 @@
 
         <header class="topo">
 
+            <!-- 🆕 Botão de tema — só aparece no mobile (layout.css cuida disso) -->
+            <button class="btn-tema-mobile" type="button" id="btnTemaMobile">
+                <i class="fa-regular fa-sun"></i>
+            </button>
+
             <button
                 class="tradutor"
                 type="button"
@@ -188,6 +193,11 @@
                     <h3 id="nomeUsuario">Carregando...</h3>
                     <span id="tipoConta">...</span>
                 </div>
+
+                <!-- 🆕 Botão de logout — só aparece no mobile (no desktop já tem na sidebar) -->
+                <a href="/logout" class="btn-logout-mobile" title="Sair" aria-label="Sair">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </a>
 
             </div>
 
@@ -491,6 +501,36 @@
         </div>
 
     </main>
+
+    <!-- ========================= -->
+    <!-- MENU INFERIOR (só mobile) -->
+    <!-- ========================= -->
+
+    <nav class="bottom-nav">
+        <a href="/home">
+            <i class="fa-solid fa-house"></i>
+            <span data-pt="Início" data-en="Home">Início</span>
+        </a>
+
+        <a href="/relatorios">
+            <i class="fa-solid fa-chart-line"></i>
+            <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+        </a>
+
+        <a href="/RelatorioDiario" class="bottom-nav__relatar" title="Relatório diário" aria-label="Relatório diário">
+            <i class="fa-solid fa-plus"></i>
+        </a>
+
+        <a href="/sobre">
+            <i class="fa-solid fa-circle-info"></i>
+            <span data-pt="Sobre" data-en="About">Sobre</span>
+        </a>
+
+        <a href="/configuracoes" class="ativo">
+            <i class="fa-solid fa-gear"></i>
+            <span data-pt="Config" data-en="Settings">Config</span>
+        </a>
+    </nav>
 
 </div>
 
