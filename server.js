@@ -950,6 +950,7 @@ app.get(
     "/auth/google",
     (req, res, next) => {
         req.session.origemLogin = req.query.origem === "app" ? "app" : "web";
+        console.log("[DEBUG /auth/google] origem query =", req.query.origem, "| origemLogin salvo =", req.session.origemLogin, "| sessionID =", req.sessionID);
         next();
     },
     passport.authenticate("google", {
@@ -980,6 +981,7 @@ app.get(
             destino = "/home";
         }
 
+        console.log("[DEBUG callback] session.origemLogin =", req.session.origemLogin, "| sessionID =", req.sessionID);
         const eraApp = req.session.origemLogin === "app";
         delete req.session.origemLogin;
 
@@ -4406,7 +4408,7 @@ app.get("/api/perfil", estaLogado, async (req, res) => {
         if (resultadoCrianca.rows.length > 0) {
 
             const crianca = resultadoCrianca.rows[0];
-            
+
 
             criancaDados = {
                 nome: crianca.nome,
