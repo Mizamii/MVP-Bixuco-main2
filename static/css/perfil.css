@@ -856,4 +856,73 @@ object-fit: cover;
         width: 80px;
         height: 80px;
     }
+
+    #modalTerapeutaRemovido .modal-conteudo {
+        padding: 1.3rem;
+    }
+
+    #modalTerapeutaRemovido h3 {
+        font-size: 1rem;
+    }
+}
+
+/* ========================= */
+/* MODAL — VÍNCULO REMOVIDO POR DOWNGRADE */
+/* ========================= */
+
+#modalTerapeutaRemovido {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+#modalTerapeutaRemovido.aberto {
+    display: flex;
+}
+#modalTerapeutaRemovido .modal-conteudo {
+    background: var(--cor-fundo-card);
+    border-radius: 16px;
+    padding: 1.75rem;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+#modalTerapeutaRemovido .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+}
+#modalTerapeutaRemovido h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--cor-texto-principal);
+}
+#modalTerapeutaRemovido .btn-fechar-modal {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: var(--cor-texto-secundario);
+}
+#modalTerapeutaRemovido .modal-descricao {
+    font-size: 0.85rem;
+    color: var(--cor-texto-secundario);
+    line-height: 1.5;
+    margin-bottom: 1.25rem;
+}
+#modalTerapeutaRemovido .btn-salvar-crianca {
+    width: 100%;
+    padding: 0.85rem;
+    background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
 }
