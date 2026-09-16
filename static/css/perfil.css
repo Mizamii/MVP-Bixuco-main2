@@ -769,3 +769,91 @@ object-fit: cover;
     height: auto;
     align-self: flex-end;
 }
+
+/* ==========================================================
+   RESPONSIVO — colar no final de perfil.css (ou perfil-editar.css,
+   o arquivo que estiver realmente sendo servido pela rota /perfil)
+   ========================================================== */
+
+@media (max-width: 768px) {
+
+    /* Mesmo tratamento repetido em todas as outras páginas —
+       perfil.css redefine html/body como as demais, então precisa
+       repetir aqui pra permitir scroll normal no mobile */
+    html, body {
+        height: auto;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .conteudo-corpo {
+        overflow-y: visible;
+        padding: 1rem 1rem 5.5rem; /* espaço pra não ficar atrás da bottom-nav */
+    }
+
+    .titulo h1 {
+        font-size: 1.2rem;
+    }
+
+    .titulo p {
+        font-size: 0.8rem;
+    }
+
+    /* Grid de 2 colunas vira 1 coluna empilhada */
+    .grid-perfil {
+        grid-template-columns: 1fr;
+        gap: 0.9rem;
+        margin-top: 0.9rem;
+    }
+
+    .grid-perfil .card {
+        padding: 1.1rem 1.2rem;
+    }
+
+    /* Foto + nome ficam mais compactos e permitem quebra de linha
+       quando o nome for grande, em vez de estourar a largura */
+    .perfil-topo {
+        gap: 0.85rem;
+    }
+
+    .perfil-foto-wrapper {
+        width: 56px;
+        height: 56px;
+    }
+
+    .perfil-nome-linha h2,
+    #perfilNome {
+        font-size: 1rem;
+    }
+
+    .badges {
+        gap: 0.4rem;
+    }
+
+    .badges span {
+        font-size: 0.68rem;
+        padding: 0.28rem 0.6rem;
+    }
+
+    /* Mascote decorativo — some no mobile pra não brigar por espaço
+       com os cards de terapeuta/conta */
+    .gato-deitado {
+        display: none;
+    }
+
+    /* Modais mais estreitos em telas pequenas */
+    #modalCrianca .modal-conteudo,
+    #modalVincular .modal-conteudo {
+        padding: 1.3rem;
+    }
+
+    #modalCrianca h3,
+    #modalVincular h3 {
+        font-size: 1rem;
+    }
+
+    #modalCrianca .crianca-foto-wrapper {
+        width: 80px;
+        height: 80px;
+    }
+}
