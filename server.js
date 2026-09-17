@@ -946,18 +946,22 @@ passport.deserializeUser(async (id, done) => {
 
 });
 
-app.get(
-    "/auth/google",
-    (req, res, next) => {
-        req.session.origemLogin = req.query.origem === "app" ? "app" : "web";
-        console.log("[DEBUG /auth/google] origem query =", req.query.origem, "| origemLogin salvo =", req.session.origemLogin, "| sessionID =", req.sessionID);
-        next();
-    },
+app.get("/auth/google", (req, res, next) => {
+
+    // Em vez de guardar "veio do app?" na sessão (que vimos se perder
+    // no redirecionamento de ida e volta pelo Google), mandamos essa
+    // informação dentro do parâmetro "state" do próprio OAuth — o Google
+    // devolve esse valor sem alteração no callback, então sobrevive ao
+    // redirecionamento mesmo que o cookie de sessão não sobreviva.
+    const origem = req.query.origem === "app" ? "app" : "web";
+
     passport.authenticate("google", {
         scope: ["profile", "email"],
-        prompt: "select_account"
-    })
-);
+        prompt: "select_account",
+        state: origem
+    })(req, res, next);
+
+});
 
 app.get(
     "/auth/google/callback",
@@ -981,9 +985,9 @@ app.get(
             destino = "/home";
         }
 
-        console.log("[DEBUG callback] session.origemLogin =", req.session.origemLogin, "| sessionID =", req.sessionID);
-        const eraApp = req.session.origemLogin === "app";
-        delete req.session.origemLogin;
+        // "state" veio do parâmetro que o Google devolve sem alterar —
+        // não depende do cookie de sessão sobreviver ao redirecionamento.
+        const eraApp = req.query.state === "app";
 
         // Navegador comum: redireciona normal, a sessão já está valendo aqui.
         if (!eraApp) {
