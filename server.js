@@ -407,7 +407,10 @@ async function estaLogado(req, res, next) {
 
         } catch (erro) {
             console.log("Erro ao verificar versão da sessão:", erro);
-            return next(); // não trava o usuário por erro de infra
+            if (req.originalUrl.startsWith("/api/")) {
+                return res.status(500).json({ erro: "Erro interno ao validar sessão." });
+            }
+            return res.status(500).send("Erro interno. Tente novamente em instantes.");
         }
 
     }
@@ -1064,13 +1067,9 @@ app.get("/auth/app-token", async (req, res) => {
 
 });
 
-app.post("/api/admin/pedido-status", limitarTentativasAdmin, async (req, res) => {
+app.post("/api/admin/pedido-status", estaLogado, exigeAdmin, limitarTentativasAdmin, async (req, res) => {
 
-    const { chave, email, novoStatus } = req.body;
-
-    if (!process.env.ADMIN_SECRET || !chavesIguaisSeguro(chave, process.env.ADMIN_SECRET)) {
-        return res.status(401).json({ erro: "Chave de admin inválida." });
-    }
+    const { email, novoStatus } = req.body;
 
     if (!email) {
         return res.status(400).json({ erro: "Informe o e-mail do usuário." });
@@ -1743,14 +1742,11 @@ app.post("/api/crianca/atualizar", estaLogado, upload.single("fotoCrianca"), asy
 
 // Envia a notificação de novidade para todos os usuários
 // que têm "Novidades e dicas" ativado nas configurações
-app.post("/api/admin/novidade", limitarTentativasAdmin, async (req, res) => {
+app.post("/api/admin/novidade", estaLogado, exigeAdmin, limitarTentativasAdmin, async (req, res) => {
 
-    const { chave, mensagem } = req.body;
+    const { mensagem } = req.body;
 
-    // Só continua se a chave enviada bater com a do .env
-    if (!process.env.ADMIN_SECRET || !chavesIguaisSeguro(chave, process.env.ADMIN_SECRET)) {
-        return res.status(401).json({ erro: "Chave de admin inválida." });
-    }
+
 
     if (!mensagem || mensagem.trim().length < 3) {
         return res.status(400).json({ erro: "Escreva uma mensagem válida." });
@@ -3886,15 +3882,21 @@ app.post('/login', limitarLoginPorIp, limitarTentativasLogin, async (req, res) =
         }
 
         // Sem 2FA (admin, ou outros tipos futuros)
-        req.session.usuarioId = usuario.id;
-        req.session.tipo = usuario.tipo;
-        req.session.versaoSessao = usuario.versao_sessao; 
-        
+        req.session.regenerate((erroRegen) => {
+            if (erroRegen) {
+                console.log("Erro ao regenerar sessão no login:", erroRegen);
+                return res.status(500).json({ erro: "Erro no servidor. Tente novamente." });
+            }
 
-        if (usuario.tipo === "psicologo") {
-            return res.redirect("/homeTerapeuta");
-        }
-        return res.redirect("/home");
+            req.session.usuarioId = usuario.id;
+            req.session.tipo = usuario.tipo;
+            req.session.versaoSessao = usuario.versao_sessao;
+
+            if (usuario.tipo === "psicologo") {
+                return res.redirect("/homeTerapeuta");
+            }
+            return res.redirect("/home");
+        });
 
     } catch (erro) {
 
@@ -3962,14 +3964,21 @@ app.post("/api/2fa/verificar", limitarVerificacao2FA, async (req, res) => {
         );
 
         // Agora sim, abre a sessão de verdade
-        req.session.usuarioId = pendente.usuarioId;
-        req.session.tipo = pendente.tipo;
-        req.session.versaoSessao = pendente.versaoSessao;
-        delete req.session.pendente2FA;
+        const dadosPendente = { ...pendente }; // guarda antes, pois regenerate() limpa a sessão
 
-        const destino = pendente.tipo === "psicologo" ? "/homeTerapeuta" : "/home";
+        req.session.regenerate((erroRegen) => {
+            if (erroRegen) {
+                console.log("Erro ao regenerar sessão no 2FA:", erroRegen);
+                return res.status(500).json({ erro: "Erro interno. Tente novamente." });
+            }
 
-        return res.json({ sucesso: true, destino });
+            req.session.usuarioId = dadosPendente.usuarioId;
+            req.session.tipo = dadosPendente.tipo;
+            req.session.versaoSessao = dadosPendente.versaoSessao;
+
+            const destino = dadosPendente.tipo === "psicologo" ? "/homeTerapeuta" : "/home";
+            return res.json({ sucesso: true, destino });
+        });
 
     } catch (erro) {
 
