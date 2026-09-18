@@ -53,79 +53,115 @@ aplicarIdiomaEstatico();
 // PERGUNTAS DO QUESTIONÁRIO
 // ==========================
 
-// Texto canônico (sempre em português) — é o que é enviado ao backend,
-// independente do idioma que está sendo exibido na tela
+// 🔧 Cada pergunta agora carrega suas próprias alternativas. As duas
+// primeiras têm "id" — são as mesmas que o relatório diário usa
+// (gatilho_principal e crises_sensoriais), pra esse primeiro
+// preenchimento já alimentar os gráficos de relatórios e servir de
+// base pras primeiras dicas geradas pela IA.
 const perguntasPt = [
 
-    "Com que frequência sua criança fica incomodada com barulhos altos ou inesperados?",
-
-    "Sua criança evita certas texturas de alimentos ou tecidos?",
-
-    "Ela demonstra sensibilidade excessiva à luz ou movimentos rápidos?",
-
-    "Sua criança procura atividades com bastante movimento, como girar ou pular?",
-
-    "Sua criança se distrai facilmente durante atividades?",
-
-    "Ela se incomoda quando alguém encosta nela inesperadamente?",
-
-    "Sua criança gosta de observar objetos girando ou luzes?",
-
-    "Ela evita lugares muito movimentados ou cheios de pessoas?",
-
-    "Sua criança gosta de cheirar objetos frequentemente?",
-
-    "Ela apresenta dificuldade para dormir devido aos estímulos do ambiente?"
+    {
+        id: "gatilho_principal",
+        texto: "Qual desses fatores mais incomoda ou agita sua criança no dia a dia?",
+        alternativas: ["Ambientes barulhentos", "Locais lotados", "Mudança de rotina", "Não identificado"]
+    },
+    {
+        id: "crises_sensoriais",
+        texto: "Nas últimas semanas, com que frequência você percebeu crises sensoriais na sua criança (chorar, tapar os ouvidos, se agitar)?",
+        alternativas: ["Nenhuma", "Poucas", "Algumas", "Sim, várias"]
+    },
+    {
+        texto: "Sua criança evita certas texturas de alimentos ou tecidos?",
+        alternativas: ["Sempre", "Quase sempre", "Raramente", "Nunca"]
+    },
+    {
+        texto: "Ela demonstra sensibilidade excessiva à luz ou movimentos rápidos?",
+        alternativas: ["Sempre", "Quase sempre", "Raramente", "Nunca"]
+    },
+    {
+        texto: "Sua criança procura atividades com bastante movimento, como girar ou pular?",
+        alternativas: ["Sempre", "Quase sempre", "Raramente", "Nunca"]
+    },
+    {
+        texto: "Sua criança se distrai facilmente durante atividades?",
+        alternativas: ["Sempre", "Quase sempre", "Raramente", "Nunca"]
+    },
+    {
+        texto: "Ela se incomoda quando alguém encosta nela inesperadamente?",
+        alternativas: ["Sempre", "Quase sempre", "Raramente", "Nunca"]
+    },
+    {
+        texto: "Sua criança gosta de observar objetos girando ou luzes?",
+        alternativas: ["Sempre", "Quase sempre", "Raramente", "Nunca"]
+    },
+    {
+        texto: "Ela evita lugares muito movimentados ou cheios de pessoas?",
+        alternativas: ["Sempre", "Quase sempre", "Raramente", "Nunca"]
+    },
+    {
+        texto: "Ela apresenta dificuldade para dormir devido aos estímulos do ambiente?",
+        alternativas: ["Sempre", "Quase sempre", "Raramente", "Nunca"]
+    }
 
 ];
 
 // Apenas para exibição em inglês — nunca é enviado ao backend
 const perguntasEn = [
 
-    "How often is your child bothered by loud or unexpected noises?",
+    {
+        texto: "Which of these factors most bothers or upsets your child day-to-day?",
+        alternativas: ["Noisy environments", "Crowded places", "Routine changes", "Not identified"]
+    },
+    {
+        texto: "In the past few weeks, how often did you notice sensory crises in your child (crying, covering ears, becoming agitated)?",
+        alternativas: ["None", "A few", "Some", "Yes, several"]
+    },
+    {
+        texto: "Does your child avoid certain food textures or fabrics?",
+        alternativas: ["Always", "Almost always", "Rarely", "Never"]
+    },
+    {
+        texto: "Does your child show excessive sensitivity to light or fast movement?",
+        alternativas: ["Always", "Almost always", "Rarely", "Never"]
+    },
+    {
+        texto: "Does your child seek out activities with lots of movement, like spinning or jumping?",
+        alternativas: ["Always", "Almost always", "Rarely", "Never"]
+    },
+    {
+        texto: "Does your child get distracted easily during activities?",
+        alternativas: ["Always", "Almost always", "Rarely", "Never"]
+    },
+    {
+        texto: "Does your child get bothered when someone touches them unexpectedly?",
+        alternativas: ["Always", "Almost always", "Rarely", "Never"]
+    },
+    {
+        texto: "Does your child enjoy watching spinning objects or lights?",
+        alternativas: ["Always", "Almost always", "Rarely", "Never"]
+    },
+    {
+        texto: "Does your child avoid very busy or crowded places?",
+        alternativas: ["Always", "Almost always", "Rarely", "Never"]
+    },
+    {
+        texto: "Does your child have trouble sleeping due to environmental stimuli?",
+        alternativas: ["Always", "Almost always", "Rarely", "Never"]
+    }
 
-    "Does your child avoid certain food textures or fabrics?",
-
-    "Does your child show excessive sensitivity to light or fast movement?",
-
-    "Does your child seek out activities with lots of movement, like spinning or jumping?",
-
-    "Does your child get distracted easily during activities?",
-
-    "Does your child get bothered when someone touches them unexpectedly?",
-
-    "Does your child enjoy watching spinning objects or lights?",
-
-    "Does your child avoid very busy or crowded places?",
-
-    "Does your child enjoy smelling objects often?",
-
-    "Does your child have trouble sleeping due to environmental stimuli?"
-
-];
-
-// Alternativas fixas para todas as perguntas
-// (mesma ideia: valor canônico em PT + exibição traduzida)
-const alternativasPt = [
-    "Sempre",
-    "Quase sempre",
-    "Raramente",
-    "Nunca"
-];
-
-const alternativasEn = [
-    "Always",
-    "Almost always",
-    "Rarely",
-    "Never"
 ];
 
 function textoPergunta(indice) {
-    return idiomaAtual === "en" ? perguntasEn[indice] : perguntasPt[indice];
+    return idiomaAtual === "en" ? perguntasEn[indice].texto : perguntasPt[indice].texto;
 }
 
-function textoAlternativa(indice) {
-    return idiomaAtual === "en" ? alternativasEn[indice] : alternativasPt[indice];
+// Recebe o índice da PERGUNTA e o índice da ALTERNATIVA dentro dela,
+// já que cada pergunta pode ter opções diferentes
+function textoAlternativa(indicePergunta, indiceAlternativa) {
+    const lista = idiomaAtual === "en"
+        ? perguntasEn[indicePergunta].alternativas
+        : perguntasPt[indicePergunta].alternativas;
+    return lista[indiceAlternativa];
 }
 
 // Variáveis de estado
@@ -217,12 +253,14 @@ function renderOpcoes() {
     const opcoes = document.getElementById("opcoes");
     opcoes.innerHTML = "";
 
-    alternativasPt.forEach((valorCanonico, i) => {
+    const alternativasCanonicas = perguntasPt[perguntaAtual].alternativas;
+
+    alternativasCanonicas.forEach((valorCanonico, i) => {
 
         const botao = document.createElement("button");
         botao.type      = "button";
         botao.className = "opcao" + (respostaSelecionada === valorCanonico ? " selecionada" : "");
-        botao.textContent = textoAlternativa(i);
+        botao.textContent = textoAlternativa(perguntaAtual, i);
         botao.dataset.valor = valorCanonico;
 
         botao.addEventListener("click", () => selecionarOpcao(botao, valorCanonico));
@@ -288,9 +326,13 @@ btnProximo.addEventListener("click", async () => {
     if (respostaSelecionada === null) return;
 
     // 🔧 FIX 1: Guarda a resposta no array — sempre em português (canônico),
-    // igual ao que o backend já espera receber
+    // igual ao que o backend já espera receber. Perguntas com "id" (as duas
+    // primeiras) mandam o id junto, pra alimentar os gráficos do relatório.
+    const perguntaAtualObj = perguntasPt[perguntaAtual];
+
     respostasUsuario.push({
-        pergunta: perguntasPt[perguntaAtual],
+        ...(perguntaAtualObj.id ? { id: perguntaAtualObj.id } : {}),
+        pergunta: perguntaAtualObj.texto,
         resposta: respostaSelecionada
     });
 

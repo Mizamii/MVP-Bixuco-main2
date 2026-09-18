@@ -2310,7 +2310,7 @@ app.post("/api/perfil-sensorial", estaLogado, async (req, res) => {
 
         }
 
-        // Salva o perfil sensorial no banco
+        // Salva o perfil sensorial no banco       // Salva o perfil sensorial no banco
         await db.query(
             `INSERT INTO perfil_sensorial
              (usuario_id, crianca_id, respostas)
@@ -2321,6 +2321,36 @@ app.post("/api/perfil-sensorial", estaLogado, async (req, res) => {
                 JSON.stringify(respostas)
             ]
         );
+
+        // 🔧 O perfil sensorial serve também como relatório inicial: cria
+        // um registro em "relatorios" com as mesmas respostas, pra já
+        // alimentar a sequência de dias, os gráficos (gatilho_principal e
+        // crises_sensoriais têm os mesmos ids que o relatório diário usa)
+        // e liberar a geração das primeiras dicas.
+        try {
+
+            const jaTemRelatorioHoje = await db.query(
+                `SELECT id FROM relatorios WHERE usuario_id = $1 AND DATE(data) = CURRENT_DATE`,
+                [usuarioId]
+            );
+
+            if (jaTemRelatorioHoje.rows.length === 0) {
+
+                await db.query(
+                    `INSERT INTO relatorios (usuario_id, respostas, data)
+                     VALUES ($1, $2, NOW())`,
+                    [usuarioId, JSON.stringify(respostas)]
+                );
+
+                gerarDicasInterno(usuarioId).catch(erroDicas => {
+                    console.log("Erro ao gerar dicas iniciais:", erroDicas);
+                });
+
+            }
+
+        } catch (erroRelatorio) {
+            console.log("Erro ao criar relatório inicial a partir do perfil sensorial:", erroRelatorio);
+        }
 
         return res.status(201).json({ mensagem: "Perfil sensorial salvo com sucesso." });
 
@@ -5653,81 +5683,65 @@ app.post("/api/bixuco/evento", exigeDispositivo, async (req, res) => {
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
+async function gerarDicasInterno(usuarioId) {
 
+    const geracoesRecentes = await db.query(
+        `SELECT dicas FROM dicas_personalizadas
+         WHERE usuario_id = $1
+         AND gerado_em >= NOW() - INTERVAL '7 days'
+         ORDER BY gerado_em DESC`,
+        [usuarioId]
+    );
 
-app.post("/api/dicas/gerar", estaLogado, async (req, res) => {
+    if (geracoesRecentes.rows.length >= 1) {
+        return { erro: "ja_gerou_essa_semana", dicas: geracoesRecentes.rows[0].dicas };
+    }
 
-    try {
+    const dicasAnteriores = await db.query(
+        `SELECT dicas FROM dicas_personalizadas
+         WHERE usuario_id = $1
+         ORDER BY gerado_em DESC
+         LIMIT 4`,
+        [usuarioId]
+    );
 
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+    let dicasJaUsadas = "";
+    if (dicasAnteriores.rows.length > 0) {
+        const todasAnteriores = dicasAnteriores.rows.flatMap(r => r.dicas);
+        dicasJaUsadas = todasAnteriores
+            .map(d => `- ${d.titulo}: ${d.texto}`)
+            .join("\n");
+    }
 
-        // Verifica se ja gerou essa semana (limite de 1x/semana)
-        const geracoesRecentes = await db.query(
-            `SELECT dicas FROM dicas_personalizadas
-             WHERE usuario_id = $1
-             AND gerado_em >= NOW() - INTERVAL '7 days'
-             ORDER BY gerado_em DESC`,
-            [usuarioId]
-        );
+    const relatoriosRecentes = await db.query(
+        `SELECT respostas FROM relatorios
+         WHERE usuario_id = $1
+         AND data >= NOW() - INTERVAL '7 days'
+         ORDER BY data DESC`,
+        [usuarioId]
+    );
 
-        if (geracoesRecentes.rows.length >= 1) {
-            return res.status(429).json({
-                erro: "Já gerou as dicas dessa semana. Espere até a próxima semana.",
-                dicas: geracoesRecentes.rows[0].dicas
-            });
-        }
+    if (relatoriosRecentes.rows.length === 0) {
+        return { erro: "sem_relatorios" };
+    }
 
-        // Busca dicas anteriores (ultimas 4 geracoes, sem limite de data)
-        // para instruir a IA a nao repetir as mesmas dicas de novo
-        const dicasAnteriores = await db.query(
-            `SELECT dicas FROM dicas_personalizadas
-             WHERE usuario_id = $1
-             ORDER BY gerado_em DESC
-             LIMIT 4`,
-            [usuarioId]
-        );
+    let resumo = "";
+    relatoriosRecentes.rows.forEach((linha, i) => {
+        const respostas = typeof linha.respostas === "string"
+            ? JSON.parse(linha.respostas)
+            : linha.respostas;
 
-        let dicasJaUsadas = "";
-        if (dicasAnteriores.rows.length > 0) {
-            const todasAnteriores = dicasAnteriores.rows.flatMap(r => r.dicas);
-            dicasJaUsadas = todasAnteriores
-                .map(d => `- ${d.titulo}: ${d.texto}`)
-                .join("\n");
-        }
-
-        // Busca as respostas dos ultimos 7 dias
-        const relatoriosRecentes = await db.query(
-            `SELECT respostas FROM relatorios
-             WHERE usuario_id = $1
-             AND data >= NOW() - INTERVAL '7 days'
-             ORDER BY data DESC`,
-            [usuarioId]
-        );
-
-        if (relatoriosRecentes.rows.length === 0) {
-            return res.status(404).json({
-                erro: "Ainda não há relatórios suficientes para gerar dicas personalizadas."
-            });
-        }
-
-        // Monta o resumo em texto para a IA
-        let resumo = "";
-        relatoriosRecentes.rows.forEach((linha, i) => {
-            const respostas = typeof linha.respostas === "string"
-                ? JSON.parse(linha.respostas)
-                : linha.respostas;
-
-            resumo += `\nRelatório ${i + 1}:\n`;
-            respostas.forEach(r => {
-                resumo += `- ${r.pergunta}: ${r.resposta}\n`;
-            });
+        resumo += `\nRelatório ${i + 1}:\n`;
+        respostas.forEach(r => {
+            resumo += `- ${r.pergunta}: ${r.resposta}\n`;
         });
+    });
 
-        const instrucaoVariedade = dicasJaUsadas
-            ? `\n\nIMPORTANTE: estas dicas já foram dadas antes. Você pode falar sobre o mesmo tema/dificuldade, mas a dica em si (o conselho prático específico) precisa ser DIFERENTE das anteriores, não repita a mesma sugestão:\n${dicasJaUsadas}`
-            : "";
+    const instrucaoVariedade = dicasJaUsadas
+        ? `\n\nIMPORTANTE: estas dicas já foram dadas antes. Você pode falar sobre o mesmo tema/dificuldade, mas a dica em si (o conselho prático específico) precisa ser DIFERENTE das anteriores, não repita a mesma sugestão:\n${dicasJaUsadas}`
+        : "";
 
-        const promptCompleto = `Você é um assistente que ajuda pais de crianças com Transtorno de Processamento Sensorial (TPS). Com base nas respostas do relatório diário, gere de 2 a 3 dicas práticas e específicas.
+    const promptCompleto = `Você é um assistente que ajuda pais de crianças com Transtorno de Processamento Sensorial (TPS). Com base nas respostas do relatório diário, gere de 2 a 3 dicas práticas e específicas.
 
 Responda APENAS com um JSON válido, sem nenhum texto antes ou depois, exatamente neste formato:
 [
@@ -5741,54 +5755,83 @@ ${resumo}
 
 Gere as dicas personalizadas.`;
 
-        const respostaIA = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/interactions?key=${GEMINI_API_KEY}`,
-            {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    model: "models/gemini-3-flash-preview",
-                    input: promptCompleto,
-                    generation_config: {
-                        max_output_tokens: 2000,
-                        thinking_level: "low"
-                    }
-                })
-            }
-        );
+    const respostaIA = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/interactions?key=${GEMINI_API_KEY}`,
+        {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                model: "models/gemini-3-flash-preview",
+                input: promptCompleto,
+                generation_config: {
+                    max_output_tokens: 2000,
+                    thinking_level: "low"
+                }
+            })
+        }
+    );
 
-        const dadosIA = await respostaIA.json();
+    const dadosIA = await respostaIA.json();
 
-        if (!respostaIA.ok) {
-            console.log("Erro na API do Gemini:", dadosIA);
+    if (!respostaIA.ok) {
+        console.log("Erro na API do Gemini:", dadosIA);
+        return { erro: "erro_ia" };
+    }
+
+    const stepResposta = dadosIA.steps.find(s => s.type === "model_output");
+
+    if (!stepResposta) {
+        console.log("Resposta do Gemini sem model_output:", dadosIA);
+        return { erro: "erro_ia" };
+    }
+
+    let textoResposta = stepResposta.content.map(c => c.text).join("").trim();
+    textoResposta = textoResposta.replace(/```json|```/g, "").trim();
+
+    let dicasGeradas;
+    try {
+        dicasGeradas = JSON.parse(textoResposta);
+    } catch (erroParse) {
+        console.log("Erro ao interpretar resposta da IA:", textoResposta);
+        return { erro: "erro_ia" };
+    }
+
+    await db.query(
+        `INSERT INTO dicas_personalizadas (usuario_id, dicas)
+         VALUES ($1, $2)`,
+        [usuarioId, JSON.stringify(dicasGeradas)]
+    );
+
+    return { dicas: dicasGeradas, novo: true };
+}
+
+
+app.post("/api/dicas/gerar", estaLogado, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+
+        const resultado = await gerarDicasInterno(usuarioId);
+
+        if (resultado.erro === "ja_gerou_essa_semana") {
+            return res.status(429).json({
+                erro: "Já gerou as dicas dessa semana. Espere até a próxima semana.",
+                dicas: resultado.dicas
+            });
+        }
+
+        if (resultado.erro === "sem_relatorios") {
+            return res.status(404).json({
+                erro: "Ainda não há relatórios suficientes para gerar dicas personalizadas."
+            });
+        }
+
+        if (resultado.erro === "erro_ia") {
             return res.status(500).json({ erro: "Erro ao gerar dica. Tente novamente." });
         }
 
-        const stepResposta = dadosIA.steps.find(s => s.type === "model_output");
-
-        if (!stepResposta) {
-            console.log("Resposta do Gemini sem model_output:", dadosIA);
-            return res.status(500).json({ erro: "Erro ao processar a resposta da IA." });
-        }
-
-        let textoResposta = stepResposta.content.map(c => c.text).join("").trim();
-        textoResposta = textoResposta.replace(/```json|```/g, "").trim();
-
-        let dicasGeradas;
-        try {
-            dicasGeradas = JSON.parse(textoResposta);
-        } catch (erroParse) {
-            console.log("Erro ao interpretar resposta da IA:", textoResposta);
-            return res.status(500).json({ erro: "Erro ao processar a resposta da IA." });
-        }
-
-        await db.query(
-            `INSERT INTO dicas_personalizadas (usuario_id, dicas)
-             VALUES ($1, $2)`,
-            [usuarioId, JSON.stringify(dicasGeradas)]
-        );
-
-        res.json({ dicas: dicasGeradas, novo: true });
+        res.json(resultado);
 
     } catch (erro) {
         console.log("Erro ao gerar dica personalizada:", erro);
