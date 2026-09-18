@@ -547,6 +547,42 @@ const limitarCriacaoConta = criarLimitadorPorIp(
     "Muitas tentativas de cadastro. Tente novamente mais tarde."
 );
 
+// Rate limiting da recuperação de senha — combina IP + email,
+// mesmo padrão do login: impede tanto alguém martelando o mesmo
+// email quanto um bot varrendo vários emails do mesmo IP
+const tentativasRecuperacaoPorChave = new Map(); // "ip|email" -> { count, resetAt }
+
+function limitarRecuperacaoSenha(req, res, next) {
+    const ip    = req.ip;
+    const email = String(req.body?.email || "").toLowerCase().trim();
+    const agora = Date.now();
+    const janela = 15 * 60 * 1000; // 15 min
+    const limite = 3; // recuperação de senha pode ser mais restrita que login
+
+    const chave = `${ip}|${email}`;
+    const registroChave = tentativasRecuperacaoPorChave.get(chave);
+
+    if (!registroChave || agora > registroChave.resetAt) {
+        tentativasRecuperacaoPorChave.set(chave, { count: 1, resetAt: agora + janela });
+    } else {
+        if (registroChave.count >= limite) {
+            return res.status(429).json({
+                erro: "Muitas solicitações para este e-mail. Tente novamente mais tarde."
+            });
+        }
+        registroChave.count++;
+    }
+
+    next();
+}
+
+// Rate limiting do IP puro na recuperação — cobre bot varrendo vários emails do mesmo lugar
+const limitarRecuperacaoPorIp = criarLimitadorPorIp(
+    10,
+    15 * 60 * 1000,
+    "Muitas solicitações de recuperação de senha. Tente novamente mais tarde."
+);
+
 function exigeTerapeuta(req, res, next) {
     const tipo = req.session.tipo || (req.user && req.user.tipo);
     if (tipo === 'psicologo') return next();
@@ -1125,7 +1161,7 @@ app.post("/api/admin/pedido-status", estaLogado, exigeAdmin, limitarTentativasAd
     }
 });
 
-mapasDeRateLimit.push(tentativasAdmin, tentativasLoginPorChave);
+mapasDeRateLimit.push(tentativasAdmin, tentativasLoginPorChave, tentativasRecuperacaoPorChave);
 
 // Limpa entradas expiradas a cada hora
 setInterval(() => {
@@ -1707,7 +1743,12 @@ app.post("/api/crianca/atualizar", estaLogado, upload.single("fotoCrianca"), asy
         }
 
         // Mesmo padrão de storage usado em /api/perfil/atualizar
+        // Mesmo padrão de storage usado em /api/perfil/atualizar
         if (req.file) {
+
+            if (!(await validarImagemReal(req.file.buffer))) {
+                return res.status(400).json({ erro: "Arquivo inválido. Envie uma imagem JPEG, PNG ou WebP." });
+            }
             const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
             campos.push(`foto_url = $${indice++}`);
             valores.push(base64);
@@ -1785,6 +1826,17 @@ app.post("/api/admin/novidade", estaLogado, exigeAdmin, limitarTentativasAdmin, 
     }
 
 });
+
+// Valida o CONTEÚDO real do arquivo (magic bytes), não o mimetype
+// que o cliente informou no header — esse pode ser falsificado
+// só renomeando a extensão do arquivo.
+const TIPOS_IMAGEM_PERMITIDOS = ["image/jpeg", "image/png", "image/webp"];
+
+async function validarImagemReal(buffer) {
+    const { fileTypeFromBuffer } = await import("file-type");
+    const tipo = await fileTypeFromBuffer(buffer);
+    return !!tipo && TIPOS_IMAGEM_PERMITIDOS.includes(tipo.mime);
+}
 
 /* ==========================
    FUNÇÃO AUXILIAR
@@ -2378,6 +2430,11 @@ app.post("/api/adicionar-crianca", estaLogado, upload.single("fotoCrianca"), asy
         let fotoUrl = null;
 
         if (req.file) {
+
+            if (!(await validarImagemReal(req.file.buffer))) {
+                return res.status(400).json({ erro: "Arquivo inválido. Envie uma imagem JPEG, PNG ou WebP." });
+            }
+
             fotoUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
         }
 
@@ -4550,6 +4607,11 @@ app.post("/api/perfil/atualizar", estaLogado, upload.single("fotoPerfil"), async
         // Se veio uma foto nova, salva no disco (reaproveitando o multer
         // "upload" já configurado com memoryStorage, igual ao adicionar-crianca)
         if (req.file) {
+
+            if (!(await validarImagemReal(req.file.buffer))) {
+                return res.status(400).json({ erro: "Arquivo inválido. Envie uma imagem JPEG, PNG ou WebP." });
+            }
+
             const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
             campos.push(`foto_perfil = $${indice++}`);
             valores.push(base64);
@@ -5386,7 +5448,7 @@ app.post("/api/nota-clinica", estaLogado, async (req, res) => {
 
 });
 
-app.post("/esqueceu-senha", async (req, res) => {
+app.post("/esqueceu-senha", limitarRecuperacaoPorIp, limitarRecuperacaoSenha, async (req, res) => {
     const { email } = req.body;
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {

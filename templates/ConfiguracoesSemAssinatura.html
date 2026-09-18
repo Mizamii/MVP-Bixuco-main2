@@ -346,22 +346,13 @@
             </button>
         </div>
 
-        <form id="formAlterarSenha">
+        <p data-pt="Enviaremos um link de redefinição para o seu email cadastrado." data-en="We'll send a reset link to your registered email.">
+            Enviaremos um link de redefinição para o seu email cadastrado.
+        </p>
 
-            <label for="senhaAtual">Senha atual</label>
-            <input type="password" id="senhaAtual" required autocomplete="current-password">
-
-            <label for="novaSenha">Nova senha</label>
-            <input type="password" id="novaSenha" required autocomplete="new-password" minlength="6">
-
-            <label for="confirmarNovaSenha">Confirmar nova senha</label>
-            <input type="password" id="confirmarNovaSenha" required autocomplete="new-password" minlength="6">
-
-            <button type="submit" class="btn-salvar-senha" id="btnSalvarSenha">
-                Salvar nova senha
-            </button>
-
-        </form>
+        <button type="button" class="btn-salvar-senha" id="btnEnviarSenha" data-pt="Enviar email" data-en="Send email">
+            Enviar email
+        </button>
 
         <p id="statusSenha" class="status-senha"></p>
 

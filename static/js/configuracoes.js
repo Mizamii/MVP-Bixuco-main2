@@ -233,14 +233,9 @@ document.getElementById("btnCompartilhar").addEventListener("click", () => {
 });
 
 
-// ==========================
-// 🔧 ALTERAR SENHA — AGORA VIA MODAL
-// ==========================
-
-const modalSenha        = document.getElementById("modalSenha");
-const formAlterarSenha  = document.getElementById("formAlterarSenha");
-const btnSalvarSenha    = document.getElementById("btnSalvarSenha");
-const statusSenha       = document.getElementById("statusSenha");
+const modalSenha     = document.getElementById("modalSenha");
+const btnEnviarSenha = document.getElementById("btnEnviarSenha");
+const statusSenha    = document.getElementById("statusSenha");
 
 function abrirModalSenha() {
     modalSenha.classList.add("aberto");
@@ -250,8 +245,9 @@ function abrirModalSenha() {
 function fecharModalSenha() {
     modalSenha.classList.remove("aberto");
     document.body.style.overflow = "";
-    formAlterarSenha.reset();
     statusSenha.className = "status-senha";
+    btnEnviarSenha.disabled    = false;
+    btnEnviarSenha.textContent = "Enviar email";
 }
 
 function mostrarStatusSenha(texto, tipo) {
@@ -262,76 +258,41 @@ function mostrarStatusSenha(texto, tipo) {
 document.getElementById("btnAlterarSenha").addEventListener("click", abrirModalSenha);
 document.getElementById("btnFecharModalSenha").addEventListener("click", fecharModalSenha);
 
-// Fecha clicando fora do card
 modalSenha.addEventListener("click", (e) => {
     if (e.target === modalSenha) fecharModalSenha();
 });
 
-// Fecha com Escape
 document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && modalSenha.classList.contains("aberto")) {
         fecharModalSenha();
     }
 });
 
-formAlterarSenha.addEventListener("submit", async (e) => {
+btnEnviarSenha.addEventListener("click", async () => {
 
-    e.preventDefault();
-
-    const senhaAtual         = document.getElementById("senhaAtual").value;
-    const novaSenha          = document.getElementById("novaSenha").value;
-    const confirmarNovaSenha = document.getElementById("confirmarNovaSenha").value;
-
-    if (novaSenha.length < 6 || !/[A-Z]/.test(novaSenha) || !/[!@#$%^&*(),.?":{}|<>_\-\\[\];'/+=]/.test(novaSenha)) {
-        mostrarStatusSenha("A nova senha deve ter pelo menos 6 caracteres, uma letra maiúscula e um caractere especial.", "erro");
-        return;
-    }
-
-    if (novaSenha !== confirmarNovaSenha) {
-        mostrarStatusSenha("As senhas novas não coincidem.", "erro");
-        return;
-    }
-
-    btnSalvarSenha.disabled    = true;
-    btnSalvarSenha.textContent = "Salvando...";
+    btnEnviarSenha.disabled    = true;
+    btnEnviarSenha.textContent = "Enviando...";
 
     try {
 
-        const resposta = await fetch("/api/alterar-senha", {
+        const me = await fetch("/api/perfil").then(r => r.json());
 
-            method: "POST",
-
-            headers: {
-                "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify({
-                senhaAtual,
-                novaSenha,
-                confirmarNovaSenha
-            })
-
+        const resposta = await fetch("/esqueceu-senha", {
+            method:  "POST",
+            headers: { "Content-Type": "application/json" },
+            body:    JSON.stringify({ email: me.email })
         });
 
-        const dados = await resposta.json();
+        if (!resposta.ok) throw new Error();
 
-        if (!resposta.ok) {
-            throw new Error(dados.erro || "Erro ao alterar a senha.");
-        }
+        mostrarStatusSenha("Email enviado! Confira sua caixa de entrada.", "sucesso");
+        btnEnviarSenha.textContent = "Enviado!";
 
-        mostrarStatusSenha(dados.mensagem || "Senha alterada com sucesso!", "sucesso");
-        formAlterarSenha.reset();
+    } catch (_) {
 
-        setTimeout(fecharModalSenha, 1800);
-
-    } catch (erro) {
-
-        mostrarStatusSenha(erro.message, "erro");
-
-    } finally {
-
-        btnSalvarSenha.disabled    = false;
-        btnSalvarSenha.textContent = "Salvar nova senha";
+        mostrarStatusSenha("Erro ao enviar. Tente novamente.", "erro");
+        btnEnviarSenha.disabled    = false;
+        btnEnviarSenha.textContent = "Enviar email";
 
     }
 
