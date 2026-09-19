@@ -25,6 +25,8 @@
     >
     <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
 
+    <link rel="stylesheet" href="/css/termosModal.css">
+
 </head>
 
 <body>
@@ -224,13 +226,13 @@
                 <!-- Termos -->
                 <p class="cadastro-form__termos">
                     <span data-pt="Ao criar sua conta você concorda com nossos" data-en="By creating your account you agree to our">Ao criar sua conta você concorda com nossos</span>
-                    <a href="/termos" class="cadastro-form__link--azul" data-pt="Termos de uso" data-en="Terms of use">
+                    <button type="button" id="btnAbrirTermos" class="cadastro-form__link--azul" data-pt="Termos de uso" data-en="Terms of use">
                         Termos de uso
-                    </a>
+                    </button>
                     <span data-pt="e" data-en="and">e</span>
-                    <a href="/privacidade" class="cadastro-form__link--verde" data-pt="Política de privacidade." data-en="Privacy policy.">
+                    <button type="button" id="btnAbrirPrivacidade" class="cadastro-form__link--verde" data-pt="Política de privacidade." data-en="Privacy policy.">
                         Política de privacidade.
-                    </a>
+                    </button>
                 </p>
 
             </div>
@@ -244,6 +246,9 @@
     <script src="/js/CriarContaSenha.js"></script>
 
     <script src="/js/tema.js"></script>
+
+    
+    <script src="/js/termosModal.js"></script>
 
 </body>
 </html>
