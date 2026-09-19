@@ -21,6 +21,9 @@ const dicionario = {
     erroSalvarNota:            { pt: "Erro ao salvar a nota. Tente novamente.", en: "Error saving the note. Try again." },
     salvando:                   { pt: "Salvando...",                           en: "Saving..." },
     salvarNotaTxt:                { pt: "Salvar nota",                         en: "Save note" },
+    notaExpiraPrefixo:            { pt: "Esta nota será excluída automaticamente em",     en: "This note will be automatically deleted in" },
+    notaExpiraDia:                  { pt: "dia",                                          en: "day" },
+    notaExpiraDias:                  { pt: "dias",                                        en: "days" },
 };
 
 function t(chave) {
@@ -32,6 +35,33 @@ function t(chave) {
 // =========================
 // COPIAR CÓDIGO DO TERAPEUTA
 // =========================
+
+function formatarAvisoExpiracaoNota(notaExpiraISO) {
+    if (!notaExpiraISO) return "";
+
+    const expiraEm = new Date(notaExpiraISO);
+    const agora     = new Date();
+    const diffMs    = expiraEm.getTime() - agora.getTime();
+    const diffDias  = Math.max(0, Math.ceil(diffMs / (24 * 60 * 60 * 1000)));
+
+    const dataFormatada = expiraEm.toLocaleDateString(idiomaAtual === "en" ? "en-US" : "pt-BR");
+    const palavraDia     = diffDias === 1 ? t("notaExpiraDia") : t("notaExpiraDias");
+
+    return `${t("notaExpiraPrefixo")} ${diffDias} ${palavraDia} (${dataFormatada})`;
+}
+
+function atualizarAvisoExpiracaoNota(notaExpiraISO) {
+    const aviso = document.getElementById("notaExpiraInfo");
+    const texto = formatarAvisoExpiracaoNota(notaExpiraISO);
+
+    if (texto) {
+        aviso.textContent   = texto;
+        aviso.style.display = "block";
+    } else {
+        aviso.textContent   = "";
+        aviso.style.display = "none";
+    }
+}
 
 function copiarCodigo() {
     const codigo = document.getElementById("codigoTerapeuta").textContent;
@@ -435,6 +465,7 @@ async function selecionarDia(dataISO) {
     document.getElementById("painelDiaConteudo").innerHTML  = "";
     document.getElementById("notaDoDia").value = "";
     document.getElementById("erroNotaDia").style.display = "none";
+    document.getElementById("notaExpiraInfo").style.display = "none";
 
     try {
 
@@ -458,6 +489,7 @@ async function selecionarDia(dataISO) {
             `).join("")}</ul>`
             : `<p class="sem-relatorio-dia">${t("semRelatorioDia")}</p>`;
         document.getElementById("notaDoDia").value = detalhe.nota || "";
+        atualizarAvisoExpiracaoNota(detalhe.notaExpiraEm);
 
     } catch (_) {
         document.getElementById("painelDiaConteudo").innerHTML =
@@ -497,7 +529,10 @@ async function salvarNotaDoDia() {
             return;
         }
 
-        if (!resposta.ok) throw new Error();
+    if (!resposta.ok) throw new Error();
+
+        const dadosResposta = await resposta.json();
+        atualizarAvisoExpiracaoNota(dadosResposta.expiraEm);
 
     } catch (_) {
         erroEl.textContent   = t("erroSalvarNota");

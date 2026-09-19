@@ -241,6 +241,34 @@ cron.schedule('0 4 * * *', async () => {
     timezone: "America/Sao_Paulo"
 });
 
+/* 
+   EXCLUSÃO AUTOMÁTICA DE NOTAS CLÍNICAS (retenção de 7 dias)
+   Nota: por decisão do projeto, simplificado para fins de MVP/TCC.
+   Um prontuário real segue a Resolução CFP nº 1/2009 (guarda mínima
+   de 5 anos, ou 20 anos por analogia ao prontuário médico).
+ */
+
+cron.schedule('0 4 * * *', async () => {
+
+    try {
+
+        const resultado = await db.query(
+            `DELETE FROM notas_clinicas
+             WHERE criado_em < NOW() - INTERVAL '7 days'`
+        );
+
+        console.log(`Limpeza de notas clínicas: ${resultado.rowCount} removida(s).`);
+
+    } catch (erro) {
+
+        console.log("Erro na limpeza de notas clínicas:", erro);
+
+    }
+
+}, {
+    timezone: "America/Sao_Paulo"
+});
+
 // GET — busca preferências
 app.get("/api/preferencias", estaLogado, async (req, res) => {
     try {
@@ -5336,16 +5364,21 @@ app.get("/api/relatorio-paciente/dia", estaLogado, async (req, res) => {
         });
 
         const notaDia = await db.query(
-            `SELECT texto FROM notas_clinicas
+            `SELECT texto, criado_em FROM notas_clinicas
              WHERE terapeuta_id = $1 AND paciente_id = $2 AND data_referencia = $3`,
             [terapeutaId, pacienteId, dataISO]
         );
+
+        const notaExpiraEm = notaDia.rows[0]
+            ? new Date(new Date(notaDia.rows[0].criado_em).getTime() + 7 * 24 * 60 * 60 * 1000).toISOString()
+            : null;
 
         res.json({
             temRelatorio,
             dataFormatada,
             perguntas,
-            nota: notaDia.rows[0]?.texto || ""
+            nota: notaDia.rows[0]?.texto || "",
+            notaExpiraEm
         });
 
     } catch (erro) {
@@ -5461,7 +5494,7 @@ app.post("/api/nota-clinica", estaLogado, async (req, res) => {
             return res.status(403).json({ erro: "Você não tem vínculo com esse paciente." });
         }
 
-        await db.query(
+                await db.query(
             `INSERT INTO notas_clinicas (terapeuta_id, paciente_id, data_referencia, texto)
              VALUES ($1, $2, $3, $4)
              ON CONFLICT (terapeuta_id, paciente_id, data_referencia)
@@ -5469,7 +5502,15 @@ app.post("/api/nota-clinica", estaLogado, async (req, res) => {
             [terapeutaId, parseInt(pacienteId), data, texto.trim()]
         );
 
-        return res.status(201).json({ mensagem: "Nota salva com sucesso." });
+        // A nota fica disponível por 7 dias a partir de agora (retenção
+        // automática) — devolve a data de expiração pro frontend avisar
+        // o terapeuta de quanto tempo falta.
+        const expiraEm = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+        return res.status(201).json({
+            mensagem: "Nota salva com sucesso.",
+            expiraEm: expiraEm.toISOString()
+        });
 
     } catch (erro) {
         console.log("Erro ao salvar nota clínica:", erro);

@@ -231,6 +231,12 @@
             opacity: 0.6;
             cursor: not-allowed;
         }
+
+        .nota-expira-info {
+            font-size: 0.75rem;
+            color: var(--cor-texto-esmaecido);
+            margin: 0.5rem 0 0;
+        }
     </style>
 </head>
 <body>
@@ -473,6 +479,7 @@
                         <textarea id="notaDoDia" placeholder="Anotação clínica desse dia..." rows="3"></textarea>
                         <div><span id="erroNotaDia" style="display:none; color:#E53E3E; font-size:0.8rem;"></span></div>
                         <button type="button" id="btnSalvarNotaDia" >Salvar nota</button>
+                        <p class="nota-expira-info" id="notaExpiraInfo" style="display:none;"></p>
                     </div>
 
                 </div>
