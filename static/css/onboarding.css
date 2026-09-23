@@ -1,45 +1,53 @@
 @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-8px); }
-    75% { transform: translateX(8px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-8px);
+  }
+  75% {
+    transform: translateX(8px);
+  }
 }
 .login-form__input--erro {
-    border-color: #ff4444 !important;
-    animation: shake 0.4s ease-in-out !important;
-}
-
-/* Reset básico */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
+  border-color: #ff4444 !important;
+  animation: shake 0.4s ease-in-out !important;
 }
 
 * {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
-/* Container principal da página */
+* {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
 .pagina-login {
-    display: flex;
-    height: 100vh;
+  display: flex;
+  height: 100vh;
 }
-
-/* ========================================= */
-/* LADO ESQUERDO */
-/* ========================================= */
 
 .login-esquerda {
   width: 50%;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, #1D8EC9 0%, #0AB7FB 45%, #79D836 75%, #32C26D 100%);
+  background: linear-gradient(
+    135deg,
+    #1d8ec9 0%,
+    #0ab7fb 45%,
+    #79d836 75%,
+    #32c26d 100%
+  );
   display: flex;
   flex-direction: column;
 }
@@ -49,7 +57,7 @@ html, body {
   inset: 0;
   z-index: 1;
   opacity: 0.55;
-  background-image: url('/img/padrao-triangulos-bixuco.svg');
+  background-image: url("/img/padrao-triangulos-bixuco.svg");
   background-size: cover;
   background-position: center;
 }
@@ -65,7 +73,7 @@ html, body {
   position: relative;
   z-index: 3;
   padding: 3.5rem 3rem 0 8rem;
-  color: #F5F7FA;
+  color: #f5f7fa;
   text-align: left;
   max-width: 480px;
 }
@@ -85,12 +93,12 @@ html, body {
 }
 
 .login-esquerda__titulo span {
-  color: #79D836;
+  color: #79d836;
 }
 
 .login-esquerda__slogan {
   font-size: 1rem;
-  color: #F5F7FA;
+  color: #f5f7fa;
   line-height: 1.6;
   font-weight: 500;
   max-width: 380px;
@@ -111,23 +119,19 @@ html, body {
   padding: 0 3rem 2rem 8rem;
 }
 
-/* ========================================= */
-/* LADO DIREITO */
-/* ========================================= */
-
 .login-direita {
-    width: 50%;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    padding: 0;
-    overflow-y: auto;
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0;
+  overflow-y: auto;
 }
 
 .criarconta-header {
   text-align: center;
   padding: 2.5rem 0 1.5rem;
-  border-bottom: 1px solid #E0E0E0;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .criarconta-titulo {
@@ -154,37 +158,41 @@ html, body {
 }
 
 .cadastro-progresso {
-    display: flex;
-    gap: 0.5rem;
-    width: 100%;
-    max-width: 400px;
-    margin-bottom: 2rem;
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 2rem;
 }
 
 .cadastro-progresso span {
-    flex: 1;
-    height: 6px;
-    border-radius: 999px;
-    background: #D9D9D9;
-    transition: background 0.3s ease, opacity 0.3s ease;
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: #d9d9d9;
+  transition:
+    background 0.3s ease,
+    opacity 0.3s ease;
 }
 
-/* Traços ativos "antigos" (etapas já concluídas) */
 .cadastro-progresso span.ativo {
-    background: #0AB7FB;
-    opacity: 0.7;
+  background: #0ab7fb;
+  opacity: 0.7;
 }
 
-/* O traço mais novo (etapa atual) fica 100% opaco */
 .cadastro-progresso span.ativo--recente {
-    opacity: 1;
-    transform-origin: left;
-    animation: preencherBarra 0.5s ease forwards;
+  opacity: 1;
+  transform-origin: left;
+  animation: preencherBarra 0.5s ease forwards;
 }
 
 @keyframes preencherBarra {
-    from { transform: scaleX(0); }
-    to { transform: scaleX(1); }
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
 }
 
 .criarconta-pergunta {
@@ -197,7 +205,7 @@ html, body {
 
 .criarconta-ajuda {
   font-size: 0.85rem;
-  color: #5A5A5A;
+  color: #5a5a5a;
   text-align: center;
   margin-bottom: 1.5rem;
 }
@@ -223,12 +231,12 @@ html, body {
 }
 
 .tipo-card:hover {
-  border-color: #0AB7FB;
-  background: #D9D9D9;
+  border-color: #0ab7fb;
+  background: #d9d9d9;
 }
 
 .tipo-card--ativo {
-  border-color: #32C26D;
+  border-color: #32c26d;
   box-shadow: 0 0 0 2px rgba(50, 194, 109, 0.2);
 }
 
@@ -241,7 +249,7 @@ html, body {
 
 .tipo-card__descricao {
   font-size: 0.85rem;
-  color: #5A5A5A;
+  color: #5a5a5a;
   line-height: 1.4;
 }
 
@@ -249,8 +257,8 @@ html, body {
   display: inline-block;
   margin-top: 0.6rem;
   padding: 0.3rem 0.7rem;
-  background: #CDEFFB;
-  color: #0A7CA8;
+  background: #cdeffb;
+  color: #0a7ca8;
   font-size: 0.75rem;
   font-weight: 600;
   border-radius: 999px;
@@ -269,7 +277,7 @@ html, body {
   width: 100%;
   max-width: 400px;
   padding: 0.9rem;
-  background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+  background: linear-gradient(90deg, #79d836 0%, #0ab7fb 100%);
   color: #fff;
   border: none;
   border-radius: 15px;
@@ -281,7 +289,7 @@ html, body {
 }
 
 .btn-continuar:hover {
-  background: linear-gradient(90deg, #32C26D 0%, #1D8EC9 100%);
+  background: linear-gradient(90deg, #32c26d 0%, #1d8ec9 100%);
 }
 
 .btn-continuar:disabled {
@@ -291,12 +299,12 @@ html, body {
 
 .login-direita__rodape {
   font-size: 0.9rem;
-  color: #5A5A5A;
+  color: #5a5a5a;
   text-align: center;
 }
 
 .login-direita__link {
-  color: #0AB7FB;
+  color: #0ab7fb;
   font-weight: 600;
   text-decoration: none;
 }
@@ -306,118 +314,113 @@ html, body {
 }
 
 @media (max-width: 768px) {
+  html,
+  body {
+    overflow-y: auto;
+    height: auto;
+  }
 
-    html, body {
-        overflow-y: auto;
-        height: auto;
-    }
+  .pagina-login {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+  }
 
-    .pagina-login {
-        flex-direction: column;
-        height: auto;
-        min-height: 100vh;
-    }
+  .login-esquerda {
+    width: 100%;
+    min-height: 300px;
+    clip-path: ellipse(85% 90% at 50% 0%);
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
 
-    /* ===== TOPO: banner curvo ===== */
-    .login-esquerda {
-        width: 100%;
-        min-height: 300px;
-        clip-path: ellipse(85% 90% at 50% 0%);
-        position: relative;
-        z-index: 2;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
+  .login-esquerda__conteudo {
+    padding: 1.5rem 1.5rem 0;
+    text-align: center;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 
-    .login-esquerda__conteudo {
-        padding: 1.5rem 1.5rem 0;
-        text-align: center;
-        max-width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
+  .login-esquerda__logo {
+    width: 110px;
+    margin: 0 auto 0.5rem;
+  }
 
-    .login-esquerda__logo {
-        width: 110px;
-        margin: 0 auto 0.5rem;
-    }
+  .login-esquerda__titulo,
+  .login-esquerda__slogan {
+    display: none;
+  }
 
-    .login-esquerda__titulo,
-    .login-esquerda__slogan {
-        display: none;
-    }
+  .login-esquerda__ilustracao-wrapper {
+    margin-top: 0;
+    margin-bottom: 17px;
+    padding: 0 1.5rem 0;
+    display: flex;
+    justify-content: center;
+  }
 
-    .login-esquerda__ilustracao-wrapper {
-        margin-top: 0;
-        margin-bottom: 17px;
-        padding: 0 1.5rem 0;
-        display: flex;
-        justify-content: center;
-    }
+  .login-esquerda__foto {
+    max-width: 210px;
+  }
 
-    .login-esquerda__foto {
-        max-width: 210px;
-    }
+  .login-direita {
+    width: 100%;
+    padding: 2rem 1.5rem 2.5rem;
+    margin-top: -50px;
+    background: #fff;
+    border-radius: 0;
+    position: relative;
+    z-index: 1;
+    overflow-y: visible;
+  }
 
-    /* ===== BAIXO: card branco ===== */
-    .login-direita {
-        width: 100%;
-        padding: 2rem 1.5rem 2.5rem;
-        margin-top: -50px;
-        background: #fff;
-        border-radius: 0;
-        position: relative;
-        z-index: 1;
-        overflow-y: visible;
-    }
+  .criarconta-header {
+    border-bottom: none;
+    padding: 1rem 0 0;
+    text-align: center;
+  }
 
-    .criarconta-header {
-        border-bottom: none;
-        padding: 1rem 0 0;
-        text-align: center;
-    }
+  .criarconta-header__logo {
+    max-width: 56px;
+    margin-bottom: 0.5rem;
+  }
 
-    /* A logo colorida do onboarding — 90px no desktop é grande demais
-       espremida entre o banner curvo e o título no mobile */
-    .criarconta-header__logo {
-        max-width: 56px;
-        margin-bottom: 0.5rem;
-    }
+  .criarconta-titulo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+  }
 
-    .criarconta-titulo {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #1a1a1a;
-    }
+  .criarconta-corpo {
+    padding: 0;
+    align-items: stretch;
+  }
 
-    .criarconta-corpo {
-        padding: 0;
-        align-items: stretch;
-    }
+  .criarconta-ajuda {
+    text-align: left;
+    margin: 1rem 0 1.5rem;
+  }
 
-    .criarconta-ajuda {
-        text-align: left;
-        margin: 1rem 0 1.5rem;
-    }
+  .tipo-container {
+    max-width: 100%;
+  }
 
-    .tipo-container {
-        max-width: 100%;
-    }
+  .tipo-card {
+    border-radius: 14px;
+    padding: 1.1rem 1.2rem;
+  }
 
-    .tipo-card {
-        border-radius: 14px;
-        padding: 1.1rem 1.2rem;
-    }
+  .erro-selecao {
+    max-width: 100%;
+  }
 
-    .erro-selecao {
-        max-width: 100%;
-    }
-
-    .btn-continuar {
-        max-width: 100%;
-        border-radius: 12px;
-    }
-
+  .btn-continuar {
+    max-width: 100%;
+    border-radius: 12px;
+  }
 }

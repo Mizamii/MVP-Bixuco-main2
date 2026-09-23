@@ -12,7 +12,6 @@ form.addEventListener("submit", async (e) => {
 
     e.preventDefault();
 
-    const chave     = document.getElementById("chaveAdmin").value;
     const mensagem  = document.getElementById("mensagemNovidade").value;
 
     btnEnviar.disabled    = true;
@@ -23,7 +22,7 @@ form.addEventListener("submit", async (e) => {
         const resposta = await fetch("/api/admin/novidade", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ chave, mensagem })
+            body: JSON.stringify({ mensagem })
         });
 
         const dados = await resposta.json();

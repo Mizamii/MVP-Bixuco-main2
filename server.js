@@ -41,6 +41,7 @@ app.use(helmet({
                 "'self'",
                 "https://cdnjs.cloudflare.com",
                 "https://unpkg.com",
+                "https://cdn.jsdelivr.net",   // 🔧 adicionar isso
                 "https://accounts.google.com",
                 "https://www.google.com/recaptcha/",
                 "https://www.gstatic.com/recaptcha/"

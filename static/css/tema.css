@@ -1,57 +1,46 @@
 :root {
+  --cor-fundo-pagina: #f5f7fa;
+  --cor-fundo-card: #ffffff;
+  --cor-fundo-hover: #f0f2f5;
+  --cor-fundo-hover-forte: #e7ebf0;
 
-    /* Fundo geral da página e dos cards */
-    --cor-fundo-pagina: #F5F7FA;
-    --cor-fundo-card: #ffffff;
-    --cor-fundo-hover: #F0F2F5;
-    --cor-fundo-hover-forte: #E7EBF0;
+  --cor-texto-principal: #141414;
+  --cor-texto-secundario: #5a5a5a;
+  --cor-texto-esmaecido: #8a8f98;
 
-    /* Texto */
-    --cor-texto-principal: #141414;
-    --cor-texto-secundario: #5A5A5A;
-    --cor-texto-esmaecido: #8A8F98;
+  --cor-borda: #e7ebf0;
+  --cor-borda-suave: #eef1f4;
 
-    /* Bordas e divisores */
-    --cor-borda: #E7EBF0;
-    --cor-borda-suave: #EEF1F4;
+  --sombra-card: 0 4px 14px rgba(0, 0, 0, 0.05);
 
-    /* Sombra padrão dos cards */
-    --sombra-card: 0 4px 14px rgba(0, 0, 0, 0.05);
-
-    /* Cores de marca — iguais nos dois temas, não precisam mudar */
-    --cor-marca-verde: #32C26D;
-    --cor-marca-azul: #0AB7FB;
-    --cor-marca-verde-claro: #79D836;
-    --cor-marca-azul-escuro: #1D8EC9;
-    --cor-alerta: #E24C4C;
-    --cor-aviso: #FF9F0A;
-
+  --cor-marca-verde: #32c26d;
+  --cor-marca-azul: #0ab7fb;
+  --cor-marca-verde-claro: #79d836;
+  --cor-marca-azul-escuro: #1d8ec9;
+  --cor-alerta: #e24c4c;
+  --cor-aviso: #ff9f0a;
 }
-
-/* ========================================= */
-/* TEMA ESCURO — sobrescreve as variáveis     */
-/* ========================================= */
 
 body.tema-escuro {
+  --cor-fundo-pagina: #16181c;
+  --cor-fundo-card: #1f2227;
+  --cor-fundo-hover: #262a31;
+  --cor-fundo-hover-forte: #2e333b;
 
-    --cor-fundo-pagina: #16181C;
-    --cor-fundo-card: #1F2227;
-    --cor-fundo-hover: #262A31;
-    --cor-fundo-hover-forte: #2E333B;
+  --cor-texto-principal: #f5f7fa;
+  --cor-texto-secundario: #b8bcc4;
+  --cor-texto-esmaecido: #8891a0;
 
-    --cor-texto-principal: #F5F7FA;
-    --cor-texto-secundario: #B8BCC4;
-    --cor-texto-esmaecido: #8891A0;
+  --cor-borda: #2e333b;
+  --cor-borda-suave: #262a31;
 
-    --cor-borda: #2E333B;
-    --cor-borda-suave: #262A31;
-
-    --sombra-card: 0 4px 14px rgba(0, 0, 0, 0.35);
-
+  --sombra-card: 0 4px 14px rgba(0, 0, 0, 0.35);
 }
 
-/* Transição suave ao trocar de tema, aplicada globalmente */
 body,
 body * {
-    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease;
 }

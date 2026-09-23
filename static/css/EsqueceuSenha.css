@@ -1,45 +1,53 @@
 @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-8px); }
-    75% { transform: translateX(8px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-8px);
+  }
+  75% {
+    transform: translateX(8px);
+  }
 }
 .recuperar-form__input--erro {
-    border-color: #ff4444 !important;
-    animation: shake 0.4s ease-in-out !important;
-}
-
-/* Reset básico */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
+  border-color: #ff4444 !important;
+  animation: shake 0.4s ease-in-out !important;
 }
 
 * {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
-/* Container principal da página */
+* {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
 .pagina-login {
-    display: flex;
-    height: 100vh;
+  display: flex;
+  height: 100vh;
 }
-
-/* ========================================= */
-/* LADO ESQUERDO */
-/* ========================================= */
 
 .login-esquerda {
   width: 50%;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, #1D8EC9 0%, #0AB7FB 45%, #79D836 75%, #32C26D 100%);
+  background: linear-gradient(
+    135deg,
+    #1d8ec9 0%,
+    #0ab7fb 45%,
+    #79d836 75%,
+    #32c26d 100%
+  );
   display: flex;
   flex-direction: column;
 }
@@ -49,7 +57,7 @@ html, body {
   inset: 0;
   z-index: 1;
   opacity: 0.55;
-  background-image: url('/img/padrao-triangulos-bixuco.svg');
+  background-image: url("/img/padrao-triangulos-bixuco.svg");
   background-size: cover;
   background-position: center;
 }
@@ -65,7 +73,7 @@ html, body {
   position: relative;
   z-index: 3;
   padding: 3.5rem 3rem 0 8rem;
-  color: #F5F7FA;
+  color: #f5f7fa;
   text-align: left;
   max-width: 480px;
 }
@@ -85,12 +93,12 @@ html, body {
 }
 
 .login-esquerda__titulo .destaque {
-  color: #79D836;
+  color: #79d836;
 }
 
 .login-esquerda__slogan {
   font-size: 1rem;
-  color: #F5F7FA;
+  color: #f5f7fa;
   line-height: 1.6;
   font-weight: 500;
   max-width: 380px;
@@ -111,332 +119,325 @@ html, body {
   padding: 0 3rem 2rem 8rem;
 }
 
-/* ========================================= */
-/* LADO DIREITO — Recuperar senha */
-/* ========================================= */
-
 .login-direita {
-    width: 50%;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    padding: 0;
-    overflow-y: auto;
-    position: relative; /* adicionar isso na regra já existente */
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0;
+  overflow-y: auto;
+  position: relative;
 }
 
 .tradutor {
-    position: absolute;
-    top: 1.5rem;
-    right: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    color: #0AB7FB;
-    cursor: pointer;
-    z-index: 4;
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  color: #0ab7fb;
+  cursor: pointer;
+  z-index: 4;
 }
 
 .tradutor:hover {
-    background: #f5f7fa;
+  background: #f5f7fa;
 }
 
 @media (max-width: 768px) {
-    .tradutor {
-        top: 1rem;
-        right: 1rem;
-        font-size: 0.75rem;
-        padding: 0.4rem 0.8rem;
-    }
+  .tradutor {
+    top: 1rem;
+    right: 1rem;
+    font-size: 0.75rem;
+    padding: 0.4rem 0.8rem;
+  }
 }
 
 .recuperar-header {
-    text-align: center;
-    padding: 2.5rem 0 1.5rem;
-    border-bottom: 1px solid #E0E0E0;
+  text-align: center;
+  padding: 2.5rem 0 1.5rem;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .recuperar-titulo {
-    font-size: 1.8rem;
-    font-weight: 700;
-    background: linear-gradient(90deg, #32C26D 0%, #0AB7FB 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
+  font-size: 1.8rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, #32c26d 0%, #0ab7fb 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
 }
 
 .recuperar-corpo {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
 }
 
 .recuperar-subtitulo {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #141414;
-    margin-bottom: 0.8rem;
-    text-align: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #141414;
+  margin-bottom: 0.8rem;
+  text-align: center;
 }
 
 .recuperar-texto {
-    color: #5A5A5A;
-    margin-bottom: 2rem;
-    font-size: 0.95rem;
-    text-align: center;
-    max-width: 400px;
-    line-height: 1.5;
+  color: #5a5a5a;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+  text-align: center;
+  max-width: 400px;
+  line-height: 1.5;
 }
 
 .recuperar-form {
-    width: 100%;
-    max-width: 400px;
-    margin-bottom: 1rem;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 1rem;
 }
 
 .recuperar-form__campo {
-    margin-bottom: 1rem;
+  margin-bottom: 1rem;
 }
 
 .recuperar-form__label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-size: 0.9rem;
-    color: #333;
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: #333;
 }
 
 .recuperar-form__input-wrapper {
-    position: relative;
+  position: relative;
 }
 
 .recuperar-form__input {
-    width: 100%;
-    padding: 0.8rem 1rem;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    font-size: 1rem;
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 1rem;
 }
 
 .recuperar-form__input:focus {
-    outline: none;
-    border-color: #4CAF50;
-    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
 }
 
 .recuperar-form__erro {
-    color: #ff4444;
-    font-size: 0.8rem;
-    margin-top: 0.3rem;
-    display: none;
+  color: #ff4444;
+  font-size: 0.8rem;
+  margin-top: 0.3rem;
+  display: none;
 }
 
 .recuperar-form__feedback {
-    display: none;
-    font-size: 0.9rem;
-    margin-bottom: 1rem;
-    text-align: center;
+  display: none;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  text-align: center;
 }
 
 .recuperar-form__feedback--sucesso {
-    color: #32C26D;
+  color: #32c26d;
 }
 
 .recuperar-form__feedback--erro {
-    color: #ff4444;
+  color: #ff4444;
 }
 
 .recuperar-form__btn-enviar {
-    width: 100%;
-    padding: 0.9rem;
-    background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
-    color: white;
-    border: none;
-    border-radius: 15px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
-    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  padding: 0.9rem;
+  background: linear-gradient(90deg, #79d836 0%, #0ab7fb 100%);
+  color: white;
+  border: none;
+  border-radius: 15px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
 }
 
 .recuperar-form__btn-enviar:hover {
-    background: linear-gradient(90deg, #32C26D 0%, #1D8EC9 100%);
+  background: linear-gradient(90deg, #32c26d 0%, #1d8ec9 100%);
 }
 
 .recuperar-form__btn-enviar:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .recuperar-voltar-link {
-    display: block;
-    width: 100%;
-    max-width: 400px;
-    text-align: center;
-    padding: 0.9rem;
-    border: 1px solid #0AB7FB;
-    border-radius: 15px;
-    color: #0AB7FB;
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 1rem;
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  padding: 0.9rem;
+  border: 1px solid #0ab7fb;
+  border-radius: 15px;
+  color: #0ab7fb;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1rem;
 }
 
 .recuperar-voltar-link:hover {
-    background: #F5F7FA;
+  background: #f5f7fa;
 }
 
 @media (max-width: 768px) {
+  html,
+  body {
+    overflow-y: auto;
+    height: auto;
+  }
 
-    html, body {
-        overflow-y: auto;
-        height: auto;
-    }
+  .pagina-login {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+  }
 
-    .pagina-login {
-        flex-direction: column;
-        height: auto;
-        min-height: 100vh;
-    }
+  .login-esquerda {
+    width: 100%;
+    min-height: 300px;
+    clip-path: ellipse(85% 90% at 50% 0%);
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
 
-    /* ===== TOPO: banner (igual ao do login) ===== */
-    .login-esquerda {
-        width: 100%;
-        min-height: 300px;
-        clip-path: ellipse(85% 90% at 50% 0%);
-        position: relative;
-        z-index: 2;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
+  .login-esquerda__conteudo {
+    padding: 1.5rem 1.5rem 0;
+    text-align: center;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 
-    .login-esquerda__conteudo {
-        padding: 1.5rem 1.5rem 0;
-        text-align: center;
-        max-width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
+  .login-esquerda__logo {
+    width: 110px;
+    margin: 0 auto 0.5rem;
+  }
 
-    .login-esquerda__logo {
-        width: 110px;
-        margin: 0 auto 0.5rem;
-    }
+  .login-esquerda__titulo,
+  .login-esquerda__slogan {
+    display: none;
+  }
 
-    .login-esquerda__titulo,
-    .login-esquerda__slogan {
-        display: none;
-    }
+  .login-esquerda__ilustracao-wrapper {
+    margin-top: 0;
+    margin-bottom: 17px;
+    padding: 0 1.5rem 0;
+    display: flex;
+    justify-content: center;
+  }
 
-    .login-esquerda__ilustracao-wrapper {
-        margin-top: 0;
-        margin-bottom: 17px;
-        padding: 0 1.5rem 0;
-        display: flex;
-        justify-content: center;
-    }
+  .login-esquerda__foto {
+    max-width: 210px;
+  }
 
-    .login-esquerda__foto {
-        max-width: 210px;
-    }
+  .login-direita {
+    width: 100%;
+    padding: 2rem 1.5rem 2.5rem;
+    margin-top: -50px;
+    background: #fff;
+    border-radius: 0;
+    position: relative;
+    z-index: 1;
+    overflow-y: visible;
+  }
 
-    /* ===== BAIXO: card branco ===== */
-    .login-direita {
-        width: 100%;
-        padding: 2rem 1.5rem 2.5rem;
-        margin-top: -50px;
-        background: #fff;
-        border-radius: 0;
-        position: relative;
-        z-index: 1;
-        overflow-y: visible;
-    }
+  .recuperar-header {
+    border-bottom: none;
+    padding: 1rem 0 0;
+    text-align: center;
+  }
 
-    .recuperar-header {
-        border-bottom: none;
-        padding: 1rem 0 0;
-        text-align: center;
-    }
+  .recuperar-titulo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    -webkit-text-fill-color: #1a1a1a;
+    background: none;
+  }
 
-    .recuperar-titulo {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #1a1a1a;
-        -webkit-text-fill-color: #1a1a1a;
-        background: none;
-    }
+  .recuperar-icone-divisor {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    margin: 1.2rem 0;
+  }
 
-    /* Ícone de cadeado com as linhas dos lados */
-    .recuperar-icone-divisor {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.8rem;
-        margin: 1.2rem 0;
-    }
+  .recuperar-icone-divisor__linha {
+    flex: 1;
+    height: 1px;
+    background: #ddd;
+    max-width: 70px;
+  }
 
-    .recuperar-icone-divisor__linha {
-        flex: 1;
-        height: 1px;
-        background: #ddd;
-        max-width: 70px;
-    }
+  .recuperar-icone-divisor__circulo {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #e8f8ee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #32c26d;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
 
-    .recuperar-icone-divisor__circulo {
-        width: 42px;
-        height: 42px;
-        border-radius: 50%;
-        background: #E8F8EE;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #32C26D;
-        font-size: 1.1rem;
-        flex-shrink: 0;
-    }
+  .recuperar-corpo {
+    padding: 0;
+    justify-content: flex-start;
+  }
 
-    .recuperar-corpo {
-        padding: 0;
-        justify-content: flex-start;
-    }
+  .recuperar-subtitulo {
+    font-size: 1.05rem;
+    margin-bottom: 0.4rem;
+  }
 
-    .recuperar-subtitulo {
-        font-size: 1.05rem;
-        margin-bottom: 0.4rem;
-    }
+  .recuperar-texto {
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    padding: 0 0.5rem;
+  }
 
-    .recuperar-texto {
-        font-size: 0.9rem;
-        margin-bottom: 1.5rem;
-        padding: 0 0.5rem;
-    }
+  .recuperar-form,
+  .recuperar-voltar-link {
+    max-width: 100%;
+  }
 
-    .recuperar-form,
-    .recuperar-voltar-link {
-        max-width: 100%;
-    }
+  .recuperar-form__input {
+    border-radius: 12px;
+  }
 
-    .recuperar-form__input {
-        border-radius: 12px;
-    }
+  .recuperar-form__btn-enviar {
+    border-radius: 12px;
+  }
 
-    .recuperar-form__btn-enviar {
-        border-radius: 12px;
-    }
-
-    .recuperar-voltar-link {
-        border-radius: 12px;
-        margin-top: 0.6rem;
-    }
+  .recuperar-voltar-link {
+    border-radius: 12px;
+    margin-top: 0.6rem;
+  }
 }
