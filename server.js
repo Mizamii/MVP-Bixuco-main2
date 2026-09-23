@@ -294,13 +294,13 @@ app.get("/api/preferencias", estaLogado, async (req, res) => {
 const PLANOS_MP = {
     medio: {
         nome:       "Plano Básico Bixuco",
-        preco:      100.00,
+        preco:      99.99,
         planId:     process.env.MP_PLAN_ID_MEDIO    || null,
         nomeBanco:  "medio"
     },
     completo: {
         nome:       "Plano Premium Bixuco",
-        preco:      120.00,
+        preco:      119.99,
         planId:     process.env.MP_PLAN_ID_COMPLETO || null,
         nomeBanco:  "completo"
     }
