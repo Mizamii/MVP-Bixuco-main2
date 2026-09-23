@@ -1,48 +1,39 @@
-
-const form         = document.getElementById("formNovidade");
-const btnEnviar     = document.getElementById("btnEnviar");
-const statusEnvio   = document.getElementById("statusEnvio");
+const form = document.getElementById("formNovidade");
+const btnEnviar = document.getElementById("btnEnviar");
+const statusEnvio = document.getElementById("statusEnvio");
 
 function mostrarStatus(texto, tipo) {
-    statusEnvio.textContent = texto;
-    statusEnvio.className   = `status visivel ${tipo}`;
+  statusEnvio.textContent = texto;
+  statusEnvio.className = `status visivel ${tipo}`;
 }
 
 form.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-    e.preventDefault();
+  const mensagem = document.getElementById("mensagemNovidade").value;
 
-    const mensagem  = document.getElementById("mensagemNovidade").value;
+  btnEnviar.disabled = true;
+  btnEnviar.textContent = "Enviando...";
 
-    btnEnviar.disabled    = true;
-    btnEnviar.textContent = "Enviando...";
+  try {
+    const resposta = await fetch("/api/admin/novidade", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mensagem }),
+    });
 
-    try {
+    const dados = await resposta.json();
 
-        const resposta = await fetch("/api/admin/novidade", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ mensagem })
-        });
-
-        const dados = await resposta.json();
-
-        if (!resposta.ok) {
-            throw new Error(dados.erro || "Erro ao publicar novidade.");
-        }
-
-        mostrarStatus(dados.mensagem, "sucesso");
-        form.reset();
-
-    } catch (erro) {
-
-        mostrarStatus(erro.message, "erro");
-
-    } finally {
-
-        btnEnviar.disabled    = false;
-        btnEnviar.textContent = "Publicar novidade";
-
+    if (!resposta.ok) {
+      throw new Error(dados.erro || "Erro ao publicar novidade.");
     }
 
+    mostrarStatus(dados.mensagem, "sucesso");
+    form.reset();
+  } catch (erro) {
+    mostrarStatus(erro.message, "erro");
+  } finally {
+    btnEnviar.disabled = false;
+    btnEnviar.textContent = "Publicar novidade";
+  }
 });
