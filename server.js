@@ -681,7 +681,8 @@ async function verificarPlano(req, res, next) {
 
     try {
         // terapeutas não precisam de assinatura
-        if (req.session.tipo === 'psicologo' || (req.user && req.user.tipo === 'psicologo')) {
+        if (req.session.tipo === 'psicologo' || (req.user && req.user.tipo === 'psicologo') || 
+        req.session.tipo === 'admin' || (req.user && req.user.tipo === 'admin')) {
             req.plano = 'terapeuta';
             return next();
         }
@@ -760,7 +761,9 @@ app.get("/", (req, res) => {
     const tipo = req.session.tipo || (req.user && req.user.tipo);
 
     if (usuarioId) {
-        return res.redirect(tipo === "psicologo" ? "/hometerapeuta" : "/home");
+        if (tipo === "psicologo") return res.redirect("/hometerapeuta");
+        if (tipo === "admin") return res.redirect("/admin");
+        return res.redirect("/home");
     }
 
     // Dentro do app não existe "landing page" — quem não está logado
@@ -1725,6 +1728,23 @@ app.post("/api/onboarding-google", estaLogado, async (req, res) => {
 // Página simples para publicar novidades (protegida pela senha admin)
 app.get("/admin/novidades", estaLogado, exigeAdmin, (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "Adminnovidades.html"));
+});
+
+app.get("/admin", estaLogado, exigeAdmin, (req, res) => {
+    res.send(`
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head><meta charset="UTF-8"><title>Admin — Bixuco</title></head>
+        <body>
+            <h1>Painel Admin</h1>
+            <ul>
+                <li><a href="/admin/pedidos">Pedidos</a></li>
+                <li><a href="/admin/novidades">Publicar novidade</a></li>
+            </ul>
+            <a href="/logout">Sair</a>
+        </body>
+        </html>
+    `);
 });
 
 /* ==========================
