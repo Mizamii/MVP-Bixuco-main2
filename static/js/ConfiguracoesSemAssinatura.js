@@ -297,16 +297,8 @@ carregarUsuario();
 
 const fotoUsuarioEl = document.getElementById("fotoUsuario");
 
-fotoUsuarioEl.addEventListener("click", () => {
-    window.location.href = "/perfilSemAssinatura";
-});
-
 fotoUsuarioEl.addEventListener("error", function () {
     this.src = "/img/perfilPadrao.png";
-});
-
-document.getElementById("wrapperPerfilTopo").addEventListener("click", () => {
-    window.location.href = "/perfilSemAssinatura";
 });
 
 document.getElementById("imgMascote").addEventListener("error", function () {

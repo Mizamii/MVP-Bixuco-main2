@@ -12,6 +12,7 @@
 
     <link rel="stylesheet" href="/css/tema.css">
     <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/header.css">
     <link rel="stylesheet" href="/css/home.css">
     <link rel="stylesheet" href="/css/planos.css">
     <script src="/js/deeplink.js"></script>
@@ -105,48 +106,7 @@
     <!-- ========================= -->
     <main class="conteudo">
 
-        <header class="topo">
-
-            <button class="btn-tema-mobile" type="button" id="btnTemaMobile">
-                <i class="fa-regular fa-sun"></i>
-            </button>
-
-            <button class="tradutor" type="button" id="btnTraduzir">
-                <i class="fa-solid fa-language"></i>
-                <span id="textoTradutor">Traduzir para o inglês</span>
-            </button>
-
-            <div class="usuario">
-
-                <div class="notificacoes-wrapper">
-                    <button class="notificacoes" type="button" id="btnNotificacoes">
-                        <i class="fa-regular fa-bell"></i>
-                        <span id="quantidadeNotificacoes" class="badge">0</span>
-                    </button>
-
-                    <div class="painel-notificacoes" id="painelNotificacoes">
-                        <div class="painel-header" data-pt="Promoções" data-en="Promotions">Promoções</div>
-                        <div id="listaNotificacoes">
-                            <div class="painel-vazio" data-pt="Carregando..." data-en="Loading...">Carregando...</div>
-                        </div>
-                    </div>
-                </div>
-
-                <img
-                    id="fotoUsuario"
-                    src="/img/perfilPadrao.png"
-                    alt="Foto do usuário"
-                    style="cursor: pointer;"
-                >
-
-                <div id="blocoNomeUsuario" style="cursor: pointer;">
-                    <h3 id="nomeUsuario">Carregando...</h3>
-                    <span id="tipoConta">Responsável</span>
-                </div>
-
-            </div>
-
-        </header>
+        <header class="topo" id="topoApp" data-perfil="/perfilSemAssinatura" data-notif-pt="Promoções" data-notif-en="Promotions"></header>
 
         <div class="conteudo-corpo">
 
@@ -195,7 +155,7 @@
                     class="card-plano"
                     id="cardMedio"
                 >
-                    <h2 class="plano-preco plano-preco--verde">R$ 99.99<span data-pt="/mês" data-en="/month">/mês</span></h2>
+                    <h2 class="plano-preco plano-preco--verde">R$ 100<span data-pt="/mês" data-en="/month">/mês</span></h2>
 
                     <h3 data-pt="Benefícios" data-en="Benefits">Benefícios</h3>
 
@@ -215,7 +175,7 @@
                     class="card-plano"
                     id="cardCompleto"
                 >
-                    <h2 class="plano-preco plano-preco--verde">R$ 119.99<span data-pt="/mês" data-en="/month">/mês</span></h2>
+                    <h2 class="plano-preco plano-preco--verde">R$ 120<span data-pt="/mês" data-en="/month">/mês</span></h2>
 
                     <h3 data-pt="Benefícios" data-en="Benefits">Benefícios</h3>
 
@@ -293,6 +253,7 @@
 
 </div>
 
+<script src="/js/header.js"></script>
 <script src="/js/planos.js"></script>
 
 </body>

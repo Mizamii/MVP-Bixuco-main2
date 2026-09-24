@@ -14,6 +14,7 @@
 
     <link rel="stylesheet" href="/css/tema.css">
     <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/header.css">
     <link rel="stylesheet" href="/css/home.css">
     <!-- 🔧 FIX: reaproveitando o MESMO perfil.css da versão com assinatura —
          é de lá que vêm as classes do modal, da edição de nome/foto etc.,
@@ -84,49 +85,7 @@
 
         <main class="conteudo">
 
-            <header class="topo">
-
-                <button class="btn-tema-mobile" type="button" id="btnTemaMobile">
-                    <i class="fa-regular fa-sun"></i>
-                </button>
-
-                <button class="tradutor" type="button" id="btnTraduzir">
-                    <i class="fa-solid fa-language"></i>
-                    <span id="textoTradutor">Traduzir para inglês</span>
-                </button>
-
-                <div class="usuario">
-
-                    <!-- Sininho — só notificações de promoção (tipo "novidade") -->
-                    <div class="notificacoes-wrapper">
-                        <button class="notificacoes" type="button" id="btnNotificacoes">
-                            <i class="fa-regular fa-bell"></i>
-                            <span id="quantidadeNotificacoes" class="badge">0</span>
-                        </button>
-
-                        <div class="painel-notificacoes" id="painelNotificacoes">
-                            <div class="painel-header" data-pt="Promoções" data-en="Promotions">Promoções</div>
-                            <div id="listaNotificacoes">
-                                <div class="painel-vazio" data-pt="Carregando..." data-en="Loading...">Carregando...</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- sem onclick — já está no perfil -->
-                    <img
-                        id="fotoUsuario"
-                        src="/img/perfilPadrao.png"
-                        alt="Foto do usuário"
-                    >
-
-                    <div>
-                        <h3 id="nomeUsuario">Carregando...</h3>
-                        <span id="tipoConta">...</span>
-                    </div>
-
-                </div>
-
-            </header>
+            <header class="topo" id="topoApp" data-perfil="/perfilSemAssinatura" data-pagina="perfil" data-notif-pt="Promoções" data-notif-en="Promotions"></header>
 
             <div class="conteudo-corpo">
 
@@ -351,6 +310,7 @@
         </div>
     </div>
 
+    <script src="/js/header.js"></script>
     <script src="/js/tema.js"></script>
     <script src="/js/PerfilSemAssinatura.js"></script>
 

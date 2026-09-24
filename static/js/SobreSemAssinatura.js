@@ -225,10 +225,4 @@ aplicarIdiomaEstatico();
 carregarUsuario();
 carregarNotificacoes();
 
-document.getElementById("fotoUsuario").addEventListener("click", () => {
-    window.location.href = "/perfilSemAssinatura";
-});
-
-document.getElementById("wrapperPerfilTopo").addEventListener("click", () => {
-    window.location.href = "/perfilSemAssinatura";
-});
+// (a foto agora abre o menu da conta — ver /js/header.js)

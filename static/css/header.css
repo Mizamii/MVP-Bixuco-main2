@@ -1,0 +1,159 @@
+/* ==========================================================
+   header.css
+   Cabeçalho ÚNICO do app (montado pelo /js/header.js).
+   Padrão: foto de perfil no canto superior ESQUERDO (abre o
+   menu da conta) e notificações no canto superior DIREITO.
+   Tradução, tema, perfil e logout ficam dentro do menu.
+   Depende das variáveis de tema.css e das regras de
+   .notificacoes / .painel-notificacoes do layout.css.
+   ========================================================== */
+
+.topo-perfil {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* ---------- Botão da foto ---------- */
+
+.topo-avatar {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    background: none;
+    cursor: pointer;
+    display: block;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.topo-avatar:hover,
+.topo-avatar[aria-expanded="true"] {
+    border-color: var(--cor-marca-azul);
+    box-shadow: 0 0 0 3px rgba(10, 183, 251, 0.15);
+}
+
+.topo-avatar:focus-visible {
+    outline: 2px solid var(--cor-marca-azul);
+    outline-offset: 2px;
+}
+
+.topo-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
+/* ---------- Menu da conta ---------- */
+
+.menu-perfil {
+    display: none;
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    width: 280px;
+    max-width: calc(100vw - 2rem);
+    padding: 0.5rem;
+    background: var(--cor-fundo-card);
+    border: 1px solid var(--cor-borda);
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    z-index: 60;
+}
+
+.menu-perfil.aberto {
+    display: block;
+}
+
+.menu-perfil__conta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    padding: 0.7rem 0.8rem 0.8rem;
+    margin-bottom: 0.35rem;
+    border-bottom: 1px solid var(--cor-borda-suave);
+}
+
+.menu-perfil__conta strong {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--cor-texto-principal);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.menu-perfil__conta span {
+    font-size: 0.78rem;
+    color: var(--cor-texto-esmaecido);
+}
+
+.menu-perfil__item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.7rem 0.8rem;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--cor-texto-principal);
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 500;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.menu-perfil__item i {
+    width: 18px;
+    text-align: center;
+    font-size: 0.95rem;
+    color: var(--cor-texto-secundario);
+}
+
+.menu-perfil__item:hover,
+.menu-perfil__item:focus-visible {
+    background: var(--cor-fundo-hover);
+    outline: none;
+}
+
+/* Página atual (ex.: "Meu perfil" quando já está no perfil) */
+.menu-perfil__item.ativo {
+    background: rgba(50, 194, 109, 0.12);
+    color: #1D8E4F;
+    font-weight: 700;
+}
+
+.menu-perfil__item.ativo i {
+    color: var(--cor-marca-verde);
+}
+
+.menu-perfil__divisor {
+    height: 1px;
+    margin: 0.35rem 0.4rem;
+    background: var(--cor-borda-suave);
+}
+
+.menu-perfil__item--sair,
+.menu-perfil__item--sair i {
+    color: var(--cor-alerta);
+}
+
+.menu-perfil__item--sair:hover {
+    background: rgba(226, 76, 76, 0.12);
+}
+
+/* No desktop, tema e "Sair" já estão na barra lateral —
+   o menu mostra só perfil, tradução e a identificação da conta. */
+@media (min-width: 769px) {
+    .menu-perfil__item--so-mobile,
+    .menu-perfil__divisor {
+        display: none;
+    }
+}

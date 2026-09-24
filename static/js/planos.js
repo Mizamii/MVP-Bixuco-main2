@@ -59,13 +59,17 @@ let ultimoTipoConta  = "Responsável";
 // Começa em "gratis" até a chamada de carregarUsuario() responder.
 let planoCodigoAtual = "gratis";
 
-// Manda pro perfil certo dependendo se o usuário tem plano pago ou não.
+// Aponta o item "Meu perfil" do menu da conta (montado pelo header.js)
+// pro perfil certo dependendo se o usuário tem plano pago ou não.
 // Sem isso, todo mundo (até assinante) era mandado pro perfil da
 // versão sem assinatura.
-function irParaPerfil() {
-    window.location.href = planoCodigoAtual === "gratis"
-        ? "/perfilSemAssinatura"
-        : "/perfil";
+function atualizarLinkPerfil() {
+    const item = document.getElementById("itemMeuPerfil");
+    if (item) {
+        item.href = planoCodigoAtual === "gratis"
+            ? "/perfilSemAssinatura"
+            : "/perfil";
+    }
 }
 
 // Troca o sidebar reduzido (sem assinatura) pelo completo quando o
@@ -119,6 +123,7 @@ async function carregarUsuario() {
 
         planoCodigoAtual = dados.planoCodigo || "gratis";
         atualizarSidebar(planoCodigoAtual);
+        atualizarLinkPerfil();
 
         // Mostra o plano atual
         if (dados.plano) {
@@ -353,12 +358,9 @@ mostrarFeedbackPagamento();
 
 // Substitui os antigos onclick/onerror inline (removidos por causa do CSP)
 
-document.getElementById("fotoUsuario").addEventListener("click", irParaPerfil);
 document.getElementById("fotoUsuario").addEventListener("error", function () {
     this.src = "/img/perfilPadrao.png";
 });
-
-document.getElementById("blocoNomeUsuario").addEventListener("click", irParaPerfil);
 
 document.getElementById("imgMascotePlanos").addEventListener("error", function () {
     this.style.display = "none";

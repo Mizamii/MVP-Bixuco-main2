@@ -14,6 +14,7 @@
 
     <link rel="stylesheet" href="/css/tema.css">
     <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/header.css">
     <link rel="stylesheet" href="/css/home.css">
     <link rel="stylesheet" href="/css/sobre.css">
     <script src="/js/deeplink.js"></script>
@@ -75,54 +76,7 @@
         <!-- ===================== -->
         <main class="conteudo">
 
-            <header class="topo">
-
-                <button class="btn-tema-mobile" type="button" id="btnTemaMobile">
-                    <i class="fa-regular fa-sun"></i>
-                </button>
-
-                <button class="tradutor" type="button" id="btnTraduzir">
-                    <i class="fa-solid fa-language"></i>
-                    <span id="textoTradutor">Traduzir para o inglês</span>
-                </button>
-
-                <div class="usuario">
-
-                    <div class="notificacoes-wrapper">
-                        <button class="notificacoes" type="button" id="btnNotificacoes">
-                            <i class="fa-regular fa-bell"></i>
-                            <span id="quantidadeNotificacoes" class="badge">0</span>
-                        </button>
-
-                        <div class="painel-notificacoes" id="painelNotificacoes">
-                            <div class="painel-header" data-pt="Promoções" data-en="Promotions">Promoções</div>
-                            <div id="listaNotificacoes">
-                                <div class="painel-vazio" data-pt="Carregando..." data-en="Loading...">Carregando...</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <img
-                        id="fotoUsuario"
-                        src="/img/perfilPadrao.png"
-                        alt="Foto do usuário"
-                        title="Ver perfil"
-                        style="cursor: pointer;"
-                    >
-
-                    <div id="wrapperPerfilTopo" style="cursor: pointer;">
-                        <h3 id="nomeUsuario">Carregando...</h3>
-                        <span id="tipoConta">...</span>
-                    </div>
-
-                    <!-- Só aparece no mobile (o desktop já tem "Sair" na sidebar) -->
-                    <a href="/logout" class="btn-logout-mobile" title="Sair" aria-label="Sair">
-                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                    </a>
-
-                </div>
-
-            </header>
+            <header class="topo" id="topoApp" data-perfil="/perfilSemAssinatura" data-notif-pt="Promoções" data-notif-en="Promotions"></header>
 
             <!-- ===================== -->
             <!-- CABEÇALHO DA PÁGINA -->
@@ -453,6 +407,7 @@
     </div>
 
 
+    <script src="/js/header.js"></script>
     <script src="/js/tema.js"></script>
     <script src="/js/SobreSemAssinatura.js"></script>
 
