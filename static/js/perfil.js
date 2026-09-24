@@ -1024,16 +1024,8 @@ document.getElementById("btnRelatorioDiario").addEventListener("click", () => {
     location.href = "/RelatorioDiario";
 });
 
-fotoUsuarioImg.addEventListener("click", () => {
-    window.location.href = "/perfil";
-});
-
 fotoUsuarioImg.addEventListener("error", function () {
     this.src = "/img/perfilPadrao.png";
-});
-
-document.getElementById("wrapperPerfilTopo").addEventListener("click", () => {
-    window.location.href = "/perfil";
 });
 
 document.getElementById("fotoTerapeutaVinculado").addEventListener("error", function () {

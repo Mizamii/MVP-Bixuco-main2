@@ -26,6 +26,7 @@
     >
 
     <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/header.css">
 
     <link
         rel="stylesheet"
@@ -148,59 +149,7 @@
 
         <main class="conteudo">
 
-            <header class="topo">
-
-                <!-- Botão de tema — só aparece no mobile (layout.css cuida disso) -->
-                <button class="btn-tema-mobile" type="button" id="btnTemaMobile">
-                    <i class="fa-regular fa-sun"></i>
-                </button>
-
-                <button class="tradutor" type="button" id="btnTraduzir">
-                    <i class="fa-solid fa-language"></i>
-                    <span id="textoTradutor">Traduzir para inglês</span>
-                </button>
-
-                <div class="usuario">
-
-                    <div class="notificacoes-wrapper">
-                        <button class="notificacoes" type="button" id="btnNotificacoes">
-                            <i class="fa-regular fa-bell"></i>
-                            <span id="quantidadeNotificacoes" class="badge">0</span>
-                        </button>
-
-                        <div class="painel-notificacoes" id="painelNotificacoes">
-                            <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
-                            <div id="listaNotificacoes">
-                                <div class="painel-vazio" data-pt="Carregando..." data-en="Loading...">Carregando...</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <img
-                        id="fotoUsuario"
-                        src="/img/perfilPadrao.png"
-                        alt="Foto do usuário"
-                        title="Ver perfil"
-                        style="cursor: pointer;"
-                    >
-
-                    <div
-                        id="wrapperPerfilTopo"
-                        style="cursor:pointer;"
-                        title="Ver perfil"
-                    >
-                        <h3 id="nomeUsuario">Carregando...</h3>
-                        <span id="tipoConta">...</span>
-                    </div>
-
-                    <!-- Botão de logout — só aparece no mobile (no desktop já tem na sidebar) -->
-                    <a href="/logout" class="btn-logout-mobile" title="Sair" aria-label="Sair">
-                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                    </a>
-
-                </div>
-
-            </header>
+            <header class="topo" id="topoApp" data-perfil="/perfil" data-pagina="perfil"></header>
 
             <div class="conteudo-corpo">
 
@@ -909,6 +858,7 @@
 
 
 
+    <script src="/js/header.js"></script>
     <script src="/js/tema.js"></script>
     <script src="/js/perfil.js"></script>
 

@@ -628,10 +628,6 @@ async function carregarUsuario() {
 // TEMA
 // ==========================
 
-document.getElementById("btnTemaMobile").addEventListener("click", () => {
-    const novoTema = document.body.classList.contains("tema-escuro") ? "claro" : "escuro";
-    aplicarTema(novoTema);
-});
 
 // ==========================
 // VERIFICA SE HOUVE ALERTA REAL DO BIXUCO HOJE
@@ -832,10 +828,6 @@ carregarUsuario();
 iniciarRelatorio();
 
 // Substitui os antigos onclick/onerror inline (removidos por causa do CSP)
-document.getElementById("fotoUsuario").addEventListener("click", () => {
-    window.location.href = "/perfil";
-});
-
 document.getElementById("fotoUsuario").addEventListener("error", function () {
     this.src = "/img/perfilPadrao.png";
 });

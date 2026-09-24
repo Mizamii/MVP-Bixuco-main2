@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" href="/css/tema.css">
     <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/header.css">
     <link rel="stylesheet" href="/css/home.css">
     <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
     <script src="/js/deeplink.js"></script>
@@ -79,47 +80,7 @@
 
         <main class="conteudo">
 
-            <header class="topo">
-
-                <button class="tradutor" type="button" id="btnTraduzir">
-                    <i class="fa-solid fa-language"></i>
-                    <span id="textoTradutor">Traduzir para o inglês</span>
-                </button>
-
-                <div class="usuario">
-
-                    <div class="notificacoes-wrapper">
-                        <button class="notificacoes" type="button" id="btnNotificacoes">
-                            <i class="fa-regular fa-bell"></i>
-                            <span id="quantidadeNotificacoes" class="badge">0</span>
-                        </button>
-
-                        <div class="painel-notificacoes" id="painelNotificacoes">
-                            <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
-                            <div id="listaNotificacoes">
-                                <div class="painel-vazio">Carregando...</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <img
-                        id="fotoUsuario"
-                        src="/img/perfilPadrao.png"
-                        alt="Foto do usuário"
-                        title="Ver perfil"
-                        style="cursor: pointer;"
-                    >
-
-                    <div
-                        id="wrapperPerfilTopo"
-                        style="cursor: pointer;"
-                        title="Ver perfil"
-                    >
-                        <h3 id="nomeUsuario">Carregando...</h3>
-                        <span id="tipoConta">...</span>
-                    </div>
-                </div>
-            </header>
+            <header class="topo" id="topoApp" data-perfil="/perfil"></header>
 
             <div class="conteudo-corpo vincular-corpo">
 
@@ -212,7 +173,9 @@
         #link-ajuda:hover { text-decoration: underline; }
     </style>
 
+    <script src="/js/header.js"></script>
     <script src="/js/VincularIdentidade.js"></script>
+    <script src="/js/tema.js"></script>
     
 
 </body>

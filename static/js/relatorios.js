@@ -739,16 +739,8 @@ document.getElementById("btnRelatorioDiario").addEventListener("click", () => {
     location.href = "/RelatorioDiario";
 });
 
-document.getElementById("fotoUsuario").addEventListener("click", () => {
-    window.location.href = "/perfil";
-});
-
 document.getElementById("fotoUsuario").addEventListener("error", function () {
     this.src = "/img/perfilPadrao.png";
-});
-
-document.getElementById("blocoNomeUsuario").addEventListener("click", () => {
-    window.location.href = "/perfil";
 });
 
 document.getElementById("btnToggleEstresse").addEventListener("click", () => {

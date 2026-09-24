@@ -337,10 +337,3 @@ document.getElementById("btnRelatorioDiario").addEventListener("click", () => {
     location.href = "/RelatorioDiario";
 });
 
-document.getElementById("fotoUsuario").addEventListener("click", () => {
-    window.location.href = "/perfil";
-});
-
-document.getElementById("wrapperPerfilTopo").addEventListener("click", () => {
-    window.location.href = "/perfil";
-});

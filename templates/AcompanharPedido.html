@@ -1,229 +1,216 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bixuco — Acompanhar pedido</title>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-      integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
-      crossorigin="anonymous" referrerpolicy="no-referrer">
+// ==========================
+// TEMA
+// ==========================
 
-    <link rel="stylesheet" href="/css/tema.css">
-    <link rel="stylesheet" href="/css/layout.css">
-    <link rel="stylesheet" href="/css/home.css">
-    <link rel="stylesheet" href="/css/AcompanharPedido.css">
-    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
-    
-    <script src="/js/deeplink.js"></script>
+function aplicarTema(tema) {
+    document.body.classList.remove("tema-claro", "tema-escuro");
+    document.body.classList.add(`tema-${tema}`);
+    document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
+    document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
+    localStorage.setItem("tema", tema);
+}
 
-</head>
+document.getElementById("btnClaro").addEventListener("click", () => aplicarTema("claro"));
+document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
 
-<body>
+aplicarTema(localStorage.getItem("tema") || "claro");
 
-    <div class="container">
+// ==========================
+// TRADUÇÃO MANUAL
+// ==========================
 
-        <!-- ===================== -->
-        <!-- MENU LATERAL — mesma estrutura da relatorios.html -->
-        <!-- ===================== -->
-        <aside class="sidebar">
+let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
-            <div class="logo">
-                <img src="/img/logo_nome.png" alt="Logo Bixuco">
-            </div>
+const dicionario = {
+    "Não encontramos esse código. Confira e tente novamente.":
+        "We couldn't find that code. Check it and try again.",
+    "Este Bixuco já está vinculado a outra conta.":
+        "This Bixuco is already linked to another account.",
+    "Cadastre uma criança antes de vincular o Bixuco.":
+        "Register a child before linking the Bixuco.",
+    "Não foi possível conectar. Verifique sua internet e tente novamente.":
+        "Couldn't connect. Check your internet and try again.",
+    "Leitor de QR code em desenvolvimento.":
+        "QR code reader in development."
+};
 
-            <nav>
-                <a href="/home">
-                    <i class="fa-solid fa-house"></i>
-                    <span data-pt="Início" data-en="Home">Início</span>
-                </a>
+function traduzir(texto) {
+    if (idiomaAtual === "pt" || texto == null) return texto;
+    return dicionario[texto] || texto;
+}
 
-                <a href="/relatorios">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
-                </a>
+function aplicarIdiomaEstatico() {
+    document.querySelectorAll("[data-pt]").forEach(el => {
+        el.textContent = idiomaAtual === "en"
+            ? (el.dataset.en || el.dataset.pt)
+            : el.dataset.pt;
+    });
 
-                <a href="/sobre">
-                    <i class="fa-solid fa-circle-info"></i>
-                    <span data-pt="Sobre" data-en="About">Sobre</span>
-                </a>
+    document.getElementById("textoTradutor").textContent =
+        idiomaAtual === "en" ? "Traduzir para o português" : "Translate to English";
+}
 
-                <a href="/configuracoes">
-                    <i class="fa-solid fa-gear"></i>
-                    <span data-pt="Configurações" data-en="Settings">Configurações</span>
-                </a>
-            </nav>
+document.getElementById("btnTraduzir").addEventListener("click", () => {
+    idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+    localStorage.setItem("idioma", idiomaAtual);
+    aplicarIdiomaEstatico();
+});
 
-            <button
-                class="btn-relatorio"
-                type="button"
-                onclick="location.href='/RelatorioDiario'"
-                data-pt="Relatório diário"
-                data-en="Daily report"
-            >
-                Relatório diário
-            </button>
+aplicarIdiomaEstatico();
 
-            <div class="tema">
-                <button id="btnClaro" class="ativo" type="button">
-                    <i class="fa-regular fa-sun"></i> <span data-pt="Claro" data-en="Light">Claro</span>
-                </button>
+// =========================
+// DADOS DO USUÁRIO NO TOPO
+// =========================
 
-                <button id="btnEscuro" type="button">
-                    <i class="fa-regular fa-moon"></i> <span data-pt="Escuro" data-en="Dark">Escuro</span>
-                </button>
-            </div>
+async function carregarDadosUsuario() {
+    try {
+        const resposta = await fetch("/api/home");
 
-            <div class="sidebar-divisor"></div>
+        if (resposta.status === 401) {
+            window.location.href = "/logar";
+            return;
+        }
 
-            <a href="/logout" class="logout">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                <span data-pt="Sair" data-en="Log out">Sair</span>
-            </a>
-        </aside>
+        if (!resposta.ok) throw new Error(`Falha ao carregar dados do usuário (status ${resposta.status})`);
 
-        <!-- ===================== -->
-        <!-- CONTEÚDO PRINCIPAL -->
-        <!-- ===================== -->
-        <main class="conteudo">
+        const dados = await resposta.json();
 
-            <header class="topo">
+        document.getElementById("nomeUsuario").textContent = dados.nome || "Usuário";
+        document.getElementById("tipoConta").textContent   = dados.tipoConta || "Responsável";
 
-                <button class="tradutor" type="button" id="btnTraduzir">
-                    <i class="fa-solid fa-language"></i>
-                    <span id="textoTradutor">Traduzir para o inglês</span>
-                </button>
+        if (dados.fotoPerfil) {
+            document.getElementById("fotoUsuario").src = dados.fotoPerfil;
+        }
 
-                <div class="usuario">
+    } catch (erro) {
+        console.log("Erro ao carregar dados do usuário:", erro);
+        document.getElementById("nomeUsuario").textContent = "Usuário";
+        document.getElementById("tipoConta").textContent   = "Responsável";
+    }
+}
 
-                    <div class="notificacoes-wrapper">
-                        <button class="notificacoes" type="button" id="btnNotificacoes">
-                            <i class="fa-regular fa-bell"></i>
-                            <span id="quantidadeNotificacoes" class="badge">0</span>
-                        </button>
+carregarDadosUsuario();
 
-                        <div class="painel-notificacoes" id="painelNotificacoes">
-                            <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
-                            <div id="listaNotificacoes">
-                                <div class="painel-vazio">Carregando...</div>
-                            </div>
-                        </div>
-                    </div>
+// =========================
+// NOTIFICAÇÕES
+// =========================
 
-                    <img
-                        id="fotoUsuario"
-                        src="/img/perfilPadrao.png"
-                        alt="Foto do usuário"
-                        title="Ver perfil"
-                        style="cursor: pointer;"
-                    >
+const painelNotificacoes = document.getElementById("painelNotificacoes");
+const listaNotificacoes  = document.getElementById("listaNotificacoes");
 
-                    <div
-                        id="blocoNomeUsuario"
-                        style="cursor: pointer;"
-                        title="Ver perfil"
-                    >
-                        <h3 id="nomeUsuario">Carregando...</h3>
-                        <span id="tipoConta">...</span>
-                    </div>
-                </div>
-            </header>
+function escaparHTML(texto) {
+    const div = document.createElement("div");
+    div.textContent = texto ?? "";
+    return div.innerHTML;
+}
 
-            <div class="conteudo-corpo">
+function formatarItemNotificacao(item) {
+    const classeExtra = item.lida ? "" : "nao-lida";
+    return `
+        <div class="item-notificacao ${classeExtra}">
+            ${escaparHTML(item.mensagem)}
+            <span class="tempo-notificacao">${escaparHTML(item.tempo)}</span>
+        </div>
+    `;
+}
 
-                <section class="rastreio-banner" id="banner">
-                    <i class="fa-solid fa-truck" id="banner-icone"></i>
-                    <div>
-                        <strong id="banner-titulo" data-pt="Seu Bixuco está a caminho!" data-en="Your Bixuco is on its way!">Seu Bixuco está a caminho!</strong>
-                        <span id="banner-subtitulo" data-pt="Ele já foi postado e está com a transportadora." data-en="It has already been posted and is with the carrier.">Ele já foi postado e está com a transportadora.</span>
-                    </div>
-                </section>
+async function carregarNotificacoes() {
+    try {
+        const resposta = await fetch("/api/notificacoes");
+        if (!resposta.ok) throw new Error();
 
-                <div class="rastreio-grid">
+        const dados = await resposta.json();
+        const itens = dados.notificacoes || [];
 
-                    <div class="card rastreio-timeline" id="timeline">
+        listaNotificacoes.innerHTML = itens.length === 0
+            ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+            : itens.map(formatarItemNotificacao).join("");
 
-                        <div class="etapa" data-etapa="0">
-                            <div class="ponto"></div>
-                            <div>
-                                <strong data-pt="Pedido recebido!" data-en="Order received!">Pedido recebido!</strong>
-                                <span data-pt="Recebemos seu pedido com sucesso." data-en="We successfully received your order.">Recebemos seu pedido com sucesso.</span>
-                            </div>
-                        </div>
+        const naoLidas = itens.filter(item => !item.lida).length;
+        document.getElementById("quantidadeNotificacoes").textContent = naoLidas;
 
-                        <div class="etapa" data-etapa="1">
-                            <div class="ponto"></div>
-                            <div>
-                                <strong data-pt="Em produção" data-en="In production">Em produção</strong>
-                                <span data-pt="Seu pedido está sendo preparado." data-en="Your order is being prepared.">Seu pedido está sendo preparado.</span>
-                            </div>
-                        </div>
+    } catch (erro) {
+        console.log("Erro ao carregar notificações:", erro);
+        listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar as notificações.</div>`;
+    }
+}
 
-                        <div class="etapa" data-etapa="2">
-                            <div class="ponto"></div>
-                            <div>
-                                <strong data-pt="Enviado" data-en="Shipped">Enviado</strong>
-                                <span data-pt="Postado com a transportadora." data-en="Handed off to the carrier.">Postado com a transportadora.</span>
-                            </div>
-                        </div>
+async function marcarNotificacoesComoLidas() {
+    try {
+        await fetch("/api/notificacoes/marcar-lidas", { method: "POST" });
+        document.getElementById("quantidadeNotificacoes").textContent = "0";
+    } catch (erro) {
+        console.log("Erro ao marcar notificações como lidas:", erro);
+    }
+}
 
-                        <div class="etapa" data-etapa="3">
-                            <div class="ponto"></div>
-                            <div>
-                                <strong data-pt="Em transporte" data-en="In transit">Em transporte</strong>
-                                <span data-pt="A caminho do seu endereço." data-en="On its way to your address.">A caminho do seu endereço.</span>
-                            </div>
-                        </div>
+document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
+    e.stopPropagation();
 
-                        <div class="etapa" data-etapa="4">
-                            <div class="ponto"></div>
-                            <div>
-                                <strong data-pt="Entregue" data-en="Delivered">Entregue</strong>
-                                <span data-pt="Aguardando entrega." data-en="Awaiting delivery.">Aguardando entrega.</span>
-                            </div>
-                        </div>
+    const estaAberto = painelNotificacoes.classList.contains("aberto");
+    if (estaAberto) {
+        painelNotificacoes.classList.remove("aberto");
+        return;
+    }
 
-                    </div>
+    painelNotificacoes.classList.add("aberto");
+    await carregarNotificacoes();
+    marcarNotificacoesComoLidas();
+});
 
-                    <div class="card rastreio-lateral">
+document.addEventListener("click", (e) => {
+    if (!painelNotificacoes.contains(e.target)) {
+        painelNotificacoes.classList.remove("aberto");
+    }
+});
 
-                        <h3 data-pt="Código de rastreio" data-en="Tracking code">Código de rastreio</h3>
+carregarNotificacoes();
 
-                        <div class="rastreio-codigo">
-                            <span id="codigo-texto">—</span>
-                            <i class="fa-regular fa-copy" id="btn-copiar" title="Copiar"></i>
-                        </div>
+// =========================
+// FORMULÁRIO DE VINCULAÇÃO
+// =========================
 
-                        <div class="rastreio-transportadora">
-                            <div>
-                                <span data-pt="Transportadora" data-en="Carrier">Transportadora</span>
-                                <strong>Mercado Livre</strong>
-                            </div>
-                            <i class="fa-solid fa-handshake"></i>
-                        </div>
+const input         = document.getElementById("codigo");
+const btnContinuar   = document.getElementById("btn-continuar");
 
-                        <button id="btn-acompanhar" type="button" data-pt="Acompanhar entrega" data-en="Track delivery">
-                            <span data-pt="Acompanhar entrega" data-en="Track delivery">Acompanhar entrega</span>
-                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                        </button>
+input.addEventListener("input", () => {
+    btnContinuar.disabled = input.value.trim().length < 4;
+});
 
-                        <div class="rastreio-previsao">
-                            <span data-pt="PREVISÃO DE ENTREGA" data-en="ESTIMATED DELIVERY">PREVISÃO DE ENTREGA</span>
-                            <strong id="data-previsao">—</strong>
-                            <p data-pt="Enviaremos um aviso quando seu Bixuco for entregue." data-en="We'll notify you when your Bixuco is delivered.">Enviaremos um aviso quando seu Bixuco for entregue.</p>
-                        </div>
+btnContinuar.addEventListener("click", async () => {
+    const codigo = input.value.trim();
 
-                    </div>
+    try {
+        const resposta = await fetch("/api/dispositivos/vincular", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ device_id: codigo })
+        });
 
-                </div>
+        if (resposta.status === 401) {
+            window.location.href = "/logar";
+            return;
+        }
 
-            </div>
+        if (!resposta.ok) {
+            const erro = await resposta.json().catch(() => ({}));
+            alert(traduzir(erro.mensagem) || traduzir("Não encontramos esse código. Confira e tente novamente."));
+            return;
+        }
 
-        </main>
-    </div>
+        window.location.href = "/VincularSucesso";
+    } catch (erro) {
+        alert(traduzir("Não foi possível conectar. Verifique sua internet e tente novamente."));
+    }
+});
 
-    <script src="/js/AcompanharPedido.js"></script>
-    <script src="/js/tema.js"></script>
+document.getElementById("btn-scan").addEventListener("click", () => {
+    // Placeholder: abrir modal/leitor de câmera para QR code
+    alert(traduzir("Leitor de QR code em desenvolvimento."));
+});
 
-</body>
-</html>
+document.getElementById("btnRelatorioDiario").addEventListener("click", () => {
+    window.location.href = "/RelatorioDiario";
+});
+

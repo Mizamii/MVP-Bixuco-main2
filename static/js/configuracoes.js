@@ -389,14 +389,7 @@ document.getElementById("btnRelatorioDiario").addEventListener("click", () => {
 
 const fotoUsuarioEl = document.getElementById("fotoUsuario");
 
-fotoUsuarioEl.addEventListener("click", () => {
-    window.location.href = "/perfil";
-});
-
 fotoUsuarioEl.addEventListener("error", function () {
     this.src = "/img/perfilPadrao.png";
 });
 
-document.getElementById("wrapperPerfilTopo").addEventListener("click", () => {
-    window.location.href = "/perfil";
-});
