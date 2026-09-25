@@ -391,6 +391,50 @@ body {
 
 @media (max-width: 768px) {
   .conteudo-corpo {
-    padding-bottom: 5.5rem;
+    padding: 1rem 1rem 5.5rem;
+  }
+
+  html,
+  body {
+    height: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .linha-contadores {
+    gap: 0.6rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .contador {
+    gap: 0.55rem;
+    padding: 0.75rem 0.6rem;
+    border-radius: 12px;
+  }
+
+  .contador-icone {
+    width: 34px;
+    height: 34px;
+    font-size: 0.85rem;
+  }
+
+  .contador strong {
+    font-size: 1.05rem;
+  }
+
+  .contador span {
+    font-size: 0.68rem;
+  }
+
+  .linha-principal {
+    flex-direction: column;
+    gap: 0.9rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .card-solicitacoes,
+  .card-atividade {
+    width: 100%;
+    padding: 1rem 1.1rem;
   }
 }

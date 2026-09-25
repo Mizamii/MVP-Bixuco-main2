@@ -335,4 +335,11 @@ body * {
   .conteudo-corpo {
     padding-bottom: 5.5rem;
   }
+
+  html,
+  body {
+    height: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
 }
