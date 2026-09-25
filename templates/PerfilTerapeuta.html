@@ -23,6 +23,7 @@
     <!-- tema.css define as variáveis de cor -->
     <link rel="stylesheet" href="/css/tema.css">
     <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/header.css">
 
     <!-- home.css traz sidebar/topo/tema prontos -->
     <link rel="stylesheet" href="/css/home.css">
@@ -107,58 +108,7 @@
 
         <!-- Topo -->
 
-        <header class="topo">
-
-            <button class="tradutor" type="button" id="btnTraduzir">
-                <i class="fa-solid fa-language"></i>
-                <span id="textoTradutor">Traduzir para inglês</span>
-            </button>
-
-            <div class="usuario">
-
-                <!-- Painel de notificações -->
-                <div class="notificacoes-wrapper">
-
-                    <button class="notificacoes" type="button" id="btnNotificacoes">
-                        <i class="fa-regular fa-bell"></i>
-                        <span id="quantidadeNotificacoes" class="badge">0</span>
-                    </button>
-
-                    <div class="painel-notificacoes" id="painelNotificacoes">
-                        <div class="painel-header" data-pt="Notificações" data-en="Notifications">Notificações</div>
-                        <div id="listaNotificacoes">
-                            <div class="painel-vazio" data-pt="Carregando..." data-en="Loading...">Carregando...</div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- Foto do topo — a própria página de perfil, sem onclick -->
-                <img
-                    id="fotoUsuario"
-                    src="/img/perfilPadrao.png"
-                    alt="Foto do terapeuta"
-                >
-
-                <div>
-                    <h3 id="nomeUsuario">Carregando...</h3>
-                    <span id="tipoConta" data-pt="Terapeuta" data-en="Therapist">Terapeuta</span>
-
-                    <!-- Código de vínculo no header, igual às outras telas do terapeuta -->
-                    <button
-                        type="button"
-                        class="btn-codigo-copiar"
-                        id="btnCodigoCopiarHeader"
-                        title="Copiar código para compartilhar"
-                    >
-                        <span><span data-pt="Código" data-en="Code">Código</span>: <strong id="codigoTerapeutaHeader">...</strong></span>
-                        <i class="fa-regular fa-copy" id="iconeCopiarHeader"></i>
-                    </button>
-                </div>
-
-            </div>
-
-        </header>
+        <header class="topo" id="topoApp" data-perfil="/PerfilTerapeuta" data-pagina="perfil" data-tipo-pt="Terapeuta" data-tipo-en="Therapist" data-codigo="header"></header>
 
         <!-- CORPO COM SCROLL INTERNO -->
         <div class="conteudo-corpo">
@@ -340,6 +290,7 @@
 JAVASCRIPT
 =========================== -->
 
+<script src="/js/header.js"></script>
 <script src="/js/PerfilTerapeuta.js"></script>
 
 <!-- Tema claro/escuro — lógica compartilhada por todas as páginas -->
