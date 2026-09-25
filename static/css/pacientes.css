@@ -788,3 +788,9 @@ body.tema-escuro .dica {
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 768px) {
+  .conteudo-corpo {
+    padding-bottom: 5.5rem;
+  }
+}

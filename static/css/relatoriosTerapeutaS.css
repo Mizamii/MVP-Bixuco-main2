@@ -702,3 +702,9 @@ body.tema-escuro .dica {
     display: none;
   }
 }
+
+@media (max-width: 768px) {
+  .conteudo-corpo {
+    padding-bottom: 5.5rem;
+  }
+}

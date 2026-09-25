@@ -413,3 +413,9 @@ body.tema-escuro .privacidade-direita {
     display: none;
   }
 }
+
+@media (max-width: 768px) {
+  .conteudo-corpo {
+    padding-bottom: 5.5rem;
+  }
+}

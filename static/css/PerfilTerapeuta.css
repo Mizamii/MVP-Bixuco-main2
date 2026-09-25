@@ -335,3 +335,9 @@
     width: 260px;
   }
 }
+
+@media (max-width: 768px) {
+  .conteudo-corpo {
+    padding-bottom: 5.5rem;
+  }
+}
