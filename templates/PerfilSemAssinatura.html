@@ -1,318 +1,300 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
     <script src="/js/deeplink.js"></script>
 
-    <title>Bixuco • Meu Perfil</title>
+
+    <title>Bixuco • Perfil do Terapeuta</title>
     <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-      integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
-      crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
 
+    <!-- tema.css define as variáveis de cor -->
     <link rel="stylesheet" href="/css/tema.css">
     <link rel="stylesheet" href="/css/layout.css">
     <link rel="stylesheet" href="/css/header.css">
+
+    <!-- home.css traz sidebar/topo/tema prontos -->
     <link rel="stylesheet" href="/css/home.css">
-    <!-- 🔧 FIX: reaproveitando o MESMO perfil.css da versão com assinatura —
-         é de lá que vêm as classes do modal, da edição de nome/foto etc.,
-         já preparadas para o tema claro/escuro -->
-    <link rel="stylesheet" href="/css/perfil.css">
-    <link rel="stylesheet" href="/css/PerfilSemAssinatura.css">
+
+    <!-- CSS exclusivo desta página -->
+    <link rel="stylesheet" href="/css/PerfilTerapeuta.css">
 
 </head>
+
 <body>
 
-    <div class="container">
+<div class="container">
 
-        <!-- ===========================
-        MENU LATERAL — reduzido
-        =========================== -->
+    <!-- ===========================
+    MENU LATERAL
+    =========================== -->
 
-        <aside class="sidebar">
+    <aside class="sidebar">
 
-            <div class="logo">
-                <img src="/img/logo_nome.png" alt="Bixuco">
-            </div>
+        <div class="logo">
+            <img src="/img/logo_nome.png" alt="Bixuco">
+        </div>
 
-            <nav>
+        <!-- Mesmos 5 itens das outras telas do terapeuta — o acesso ao
+             perfil é sempre pela foto/nome no header, não por um item
+             separado no menu (por isso não há link "Perfil" aqui). -->
+        <nav>
 
-                <a href="/planos">
-                    <i class="fa-solid fa-dollar-sign"></i>
-                    <span data-pt="Planos" data-en="Plans">Planos</span>
-                </a>
-
-                <a href="/configuracoesSemAssinatura">
-                    <i class="fa-solid fa-gear"></i>
-                    <span data-pt="Configurações" data-en="Settings">Configurações</span>
-                </a>
-
-                <a href="/sobreSemAssinatura">
-                    <i class="fa-solid fa-circle-info"></i>
-                    <span data-pt="Sobre" data-en="About">Sobre</span>
-                </a>
-
-            </nav>
-
-            <div class="tema">
-
-                <button id="btnClaro" class="ativo" type="button">
-                    <i class="fa-regular fa-sun"></i>
-                    <span data-pt="Claro" data-en="Light">Claro</span>
-                </button>
-
-                <button id="btnEscuro" type="button">
-                    <i class="fa-regular fa-moon"></i>
-                    <span data-pt="Escuro" data-en="Dark">Escuro</span>
-                </button>
-
-            </div>
-
-            <div class="sidebar-divisor"></div>
-
-            <a href="/logout" class="logout">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                <span data-pt="Sair" data-en="Log out">Sair</span>
+            <a href="/homeTerapeuta">
+                <i class="fa-solid fa-house"></i>
+                <span data-pt="Início" data-en="Home">Início</span>
             </a>
 
-        </aside>
-
-        <!-- ===========================
-        CONTEÚDO
-        =========================== -->
-
-        <main class="conteudo">
-
-            <header class="topo" id="topoApp" data-perfil="/perfilSemAssinatura" data-pagina="perfil" data-notif-pt="Promoções" data-notif-en="Promotions"></header>
-
-            <div class="conteudo-corpo">
-
-                <section class="titulo">
-                    <h1 data-pt="Meu perfil" data-en="My profile">Meu perfil</h1>
-                    <p data-pt="Gerencie suas informações e preferências" data-en="Manage your information and preferences">Gerencie suas informações e preferências</p>
-                </section>
-
-                <div class="grid-perfil">
-
-                    <!-- ========================= -->
-                    <!-- COLUNA ESQUERDA: PERFIL + CRIANÇA -->
-                    <!-- ========================= -->
-
-                    <div class="perfil-coluna-esquerda">
-
-                        <!-- ========================= -->
-                        <!-- CARD PERFIL -->
-                        <!-- ========================= -->
-
-                        <div class="card perfil-card">
-
-                            <div class="perfil-topo">
-
-                                <!-- 🔧 FIX: clicar na foto (câmera sobreposta) abre o seletor de arquivo direto -->
-                                <div
-                                    class="perfil-foto-wrapper"
-                                    id="perfilFotoWrapper"
-                                    title="Alterar foto de perfil"
-                                >
-                                    <img
-                                        id="fotoPerfil"
-                                        src="/img/perfilPadrao.png"
-                                        alt="Foto de perfil"
-                                    >
-                                    <div class="perfil-foto-overlay">
-                                        <i class="fa-solid fa-camera"></i>
-                                    </div>
-                                </div>
-
-                                <input type="file" id="inputFotoPerfil" accept="image/*" style="display: none;">
-
-                                <div>
-
-                                    <!-- 🔧 FIX: edição de nome inline (lápis → campo + confirmar/cancelar) -->
-                                    <div class="perfil-nome-linha" id="perfilNomeLinha">
-
-                                        <h2 id="perfilNome">Carregando...</h2>
-
-                                        <button
-                                            type="button"
-                                            class="btn-editar-nome"
-                                            id="btnEditarNome"
-                                            title="Editar nome"
-                                            data-pt-title="Editar nome"
-                                            data-en-title="Edit name"
-                                        >
-                                            <i class="fa-solid fa-pen"></i>
-                                        </button>
-
-                                    </div>
-
-                                    <div class="perfil-nome-editar" id="perfilNomeEditar" style="display: none;">
-
-                                        <input type="text" id="inputNome" class="input-nome" maxlength="80" autocomplete="name">
-
-                                        <button type="button" class="btn-salvar-nome" id="btnSalvarNome" title="Salvar" data-pt-title="Salvar" data-en-title="Save">
-                                            <i class="fa-solid fa-check"></i>
-                                        </button>
-
-                                        <button type="button" class="btn-cancelar-nome" id="btnCancelarNome" title="Cancelar" data-pt-title="Cancelar" data-en-title="Cancel">
-                                            <i class="fa-solid fa-xmark"></i>
-                                        </button>
-
-                                    </div>
-
-                                    <span class="erro-nome" id="erroNome"></span>
-
-                                    <p id="perfilDescricao">Responsável</p>
-
-                                </div>
-
-                            </div>
-
-                            <div class="perfil-foto-acoes" id="perfilFotoAcoes">
-                                <button type="button" class="btn-salvar-foto" id="btnSalvarFoto" data-pt="Salvar foto" data-en="Save photo">Salvar foto</button>
-                                <button type="button" class="btn-cancelar-foto" id="btnCancelarFoto" data-pt="Cancelar" data-en="Cancel">Cancelar</button>
-                            </div>
-
-                            <!-- 🔧 FIX: banner de upgrade, específico da versão sem assinatura -->
-                            <div class="banner-upgrade">
-                                <i class="fa-solid fa-star"></i>
-                                <div>
-                                    <strong data-pt="Aprimore seu plano!" data-en="Upgrade your plan!">Aprimore seu plano!</strong>
-                                    <p data-pt="Assine agora e acesse relatórios, gráficos e muito mais." data-en="Subscribe now and get access to reports, charts and much more.">
-                                        Assine agora e acesse relatórios,
-                                        gráficos e muito mais.
-                                    </p>
-                                </div>
-                                <a href="/planos" class="btn-upgrade" data-pt="Ver planos" data-en="View plans">Ver planos</a>
-                            </div>
-
-                            <!-- 🔧 FIX: "Sobre a conta" — email, tipo de conta e ano de cadastro -->
-                            <div class="sobre-conta">
-                                <h3 data-pt="Sobre a conta" data-en="About your account">Sobre a conta</h3>
-
-                                <div class="sobre-conta-linha">
-                                    <span data-pt="Email" data-en="Email">Email</span>
-                                    <span id="infoEmail">—</span>
-                                </div>
-
-                                <div class="sobre-conta-linha">
-                                    <span data-pt="Tipo de conta" data-en="Account type">Tipo de conta</span>
-                                    <span id="infoTipoConta">—</span>
-                                </div>
-
-                                <div class="sobre-conta-linha">
-                                    <span data-pt="Membro desde" data-en="Member since">Membro desde</span>
-                                    <span id="infoAnoCadastro">—</span>
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <!-- Criança -->
-
-                        <section class="card crianca">
-
-                            <h2 data-pt="Criança cadastrada" data-en="Registered child">Criança cadastrada</h2>
-
-                            <!-- 🔧 FIX: se já existe criança, abre o modal de edição;
-                                 se não existe, vai para /AdicionarC -->
-                            <a href="/AdicionarC" class="item-card" id="linkCrianca">
-
-                                <div class="avatar-crianca" id="avatarCrianca">?</div>
-
-                                <div>
-                                    <h3 id="nomeCrianca">Carregando...</h3>
-                                    <p id="idadeCrianca">...</p>
-                                </div>
-
-                                <i class="fa-solid fa-chevron-right seta"></i>
-
-                            </a>
-
-                        </section>
-
-                        <!-- Mascote — preenche o espaço vazio da coluna -->
-                        <img
-                            src="/img/Gatodeitado.png"
-                            alt="gato deitado"
-                            class="gato-deitado"
-                        >
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </main>
-
-        <!-- ===================== -->
-        <!-- MENU INFERIOR (só mobile) -->
-        <!-- ===================== -->
-
-        <!-- Página só existe pra quem está no plano grátis, então
-             a barra inferior espelha direto a sidebar reduzida
-             acima, sem precisar de duas versões. -->
-        <nav class="bottom-nav">
-            <a href="/planos">
-                <i class="fa-solid fa-dollar-sign"></i>
-                <span data-pt="Planos" data-en="Plans">Planos</span>
+            <a href="/relatoriosTerapeutaS">
+                <i class="fa-solid fa-chart-line"></i>
+                <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
             </a>
-            <a href="/configuracoesSemAssinatura">
+
+            <a href="/configuracoesT">
                 <i class="fa-solid fa-gear"></i>
-                <span data-pt="Config" data-en="Settings">Config</span>
+                <span data-pt="Configurações" data-en="Settings">Configurações</span>
             </a>
-            <a href="/sobreSemAssinatura">
+
+            <a href="/sobreT">
                 <i class="fa-solid fa-circle-info"></i>
                 <span data-pt="Sobre" data-en="About">Sobre</span>
             </a>
+
+            <a href="/pacientes">
+                <i class="fa-solid fa-user-plus"></i>
+                <span data-pt="Pacientes" data-en="Patients">Pacientes</span>
+            </a>
+
         </nav>
 
-    </div>
+        <div class="tema">
+            <button id="btnClaro" class="ativo" type="button">
+                <i class="fa-regular fa-sun"></i>
+                <span data-pt="Claro" data-en="Light">Claro</span>
+            </button>
+
+            <button id="btnEscuro" type="button">
+                <i class="fa-regular fa-moon"></i>
+                <span data-pt="Escuro" data-en="Dark">Escuro</span>
+            </button>
+        </div>
+
+        <div class="sidebar-divisor"></div>
+
+        <a href="/logout" class="logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span data-pt="Sair" data-en="Log out">Sair</span>
+        </a>
+
+    </aside>
 
     <!-- ===========================
-    MODAL — INFORMAÇÕES DA CRIANÇA
-    (mesma estrutura/classes da versão com assinatura, já preparada pro tema)
+    CONTEÚDO
     =========================== -->
 
-    <div id="modalCrianca">
-        <div class="modal-conteudo">
+    <main class="conteudo">
 
-            <div class="modal-header">
-                <h3 data-pt="Informações da criança" data-en="Child information">Informações da criança</h3>
-                <button type="button" class="btn-fechar-modal" id="btnFecharModalCrianca" aria-label="Fechar">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
+        <!-- Topo -->
 
-            <div class="crianca-foto-wrapper" id="criancaFotoWrapper" title="Alterar foto">
-                <img id="fotoCriancaModal" src="/img/perfilPadrao.png" alt="Foto da criança">
-                <div class="crianca-foto-overlay">
-                    <i class="fa-solid fa-camera"></i>
+        <header class="topo" id="topoApp" data-perfil="/PerfilTerapeuta" data-pagina="perfil" data-tipo-pt="Terapeuta" data-tipo-en="Therapist" data-codigo="header"></header>
+
+        <!-- CORPO COM SCROLL INTERNO -->
+        <div class="conteudo-corpo">
+
+            <!-- Cabeçalho -->
+
+            <section class="cabecalho">
+                <div>
+                    <h1 data-pt="Meu perfil" data-en="My profile">Meu perfil</h1>
+                    <p data-pt="Gerencie suas informações e preferências." data-en="Manage your information and preferences.">Gerencie suas informações e preferências.</p>
                 </div>
+            </section>
+
+            <!-- ===========================
+            GRID DO PERFIL
+            =========================== -->
+
+            <div class="grid-perfil">
+
+                <!-- ========================= -->
+                <!-- CARD PERFIL (esquerda) -->
+                <!-- ========================= -->
+
+                <div class="card card-perfil">
+
+                    <!-- Foto clicável para editar -->
+                    <div
+                        class="perfil-foto-wrapper"
+                        id="perfilFotoWrapper"
+                        title="Clique para alterar sua foto"
+                    >
+                        <img
+                            id="fotoPerfil"
+                            src="/img/perfilPadrao.png"
+                            alt="Foto de perfil"
+                        >
+                        <div class="perfil-foto-overlay">
+                            <i class="fa-solid fa-camera"></i>
+                        </div>
+                    </div>
+
+                    <input
+                        type="file"
+                        id="inputFotoPerfil"
+                        accept="image/*"
+                        style="display:none;"
+                    >
+
+                    <!-- Botões de salvar/cancelar foto -->
+                    <div
+                        class="perfil-foto-acoes"
+                        id="perfilFotoAcoes"
+                        style="display:none;"
+                    >
+                        <button type="button" id="btnSalvarFoto" data-pt="Salvar foto" data-en="Save photo">Salvar foto</button>
+                        <button type="button" id="btnCancelarFoto" data-pt="Cancelar" data-en="Cancel">Cancelar</button>
+                    </div>
+
+                    <!-- Nome editável -->
+                    <div class="perfil-nome-linha" id="perfilNomeLinha">
+                        <h2 id="perfilNome">Carregando...</h2>
+                        <button type="button" id="btnEditarNome" title="Editar nome">
+                            <i class="fa-regular fa-pen-to-square"></i>
+                        </button>
+                    </div>
+
+                    <!-- Input de edição do nome -->
+                    <div
+                        class="perfil-nome-editar"
+                        id="perfilNomeEditar"
+                        style="display:none;"
+                    >
+                        <input
+                            type="text"
+                            id="inputNome"
+                            maxlength="80"
+                            placeholder="Seu nome"
+                        >
+                        <button type="button" id="btnSalvarNome" data-pt="Salvar" data-en="Save">Salvar</button>
+                        <button type="button" id="btnCancelarNome" data-pt="Cancelar" data-en="Cancel">Cancelar</button>
+                        <span id="erroNome" style="display:none; color:#E53E3E; font-size:0.8rem;"></span>
+                    </div>
+
+                    <!-- Descrição: tipo e desde quando -->
+                    <p id="perfilDescricao">Terapeuta</p>
+
+                    <!-- Removidos: badge de "dias seguidos" (ofensiva) e de
+                         "plano" — nenhum dos dois se aplica a uma conta de
+                         terapeuta (que não preenche relatório diário nem
+                         assina plano). -->
+
+                </div>
+
+                <!-- ========================= -->
+                <!-- COLUNA DIREITA -->
+                <!-- ========================= -->
+
+                <div class="perfil-direita">
+
+                    <!-- Código de vínculo -->
+
+                    <section class="card codigo-vinculo">
+
+                        <h2 data-pt="Código de vínculo" data-en="Link code">Código de vínculo</h2>
+
+                        <p data-pt="Compartilhe este código com seus pacientes para que eles possam solicitar o vínculo com você." data-en="Share this code with your patients so they can request to link with you.">
+                            Compartilhe este código com seus pacientes
+                            para que eles possam solicitar o vínculo com você.
+                        </p>
+
+                        <div class="codigo-display">
+
+                            <span id="codigoVinculo" class="codigo-valor">---</span>
+
+                            <button
+                                type="button"
+                                id="btnCopiarCodigo"
+                                class="btn-copiar"
+                                title="Copiar código"
+                            >
+                                <i class="fa-regular fa-copy" id="iconeCopiar"></i>
+                            </button>
+
+                        </div>
+
+                        <span
+                            id="mensagemCopiado"
+                            style="display:none; color:#32C26D; font-size:0.8rem;"
+                            data-pt="✅ Código copiado!"
+                            data-en="✅ Code copied!"
+                        >
+                            ✅ Código copiado!
+                        </span>
+
+                    </section>
+
+                    <!-- Compartilhamento -->
+
+                    <section class="card compartilhamento">
+
+                        <h2 data-pt="Compartilhamento" data-en="Sharing">Compartilhamento</h2>
+
+                        <button
+                            id="btnNovoPaciente"
+                            class="config-btn"
+                            type="button"
+                        >
+                            <div class="icone verde">
+                                <i class="fa-solid fa-share-nodes"></i>
+                            </div>
+                            <div class="texto">
+                                <h3 data-pt="Compartilhar com novo paciente" data-en="Share with a new patient">Compartilhar com novo paciente</h3>
+                            </div>
+                            <i class="fa-solid fa-chevron-right seta"></i>
+                        </button>
+
+                    </section>
+
+                </div>
+
             </div>
 
-            <input type="file" id="inputFotoCrianca" accept="image/*" style="display: none;">
+            <!-- Mascote -->
+            <section class="rodape-perfil">
+                <img
+                    src="/img/BixucoDormindo.png"
+                    alt="Bixuco"
+                    class="bixuco"
+                >
+            </section>
 
-            <label for="inputNomeCrianca" data-pt="Nome" data-en="Name">Nome</label>
-            <input type="text" id="inputNomeCrianca" maxlength="80">
+        </div><!-- fim .conteudo-corpo -->
 
-            <label for="idadeCriancaModal" data-pt="Idade" data-en="Age">Idade</label>
-            <input type="text" id="idadeCriancaModal" disabled>
-            <span class="dica-idade" data-pt="A idade é calculada pela data de nascimento e não pode ser editada aqui." data-en="Age is calculated from the birth date and can't be edited here.">A idade é calculada pela data de nascimento e não pode ser editada aqui.</span>
+    </main>
 
-            <button type="button" class="btn-salvar-crianca" id="btnSalvarCrianca" data-pt="Salvar alterações" data-en="Save changes">Salvar alterações</button>
+</div>
 
-            <p id="statusCrianca" class="status-crianca"></p>
+<!-- ===========================
+JAVASCRIPT
+=========================== -->
 
-        </div>
-    </div>
+<script src="/js/header.js"></script>
+<script src="/js/PerfilTerapeuta.js"></script>
 
-    <script src="/js/header.js"></script>
-    <script src="/js/tema.js"></script>
-    <script src="/js/PerfilSemAssinatura.js"></script>
+<!-- Tema claro/escuro — lógica compartilhada por todas as páginas -->
+<script src="/js/tema.js"></script>
 
 </body>
 </html>

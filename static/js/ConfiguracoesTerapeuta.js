@@ -274,16 +274,8 @@ carregarPreferencias();
 
 const fotoUsuarioEl = document.getElementById("fotoUsuario");
 
-fotoUsuarioEl.addEventListener("click", () => {
-    window.location.href = "/perfilTerapeuta";
-});
-
 fotoUsuarioEl.addEventListener("error", function () {
     this.src = "/img/perfilPadrao.png";
-});
-
-document.getElementById("nomeTerapeuta").addEventListener("click", () => {
-    window.location.href = "/perfilTerapeuta";
 });
 
 document.getElementById("btnCodigoCopiar").addEventListener("click", copiarCodigo);

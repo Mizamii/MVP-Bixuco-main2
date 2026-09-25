@@ -91,6 +91,32 @@
     color: var(--cor-texto-esmaecido);
 }
 
+.menu-perfil__codigo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+    padding: 0.3rem 0.7rem;
+    border: 1px solid var(--cor-borda);
+    border-radius: 999px;
+    background: var(--cor-fundo-hover);
+    color: var(--cor-texto-secundario);
+    font-size: 0.74rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.menu-perfil__codigo:hover {
+    background: var(--cor-fundo-hover-forte);
+    color: var(--cor-texto-principal);
+}
+
+.menu-perfil__codigo strong {
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+
 .menu-perfil__item {
     display: flex;
     align-items: center;

@@ -483,6 +483,12 @@ function aplicarTema(tema) {
 document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema("claro"));
 document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
 
+// Um único botão (no menu da conta, mobile) que alterna entre os dois
+document.getElementById("btnTemaMobile").addEventListener("click", () => {
+    const atual = document.body.classList.contains("tema-escuro") ? "escuro" : "claro";
+    aplicarTema(atual === "claro" ? "escuro" : "claro");
+});
+
 
 // =========================
 // INICIALIZAÇÃO
@@ -498,13 +504,5 @@ carregarBadgeNotificacoes();
 // página — atualização "silenciosa" (não reseta a tela em caso de
 // falha passageira de rede)
 setInterval(() => carregarDados(true), 15000);
-
-document.getElementById("fotoUsuario").addEventListener("click", () => {
-    window.location.href = "/perfilTerapeuta";
-});
-
-document.getElementById("nomeTerapeuta").addEventListener("click", () => {
-    window.location.href = "/perfilTerapeuta";
-});
 
 document.getElementById("btnCodigoCopiar").addEventListener("click", copiarCodigo);

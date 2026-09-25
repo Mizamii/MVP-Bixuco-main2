@@ -357,6 +357,12 @@ function aplicarTema(tema) {
 document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema("claro"));
 document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
 
+// Um único botão (no menu da conta, mobile) que alterna entre os dois
+document.getElementById("btnTemaMobile").addEventListener("click", () => {
+    const atual = document.body.classList.contains("tema-escuro") ? "escuro" : "claro";
+    aplicarTema(atual === "claro" ? "escuro" : "claro");
+});
+
 
 // =========================
 // INICIALIZAÇÃO
@@ -370,13 +376,4 @@ carregarPacientes();
 document.getElementById("inputBusca").addEventListener("input", filtrarPacientes);
 document.querySelectorAll(".aba").forEach(botao => {
     botao.addEventListener("click", () => trocarAba(botao));
-});
-
-// Foto e nome levam pro perfil do terapeuta — igual ao Home
-document.getElementById("fotoUsuario").addEventListener("click", () => {
-    window.location.href = "/perfilTerapeuta";
-});
-
-document.getElementById("nomeTerapeuta").addEventListener("click", () => {
-    window.location.href = "/perfilTerapeuta";
 });

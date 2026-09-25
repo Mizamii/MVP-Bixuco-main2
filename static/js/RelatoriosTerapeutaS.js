@@ -263,13 +263,6 @@ aplicarTema(temaSalvo);
 carregarUsuario();
 carregarRelatorios();
 
-document.getElementById("fotoUsuario").addEventListener("click", () => {
-    window.location.href = "/perfilTerapeuta";
-});
-document.getElementById("nomeTerapeuta").addEventListener("click", () => {
-    window.location.href = "/perfilTerapeuta";
-});
-
 document.getElementById("btnCodigoCopiar").addEventListener("click", copiarCodigo);
 
 document.getElementById("fotoUsuario").addEventListener("error", function () {

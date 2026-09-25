@@ -542,13 +542,6 @@ carregarNotificacoes();
 
 document.getElementById("btnCodigoCopiar").addEventListener("click", copiarCodigo);
 
-document.getElementById("fotoUsuario").addEventListener("click", () => {
-    window.location.href = "/PerfilTerapeuta";
-});
-document.getElementById("nomeUsuario").addEventListener("click", () => {
-    window.location.href = "/PerfilTerapeuta";
-});
-
 document.getElementById("fotoUsuario").addEventListener("error", function () {
     this.src = "/img/perfilPadrao.png";
 });

@@ -37,6 +37,28 @@
     const notifPt     = topo.dataset.notifPt || "Notificações";
     const notifEn     = topo.dataset.notifEn || "Notifications";
 
+    // IDs configuráveis — algumas páginas (as do terapeuta) usam
+    // nomes de id diferentes dos padrões (ex.: "nomeTerapeuta" em vez
+    // de "nomeUsuario", "badgeNotificacoes" em vez de
+    // "quantidadeNotificacoes"), então o próprio JS de cada página
+    // continua funcionando sem precisar ser reescrito.
+    const idBadge = topo.dataset.badgeId || "quantidadeNotificacoes";
+    const idNome  = topo.dataset.nomeId  || "nomeUsuario";
+
+    // Conta cujo tipo é sempre o mesmo (não vem da API) — ex.: as
+    // telas do terapeuta, que nunca chamam algo como
+    // `tipoConta.textContent = dados.tipoConta`.
+    const tipoContaPt = topo.dataset.tipoPt || "";
+    const tipoContaEn = topo.dataset.tipoEn || "";
+
+    // Chip do "código do terapeuta" (pra compartilhar com o
+    // responsável) dentro do menu da conta:
+    //   "padrao" → ids btnCodigoCopiar / codigoTerapeuta
+    //   "header" → ids btnCodigoCopiarHeader / codigoTerapeutaHeader / iconeCopiarHeader
+    //              (usado só no PerfilTerapeuta, que já tem outro
+    //              código igual dentro do corpo da página)
+    const codigo = topo.dataset.codigo || "";
+
     const ehPerfil = paginaAtual === "perfil";
 
     topo.innerHTML = `
@@ -51,8 +73,15 @@
             <div class="menu-perfil" id="menuPerfil" role="menu">
 
                 <div class="menu-perfil__conta">
-                    <strong id="nomeUsuario">Carregando...</strong>
-                    <span id="tipoConta">...</span>
+                    <strong id="${idNome}">Carregando...</strong>
+                    ${tipoContaPt
+                        ? `<span id="tipoConta" data-pt="${tipoContaPt}" data-en="${tipoContaEn || tipoContaPt}">${tipoContaPt}</span>`
+                        : `<span id="tipoConta">...</span>`}
+                    ${codigo ? `
+                    <button type="button" class="menu-perfil__codigo" id="${codigo === "header" ? "btnCodigoCopiarHeader" : "btnCodigoCopiar"}" title="Copiar código para compartilhar">
+                        <span><span data-pt="Código" data-en="Code">Código</span>: <strong id="${codigo === "header" ? "codigoTerapeutaHeader" : "codigoTerapeuta"}">...</strong></span>
+                        <i class="fa-regular fa-copy" ${codigo === "header" ? 'id="iconeCopiarHeader"' : ""}></i>
+                    </button>` : ""}
                 </div>
 
                 <a class="menu-perfil__item${ehPerfil ? " ativo" : ""}" role="menuitem"
@@ -86,7 +115,7 @@
         <div class="notificacoes-wrapper">
             <button class="notificacoes" type="button" id="btnNotificacoes" aria-label="Notificações">
                 <i class="fa-regular fa-bell"></i>
-                <span id="quantidadeNotificacoes" class="badge">0</span>
+                <span id="${idBadge}" class="badge"${idBadge === "badgeNotificacoes" ? ' style="display:none"' : ""}>0</span>
             </button>
 
             <div class="painel-notificacoes" id="painelNotificacoes">
