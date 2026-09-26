@@ -53,8 +53,13 @@ section { padding: 72px 6vw; }
 .btn--grande { padding: 14px 28px; font-size: 1rem; }
 .btn--primario { background: var(--gradiente); color: #fff; box-shadow: 0 8px 20px rgba(50, 194, 109, .28); }
 .btn--primario:hover { transform: translateY(-2px); }
-.btn--contorno { border-color: var(--verde); color: var(--verde); background: #fff; }
-.btn--contorno:hover { background: var(--fundo-suave); }
+.btn--contorno {
+    color: var(--verde);
+    background: linear-gradient(#fff, #fff) padding-box, var(--gradiente) border-box;
+}
+.btn--contorno:hover {
+    background: linear-gradient(var(--fundo-suave), var(--fundo-suave)) padding-box, var(--gradiente) border-box;
+}
 .btn--contorno-claro { border-color: rgba(255,255,255,.7); color: #fff; }
 .btn--contorno-claro:hover { background: rgba(255,255,255,.12); }
 
