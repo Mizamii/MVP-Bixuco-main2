@@ -8,6 +8,7 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="css/index.css">
+<link rel="stylesheet" href="css/termosModal.css">
 <link rel="icon" type="image/png" href="img/logo-bixuco-colorida.png">
 
 <!-- Scripts externos: o CSP do helmet bloqueia <script> inline -->
@@ -28,8 +29,8 @@
     </nav>
 
     <div class="acoes">
-        <a href="#" class="btn btn--contorno">Entrar</a>
-        <a href="#" class="btn btn--primario">Criar conta</a>
+        <a href="/logar" class="btn btn--contorno">Entrar</a>
+        <a href="/CriarContaS" class="btn btn--primario">Criar conta</a>
     </div>
 </header>
 
@@ -47,7 +48,7 @@
             antes que virem crises.
         </p>
         <div class="hero__botoes">
-            <a href="#" class="btn btn--primario btn--grande">
+            <a href="/CriarContaS" class="btn btn--primario btn--grande">
                 Criar conta <i class="fa-solid fa-arrow-right"></i>
             </a>
             <a href="#como-funciona" class="btn btn--contorno btn--grande">Conheça o Bixuco</a>
@@ -103,7 +104,7 @@
             acompanhar as sensações e construir estratégias de cuidado junto com
             quem já acompanha a criança.
         </p>
-        <a href="#" class="btn btn--primario">
+        <a href="/CriarContaS" class="btn btn--primario">
             Comece agora <i class="fa-solid fa-arrow-right"></i>
         </a>
     </div>
@@ -201,10 +202,10 @@
         <h2>Tecnologia para apoiar cada etapa.</h2>
         <p>Crie sua conta gratuitamente e conheça o Bixuco.</p>
         <div class="hero__botoes">
-            <a href="#" class="btn btn--primario btn--grande">
+            <a href="/CriarContaS" class="btn btn--primario btn--grande">
                 Criar conta <i class="fa-solid fa-arrow-right"></i>
             </a>
-            <a href="#" class="btn btn--contorno-claro btn--grande">Já tenho conta</a>
+            <a href="/logar" class="btn btn--contorno-claro btn--grande">Já tenho conta</a>
         </div>
     </div>
     <img class="cta__gato" src="img/logo-bixuco-colorida.png" alt="Mascote do Bixuco">
@@ -219,14 +220,15 @@
         <a href="#sobre">Sobre</a>
         <a href="#funcionalidades">Funcionalidades</a>
         <a href="#como-funciona">Como funciona</a>
-        <a href="#">Política de Privacidade</a>
-        <a href="#">Termos de Uso</a>
+        <button type="button" id="btnAbrirPrivacidade" class="rodape__links__botao">Política de Privacidade</button>
+        <button type="button" id="btnAbrirTermos" class="rodape__links__botao">Termos de Uso</button>
     </nav>
 
     <p class="rodape__copy">© 2026 Bixuco. Mais inclusão, mais autonomia, mais futuro.</p>
 </footer>
 
 <script src="js/index.js"></script>
+<script src="js/termosModal.js"></script>
 
 </body>
 </html>
