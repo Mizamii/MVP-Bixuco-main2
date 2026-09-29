@@ -53,8 +53,8 @@ section { padding: 72px 6vw; }
     transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
 }
 .btn--grande { padding: 14px 28px; font-size: 1rem; }
-.btn--primario { background: var(--gradiente-login); color: #fff; box-shadow: 0 8px 20px rgba(50, 194, 109, .28); }
-.btn--primario:hover { background: var(--gradiente-login-hover); transform: translateY(-2px); }
+.btn--primario { background: var(--gradiente-login); background-origin: border-box; color: #fff; box-shadow: 0 8px 20px rgba(50, 194, 109, .28); }
+.btn--primario:hover { background: var(--gradiente-login-hover); background-origin: border-box; transform: translateY(-2px); }
 .btn--contorno {
     color: var(--verde);
     background: linear-gradient(#fff, #fff) padding-box, var(--gradiente) border-box;
