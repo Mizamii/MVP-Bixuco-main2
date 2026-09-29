@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+    <title>Bixuco — Recuperar senha</title>
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"
+    >
+    <link
+        rel="stylesheet"
+        href="/css/EsqueceuSenha.css"
+    >
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+    <script src="/js/deeplink.js"></script>
+
+</head>
+
+<body>
+    <main class="pagina-login">
+
+        <!-- ========================= -->
+        <!-- LADO ESQUERDO -->
+        <!-- ========================= -->
+        <section class="login-esquerda">
+
+            <div class="login-esquerda__geometria"></div>
+            <div class="login-esquerda__overlay"></div>
+
+            <div class="login-esquerda__conteudo">
+                <img
+                    src="/img/Logo_Branca.png"
+                    alt="Logo Bixuco"
+                    class="login-esquerda__logo"
+                >
+
+                <h1 class="login-esquerda__titulo">
+                    <span data-pt="Acompanhamento" data-en="Smart child">Acompanhamento</span>
+                    <br>
+                    <span data-pt="infantil" data-en="tracking,">infantil</span>
+                    <span class="destaque" data-pt="inteligente." data-en="made simple.">inteligente.</span>
+                </h1>
+
+                <p
+                    class="login-esquerda__slogan"
+                    data-pt="Mais organização, mais conexão e mais cuidado para famílias e terapeutas."
+                    data-en="More organization, more connection and more care for families and therapists."
+                >
+                    Mais organização, mais conexão e mais cuidado
+                    para famílias e terapeutas.
+                </p>
+            </div>
+
+            <div class="login-esquerda__ilustracao-wrapper">
+                <img
+                    src="/img/login-urso.png"
+                    alt="Criança abraçando o Bixuco"
+                    class="login-esquerda__foto"
+                >
+            </div>
+
+        </section>
+
+        <!-- ========================= -->
+        <!-- LADO DIREITO -->
+        <!-- ========================= -->
+        <section class="login-direita">
+
+            <button type="button" class="tradutor tradutor--login" id="btnTraduzir">
+                <i class="fa-solid fa-language"></i>
+                <span id="textoTradutor">Traduzir para o inglês</span>
+            </button>
+
+            <!-- Cabeçalho fixo no topo, com linha -->
+            <div class="recuperar-header">
+                <h2 class="recuperar-titulo" data-pt="Recuperar senha" data-en="Recover password">
+                    Recuperar senha
+                </h2>
+            </div>
+
+            <div class="recuperar-icone-divisor">
+                <span class="recuperar-icone-divisor__linha"></span>
+                <span class="recuperar-icone-divisor__circulo">
+                    <i class="fa-solid fa-lock"></i>
+                </span>
+                <span class="recuperar-icone-divisor__linha"></span>
+            </div>
+
+            <!-- Corpo centralizado no restante do espaço -->
+            <div class="recuperar-corpo">
+
+                <h3 class="recuperar-subtitulo" data-pt="Esqueceu sua senha?" data-en="Forgot your password?">
+                    Esqueceu sua senha?
+                </h3>
+
+                <p
+                    class="recuperar-texto"
+                    data-pt="Informe o e-mail cadastrado em sua conta. Enviaremos um link para que você possa criar uma nova senha com segurança."
+                    data-en="Enter the email registered to your account. We'll send you a link so you can safely create a new password."
+                >
+                    Informe o e-mail cadastrado em sua conta.
+                    Enviaremos um link para que você possa criar
+                    uma nova senha com segurança.
+                </p>
+
+                <!-- ========================= -->
+                <!-- FORMULÁRIO -->
+                <!-- ========================= -->
+
+                <!-- Sem action/method: envio via fetch, igual ao login -->
+                <form id="formRecuperar" class="recuperar-form" novalidate>
+
+                    <!-- Campo de e-mail -->
+                    <div class="recuperar-form__campo">
+                        <label for="email" class="recuperar-form__label" data-pt="Email cadastrado" data-en="Registered email">
+                            Email cadastrado
+                        </label>
+
+                        <div class="recuperar-form__input-wrapper">
+                            <input
+                                class="recuperar-form__input"
+                                type="email"
+                                id="email"
+                                name="email"
+                                placeholder="Digite seu e-mail"
+                                data-pt-placeholder="Digite seu e-mail"
+                                data-en-placeholder="Enter your email"
+                                autocomplete="email"
+                                required
+                            >
+                        </div>
+
+                        <!-- Mensagem de erro do campo -->
+                        <span
+                            class="recuperar-form__erro"
+                            id="erro-email"
+                        ></span>
+                    </div>
+
+                    <!-- Área de feedback do servidor -->
+                    <span
+                        id="feedback-geral"
+                        class="recuperar-form__feedback"
+                    ></span>
+
+                    <!-- Botão com estado de carregamento -->
+                    <button
+                        type="submit"
+                        id="btnEnviar"
+                        class="recuperar-form__btn-enviar"
+                        data-pt="Enviar link"
+                        data-en="Send link"
+                    >
+                        Enviar link
+                    </button>
+
+                </form>
+
+                <!-- Botão para voltar ao login -->
+                <a
+                    href="/logar"
+                    class="recuperar-voltar-link"
+                    data-pt="Voltar para a tela do login"
+                    data-en="Back to login"
+                >
+                    Voltar para a tela do login
+                </a>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="/js/EsqueceuSenha.js"></script>
+    <script src="/js/enterProximo.js"></script>
+
+    <script src="/js/tema.js"></script>
+
+</body>
+</html>

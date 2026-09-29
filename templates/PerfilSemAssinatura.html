@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/js/deeplink.js"></script>
+
+    <title>Bixuco — Meu perfil</title>
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/perfil.css">
+    <link rel="stylesheet" href="/css/PerfilSemAssinatura.css">
+
+</head>
+
+<body class="layout-sidebar-perfil">
+
+    <div class="container">
+
+        <!-- ===========================
+        MENU LATERAL
+        =========================== -->
+
+        <aside class="sidebar">
+
+            <div class="logo">
+                <img src="/img/logo_nome.png" alt="Bixuco">
+            </div>
+
+            <!-- Mesmos 3 itens das outras telas sem assinatura — o acesso
+                 ao perfil é sempre pela foto/nome no header/sidebar, por
+                 isso não há link "Perfil" solto aqui. -->
+            <nav>
+
+                <a href="/planos">
+                    <i class="fa-solid fa-dollar-sign"></i>
+                    <span data-pt="Planos" data-en="Plans">Planos</span>
+                </a>
+
+                <a href="/configuracoesSemAssinatura">
+                    <i class="fa-solid fa-gear"></i>
+                    <span data-pt="Configurações" data-en="Settings">Configurações</span>
+                </a>
+
+                <a href="/sobreSemAssinatura">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span data-pt="Sobre" data-en="About">Sobre</span>
+                </a>
+
+            </nav>
+
+            <div class="tema">
+                <button id="btnClaro" class="ativo" type="button">
+                    <i class="fa-regular fa-sun"></i>
+                    <span data-pt="Claro" data-en="Light">Claro</span>
+                </button>
+
+                <button id="btnEscuro" type="button">
+                    <i class="fa-regular fa-moon"></i>
+                    <span data-pt="Escuro" data-en="Dark">Escuro</span>
+                </button>
+            </div>
+
+            <div class="sidebar-divisor"></div>
+
+            <a href="/logout" class="logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span data-pt="Sair" data-en="Log out">Sair</span>
+            </a>
+
+        </aside>
+
+        <!-- ===========================
+        CONTEÚDO
+        =========================== -->
+
+        <main class="conteudo">
+
+            <header class="topo" id="topoApp" data-perfil="/perfilSemAssinatura" data-pagina="perfil" data-notif-pt="Promoções" data-notif-en="Promotions"></header>
+
+            <div class="conteudo-corpo">
+
+                <section class="cabecalho">
+                    <div>
+                        <h1 data-pt="Meu perfil" data-en="My profile">Meu perfil</h1>
+                        <p data-pt="Gerencie suas informações e preferências." data-en="Manage your information and preferences.">Gerencie suas informações e preferências.</p>
+                    </div>
+                </section>
+
+                <div class="grid-perfil">
+
+                    <!-- ========================= -->
+                    <!-- CARD PERFIL -->
+                    <!-- ========================= -->
+
+                    <div class="card card-perfil">
+
+                        <div class="perfil-topo">
+
+                            <div class="perfil-foto-wrapper" id="perfilFotoWrapper" title="Clique para alterar sua foto">
+                                <img id="fotoPerfil" src="/img/perfilPadrao.png" alt="Foto de perfil">
+                                <div class="perfil-foto-overlay">
+                                    <i class="fa-solid fa-camera"></i>
+                                </div>
+                            </div>
+
+                            <input type="file" id="inputFotoPerfil" accept="image/*" style="display:none;">
+
+                            <div>
+
+                                <div class="perfil-nome-linha" id="perfilNomeLinha">
+                                    <h2 id="perfilNome">Carregando...</h2>
+                                    <button type="button" class="btn-editar-nome" id="btnEditarNome" title="Editar nome" data-pt-title="Editar nome" data-en-title="Edit name">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                </div>
+
+                                <div class="perfil-nome-editar" id="perfilNomeEditar" style="display:none;">
+                                    <input type="text" id="inputNome" class="input-nome" maxlength="80" autocomplete="name">
+                                    <button type="button" class="btn-salvar-nome" id="btnSalvarNome" title="Salvar" data-pt-title="Salvar" data-en-title="Save">
+                                        <i class="fa-solid fa-check"></i>
+                                    </button>
+                                    <button type="button" class="btn-cancelar-nome" id="btnCancelarNome" title="Cancelar" data-pt-title="Cancelar" data-en-title="Cancel">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </div>
+
+                                <span class="erro-nome" id="erroNome"></span>
+
+                                <p id="perfilDescricao">Carregando...</p>
+
+                            </div>
+
+                        </div>
+
+                        <div class="perfil-foto-acoes" id="perfilFotoAcoes" style="display:none;">
+                            <button type="button" class="btn-salvar-foto" id="btnSalvarFoto" data-pt="Salvar foto" data-en="Save photo">Salvar foto</button>
+                            <button type="button" class="btn-cancelar-foto" id="btnCancelarFoto" data-pt="Cancelar" data-en="Cancel">Cancelar</button>
+                        </div>
+
+                    </div>
+
+                    <!-- ========================= -->
+                    <!-- COLUNA DIREITA -->
+                    <!-- ========================= -->
+
+                    <div class="perfil-direita">
+
+                        <!-- Criança -->
+
+                        <section class="card crianca">
+
+                            <h2 data-pt="Criança cadastrada" data-en="Registered child">Criança cadastrada</h2>
+
+                            <!-- Se já existe criança cadastrada, abre o modal de edição
+                                 em vez de navegar para /AdicionarC -->
+                            <a href="/AdicionarC" class="item-card" id="linkCrianca">
+
+                                <div class="avatar-crianca" id="avatarCrianca">?</div>
+
+                                <div>
+                                    <h3 id="nomeCrianca">Carregando...</h3>
+                                    <p id="idadeCrianca">...</p>
+                                </div>
+
+                                <i class="fa-solid fa-chevron-right seta"></i>
+
+                            </a>
+
+                        </section>
+
+                        <!-- Sobre a conta -->
+
+                        <section class="card sobre-conta">
+
+                            <h2 data-pt="Sobre a conta" data-en="About the account">Sobre a conta</h2>
+
+                            <div class="linha-info">
+                                <span data-pt="E-mail" data-en="Email">E-mail</span>
+                                <strong id="infoEmail">—</strong>
+                            </div>
+
+                            <div class="linha-info">
+                                <span data-pt="Tipo de conta" data-en="Account type">Tipo de conta</span>
+                                <strong id="infoTipoConta">—</strong>
+                            </div>
+
+                            <div class="linha-info">
+                                <span data-pt="Membro desde" data-en="Member since">Membro desde</span>
+                                <strong id="infoAnoCadastro">—</strong>
+                            </div>
+
+                        </section>
+
+                        <!-- Convite pra assinar -->
+
+                        <div class="banner-upgrade">
+                            <i class="fa-solid fa-star"></i>
+                            <div>
+                                <strong data-pt="Desbloqueie mais recursos" data-en="Unlock more features">Desbloqueie mais recursos</strong>
+                                <p data-pt="Assine um plano para ter acesso a relatórios, vínculo com terapeuta e muito mais." data-en="Subscribe to a plan to get access to reports, linking with a therapist and much more.">
+                                    Assine um plano para ter acesso a relatórios,
+                                    vínculo com terapeuta e muito mais.
+                                </p>
+                                <a href="/planos" class="btn-upgrade" data-pt="Ver planos" data-en="See plans">Ver planos</a>
+                            </div>
+                        </div>
+
+                        <img src="/img/Gatodeitado.png" alt="gato deitado" class="gato-deitado">
+
+                    </div>
+
+                </div>
+
+            </div><!-- fim .conteudo-corpo -->
+
+        </main>
+
+    </div>
+
+    <!-- ===========================
+    MODAL — INFORMAÇÕES DA CRIANÇA
+    =========================== -->
+
+    <div id="modalCrianca">
+        <div class="modal-conteudo">
+
+            <div class="modal-header">
+                <h3 data-pt="Informações da criança" data-en="Child information">Informações da criança</h3>
+                <button type="button" class="btn-fechar-modal" id="btnFecharModalCrianca" aria-label="Fechar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="crianca-foto-wrapper" id="criancaFotoWrapper" title="Alterar foto">
+                <img id="fotoCriancaModal" src="/img/perfilPadrao.png" alt="Foto da criança">
+                <div class="crianca-foto-overlay">
+                    <i class="fa-solid fa-camera"></i>
+                </div>
+            </div>
+
+            <input type="file" id="inputFotoCrianca" accept="image/*" style="display:none;">
+
+            <label for="inputNomeCrianca" data-pt="Nome" data-en="Name">Nome</label>
+            <input type="text" id="inputNomeCrianca" maxlength="80">
+
+            <label for="idadeCriancaModal" data-pt="Idade" data-en="Age">Idade</label>
+            <input type="text" id="idadeCriancaModal" disabled>
+            <span class="dica-idade" data-pt="A idade é calculada pela data de nascimento e não pode ser editada aqui." data-en="Age is calculated from the birth date and can't be edited here.">A idade é calculada pela data de nascimento e não pode ser editada aqui.</span>
+
+            <button type="button" class="btn-salvar-crianca" id="btnSalvarCrianca" data-pt="Salvar alterações" data-en="Save changes">Salvar alterações</button>
+
+            <p id="statusCrianca" class="status-crianca"></p>
+
+        </div>
+    </div>
+
+    <!-- ===========================
+    JAVASCRIPT
+    =========================== -->
+
+    <script src="/js/header.js"></script>
+    <script src="/js/tema.js"></script>
+    <script src="/js/PerfilSemAssinatura.js"></script>
+
+</body>
+</html>

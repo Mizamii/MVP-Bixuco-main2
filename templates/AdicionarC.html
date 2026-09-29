@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco — Adicionar criança</title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/css/adicionarc.css"
+    >
+
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+    <script src="/js/deeplink.js"></script>
+
+
+</head>
+
+<body>
+
+    <main class="pagina-login">
+
+        <!-- ========================= -->
+        <!-- LADO ESQUERDO -->
+        <!-- ========================= -->
+
+        <section class="login-esquerda">
+
+            <div class="login-esquerda__geometria"></div>
+            <div class="login-esquerda__overlay"></div>
+
+            <div class="login-esquerda__conteudo">
+
+                <!-- Logo branca -->
+                <img
+                    src="/img/Logo_Branca.png"
+                    alt="Logo Bixuco"
+                    class="login-esquerda__logo"
+                >
+
+                <!-- Título -->
+                <h1 class="login-esquerda__titulo">
+                    <span data-pt="Acompanhamento" data-en="Smart child">Acompanhamento</span>
+                    <br>
+                    <span data-pt="infantil" data-en="tracking,">infantil</span>
+                    <span class="destaque" data-pt="inteligente" data-en="made simple">inteligente</span>
+                </h1>
+
+                <!-- Texto -->
+                <p
+                    class="login-esquerda__slogan"
+                    data-pt="Mais organização, mais conexão e mais cuidado para famílias e terapeutas."
+                    data-en="More organization, more connection and more care for families and therapists."
+                >
+                    Mais organização,
+                    mais conexão e
+                    mais cuidado para
+                    famílias e terapeutas.
+                </p>
+
+            </div>
+
+            <!-- Ilustração -->
+            <div class="login-esquerda__ilustracao-wrapper">
+
+                <img
+                    src="/img/criancas-bixuco.png"
+                    alt="Crianças com o Bixuco"
+                    class="login-esquerda__foto"
+                >
+
+            </div>
+
+        </section>
+
+        <!-- ========================= -->
+        <!-- LADO DIREITO -->
+        <!-- ========================= -->
+
+        <section class="login-direita">
+
+            <button type="button" class="tradutor tradutor--login" id="btnTraduzir">
+                <i class="fa-solid fa-language"></i>
+                <span id="textoTradutor">Traduzir para o inglês</span>
+            </button>
+
+            <header class="criarconta-header">
+
+                <h2 class="criarconta-titulo" data-pt="Adicionar criança" data-en="Add child">
+                    Adicionar criança
+                </h2>
+
+            </header>
+
+            <div class="criarconta-corpo">
+
+                <!-- Descrição -->
+                <p
+                    class="cadastro-form__descricao"
+                    data-pt="Cadastre o(a) filho(a) que você vai acompanhar."
+                    data-en="Register the child you'll be tracking."
+                >
+                    Cadastre o(a) filho(a)
+                    que você vai acompanhar.
+                </p>
+
+                <!-- ========================= -->
+                <!-- FORMULÁRIO -->
+                <!-- ========================= -->
+
+                <!-- Envio via fetch usando FormData para suportar upload de foto -->
+                <form id="formCrianca" class="cadastro-form" novalidate>
+
+                    <!-- Foto da criança -->
+                    <div
+                        class="cadastro-form__foto"
+                        id="wrapperFotoCrianca"
+                        title="Clique para adicionar uma foto"
+                        data-pt-title="Clique para adicionar uma foto"
+                        data-en-title="Click to add a photo"
+                    >
+
+                        <img
+                            id="previewFotoCrianca"
+                            src=""
+                            alt="Foto da criança"
+                            style="display: none;"
+                        >
+
+                        <i
+                            id="iconeCamera"
+                            class="fa-solid fa-camera"
+                        ></i>
+
+                        <!-- Input de arquivo oculto -->
+                        <input
+                            type="file"
+                            id="fotoCrianca"
+                            name="fotoCrianca"
+                            accept="image/*"
+                            style="display: none;"
+                        >
+
+                    </div>
+
+                    <!-- Nome da criança -->
+                    <div class="cadastro-form__grupo">
+
+                        <label for="nomeCrianca" class="cadastro-form__label" data-pt="Nome da criança" data-en="Child's name">
+                            Nome da criança
+                        </label>
+
+                        <input
+                            class="cadastro-form__input"
+                            type="text"
+                            id="nomeCrianca"
+                            name="nomeCrianca"
+                            placeholder="Digite o nome da criança"
+                            data-pt-placeholder="Digite o nome da criança"
+                            data-en-placeholder="Enter the child's name"
+                            autocomplete="off"
+                            required
+                        >
+
+                        <span
+                            class="cadastro-form__erro"
+                            id="erro-nomeCrianca"
+                        ></span>
+
+                    </div>
+
+                    <!-- Linha data + sexo -->
+                    <div class="cadastro-form__linha">
+
+                        <!-- Data de nascimento -->
+                        <div class="cadastro-form__grupo">
+
+                            <label for="dataNascimento" class="cadastro-form__label" data-pt="Data de nascimento" data-en="Date of birth">
+                                Data de nascimento
+                            </label>
+
+                            <input
+                                class="cadastro-form__input"
+                                type="date"
+                                id="dataNascimento"
+                                name="dataNascimento"
+                                required
+                            >
+
+                            <span
+                                class="cadastro-form__erro"
+                                id="erro-dataNascimento"
+                            ></span>
+
+                        </div>
+
+                        <!-- Sexo -->
+                        <div class="cadastro-form__grupo">
+
+                            <label for="sexo" class="cadastro-form__label" data-pt="Sexo" data-en="Gender">
+                                Sexo
+                            </label>
+
+                            <select
+                                class="cadastro-form__input"
+                                id="sexo"
+                                name="sexo"
+                                required
+                            >
+
+                                <option value="" selected disabled data-pt="Selecione" data-en="Select">
+                                    Selecione
+                                </option>
+
+                                <option value="masculino" data-pt="Masculino" data-en="Male">
+                                    Masculino
+                                </option>
+
+                                <option value="feminino" data-pt="Feminino" data-en="Female">
+                                    Feminino
+                                </option>
+
+                                <option value="outro" data-pt="Prefiro não informar" data-en="Prefer not to say">
+                                    Prefiro não informar
+                                </option>
+
+                            </select>
+
+                            <span
+                                class="cadastro-form__erro"
+                                id="erro-sexo"
+                            ></span>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Nome da pelúcia -->
+                    <div class="cadastro-form__grupo">
+
+                        <label for="nomePelucia" class="cadastro-form__label" data-pt="Nome da pelúcia (opcional)" data-en="Plush toy's name (optional)">
+                            Nome da pelúcia (opcional)
+                        </label>
+
+                        <input
+                            class="cadastro-form__input"
+                            type="text"
+                            id="nomePelucia"
+                            name="nomePelucia"
+                            placeholder="Ex: Bixuco"
+                            data-pt-placeholder="Ex: Bixuco"
+                            data-en-placeholder="E.g.: Bixuco"
+                        >
+
+                    </div>
+
+                    <!-- Erro geral do servidor (substitui ?erro= na URL) -->
+                    <span
+                        id="erro-geral"
+                        class="cadastro-form__erro cadastro-form__erro--geral"
+                        style="display: none;"
+                    ></span>
+
+                    <button
+                        type="submit"
+                        id="btnIr"
+                        class="btn-continuar"
+                        data-pt="Ir para o Perfil sensorial"
+                        data-en="Go to Sensory Profile"
+                    >
+                        Ir para o Perfil sensorial
+                    </button>
+
+                </form>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="/js/AdicionarC.js"></script>
+
+    <script src="/js/tema.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco — Relatório diário</title>
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+
+    <!-- Ícones -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+    <script src="/js/deeplink.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+
+    <!-- Variáveis compartilhadas de tema (claro/escuro) -->
+    <link
+        rel="stylesheet"
+        href="/css/tema.css"
+    >
+
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/header.css">
+
+    <!-- Layout compartilhado (sidebar, topo, tema claro/escuro) — o mesmo do Home e do Perfil -->
+    <link
+        rel="stylesheet"
+        href="/css/home.css"
+    >
+
+    <link rel="stylesheet" href="/css/relatorios.css">
+
+    <!-- CSS específico desta página -->
+    <link
+        rel="stylesheet"
+        href="/css/relatoriodiario.css"
+    >
+
+</head>
+
+
+<style>
+    /* 🔧 Estilos da mensagem de status (sucesso/erro) — sem CSS externo pronto ainda */
+    .mensagem-status {
+        display: none;
+        max-width: 480px;
+        margin: 0 auto 1.25rem;
+        padding: 0.9rem 1.1rem;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-align: center;
+    }
+    .mensagem-status.visivel {
+        display: block;
+    }
+    .mensagem-status.sucesso {
+        background: rgba(50, 194, 109, 0.12);
+        color: #1E8E4F;
+        border: 1px solid rgba(50, 194, 109, 0.3);
+    }
+    .mensagem-status.aviso {
+        background: rgba(255, 170, 0, 0.12);
+        color: #9A6700;
+        border: 1px solid rgba(255, 170, 0, 0.3);
+    }
+    .mensagem-status.erro {
+        background: rgba(255, 68, 68, 0.1);
+        color: #C0392B;
+        border: 1px solid rgba(255, 68, 68, 0.3);
+    }
+
+    .alerta-detectado {
+        display: none;
+        max-width: 100%;
+        margin: 0 2rem 1.1rem;
+        padding: 1rem 1.2rem;
+        border-radius: 12px;
+        background: rgba(255, 68, 68, 0.08);
+        border: 1px solid rgba(255, 68, 68, 0.25);
+        color: #C0392B;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+    .alerta-detectado.visivel {
+        display: block;
+    }
+
+</style>
+
+
+
+<body class="layout-sidebar-perfil">
+
+    <div class="container">
+
+        <!-- ========================= -->
+        <!-- MENU LATERAL -->
+        <!-- ========================= -->
+
+        <aside class="sidebar">
+
+            <div class="logo">
+
+                <img
+                    src="/img/logo_nome.png"
+                    alt="Logo Bixuco"
+                >
+
+            </div>
+
+            <button
+                class="btn-relatorio ativo"
+                type="button"
+                data-pt="Relatório diário"
+                data-en="Daily report"
+            >
+
+                Relatório diário
+
+            </button>
+
+            <nav>
+                <a href="/home">
+                    <i class="fa-solid fa-house"></i>
+                    <span data-pt="Início" data-en="Home">Início</span>
+                </a>
+
+                <a href="/relatorios">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+                </a>
+
+                <a href="/sobre">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span data-pt="Sobre" data-en="About">Sobre</span>
+                </a>
+
+                <a href="/perfil">
+                    <i class="fa-solid fa-user"></i>
+                    <span data-pt="Perfil" data-en="Profile">Perfil</span>
+                </a>
+
+                <a href="/configuracoes">
+                    <i class="fa-solid fa-gear"></i>
+                    <span data-pt="Configurações" data-en="Settings">Configurações</span>
+                </a>
+            </nav>
+
+
+            <div class="tema">
+
+                <button
+                    id="btnClaro"
+                    class="ativo"
+                    type="button"
+                >
+
+                    <i class="fa-regular fa-sun"></i>
+
+                    <span data-pt="Claro" data-en="Light">Claro</span>
+
+                </button>
+
+                <button
+                    id="btnEscuro"
+                    type="button"
+                >
+
+                    <i class="fa-regular fa-moon"></i>
+
+                    <span data-pt="Escuro" data-en="Dark">Escuro</span>
+
+                </button>
+
+            </div>
+            <div class="sidebar-divisor"></div>
+            <a
+                href="/logout"
+                class="logout"
+            >
+
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+
+                <span data-pt="Sair" data-en="Log out">Sair</span>
+
+            </a>
+
+        </aside>
+
+        <!-- ========================= -->
+        <!-- CONTEÚDO -->
+        <!-- ========================= -->
+
+        <main class="conteudo">
+
+            <!-- Cabeçalho -->
+
+            <header class="topo" id="topoApp" data-perfil="/perfil"></header>
+
+            <!-- Cabeçalho da página -->
+
+            <section class="cabecalho-relatorio">
+
+                <div>
+
+                    <h1 data-pt="Relatório diário" data-en="Daily report">
+
+                        Relatório diário
+
+                    </h1>
+
+                    <p data-pt="Ajude-nos a acompanhar o desenvolvimento da sua criança de forma personalizada." data-en="Help us track your child's development in a personalized way.">
+
+                        Ajude-nos a acompanhar o desenvolvimento
+                        da sua criança de forma personalizada.
+
+                    </p>
+
+                </div>
+
+                <img
+                    src="/img/BixucoRelatorio.png"
+                    alt="Mascote"
+                >
+
+            </section>
+
+            <!-- 🔧 Mensagem de status (sucesso, aviso de duplicidade ou erro) -->
+
+            <p
+                id="mensagemStatus"
+                class="mensagem-status"
+            ></p>
+
+            <div id="alertaDetectado" class="alerta-detectado"></div>
+
+            <div class="linha-graficos">
+
+                <div class="grafico-card">
+                    <div class="titulo-card">
+                        <h2>
+                            <i class="fa-solid fa-chart-line"></i>
+                            <span data-pt="Força com o passar do tempo" data-en="Strength over time">Força com o passar do tempo</span>
+                        </h2>
+                    </div>
+                    <canvas id="graficoForca"></canvas>
+                </div>
+
+                <div class="grafico-card">
+                    <div class="titulo-card">
+                        <h2>
+                            <i class="fa-solid fa-signal"></i>
+                            <span data-pt="Status ativo em relação ao tempo" data-en="Active status over time">Status ativo em relação ao tempo</span>
+                        </h2>
+                    </div>
+                    <canvas id="graficoAtividade"></canvas>
+                </div>
+
+            </div>
+
+            <!-- ========================= -->
+            <!-- CARD DO RELATÓRIO -->
+            <!-- ========================= -->
+
+            <section
+                id="cardRelatorio"
+                class="card-questionario"
+            >
+
+                <!-- Topo -->
+
+                <div class="topo-card">
+
+                    <span id="contadorPergunta">
+
+                        Pergunta 1 de 10
+
+                    </span>
+
+                    <span
+                        id="porcentagem"
+                        class="porcentagem"
+                    >
+
+                        10% concluído
+
+                    </span>
+
+                </div>
+
+                <!-- Barra -->
+
+                <div
+                    id="barraProgresso"
+                    class="barra-progresso"
+                >
+
+                    <!-- Criada pelo JavaScript -->
+
+                </div>
+
+                <!-- Pergunta -->
+
+                <h2 id="textoPergunta">
+
+                    Carregando pergunta...
+
+                </h2>
+
+                <!-- Opções -->
+
+                <div
+                    id="listaRespostas"
+                    class="lista-respostas"
+                >
+
+                    <!-- Criadas pelo JavaScript -->
+
+                </div>
+
+                <!-- Botões -->
+
+                <div class="botoes-relatorio">
+
+                    <button
+                        id="btnVoltar"
+                        type="button"
+                        class="btn-voltar"
+                        data-pt="Voltar"
+                        data-en="Back"
+                    >
+
+                        Voltar
+
+                    </button>
+
+                    <button
+                        id="btnProxima"
+                        type="button"
+                        disabled
+                    >
+
+                        Próxima pergunta
+
+                    </button>
+
+                </div>
+
+            </section>
+
+        </main>
+
+        <!-- Barra de navegação inferior — só aparece no mobile via CSS -->
+        <nav class="bottom-nav">
+
+            <a href="/sobre">
+                <i class="fa-solid fa-circle-info"></i>
+                <span data-pt="Sobre" data-en="About">Sobre</span>
+            </a>
+
+            <a href="/configuracoes">
+                <i class="fa-solid fa-gear"></i>
+                <span data-pt="Config" data-en="Settings">Config</span>
+            </a>
+
+            <a href="/RelatorioDiario" class="bottom-nav__relatar">
+                <i class="fa-solid fa-plus"></i>
+            </a>
+
+            <a href="/home">
+                <i class="fa-solid fa-house"></i>
+                <span data-pt="Início" data-en="Home">Início</span>
+            </a>
+
+            <a href="/relatorios">
+                <i class="fa-solid fa-chart-line"></i>
+                <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+            </a>
+
+        </nav>
+
+    </div>
+
+
+    <!-- Seu <script> com toda a lógica (perguntas, barra de progresso, envio do relatório, notificações) continua aqui, sem alterações -->
+
+    <script src="/js/header.js"></script>
+    <script src="/js/tema.js"></script>
+
+    <script src="/js/relatoriodiario.js"></script>
+
+</body>
+</html>

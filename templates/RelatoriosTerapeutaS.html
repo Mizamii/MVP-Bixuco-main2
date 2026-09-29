@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco • Relatórios</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+      integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+      crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/relatoriosTerapeutaS.css">
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+    <script src="/js/deeplink.js"></script>
+
+
+</head>
+
+<body class="layout-sidebar-perfil">
+
+<div class="container">
+
+    <!-- ========================= -->
+    <!-- MENU LATERAL -->
+    <!-- ========================= -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <img src="/img/logo_nome.png" alt="Bixuco">
+        </div>
+
+        <nav>
+
+            <a href="/homeTerapeuta">
+                <i class="fa-solid fa-house"></i>
+                <span data-pt="Início" data-en="Home">Início</span>
+            </a>
+
+            <!-- aba ativa -->
+            <a href="/relatoriosTerapeutaS" class="ativo">
+                <i class="fa-solid fa-chart-line"></i>
+                <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+            </a>
+
+            <a href="/configuracoesT">
+                <i class="fa-solid fa-gear"></i>
+                <span data-pt="Configurações" data-en="Settings">Configurações</span>
+            </a>
+
+            <a href="/sobreT">
+                <i class="fa-solid fa-circle-info"></i>
+                <span data-pt="Sobre" data-en="About">Sobre</span>
+            </a>
+
+            <a href="/pacientes">
+                <i class="fa-solid fa-user-plus"></i>
+                <span data-pt="Pacientes" data-en="Patients">Pacientes</span>
+            </a>
+
+        </nav>
+
+        <div class="tema">
+            <button id="btnClaro" class="ativo" type="button">
+                <i class="fa-regular fa-sun"></i>
+                <span data-pt="Claro" data-en="Light">Claro</span>
+            </button>
+            <button id="btnEscuro" type="button">
+                <i class="fa-regular fa-moon"></i>
+                <span data-pt="Escuro" data-en="Dark">Escuro</span>
+            </button>
+        </div>
+
+        <div class="sidebar-divisor"></div>
+
+        <a href="/logout" class="logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span data-pt="Sair" data-en="Log out">Sair</span>
+        </a>
+
+    </aside>
+
+    <!-- ========================= -->
+    <!-- CONTEÚDO PRINCIPAL -->
+    <!-- ========================= -->
+    <main class="conteudo">
+
+        <!-- TOPO — padrão de todas as telas do terapeuta -->
+        <header class="topo" id="topoApp" data-perfil="/PerfilTerapeuta" data-badge-id="badgeNotificacoes" data-nome-id="nomeTerapeuta" data-tipo-pt="Terapeuta" data-tipo-en="Therapist" data-codigo="padrao"></header>
+
+        <div class="conteudo-corpo">
+
+            <!-- CABEÇALHO DA PÁGINA -->
+            <div class="cabecalho-pagina">
+                <div>
+                    <h1 data-pt="Relatórios" data-en="Reports">Relatórios</h1>
+                    <p data-pt="Acompanhe e visualize os relatórios dos pacientes." data-en="Track and view your patients' reports.">Acompanhe e visualize os relatórios dos pacientes.</p>
+                </div>
+                <img src="/img/BixucoRelatorio.png" alt="Mascote Bixuco" >
+            </div>
+
+            <h2 class="subtitulo-secao" data-pt="Relatórios dos pacientes" data-en="Patient reports">Relatórios dos pacientes</h2>
+
+            <!-- ========================= -->
+            <!-- LISTA DE PACIENTES -->
+            <!-- cada card leva para /relatoriosTerapeuta?paciente=ID -->
+            <!-- gerado pelo JS via /api/pacientes-relatorios -->
+            <!-- ========================= -->
+            <div id="listaRelatorios">
+                <!-- estado de carregamento -->
+                <div class="carregando-relatorios">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    <span data-pt="Carregando pacientes..." data-en="Loading patients...">Carregando pacientes...</span>
+                </div>
+            </div>
+
+            <!-- aparece quando não tem nenhum paciente vinculado -->
+            <div id="semPacientes" style="display:none" class="lista-vazia">
+                <i class="fa-solid fa-users-slash"></i>
+                <p data-pt="Nenhum paciente vinculado ainda." data-en="No patients linked yet.">Nenhum paciente vinculado ainda.</p>
+                <p data-pt="Aceite solicitações de vínculo para ver os relatórios aqui." data-en="Accept link requests to see reports here.">Aceite solicitações de vínculo para ver os relatórios aqui.</p>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- ===================== -->
+    <!-- MENU INFERIOR (só mobile) -->
+    <!-- ===================== -->
+    <nav class="bottom-nav">
+
+        <a href="/sobreT">
+            <i class="fa-solid fa-circle-info"></i>
+            <span data-pt="Sobre" data-en="About">Sobre</span>
+        </a>
+
+        <a href="/pacientes">
+            <i class="fa-solid fa-user-plus"></i>
+            <span data-pt="Paciente" data-en="Patient">Paciente</span>
+        </a>
+
+        <a href="/homeTerapeuta">
+            <i class="fa-solid fa-house"></i>
+            <span data-pt="Início" data-en="Home">Início</span>
+        </a>
+
+        <a href="/configuracoesT">
+            <i class="fa-solid fa-gear"></i>
+            <span data-pt="Config" data-en="Settings">Config</span>
+        </a>
+
+        <a href="/relatoriosTerapeutaS" class="ativo">
+            <i class="fa-solid fa-chart-line"></i>
+            <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+        </a>
+
+    </nav>
+
+</div>
+
+
+<script src="/js/header.js"></script>
+<script src="/js/RelatoriosTerapeutaS.js" ></script>
+
+<script src="/js/tema.js" ></script>
+
+</body>
+
+</html>
