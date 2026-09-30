@@ -68,7 +68,7 @@
 
         </div>
 
-            <button
+        <button
             class="btn-relatorio"
             type="button"
             id="btnRelatorioDiario"
@@ -78,32 +78,38 @@
             Relatório diário
         </button>
 
-            <nav>
-                <a href="/home">
-                    <i class="fa-solid fa-house"></i>
-                    <span data-pt="Início" data-en="Home">Início</span>
-                </a>
+        <nav>
 
-                <a href="/relatorios">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
-                </a>
+            <a href="/home">
 
-                <a href="/sobre" class="ativo">
-                    <i class="fa-solid fa-circle-info"></i>
-                    <span data-pt="Sobre" data-en="About">Sobre</span>
-                </a>
+                <i class="fa-solid fa-house"></i>
 
-                <a href="/perfil">
-                    <i class="fa-solid fa-user"></i>
-                    <span data-pt="Perfil" data-en="Profile">Perfil</span>
-                </a>
+                <span data-pt="Início" data-en="Home">Início</span>
 
-                <a href="/configuracoes">
-                    <i class="fa-solid fa-gear"></i>
-                    <span data-pt="Configurações" data-en="Settings">Configurações</span>
-                </a>
-            </nav>
+            </a>
+
+            <a href="/relatorios">
+                <i class="fa-solid fa-chart-line"></i>
+                <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+            </a>
+
+            <a href="/sobre" class="ativo">
+
+                <i class="fa-solid fa-circle-info"></i>
+
+                <span data-pt="Sobre" data-en="About">Sobre</span>
+
+            </a>
+
+            <a href="/configuracoes">
+
+                <i class="fa-solid fa-gear"></i>
+
+                <span data-pt="Configurações" data-en="Settings">Configurações</span>
+
+            </a>
+
+        </nav>
 
 
         <div class="tema">
@@ -144,6 +150,10 @@
             <span data-pt="Sair" data-en="Log out">Sair</span>
 
         </a>
+
+        <!-- Perfil + notificações + tradução — só aparece no desktop, substituindo
+             a barra "topo" (ver header.js / layout.css) -->
+        <div class="sidebar-usuario" id="sidebarUsuario"></div>
 
     </aside>
 

@@ -360,27 +360,39 @@ body {
     display: none;
   }
 
-  /* "Fazer relatório diário" é o primeiro item da sidebar,
-     logo abaixo do logo — o espaço embaixo separa do menu. */
+  /* "Fazer relatório diário" é o primeiro item da sidebar, logo
+     abaixo do logo — o espaço embaixo separa do menu. */
   body.layout-sidebar-perfil .sidebar > .btn-relatorio {
     margin: 0 0 1.25rem;
   }
 
-  /* Rodapé da sidebar: [Traduzir] → [Claro | Escuro] → linha → Sair.
-     Quem empurra o bloco pro fundo é o Traduzir (margin-top: auto);
-     o tema fica colado embaixo dele. Sem o Traduzir, o próprio
-     .tema (margin-top: auto lá em cima) faz esse papel. */
-  body.layout-sidebar-perfil .sidebar > .sidebar-traduzir + .tema {
-    margin-top: 0.6rem;
+  body.layout-sidebar-perfil .sidebar-usuario {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+    margin-top: auto; /* empurra pro rodapé — .tema/.logout, que faziam isso, somem no desktop */
+    padding-top: 0.85rem;
+    border-top: 1px solid transparent;
+    border-image: linear-gradient(90deg, #79d836 0%, #0ab7fb 100%) 1;
   }
 
-  /* O painel de notificações abre à direita da sidebar (posição
-     calculada pelo header.js), fora do scroll dela. */
-  body.layout-sidebar-perfil .logo-sino .painel-notificacoes {
-    position: fixed;
-    right: auto;
-    width: 320px;
+  /* Alternar tema, o divisor e Sair somem daqui soltos — a função
+     deles foi pro modal do cantinho (foto+nome) da sidebar-usuario. */
+  body.layout-sidebar-perfil .sidebar > .tema,
+  body.layout-sidebar-perfil .sidebar > .sidebar-divisor,
+  body.layout-sidebar-perfil .sidebar > .logout {
+    display: none;
   }
+
+  /* O sino agora fica embaixo, perto do rodapé da tela — o painel
+     abre pra cima em vez de pra baixo, senão sairia da tela. */
+    body.layout-sidebar-perfil .sidebar-usuario .painel-notificacoes {
+        position: fixed;
+        top: auto;
+        right: auto;
+        width: 300px;
+    }
 }
 
 .bottom-nav {

@@ -194,49 +194,92 @@
     }
 }
 
-/* ---------- Sino ao lado do logo (desktop) ----------
-   O header.js coloca o sino dentro do .logo da sidebar, nas páginas
-   com <body class="layout-sidebar-perfil"> (ver layout.css). */
+/* ---------- Bloco reduzido de usuário na sidebar (desktop) ----------
+   Só aparece nas páginas com <div id="sidebarUsuario"> dentro da
+   sidebar + <body class="layout-sidebar-perfil"> (ver layout.css,
+   que é quem decide quando ele fica visível e esconde a .topo).
 
-.logo.logo--com-sino {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
+   Foto  → link direto pro perfil (1 clique)
+   Nome  → botão que abre o modal (código, traduzir, tema, sair)
+   Sino  → mesmo painel de notificações de sempre */
+
+.sidebar-usuario {
+    display: none;
+    position: relative;
 }
 
-.logo-sino {
-    position: relative;
+.sidebar-usuario__foto {
+    display: block;
+    flex-shrink: 0;
+    border-radius: 50%;
+    transition: box-shadow 0.2s;
+}
+
+.sidebar-usuario__foto:hover,
+.sidebar-usuario__foto:focus-visible {
+    box-shadow: 0 0 0 3px rgba(10, 183, 251, 0.15);
+    outline: none;
+}
+
+.sidebar-usuario__foto img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
+.sidebar-usuario__texto {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+    flex: 1;
+    padding: 0.3rem 0.4rem;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.2s;
+}
+
+.sidebar-usuario__texto:hover,
+.sidebar-usuario__texto[aria-expanded="true"],
+.sidebar-usuario__texto:focus-visible {
+    background: var(--cor-fundo-hover);
+    outline: none;
+}
+
+.sidebar-usuario__texto strong {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--cor-texto-principal);
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sidebar-usuario__texto small {
+    font-size: 0.7rem;
+    color: var(--cor-texto-esmaecido);
+}
+
+.sidebar-usuario .notificacoes {
     flex-shrink: 0;
 }
 
-/* ---------- Botão "Traduzir" da sidebar (desktop) ----------
-   Criado pelo header.js, logo acima do seletor Claro/Escuro. */
-
-.sidebar-traduzir {
-    width: 100%;
-    margin-top: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.55rem 0.8rem;
-    border: 1px solid #0ab7fb;
-    border-radius: 999px;
-    background: var(--cor-fundo-card);
-    color: #0ab7fb;
-    font-size: 0.78rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s;
+/* Modal deste cantinho (código, traduzir, tema, sair) — abre pra
+   cima, já que o bloco fica no rodapé da sidebar. */
+.menu-perfil--sidebar {
+    position: fixed;
+    top: auto;
+    width: 260px;
 }
 
-.sidebar-traduzir:hover {
-    background: #0ab7fb;
-    color: #fff;
-}
-
-.sidebar-traduzir:focus-visible {
-    outline: 2px solid var(--cor-marca-azul);
-    outline-offset: 2px;
+/* Aqui dentro os itens de tema/sair não são "só mobile" — são os
+   únicos, então ficam visíveis mesmo no desktop. */
+.menu-perfil--sidebar .menu-perfil__divisor {
+    display: block;
 }

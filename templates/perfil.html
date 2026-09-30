@@ -77,6 +77,7 @@
             </button>
 
             <nav>
+
                 <a href="/home">
                     <i class="fa-solid fa-house"></i>
                     <span data-pt="Início" data-en="Home">Início</span>
@@ -92,15 +93,11 @@
                     <span data-pt="Sobre" data-en="About">Sobre</span>
                 </a>
 
-                <a href="/perfil" class="ativo">
-                    <i class="fa-solid fa-user"></i>
-                    <span data-pt="Perfil" data-en="Profile">Perfil</span>
-                </a>
-
                 <a href="/configuracoes">
                     <i class="fa-solid fa-gear"></i>
                     <span data-pt="Configurações" data-en="Settings">Configurações</span>
                 </a>
+
             </nav>
 
 
@@ -144,6 +141,10 @@
                 <span data-pt="Sair" data-en="Log out">Sair</span>
 
             </a>
+
+            <!-- Perfil + notificações + tradução — só aparece no desktop, substituindo
+                 a barra "topo" (ver header.js / layout.css) -->
+            <div class="sidebar-usuario" id="sidebarUsuario"></div>
 
         </aside>
 

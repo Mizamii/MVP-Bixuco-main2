@@ -1,10 +1,8 @@
 // ==========================================================
 // header.js
 // Monta o cabeçalho ÚNICO do app dentro de <header id="topoApp">
-// (usado no mobile). No desktop, nas páginas com
-// <body class="layout-sidebar-perfil">, a barra some e o sino de
-// notificações vai pro lado do logo da sidebar, com o botão
-// "Traduzir" acima do seletor de tema.
+// (usado no mobile) e, se existir, também dentro de
+// <div id="sidebarUsuario"> na sidebar (usado no desktop).
 //
 //   Esquerda/foto : leva direto pro perfil com 1 clique
 //                   (não abre mais menu nenhum sozinha)
@@ -23,12 +21,16 @@
 //   <script src="/js/header.js"></script>
 //   <script src="/js/MinhaPagina.js"></script>
 //
-// Pra levar o sino e o "Traduzir" pra sidebar no desktop, basta
-// marcar `<body class="layout-sidebar-perfil">` na página (a sidebar
-// precisa ter <div class="logo"> e, opcionalmente, <div class="tema">).
-// Essa classe também faz o CSS esconder a barra "topo" a partir de
-// 769px (ver layout.css). Sem ela, a página continua exatamente como
-// era (só a .topo).
+// Pra também mostrar o bloco reduzido (foto+nome+sino) na sidebar
+// no desktop, basta colocar em qualquer lugar dentro da <aside
+// class="sidebar">:
+//
+//   <div class="sidebar-usuario" id="sidebarUsuario"></div>
+//
+// e marcar `<body class="layout-sidebar-perfil">` na página — essa
+// classe é o que faz o CSS esconder a barra "topo" a partir de
+// 769px (ver layout.css). Sem essa <div>, a página continua
+// exatamente como era (só a .topo, sem nada na sidebar).
 //
 // Atributos opcionais no <header>:
 //   data-perfil       → URL da tela de perfil
@@ -163,60 +165,109 @@
     }
 
     // ==========================================================
-    // SINO + TRADUZIR NA SIDEBAR (só desktop)
+    // BLOCO DO USUÁRIO NA SIDEBAR (só desktop)
     //
-    // Nas páginas marcadas com <body class="layout-sidebar-perfil">
-    // a barra "topo" some no desktop (ver layout.css) e o que ela
-    // tinha vai pra sidebar:
+    // Em páginas com <div id="sidebarUsuario"> dentro da <aside
+    // class="sidebar">, montamos ali uma versão reduzida — que
+    // substitui visualmente a barra "topo" no desktop (o CSS
+    // esconde a .topo a partir de 769px nas páginas marcadas com a
+    // classe "layout-sidebar-perfil" no <body>). No mobile a barra
+    // "topo" de sempre continua 100% igual, sem nenhuma mudança.
     //
-    //   Sino     → ao lado do logo do Bixuco. O painel de
-    //              notificações abre à direita da sidebar.
-    //   Traduzir → botão logo acima do seletor Claro/Escuro.
+    //   Foto            → link direto pro perfil (1 clique só)
+    //   Nome/cargo      → abre um modal com código do terapeuta
+    //                     (se a página tiver), Traduzir, Alternar
+    //                     tema e Sair — os mesmos itens que hoje
+    //                     ficam soltos no corpo da sidebar (por
+    //                     isso eles somem de lá no desktop, ver
+    //                     layout.css)
+    //   Sino            → mesmo painel de notificações de sempre,
+    //                     só que abrindo nesse mesmo cantinho
     //
-    // Nenhum dos dois duplica lógica: cada um só repassa o clique
-    // (.click()) pro elemento original escondido dentro da .topo, que
-    // continua sendo quem de fato busca notificações e traduz — e o
-    // contador/texto são só espelhados (MutationObserver).
-    // No mobile a barra "topo" de sempre continua igual.
+    // Nenhum dos botões daqui duplica lógica: cada um só repassa o
+    // clique (.click()) pro elemento original escondido dentro da
+    // .topo, que continua sendo quem de fato busca dados/traduz/
+    // troca tema/sai — e o texto/foto/contador são só espelhados
+    // (MutationObserver) pros elementos novos daqui.
     // ==========================================================
-    const logoSidebar = document.body.classList.contains("layout-sidebar-perfil")
-        ? document.querySelector(".sidebar .logo")
-        : null;
+    const sidebarUsuario = document.getElementById("sidebarUsuario");
 
-    if (logoSidebar) {
-        // ---------- sino ao lado do logo ----------
-        logoSidebar.classList.add("logo--com-sino");
-        logoSidebar.insertAdjacentHTML("beforeend", `
-            <div class="logo-sino" id="sinoSidebar">
-                <button type="button" class="notificacoes" id="btnNotificacoesSidebar" aria-label="Notificações">
-                    <i class="fa-regular fa-bell"></i>
-                    <span id="quantidadeNotificacoesSidebar" class="badge" style="display:none">0</span>
-                </button>
-            </div>
-        `);
-        const sinoSidebar = document.getElementById("sinoSidebar");
+    if (sidebarUsuario) {
+        sidebarUsuario.innerHTML = `
+            <a class="sidebar-usuario__foto" id="fotoLinkSidebar" href="${urlPerfil}" aria-label="Meu perfil">
+                <img id="fotoUsuarioSidebar" src="/img/perfilPadrao.png" alt="">
+            </a>
 
-        // ---------- botão "Traduzir" logo acima do seletor Claro/Escuro ----------
-        const temaSidebar = document.querySelector(".sidebar > .tema");
-        if (temaSidebar) {
-            temaSidebar.insertAdjacentHTML("beforebegin", `
-                <button type="button" class="sidebar-traduzir" id="btnTraduzirSidebar">
+            <button type="button" class="sidebar-usuario__texto" id="btnMenuPerfilSidebar"
+                    aria-haspopup="true" aria-expanded="false" aria-controls="menuPerfilSidebar">
+                <strong id="nomeUsuarioSidebar">Carregando...</strong>
+                <small id="tipoContaSidebar"></small>
+            </button>
+
+            <button type="button" class="notificacoes" id="btnNotificacoesSidebar" aria-label="Notificações">
+                <i class="fa-regular fa-bell"></i>
+                <span id="quantidadeNotificacoesSidebar" class="badge" style="display:none">0</span>
+            </button>
+
+            <div class="menu-perfil menu-perfil--sidebar" id="menuPerfilSidebar" role="menu">
+                ${codigo ? `
+                <button type="button" class="menu-perfil__codigo" id="btnCodigoCopiarSidebar" title="Copiar código para compartilhar">
+                    <span><span data-pt="Código" data-en="Code">Código</span>: <strong id="codigoTerapeutaSidebar">...</strong></span>
+                    <i class="fa-regular fa-copy"></i>
+                </button>` : ""}
+
+                <button type="button" class="menu-perfil__item" role="menuitem" id="btnTraduzirSidebar">
                     <i class="fa-solid fa-language"></i>
                     <span id="textoTradutorSidebar">Traduzir para o inglês</span>
                 </button>
-            `);
-        }
 
-        // ---------- espelhar texto / contador ----------
+                <button type="button" class="menu-perfil__item" role="menuitem" id="btnTemaSidebar">
+                    <i class="fa-regular fa-moon"></i>
+                    <span data-pt="Alternar tema" data-en="Switch theme">Alternar tema</span>
+                </button>
 
-        function espelhar(origem, destino) {
+                <div class="menu-perfil__divisor"></div>
+
+                <a class="menu-perfil__item menu-perfil__item--sair" role="menuitem" href="/logout">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span data-pt="Sair" data-en="Log out">Sair</span>
+                </a>
+            </div>
+        `;
+
+        // ---------- espelhar foto / nome / cargo / contador ----------
+
+        function espelhar(origem, destino, tipo) {
             if (!origem || !destino) return;
-            const copiar = () => { destino.textContent = origem.textContent; };
+
+            function copiar() {
+                if (tipo === "texto") destino.textContent = origem.textContent;
+                else if (tipo === "src") destino.src = origem.src;
+                else if (tipo === "classe") destino.className = origem.className;
+            }
+
             copiar();
-            new MutationObserver(copiar).observe(origem, { childList: true, characterData: true, subtree: true });
+
+            const config = tipo === "texto"
+                ? { childList: true, characterData: true, subtree: true }
+                : { attributes: true, attributeFilter: [tipo === "src" ? "src" : "class"] };
+
+            new MutationObserver(copiar).observe(origem, config);
         }
 
-        espelhar(document.getElementById("textoTradutor"), document.getElementById("textoTradutorSidebar"));
+        espelhar(document.getElementById("fotoUsuario"), document.getElementById("fotoUsuarioSidebar"), "src");
+        espelhar(document.getElementById(idNome), document.getElementById("nomeUsuarioSidebar"), "texto");
+        espelhar(document.getElementById("tipoConta"), document.getElementById("tipoContaSidebar"), "texto");
+        espelhar(document.getElementById("textoTradutor"), document.getElementById("textoTradutorSidebar"), "texto");
+
+        const iconeTemaOrigem = document.getElementById("btnTemaMobile")?.querySelector("i");
+        const iconeTemaDestino = document.getElementById("btnTemaSidebar")?.querySelector("i");
+        espelhar(iconeTemaOrigem, iconeTemaDestino, "classe");
+
+        if (codigo) {
+            const idCodigoOrigem = codigo === "header" ? "codigoTerapeutaHeader" : "codigoTerapeuta";
+            espelhar(document.getElementById(idCodigoOrigem), document.getElementById("codigoTerapeutaSidebar"), "texto");
+        }
 
         const badgeOrigem  = document.getElementById(idBadge);
         const badgeDestino = document.getElementById("quantidadeNotificacoesSidebar");
@@ -244,27 +295,73 @@
 
         repassar("btnNotificacoesSidebar", "btnNotificacoes");
         repassar("btnTraduzirSidebar", "btnTraduzir");
-
-        // ---------- posição do painel de notificações ----------
-        // A sidebar tem scroll (overflow-y: auto), então um painel
-        // "absolute" ficaria cortado por ela. Ele vira "fixed" e é
-        // posicionado aqui: logo à direita da sidebar, na altura do sino.
-        function posicionarPainelAoLado() {
-            const painel = document.getElementById("painelNotificacoes");
-            const sidebar = document.querySelector(".sidebar");
-            const btn = document.getElementById("btnNotificacoesSidebar");
-            if (!painel || !sidebar || !btn) return;
-            const rBtn = btn.getBoundingClientRect();
-            const rSide = sidebar.getBoundingClientRect();
-            painel.style.left = `${rSide.right + 8}px`;
-            painel.style.top = `${rBtn.top}px`;
+        repassar("btnTemaSidebar", "btnTemaMobile");
+        if (codigo) {
+            repassar("btnCodigoCopiarSidebar", codigo === "header" ? "btnCodigoCopiarHeader" : "btnCodigoCopiar");
         }
 
-        document.getElementById("btnNotificacoesSidebar").addEventListener("click", posicionarPainelAoLado);
+        // ---------- abrir/fechar o modal deste cantinho ----------
+
+        const btnMenuSidebar = document.getElementById("btnMenuPerfilSidebar");
+        const menuSidebar    = document.getElementById("menuPerfilSidebar");
+
+        function abrirMenuSidebar() {
+            document.getElementById("painelNotificacoes")?.classList.remove("aberto");
+
+            // A sidebar tem scroll (overflow-y: auto), então um modal
+            // "absolute" ficava cortado por ela. Agora ele é "fixed" e a
+            // posição é calculada na hora de abrir, com base na tela.
+            const rect = sidebarUsuario.getBoundingClientRect();
+            menuSidebar.style.left = `${rect.left}px`;
+            menuSidebar.style.bottom = `${window.innerHeight - rect.top + 10}px`;
+
+            menuSidebar.classList.add("aberto");
+            btnMenuSidebar.setAttribute("aria-expanded", "true");
+        }
+
+        function fecharMenuSidebar() {
+            menuSidebar.classList.remove("aberto");
+            btnMenuSidebar.setAttribute("aria-expanded", "false");
+        }
+
+        btnMenuSidebar.addEventListener("click", (e) => {
+            e.stopPropagation();
+            menuSidebar.classList.contains("aberto") ? fecharMenuSidebar() : abrirMenuSidebar();
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!menuSidebar.classList.contains("aberto")) return;
+            if (menuSidebar.contains(e.target) || btnMenuSidebar.contains(e.target)) return;
+            fecharMenuSidebar();
+        }, true);
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && menuSidebar.classList.contains("aberto")) {
+                fecharMenuSidebar();
+                btnMenuSidebar.focus();
+            }
+        });
+
+        // O sininho da sidebar fecha esse modal ao abrir, e vice-versa
+        // (o clique real de abrir o painel é repassado pro original
+        // acima; aqui só garante que os dois não ficam abertos juntos).
+        document.getElementById("btnNotificacoesSidebar").addEventListener("click", () => {
+            fecharMenuSidebar();
+
+            // Mesmo problema do menu do nome: a sidebar tem scroll,
+            // então o painel "absolute" ficava cortado. Agora ele é
+            // "fixed" e a posição é calculada com base na tela.
+            const painel = document.getElementById("painelNotificacoes");
+            if (painel) {
+                const rect = sidebarUsuario.getBoundingClientRect();
+                painel.style.left = `${rect.left}px`;
+                painel.style.bottom = `${window.innerHeight - rect.top + 10}px`;
+            }
+        });
 
         // O painel de notificações é UM SÓ elemento (#painelNotificacoes),
         // reaproveitado nos dois lugares — mas como ele é filho da .topo
-        // (que some no desktop) ou do sino da sidebar (que some no
+        // (que some no desktop) ou do cantinho da sidebar (que some no
         // mobile), ele precisa fisicamente "morar" no lugar certo pra
         // não ficar escondido atrás de um pai com display:none.
         const wrapperNotifTopo = document.querySelector(".notificacoes-wrapper");
@@ -272,7 +369,7 @@
 
         function posicionarPainelNotificacoes() {
             if (!painelNotif) return;
-            const alvo = window.matchMedia("(min-width: 769px)").matches ? sinoSidebar : wrapperNotifTopo;
+            const alvo = window.matchMedia("(min-width: 769px)").matches ? sidebarUsuario : wrapperNotifTopo;
             if (alvo && painelNotif.parentElement !== alvo) alvo.appendChild(painelNotif);
         }
 
@@ -281,10 +378,7 @@
         let timerResize;
         window.addEventListener("resize", () => {
             clearTimeout(timerResize);
-            timerResize = setTimeout(() => {
-                posicionarPainelNotificacoes();
-                if (painelNotif?.classList.contains("aberto")) posicionarPainelAoLado();
-            }, 150);
+            timerResize = setTimeout(posicionarPainelNotificacoes, 150);
         });
     }
 
