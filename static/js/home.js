@@ -528,9 +528,12 @@ let camadaMapa = null;
 const ESTILO_CLARO  = "https://tiles.openfreemap.org/styles/positron";
 const ESTILO_ESCURO = "https://tiles.openfreemap.org/styles/dark";
 
-// Coordenadas padrão (usadas só se ainda não houver nenhum evento registrado)
-let latAtual = -23.5505;
-let lngAtual = -46.6333;
+// Centro inicial do mapa.
+// Não representa a localização do Bixuco.
+let latAtual = -14.2350;
+let lngAtual = -51.9253;
+
+let temLocalizacaoReal = false;
 
 function iniciarMapa() {
     mapaLeaflet = L.map("mapaBixuco").setView([latAtual, lngAtual], 13);
@@ -553,19 +556,6 @@ function iniciarMapa() {
     });
 
     observadorTamanho.observe(document.getElementById("mapaBixuco"));
-
-
-    const iconeBixuco = L.divIcon({
-        html: '<div style="background:#32C26D;width:36px;height:36px;border-radius:50%;border:3px solid white;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.3);font-size:18px;">🐱</div>',
-        iconSize:   [36, 36],
-        iconAnchor: [18, 18],
-        className:  ""
-    });
-
-    marcador = L.marker([latAtual, lngAtual], { icon: iconeBixuco })
-        .addTo(mapaLeaflet)
-        .bindPopup(`<b>Bixuco</b><br>${traduzir("Carregando localização...")}`)
-        .openPopup();
 
     carregarLocalizacaoReal();
 
@@ -610,11 +600,23 @@ async function carregarLocalizacaoReal() {
 
         const dados = await resposta.json();
 
-        if (!dados.disponivel) {
-            ultimoStatusMapa = { tipo: "sem-local" };
-            renderizarStatusMapa();
-            return;
+    if (!dados.disponivel) {
+
+        temLocalizacaoReal = false;
+
+        if (marcador) {
+            mapaLeaflet.removeLayer(marcador);
+            marcador = null;
         }
+
+        ultimoStatusMapa = {
+            tipo: "sem-local"
+        };
+
+        renderizarStatusMapa();
+
+        return;
+    }
 
         if (dados.nomePelucia) {
             const tituloEl = document.getElementById("nomeBixucoTitulo");
@@ -625,8 +627,53 @@ async function carregarLocalizacaoReal() {
         latAtual = dados.latitude;
         lngAtual = dados.longitude;
 
-        mapaLeaflet.setView([latAtual, lngAtual], 15);
-        marcador.setLatLng([latAtual, lngAtual]);
+        temLocalizacaoReal = true;
+
+        mapaLeaflet.setView(
+            [latAtual, lngAtual],
+            15
+        );
+
+        if (!marcador) {
+
+            const iconeBixuco = L.divIcon({
+                html: `
+                    <div style="
+                        background:#32C26D;
+                        width:36px;
+                        height:36px;
+                        border-radius:50%;
+                        border:3px solid white;
+                        display:flex;
+                        align-items:center;
+                        justify-content:center;
+                        box-shadow:0 2px 8px rgba(0,0,0,0.3);
+                        font-size:18px;
+                    ">
+                        🐱
+                    </div>
+                `,
+                iconSize: [36, 36],
+                iconAnchor: [18, 18],
+                className: ""
+            });
+
+            marcador = L.marker(
+                [latAtual, lngAtual],
+                {
+                    icon: iconeBixuco
+                }
+            ).addTo(mapaLeaflet);
+
+        } else {
+
+            marcador.setLatLng(
+                [latAtual, lngAtual]
+            );
+
+        }
+
+
         if (dados.fotoUrl) {
             const iconeComFoto = L.divIcon({
                 html: `<div style="width:40px;height:40px;border-radius:50%;border:3px solid #32C26D;box-shadow:0 2px 8px rgba(0,0,0,0.3);overflow:hidden;">
@@ -693,12 +740,25 @@ async function carregarContagemInicial() {
     }
 }
 
-document.getElementById("btnCentralizar").addEventListener("click", () => {
-    if (mapaLeaflet) {
-        mapaLeaflet.setView([latAtual, lngAtual], 15);
-        if (marcador) marcador.openPopup();
-    }
-});
+document
+    .getElementById("btnCentralizar")
+    .addEventListener("click", () => {
+
+        if (
+            mapaLeaflet &&
+            temLocalizacaoReal &&
+            marcador
+        ) {
+
+            mapaLeaflet.setView(
+                [latAtual, lngAtual],
+                15
+            );
+
+            marcador.openPopup();
+        }
+
+    });
 
 
 // =========================
@@ -709,6 +769,10 @@ aplicarIdiomaEstatico();
 carregarDadosUsuario();
 carregarDiasRelatorio();
 iniciarMapa();
+
+carregarLocalizacaoReal();
+
+setInterval(carregarLocalizacaoReal, 10000);
 carregarContagemInicial();
 carregarStatusBixuco();
 

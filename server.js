@@ -2182,7 +2182,7 @@ app.get("/api/relatorio-diario/grafico", estaLogado, async (req, res) => {
         const dataFiltro = dataParam || new Date().toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
 
         const eventos = await db.query(
-            `SELECT e.criado_em, e.forca
+            `SELECT e.criado_em, e.forca, e.duracao_ms
              FROM eventos_bixuco e
              JOIN criancas c ON c.id = e.crianca_id
              WHERE c.usuario_id = $1
