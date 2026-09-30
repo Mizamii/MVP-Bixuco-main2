@@ -1920,6 +1920,7 @@ app.post("/api/admin/novidade", estaLogado, exigeAdmin, limitarTentativasAdmin, 
             FROM usuarios u
             JOIN preferencias_usuario p ON p.usuario_id = u.id
             WHERE p.notif_novidades = TRUE
+            AND u.tipo <> 'psicologo'
         `);
 
         for (const usuario of usuarios.rows) {
@@ -4041,18 +4042,38 @@ app.post("/api/vinculos/solicitar", estaLogado, verificarPlano, exigePremium, as
                 [v.id]
             );
         } else {
-            // insere o vínculo
+
             await db.query(
-                "INSERT INTO vinculos (responsavel_id, terapeuta_id, ativo, recusado) VALUES ($1, $2, false, false)",
+                `INSERT INTO vinculos
+                (responsavel_id, terapeuta_id, ativo, recusado)
+                VALUES ($1, $2, false, false)`,
                 [responsavelId, terapeutaId]
             );
 
-            // notifica o terapeuta — comando separado
+        }
+
+        const prefSolicitacao = await db.query(
+            `SELECT notif_novidades
+            FROM preferencias_usuario
+            WHERE usuario_id = $1`,
+            [terapeutaId]
+        );
+
+        const receberSolicitacao =
+            prefSolicitacao.rows[0]?.notif_novidades ?? true;
+
+        if (receberSolicitacao) {
+
             await db.query(
-                `INSERT INTO notificacoes (usuario_id, tipo, mensagem, lida)
+                `INSERT INTO notificacoes
+                (usuario_id, tipo, mensagem, lida)
                 VALUES ($1, 'pedido_vinculo', $2, FALSE)`,
-                [terapeutaId, `Você recebeu um pedido de vínculo de um novo responsável.`]
+                [
+                    terapeutaId,
+                    "Você recebeu um pedido de vínculo de um novo responsável."
+                ]
             );
+
         }
 
 
@@ -4528,6 +4549,16 @@ app.post("/api/relatorio", estaLogado,precisaPlano("medio"), async (req, res) =>
         if (terapeutaVinculado.rows.length > 0) {
             const terapeuta = terapeutaVinculado.rows[0];
 
+            const prefTerapeuta = await db.query(
+            `SELECT notif_lembrete
+            FROM preferencias_usuario
+            WHERE usuario_id = $1`,
+            [terapeuta.id]
+        );
+
+        const receberRelatorios =
+            prefTerapeuta.rows[0]?.notif_lembrete ?? true;
+
             // busca o nome da criança do responsável
             const crianca = await db.query(
                 `SELECT nome FROM criancas WHERE usuario_id = $1 LIMIT 1`,
@@ -4536,11 +4567,19 @@ app.post("/api/relatorio", estaLogado,precisaPlano("medio"), async (req, res) =>
 
             const nomeCrianca = crianca.rows[0]?.nome || "A criança";
 
-            await db.query(
-                `INSERT INTO notificacoes (usuario_id, tipo, mensagem, lida)
-                VALUES ($1, 'relatorio_finalizado', $2, FALSE)`,
-                [terapeuta.id, `${nomeCrianca} acabou de finalizar um relatório. Clique para ver.`]
-            );
+            if (receberRelatorios) {
+
+                await db.query(
+                    `INSERT INTO notificacoes
+                    (usuario_id, tipo, mensagem, lida)
+                    VALUES ($1, 'relatorio_finalizado', $2, FALSE)`,
+                    [
+                        terapeuta.id,
+                        `${nomeCrianca} acabou de finalizar um relatório. Clique para ver.`
+                    ]
+                );
+
+            }
 
         }
 
