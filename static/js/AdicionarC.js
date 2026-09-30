@@ -100,8 +100,42 @@ function limparErros() {
   if (erroGeral) erroGeral.style.display = "none";
 }
 
-function dataNoFuturo(data) {
-  return new Date(data) > new Date();
+function dataCriancaValida(data) {
+
+  if (!data) return false;
+
+  const nascimento =
+    new Date(data + "T12:00:00");
+
+  if (Number.isNaN(nascimento.getTime())) {
+    return false;
+  }
+
+  const hoje = new Date();
+
+  if (nascimento > hoje) {
+    return false;
+  }
+
+  let idade =
+    hoje.getFullYear() -
+    nascimento.getFullYear();
+
+  const mes =
+    hoje.getMonth() -
+    nascimento.getMonth();
+
+  if (
+    mes < 0 ||
+    (
+      mes === 0 &&
+      hoje.getDate() < nascimento.getDate()
+    )
+  ) {
+    idade--;
+  }
+
+  return idade >= 0 && idade <= 17;
 }
 
 function validarCampos() {
@@ -128,11 +162,11 @@ function validarCampos() {
       traduzir("Informe a data de nascimento."),
     );
     valido = false;
-  } else if (dataNoFuturo(data)) {
+  } else if (!dataCriancaValida(data)) {
     mostrarErro(
       "dataNascimento",
       "erro-dataNascimento",
-      traduzir("A data não pode ser no futuro."),
+      traduzir("Informe uma data de nascimento válida para a criança."),
     );
     valido = false;
   }

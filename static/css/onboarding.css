@@ -424,3 +424,37 @@ body {
     border-radius: 12px;
   }
 }
+
+.campo-crp-google {
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 1rem;
+}
+
+.campo-crp-google label {
+  display: block;
+  margin-bottom: 0.45rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #141414;
+}
+
+.campo-crp-google input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.campo-crp-google input:focus {
+  border-color: #0ab7fb;
+}
+
+.campo-crp-google small {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.75rem;
+  color: #5a5a5a;
+}

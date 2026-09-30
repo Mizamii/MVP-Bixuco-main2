@@ -8,6 +8,15 @@ function selecionarTipo(tipo) {
 
     tipoSelecionado = tipo;
 
+    const campoCrp = document.getElementById("campoCrpGoogle");
+
+    if (tipo === "psicologo") {
+        campoCrp.style.display = "block";
+    } else {
+        campoCrp.style.display = "none";
+        document.getElementById("inputCrpGoogle").value = "";
+    }
+
     document.querySelectorAll(".tipo-card").forEach(card => {
         card.classList.remove("tipo-card--ativo");
         card.setAttribute("aria-pressed", "false");
@@ -36,6 +45,23 @@ document.getElementById("btnContinuar").addEventListener("click", async () => {
         return;
     }
 
+    if (tipoSelecionado === "psicologo") {
+
+        const crp = document
+            .getElementById("inputCrpGoogle")
+            .value
+            .trim();
+
+        if (!crp) {
+            const erroEl = document.getElementById("erro-selecao");
+
+            erroEl.textContent = "Informe seu CRP para continuar.";
+            erroEl.style.display = "block";
+
+            return;
+        }
+    }
+
     const btn = document.getElementById("btnContinuar");
     btn.disabled    = true;
     btn.textContent = "Salvando...";
@@ -45,7 +71,12 @@ document.getElementById("btnContinuar").addEventListener("click", async () => {
         const resposta = await fetch("/api/onboarding-google", {
             method:  "POST",
             headers: { "Content-Type": "application/json" },
-            body:    JSON.stringify({ tipo: tipoSelecionado })
+            body: JSON.stringify({
+                tipo: tipoSelecionado,
+                crp: tipoSelecionado === "psicologo"
+                    ? document.getElementById("inputCrpGoogle").value.trim()
+                    : null
+            })
         });
 
         const dados = await resposta.json();

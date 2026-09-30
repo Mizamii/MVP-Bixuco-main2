@@ -234,21 +234,43 @@ function cpfFormatoValido(cpfLimpo) {
 // VERIFICAR MAIOR DE IDADE
 // ==========================
 
-function maiorIdade(data) {
+function idadeAdultoValida(data) {
 
-    const hoje       = new Date();
-    const nascimento = new Date(data);
-    let   idade      = hoje.getFullYear() - nascimento.getFullYear();
-    const mes        = hoje.getMonth() - nascimento.getMonth();
+    if (!data) return false;
 
-    if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) {
+    const nascimento = new Date(data + "T12:00:00");
+
+    if (Number.isNaN(nascimento.getTime())) {
+        return false;
+    }
+
+    const hoje = new Date();
+
+    // Não pode nascer no futuro
+    if (nascimento > hoje) {
+        return false;
+    }
+
+    let idade =
+        hoje.getFullYear() -
+        nascimento.getFullYear();
+
+    const mes =
+        hoje.getMonth() -
+        nascimento.getMonth();
+
+    if (
+        mes < 0 ||
+        (
+            mes === 0 &&
+            hoje.getDate() < nascimento.getDate()
+        )
+    ) {
         idade--;
     }
 
-    return idade >= 18;
-
+    return idade >= 18 && idade <= 120;
 }
-
 // ==========================
 // VALIDAÇÃO LOCAL
 // ==========================
@@ -284,8 +306,8 @@ function validarCampos() {
     if (!data) {
         mostrarErro("dataNascimento", "erro-dataNascimento", traduzir("Informe sua data de nascimento."));
         valido = false;
-    } else if (!maiorIdade(data)) {
-        mostrarErro("dataNascimento", "erro-dataNascimento", traduzir("Você precisa ter pelo menos 18 anos."));
+    } else if (!idadeAdultoValida(data)) {
+        mostrarErro("dataNascimento", "erro-dataNascimento", traduzir("Informe uma data de nascimento válida."));
         valido = false;
     }
 
@@ -356,7 +378,7 @@ campoTel.addEventListener("input", () => {
 });
 
 campoData.addEventListener("input", () => {
-    if (campoData.value && maiorIdade(campoData.value)) {
+    if (campoData.value && idadeAdultoValida(campoData.value)) {
         limparErroCampo("dataNascimento", "erro-dataNascimento");
     }
 });

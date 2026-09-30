@@ -1708,20 +1708,69 @@ app.post("/api/onboarding-google", estaLogado, async (req, res) => {
             return res.status(401).json({ erro: "Não autenticado." });
         }
 
-        const { tipo } = req.body;
+        const { tipo, crp } = req.body;
 
         if (!["pai", "psicologo"].includes(tipo)) {
             return res.status(400).json({ erro: "Tipo inválido." });
         }
 
+        if (tipo === "psicologo") {
+
+            if (!crp || !validarCRP(crp)) {
+                return res.status(400).json({
+                    erro: "CRP inválido. Use o formato CRP-00/000000."
+                });
+            }
+
+            const crpExistente = await db.query(
+                `SELECT id
+                FROM usuarios
+                WHERE crp = $1
+                AND id <> $2`,
+                [crp, usuarioId]
+            );
+
+            if (crpExistente.rows.length > 0) {
+                return res.status(409).json({
+                    erro: "Este CRP já está cadastrado."
+                });
+            }
+
+        }
+
         // Salva o tipo e marca que o onboarding foi concluído
         // marca cadastro_completo; pai ainda precisa passar pelo AdicionarC.
-        await db.query(
-            `UPDATE usuarios
-            SET tipo = $1, novo_usuario = FALSE, cadastro_completo = $3
-            WHERE id = $2`,
-            [tipo, usuarioId, tipo === "psicologo"]
-        );
+        if (tipo === "psicologo") {
+
+            const codigoVinculo = await gerarCodigoVinculo();
+
+            await db.query(
+                `UPDATE usuarios
+                SET tipo = 'psicologo',
+                    crp = $1,
+                    codigo_vinculo = $2,
+                    novo_usuario = FALSE,
+                    cadastro_completo = TRUE
+                WHERE id = $3`,
+                [
+                    crp,
+                    codigoVinculo,
+                    usuarioId
+                ]
+            );
+
+        } else {
+
+            await db.query(
+                `UPDATE usuarios
+                SET tipo = 'pai',
+                    novo_usuario = FALSE,
+                    cadastro_completo = FALSE
+                WHERE id = $1`,
+                [usuarioId]
+            );
+
+        }
 
         // Atualiza a sessão com o tipo correto
         req.session.tipo = tipo;
@@ -1910,6 +1959,44 @@ async function validarImagemReal(buffer) {
 /* ==========================
    FUNÇÃO AUXILIAR
 ========================== */
+
+function idadeEntre(data, minima, maxima) {
+
+    if (!data) return false;
+
+    const nascimento =
+        new Date(`${data}T12:00:00`);
+
+    if (Number.isNaN(nascimento.getTime())) {
+        return false;
+    }
+
+    const hoje = new Date();
+
+    if (nascimento > hoje) {
+        return false;
+    }
+
+    let idade =
+        hoje.getFullYear() -
+        nascimento.getFullYear();
+
+    const mes =
+        hoje.getMonth() -
+        nascimento.getMonth();
+
+    if (
+        mes < 0 ||
+        (
+            mes === 0 &&
+            hoje.getDate() < nascimento.getDate()
+        )
+    ) {
+        idade--;
+    }
+
+    return idade >= minima && idade <= maxima;
+}
 
 function validarCRP(crp) {
 
@@ -2478,35 +2565,7 @@ app.post("/api/perfil-sensorial", estaLogado, async (req, res) => {
             ]
         );
 
-        // 🔧 O perfil sensorial serve também como relatório inicial: cria
-        // um registro em "relatorios" com as mesmas respostas, pra já
-        // alimentar a sequência de dias, os gráficos (gatilho_principal e
-        // crises_sensoriais têm os mesmos ids que o relatório diário usa)
-        // e liberar a geração das primeiras dicas.
-        try {
-
-            const jaTemRelatorioHoje = await db.query(
-                `SELECT id FROM relatorios WHERE usuario_id = $1 AND DATE(data) = CURRENT_DATE`,
-                [usuarioId]
-            );
-
-            if (jaTemRelatorioHoje.rows.length === 0) {
-
-                await db.query(
-                    `INSERT INTO relatorios (usuario_id, respostas, data)
-                     VALUES ($1, $2, NOW())`,
-                    [usuarioId, JSON.stringify(respostas)]
-                );
-
-                gerarDicasInterno(usuarioId).catch(erroDicas => {
-                    console.log("Erro ao gerar dicas iniciais:", erroDicas);
-                });
-
-            }
-
-        } catch (erroRelatorio) {
-            console.log("Erro ao criar relatório inicial a partir do perfil sensorial:", erroRelatorio);
-        }
+        
 
         return res.status(201).json({ mensagem: "Perfil sensorial salvo com sucesso." });
 
@@ -2585,6 +2644,13 @@ app.post("/api/adicionar-crianca", estaLogado, upload.single("fotoCrianca"), asy
             return res.status(400).json({
                 campo: "dataNascimento",
                 erro: "Data de nascimento inválida."
+            });
+        }
+
+        if (!idadeEntre(dataNascimento, 0, 17)) {
+            return res.status(400).json({
+                campo: "dataNascimento",
+                erro: "Informe uma data de nascimento válida para a criança."
             });
         }
 
@@ -3503,6 +3569,13 @@ app.post("/cadastro-finalizar", limitarCriacaoConta, async (req, res) => {
         /* ==========================
            RESPONSÁVEL
         ========================== */
+
+        if (!idadeEntre(dados.dataNascimento, 18, 120)) {
+            return res.status(400).json({
+                campo: "dataNascimento",
+                erro: "Informe uma data de nascimento válida."
+            });
+        }
 
         if (dados.tipo === "pai") {
 
