@@ -420,51 +420,198 @@ app.use(express.urlencoded({
 
 async function estaLogado(req, res, next) {
 
-    // Login via Google (Passport) já busca o usuário fresco do banco
-    // em toda requisição (deserializeUser), então não precisa checar aqui.
-    // Contas Google também não têm senha própria pra trocar.
-    if (req.isAuthenticated()) {
-        return next();
-    }
+    try {
 
-    if (req.session.usuarioId) {
+        // ID salvo pela sessão normal da Bixuco
+        const idSessao = req.session?.usuarioId
+            ? Number(req.session.usuarioId)
+            : null;
 
-        // Sessões criadas antes dessa funcionalidade existir não têm
-        // versaoSessao — deixa passar, pra não deslogar todo mundo no deploy.
-        if (req.session.versaoSessao === undefined) {
-            return next();
-        }
+        // ID que pode existir em sessões antigas do Passport/Google
+        const idPassport = req.user?.id
+            ? Number(req.user.id)
+            : null;
 
-        try {
 
-            const resultado = await db.query(
-                "SELECT versao_sessao FROM usuarios WHERE id = $1",
-                [req.session.usuarioId]
+        // =========================================================
+        // PROTEÇÃO PRINCIPAL:
+        // se os dois mecanismos apontarem para pessoas diferentes,
+        // NÃO escolhemos nenhum deles.
+        // A sessão é encerrada imediatamente.
+        // =========================================================
+
+        if (
+            idSessao &&
+            idPassport &&
+            idSessao !== idPassport
+        ) {
+
+            console.error(
+                "[AUTH] SESSÃO INCONSISTENTE DETECTADA",
+                {
+                    sessionID: req.sessionID,
+                    idSessao,
+                    idPassport,
+                    rota: req.originalUrl
+                }
             );
 
-            if (resultado.rows.length === 0) {
-                return res.redirect("/logar");
-            }
+            return req.session.destroy(() => {
 
-            if (resultado.rows[0].versao_sessao !== req.session.versaoSessao) {
-                // A senha foi trocada em outro lugar — essa sessão foi invalidada
-                req.session.destroy(() => {});
-                return res.redirect("/logar");
-            }
+                if (req.originalUrl.startsWith("/api/")) {
 
-            return next();
+                    return res.status(401).json({
+                        erro:
+                            "Sua sessão ficou inconsistente. Faça login novamente."
+                    });
 
-        } catch (erro) {
-            console.log("Erro ao verificar versão da sessão:", erro);
-            if (req.originalUrl.startsWith("/api/")) {
-                return res.status(500).json({ erro: "Erro interno ao validar sessão." });
-            }
-            return res.status(500).send("Erro interno. Tente novamente em instantes.");
+                }
+
+                return res.redirect(
+                    "/logar?erro=sessao-inconsistente"
+                );
+
+            });
+
         }
 
-    }
 
-    return res.redirect("/logar");
+        // Enquanto ainda existem sessões antigas do Google,
+        // aceita um dos dois.
+        // Depois vamos fazer novos logins Google usarem somente
+        // req.session.usuarioId.
+        const usuarioId =
+            idSessao || idPassport;
+
+
+        if (!usuarioId) {
+
+            if (req.originalUrl.startsWith("/api/")) {
+
+                return res.status(401).json({
+                    erro: "Não autenticado."
+                });
+
+            }
+
+            return res.redirect("/logar");
+
+        }
+
+
+        // Sempre busca novamente quem é a pessoa no banco.
+        // Assim não confiamos em um "tipo" antigo salvo na sessão.
+        const resultado = await db.query(
+            `
+            SELECT
+                id,
+                email,
+                tipo,
+                versao_sessao,
+                cadastro_completo
+            FROM usuarios
+            WHERE id = $1
+            `,
+            [usuarioId]
+        );
+
+
+        if (resultado.rows.length === 0) {
+
+            return req.session.destroy(() => {
+
+                if (req.originalUrl.startsWith("/api/")) {
+
+                    return res.status(401).json({
+                        erro: "Usuário não encontrado."
+                    });
+
+                }
+
+                return res.redirect("/logar");
+
+            });
+
+        }
+
+
+        const usuario = resultado.rows[0];
+
+
+        // =========================================================
+        // VERIFICA A VERSÃO DA SESSÃO
+        // =========================================================
+
+        if (
+            req.session.versaoSessao !== undefined &&
+            req.session.versaoSessao !== null &&
+            usuario.versao_sessao !== req.session.versaoSessao
+        ) {
+
+            return req.session.destroy(() => {
+
+                if (req.originalUrl.startsWith("/api/")) {
+
+                    return res.status(401).json({
+                        erro:
+                            "Sua sessão expirou. Faça login novamente."
+                    });
+
+                }
+
+                return res.redirect("/logar");
+
+            });
+
+        }
+
+
+        // =========================================================
+        // SINCRONIZA COM O BANCO
+        // =========================================================
+
+        req.session.usuarioId =
+            usuario.id;
+
+        req.session.tipo =
+            usuario.tipo;
+
+        req.session.versaoSessao =
+            usuario.versao_sessao;
+
+
+        // Essa passa a ser a identidade confiável da requisição.
+        req.authUser = usuario;
+
+
+        return next();
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao validar autenticação:",
+            erro
+        );
+
+
+        if (req.originalUrl.startsWith("/api/")) {
+
+            return res.status(500).json({
+                erro:
+                    "Erro interno ao validar sessão."
+            });
+
+        }
+
+
+        return res
+            .status(500)
+            .send(
+                "Erro interno. Tente novamente em instantes."
+            );
+
+    }
 
 }
 
@@ -1056,55 +1203,195 @@ app.get("/auth/google", (req, res, next) => {
 
 app.get(
     "/auth/google/callback",
+
     passport.authenticate("google", {
         failureRedirect: "/logar"
     }),
+
     async (req, res) => {
 
-        req.session.usuarioId = req.user.id;
-        req.session.tipo      = req.user.tipo;
-
-        let destino;
-
-        if (!req.user.tipo || req.user.tipo === "pendente") {
-            destino = "/onboarding-google";
-        } else if (req.user.tipo === "pai" && !req.user.cadastro_completo) {
-            destino = "/AdicionarC";
-        } else if (req.user.tipo === "psicologo") {
-            destino = "/homeTerapeuta";
-        } else {
-            destino = "/home";
-        }
-
-        // "state" veio do parâmetro que o Google devolve sem alterar —
-        // não depende do cookie de sessão sobreviver ao redirecionamento.
-        const eraApp = req.query.state === "app";
-
-        // Navegador comum: redireciona normal, a sessão já está valendo aqui.
-        if (!eraApp) {
-            return res.redirect(destino);
-        }
-
-        // Veio do app: o login aconteceu no navegador do sistema, então a
-        // WebView do app NÃO tem esse cookie de sessão. Geramos um token de
-        // uso único; o app troca esse token por uma sessão própria.
         try {
 
-            const token = crypto.randomBytes(32).toString("hex");
-            const expiraEm = new Date(Date.now() + 5 * 60 * 1000); // 5 minutos
+            // Guarda os dados AGORA porque regenerate()
+            // vai apagar a sessão antiga do Passport.
+            const usuarioGoogle = {
+                id: Number(req.user.id),
+                tipo: req.user.tipo,
+                versaoSessao: req.user.versao_sessao,
+                cadastroCompleto: req.user.cadastro_completo
+            };
 
-            await db.query(
-                `INSERT INTO tokens_app (token, usuario_id, destino, expira_em)
-                 VALUES ($1, $2, $3, $4)`,
-                [token, req.user.id, destino, expiraEm]
-            );
 
-            // Redirect direto (sem <script> inline, que o CSP bloqueia).
-            return res.redirect(`bixuco://auth?token=${token}`);
+            // Define para onde essa conta deve ir
+            let destino;
+
+            if (
+                !usuarioGoogle.tipo ||
+                usuarioGoogle.tipo === "pendente"
+            ) {
+
+                destino = "/onboarding-google";
+
+            } else if (
+                usuarioGoogle.tipo === "pai" &&
+                !usuarioGoogle.cadastroCompleto
+            ) {
+
+                destino = "/AdicionarC";
+
+            } else if (
+                usuarioGoogle.tipo === "psicologo"
+            ) {
+
+                destino = "/homeTerapeuta";
+
+            } else {
+
+                destino = "/home";
+
+            }
+
+
+            const eraApp =
+                req.query.state === "app";
+
+
+            // =============================================
+            // LOGIN PELO APP
+            // =============================================
+
+            if (eraApp) {
+
+                const token =
+                    crypto.randomBytes(32).toString("hex");
+
+                const expiraEm =
+                    new Date(
+                        Date.now() + 5 * 60 * 1000
+                    );
+
+
+                await db.query(
+                    `
+                    INSERT INTO tokens_app
+                    (
+                        token,
+                        usuario_id,
+                        destino,
+                        expira_em
+                    )
+                    VALUES ($1, $2, $3, $4)
+                    `,
+                    [
+                        token,
+                        usuarioGoogle.id,
+                        destino,
+                        expiraEm
+                    ]
+                );
+
+
+                // O navegador usado para autenticar o app
+                // não precisa permanecer logado.
+                return req.session.destroy(() => {
+
+                    return res.redirect(
+                        `bixuco://auth?token=${token}`
+                    );
+
+                });
+
+            }
+
+
+            // =============================================
+            // LOGIN GOOGLE PELO NAVEGADOR
+            // =============================================
+
+            // Destrói completamente a sessão anterior
+            // e cria uma nova ID de sessão.
+            req.session.regenerate((erroRegen) => {
+
+                if (erroRegen) {
+
+                    console.error(
+                        "Erro ao regenerar sessão Google:",
+                        erroRegen
+                    );
+
+                    return res.redirect(
+                        "/logar?erro=sessao"
+                    );
+
+                }
+
+
+                // A partir daqui, a sessão Bixuco
+                // é a ÚNICA identidade persistida.
+                req.session.usuarioId =
+                    usuarioGoogle.id;
+
+                req.session.tipo =
+                    usuarioGoogle.tipo;
+
+                req.session.versaoSessao =
+                    usuarioGoogle.versaoSessao;
+
+                req.session.loginMetodo =
+                    "google";
+
+
+                // Garante que a sessão chegou no PostgreSQL
+                // ANTES de mandar o navegador para outra página.
+                req.session.save((erroSave) => {
+
+                    if (erroSave) {
+
+                        console.error(
+                            "Erro ao salvar sessão Google:",
+                            erroSave
+                        );
+
+                        return res.redirect(
+                            "/logar?erro=sessao"
+                        );
+
+                    }
+
+
+                    console.log(
+                        "[AUTH] Login Google concluído",
+                        {
+                            usuarioId:
+                                usuarioGoogle.id,
+
+                            tipo:
+                                usuarioGoogle.tipo,
+
+                            sessionID:
+                                req.sessionID
+                        }
+                    );
+
+
+                    return res.redirect(destino);
+
+                });
+
+            });
+
 
         } catch (erro) {
-            console.log("Erro ao gerar token de login do app:", erro);
-            return res.redirect("/logar");
+
+            console.error(
+                "Erro no callback do Google:",
+                erro
+            );
+
+            return res.redirect(
+                "/logar?erro=google"
+            );
+
         }
 
     }
@@ -1142,11 +1429,54 @@ app.get("/auth/app-token", async (req, res) => {
 
         const dados = resultado.rows[0];
 
-        req.session.usuarioId    = dados.usuario_id;
-        req.session.tipo         = dados.tipo;
-        req.session.versaoSessao = dados.versao_sessao;
+        req.session.regenerate((erroRegen) => {
 
-        return res.redirect(dados.destino || "/home");
+            if (erroRegen) {
+
+                console.error(
+                    "Erro ao regenerar sessão do app:",
+                    erroRegen
+                );
+
+                return res.redirect("/logar");
+
+            }
+
+
+            req.session.usuarioId =
+                Number(dados.usuario_id);
+
+            req.session.tipo =
+                dados.tipo;
+
+            req.session.versaoSessao =
+                dados.versao_sessao;
+
+            req.session.loginMetodo =
+                "app";
+
+
+            req.session.save((erroSave) => {
+
+                if (erroSave) {
+
+                    console.error(
+                        "Erro ao salvar sessão do app:",
+                        erroSave
+                    );
+
+                    return res.redirect("/logar");
+
+                }
+
+
+                return res.redirect(
+                    dados.destino || "/home"
+                );
+
+            });
+
+        });
 
     } catch (erro) {
         console.log("Erro ao validar token do app:", erro);
