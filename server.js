@@ -293,7 +293,7 @@ cron.schedule('0 4 * * *', async () => {
 // GET — busca preferências
 app.get("/api/preferencias", estaLogado, async (req, res) => {
     try {
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const usuarioId = req.authUser.id;
         const resultado = await db.query(
             `SELECT notif_lembrete, notif_novidades
              FROM preferencias_usuario
@@ -367,7 +367,7 @@ app.use(express.json());
 // POST — salva preferências (terapeuta e pai compartilham a mesma tabela)
 app.post("/api/preferencias", estaLogado, async (req, res) => {
     try {
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const usuarioId = req.authUser.id;
         const { lembreteRelatorio, novaSolicitacao } = req.body;
 
         if(!req.body){
@@ -449,7 +449,7 @@ async function estaLogado(req, res, next) {
             console.error(
                 "[AUTH] SESSÃO INCONSISTENTE DETECTADA",
                 {
-                    sessionID: req.sessionID,
+                    sessionRef: req.sessionID ? req.sessionID.slice(-8) : null,
                     idSessao,
                     idPassport,
                     rota: req.originalUrl
@@ -583,6 +583,19 @@ async function estaLogado(req, res, next) {
         // Essa passa a ser a identidade confiável da requisição.
         req.authUser = usuario;
 
+        // Diagnóstico opcional para os testes de autenticação.
+        // Ative temporariamente com AUTH_DEBUG=true.
+        // Não registra e-mail, cookie nem o ID completo da sessão.
+        if (process.env.AUTH_DEBUG === "true") {
+            console.log("[AUTH DEBUG]", {
+                rota: req.originalUrl,
+                usuarioId: usuario.id,
+                tipo: usuario.tipo,
+                loginMetodo: req.session.loginMetodo || "desconhecido",
+                sessionRef: req.sessionID ? req.sessionID.slice(-8) : null
+            });
+        }
+
 
         return next();
 
@@ -616,9 +629,25 @@ async function estaLogado(req, res, next) {
 }
 
 function exigeAdmin(req, res, next) {
-    const tipo = req.session.tipo || (req.user && req.user.tipo);
-    if (tipo === 'admin') return next();
-    return res.status(403).send("Acesso negado.");
+    const tipo = req.authUser?.tipo;
+
+    if (tipo === "admin") {
+        return next();
+    }
+
+    if (req.originalUrl.startsWith("/api/")) {
+        return res.status(403).json({ erro: "Acesso restrito ao administrador." });
+    }
+
+    if (tipo === "psicologo") {
+        return res.redirect("/hometerapeuta");
+    }
+
+    if (tipo === "pai") {
+        return res.redirect("/home");
+    }
+
+    return res.redirect("/logar");
 }
 
 // Autentica o hardware do Bixuco. Sem isso, qualquer pessoa na internet
@@ -780,48 +809,74 @@ const limitarRecuperacaoPorIp = criarLimitadorPorIp(
 );
 
 function exigeTerapeuta(req, res, next) {
-    const tipo = req.session.tipo || (req.user && req.user.tipo);
-    if (tipo === 'psicologo') return next();
-    return res.redirect("/");
+
+    const tipo = req.authUser?.tipo;
+
+    if (tipo === "psicologo") {
+        return next();
+    }
+
+    console.warn(
+        "[AUTH] Acesso bloqueado à área do terapeuta",
+        {
+            usuarioId: req.authUser?.id || null,
+            tipo: tipo || null,
+            rota: req.originalUrl,
+            sessionRef: req.sessionID ? req.sessionID.slice(-8) : null
+        }
+    );
+
+    if (req.originalUrl.startsWith("/api/")) {
+        return res.status(403).json({
+            erro: "Esta área é exclusiva para terapeutas."
+        });
+    }
+
+    if (tipo === "pai") {
+        return res.redirect("/home");
+    }
+
+    if (tipo === "admin") {
+        return res.redirect("/admin");
+    }
+
+    return res.redirect("/logar");
 }
 
-// Planos e checkout são exclusivos do usuário responsável (tipo "pai").
-// A checagem também existe no backend para impedir que terapeuta/admin
-// abra a tela ou inicie um pagamento digitando a URL manualmente.
-async function exigeResponsavel(req, res, next) {
-    try {
-        let tipo = req.session.tipo || (req.user && req.user.tipo);
 
-        if (!tipo) {
-            const usuarioId = req.session.usuarioId || (req.user && req.user.id);
-            if (usuarioId) {
-                const resultado = await db.query(
-                    `SELECT tipo FROM usuarios WHERE id = $1`,
-                    [usuarioId]
-                );
-                tipo = resultado.rows[0]?.tipo;
-            }
-        }
+function exigeResponsavel(req, res, next) {
 
-        if (tipo === "pai") return next();
+    const tipo = req.authUser?.tipo;
 
-        if (req.originalUrl.startsWith("/api/")) {
-            return res.status(403).json({
-                erro: "A contratação de planos está disponível somente para o usuário responsável."
-            });
-        }
-
-        return res.redirect(tipo === "psicologo" ? "/hometerapeuta" : "/");
-
-    } catch (erro) {
-        console.log("Erro ao validar usuário responsável:", erro);
-
-        if (req.originalUrl.startsWith("/api/")) {
-            return res.status(500).json({ erro: "Não foi possível validar o tipo de usuário." });
-        }
-
-        return res.redirect("/");
+    if (tipo === "pai") {
+        return next();
     }
+
+    console.warn(
+        "[AUTH] Acesso bloqueado à área do responsável",
+        {
+            usuarioId: req.authUser?.id || null,
+            tipo: tipo || null,
+            rota: req.originalUrl,
+            sessionRef: req.sessionID ? req.sessionID.slice(-8) : null
+        }
+    );
+
+    if (req.originalUrl.startsWith("/api/")) {
+        return res.status(403).json({
+            erro: "Esta área é exclusiva para responsáveis."
+        });
+    }
+
+    if (tipo === "psicologo") {
+        return res.redirect("/hometerapeuta");
+    }
+
+    if (tipo === "admin") {
+        return res.redirect("/admin");
+    }
+
+    return res.redirect("/logar");
 }
 
 function chavesIguaisSeguro(chaveRecebida, chaveEsperada) {
@@ -843,46 +898,79 @@ function chavesIguaisSeguro(chaveRecebida, chaveEsperada) {
 // MIDDLEWARE — verifica plano do usuário
 // ─────────────────────────────────────────
 async function verificarPlano(req, res, next) {
-    const usuarioId = req.session.usuarioId || (req.user && req.user.id);
-    if (!usuarioId) return res.redirect("/logar");
+    const usuarioId = req.authUser?.id;
+    const tipo = req.authUser?.tipo;
+
+    if (!usuarioId) {
+        if (req.originalUrl.startsWith("/api/")) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        return res.redirect("/logar");
+    }
 
     try {
-        // terapeutas não precisam de assinatura
-        if (req.session.tipo === 'psicologo' || (req.user && req.user.tipo === 'psicologo') || 
-        req.session.tipo === 'admin' || (req.user && req.user.tipo === 'admin')) {
-            req.plano = 'terapeuta';
+        // Endpoint compartilhado /api/meu-plano ainda pode consultar
+        // contas profissionais, mas rotas de responsável são bloqueadas
+        // por exigeResponsavel / precisaPlano.
+        if (tipo === "psicologo" || tipo === "admin") {
+            req.plano = "terapeuta";
             return next();
         }
 
         const resultado = await db.query(
-            `SELECT nome_plano FROM assinaturas 
-             WHERE usuario_id = $1 AND ativo = true 
-             ORDER BY criado_em DESC LIMIT 1`,
+            `SELECT nome_plano
+             FROM assinaturas
+             WHERE usuario_id = $1
+             AND ativo = TRUE
+             ORDER BY criado_em DESC
+             LIMIT 1`,
             [usuarioId]
         );
 
-        req.plano = resultado.rows.length > 0 
+        req.plano = resultado.rows.length > 0
             ? resultado.rows[0].nome_plano.toLowerCase()
-            : 'gratis';   // 🔧 antes: 'gratuito' / não existia consistência
+            : "gratis";
 
-        next();
+        return next();
+
     } catch (erro) {
-        console.error(erro);
-        req.plano = 'gratis';   // 🔧 antes: dava erro 500 e travava a página
-        next();
+        console.error("Erro ao verificar plano:", erro);
+        req.plano = "gratis";
+        return next();
     }
 }
 
-// exige plano medio ou superior
+// exige plano médio ou superior — somente responsável
 function exigeEconomico(req, res, next) {
-    if (['medio', 'completo', 'terapeuta'].includes(req.plano)) return next();
-    return res.status(403).json({ erro: "plano_insuficiente", planoAtual: req.plano });
+    if (req.authUser?.tipo !== "pai") {
+        return res.status(403).json({ erro: "Esta área é exclusiva para responsáveis." });
+    }
+
+    if (["medio", "completo"].includes(req.plano)) {
+        return next();
+    }
+
+    return res.status(403).json({
+        erro: "plano_insuficiente",
+        planoAtual: req.plano
+    });
 }
 
-// exige plano completo
+// exige plano completo — somente responsável
 function exigePremium(req, res, next) {
-    if (['completo', 'terapeuta'].includes(req.plano)) return next();
-    return res.status(403).json({ erro: "plano_insuficiente", planoAtual: req.plano });
+    if (req.authUser?.tipo !== "pai") {
+        return res.status(403).json({ erro: "Esta área é exclusiva para responsáveis." });
+    }
+
+    if (req.plano === "completo") {
+        return next();
+    }
+
+    return res.status(403).json({
+        erro: "plano_insuficiente",
+        planoAtual: req.plano
+    });
 }
 
 
@@ -904,14 +992,14 @@ app.get("/api/meu-plano", estaLogado, verificarPlano, (req, res) => {
 });
 
 
-app.get("/relatorios", estaLogado, precisaPlano("medio"), (req, res) => {
+app.get("/relatorios", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "relatorios.html"));
 
 });
 
 
-app.get("/AdicionarC", estaLogado, (req, res) => {
+app.get("/AdicionarC", estaLogado, exigeResponsavel, (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "AdicionarC.html"));
 
@@ -924,13 +1012,18 @@ function veioDoApp(req) {
 }
 
 app.get("/", (req, res) => {
-    const usuarioId = req.session.usuarioId || (req.user && req.user.id);
-    const tipo = req.session.tipo || (req.user && req.user.tipo);
+    // Depois do login, a sessão Bixuco é a única fonte persistida
+    // de identidade. Não usamos req.user como fallback aqui.
+    const usuarioId = req.session?.usuarioId || null;
+    const tipo = req.session?.tipo || null;
 
     if (usuarioId) {
         if (tipo === "psicologo") return res.redirect("/hometerapeuta");
         if (tipo === "admin") return res.redirect("/admin");
-        return res.redirect("/home");
+        if (tipo === "pai") return res.redirect("/home");
+
+        // Sessão existente, mas com tipo inválido/inesperado.
+        return req.session.destroy(() => res.redirect("/logar"));
     }
 
     // Dentro do app não existe "landing page" — quem não está logado
@@ -968,7 +1061,7 @@ app.get("/CriarContaSenha", (req, res) => {
 });
 
 
-app.get("/QuestionarioP", estaLogado, (req, res) => {
+app.get("/QuestionarioP", estaLogado, exigeResponsavel, (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "QuestionarioP.html"));
 
@@ -1001,17 +1094,17 @@ app.get("/planos", estaLogado, exigeResponsavel, (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "planos.html"));
 });
 
-app.get("/sobreSemAssinatura", estaLogado, (req, res) => {
+app.get("/sobreSemAssinatura", estaLogado, exigeResponsavel, (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "SobreSemAssinatura.html"));
 });
 
-app.get("/configuracoesSemAssinatura", estaLogado, (req, res) => {
+app.get("/configuracoesSemAssinatura", estaLogado, exigeResponsavel, (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "ConfiguracoesSemAssinatura.html"));
 });
 
 
 
-app.get("/perfilSemAssinatura", estaLogado, (req, res) => {
+app.get("/perfilSemAssinatura", estaLogado, exigeResponsavel, (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "PerfilSemAssinatura.html"));
 });
 
@@ -1028,7 +1121,7 @@ app.get("/onboarding-google", estaLogado, (req, res) => {
 
 });
 
-app.get("/FormularioEntrega", estaLogado, precisaPlano("medio"), (req, res) => {
+app.get("/FormularioEntrega", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "FormularioEntrega.html"));
 });
 
@@ -1036,23 +1129,23 @@ app.get("/admin/pedidos", estaLogado, exigeAdmin, (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "AdminPedidos.html"));
 });
 
-app.get("/PedidoConfirmado", estaLogado, precisaPlano("medio"), (req, res) => {
+app.get("/PedidoConfirmado", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "PedidoConfirmado.html"));
 });
 
-app.get("/AcompanharPedido", estaLogado, precisaPlano("medio"), (req, res) => {
+app.get("/AcompanharPedido", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "AcompanharPedido.html"));
 });
 
-app.get("/BixucoEntregue", estaLogado, precisaPlano("medio"), (req, res) => {
+app.get("/BixucoEntregue", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "BixucoEntregue.html"));
 });
 
-app.get("/VincularIdentidade", estaLogado, precisaPlano("medio"), (req, res) => {
+app.get("/VincularIdentidade", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "VincularIdentidade.html"));
 });
 
-app.get("/VincularSucesso", estaLogado, precisaPlano("medio"), (req, res) => {
+app.get("/VincularSucesso", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "VincularSucesso.html"));
 });
 
@@ -1066,23 +1159,23 @@ app.get("/PerfilTerapeuta", estaLogado, exigeTerapeuta, (req, res) => {
 
 
 // 🔒 FIX 2 (aplicado): /home agora exige login
-app.get("/home", estaLogado, precisaPlano("medio"), (req, res) => {
+app.get("/home", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "home.html"));
 });
 
-app.get("/Transicao1", estaLogado, (req, res) => {
+app.get("/Transicao1", estaLogado, exigeResponsavel, (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "Transicao1.html"));
 });
 
-app.get("/Transicao2", estaLogado, (req, res) => {
+app.get("/Transicao2", estaLogado, exigeResponsavel, (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "Transicao2.html"));
 });
 
-app.get("/Transicao3", estaLogado, (req, res) => {
+app.get("/Transicao3", estaLogado, exigeResponsavel, (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "Transicao3.html"));
 });
 
-app.get("/Transicao4", estaLogado, (req, res) => {
+app.get("/Transicao4", estaLogado, exigeResponsavel, (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "Transicao4.html"));
 });
 
@@ -1612,7 +1705,7 @@ app.post("/api/planos/assinar", estaLogado, exigeResponsavel, async (req, res) =
 
     try {
 
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const usuarioId = req.authUser.id;
 
         if (!usuarioId) {
             return res.status(401).json({ erro: "Não autenticado." });
@@ -1693,8 +1786,8 @@ app.post("/api/planos/assinar", estaLogado, exigeResponsavel, async (req, res) =
 });
 
 
-app.post('/api/pedidos/endereco', estaLogado, precisaPlano("medio"), async (req, res) => {
-    const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+app.post('/api/pedidos/endereco', estaLogado, exigeResponsavel, precisaPlano("medio"), async (req, res) => {
+    const usuarioId = req.authUser.id;
     const { cep, rua, numero, complemento, bairro, cidade, estado } = req.body;
 
     try {
@@ -1713,8 +1806,8 @@ app.post('/api/pedidos/endereco', estaLogado, precisaPlano("medio"), async (req,
     }
 });
 
-app.get('/api/pedidos/status', estaLogado, precisaPlano("medio"), async (req, res) => {
-    const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+app.get('/api/pedidos/status', estaLogado, exigeResponsavel, precisaPlano("medio"), async (req, res) => {
+    const usuarioId = req.authUser.id;
 
     try {
         const resultado = await db.query(
@@ -1730,8 +1823,8 @@ app.get('/api/pedidos/status', estaLogado, precisaPlano("medio"), async (req, re
     }
 });
 
-app.get('/api/bixuco/status', estaLogado, precisaPlano("medio"), async (req, res) => {
-    const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+app.get('/api/bixuco/status', estaLogado, exigeResponsavel, precisaPlano("medio"), async (req, res) => {
+    const usuarioId = req.authUser.id;
 
     try {
         const dispositivo = await db.query(
@@ -1763,8 +1856,8 @@ app.get('/api/bixuco/status', estaLogado, precisaPlano("medio"), async (req, res
     }
 });
 
-app.post('/api/dispositivos/vincular', estaLogado, precisaPlano("medio"), async (req, res) => {
-    const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+app.post('/api/dispositivos/vincular', estaLogado, exigeResponsavel, precisaPlano("medio"), async (req, res) => {
+    const usuarioId = req.authUser.id;
     const { device_id } = req.body;
 
     if (!device_id || device_id.trim().length === 0) {
@@ -1811,7 +1904,7 @@ app.post('/api/dispositivos/vincular', estaLogado, precisaPlano("medio"), async 
 app.get("/pagamento/sucesso", estaLogado, exigeResponsavel, async (req, res) => {
 
     try {
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const usuarioId = req.authUser.id;
         const paymentId = req.query.payment_id || req.query.collection_id;
 
         // Nunca libera a home apenas porque a URL contém status=approved.
@@ -1986,7 +2079,7 @@ app.post("/api/notificacoes/:id/marcar-lida", estaLogado, async (req, res) => {
 
     try {
 
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const usuarioId = req.authUser.id;
         const notificacaoId = req.params.id;
 
         if (!usuarioId) {
@@ -2011,15 +2104,53 @@ app.post("/api/notificacoes/:id/marcar-lida", estaLogado, async (req, res) => {
 // Bloqueia rotas para usuários sem o plano mínimo necessário
 function precisaPlano(planoMinimo) {
 
-    const hierarquia = { "gratis": 0, "medio": 1, "completo": 2, "terapeuta": 99 };
+    const hierarquia = {
+        gratis: 0,
+        medio: 1,
+        completo: 2
+    };
 
     return async (req, res, next) => {
+
+        // Defesa extra: nenhuma conta que não seja responsável
+        // pode usar uma rota protegida por plano.
+        if (req.authUser?.tipo !== "pai") {
+
+            if (req.originalUrl.startsWith("/api/")) {
+                return res.status(403).json({
+                    erro: "Esta área é exclusiva para responsáveis."
+                });
+            }
+
+            if (req.authUser?.tipo === "psicologo") {
+                return res.redirect("/hometerapeuta");
+            }
+
+            if (req.authUser?.tipo === "admin") {
+                return res.redirect("/admin");
+            }
+
+            return res.redirect("/logar");
+        }
+
         await verificarPlano(req, res, async () => {
 
-            const nivelUsuario = hierarquia[(req.plano || "gratis").toLowerCase()] ?? 0;
-            const nivelMinimo  = hierarquia[(planoMinimo || "medio").toLowerCase()] ?? 1;
+            const nivelUsuario =
+                hierarquia[(req.plano || "gratis").toLowerCase()] ?? 0;
 
-            if (nivelUsuario >= nivelMinimo) return next();
+            const nivelMinimo =
+                hierarquia[(planoMinimo || "medio").toLowerCase()] ?? 1;
+
+            if (nivelUsuario >= nivelMinimo) {
+                return next();
+            }
+
+            if (req.originalUrl.startsWith("/api/")) {
+                return res.status(403).json({
+                    erro: "plano_insuficiente",
+                    planoAtual: req.plano
+                });
+            }
 
             return res.redirect("/planos");
         });
@@ -2032,7 +2163,7 @@ app.post("/api/onboarding-google", estaLogado, async (req, res) => {
 
     try {
 
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const usuarioId = req.authUser.id;
 
         if (!usuarioId) {
             return res.status(401).json({ erro: "Não autenticado." });
@@ -2150,11 +2281,11 @@ app.get("/admin", estaLogado, exigeAdmin, (req, res) => {
    ROTA — ATUALIZAR CRIANÇA (nome / foto)
 ========================== */
 
-app.post("/api/crianca/atualizar", estaLogado, upload.single("fotoCrianca"), async (req, res) => {
+app.post("/api/crianca/atualizar", estaLogado, exigeResponsavel, upload.single("fotoCrianca"), async (req, res) => {
 
     try {
 
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const usuarioId = req.authUser.id;
 
         if (!usuarioId) {
             return res.status(401).json({ erro: "Não autenticado." });
@@ -2499,11 +2630,11 @@ function marcarEventosComCrise(eventos) {
     return pontos;
 }
 
-app.get("/api/relatorio-diario/grafico", estaLogado, async (req, res) => {
+app.get("/api/relatorio-diario/grafico", estaLogado, exigeResponsavel, async (req, res) => {
 
     try {
 
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const usuarioId = req.authUser.id;
 
         if (!usuarioId) {
             return res.status(401).json({ erro: "Não autenticado." });
@@ -2831,11 +2962,11 @@ async function enviarCodigo2FA(usuario) {
 
 }
 
-app.post("/api/perfil-sensorial", estaLogado, async (req, res) => {
+app.post("/api/perfil-sensorial", estaLogado, exigeResponsavel, async (req, res) => {
 
     try {
 
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const usuarioId = req.authUser.id;
 
         if (!usuarioId) {
             return res.status(401).json({ erro: "Não autenticado." });
@@ -2915,7 +3046,7 @@ app.get("/api/configuracoes/notificacoes", estaLogado, async (req, res) => {
 
     try {
 
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const usuarioId = req.authUser.id;
 
         if (!usuarioId) {
             return res.status(401).json({ erro: "Não autenticado." });
@@ -2951,11 +3082,11 @@ app.get("/api/configuracoes/notificacoes", estaLogado, async (req, res) => {
 
 });
 
-app.post("/api/adicionar-crianca", estaLogado, upload.single("fotoCrianca"), async (req, res) => {
+app.post("/api/adicionar-crianca", estaLogado, exigeResponsavel, upload.single("fotoCrianca"), async (req, res) => {
 
     try {
 
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const usuarioId = req.authUser.id;
 
         if (!usuarioId) {
             return res.status(401).json({ erro: "Não autenticado." });
@@ -3272,7 +3403,7 @@ app.post("/api/alterar-senha", estaLogado, async (req, res) => {
 
     try {
 
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const usuarioId = req.authUser.id;
 
         if (!usuarioId) {
             return res.status(401).json({ erro: "Não autenticado." });
@@ -3407,7 +3538,7 @@ app.post("/redefinir-senha", async (req, res) => {
 });
 
 
-app.get("/RelatorioDiario", estaLogado,precisaPlano("medio"), (req, res) => {
+app.get("/RelatorioDiario", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "relatoriodiario.html"));
 
@@ -3416,11 +3547,11 @@ app.get("/RelatorioDiario", estaLogado,precisaPlano("medio"), (req, res) => {
 // 🔧 Rota POST — salva o relatório preenchido pelo usuário
 // O frontend chamava /salvar-relatorio que nunca existiu
 // Agora a rota correta é /api/relatorio
-app.get("/api/relatorios", estaLogado, async (req, res) => {
+app.get("/api/relatorios", estaLogado, exigeResponsavel, async (req, res) => {
 
     try {
 
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const usuarioId = req.authUser.id;
 
         if (!usuarioId) {
             return res.status(401).json({ erro: "Não autenticado." });
@@ -3806,11 +3937,11 @@ function formatarHorarioEvento(data) {
     });
 }
 
-app.get("/api/alertas", estaLogado, async (req, res) => {
+app.get("/api/alertas", estaLogado, exigeResponsavel, async (req, res) => {
 
     try {
 
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const usuarioId = req.authUser.id;
 
         if (!usuarioId) {
             return res.status(401).json({ erro: "Não autenticado." });
@@ -4110,11 +4241,11 @@ app.post("/cadastro-finalizar", limitarCriacaoConta, async (req, res) => {
 
 // 🔧 FIX 1: Rota /api/home-terapeuta que o frontend chama
 // Retorna nome, foto, contadores, solicitações pendentes e atividade recente
-app.get("/api/home-terapeuta", estaLogado, async (req, res) => {
+app.get("/api/home-terapeuta", estaLogado, exigeTerapeuta, async (req, res) => {
 
     try {
 
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const usuarioId = req.authUser.id;
 
         if (!usuarioId) {
 
@@ -4273,11 +4404,11 @@ app.get("/api/home-terapeuta", estaLogado, async (req, res) => {
 
 // 🔧 FIX 2: Rota /api/vinculos/responder que o frontend chama
 // ao clicar em Aceitar ou Recusar nas solicitações pendentes
-app.post("/api/vinculos/responder", estaLogado, async (req, res) => {
+app.post("/api/vinculos/responder", estaLogado, exigeTerapeuta, async (req, res) => {
 
     try {
 
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const usuarioId = req.authUser.id;
 
         if (!usuarioId) {
             return res.status(401).json({ erro: "Não autenticado." });
@@ -4336,9 +4467,9 @@ app.post("/api/vinculos/responder", estaLogado, async (req, res) => {
 // ─────────────────────────────────────────
 // VINCULAR TERAPEUTA — enviar pedido
 // ─────────────────────────────────────────
-app.post("/api/vinculos/solicitar", estaLogado, verificarPlano, exigePremium, async (req, res) => {
+app.post("/api/vinculos/solicitar", estaLogado, exigeResponsavel, verificarPlano, exigePremium, async (req, res) => {
     const { codigoTerapeuta } = req.body;
-    const responsavelId = req.session.usuarioId || req.session.userId || req.session.usuario?.id || (req.user && req.user.id);
+    const responsavelId = req.authUser.id;
     
 
     if (!responsavelId) {
@@ -4419,8 +4550,8 @@ app.post("/api/vinculos/solicitar", estaLogado, verificarPlano, exigePremium, as
 // ─────────────────────────────────────────
 // CANCELAR PEDIDO PENDENTE
 // ─────────────────────────────────────────
-app.post("/api/vinculos/cancelar", estaLogado, verificarPlano, exigePremium, async (req, res) => {
-    const responsavelId = req.session.usuarioId || req.session.userId || req.session.usuario?.id || (req.user && req.user.id);
+app.post("/api/vinculos/cancelar", estaLogado, exigeResponsavel, verificarPlano, exigePremium, async (req, res) => {
+    const responsavelId = req.authUser.id;
 
     if (!responsavelId) {
         return res.status(401).json({ erro: "Não autenticado." });
@@ -4442,8 +4573,8 @@ app.post("/api/vinculos/cancelar", estaLogado, verificarPlano, exigePremium, asy
 // ─────────────────────────────────────────
 // REMOVER TERAPEUTA VINCULADO
 // ─────────────────────────────────────────
-app.post("/api/vinculos/remover", estaLogado, estaLogado, verificarPlano, exigePremium, async (req, res) => {
-    const responsavelId = req.session.usuarioId || req.session.userId || req.session.usuario?.id || (req.user && req.user.id);
+app.post("/api/vinculos/remover", estaLogado, exigeResponsavel, verificarPlano, exigePremium, async (req, res) => {
+    const responsavelId = req.authUser.id;
 
     if (!responsavelId) {
         return res.status(401).json({ erro: "Não autenticado." });
@@ -4471,8 +4602,8 @@ app.post("/api/vinculos/remover", estaLogado, estaLogado, verificarPlano, exigeP
 // ─────────────────────────────────────────
 // BUSCAR STATUS DO VÍNCULO ATUAL
 // ─────────────────────────────────────────
-app.get("/api/vinculos/status", estaLogado, async (req, res) => {
-    const responsavelId = req.session.usuarioId || req.session.userId || req.session.usuario?.id || (req.user && req.user.id);
+app.get("/api/vinculos/status", estaLogado, exigeResponsavel, async (req, res) => {
+    const responsavelId = req.authUser.id;
 
     if (!responsavelId) {
         return res.status(401).json({ erro: "Não autenticado." });
@@ -4722,7 +4853,7 @@ app.post("/api/2fa/reenviar", limitarReenvio2FA, async (req, res) => {
 ========================== */
 
 // 🔧 FIX 7: Rota GET /perfil que não existia no server.js
-app.get("/perfil", estaLogado, precisaPlano("medio"), (req, res) => {
+app.get("/perfil", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "perfil.html"));
 
@@ -4737,7 +4868,7 @@ app.get("/perfil", estaLogado, precisaPlano("medio"), (req, res) => {
 ========================== */
 
 // 🔧 Rota GET /configuracoes que não existia no server.js
-app.get("/configuracoes", estaLogado, precisaPlano("medio"), (req, res) => {
+app.get("/configuracoes", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "configuracoes.html"));
 
@@ -4753,7 +4884,7 @@ app.post("/api/configuracoes/notificacoes", estaLogado, async (req, res) => {
 
     try {
 
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const usuarioId = req.authUser.id;
 
         if (!usuarioId) {
             return res.status(401).json({ erro: "Não autenticado." });
@@ -4812,11 +4943,11 @@ app.post("/api/configuracoes/notificacoes", estaLogado, async (req, res) => {
    ROTA POST — SALVAR RELATÓRIO DIÁRIO
 ========================== */
 
-app.post("/api/relatorio", estaLogado,precisaPlano("medio"), async (req, res) => {
+app.post("/api/relatorio", estaLogado, exigeResponsavel, precisaPlano("medio"), async (req, res) => {
 
     try {
 
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const usuarioId = req.authUser.id;
 
         if (!usuarioId) {
             return res.status(401).json({ erro: "Não autenticado." });
@@ -4925,8 +5056,8 @@ app.post("/api/relatorio", estaLogado,precisaPlano("medio"), async (req, res) =>
 });
 
 
-app.post("/api/relatorios/:id/marcar-visto", estaLogado, async (req, res) => {
-    const usuarioId   = req.session.usuarioId || (req.user && req.user.id);
+app.post("/api/relatorios/:id/marcar-visto", estaLogado, exigeTerapeuta, async (req, res) => {
+    const usuarioId   = req.authUser.id;
     const relatorioId = req.params.id;
 
     try {
@@ -4957,7 +5088,7 @@ app.delete("/api/excluir-conta", estaLogado, async (req, res) => {
 
     try {
 
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const usuarioId = req.authUser.id;
 
         if (!usuarioId) {
             return res.status(401).json({ erro: "Não autenticado." });
@@ -5098,7 +5229,7 @@ app.get("/api/perfil", estaLogado, async (req, res) => {
 
     try {
 
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const usuarioId = req.authUser.id;
 
         if (!usuarioId) {
             return res.status(401).json({ erro: "Não autenticado." });
@@ -5236,7 +5367,7 @@ app.post("/api/perfil/atualizar", estaLogado, upload.single("fotoPerfil"), async
 
     try {
 
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const usuarioId = req.authUser.id;
 
         if (!usuarioId) {
             return res.status(401).json({ erro: "Não autenticado." });
@@ -5314,7 +5445,7 @@ app.post("/api/perfil/atualizar", estaLogado, upload.single("fotoPerfil"), async
 
 // 🔧 Rota GET /sobre que não existia no server.js
 // Protegida com estaLogado para manter padrão das outras páginas
-app.get("/sobre", estaLogado, precisaPlano("medio"), (req, res) => {
+app.get("/sobre", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "sobre.html"));
 
@@ -5345,12 +5476,12 @@ app.get('/logout', (req, res) => {
    API — DADOS DA HOME
 ========================== */
 
-app.get('/api/home', estaLogado, async (req, res) => {
+app.get('/api/home', estaLogado, exigeResponsavel, async (req, res) => {
 
     try {
 
         // Pega o id do usuário logado — pode vir do Passport (Google) ou do login manual
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const usuarioId = req.authUser.id;
 
         if (!usuarioId) {
             return res.status(401).json({ erro: "Não autenticado." });
@@ -5437,7 +5568,7 @@ app.get("/api/notificacoes", estaLogado, async (req, res) => {
 
     try {
 
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const usuarioId = req.authUser.id;
 
         if (!usuarioId) {
             return res.status(401).json({ erro: "Não autenticado." });
@@ -5470,7 +5601,7 @@ app.post("/api/notificacoes/marcar-lidas", estaLogado, async (req, res) => {
 
     try {
 
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const usuarioId = req.authUser.id;
 
         if (!usuarioId) {
             return res.status(401).json({ erro: "Não autenticado." });
@@ -5499,11 +5630,11 @@ app.post("/api/notificacoes/marcar-lidas", estaLogado, async (req, res) => {
 // 🔧 FIX 8: Rota para o calendário saber quais dias tiveram relatório
 // O frontend pode chamar /api/relatorios/dias?mes=6&ano=2026
 // e marcar os círculos verdes nos dias corretos
-app.get('/api/relatorios/dias', estaLogado, async (req, res) => {
+app.get('/api/relatorios/dias', estaLogado, exigeResponsavel, async (req, res) => {
 
     try {
 
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const usuarioId = req.authUser.id;
 
         const mes = parseInt(req.query.mes) || new Date().getMonth() + 1;
         const ano = parseInt(req.query.ano) || new Date().getFullYear();
@@ -5542,8 +5673,8 @@ app.get('/api/relatorios/dias', estaLogado, async (req, res) => {
 // LISTA DE PACIENTES COM ÚLTIMO RELATÓRIO
 // usada pela tela de seleção de relatórios do terapeuta
 // ─────────────────────────────────────────
-app.get("/api/pacientes-relatorios", estaLogado, async (req, res) => {
-    const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+app.get("/api/pacientes-relatorios", estaLogado, exigeTerapeuta, async (req, res) => {
+    const usuarioId = req.authUser.id;
 
     try {
         const resultado = await db.query(
@@ -5581,11 +5712,11 @@ app.get("/api/pacientes-relatorios", estaLogado, async (req, res) => {
 });
 
 
-app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
+app.get("/api/relatorio-paciente", estaLogado, exigeTerapeuta, async (req, res) => {
 
     try {
 
-        const terapeutaId = req.session.usuarioId || (req.user && req.user.id);
+        const terapeutaId = req.authUser.id;
         const pacienteId  = parseInt(req.query.paciente);
 
         if (!terapeutaId) {
@@ -5881,11 +6012,11 @@ app.get("/api/relatorio-paciente", estaLogado, async (req, res) => {
 
 });
 
-app.get("/api/relatorio-paciente/dias", estaLogado, async (req, res) => {
+app.get("/api/relatorio-paciente/dias", estaLogado, exigeTerapeuta, async (req, res) => {
 
     try {
 
-        const terapeutaId = req.session.usuarioId || (req.user && req.user.id);
+        const terapeutaId = req.authUser.id;
         const pacienteId  = parseInt(req.query.paciente);
         const mes         = req.query.mes; // "YYYY-MM"
 
@@ -5926,11 +6057,11 @@ app.get("/api/relatorio-paciente/dias", estaLogado, async (req, res) => {
 
 });
 
-app.get("/api/relatorio-paciente/dia", estaLogado, async (req, res) => {
+app.get("/api/relatorio-paciente/dia", estaLogado, exigeTerapeuta, async (req, res) => {
 
     try {
 
-        const terapeutaId = req.session.usuarioId || (req.user && req.user.id);
+        const terapeutaId = req.authUser.id;
         const pacienteId  = parseInt(req.query.paciente);
         const dataISO     = req.query.data;
 
@@ -5997,8 +6128,8 @@ app.get("/api/relatorio-paciente/dia", estaLogado, async (req, res) => {
 
 });
 
-app.get("/api/pacientes", estaLogado, async (req, res) => {
-    const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+app.get("/api/pacientes", estaLogado, exigeTerapeuta, async (req, res) => {
+    const usuarioId = req.authUser.id;
 
     try {
         const resultado = await db.query(
@@ -6124,11 +6255,11 @@ app.get("/api/pacientes", estaLogado, async (req, res) => {
    ROTA POST — SALVAR NOTA CLÍNICA
 ========================== */
 
-app.post("/api/nota-clinica", estaLogado, async (req, res) => {
+app.post("/api/nota-clinica", estaLogado, exigeTerapeuta, async (req, res) => {
 
     try {
 
-        const terapeutaId = req.session.usuarioId || (req.user && req.user.id);
+        const terapeutaId = req.authUser.id;
 
         if (!terapeutaId) {
             return res.status(401).json({ erro: "Não autenticado." });
@@ -6276,8 +6407,8 @@ app.post("/api/bixuco/localizacao",exigeDispositivo, async (req, res) => {
 });
 
 
-app.get("/api/bixuco/eventos-hoje", estaLogado, async (req, res) => {
-    const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+app.get("/api/bixuco/eventos-hoje", estaLogado, exigeResponsavel, async (req, res) => {
+    const usuarioId = req.authUser.id;
 
     try {
         const resultado = await db.query(
@@ -6309,8 +6440,8 @@ app.get("/api/bixuco/eventos-hoje", estaLogado, async (req, res) => {
     }
 });
 
-app.get("/api/bixuco/localizacao", estaLogado, async (req, res) => {
-    const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+app.get("/api/bixuco/localizacao", estaLogado, exigeResponsavel, async (req, res) => {
+    const usuarioId = req.authUser.id;
 
     try {
         const resultado = await db.query(
@@ -6504,11 +6635,11 @@ Gere as dicas personalizadas.`;
 }
 
 
-app.post("/api/dicas/gerar", estaLogado, async (req, res) => {
+app.post("/api/dicas/gerar", estaLogado, exigeResponsavel, async (req, res) => {
 
     try {
 
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const usuarioId = req.authUser.id;
 
         const resultado = await gerarDicasInterno(usuarioId);
 
@@ -6538,10 +6669,10 @@ app.post("/api/dicas/gerar", estaLogado, async (req, res) => {
 
 });
 
-app.get("/api/dicas", estaLogado, async (req, res) => {
+app.get("/api/dicas", estaLogado, exigeResponsavel, async (req, res) => {
 
     try {
-        const usuarioId = req.session.usuarioId || (req.user && req.user.id);
+        const usuarioId = req.authUser.id;
 
         const resultado = await db.query(
             `SELECT dicas, gerado_em FROM dicas_personalizadas
