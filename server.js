@@ -5161,7 +5161,305 @@ app.post("/api/configuracoes/notificacoes", estaLogado, async (req, res) => {
 });
 
 
+/* ==========================
+   RASCUNHO DO RELATÓRIO DIÁRIO
+========================== */
 
+
+// =========================================
+// GET — BUSCAR RASCUNHO DO DIA
+// =========================================
+
+app.get(
+    "/api/relatorio/rascunho",
+
+    estaLogado,
+    exigeResponsavel,
+    precisaPlano("medio"),
+
+    async (req, res) => {
+
+        try {
+
+            const usuarioId =
+                req.authUser.id;
+
+
+            // Primeiro verifica se o relatório
+            // de hoje já foi FINALIZADO.
+            const relatorioFinalizado =
+                await db.query(
+                    `
+                    SELECT id
+                    FROM relatorios
+                    WHERE usuario_id = $1
+                    AND DATE(
+                        data AT TIME ZONE 'UTC'
+                        AT TIME ZONE 'America/Sao_Paulo'
+                    ) =
+                    (
+                        NOW()
+                        AT TIME ZONE 'America/Sao_Paulo'
+                    )::date
+                    LIMIT 1
+                    `,
+                    [usuarioId]
+                );
+
+
+            if (
+                relatorioFinalizado.rows.length > 0
+            ) {
+
+                return res.json({
+                    finalizado: true,
+                    respostas: [],
+                    mensagensChat: []
+                });
+
+            }
+
+
+            // Busca o rascunho do dia atual
+            const resultado =
+                await db.query(
+                    `
+                    SELECT
+                        respostas,
+                        mensagens_chat,
+                        atualizado_em
+                    FROM rascunhos_relatorio
+                    WHERE usuario_id = $1
+                    AND data_referencia =
+                    (
+                        NOW()
+                        AT TIME ZONE 'America/Sao_Paulo'
+                    )::date
+                    LIMIT 1
+                    `,
+                    [usuarioId]
+                );
+
+
+            // Ainda não começou relatório hoje
+            if (resultado.rows.length === 0) {
+
+                return res.json({
+                    finalizado: false,
+                    respostas: [],
+                    mensagensChat: [],
+                    existeRascunho: false
+                });
+
+            }
+
+
+            const rascunho =
+                resultado.rows[0];
+
+
+            return res.json({
+
+                finalizado: false,
+
+                existeRascunho: true,
+
+                respostas:
+                    rascunho.respostas || [],
+
+                mensagensChat:
+                    rascunho.mensagens_chat || [],
+
+                atualizadoEm:
+                    rascunho.atualizado_em
+
+            });
+
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao buscar rascunho:",
+                erro
+            );
+
+            return res.status(500).json({
+                erro:
+                    "Não foi possível carregar o rascunho."
+            });
+
+        }
+
+    }
+);
+
+
+// =========================================
+// PUT — SALVAR/ATUALIZAR RASCUNHO
+// =========================================
+
+app.put(
+    "/api/relatorio/rascunho",
+
+    estaLogado,
+    exigeResponsavel,
+    precisaPlano("medio"),
+
+    async (req, res) => {
+
+        try {
+
+            const usuarioId =
+                req.authUser.id;
+
+            const {
+                respostas,
+                mensagensChat
+            } = req.body;
+
+
+            if (!Array.isArray(respostas)) {
+
+                return res.status(400).json({
+                    erro:
+                        "As respostas do rascunho são inválidas."
+                });
+
+            }
+
+
+            if (
+                mensagensChat !== undefined &&
+                !Array.isArray(mensagensChat)
+            ) {
+
+                return res.status(400).json({
+                    erro:
+                        "As mensagens do chat são inválidas."
+                });
+
+            }
+
+
+            // Não permite alterar rascunho
+            // depois que o relatório do dia
+            // já foi finalizado.
+            const relatorioFinalizado =
+                await db.query(
+                    `
+                    SELECT id
+                    FROM relatorios
+                    WHERE usuario_id = $1
+                    AND DATE(
+                        data AT TIME ZONE 'UTC'
+                        AT TIME ZONE 'America/Sao_Paulo'
+                    ) =
+                    (
+                        NOW()
+                        AT TIME ZONE 'America/Sao_Paulo'
+                    )::date
+                    LIMIT 1
+                    `,
+                    [usuarioId]
+                );
+
+
+            if (
+                relatorioFinalizado.rows.length > 0
+            ) {
+
+                return res.status(409).json({
+                    erro:
+                        "O relatório de hoje já foi concluído."
+                });
+
+            }
+
+
+            const respostasJson =
+                JSON.stringify(respostas);
+
+            const mensagensJson =
+                Array.isArray(mensagensChat)
+                    ? JSON.stringify(mensagensChat)
+                    : null;
+
+
+            await db.query(
+                `
+                INSERT INTO rascunhos_relatorio
+                (
+                    usuario_id,
+                    data_referencia,
+                    respostas,
+                    mensagens_chat,
+                    atualizado_em
+                )
+
+                VALUES
+                (
+                    $1,
+                    (
+                        NOW()
+                        AT TIME ZONE 'America/Sao_Paulo'
+                    )::date,
+                    $2::jsonb,
+                    COALESCE(
+                        $3::jsonb,
+                        '[]'::jsonb
+                    ),
+                    NOW()
+                )
+
+                ON CONFLICT
+                (
+                    usuario_id,
+                    data_referencia
+                )
+
+                DO UPDATE SET
+
+                    respostas =
+                        EXCLUDED.respostas,
+
+                    mensagens_chat =
+                        COALESCE(
+                            $3::jsonb,
+                            rascunhos_relatorio.mensagens_chat
+                        ),
+
+                    atualizado_em =
+                        NOW()
+                `,
+                [
+                    usuarioId,
+                    respostasJson,
+                    mensagensJson
+                ]
+            );
+
+
+            return res.json({
+                sucesso: true
+            });
+
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao salvar rascunho:",
+                erro
+            );
+
+            return res.status(500).json({
+                erro:
+                    "Não foi possível salvar o rascunho."
+            });
+
+        }
+
+    }
+);
 
 /* ==========================
    ROTA POST — SALVAR RELATÓRIO DIÁRIO
@@ -5218,6 +5516,21 @@ app.post("/api/relatorio", estaLogado, exigeResponsavel, precisaPlano("medio"), 
                 usuarioId,
                 JSON.stringify(respostasNormalizadas)
             ]
+        );
+
+        // O relatório foi finalizado.
+        // O rascunho de hoje não é mais necessário.
+        await db.query(
+            `
+            DELETE FROM rascunhos_relatorio
+            WHERE usuario_id = $1
+            AND data_referencia =
+            (
+                NOW()
+                AT TIME ZONE 'America/Sao_Paulo'
+            )::date
+            `,
+            [usuarioId]
         );
 
         // Cria a notificação de sucesso

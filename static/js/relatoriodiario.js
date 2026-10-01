@@ -24,6 +24,11 @@ const dicionario = {
     "Salvando...": "Saving...",
     "Tentar novamente": "Try again",
 
+    "Finalizar relatório": "Finish report",
+
+    "Não foi possível salvar o progresso. Tente novamente.":
+        "Could not save your progress. Please try again.",
+
     // ---- Mensagens de status do envio do relatório ----
     "Você já preencheu o relatório de hoje. Volte amanhã!": "You've already filled in today's report. Come back tomorrow!",
     "Erro ao salvar o relatório. Tente novamente.": "Error saving the report. Please try again.",
@@ -172,6 +177,7 @@ let perguntas = [
     },
 
     {
+        id: "comunicacao",
         pergunta: "Como foi a comunicação hoje?",
         respostas: [
             "Muito boa",
@@ -182,6 +188,7 @@ let perguntas = [
     },
 
     {
+        id: "humor",
         pergunta: "Como estava o humor durante o dia?",
         respostas: [
             "Muito calmo",
@@ -203,6 +210,7 @@ let perguntas = [
     },
 
     {
+        id: "sono",
         pergunta: "Dormiu bem?",
         respostas: [
             "Muito bem",
@@ -213,6 +221,7 @@ let perguntas = [
     },
 
     {
+        id: "alimentacao",
         pergunta: "Como foi a alimentação?",
         respostas: [
             "Muito boa",
@@ -245,6 +254,7 @@ let perguntas = [
     },
 
     {
+        id: "avaliacao_dia",
         pergunta: "Como você avaliaria o dia de hoje?",
         respostas: [
             "Excelente",
@@ -264,7 +274,199 @@ let perguntaAtual = 0;
 
 let respostaSelecionada = null;
 
-const respostasUsuario = [];
+let respostasUsuario = [];
+
+// ==========================
+// RASCUNHO DO RELATÓRIO
+// ==========================
+
+function buscarRespostaPorId(id) {
+
+    return respostasUsuario.find(
+        item => item.id === id
+    ) || null;
+
+}
+
+
+function salvarOuAtualizarResposta(novaResposta) {
+
+    const indice = respostasUsuario.findIndex(
+        item => item.id === novaResposta.id
+    );
+
+    if (indice >= 0) {
+
+        // Mantém possíveis campos extras que futuramente
+        // podem vir do chat/IA e altera apenas o necessário.
+        respostasUsuario[indice] = {
+            ...respostasUsuario[indice],
+            ...novaResposta
+        };
+
+    } else {
+
+        respostasUsuario.push(novaResposta);
+
+    }
+
+}
+
+
+async function salvarRascunho() {
+
+    const resposta = await fetch(
+        "/api/relatorio/rascunho",
+        {
+            method: "PUT",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                respostas: respostasUsuario
+            })
+        }
+    );
+
+
+    if (resposta.status === 401) {
+
+        window.location.href = "/logar";
+        return false;
+
+    }
+
+
+    if (resposta.status === 409) {
+
+        const dados = await resposta.json();
+
+        mostrarMensagem(
+            dados.erro ||
+            "Você já preencheu o relatório de hoje. Volte amanhã!",
+            "aviso"
+        );
+
+        cardRelatorio.style.display = "none";
+
+        return false;
+
+    }
+
+
+    if (!resposta.ok) {
+
+        throw new Error(
+            "Não foi possível salvar o rascunho."
+        );
+
+    }
+
+
+    return true;
+
+}
+
+
+async function carregarRascunho() {
+
+    try {
+
+        const resposta = await fetch(
+            "/api/relatorio/rascunho"
+        );
+
+
+        if (resposta.status === 401) {
+
+            window.location.href = "/logar";
+            return true;
+
+        }
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                "Erro ao carregar rascunho."
+            );
+
+        }
+
+
+        const dados = await resposta.json();
+
+
+        // Já terminou o relatório hoje.
+        if (dados.finalizado) {
+
+            mostrarMensagem(
+                "Você já preencheu o relatório de hoje. Volte amanhã!",
+                "aviso"
+            );
+
+            cardRelatorio.style.display = "none";
+
+            return true;
+
+        }
+
+
+        respostasUsuario =
+            Array.isArray(dados.respostas)
+                ? dados.respostas
+                : [];
+
+
+        return false;
+
+
+    } catch (erro) {
+
+        console.log(
+            "Erro ao carregar rascunho:",
+            erro
+        );
+
+        // Se o carregamento do rascunho falhar,
+        // não bloqueamos totalmente o relatório.
+        respostasUsuario = [];
+
+        return false;
+
+    }
+
+}
+
+
+function descobrirPerguntaParaRetomar() {
+
+    const primeiraNaoRespondida =
+        perguntas.findIndex(
+            pergunta =>
+                !buscarRespostaPorId(pergunta.id)
+        );
+
+
+    // Ainda existem perguntas faltando.
+    if (primeiraNaoRespondida !== -1) {
+
+        return primeiraNaoRespondida;
+
+    }
+
+
+    // Todas estão respondidas no rascunho.
+    // Volta para a última para a pessoa confirmar
+    // e finalizar, em vez de finalizar automaticamente.
+    return Math.max(
+        perguntas.length - 1,
+        0
+    );
+
+}
 
 const textoPergunta =
     document.getElementById("textoPergunta");
@@ -319,13 +521,13 @@ function atualizarBarra() {
 
         bolinha.classList.add("bolinha");
 
-        if (index < perguntaAtual) {
-
-            bolinha.classList.add("respondida");
-
-        } else if (index === perguntaAtual) {
+        if (index === perguntaAtual) {
 
             bolinha.classList.add("ativa");
+
+        } else if (buscarRespostaPorId(item.id)) {
+
+            bolinha.classList.add("respondida");
 
         }
 
@@ -344,13 +546,40 @@ function carregarPergunta(respostaAnterior = null) {
     respostaSelecionada = null;
 
     btnProxima.disabled = true;
-    btnProxima.textContent = traduzir("Próxima pergunta");
 
-    // Só mostra "Voltar" a partir da segunda pergunta
-    btnVoltar.classList.toggle("oculto", perguntaAtual === 0);
+    btnVoltar.classList.toggle(
+        "oculto",
+        perguntaAtual === 0
+    );
 
     const atual = perguntas[perguntaAtual];
 
+
+    // Se não recebemos uma resposta manualmente,
+    // procura a resposta já salva no rascunho.
+    if (respostaAnterior === null) {
+
+        const respostaSalva =
+            buscarRespostaPorId(atual.id);
+
+        if (respostaSalva) {
+
+            respostaAnterior =
+                respostaSalva.resposta;
+
+        }
+
+    }
+
+
+    // Na última pergunta deixa claro que o próximo
+    // clique concluirá o relatório.
+    btnProxima.textContent =
+        traduzir(
+            perguntaAtual === perguntas.length - 1
+                ? "Finalizar relatório"
+                : "Próxima pergunta"
+        );
     // 🔧 Exibição traduzida — o texto da pergunta em si (atual.pergunta)
     // NUNCA é alterado, só o que aparece na tela
     textoPergunta.textContent = traduzir(atual.pergunta);
@@ -443,62 +672,157 @@ function carregarPergunta(respostaAnterior = null) {
 // BOTÃO PRÓXIMA
 // ==========================
 
-btnProxima.addEventListener("click", () => {
+btnProxima.addEventListener(
+    "click",
+    async () => {
 
-    // 🔧 FIX: se já passamos de todas as perguntas (o envio anterior
-    // falhou e o botão virou "tentar novamente"), esse clique deve
-    // só reenviar o relatório — sem tentar empilhar mais uma
-    // resposta em perguntas[perguntaAtual], que já não existe
-    if (perguntaAtual >= perguntas.length) {
-        finalizarRelatorio();
-        return;
+        // Caso uma tentativa anterior de finalizar
+        // tenha falhado, tenta somente finalizar de novo.
+        if (perguntaAtual >= perguntas.length) {
+
+            finalizarRelatorio();
+            return;
+
+        }
+
+
+        if (respostaSelecionada === null) {
+
+            return;
+
+        }
+
+
+        const pergunta =
+            perguntas[perguntaAtual];
+
+
+        // Em vez de sempre adicionar outra resposta,
+        // atualiza a existente caso ela já tenha sido
+        // respondida anteriormente.
+        salvarOuAtualizarResposta({
+
+            id: pergunta.id,
+
+            pergunta: pergunta.pergunta,
+
+            resposta: respostaSelecionada
+
+        });
+
+
+        // Evita dois cliques enquanto salva.
+        btnProxima.disabled = true;
+        btnProxima.textContent =
+            traduzir("Salvando...");
+
+
+        try {
+
+            const salvou =
+                await salvarRascunho();
+
+            if (!salvou) {
+                return;
+            }
+
+
+        } catch (erro) {
+
+            console.log(
+                "Erro ao salvar progresso:",
+                erro
+            );
+
+            btnProxima.disabled = false;
+
+            btnProxima.textContent =
+                traduzir(
+                    perguntaAtual ===
+                    perguntas.length - 1
+                        ? "Finalizar relatório"
+                        : "Próxima pergunta"
+                );
+
+            mostrarMensagem(
+                "Não foi possível salvar o progresso. Tente novamente.",
+                "erro"
+            );
+
+            return;
+
+        }
+
+
+        perguntaAtual++;
+
+
+        // Última resposta salva.
+        // Agora finaliza o relatório oficial.
+        if (
+            perguntaAtual >=
+            perguntas.length
+        ) {
+
+            finalizarRelatorio();
+            return;
+
+        }
+
+
+        carregarPergunta();
+
     }
-
-    if (respostaSelecionada === null) {
-        return;
-    }
-
-    respostasUsuario.push({
-        id: perguntas[perguntaAtual].id || null,
-        pergunta: perguntas[perguntaAtual].pergunta,
-        resposta: respostaSelecionada
-    });
-
-    perguntaAtual++;
-
-    if (perguntaAtual >= perguntas.length) {
-
-        finalizarRelatorio();
-        return;
-
-    }
-
-    carregarPergunta();
-
-});
+);
 
 // ==========================
 // BOTÃO VOLTAR
 // ==========================
 
-btnVoltar.addEventListener("click", () => {
+btnVoltar.addEventListener(
+    "click",
+    () => {
 
-    if (perguntaAtual <= 0) {
-        return;
+        if (perguntaAtual <= 0) {
+            return;
+        }
+
+
+        if (
+            mensagemStatus.classList.contains(
+                "visivel"
+            )
+        ) {
+
+            mensagemStatus.classList.remove(
+                "visivel"
+            );
+
+            cardRelatorio.style.display = "";
+
+        }
+
+
+        perguntaAtual--;
+
+
+        const pergunta =
+            perguntas[perguntaAtual];
+
+        const respostaAnterior =
+            buscarRespostaPorId(
+                pergunta.id
+            );
+
+
+        carregarPergunta(
+            respostaAnterior
+                ? respostaAnterior.resposta
+                : null
+        );
+
     }
-
-    if (mensagemStatus.classList.contains("visivel")) {
-        mensagemStatus.classList.remove("visivel");
-        cardRelatorio.style.display = "";
-    }
-
-    perguntaAtual--;
-
-    const respostaAnterior = respostasUsuario.pop();
-
-    carregarPergunta(respostaAnterior ? respostaAnterior.resposta : null);
-
-});
+);
 
 // ==========================
 // FINALIZAR
@@ -850,10 +1174,15 @@ async function verificarAlertaHoje() {
         perguntas = perguntas.filter(p => p.id !== "alerta_estresse");
 
         // Ja registra a resposta automaticamente, pros graficos continuarem funcionando
-        respostasUsuario.push({
+        salvarOuAtualizarResposta({
+
             id: "alerta_estresse",
-            pergunta: "Teve algum alerta de estresse hoje?",
+
+            pergunta:
+                "Teve algum alerta de estresse hoje?",
+
             resposta: "Sim"
+
         });
 
         // Insere as duas perguntas extras logo no inicio do questionario
@@ -870,6 +1199,21 @@ async function verificarAlertaHoje() {
                 placeholder: "Descreva em poucas palavras (ex: barulho alto, mudança de rotina...)"
             }
         );
+
+        // Guarda também a resposta automática
+        // dentro do rascunho do dia.
+        try {
+
+            await salvarRascunho();
+
+        } catch (erro) {
+
+            console.log(
+                "Não foi possível salvar a resposta automática:",
+                erro
+            );
+
+        }
 
         // Mensagem visual removida a pedido — a lógica de auto-resposta
         // e as perguntas extras (acalmou_facilidade, gatilho_principal)
@@ -888,9 +1232,41 @@ async function verificarAlertaHoje() {
 // Aplica o tema salvo ao carregar a página
 
 async function iniciarRelatorio() {
+
+    // 1. Recupera o que já foi respondido.
+    const jaFinalizado =
+        await carregarRascunho();
+
+
+    // Se já concluiu hoje, não inicia
+    // um segundo relatório.
+    if (jaFinalizado) {
+
+        carregarGraficosDiarios();
+        return;
+
+    }
+
+
+    // 2. Confere os eventos reais do Bixuco.
+    // Se houve alerta, pode adicionar as perguntas
+    // extras e registrar alerta_estresse = Sim.
     await verificarAlertaHoje();
+
+
+    // 3. Descobre automaticamente onde
+    // o responsável parou.
+    perguntaAtual =
+        descobrirPerguntaParaRetomar();
+
+
+    // 4. Mostra aquela pergunta já com
+    // a resposta anterior, caso exista.
     carregarPergunta();
+
+
     carregarGraficosDiarios();
+
 }
 
 // Aplica o idioma salvo (ex: usuário trocou pra inglês em outra página)
