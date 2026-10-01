@@ -3686,33 +3686,74 @@ app.get("/api/relatorios", estaLogado, exigeResponsavel, async (req, res) => {
         const dadosIsolados    = diasArray.map(dia => contagemPorDia[dia].isolados);
 
         // =====================
-        // GRÁFICO — GATILHOS (resposta real do relatório diário, últimos 30 dias)
+        // GRÁFICO — GATILHOS SENSORIAIS PADRONIZADOS (últimos 30 dias)
         // =====================
-
-                // 🔧 A pergunta "gatilho_principal" agora é texto livre — em vez de
-        // contar 4 categorias fixas, agrupa por texto exato (aparado) e
-        // pega os mais frequentes; o resto some pra dentro de "Outros"
+        // O responsável continua escrevendo livremente, mas o gráfico usa
+        // somente categorias fixas. Relatórios antigos, ainda não normalizados,
+        // aparecem como "Histórico não classificado".
         const gatilhosRaw = await db.query(
-            `WITH textos AS (
-                SELECT trim(x->>'resposta') AS texto
-                FROM relatorios r,
-                     jsonb_array_elements(r.respostas) AS x
+            `WITH respostas_gatilho AS (
+                SELECT x
+                FROM relatorios r
+                CROSS JOIN LATERAL jsonb_array_elements(r.respostas) AS x
                 WHERE r.usuario_id = $1
                   AND r.data >= NOW() - INTERVAL '30 days'
                   AND x->>'id' = 'gatilho_principal'
-                  AND trim(x->>'resposta') <> ''
+                  AND trim(COALESCE(x->>'resposta', '')) <> ''
+            ),
+            categorias AS (
+                SELECT jsonb_array_elements_text(
+                    x->'categoriasSensoriais'
+                ) AS categoria
+                FROM respostas_gatilho
+                WHERE jsonb_typeof(x->'categoriasSensoriais') = 'array'
+                  AND jsonb_array_length(x->'categoriasSensoriais') > 0
+
+                UNION ALL
+
+                SELECT 'historico_nao_classificado' AS categoria
+                FROM respostas_gatilho
+                WHERE CASE
+                    WHEN jsonb_typeof(x->'categoriasSensoriais') = 'array'
+                        THEN jsonb_array_length(x->'categoriasSensoriais') = 0
+                    ELSE TRUE
+                END
             )
-            SELECT texto, COUNT(*) AS quantidade
-            FROM textos
-            GROUP BY texto
-            ORDER BY quantidade DESC, texto ASC`,
+            SELECT categoria AS texto, COUNT(*) AS quantidade
+            FROM categorias
+            GROUP BY categoria
+            ORDER BY quantidade DESC, categoria ASC`,
             [usuarioId]
         );
 
-        const linhasGatilhos = gatilhosRaw.rows;
-        const totalGatilhos  = linhasGatilhos.reduce((soma, l) => soma + parseInt(l.quantidade), 0);
+        const ROTULOS_GATILHOS = {
+            auditivo: "Auditivo",
+            visual: "Visual",
+            tatil: "Tátil",
+            olfativo: "Olfativo",
+            gustativo: "Gustativo",
+            vestibular: "Vestibular",
+            proprioceptivo: "Proprioceptivo",
+            interoceptivo: "Interoceptivo",
+            nao_identificado: "Não identificado",
+            historico_nao_classificado: "Histórico não classificado"
+        };
 
-        const PALETA_GATILHOS = ["#32C26D", "#0AB7FB", "#1D8EC9", "#F6AD55", "#C2C2C2"];
+        const linhasGatilhos = gatilhosRaw.rows;
+        const totalGatilhos =
+            linhasGatilhos.reduce(
+                (soma, l) => soma + parseInt(l.quantidade),
+                0
+            );
+
+        const PALETA_GATILHOS = [
+            "#32C26D",
+            "#0AB7FB",
+            "#1D8EC9",
+            "#F6AD55",
+            "#C2C2C2"
+        ];
+
         const TOP_GATILHOS = 4;
 
         let graficoGatilhos;
@@ -3727,23 +3768,54 @@ app.get("/api/relatorios", estaLogado, exigeResponsavel, async (req, res) => {
 
         } else {
 
-            const principais = linhasGatilhos.slice(0, TOP_GATILHOS);
-            const restante = linhasGatilhos
-                .slice(TOP_GATILHOS)
-                .reduce((soma, l) => soma + parseInt(l.quantidade), 0);
+            const principais =
+                linhasGatilhos.slice(0, TOP_GATILHOS);
 
-            const labels = principais.map(l => l.texto);
-            const dados  = principais.map(l => Math.round((parseInt(l.quantidade) / totalGatilhos) * 100));
+            const restante =
+                linhasGatilhos
+                    .slice(TOP_GATILHOS)
+                    .reduce(
+                        (soma, l) =>
+                            soma + parseInt(l.quantidade),
+                        0
+                    );
+
+            const labels =
+                principais.map(
+                    l =>
+                        ROTULOS_GATILHOS[l.texto] ||
+                        "Não identificado"
+                );
+
+            const dados =
+                principais.map(
+                    l =>
+                        Math.round(
+                            (
+                                parseInt(l.quantidade) /
+                                totalGatilhos
+                            ) * 100
+                        )
+                );
 
             if (restante > 0) {
                 labels.push("Outros");
-                dados.push(Math.round((restante / totalGatilhos) * 100));
+                dados.push(
+                    Math.round(
+                        (restante / totalGatilhos) * 100
+                    )
+                );
             }
 
             graficoGatilhos = {
                 labels,
                 dados,
-                cores: labels.map((_, i) => PALETA_GATILHOS[i] || "#C2C2C2")
+                cores:
+                    labels.map(
+                        (_, i) =>
+                            PALETA_GATILHOS[i] ||
+                            "#C2C2C2"
+                    )
             };
 
         }
@@ -4959,6 +5031,12 @@ app.post("/api/relatorio", estaLogado, exigeResponsavel, precisaPlano("medio"), 
             return res.status(400).json({ erro: "Respostas inválidas." });
         }
 
+        // Mantém o texto original escrito pelo responsável e acrescenta
+        // categorias padronizadas para gráficos/terapeuta.
+        // Se a IA falhar, o relatório continua sendo salvo normalmente.
+        const respostasNormalizadas =
+            await enriquecerRespostasComGatilho(respostas);
+
         // Impede mais de um relatório por dia
         const jaTemHoje = await db.query(
             `SELECT id
@@ -4977,15 +5055,16 @@ app.post("/api/relatorio", estaLogado, exigeResponsavel, precisaPlano("medio"), 
             });
         }
 
-        // Salva o relatório
+        // Salva o relatório.
+        // A data vem do PostgreSQL (timezone America/Sao_Paulo configurado no Pool),
+        // evitando diferença de dia entre navegador e servidor.
         await db.query(
             `INSERT INTO relatorios
             (usuario_id, respostas, data)
-            VALUES ($1, $2, $3)`,
+            VALUES ($1, $2, NOW())`,
             [
                 usuarioId,
-                JSON.stringify(respostas),
-                new Date().toISOString()
+                JSON.stringify(respostasNormalizadas)
             ]
         );
 
@@ -5937,64 +6016,139 @@ app.get("/api/relatorio-paciente", estaLogado, exigeTerapeuta, async (req, res) 
         );
 
         // =====================
-        // GRÁFICO — GATILHOS (resposta real do relatório diário, últimos 30 dias)
+        // GRÁFICO — GATILHOS SENSORIAIS PADRONIZADOS (últimos 30 dias)
         // =====================
-
-        // 🔧 A pergunta "gatilho_principal" agora é texto livre — em vez de
-        // contar 4 categorias fixas, agrupa por texto exato (aparado) e
-        // pega os mais frequentes; o resto some pra dentro de "Outros"
+        // O responsável continua escrevendo livremente, mas o gráfico usa
+        // somente categorias fixas. Relatórios antigos, ainda não normalizados,
+        // aparecem como "Histórico não classificado".
         const gatilhosRaw = await db.query(
-            `WITH textos AS (
-                SELECT trim(x->>'resposta') AS texto
-                FROM relatorios r,
-                     jsonb_array_elements(r.respostas) AS x
+            `WITH respostas_gatilho AS (
+                SELECT x
+                FROM relatorios r
+                CROSS JOIN LATERAL jsonb_array_elements(r.respostas) AS x
                 WHERE r.usuario_id = $1
                   AND r.data >= NOW() - INTERVAL '30 days'
                   AND x->>'id' = 'gatilho_principal'
-                  AND trim(x->>'resposta') <> ''
+                  AND trim(COALESCE(x->>'resposta', '')) <> ''
+            ),
+            categorias AS (
+                SELECT jsonb_array_elements_text(
+                    x->'categoriasSensoriais'
+                ) AS categoria
+                FROM respostas_gatilho
+                WHERE jsonb_typeof(x->'categoriasSensoriais') = 'array'
+                  AND jsonb_array_length(x->'categoriasSensoriais') > 0
+
+                UNION ALL
+
+                SELECT 'historico_nao_classificado' AS categoria
+                FROM respostas_gatilho
+                WHERE CASE
+                    WHEN jsonb_typeof(x->'categoriasSensoriais') = 'array'
+                        THEN jsonb_array_length(x->'categoriasSensoriais') = 0
+                    ELSE TRUE
+                END
             )
-            SELECT texto, COUNT(*) AS quantidade
-            FROM textos
-            GROUP BY texto
-            ORDER BY quantidade DESC, texto ASC`,
+            SELECT categoria AS texto, COUNT(*) AS quantidade
+            FROM categorias
+            GROUP BY categoria
+            ORDER BY quantidade DESC, categoria ASC`,
             [pacienteId]
         );
 
-        const linhasGatilhos = gatilhosRaw.rows;
-        const totalGatilhos  = linhasGatilhos.reduce((soma, l) => soma + parseInt(l.quantidade), 0);
+        const ROTULOS_GATILHOS = {
+            auditivo: "Auditivo",
+            visual: "Visual",
+            tatil: "Tátil",
+            olfativo: "Olfativo",
+            gustativo: "Gustativo",
+            vestibular: "Vestibular",
+            proprioceptivo: "Proprioceptivo",
+            interoceptivo: "Interoceptivo",
+            nao_identificado: "Não identificado",
+            historico_nao_classificado: "Histórico não classificado"
+        };
 
-        const PALETA_GATILHOS = ["#32C26D", "#0AB7FB", "#1D8EC9", "#F6AD55", "#C2C2C2"];
+        const linhasGatilhos = gatilhosRaw.rows;
+        const totalGatilhos =
+            linhasGatilhos.reduce(
+                (soma, l) => soma + parseInt(l.quantidade),
+                0
+            );
+
+        const PALETA_GATILHOS = [
+            "#32C26D",
+            "#0AB7FB",
+            "#1D8EC9",
+            "#F6AD55",
+            "#C2C2C2"
+        ];
+
         const TOP_GATILHOS = 4;
 
         let graficoGatilhos;
 
         if (totalGatilhos === 0) {
 
-            graficoGatilhos = { labels: ["Sem dados suficientes ainda"], dados: [100], cores: ["#C2C2C2"] };
+            graficoGatilhos = {
+                labels: ["Sem dados suficientes ainda"],
+                dados: [100],
+                cores: ["#C2C2C2"]
+            };
 
         } else {
 
-            const principais = linhasGatilhos.slice(0, TOP_GATILHOS);
-            const restante = linhasGatilhos
-                .slice(TOP_GATILHOS)
-                .reduce((soma, l) => soma + parseInt(l.quantidade), 0);
+            const principais =
+                linhasGatilhos.slice(0, TOP_GATILHOS);
 
-            const labels = principais.map(l => l.texto);
-            const dados  = principais.map(l => Math.round((parseInt(l.quantidade) / totalGatilhos) * 100));
+            const restante =
+                linhasGatilhos
+                    .slice(TOP_GATILHOS)
+                    .reduce(
+                        (soma, l) =>
+                            soma + parseInt(l.quantidade),
+                        0
+                    );
+
+            const labels =
+                principais.map(
+                    l =>
+                        ROTULOS_GATILHOS[l.texto] ||
+                        "Não identificado"
+                );
+
+            const dados =
+                principais.map(
+                    l =>
+                        Math.round(
+                            (
+                                parseInt(l.quantidade) /
+                                totalGatilhos
+                            ) * 100
+                        )
+                );
 
             if (restante > 0) {
                 labels.push("Outros");
-                dados.push(Math.round((restante / totalGatilhos) * 100));
+                dados.push(
+                    Math.round(
+                        (restante / totalGatilhos) * 100
+                    )
+                );
             }
 
             graficoGatilhos = {
                 labels,
                 dados,
-                cores: labels.map((_, i) => PALETA_GATILHOS[i] || "#C2C2C2")
+                cores:
+                    labels.map(
+                        (_, i) =>
+                            PALETA_GATILHOS[i] ||
+                            "#C2C2C2"
+                    )
             };
 
         }
-
         res.json({
             nomePaciente,
             alertas: totalMes,
@@ -6511,6 +6665,271 @@ app.post("/api/bixuco/evento", exigeDispositivo, async (req, res) => {
 });
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+const CATEGORIAS_SENSORIAIS_GATILHO = new Set([
+    "auditivo",
+    "visual",
+    "tatil",
+    "olfativo",
+    "gustativo",
+    "vestibular",
+    "proprioceptivo",
+    "interoceptivo",
+    "nao_identificado"
+]);
+
+const CONTEXTOS_GATILHO = new Set([
+    "ambiente_movimentado",
+    "mudanca_rotina",
+    "ambiente_desconhecido",
+    "interacao_social",
+    "transicao_atividade",
+    "espera",
+    "cansaco",
+    "fome_sede",
+    "dor_desconforto",
+    "outro_contexto"
+]);
+
+function filtrarValoresPermitidos(valores, permitidos) {
+
+    if (!Array.isArray(valores)) {
+        return [];
+    }
+
+    return [
+        ...new Set(
+            valores
+                .map(v => String(v || "").trim().toLowerCase())
+                .filter(v => permitidos.has(v))
+        )
+    ];
+
+}
+
+
+async function normalizarGatilhoComIA(textoOriginal) {
+
+    const texto =
+        String(textoOriginal || "")
+            .trim()
+            .slice(0, 1000);
+
+    const fallback = {
+        categoriasSensoriais:
+            texto ? ["nao_identificado"] : [],
+        contextos: [],
+        normalizadoPorIA: false
+    };
+
+    if (!texto || !GEMINI_API_KEY) {
+        return fallback;
+    }
+
+    try {
+
+        const prompt = `
+Você classifica APENAS o texto de um responsável sobre um possível gatilho sensorial.
+
+Isto NÃO é diagnóstico e NÃO deve inferir uma causa que não esteja escrita.
+
+Escolha zero, uma ou mais categorias sensoriais SOMENTE desta lista:
+- auditivo
+- visual
+- tatil
+- olfativo
+- gustativo
+- vestibular
+- proprioceptivo
+- interoceptivo
+- nao_identificado
+
+Escolha zero, um ou mais contextos SOMENTE desta lista:
+- ambiente_movimentado
+- mudanca_rotina
+- ambiente_desconhecido
+- interacao_social
+- transicao_atividade
+- espera
+- cansaco
+- fome_sede
+- dor_desconforto
+- outro_contexto
+
+Regras:
+1. Não invente informações.
+2. Se o texto não permitir identificar um sistema sensorial, use "nao_identificado".
+3. Não transforme local em causa sensorial sem evidência.
+4. "Perfume/cheiro" pode indicar olfativo.
+5. "Barulho/som alto" pode indicar auditivo.
+6. "Luz/brilho" pode indicar visual.
+7. "Roupa/toque/textura" pode indicar tatil.
+8. "Balançar/girar/movimento/equilíbrio" pode indicar vestibular.
+9. "Força/pressão/empurrar/apertar" pode indicar proprioceptivo.
+10. "Fome/sede/dor/temperatura/sensação interna" pode indicar interoceptivo.
+11. Um mesmo texto pode possuir mais de uma categoria.
+12. Responda SOMENTE JSON válido, sem explicação.
+
+Formato obrigatório:
+{
+  "categoriasSensoriais": ["..."],
+  "contextos": ["..."]
+}
+
+Texto do responsável:
+${JSON.stringify(texto)}
+        `.trim();
+
+        const respostaIA = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/interactions?key=${GEMINI_API_KEY}`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model:
+                        "models/gemini-3-flash-preview",
+                    input: prompt,
+                    generation_config: {
+                        max_output_tokens: 300,
+                        thinking_level: "low"
+                    }
+                })
+            }
+        );
+
+        const dadosIA =
+            await respostaIA.json();
+
+        if (!respostaIA.ok) {
+            console.log(
+                "Falha ao normalizar gatilho com IA:",
+                dadosIA
+            );
+
+            return fallback;
+        }
+
+        const stepResposta =
+            dadosIA.steps?.find(
+                s => s.type === "model_output"
+            );
+
+        if (!stepResposta) {
+            return fallback;
+        }
+
+        let textoResposta =
+            stepResposta.content
+                ?.map(c => c.text || "")
+                .join("")
+                .trim() || "";
+
+        textoResposta =
+            textoResposta
+                .replace(/```json|```/g, "")
+                .trim();
+
+        const classificacao =
+            JSON.parse(textoResposta);
+
+        let categorias =
+            filtrarValoresPermitidos(
+                classificacao.categoriasSensoriais,
+                CATEGORIAS_SENSORIAIS_GATILHO
+            );
+
+        const contextos =
+            filtrarValoresPermitidos(
+                classificacao.contextos,
+                CONTEXTOS_GATILHO
+            );
+
+        if (categorias.length === 0) {
+            categorias = ["nao_identificado"];
+        }
+
+        return {
+            categoriasSensoriais: categorias,
+            contextos,
+            normalizadoPorIA: true
+        };
+
+    } catch (erro) {
+
+        console.log(
+            "Erro ao normalizar gatilho:",
+            erro.message || erro
+        );
+
+        return fallback;
+    }
+
+}
+
+
+async function enriquecerRespostasComGatilho(respostas) {
+
+    const copia =
+        respostas.map(resposta => ({
+            ...resposta
+        }));
+
+    const indice =
+        copia.findIndex(
+            resposta =>
+                resposta?.id ===
+                "gatilho_principal"
+        );
+
+    if (indice === -1) {
+        return copia;
+    }
+
+    const textoOriginal =
+        String(
+            copia[indice]?.resposta || ""
+        ).trim();
+
+    if (!textoOriginal) {
+
+        copia[indice] = {
+            ...copia[indice],
+            resposta: "",
+            respostaOriginal: "",
+            categoriasSensoriais: [],
+            contextos: [],
+            normalizadoPorIA: false,
+            versaoClassificacao: 1
+        };
+
+        return copia;
+    }
+
+    const classificacao =
+        await normalizarGatilhoComIA(
+            textoOriginal
+        );
+
+    // A resposta original continua intacta.
+    // Os campos abaixo servem somente para análise estruturada.
+    copia[indice] = {
+        ...copia[indice],
+        resposta: textoOriginal,
+        respostaOriginal: textoOriginal,
+        categoriasSensoriais:
+            classificacao.categoriasSensoriais,
+        contextos:
+            classificacao.contextos,
+        normalizadoPorIA:
+            classificacao.normalizadoPorIA,
+        versaoClassificacao: 1
+    };
+
+    return copia;
+}
+
 
 async function gerarDicasInterno(usuarioId) {
 
