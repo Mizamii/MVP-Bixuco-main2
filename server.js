@@ -3693,40 +3693,159 @@ app.get("/api/relatorios", estaLogado, exigeResponsavel, async (req, res) => {
         // aparecem como "Histórico não classificado".
         const gatilhosRaw = await db.query(
             `WITH respostas_gatilho AS (
+
                 SELECT x
                 FROM relatorios r
-                CROSS JOIN LATERAL jsonb_array_elements(r.respostas) AS x
+                CROSS JOIN LATERAL
+                    jsonb_array_elements(r.respostas) AS x
+
                 WHERE r.usuario_id = $1
-                  AND r.data >= NOW() - INTERVAL '30 days'
-                  AND x->>'id' = 'gatilho_principal'
-                  AND trim(COALESCE(x->>'resposta', '')) <> ''
+                AND r.data >= NOW() - INTERVAL '30 days'
+                AND x->>'id' = 'gatilho_principal'
+                AND trim(
+                        COALESCE(
+                            x->>'resposta',
+                            ''
+                        )
+                    ) <> ''
             ),
-            categorias AS (
-                SELECT jsonb_array_elements_text(
-                    x->'categoriasSensoriais'
-                ) AS categoria
+
+            gatilhos AS (
+
+                -- ==========================================
+                -- 1. CATEGORIAS SENSORIAIS IDENTIFICADAS
+                -- ==========================================
+
+                SELECT
+                    categoria AS gatilho
+
                 FROM respostas_gatilho
-                WHERE jsonb_typeof(x->'categoriasSensoriais') = 'array'
-                  AND jsonb_array_length(x->'categoriasSensoriais') > 0
+
+                CROSS JOIN LATERAL
+                    jsonb_array_elements_text(
+                        CASE
+                            WHEN jsonb_typeof(
+                                x->'categoriasSensoriais'
+                            ) = 'array'
+                            THEN x->'categoriasSensoriais'
+
+                            ELSE '[]'::jsonb
+                        END
+                    ) AS c(categoria)
+
+                WHERE categoria <> 'nao_identificado'
+
 
                 UNION ALL
 
-                SELECT 'historico_nao_classificado' AS categoria
+
+                -- ==========================================
+                -- 2. SE NÃO HÁ CATEGORIA SENSORIAL,
+                --    USA O CONTEXTO COMO GATILHO
+                -- ==========================================
+
+                SELECT
+                    contexto AS gatilho
+
                 FROM respostas_gatilho
-                WHERE CASE
-                    WHEN jsonb_typeof(x->'categoriasSensoriais') = 'array'
-                        THEN jsonb_array_length(x->'categoriasSensoriais') = 0
-                    ELSE TRUE
-                END
+
+                CROSS JOIN LATERAL
+                    jsonb_array_elements_text(
+                        CASE
+                            WHEN jsonb_typeof(
+                                x->'contextos'
+                            ) = 'array'
+                            THEN x->'contextos'
+
+                            ELSE '[]'::jsonb
+                        END
+                    ) AS ctx(contexto)
+
+                WHERE NOT EXISTS (
+
+                    SELECT 1
+
+                    FROM jsonb_array_elements_text(
+                        CASE
+                            WHEN jsonb_typeof(
+                                x->'categoriasSensoriais'
+                            ) = 'array'
+                            THEN x->'categoriasSensoriais'
+
+                            ELSE '[]'::jsonb
+                        END
+                    ) AS c2(categoria)
+
+                    WHERE categoria <> 'nao_identificado'
+                )
+
+
+                UNION ALL
+
+
+                -- ==========================================
+                -- 3. NÃO TEM CATEGORIA NEM CONTEXTO
+                -- ==========================================
+
+                SELECT
+                    'nao_identificado' AS gatilho
+
+                FROM respostas_gatilho
+
+                WHERE NOT EXISTS (
+
+                    SELECT 1
+
+                    FROM jsonb_array_elements_text(
+                        CASE
+                            WHEN jsonb_typeof(
+                                x->'categoriasSensoriais'
+                            ) = 'array'
+                            THEN x->'categoriasSensoriais'
+
+                            ELSE '[]'::jsonb
+                        END
+                    ) AS c3(categoria)
+
+                    WHERE categoria <> 'nao_identificado'
+                )
+
+                AND NOT EXISTS (
+
+                    SELECT 1
+
+                    FROM jsonb_array_elements_text(
+                        CASE
+                            WHEN jsonb_typeof(
+                                x->'contextos'
+                            ) = 'array'
+                            THEN x->'contextos'
+
+                            ELSE '[]'::jsonb
+                        END
+                    ) AS ctx2(contexto)
+                )
+
             )
-            SELECT categoria AS texto, COUNT(*) AS quantidade
-            FROM categorias
-            GROUP BY categoria
-            ORDER BY quantidade DESC, categoria ASC`,
+
+            SELECT
+                gatilho AS texto,
+                COUNT(*) AS quantidade
+
+            FROM gatilhos
+
+            GROUP BY gatilho
+
+            ORDER BY
+                quantidade DESC,
+                gatilho ASC`,
+
             [usuarioId]
         );
 
         const ROTULOS_GATILHOS = {
+
+            // Sistemas sensoriais
             auditivo: "Auditivo",
             visual: "Visual",
             tatil: "Tátil",
@@ -3735,8 +3854,41 @@ app.get("/api/relatorios", estaLogado, exigeResponsavel, async (req, res) => {
             vestibular: "Vestibular",
             proprioceptivo: "Proprioceptivo",
             interoceptivo: "Interoceptivo",
-            nao_identificado: "Não identificado",
-            historico_nao_classificado: "Histórico não classificado"
+
+            // Contextos
+            ambiente_movimentado:
+                "Ambiente movimentado",
+
+            mudanca_rotina:
+                "Mudança de rotina",
+
+            ambiente_desconhecido:
+                "Ambiente desconhecido",
+
+            interacao_social:
+                "Interação social",
+
+            transicao_atividade:
+                "Transição de atividade",
+
+            espera:
+                "Espera",
+
+            cansaco:
+                "Cansaço",
+
+            fome_sede:
+                "Fome ou sede",
+
+            dor_desconforto:
+                "Dor ou desconforto",
+
+            outro_contexto:
+                "Outro contexto",
+
+            // Somente quando realmente não há informação
+            nao_identificado:
+                "Não identificado"
         };
 
         const linhasGatilhos = gatilhosRaw.rows;
@@ -6023,40 +6175,159 @@ app.get("/api/relatorio-paciente", estaLogado, exigeTerapeuta, async (req, res) 
         // aparecem como "Histórico não classificado".
         const gatilhosRaw = await db.query(
             `WITH respostas_gatilho AS (
+
                 SELECT x
                 FROM relatorios r
-                CROSS JOIN LATERAL jsonb_array_elements(r.respostas) AS x
+                CROSS JOIN LATERAL
+                    jsonb_array_elements(r.respostas) AS x
+
                 WHERE r.usuario_id = $1
-                  AND r.data >= NOW() - INTERVAL '30 days'
-                  AND x->>'id' = 'gatilho_principal'
-                  AND trim(COALESCE(x->>'resposta', '')) <> ''
+                AND r.data >= NOW() - INTERVAL '30 days'
+                AND x->>'id' = 'gatilho_principal'
+                AND trim(
+                        COALESCE(
+                            x->>'resposta',
+                            ''
+                        )
+                    ) <> ''
             ),
-            categorias AS (
-                SELECT jsonb_array_elements_text(
-                    x->'categoriasSensoriais'
-                ) AS categoria
+
+            gatilhos AS (
+
+                -- ==========================================
+                -- 1. CATEGORIAS SENSORIAIS IDENTIFICADAS
+                -- ==========================================
+
+                SELECT
+                    categoria AS gatilho
+
                 FROM respostas_gatilho
-                WHERE jsonb_typeof(x->'categoriasSensoriais') = 'array'
-                  AND jsonb_array_length(x->'categoriasSensoriais') > 0
+
+                CROSS JOIN LATERAL
+                    jsonb_array_elements_text(
+                        CASE
+                            WHEN jsonb_typeof(
+                                x->'categoriasSensoriais'
+                            ) = 'array'
+                            THEN x->'categoriasSensoriais'
+
+                            ELSE '[]'::jsonb
+                        END
+                    ) AS c(categoria)
+
+                WHERE categoria <> 'nao_identificado'
+
 
                 UNION ALL
 
-                SELECT 'historico_nao_classificado' AS categoria
+
+                -- ==========================================
+                -- 2. SE NÃO HÁ CATEGORIA SENSORIAL,
+                --    USA O CONTEXTO COMO GATILHO
+                -- ==========================================
+
+                SELECT
+                    contexto AS gatilho
+
                 FROM respostas_gatilho
-                WHERE CASE
-                    WHEN jsonb_typeof(x->'categoriasSensoriais') = 'array'
-                        THEN jsonb_array_length(x->'categoriasSensoriais') = 0
-                    ELSE TRUE
-                END
+
+                CROSS JOIN LATERAL
+                    jsonb_array_elements_text(
+                        CASE
+                            WHEN jsonb_typeof(
+                                x->'contextos'
+                            ) = 'array'
+                            THEN x->'contextos'
+
+                            ELSE '[]'::jsonb
+                        END
+                    ) AS ctx(contexto)
+
+                WHERE NOT EXISTS (
+
+                    SELECT 1
+
+                    FROM jsonb_array_elements_text(
+                        CASE
+                            WHEN jsonb_typeof(
+                                x->'categoriasSensoriais'
+                            ) = 'array'
+                            THEN x->'categoriasSensoriais'
+
+                            ELSE '[]'::jsonb
+                        END
+                    ) AS c2(categoria)
+
+                    WHERE categoria <> 'nao_identificado'
+                )
+
+
+                UNION ALL
+
+
+                -- ==========================================
+                -- 3. NÃO TEM CATEGORIA NEM CONTEXTO
+                -- ==========================================
+
+                SELECT
+                    'nao_identificado' AS gatilho
+
+                FROM respostas_gatilho
+
+                WHERE NOT EXISTS (
+
+                    SELECT 1
+
+                    FROM jsonb_array_elements_text(
+                        CASE
+                            WHEN jsonb_typeof(
+                                x->'categoriasSensoriais'
+                            ) = 'array'
+                            THEN x->'categoriasSensoriais'
+
+                            ELSE '[]'::jsonb
+                        END
+                    ) AS c3(categoria)
+
+                    WHERE categoria <> 'nao_identificado'
+                )
+
+                AND NOT EXISTS (
+
+                    SELECT 1
+
+                    FROM jsonb_array_elements_text(
+                        CASE
+                            WHEN jsonb_typeof(
+                                x->'contextos'
+                            ) = 'array'
+                            THEN x->'contextos'
+
+                            ELSE '[]'::jsonb
+                        END
+                    ) AS ctx2(contexto)
+                )
+
             )
-            SELECT categoria AS texto, COUNT(*) AS quantidade
-            FROM categorias
-            GROUP BY categoria
-            ORDER BY quantidade DESC, categoria ASC`,
+
+            SELECT
+                gatilho AS texto,
+                COUNT(*) AS quantidade
+
+            FROM gatilhos
+
+            GROUP BY gatilho
+
+            ORDER BY
+                quantidade DESC,
+                gatilho ASC`,
+
             [pacienteId]
         );
 
         const ROTULOS_GATILHOS = {
+
+            // Sistemas sensoriais
             auditivo: "Auditivo",
             visual: "Visual",
             tatil: "Tátil",
@@ -6065,8 +6336,41 @@ app.get("/api/relatorio-paciente", estaLogado, exigeTerapeuta, async (req, res) 
             vestibular: "Vestibular",
             proprioceptivo: "Proprioceptivo",
             interoceptivo: "Interoceptivo",
-            nao_identificado: "Não identificado",
-            historico_nao_classificado: "Histórico não classificado"
+
+            // Contextos
+            ambiente_movimentado:
+                "Ambiente movimentado",
+
+            mudanca_rotina:
+                "Mudança de rotina",
+
+            ambiente_desconhecido:
+                "Ambiente desconhecido",
+
+            interacao_social:
+                "Interação social",
+
+            transicao_atividade:
+                "Transição de atividade",
+
+            espera:
+                "Espera",
+
+            cansaco:
+                "Cansaço",
+
+            fome_sede:
+                "Fome ou sede",
+
+            dor_desconforto:
+                "Dor ou desconforto",
+
+            outro_contexto:
+                "Outro contexto",
+
+            // Somente quando realmente não há informação
+            nao_identificado:
+                "Não identificado"
         };
 
         const linhasGatilhos = gatilhosRaw.rows;
