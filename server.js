@@ -7286,7 +7286,7 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
 const GROQ_MODEL =
-    "openai/gpt-oss-20b";
+    "qwen/qwen3.8-27b";
 
 const CAMPOS_RELATORIO_CHAT = {
 
@@ -8380,7 +8380,7 @@ ${JSON.stringify(respostas, null, 2)}
                             ],
 
                             reasoning_effort:
-                                "low",
+                                "none",
 
                             temperature:
                                 0.2,
