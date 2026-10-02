@@ -7283,6 +7283,314 @@ app.post("/api/bixuco/evento", exigeDispositivo, async (req, res) => {
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
+const GROQ_MODEL =
+    "openai/gpt-oss-20b";
+
+const CAMPOS_RELATORIO_CHAT = {
+
+    alerta_estresse: {
+
+        id: "alerta_estresse",
+
+        pergunta:
+            "Teve algum alerta de estresse hoje?",
+
+        opcoes: [
+            "Sim",
+            "Não"
+        ]
+
+    },
+
+
+    acalmou_facilidade: {
+
+        id: "acalmou_facilidade",
+
+        pergunta:
+            "Ela conseguiu se acalmar com facilidade?",
+
+        opcoes: [
+            "Sim, rapidamente",
+            "Sim, mas demorou",
+            "Não, precisou de ajuda",
+            "Não se acalmou"
+        ]
+
+    },
+
+
+    gatilho_principal: {
+
+        id: "gatilho_principal",
+
+        pergunta:
+            "Qual foi o principal gatilho do episódio?",
+
+        tipo: "texto"
+
+    },
+
+
+    desconforto_texturas: {
+
+        id: "desconforto_texturas",
+
+        pergunta:
+            "Ela demonstra desconforto com texturas de roupas ou alimentos?",
+
+        opcoes: [
+            "Sempre",
+            "Quase sempre",
+            "Raramente",
+            "Nunca"
+        ]
+
+    },
+
+
+    evitou_contato_visual: {
+
+        id: "evitou_contato_visual",
+
+        pergunta:
+            "Hoje ela evitou contato visual?",
+
+        opcoes: [
+            "Sempre",
+            "Quase sempre",
+            "Raramente",
+            "Nunca"
+        ]
+
+    },
+
+
+    comunicacao: {
+
+        id: "comunicacao",
+
+        pergunta:
+            "Como foi a comunicação hoje?",
+
+        opcoes: [
+            "Muito boa",
+            "Boa",
+            "Pouca",
+            "Nenhuma"
+        ]
+
+    },
+
+
+    humor: {
+
+        id: "humor",
+
+        pergunta:
+            "Como estava o humor durante o dia?",
+
+        opcoes: [
+            "Muito calmo",
+            "Calmo",
+            "Agitado",
+            "Muito agitado"
+        ]
+
+    },
+
+
+    crises_sensoriais: {
+
+        id: "crises_sensoriais",
+
+        pergunta:
+            "Apresentou crises sensoriais?",
+
+        opcoes: [
+            "Sim, várias",
+            "Algumas",
+            "Poucas",
+            "Nenhuma"
+        ]
+
+    },
+
+
+    sono: {
+
+        id: "sono",
+
+        pergunta:
+            "Dormiu bem?",
+
+        opcoes: [
+            "Muito bem",
+            "Bem",
+            "Pouco",
+            "Muito pouco"
+        ]
+
+    },
+
+
+    alimentacao: {
+
+        id: "alimentacao",
+
+        pergunta:
+            "Como foi a alimentação?",
+
+        opcoes: [
+            "Muito boa",
+            "Boa",
+            "Regular",
+            "Ruim"
+        ]
+
+    },
+
+
+    atividades_propostas: {
+
+        id: "atividades_propostas",
+
+        pergunta:
+            "Realizou atividades propostas?",
+
+        opcoes: [
+            "Todas",
+            "Quase todas",
+            "Poucas",
+            "Nenhuma"
+        ]
+
+    },
+
+
+    interacao_social: {
+
+        id: "interacao_social",
+
+        pergunta:
+            "Como foi a interação social?",
+
+        opcoes: [
+            "Excelente",
+            "Boa",
+            "Pouca",
+            "Nenhuma"
+        ]
+
+    },
+
+
+    avaliacao_dia: {
+
+        id: "avaliacao_dia",
+
+        pergunta:
+            "Como você avaliaria o dia de hoje?",
+
+        opcoes: [
+            "Excelente",
+            "Bom",
+            "Regular",
+            "Difícil"
+        ]
+
+    }
+
+};
+
+function atualizarRespostaChat(
+    respostas,
+    novaResposta
+) {
+
+    const indice =
+        respostas.findIndex(
+            item =>
+                item.id === novaResposta.id
+        );
+
+
+    if (indice >= 0) {
+
+        respostas[indice] = {
+
+            ...respostas[indice],
+
+            ...novaResposta
+
+        };
+
+    } else {
+
+        respostas.push(
+            novaResposta
+        );
+
+    }
+
+
+    return respostas;
+
+}
+
+function respostaChatValida(
+    id,
+    resposta
+) {
+
+    const campo =
+        CAMPOS_RELATORIO_CHAT[id];
+
+
+    if (!campo) {
+
+        return false;
+
+    }
+
+
+    if (
+        typeof resposta !== "string"
+    ) {
+
+        return false;
+
+    }
+
+
+    resposta =
+        resposta.trim();
+
+
+    if (!resposta) {
+
+        return false;
+
+    }
+
+
+    // Gatinho é texto livre
+    if (campo.tipo === "texto") {
+
+        return resposta.length <= 300;
+
+    }
+
+
+    // Nas perguntas fechadas,
+    // a IA só pode usar exatamente
+    // uma das alternativas oficiais.
+    return campo.opcoes.includes(
+        resposta
+    );
+
+}
+
 const CATEGORIAS_SENSORIAIS_GATILHO = new Set([
     "auditivo",
     "visual",
@@ -7670,6 +7978,776 @@ Gere as dicas personalizadas.`;
     return { dicas: dicasGeradas, novo: true };
 }
 
+app.post(
+    "/api/relatorio-chat",
+
+    estaLogado,
+    exigeResponsavel,
+    precisaPlano("medio"),
+
+    async (req, res) => {
+
+        try {
+
+            const usuarioId =
+                req.authUser.id;
+
+
+            if (!GROQ_API_KEY) {
+
+                console.error(
+                    "GROQ_API_KEY não configurada."
+                );
+
+                return res.status(503).json({
+                    erro:
+                        "O chat está temporariamente indisponível."
+                });
+
+            }
+
+
+            let mensagem =
+                String(
+                    req.body.mensagem || ""
+                ).trim();
+
+
+            const idioma =
+                req.body.idioma === "en"
+                    ? "en"
+                    : "pt";
+
+
+            if (
+                !mensagem ||
+                mensagem.length > 1000
+            ) {
+
+                return res.status(400).json({
+                    erro:
+                        "Mensagem inválida."
+                });
+
+            }
+
+
+            // =====================================
+            // JÁ FINALIZOU O RELATÓRIO HOJE?
+            // =====================================
+
+            const relatorioFinalizado =
+                await db.query(
+                    `
+                    SELECT id
+
+                    FROM relatorios
+
+                    WHERE usuario_id = $1
+
+                    AND DATE(
+                        data
+                        AT TIME ZONE 'UTC'
+                        AT TIME ZONE
+                        'America/Sao_Paulo'
+                    ) =
+                    (
+                        NOW()
+                        AT TIME ZONE
+                        'America/Sao_Paulo'
+                    )::date
+
+                    LIMIT 1
+                    `,
+                    [usuarioId]
+                );
+
+
+            if (
+                relatorioFinalizado.rows.length > 0
+            ) {
+
+                return res.status(409).json({
+                    erro:
+                        "Você já preencheu o relatório de hoje. Volte amanhã!"
+                });
+
+            }
+
+
+            // =====================================
+            // EXISTIU ALERTA REAL DO BIXUCO?
+            // =====================================
+
+            const eventoHoje =
+                await db.query(
+                    `
+                    SELECT 1
+
+                    FROM eventos_bixuco e
+
+                    JOIN criancas c
+                        ON c.id = e.crianca_id
+
+                    WHERE c.usuario_id = $1
+
+                    AND DATE(
+                        e.criado_em
+                        AT TIME ZONE 'UTC'
+                        AT TIME ZONE
+                        'America/Sao_Paulo'
+                    ) =
+                    (
+                        NOW()
+                        AT TIME ZONE
+                        'America/Sao_Paulo'
+                    )::date
+
+                    LIMIT 1
+                    `,
+                    [usuarioId]
+                );
+
+
+            const houveAlertaReal =
+                eventoHoje.rows.length > 0;
+
+
+            // =====================================
+            // CARREGA O RASCUNHO COMPARTILHADO
+            // =====================================
+
+            const rascunho =
+                await db.query(
+                    `
+                    SELECT
+                        respostas,
+                        mensagens_chat
+
+                    FROM rascunhos_relatorio
+
+                    WHERE usuario_id = $1
+
+                    AND data_referencia =
+                    (
+                        NOW()
+                        AT TIME ZONE
+                        'America/Sao_Paulo'
+                    )::date
+
+                    LIMIT 1
+                    `,
+                    [usuarioId]
+                );
+
+
+            let respostas =
+                rascunho.rows[0]?.respostas || [];
+
+
+            let mensagensChat =
+                rascunho.rows[0]?.mensagens_chat || [];
+
+
+            if (
+                !Array.isArray(respostas)
+            ) {
+
+                respostas = [];
+
+            }
+
+
+            if (
+                !Array.isArray(mensagensChat)
+            ) {
+
+                mensagensChat = [];
+
+            }
+
+
+            // =====================================
+            // SE O BIXUCO REGISTROU ALERTA,
+            // "alerta_estresse" = SIM AUTOMATICAMENTE
+            // =====================================
+
+            if (houveAlertaReal) {
+
+                respostas =
+                    atualizarRespostaChat(
+                        respostas,
+                        {
+                            id:
+                                "alerta_estresse",
+
+                            pergunta:
+                                CAMPOS_RELATORIO_CHAT
+                                    .alerta_estresse
+                                    .pergunta,
+
+                            resposta:
+                                "Sim"
+                        }
+                    );
+
+            }
+
+
+            // =====================================
+            // QUAIS PERGUNTAS SE APLICAM HOJE?
+            // =====================================
+
+            let idsNecessarios;
+
+
+            if (houveAlertaReal) {
+
+                idsNecessarios = [
+
+                    "alerta_estresse",
+
+                    "acalmou_facilidade",
+
+                    "gatilho_principal",
+
+                    "desconforto_texturas",
+
+                    "evitou_contato_visual",
+
+                    "comunicacao",
+
+                    "humor",
+
+                    "crises_sensoriais",
+
+                    "sono",
+
+                    "alimentacao",
+
+                    "atividades_propostas",
+
+                    "interacao_social",
+
+                    "avaliacao_dia"
+
+                ];
+
+            } else {
+
+                idsNecessarios = [
+
+                    "alerta_estresse",
+
+                    "desconforto_texturas",
+
+                    "evitou_contato_visual",
+
+                    "comunicacao",
+
+                    "humor",
+
+                    "crises_sensoriais",
+
+                    "sono",
+
+                    "alimentacao",
+
+                    "atividades_propostas",
+
+                    "interacao_social",
+
+                    "avaliacao_dia"
+
+                ];
+
+            }
+
+
+            const camposHoje =
+                idsNecessarios.map(
+                    id =>
+                        CAMPOS_RELATORIO_CHAT[id]
+                );
+
+
+            // =====================================
+            // CONTEXTO PARA A IA
+            // =====================================
+
+            const promptSistema = `
+Você é o assistente de preenchimento do relatório diário do Bixuco.
+
+Seu único objetivo é conversar naturalmente com o responsável e ajudar a preencher os campos do relatório diário.
+
+REGRAS IMPORTANTES:
+
+1. Não faça diagnóstico médico, psicológico ou sensorial.
+2. Não invente informações.
+3. Só registre uma resposta quando ela estiver explicitamente presente ou claramente confirmada pelo responsável.
+4. Se houver dúvida, não preencha o campo e faça uma pergunta.
+5. Faça apenas UMA pergunta por mensagem.
+6. O responsável pode fornecer várias informações de uma vez. Nesse caso, extraia todas as respostas válidas.
+7. Se o responsável corrigir algo dito anteriormente, use a nova informação.
+8. Para perguntas de múltipla escolha, o campo "resposta" deve usar EXATAMENTE uma das opções em português fornecidas abaixo.
+9. Mesmo se a conversa estiver em inglês, os valores estruturados devem continuar em português.
+10. "gatilho_principal" é texto livre. Preserve o sentido do que a pessoa escreveu e não invente uma causa.
+11. Não diga que o relatório foi salvo ou finalizado. Você apenas ajuda a preenchê-lo.
+12. Quando todos os campos necessários estiverem preenchidos, informe que o relatório está pronto para ser revisado e finalizado.
+13. Seja breve, acolhedor e natural.
+
+Idioma da conversa:
+${idioma === "en" ? "inglês" : "português brasileiro"}
+
+Campos que fazem parte do relatório de hoje:
+${JSON.stringify(camposHoje, null, 2)}
+
+Respostas já registradas no rascunho:
+${JSON.stringify(respostas, null, 2)}
+`;
+
+
+            // Só manda um pedaço recente da conversa
+            // para não gastar tokens desnecessariamente.
+            const historicoGroq =
+                mensagensChat
+                    .slice(-14)
+                    .filter(
+                        item =>
+                            item &&
+                            (
+                                item.role === "user" ||
+                                item.role === "assistant"
+                            ) &&
+                            typeof item.content ===
+                                "string"
+                    )
+                    .map(
+                        item => ({
+                            role: item.role,
+                            content:
+                                item.content.slice(
+                                    0,
+                                    1500
+                                )
+                        })
+                    );
+
+
+            const respostaGroq =
+                await fetch(
+                    "https://api.groq.com/openai/v1/chat/completions",
+                    {
+                        method: "POST",
+
+                        headers: {
+
+                            "Authorization":
+                                `Bearer ${GROQ_API_KEY}`,
+
+                            "Content-Type":
+                                "application/json"
+
+                        },
+
+                        body: JSON.stringify({
+
+                            model:
+                                GROQ_MODEL,
+
+                            messages: [
+
+                                {
+                                    role:
+                                        "system",
+
+                                    content:
+                                        promptSistema
+                                },
+
+                                ...historicoGroq,
+
+                                {
+                                    role:
+                                        "user",
+
+                                    content:
+                                        mensagem
+                                }
+
+                            ],
+
+                            reasoning_effort:
+                                "low",
+
+                            temperature:
+                                0.2,
+
+                            max_completion_tokens:
+                                600,
+
+                            response_format: {
+
+                                type:
+                                    "json_schema",
+
+                                json_schema: {
+
+                                    name:
+                                        "resposta_relatorio_bixuco",
+
+                                    strict:
+                                        true,
+
+                                    schema: {
+
+                                        type:
+                                            "object",
+
+                                        properties: {
+
+                                            mensagem: {
+                                                type:
+                                                    "string"
+                                            },
+
+                                            atualizacoes: {
+
+                                                type:
+                                                    "array",
+
+                                                items: {
+
+                                                    type:
+                                                        "object",
+
+                                                    properties: {
+
+                                                        id: {
+                                                            type:
+                                                                "string"
+                                                        },
+
+                                                        resposta: {
+                                                            type:
+                                                                "string"
+                                                        }
+
+                                                    },
+
+                                                    required: [
+                                                        "id",
+                                                        "resposta"
+                                                    ],
+
+                                                    additionalProperties:
+                                                        false
+
+                                                }
+
+                                            }
+
+                                        },
+
+                                        required: [
+                                            "mensagem",
+                                            "atualizacoes"
+                                        ],
+
+                                        additionalProperties:
+                                            false
+
+                                    }
+
+                                }
+
+                            }
+
+                        })
+
+                    }
+                );
+
+
+            if (!respostaGroq.ok) {
+
+                const detalhe =
+                    await respostaGroq.text();
+
+                console.error(
+                    "Erro Groq:",
+                    respostaGroq.status,
+                    detalhe
+                );
+
+
+                if (
+                    respostaGroq.status === 429
+                ) {
+
+                    return res.status(429).json({
+                        erro:
+                            "O chat recebeu muitas mensagens em pouco tempo. Aguarde um momento e tente novamente."
+                    });
+
+                }
+
+
+                return res.status(502).json({
+                    erro:
+                        "Não foi possível obter uma resposta da IA."
+                });
+
+            }
+
+
+            const dadosGroq =
+                await respostaGroq.json();
+
+
+            const conteudo =
+                dadosGroq
+                    ?.choices
+                    ?.[0]
+                    ?.message
+                    ?.content;
+
+
+            if (!conteudo) {
+
+                throw new Error(
+                    "Groq retornou uma resposta vazia."
+                );
+
+            }
+
+
+            const respostaIA =
+                JSON.parse(conteudo);
+
+
+            // =====================================
+            // VALIDA O QUE A IA TENTOU SALVAR
+            // =====================================
+
+            const idsPermitidos =
+                new Set(
+                    idsNecessarios
+                );
+
+
+            for (
+                const atualizacao
+                of respostaIA.atualizacoes
+            ) {
+
+                if (
+                    !atualizacao ||
+                    !idsPermitidos.has(
+                        atualizacao.id
+                    )
+                ) {
+
+                    continue;
+
+                }
+
+
+                const respostaLimpa =
+                    String(
+                        atualizacao.resposta || ""
+                    ).trim();
+
+
+                if (
+                    !respostaChatValida(
+                        atualizacao.id,
+                        respostaLimpa
+                    )
+                ) {
+
+                    continue;
+
+                }
+
+
+                const campo =
+                    CAMPOS_RELATORIO_CHAT[
+                        atualizacao.id
+                    ];
+
+
+                respostas =
+                    atualizarRespostaChat(
+                        respostas,
+                        {
+                            id:
+                                atualizacao.id,
+
+                            pergunta:
+                                campo.pergunta,
+
+                            resposta:
+                                respostaLimpa
+                        }
+                    );
+
+            }
+
+
+            // =====================================
+            // CALCULA O QUE AINDA FALTA
+            // =====================================
+
+            const idsRespondidos =
+                new Set(
+                    respostas
+                        .filter(
+                            item =>
+                                item &&
+                                item.id &&
+                                item.resposta
+                        )
+                        .map(
+                            item =>
+                                item.id
+                        )
+                );
+
+
+            const faltantes =
+                idsNecessarios.filter(
+                    id =>
+                        !idsRespondidos.has(id)
+                );
+
+
+            const completo =
+                faltantes.length === 0;
+
+
+            // =====================================
+            // GUARDA A CONVERSA
+            // =====================================
+
+            mensagensChat.push({
+
+                role:
+                    "user",
+
+                content:
+                    mensagem
+
+            });
+
+
+            mensagensChat.push({
+
+                role:
+                    "assistant",
+
+                content:
+                    respostaIA.mensagem
+
+            });
+
+
+            // Limite defensivo.
+            mensagensChat =
+                mensagensChat.slice(-40);
+
+
+            // =====================================
+            // SALVA TUDO NO MESMO RASCUNHO
+            // =====================================
+
+            await db.query(
+                `
+                INSERT INTO
+                    rascunhos_relatorio
+                (
+                    usuario_id,
+                    data_referencia,
+                    respostas,
+                    mensagens_chat,
+                    atualizado_em
+                )
+
+                VALUES
+                (
+                    $1,
+                    (
+                        NOW()
+                        AT TIME ZONE
+                        'America/Sao_Paulo'
+                    )::date,
+                    $2::jsonb,
+                    $3::jsonb,
+                    NOW()
+                )
+
+                ON CONFLICT
+                (
+                    usuario_id,
+                    data_referencia
+                )
+
+                DO UPDATE SET
+
+                    respostas =
+                        EXCLUDED.respostas,
+
+                    mensagens_chat =
+                        EXCLUDED.mensagens_chat,
+
+                    atualizado_em =
+                        NOW()
+                `,
+                [
+                    usuarioId,
+
+                    JSON.stringify(
+                        respostas
+                    ),
+
+                    JSON.stringify(
+                        mensagensChat
+                    )
+                ]
+            );
+
+
+            return res.json({
+
+                mensagem:
+                    respostaIA.mensagem,
+
+                respostas,
+
+                faltantes,
+
+                completo
+
+            });
+
+
+        } catch (erro) {
+
+            console.error(
+                "Erro em /api/relatorio-chat:",
+                erro
+            );
+
+
+            return res.status(500).json({
+                erro:
+                    "Não foi possível continuar a conversa."
+            });
+
+        }
+
+    }
+);
 
 app.post("/api/dicas/gerar", estaLogado, exigeResponsavel, async (req, res) => {
 
