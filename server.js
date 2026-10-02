@@ -7283,6 +7283,8 @@ app.post("/api/bixuco/evento", exigeDispositivo, async (req, res) => {
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
+
 const GROQ_MODEL =
     "openai/gpt-oss-20b";
 
