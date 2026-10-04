@@ -6,6 +6,16 @@
   -webkit-overflow-scrolling: touch;
 }
 
+/* Impede que os blocos da página sejam esmagados
+   para caber dentro dos 100vh do layout */
+.cabecalho-relatorio,
+.linha-graficos,
+.escolha-modo-relatorio,
+.card-questionario,
+.card-chat-relatorio {
+  flex-shrink: 0;
+}
+
 .cabecalho-relatorio {
   display: flex;
   align-items: center;
@@ -374,12 +384,12 @@ body.tema-escuro #btnProxima {
 }
 
 .card-chat-relatorio {
+  flex-shrink: 0;
   margin: 0 2rem 2rem;
   background: var(--cor-fundo-card);
   border-radius: 16px;
   box-shadow: var(--sombra-card);
   overflow: hidden;
-  scroll-margin-top: 1rem;
 }
 
 .chat-relatorio-topo {
@@ -434,7 +444,7 @@ body.tema-escuro #btnProxima {
 }
 
 .chat-mensagens {
-  min-height: 220px;
+  min-height: 280px;
   height: auto;
   overflow: visible;
   display: flex;
