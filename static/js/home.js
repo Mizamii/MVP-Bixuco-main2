@@ -1,4 +1,3 @@
-
 // =========================
 // TRADUÇÃO MANUAL
 // =========================
@@ -47,28 +46,44 @@ function aplicarIdiomaEstatico() {
     });
 
     document.getElementById("textoTradutor").textContent =
-        idiomaAtual === "en" ? "Traduzir para o português" : "Traduzir para o inglês";
+        idiomaAtual === "en"
+            ? "Traduzir para o português"
+            : "Traduzir para o inglês";
 }
 
 document.getElementById("btnTraduzir").addEventListener("click", () => {
     idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
-    localStorage.setItem("idioma", idiomaAtual);
+
+    localStorage.setItem(
+        "idioma",
+        idiomaAtual
+    );
 
     aplicarIdiomaEstatico();
 
-    // Reaplica textos dinâmicos que dependem do idioma
-    atualizarTextoSequencia(diasConsecutivosAtual);
+    atualizarTextoSequencia(
+        diasConsecutivosAtual
+    );
+
     renderizarStatusMapa();
+
     atualizarTextoBotaoDicas();
 
-    if (painelNotificacoes.classList.contains("aberto")) {
+    if (
+        painelNotificacoes
+            .classList
+            .contains("aberto")
+    ) {
         carregarNotificacoes();
     }
 
     if (ultimoEstadoBixuco) {
-        renderizarWidgetBixuco(ultimoEstadoBixuco);
+        renderizarWidgetBixuco(
+            ultimoEstadoBixuco
+        );
     }
 });
+
 
 // =========================
 // CARREGAR DADOS DO USUÁRIO
@@ -77,75 +92,179 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 let diasConsecutivosAtual = 0;
 
 async function carregarDadosUsuario() {
-    try {
-        const resposta = await fetch("/api/home");
 
-        if (resposta.status === 401) {
-            window.location.href = "/logar";
+    try {
+
+        const resposta =
+            await fetch("/api/home");
+
+        if (
+            resposta.status === 401
+        ) {
+            window.location.href =
+                "/logar";
+
             return;
         }
 
         if (!resposta.ok) {
-            throw new Error(`Falha ao carregar dados do usuário (status ${resposta.status})`);
+            throw new Error(
+                `Falha ao carregar dados do usuário (status ${resposta.status})`
+            );
         }
 
-        const dados = await resposta.json();
+        const dados =
+            await resposta.json();
 
-        const nomeCompleto = dados.nome || "Usuário";
-        const primeiroNome = nomeCompleto.split(" ")[0];
+        const nomeCompleto =
+            dados.nome || "Usuário";
 
-        document.getElementById("nomeUsuario").textContent  = nomeCompleto;
-        document.getElementById("primeiroNome").textContent = primeiroNome;
-        document.getElementById("nomeBixuco").textContent   = dados.nomeBixuco || "Bixuco";
-        document.getElementById("nomeBixucoDicas").textContent = dados.nomeBixuco || "Bixuco";
-        document.getElementById("tipoConta").textContent    = dados.tipoConta || "Responsável";
-        document.getElementById("quantidadeNotificacoes").textContent = dados.notificacoes ?? 0;
-        document.getElementById("diasConsecutivos").textContent       = dados.diasConsecutivos ?? 0;
-        
+        const primeiroNome =
+            nomeCompleto.split(" ")[0];
+
+        document.getElementById(
+            "nomeUsuario"
+        ).textContent =
+            nomeCompleto;
+
+        document.getElementById(
+            "primeiroNome"
+        ).textContent =
+            primeiroNome;
+
+        document.getElementById(
+            "nomeBixuco"
+        ).textContent =
+            dados.nomeBixuco || "Bixuco";
+
+        document.getElementById(
+            "nomeBixucoDicas"
+        ).textContent =
+            dados.nomeBixuco || "Bixuco";
+
+        document.getElementById(
+            "tipoConta"
+        ).textContent =
+            dados.tipoConta || "Responsável";
+
+        document.getElementById(
+            "quantidadeNotificacoes"
+        ).textContent =
+            dados.notificacoes ?? 0;
+
+        document.getElementById(
+            "diasConsecutivos"
+        ).textContent =
+            dados.diasConsecutivos ?? 0;
 
         if (dados.fotoPerfil) {
-            document.getElementById("fotoUsuario").src = dados.fotoPerfil;
+
+            document.getElementById(
+                "fotoUsuario"
+            ).src =
+                dados.fotoPerfil;
+
         }
 
-        diasConsecutivosAtual = dados.diasConsecutivos ?? 0;
-        atualizarTextoSequencia(diasConsecutivosAtual);
+        diasConsecutivosAtual =
+            dados.diasConsecutivos ?? 0;
+
+        atualizarTextoSequencia(
+            diasConsecutivosAtual
+        );
 
     } catch (erro) {
-        console.log("Erro ao carregar dados do usuário:", erro);
 
-        document.getElementById("nomeUsuario").textContent  = "Usuário";
-        document.getElementById("primeiroNome").textContent = "Usuário";
-        document.getElementById("nomeBixuco").textContent   = "Bixuco";
-        document.getElementById("nomeBixucoDicas").textContent = "Bixuco";
-        document.getElementById("tipoConta").textContent    = "Responsável";
-        document.getElementById("quantidadeNotificacoes").textContent = "0";
-        document.getElementById("diasConsecutivos").textContent       = "0";
-        
+        console.log(
+            "Erro ao carregar dados do usuário:",
+            erro
+        );
+
+        document.getElementById(
+            "nomeUsuario"
+        ).textContent =
+            "Usuário";
+
+        document.getElementById(
+            "primeiroNome"
+        ).textContent =
+            "Usuário";
+
+        document.getElementById(
+            "nomeBixuco"
+        ).textContent =
+            "Bixuco";
+
+        document.getElementById(
+            "nomeBixucoDicas"
+        ).textContent =
+            "Bixuco";
+
+        document.getElementById(
+            "tipoConta"
+        ).textContent =
+            "Responsável";
+
+        document.getElementById(
+            "quantidadeNotificacoes"
+        ).textContent =
+            "0";
+
+        document.getElementById(
+            "diasConsecutivos"
+        ).textContent =
+            "0";
 
         diasConsecutivosAtual = 0;
+
         atualizarTextoSequencia(0);
     }
 }
 
+
 function atualizarTextoSequencia(dias) {
-    diasConsecutivosAtual = dias;
-    const texto = document.getElementById("textoSequencia");
+
+    diasConsecutivosAtual =
+        dias;
+
+    const texto =
+        document.getElementById(
+            "textoSequencia"
+        );
+
     let chave;
 
     if (dias <= 0) {
-        chave = "A ofensiva recomeça a cada dia sem crise. Um dia de cada vez.";
+
+        chave =
+            "A ofensiva recomeça a cada dia sem crise. Um dia de cada vez.";
+
     } else if (dias === 1) {
-        chave = "Um dia sem crise! Continue acompanhando o dia a dia.";
+
+        chave =
+            "Um dia sem crise! Continue acompanhando o dia a dia.";
+
     } else if (dias < 7) {
-        chave = "Muito bom! Dias tranquilos seguidos.";
+
+        chave =
+            "Muito bom! Dias tranquilos seguidos.";
+
     } else if (dias < 30) {
-        chave = "Ótimo progresso! Mais de uma semana sem crises.";
+
+        chave =
+            "Ótimo progresso! Mais de uma semana sem crises.";
+
     } else {
-        chave = "Parabéns! Mais de um mês sem nenhuma crise.";
+
+        chave =
+            "Parabéns! Mais de um mês sem nenhuma crise.";
+
     }
 
-    texto.textContent = traduzir(chave);
+    texto.textContent =
+        traduzir(chave);
 }
+
 
 // =========================
 // STATUS DO BIXUCO FÍSICO
@@ -153,612 +272,1534 @@ function atualizarTextoSequencia(dias) {
 
 let ultimoEstadoBixuco = null;
 
+
 async function carregarStatusBixuco() {
-    const widget = document.getElementById("bixuco-widget");
+
+    const widget =
+        document.getElementById(
+            "bixuco-widget"
+        );
 
     try {
-        const resposta = await fetch("/api/bixuco/status");
 
-        if (resposta.status === 401) {
-            window.location.href = "/logar";
+        const resposta =
+            await fetch(
+                "/api/bixuco/status"
+            );
+
+        if (
+            resposta.status === 401
+        ) {
+
+            window.location.href =
+                "/logar";
+
             return;
         }
 
-        if (!resposta.ok) throw new Error("Falha ao carregar status do Bixuco");
+        if (!resposta.ok) {
 
-        const dados = await resposta.json();
-        ultimoEstadoBixuco = dados.estado;
-        renderizarWidgetBixuco(dados.estado);
+            throw new Error(
+                "Falha ao carregar status do Bixuco"
+            );
+
+        }
+
+        const dados =
+            await resposta.json();
+
+        ultimoEstadoBixuco =
+            dados.estado;
+
+        renderizarWidgetBixuco(
+            dados.estado
+        );
 
     } catch (erro) {
-        console.log("Erro ao carregar status do Bixuco:", erro);
-        // Se der erro, não mostra nada — evita quebrar a home por causa disso
+
+        console.log(
+            "Erro ao carregar status do Bixuco:",
+            erro
+        );
+
         widget.innerHTML = "";
     }
 }
 
+
 function renderizarWidgetBixuco(estado) {
-    const widget = document.getElementById("bixuco-widget");
+
+    const widget =
+        document.getElementById(
+            "bixuco-widget"
+        );
 
     if (estado === "vinculado") {
+
         widget.innerHTML = "";
+
         return;
     }
 
     if (estado === "sem_pedido") {
+
         widget.innerHTML = `
             <article class="card card-relatorio" id="cardBixuco">
                 <div class="icone">
                     <i class="fa-solid fa-box"></i>
                 </div>
+
                 <div>
-                    <h2>${traduzir("Peça seu Bixuco")}</h2>
-                    <p>${traduzir("Comece a jornada de acompanhamento com a pelúcia sensorizada.")}</p>
+                    <h2>
+                        ${traduzir("Peça seu Bixuco")}
+                    </h2>
+
+                    <p>
+                        ${traduzir("Comece a jornada de acompanhamento com a pelúcia sensorizada.")}
+                    </p>
                 </div>
+
                 <i class="fa-solid fa-chevron-right seta"></i>
             </article>
         `;
-        document.getElementById("cardBixuco").addEventListener("click", () => {
-            window.location.href = "/FormularioEntrega";
-        });
+
+        document
+            .getElementById(
+                "cardBixuco"
+            )
+            .addEventListener(
+                "click",
+                () => {
+
+                    window.location.href =
+                        "/FormularioEntrega";
+
+                }
+            );
+
         return;
     }
 
     if (estado === "em_andamento") {
+
         widget.innerHTML = `
             <article class="card card-relatorio" id="cardBixuco">
                 <div class="icone">
                     <i class="fa-solid fa-truck"></i>
                 </div>
+
                 <div>
-                    <h2>${traduzir("Seu Bixuco está a caminho")}</h2>
-                    <p>${traduzir("Acompanhe o status da entrega.")}</p>
+                    <h2>
+                        ${traduzir("Seu Bixuco está a caminho")}
+                    </h2>
+
+                    <p>
+                        ${traduzir("Acompanhe o status da entrega.")}
+                    </p>
                 </div>
+
                 <i class="fa-solid fa-chevron-right seta"></i>
             </article>
         `;
-        document.getElementById("cardBixuco").addEventListener("click", () => {
-            window.location.href = "/AcompanharPedido";
-        });
+
+        document
+            .getElementById(
+                "cardBixuco"
+            )
+            .addEventListener(
+                "click",
+                () => {
+
+                    window.location.href =
+                        "/AcompanharPedido";
+
+                }
+            );
+
         return;
     }
 
-    if (estado === "entregue_nao_vinculado") {
+    if (
+        estado ===
+        "entregue_nao_vinculado"
+    ) {
+
         widget.innerHTML = `
             <article class="card card-relatorio" id="cardBixuco">
                 <div class="icone">
                     <i class="fa-solid fa-link"></i>
                 </div>
+
                 <div>
-                    <h2>${traduzir("Vincular meu Bixuco")}</h2>
-                    <p>${traduzir("Seu Bixuco chegou! Vincule para começar a jornada.")}</p>
+                    <h2>
+                        ${traduzir("Vincular meu Bixuco")}
+                    </h2>
+
+                    <p>
+                        ${traduzir("Seu Bixuco chegou! Vincule para começar a jornada.")}
+                    </p>
                 </div>
+
                 <i class="fa-solid fa-chevron-right seta"></i>
             </article>
         `;
-        document.getElementById("cardBixuco").addEventListener("click", () => {
-            window.location.href = "/VincularIdentidade";
-        });
+
+        document
+            .getElementById(
+                "cardBixuco"
+            )
+            .addEventListener(
+                "click",
+                () => {
+
+                    window.location.href =
+                        "/VincularIdentidade";
+
+                }
+            );
     }
 }
 
-const btnGerarDicas = document.getElementById("btnGerarDicas");
-const listaDicas = document.getElementById("listaDicas");
-const textoBtnDicas = document.getElementById("textoBtnDicas");
-const modalDica = document.getElementById("modalDica");
+
+// =========================
+// DICAS
+// =========================
+
+const btnGerarDicas =
+    document.getElementById(
+        "btnGerarDicas"
+    );
+
+const listaDicas =
+    document.getElementById(
+        "listaDicas"
+    );
+
+const textoBtnDicas =
+    document.getElementById(
+        "textoBtnDicas"
+    );
+
+const modalDica =
+    document.getElementById(
+        "modalDica"
+    );
 
 let dicasJaGeradas = false;
 
+
 function atualizarTextoBotaoDicas() {
-    textoBtnDicas.textContent = dicasJaGeradas
-        ? traduzir("Gerar novas dicas")
-        : traduzir("Ver dicas personalizadas");
+
+    textoBtnDicas.textContent =
+        dicasJaGeradas
+            ? traduzir(
+                "Gerar novas dicas"
+            )
+            : traduzir(
+                "Ver dicas personalizadas"
+            );
+
 }
 
+
 function escaparHTML(texto) {
-    const div = document.createElement("div");
-    div.textContent = texto ?? "";
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+    div.textContent =
+        texto ?? "";
+
     return div.innerHTML;
 }
 
+
 function renderizarDicas(dicas) {
+
     listaDicas.innerHTML = "";
 
     dicas.forEach(dica => {
-        const artigo = document.createElement("article");
-        artigo.className = "dica";
+
+        const artigo =
+            document.createElement(
+                "article"
+            );
+
+        artigo.className =
+            "dica";
+
         artigo.innerHTML = `
             <div class="icone-dica">
                 <i class="fa-solid fa-lightbulb"></i>
             </div>
+
             <div>
-                <h4>${escaparHTML(dica.titulo)}</h4>
-                <p>${escaparHTML(dica.texto)}</p>
+                <h4>
+                    ${escaparHTML(dica.titulo)}
+                </h4>
+
+                <p>
+                    ${escaparHTML(dica.texto)}
+                </p>
             </div>
         `;
-        artigo.addEventListener("click", () => abrirModalDica(dica));
-        listaDicas.appendChild(artigo);
+
+        artigo.addEventListener(
+            "click",
+            () =>
+                abrirModalDica(
+                    dica
+                )
+        );
+
+        listaDicas.appendChild(
+            artigo
+        );
+
     });
 
     dicasJaGeradas = true;
+
     atualizarTextoBotaoDicas();
 }
 
+
 function abrirModalDica(dica) {
-    document.getElementById("modalDicaTitulo").textContent = dica.titulo;
-    document.getElementById("modalDicaTexto").textContent = dica.texto;
-    modalDica.style.display = "flex";
+
+    document.getElementById(
+        "modalDicaTitulo"
+    ).textContent =
+        dica.titulo;
+
+    document.getElementById(
+        "modalDicaTexto"
+    ).textContent =
+        dica.texto;
+
+    modalDica.style.display =
+        "flex";
 }
 
-document.getElementById("fecharModalDica").addEventListener("click", () => {
-    modalDica.style.display = "none";
-});
 
-modalDica.addEventListener("click", (e) => {
-    if (e.target === modalDica) modalDica.style.display = "none";
-});
+document
+    .getElementById(
+        "fecharModalDica"
+    )
+    .addEventListener(
+        "click",
+        () => {
 
-// Carrega automaticamente ao abrir a pagina, sem gastar credito (GET)
+            modalDica.style.display =
+                "none";
+
+        }
+    );
+
+
+modalDica.addEventListener(
+    "click",
+    e => {
+
+        if (
+            e.target === modalDica
+        ) {
+
+            modalDica.style.display =
+                "none";
+
+        }
+
+    }
+);
+
+
+// Carrega automaticamente ao abrir a página,
+// sem gastar crédito.
 async function carregarDicasSalvas() {
+
     try {
-        const resposta = await fetch("/api/dicas");
-        const dados = await resposta.json();
+
+        const resposta =
+            await fetch(
+                "/api/dicas"
+            );
+
+        const dados =
+            await resposta.json();
 
         if (dados.disponivel) {
-            renderizarDicas(dados.dicas);
+
+            renderizarDicas(
+                dados.dicas
+            );
+
         }
+
     } catch (erro) {
-        console.log("Erro ao carregar dicas salvas:", erro);
+
+        console.log(
+            "Erro ao carregar dicas salvas:",
+            erro
+        );
+
     }
 }
 
-btnGerarDicas.addEventListener("click", async () => {
 
-    textoBtnDicas.textContent = traduzir("Gerando...");
-    btnGerarDicas.disabled = true;
+btnGerarDicas.addEventListener(
+    "click",
+    async () => {
 
-    try {
-        const resposta = await fetch("/api/dicas/gerar", { method: "POST" });
-        const dados = await resposta.json();
+        textoBtnDicas.textContent =
+            traduzir(
+                "Gerando..."
+            );
 
-        if (resposta.status === 429) {
-            if (dados.dicas) renderizarDicas(dados.dicas);
-            alert(dados.erro);
-            return;
+        btnGerarDicas.disabled =
+            true;
+
+        try {
+
+            const resposta =
+                await fetch(
+                    "/api/dicas/gerar",
+                    {
+                        method: "POST"
+                    }
+                );
+
+            const dados =
+                await resposta.json();
+
+            if (
+                resposta.status === 429
+            ) {
+
+                if (dados.dicas) {
+
+                    renderizarDicas(
+                        dados.dicas
+                    );
+
+                }
+
+                alert(
+                    dados.erro
+                );
+
+                return;
+            }
+
+            if (!resposta.ok) {
+
+                listaDicas.innerHTML =
+                    `<p class="sem-dados">${dados.erro || traduzir("Erro ao gerar dicas.")}</p>`;
+
+                textoBtnDicas.textContent =
+                    traduzir(
+                        "Tentar novamente"
+                    );
+
+                return;
+            }
+
+            renderizarDicas(
+                dados.dicas
+            );
+
+        } catch (erro) {
+
+            console.log(
+                "Erro ao gerar dicas:",
+                erro
+            );
+
+            listaDicas.innerHTML =
+                `<p class="sem-dados">${traduzir("Erro de conexão. Tente novamente.")}</p>`;
+
+        } finally {
+
+            btnGerarDicas.disabled =
+                false;
+
         }
 
-        if (!resposta.ok) {
-            listaDicas.innerHTML = `<p class="sem-dados">${dados.erro || traduzir("Erro ao gerar dicas.")}</p>`;
-            textoBtnDicas.textContent = traduzir("Tentar novamente");
-            return;
-        }
-
-        renderizarDicas(dados.dicas);
-
-    } catch (erro) {
-        console.log("Erro ao gerar dicas:", erro);
-        listaDicas.innerHTML = `<p class="sem-dados">${traduzir("Erro de conexão. Tente novamente.")}</p>`;
-    } finally {
-        btnGerarDicas.disabled = false;
     }
+);
 
-});
 
-// Chama junto com as outras inicializações da pagina
+// Chama junto com as outras
+// inicializações da página.
 carregarDicasSalvas();
+
 
 // =========================
 // CALENDÁRIO
 // =========================
 
-let dataAtual = new Date();
+let dataAtual =
+    new Date();
+
 let diasComRelatorio = [];
 
+
 const mesesPt = [
-    "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
-    "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
+    "Janeiro",
+    "Fevereiro",
+    "Março",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro"
 ];
+
 
 const mesesEn = [
-    "January","February","March","April","May","June",
-    "July","August","September","October","November","December"
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
 ];
 
+
 async function carregarDiasRelatorio() {
+
     try {
-        const mes = dataAtual.getMonth() + 1;
-        const ano = dataAtual.getFullYear();
-        const resposta = await fetch(`/api/relatorios/dias?mes=${mes}&ano=${ano}`);
 
-        if (!resposta.ok) throw new Error("Falha ao carregar dias");
+        const mes =
+            dataAtual.getMonth() + 1;
 
-        const dados = await resposta.json();
-        diasComRelatorio = dados.dias || [];
+        const ano =
+            dataAtual.getFullYear();
+
+        const resposta =
+            await fetch(
+                `/api/relatorios/dias?mes=${mes}&ano=${ano}`
+            );
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                "Falha ao carregar dias"
+            );
+
+        }
+
+        const dados =
+            await resposta.json();
+
+        diasComRelatorio =
+            dados.dias || [];
+
         atualizarCalendario();
 
     } catch (erro) {
-        console.log("Erro ao carregar dias de relatório:", erro);
+
+        console.log(
+            "Erro ao carregar dias de relatório:",
+            erro
+        );
+
         diasComRelatorio = [];
+
         atualizarCalendario();
+
     }
 }
 
+
 function atualizarCalendario() {
-    const titulo = document.getElementById("tituloCalendario");
-    const dias   = document.getElementById("diasCalendario");
+
+    const titulo =
+        document.getElementById(
+            "tituloCalendario"
+        );
+
+    const dias =
+        document.getElementById(
+            "diasCalendario"
+        );
 
     dias.innerHTML = "";
 
-    const meses = idiomaAtual === "en" ? mesesEn : mesesPt;
+    const meses =
+        idiomaAtual === "en"
+            ? mesesEn
+            : mesesPt;
 
-    titulo.textContent = `${meses[dataAtual.getMonth()]} ${dataAtual.getFullYear()}`;
+    titulo.textContent =
+        `${meses[dataAtual.getMonth()]} ${dataAtual.getFullYear()}`;
 
-    const primeiroDia = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), 1).getDay();
-    const ultimoDia   = new Date(dataAtual.getFullYear(), dataAtual.getMonth() + 1, 0).getDate();
+    const primeiroDia =
+        new Date(
+            dataAtual.getFullYear(),
+            dataAtual.getMonth(),
+            1
+        ).getDay();
 
-    for (let i = 0; i < primeiroDia; i++) {
-        dias.appendChild(document.createElement("div"));
+    const ultimoDia =
+        new Date(
+            dataAtual.getFullYear(),
+            dataAtual.getMonth() + 1,
+            0
+        ).getDate();
+
+    for (
+        let i = 0;
+        i < primeiroDia;
+        i++
+    ) {
+
+        dias.appendChild(
+            document.createElement(
+                "div"
+            )
+        );
+
     }
 
-    const hoje = new Date();
+    const hoje =
+        new Date();
 
-    for (let dia = 1; dia <= ultimoDia; dia++) {
-        const botao = document.createElement("button");
-        botao.type        = "button";
-        botao.textContent = dia;
+    for (
+        let dia = 1;
+        dia <= ultimoDia;
+        dia++
+    ) {
+
+        const botao =
+            document.createElement(
+                "button"
+            );
+
+        botao.type =
+            "button";
+
+        botao.textContent =
+            dia;
 
         if (
             dia === hoje.getDate() &&
             dataAtual.getMonth() === hoje.getMonth() &&
             dataAtual.getFullYear() === hoje.getFullYear()
         ) {
-            botao.classList.add("hoje");
+
+            botao.classList.add(
+                "hoje"
+            );
+
         }
 
-        if (diasComRelatorio.includes(dia)) {
-            botao.classList.add("com-relatorio");
+        if (
+            diasComRelatorio
+                .includes(dia)
+        ) {
+
+            botao.classList.add(
+                "com-relatorio"
+            );
+
         }
 
-        dias.appendChild(botao);
+        dias.appendChild(
+            botao
+        );
+
     }
 }
 
-document.getElementById("mesAnterior").onclick = () => {
-    dataAtual.setMonth(dataAtual.getMonth() - 1);
+
+document.getElementById(
+    "mesAnterior"
+).onclick = () => {
+
+    dataAtual.setMonth(
+        dataAtual.getMonth() - 1
+    );
+
     carregarDiasRelatorio();
+
 };
 
-document.getElementById("proximoMes").onclick = () => {
-    dataAtual.setMonth(dataAtual.getMonth() + 1);
+
+document.getElementById(
+    "proximoMes"
+).onclick = () => {
+
+    dataAtual.setMonth(
+        dataAtual.getMonth() + 1
+    );
+
     carregarDiasRelatorio();
+
 };
 
-// Tema claro/escuro vem de /js/tema.js (compartilhado com todas as páginas)
+
+// Tema claro/escuro vem de /js/tema.js.
+
 
 // =========================
 // PAINEL DE NOTIFICAÇÕES
 // =========================
 
-const painelNotificacoes = document.getElementById("painelNotificacoes");
-const listaNotificacoes  = document.getElementById("listaNotificacoes");
+const painelNotificacoes =
+    document.getElementById(
+        "painelNotificacoes"
+    );
 
-function escaparHTML(texto) {
-    const div = document.createElement("div");
-    div.textContent = texto ?? "";
-    return div.innerHTML;
-}
+const listaNotificacoes =
+    document.getElementById(
+        "listaNotificacoes"
+    );
+
 
 function formatarItemNotificacao(item) {
-    const classeExtra = item.lida ? "" : "nao-lida";
+
+    const classeExtra =
+        item.lida
+            ? ""
+            : "nao-lida";
+
     return `
         <div class="item-notificacao ${classeExtra}">
             ${escaparHTML(item.mensagem)}
-            <span class="tempo-notificacao">${escaparHTML(item.tempo)}</span>
+
+            <span class="tempo-notificacao">
+                ${escaparHTML(item.tempo)}
+            </span>
         </div>
     `;
 }
+
 
 async function carregarNotificacoes() {
 
     try {
 
-        const resposta = await fetch("/api/notificacoes");
+        const resposta =
+            await fetch(
+                "/api/notificacoes"
+            );
 
-        if (!resposta.ok) throw new Error("Falha ao carregar notificações");
+        if (!resposta.ok) {
 
-        const dados = await resposta.json();
-        const itens = dados.notificacoes || [];
+            throw new Error(
+                "Falha ao carregar notificações"
+            );
 
-        if (itens.length === 0) {
-            listaNotificacoes.innerHTML = `<div class="painel-vazio">${traduzir("Nenhuma notificação por enquanto.")}</div>`;
+        }
+
+        const dados =
+            await resposta.json();
+
+        const itens =
+            dados.notificacoes || [];
+
+        if (
+            itens.length === 0
+        ) {
+
+            listaNotificacoes.innerHTML =
+                `<div class="painel-vazio">${traduzir("Nenhuma notificação por enquanto.")}</div>`;
+
         } else {
-            listaNotificacoes.innerHTML = itens.map(formatarItemNotificacao).join("");
+
+            listaNotificacoes.innerHTML =
+                itens
+                    .map(
+                        formatarItemNotificacao
+                    )
+                    .join("");
+
         }
 
     } catch (erro) {
-        console.log("Erro ao carregar notificações:", erro);
-        listaNotificacoes.innerHTML = `<div class="painel-vazio">${traduzir("Não foi possível carregar as notificações.")}</div>`;
-    }
 
+        console.log(
+            "Erro ao carregar notificações:",
+            erro
+        );
+
+        listaNotificacoes.innerHTML =
+            `<div class="painel-vazio">${traduzir("Não foi possível carregar as notificações.")}</div>`;
+
+    }
 }
+
 
 async function marcarNotificacoesComoLidas() {
 
     try {
-        await fetch("/api/notificacoes/marcar-lidas", { method: "POST" });
-        atualizarBadgeNotificacoes(0);
-    } catch (erro) {
-        console.log("Erro ao marcar notificações como lidas:", erro);
-    }
 
+        await fetch(
+            "/api/notificacoes/marcar-lidas",
+            {
+                method: "POST"
+            }
+        );
+
+        atualizarBadgeNotificacoes(0);
+
+    } catch (erro) {
+
+        console.log(
+            "Erro ao marcar notificações como lidas:",
+            erro
+        );
+
+    }
 }
 
-document.getElementById("btnNotificacoes").addEventListener("click", async (e) => {
 
-    e.stopPropagation();
+document
+    .getElementById(
+        "btnNotificacoes"
+    )
+    .addEventListener(
+        "click",
+        async e => {
 
-    const estaAberto = painelNotificacoes.classList.contains("aberto");
+            e.stopPropagation();
 
-    if (estaAberto) {
-        painelNotificacoes.classList.remove("aberto");
+            const estaAberto =
+                painelNotificacoes
+                    .classList
+                    .contains(
+                        "aberto"
+                    );
+
+            if (estaAberto) {
+
+                painelNotificacoes
+                    .classList
+                    .remove(
+                        "aberto"
+                    );
+
+                return;
+            }
+
+            painelNotificacoes
+                .classList
+                .add(
+                    "aberto"
+                );
+
+            await carregarNotificacoes();
+
+            marcarNotificacoesComoLidas();
+
+        }
+    );
+
+
+document.addEventListener(
+    "click",
+    e => {
+
+        if (
+            !painelNotificacoes
+                .contains(
+                    e.target
+                )
+        ) {
+
+            painelNotificacoes
+                .classList
+                .remove(
+                    "aberto"
+                );
+
+        }
+
+    }
+);
+
+
+// =========================
+// MAPA DO BIXUCO
+// =========================
+
+let mapaLeaflet = null;
+
+let marcador = null;
+
+let camadaMapa = null;
+
+
+// Usamos Leaflet puro com tiles raster.
+// Isso evita o problema da camada MapLibre
+// aparecer em branco.
+const URL_MAPA =
+    "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+
+
+// Centro inicial.
+// Não representa a localização do Bixuco.
+let latAtual =
+    -14.2350;
+
+let lngAtual =
+    -51.9253;
+
+let temLocalizacaoReal =
+    false;
+
+
+function iniciarMapa() {
+
+    const containerMapa =
+        document.getElementById(
+            "mapaBixuco"
+        );
+
+    if (
+        !containerMapa ||
+        typeof L === "undefined"
+    ) {
+
+        console.log(
+            "Leaflet ou o container do mapa não está disponível."
+        );
+
         return;
     }
 
-    painelNotificacoes.classList.add("aberto");
+    mapaLeaflet =
+        L.map(
+            "mapaBixuco"
+        ).setView(
+            [
+                latAtual,
+                lngAtual
+            ],
+            13
+        );
 
-    // Recarrega toda vez que abre, pra sempre mostrar as mais recentes
-    await carregarNotificacoes();
 
-    // Marca como lidas ao abrir e zera o número no sino
-    marcarNotificacoesComoLidas();
+    camadaMapa =
+        L.tileLayer(
+            URL_MAPA,
+            {
+                maxZoom: 19,
 
-});
+                attribution:
+                    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }
+        );
 
-// Fecha o painel ao clicar fora dele
-document.addEventListener("click", (e) => {
-    if (!painelNotificacoes.contains(e.target)) {
-        painelNotificacoes.classList.remove("aberto");
+
+    camadaMapa.addTo(
+        mapaLeaflet
+    );
+
+
+    // Quando o layout termina de montar,
+    // recalcula o tamanho real do mapa.
+    setTimeout(
+        () => {
+
+            if (mapaLeaflet) {
+
+                mapaLeaflet
+                    .invalidateSize();
+
+            }
+
+        },
+        200
+    );
+
+
+    // Recalcula o tamanho caso o card
+    // mude por causa da janela ou zoom.
+    if (
+        typeof ResizeObserver !==
+        "undefined"
+    ) {
+
+        const observadorTamanho =
+            new ResizeObserver(
+                () => {
+
+                    if (
+                        mapaLeaflet
+                    ) {
+
+                        mapaLeaflet
+                            .invalidateSize();
+
+                    }
+
+                }
+            );
+
+
+        observadorTamanho.observe(
+            containerMapa
+        );
+
     }
-});
 
-let mapaLeaflet = null;
-let marcador    = null;
-let camadaMapa = null;
-
-const ESTILO_CLARO  = "https://tiles.openfreemap.org/styles/positron";
-const ESTILO_ESCURO = "https://tiles.openfreemap.org/styles/dark";
-
-// Centro inicial do mapa.
-// Não representa a localização do Bixuco.
-let latAtual = -14.2350;
-let lngAtual = -51.9253;
-
-let temLocalizacaoReal = false;
-
-function iniciarMapa() {
-    mapaLeaflet = L.map("mapaBixuco").setView([latAtual, lngAtual], 13);
-
-    camadaMapa = L.maplibreGL({
-        style: document.body.classList.contains("tema-escuro") ? ESTILO_ESCURO : ESTILO_CLARO,
-        attribution: 'OpenFreeMap © OpenMapTiles Data from OpenStreetMap'
-    }).addTo(mapaLeaflet);
-
-    setTimeout(() => {
-        mapaLeaflet.invalidateSize();
-        camadaMapa.getMaplibreMap().resize();
-    }, 200);
-
-    // ResizeObserver detecta QUALQUER mudanca de tamanho do container do mapa
-    // (zoom do navegador, redimensionar janela, mudanca de layout, etc.)
-    const observadorTamanho = new ResizeObserver(() => {
-        mapaLeaflet.invalidateSize();
-        camadaMapa.getMaplibreMap().resize();
-    });
-
-    observadorTamanho.observe(document.getElementById("mapaBixuco"));
 
     carregarLocalizacaoReal();
 
-    setInterval(carregarLocalizacaoReal, 10000); // busca de novo a cada 10 segundos
+
+    setInterval(
+        carregarLocalizacaoReal,
+        10000
+    );
+
 }
 
-function trocarEstiloMapa(tema) {
-    if (!camadaMapa) return;
-    const novoEstilo = tema === "escuro" ? ESTILO_ESCURO : ESTILO_CLARO;
-    camadaMapa.getMaplibreMap().setStyle(novoEstilo);
-}
 
-// Guarda o último status recebido da API para poder re-renderizar
-// o texto do mapa quando o idioma for trocado, sem precisar re-buscar.
-let ultimoStatusMapa = { tipo: "inicial" };
+// tema.js ainda chama esta função.
+// Como não usamos mais MapLibre,
+// só precisamos recalcular o mapa.
+function trocarEstiloMapa() {
 
-function renderizarStatusMapa() {
-    const el = document.getElementById("textoMapaStatus");
-    const iconeStatus = document.querySelector(".mapa-status i");
-    if (!el) return;
-
-    if (ultimoStatusMapa.tipo === "inicial") {
-        el.textContent = traduzir("Rastreamento em tempo real disponível em breve");
-        if (iconeStatus) iconeStatus.style.color = "#C2C2C2";
-    } else if (ultimoStatusMapa.tipo === "sem-local") {
-        el.textContent = traduzir("Nenhuma localização registrada ainda");
-        if (iconeStatus) iconeStatus.style.color = "#C2C2C2";
-    } else if (ultimoStatusMapa.tipo === "atualizado") {
-        el.textContent = `${traduzir("Atualizado em")} ${ultimoStatusMapa.dataFormatada}, ${ultimoStatusMapa.horario}`;
-        if (iconeStatus) iconeStatus.style.color = "#32C26D";
-    } else if (ultimoStatusMapa.tipo === "erro") {
-        el.textContent = traduzir("Não foi possível carregar a localização");
-        if (iconeStatus) iconeStatus.style.color = "#C2C2C2";
-    }
-}
-
-async function carregarLocalizacaoReal() {
-
-    try {
-        const resposta = await fetch("/api/bixuco/localizacao");
-        if (!resposta.ok) throw new Error("Falha ao buscar localização");
-
-        const dados = await resposta.json();
-
-    if (!dados.disponivel) {
-
-        temLocalizacaoReal = false;
-
-        if (marcador) {
-            mapaLeaflet.removeLayer(marcador);
-            marcador = null;
-        }
-
-        ultimoStatusMapa = {
-            tipo: "sem-local"
-        };
-
-        renderizarStatusMapa();
-
+    if (!mapaLeaflet) {
         return;
     }
 
-        if (dados.nomePelucia) {
-            const tituloEl = document.getElementById("nomeBixucoTitulo");
-            if (tituloEl) tituloEl.textContent = dados.nomePelucia;
+
+    setTimeout(
+        () => {
+
+            mapaLeaflet
+                .invalidateSize();
+
+        },
+        100
+    );
+
+}
+
+
+// Guarda o último status recebido
+// para a tradução poder atualizar
+// sem fazer uma nova requisição.
+let ultimoStatusMapa = {
+    tipo: "inicial"
+};
+
+
+function renderizarStatusMapa() {
+
+    const el =
+        document.getElementById(
+            "textoMapaStatus"
+        );
+
+    const iconeStatus =
+        document.querySelector(
+            ".mapa-status i"
+        );
+
+    if (!el) {
+        return;
+    }
+
+
+    if (
+        ultimoStatusMapa.tipo ===
+        "inicial"
+    ) {
+
+        el.textContent =
+            traduzir(
+                "Rastreamento em tempo real disponível em breve"
+            );
+
+        if (iconeStatus) {
+
+            iconeStatus.style.color =
+                "#C2C2C2";
+
+        }
+
+    } else if (
+        ultimoStatusMapa.tipo ===
+        "sem-local"
+    ) {
+
+        el.textContent =
+            traduzir(
+                "Nenhuma localização registrada ainda"
+            );
+
+        if (iconeStatus) {
+
+            iconeStatus.style.color =
+                "#C2C2C2";
+
+        }
+
+    } else if (
+        ultimoStatusMapa.tipo ===
+        "atualizado"
+    ) {
+
+        el.textContent =
+            `${traduzir("Atualizado em")} ${ultimoStatusMapa.dataFormatada}, ${ultimoStatusMapa.horario}`;
+
+        if (iconeStatus) {
+
+            iconeStatus.style.color =
+                "#32C26D";
+
+        }
+
+    } else if (
+        ultimoStatusMapa.tipo ===
+        "erro"
+    ) {
+
+        el.textContent =
+            traduzir(
+                "Não foi possível carregar a localização"
+            );
+
+        if (iconeStatus) {
+
+            iconeStatus.style.color =
+                "#C2C2C2";
+
+        }
+
+    }
+
+}
+
+
+async function carregarLocalizacaoReal() {
+
+    if (!mapaLeaflet) {
+        return;
+    }
+
+    try {
+
+        const resposta =
+            await fetch(
+                "/api/bixuco/localizacao"
+            );
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                "Falha ao buscar localização"
+            );
+
+        }
+
+        const dados =
+            await resposta.json();
+
+
+        if (!dados.disponivel) {
+
+            temLocalizacaoReal =
+                false;
+
+            if (marcador) {
+
+                mapaLeaflet
+                    .removeLayer(
+                        marcador
+                    );
+
+                marcador =
+                    null;
+
+            }
+
+
+            ultimoStatusMapa = {
+                tipo: "sem-local"
+            };
+
+
+            renderizarStatusMapa();
+
+            return;
         }
 
 
-        latAtual = dados.latitude;
-        lngAtual = dados.longitude;
+        if (dados.nomePelucia) {
 
-        temLocalizacaoReal = true;
+            const tituloEl =
+                document.getElementById(
+                    "nomeBixucoTitulo"
+                );
+
+            if (tituloEl) {
+
+                tituloEl.textContent =
+                    dados.nomePelucia;
+
+            }
+
+        }
+
+
+        latAtual =
+            dados.latitude;
+
+        lngAtual =
+            dados.longitude;
+
+        temLocalizacaoReal =
+            true;
+
 
         mapaLeaflet.setView(
-            [latAtual, lngAtual],
+            [
+                latAtual,
+                lngAtual
+            ],
             15
         );
 
+
         if (!marcador) {
 
-            const iconeBixuco = L.divIcon({
-                html: `
-                    <div style="
-                        background:#32C26D;
-                        width:36px;
-                        height:36px;
-                        border-radius:50%;
-                        border:3px solid white;
-                        display:flex;
-                        align-items:center;
-                        justify-content:center;
-                        box-shadow:0 2px 8px rgba(0,0,0,0.3);
-                        font-size:18px;
-                    ">
-                        🐱
-                    </div>
-                `,
-                iconSize: [36, 36],
-                iconAnchor: [18, 18],
-                className: ""
-            });
+            const iconeBixuco =
+                L.divIcon(
+                    {
+                        html: `
+                            <div style="
+                                background:#32C26D;
+                                width:36px;
+                                height:36px;
+                                border-radius:50%;
+                                border:3px solid white;
+                                display:flex;
+                                align-items:center;
+                                justify-content:center;
+                                box-shadow:0 2px 8px rgba(0,0,0,0.3);
+                                font-size:18px;
+                            ">
+                                🐱
+                            </div>
+                        `,
 
-            marcador = L.marker(
-                [latAtual, lngAtual],
-                {
-                    icon: iconeBixuco
-                }
-            ).addTo(mapaLeaflet);
+                        iconSize: [
+                            36,
+                            36
+                        ],
+
+                        iconAnchor: [
+                            18,
+                            18
+                        ],
+
+                        className: ""
+                    }
+                );
+
+
+            marcador =
+                L.marker(
+                    [
+                        latAtual,
+                        lngAtual
+                    ],
+                    {
+                        icon:
+                            iconeBixuco
+                    }
+                )
+                .addTo(
+                    mapaLeaflet
+                );
 
         } else {
 
             marcador.setLatLng(
-                [latAtual, lngAtual]
+                [
+                    latAtual,
+                    lngAtual
+                ]
             );
 
         }
 
 
         if (dados.fotoUrl) {
-            const iconeComFoto = L.divIcon({
-                html: `<div style="width:40px;height:40px;border-radius:50%;border:3px solid #32C26D;box-shadow:0 2px 8px rgba(0,0,0,0.3);overflow:hidden;">
-                        <img src="${dados.fotoUrl}" style="width:100%;height:100%;object-fit:cover;" />
-                    </div>`,
-                iconSize: [40, 40],
-                iconAnchor: [20, 20],
-                className: ""
-            });
-            marcador.setIcon(iconeComFoto);
-        }
 
-        marcador.setPopupContent(`<b>Bixuco</b><br>${traduzir("Última localização conhecida")}`);
-        marcador.openPopup();
+            const iconeComFoto =
+                L.divIcon(
+                    {
+                        html: `
+                            <div style="
+                                width:40px;
+                                height:40px;
+                                border-radius:50%;
+                                border:3px solid #32C26D;
+                                box-shadow:0 2px 8px rgba(0,0,0,0.3);
+                                overflow:hidden;
+                            ">
+                                <img
+                                    src="${dados.fotoUrl}"
+                                    style="
+                                        width:100%;
+                                        height:100%;
+                                        object-fit:cover;
+                                    "
+                                />
+                            </div>
+                        `,
 
-        if (dados.bateria !== null && dados.bateria !== undefined) {
-            const bateriaEl = document.getElementById("bateriaBixuco");
-            const valorEl = document.getElementById("bateriaValor");
+                        iconSize: [
+                            40,
+                            40
+                        ],
 
-            valorEl.textContent = dados.bateria;
-            bateriaEl.style.display = "flex";
+                        iconAnchor: [
+                            20,
+                            20
+                        ],
 
-            const icone = bateriaEl.querySelector("i");
-            icone.className = dados.bateria > 60 ? "fa-solid fa-battery-full"
-                : dados.bateria > 30 ? "fa-solid fa-battery-half"
-                : "fa-solid fa-battery-quarter";
+                        className: ""
+                    }
+                );
 
-            bateriaEl.classList.toggle("baixa", dados.bateria <= 20);
-        }
 
-        ultimoStatusMapa = {
-            tipo: "atualizado",
-            dataFormatada: dados.dataFormatada,
-            horario: dados.horario
-        };
-        renderizarStatusMapa();
-
-    } catch (erro) {
-        console.log("Erro ao carregar localização:", erro);
-        ultimoStatusMapa = { tipo: "erro" };
-        renderizarStatusMapa();
-    }
-}
-
-function atualizarBadgeNotificacoes(quantidade) {
-    const badge = document.getElementById("quantidadeNotificacoes");
-    badge.textContent = quantidade;
-    badge.classList.toggle("escondido", quantidade === 0);
-}
-
-async function carregarContagemInicial() {
-    try {
-        const resposta = await fetch("/api/notificacoes");
-        if (!resposta.ok) return;
-
-        const dados = await resposta.json();
-        const itens = dados.notificacoes || [];
-        const naoLidas = itens.filter(item => !item.lida).length;
-
-        atualizarBadgeNotificacoes(naoLidas);
-
-    } catch (erro) {
-        console.log("Erro ao carregar contagem de notificações:", erro);
-    }
-}
-
-document
-    .getElementById("btnCentralizar")
-    .addEventListener("click", () => {
-
-        if (
-            mapaLeaflet &&
-            temLocalizacaoReal &&
-            marcador
-        ) {
-
-            mapaLeaflet.setView(
-                [latAtual, lngAtual],
-                15
+            marcador.setIcon(
+                iconeComFoto
             );
 
-            marcador.openPopup();
         }
 
-    });
+
+        marcador.setPopupContent(
+            `<b>Bixuco</b><br>${traduzir("Última localização conhecida")}`
+        );
+
+
+        marcador.openPopup();
+
+
+        if (
+            dados.bateria !== null &&
+            dados.bateria !== undefined
+        ) {
+
+            const bateriaEl =
+                document.getElementById(
+                    "bateriaBixuco"
+                );
+
+            const valorEl =
+                document.getElementById(
+                    "bateriaValor"
+                );
+
+
+            if (
+                bateriaEl &&
+                valorEl
+            ) {
+
+                valorEl.textContent =
+                    dados.bateria;
+
+                bateriaEl.style.display =
+                    "flex";
+
+
+                const icone =
+                    bateriaEl.querySelector(
+                        "i"
+                    );
+
+
+                if (icone) {
+
+                    icone.className =
+                        dados.bateria > 60
+                            ? "fa-solid fa-battery-full"
+                            : dados.bateria > 30
+                                ? "fa-solid fa-battery-half"
+                                : "fa-solid fa-battery-quarter";
+
+                }
+
+
+                bateriaEl
+                    .classList
+                    .toggle(
+                        "baixa",
+                        dados.bateria <= 20
+                    );
+
+            }
+
+        }
+
+
+        ultimoStatusMapa = {
+
+            tipo:
+                "atualizado",
+
+            dataFormatada:
+                dados.dataFormatada,
+
+            horario:
+                dados.horario
+
+        };
+
+
+        renderizarStatusMapa();
+
+
+    } catch (erro) {
+
+        console.log(
+            "Erro ao carregar localização:",
+            erro
+        );
+
+
+        ultimoStatusMapa = {
+            tipo: "erro"
+        };
+
+
+        renderizarStatusMapa();
+
+    }
+
+}
+
+
+// =========================
+// BADGE DE NOTIFICAÇÕES
+// =========================
+
+function atualizarBadgeNotificacoes(
+    quantidade
+) {
+
+    const badge =
+        document.getElementById(
+            "quantidadeNotificacoes"
+        );
+
+    badge.textContent =
+        quantidade;
+
+    badge.classList.toggle(
+        "escondido",
+        quantidade === 0
+    );
+
+}
+
+
+async function carregarContagemInicial() {
+
+    try {
+
+        const resposta =
+            await fetch(
+                "/api/notificacoes"
+            );
+
+        if (!resposta.ok) {
+            return;
+        }
+
+
+        const dados =
+            await resposta.json();
+
+
+        const itens =
+            dados.notificacoes || [];
+
+
+        const naoLidas =
+            itens.filter(
+                item =>
+                    !item.lida
+            ).length;
+
+
+        atualizarBadgeNotificacoes(
+            naoLidas
+        );
+
+
+    } catch (erro) {
+
+        console.log(
+            "Erro ao carregar contagem de notificações:",
+            erro
+        );
+
+    }
+
+}
+
+
+// =========================
+// CENTRALIZAR MAPA
+// =========================
+
+const btnCentralizar =
+    document.getElementById(
+        "btnCentralizar"
+    );
+
+
+if (btnCentralizar) {
+
+    btnCentralizar.addEventListener(
+        "click",
+        () => {
+
+            if (
+                mapaLeaflet &&
+                temLocalizacaoReal &&
+                marcador
+            ) {
+
+                mapaLeaflet.setView(
+                    [
+                        latAtual,
+                        lngAtual
+                    ],
+                    15
+                );
+
+
+                marcador.openPopup();
+
+            }
+
+        }
+    );
+
+}
 
 
 // =========================
@@ -766,24 +1807,39 @@ document
 // =========================
 
 aplicarIdiomaEstatico();
+
 carregarDadosUsuario();
+
 carregarDiasRelatorio();
+
 iniciarMapa();
 
-carregarLocalizacaoReal();
-
-setInterval(carregarLocalizacaoReal, 10000);
 carregarContagemInicial();
+
 carregarStatusBixuco();
 
+
 // ==========================
-// LIGA BOTÃO/CARD DE RELATÓRIO E ACESSO AO PERFIL
-// (nunca tinham listener — sem isso, não faziam nada ao clicar)
+// LIGA BOTÃO/CARD DE RELATÓRIO
 // ==========================
 
-document.getElementById("btnRelatorioDiario").addEventListener("click", () => {
-    location.href = "/RelatorioDiario";
-});
+const btnRelatorioDiario =
+    document.getElementById(
+        "btnRelatorioDiario"
+    );
 
 
+if (btnRelatorioDiario) {
 
+    btnRelatorioDiario
+        .addEventListener(
+            "click",
+            () => {
+
+                location.href =
+                    "/RelatorioDiario";
+
+            }
+        );
+
+}

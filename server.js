@@ -72,9 +72,9 @@ app.use(helmet({
             imgSrc: [
                 "'self'",
                 "data:",
-                "https://tiles.openfreemap.org"
+                "https://tiles.openfreemap.org",
+                "https://tile.openstreetmap.org"
             ],
-
             // Chamadas fetch/XHR feitas pelo JavaScript da página
             connectSrc: [
                 "'self'",
