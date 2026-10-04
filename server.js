@@ -31,6 +31,14 @@ const app = express();
 app.set('trust proxy', 1);
 
 app.use(helmet({
+
+    // O OpenStreetMap precisa receber o domínio de origem
+    // das requisições dos tiles.
+    // O Helmet usa "no-referrer" por padrão, o que causava erro 403.
+    referrerPolicy: {
+        policy: "strict-origin-when-cross-origin"
+    },
+
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
