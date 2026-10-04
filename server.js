@@ -7593,6 +7593,36 @@ function respostaChatValida(
 
 }
 
+function mensagemChatMuitoAmbigua(mensagem) {
+
+    const texto =
+        String(mensagem || "")
+            .trim()
+            .replace(/\s+/g, " ");
+
+    if (!texto) {
+        return true;
+    }
+
+    // Número isolado, pontuação ou símbolos
+    // não são respostas válidas do relatório.
+    if (/^[\d\s.,;:!?…+\-*/()[\]{}#@%&_=]+$/u.test(texto)) {
+        return true;
+    }
+
+    // Um caractere isolado provavelmente foi
+    // digitado sem querer.
+    // "s" e "n" continuam permitidos para sim/não.
+    if (
+        texto.length === 1 &&
+        !/^[sn]$/i.test(texto)
+    ) {
+        return true;
+    }
+
+    return false;
+}
+
 const CATEGORIAS_SENSORIAIS_GATILHO = new Set([
     "auditivo",
     "visual",
@@ -8271,6 +8301,142 @@ app.post(
                     id =>
                         CAMPOS_RELATORIO_CHAT[id]
                 );
+            
+            // =====================================
+            // O QUE JÁ ESTÁ PREENCHIDO / O QUE FALTA
+            // =====================================
+
+            const idsRespondidosAntes =
+                new Set(
+                    respostas
+                        .filter(
+                            item =>
+                                item &&
+                                item.id &&
+                                String(
+                                    item.resposta || ""
+                                ).trim()
+                        )
+                        .map(
+                            item => item.id
+                        )
+                );
+
+
+            const faltantesAntes =
+                idsNecessarios.filter(
+                    id =>
+                        !idsRespondidosAntes.has(id)
+                );
+
+
+            // =====================================
+            // BLOQUEIA MENSAGENS SEM INFORMAÇÃO
+            // =====================================
+
+            if (
+                mensagemChatMuitoAmbigua(
+                    mensagem
+                )
+            ) {
+
+                const respostaAmbigua =
+                    idioma === "en"
+                        ? `I couldn't understand "${mensagem.slice(0, 30)}" as information for the report. Could you explain it in words? If you want to correct something you said before, you can say “actually...” and tell me the new information.`
+                        : `Não consegui entender "${mensagem.slice(0, 30)}" como uma informação do relatório. Pode me explicar com palavras? Se quiser corrigir algo que disse antes, pode falar “na verdade...” e me contar a informação certa.`;
+
+
+                mensagensChat.push(
+                    {
+                        role: "user",
+                        content: mensagem
+                    },
+                    {
+                        role: "assistant",
+                        content: respostaAmbigua
+                    }
+                );
+
+
+                mensagensChat =
+                    mensagensChat.slice(-40);
+
+
+                await db.query(
+                    `
+                    INSERT INTO
+                        rascunhos_relatorio
+                    (
+                        usuario_id,
+                        data_referencia,
+                        respostas,
+                        mensagens_chat,
+                        atualizado_em
+                    )
+
+                    VALUES
+                    (
+                        $1,
+                        (
+                            NOW()
+                            AT TIME ZONE
+                            'America/Sao_Paulo'
+                        )::date,
+                        $2::jsonb,
+                        $3::jsonb,
+                        NOW()
+                    )
+
+                    ON CONFLICT
+                    (
+                        usuario_id,
+                        data_referencia
+                    )
+
+                    DO UPDATE SET
+
+                        respostas =
+                            EXCLUDED.respostas,
+
+                        mensagens_chat =
+                            EXCLUDED.mensagens_chat,
+
+                        atualizado_em =
+                            NOW()
+                    `,
+                    [
+                        usuarioId,
+
+                        JSON.stringify(
+                            respostas
+                        ),
+
+                        JSON.stringify(
+                            mensagensChat
+                        )
+                    ]
+                );
+
+
+                return res.json({
+
+                    mensagem:
+                        respostaAmbigua,
+
+                    respostas,
+
+                    faltantes:
+                        faltantesAntes,
+
+                    completo:
+                        faltantesAntes.length === 0,
+
+                    ignorada:
+                        true
+
+                });
+
+            }
 
 
             // =====================================
@@ -8278,35 +8444,103 @@ app.post(
             // =====================================
 
             const promptSistema = `
-Você é o assistente de preenchimento do relatório diário do Bixuco.
+                Você é o assistente de preenchimento do relatório diário do Bixuco.
 
-Seu único objetivo é conversar naturalmente com o responsável e ajudar a preencher os campos do relatório diário.
+                Seu objetivo é conversar com o responsável de forma natural, leve e acolhedora enquanto organiza, em segundo plano, as informações necessárias para o relatório diário.
 
-REGRAS IMPORTANTES:
+                A conversa NÃO deve parecer um formulário ou uma entrevista com uma sequência rígida de perguntas.
 
-1. Não faça diagnóstico médico, psicológico ou sensorial.
-2. Não invente informações.
-3. Só registre uma resposta quando ela estiver explicitamente presente ou claramente confirmada pelo responsável.
-4. Se houver dúvida, não preencha o campo e faça uma pergunta.
-5. Faça apenas UMA pergunta por mensagem.
-6. O responsável pode fornecer várias informações de uma vez. Nesse caso, extraia todas as respostas válidas.
-7. Se o responsável corrigir algo dito anteriormente, use a nova informação.
-8. Para perguntas de múltipla escolha, o campo "resposta" deve usar EXATAMENTE uma das opções em português fornecidas abaixo.
-9. Mesmo se a conversa estiver em inglês, os valores estruturados devem continuar em português.
-10. "gatilho_principal" é texto livre. Preserve o sentido do que a pessoa escreveu e não invente uma causa.
-11. Não diga que o relatório foi salvo ou finalizado. Você apenas ajuda a preenchê-lo.
-12. Quando todos os campos necessários estiverem preenchidos, informe que o relatório está pronto para ser revisado e finalizado.
-13. Seja breve, acolhedor e natural.
+                REGRAS DE SEGURANÇA E FIDELIDADE:
 
-Idioma da conversa:
-${idioma === "en" ? "inglês" : "português brasileiro"}
+                1. Não faça diagnóstico médico, psicológico ou sensorial e não tire conclusões clínicas.
 
-Campos que fazem parte do relatório de hoje:
-${JSON.stringify(camposHoje, null, 2)}
+                2. Não invente informações, causas, intensidades ou respostas.
 
-Respostas já registradas no rascunho:
-${JSON.stringify(respostas, null, 2)}
-`;
+                3. Só adicione uma atualização quando a informação estiver explicitamente presente ou claramente confirmada pelo responsável.
+
+                4. Se a mensagem estiver ambígua, sem relação clara com um campo ou não permitir escolher com segurança uma alternativa, retorne "atualizacoes": [] e peça esclarecimento de forma natural.
+
+                5. NUNCA converta números isolados como "1", "5" ou "10" em alternativas do relatório. As perguntas não usam escala numérica.
+
+                6. Não interprete a posição de uma alternativa como número. Exemplo: "2" NÃO significa a segunda opção.
+
+                7. O responsável pode mencionar várias coisas na mesma mensagem. Extraia todas as informações claras de uma vez.
+
+                8. Se o responsável corrigir algo já registrado usando frases como "na verdade", "corrigindo", "falei errado" ou equivalentes, atualize o mesmo campo com a nova informação e confirme brevemente a correção na conversa.
+
+                9. Se a pessoa disser apenas que quer voltar, corrigir ou mudar uma resposta, mas ainda não disser qual é a informação correta, não altere nenhum campo. Pergunte o que ela deseja corrigir.
+
+                10. Para perguntas de múltipla escolha, o campo "resposta" deve usar EXATAMENTE uma das opções em português fornecidas abaixo.
+
+                11. Mesmo quando a conversa estiver em inglês, os valores estruturados devem continuar em português.
+
+                12. "gatilho_principal" é texto livre. Preserve o sentido do que a pessoa escreveu e não invente uma causa.
+
+                13. Não diga que o relatório foi finalizado. Quando todos os campos estiverem completos, diga apenas que as informações necessárias estão prontas para revisão e finalização.
+
+
+                ESTILO DA CONVERSA:
+
+                14. Fale como uma conversa real, não como um questionário disfarçado.
+
+                15. Antes de perguntar outra coisa, reconheça brevemente o que a pessoa acabou de contar quando isso soar natural.
+
+                16. Evite repetir "Anotado!", "Certo!" ou a mesma estrutura em todas as mensagens. Varie a linguagem sem exagerar.
+
+                17. Não precisa fazer uma pergunta em toda resposta. Você pode acolher o relato e convidar a pessoa a continuar, desde que a conversa continue avançando para os campos ainda faltantes.
+
+                18. Quando precisar de uma informação específica, faça no máximo UMA pergunta principal por mensagem e formule-a de maneira conversacional.
+
+                19. Não repita perguntas de campos que já estão preenchidos, a menos que o responsável esteja corrigindo ou esclarecendo aquele campo.
+
+                20. Se várias informações forem fornecidas de uma vez, reconheça o conjunto de forma curta e depois escolha apenas um ponto ainda faltante para continuar.
+
+                21. Mantenha cada resposta curta: normalmente 1 a 3 frases.
+
+                22. Não use linguagem infantilizada, clínica demais ou robótica.
+
+
+                Exemplo de tom desejado:
+
+                Responsável:
+                "Ela ficou mais calma hoje, conversou bem e comeu normalmente."
+
+                Assistente:
+                "Entendi, hoje ela ficou mais calma e a comunicação e a alimentação foram tranquilas. E o sono, como foi?"
+
+
+                Exemplo de correção:
+
+                Responsável:
+                "Na verdade eu falei errado, ela dormiu pouco."
+
+                Assistente:
+                "Tudo bem, vou considerar que ela dormiu pouco. Me conta também como foi a interação com outras pessoas hoje."
+
+
+                Exemplo de mensagem sem sentido suficiente:
+
+                Responsável:
+                "5"
+
+                Assistente:
+                "Não consegui entender esse número como uma resposta do relatório. Pode me explicar com palavras?"
+
+                Nesse caso, "atualizacoes" deve ser [].
+
+
+                Idioma da conversa:
+                ${idioma === "en" ? "inglês" : "português brasileiro"}
+
+                Campos que fazem parte do relatório de hoje:
+                ${JSON.stringify(camposHoje, null, 2)}
+
+                Respostas já registradas no rascunho:
+                ${JSON.stringify(respostas, null, 2)}
+
+                Campos que ainda faltam preencher:
+                ${JSON.stringify(faltantesAntes, null, 2)}
+                `;
 
 
             // Só manda um pedaço recente da conversa

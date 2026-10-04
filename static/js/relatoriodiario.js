@@ -1011,9 +1011,10 @@ function atualizarProgressoChat() {
         return Boolean(resposta && String(resposta.resposta || "").trim());
     }).length;
 
-    progressoChat.textContent = idiomaAtual === "en"
-        ? `${respondidas} of ${ids.length} answered`
-        : `${respondidas} de ${ids.length} respondidas`;
+    progressoChat.textContent =
+        idiomaAtual === "en"
+            ? `${respondidas} of ${ids.length} details`
+            : `${respondidas} de ${ids.length} informações`;
 
     const completo = respondidas === ids.length;
     chatFinalizacao.classList.toggle("oculto-chat", !completo);
@@ -1097,12 +1098,41 @@ async function renderizarHistoricoChat() {
         return;
     }
 
-    const indicePendente = descobrirPerguntaParaRetomar();
-    const proximaPergunta = perguntas[indicePendente];
+    const quantidadeJaRegistrada =
+        obterIdsNecessariosHoje()
+            .filter(id => {
 
-    let mensagemInicial = idiomaAtual === "en"
-        ? "Hi! We can fill out today's report by chatting. You can answer naturally, and I'll organize the information."
-        : "Oi! Podemos preencher o relatório de hoje conversando. Você pode responder do seu jeito e eu organizo as informações.";
+                const resposta =
+                    buscarRespostaPorId(id);
+
+                return Boolean(
+                    resposta &&
+                    String(
+                        resposta.resposta || ""
+                    ).trim()
+                );
+
+            }).length;
+
+
+    let mensagemInicial;
+
+
+    if (idiomaAtual === "en") {
+
+        mensagemInicial =
+            quantidadeJaRegistrada > 0
+                ? "Hi! I already have some information from today's report. Tell me how the rest of the day went in your own words — you can mention several things at once. If you remember something differently later, just correct me."
+                : "Hi! Let's make today's report feel more like a conversation. Tell me how the day went in your own words — you can mention several things at once. If you remember something differently later, just correct me.";
+
+    } else {
+
+        mensagemInicial =
+            quantidadeJaRegistrada > 0
+                ? "Oi! Já tenho algumas informações do relatório de hoje. Me conta como foi o restante do dia do seu jeito — pode falar de várias coisas de uma vez. Se lembrar de algo diferente depois, é só me corrigir."
+                : "Oi! Vamos fazer o relatório de hoje de um jeito mais leve. Me conta como foi o dia dela do seu jeito — pode falar de várias coisas de uma vez. Se lembrar de algo diferente depois, é só me corrigir.";
+
+    }
 
     if (proximaPergunta) {
         mensagemInicial += `\n\n${traduzir(proximaPergunta.pergunta)}`;
@@ -1134,9 +1164,10 @@ async function renderizarHistoricoChat() {
 function atualizarTextosChat() {
     if (!inputChatRelatorio) return;
 
-    inputChatRelatorio.placeholder = idiomaAtual === "en"
-        ? "Type your answer..."
-        : "Digite sua resposta...";
+    inputChatRelatorio.placeholder =
+        idiomaAtual === "en"
+            ? "Tell me how the day went..."
+            : "Conte como foi o dia...";
 
     btnEnviarChat.setAttribute(
         "aria-label",
@@ -1165,9 +1196,23 @@ async function definirModoRelatorio(modo) {
         atualizarTextosChat();
 
         setTimeout(() => {
-            if (!inputChatRelatorio.disabled) {
-                inputChatRelatorio.focus();
+
+            cardChatRelatorio.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+
+
+            if (
+                !inputChatRelatorio.disabled
+            ) {
+
+                inputChatRelatorio.focus({
+                    preventScroll: true
+                });
+
             }
+
         }, 100);
 
         return;
@@ -1194,7 +1239,7 @@ async function enviarMensagemChat(texto) {
 
     const digitando = criarBolhaChat(
         "assistant",
-        idiomaAtual === "en" ? "Typing..." : "Digitando...",
+        idiomaAtual === "en" ? "Organizing..." : "Organizando...",
         "chat-digitando"
     );
 
@@ -1261,8 +1306,29 @@ async function enviarMensagemChat(texto) {
         enviandoMensagemChat = false;
         inputChatRelatorio.disabled = false;
         btnEnviarChat.disabled = false;
-        inputChatRelatorio.focus();
+        inputChatRelatorio.focus({
+            preventScroll: true
+        });
     }
+}
+
+function ajustarAlturaInputChat() {
+
+    if (!inputChatRelatorio) {
+        return;
+    }
+
+
+    inputChatRelatorio.style.height =
+        "auto";
+
+
+    inputChatRelatorio.style.height =
+        `${Math.min(
+            inputChatRelatorio.scrollHeight,
+            130
+        )}px`;
+
 }
 
 btnModoFormulario.addEventListener("click", async () => {
@@ -1280,8 +1346,18 @@ formChatRelatorio.addEventListener("submit", async evento => {
     if (!texto || inicializandoChat) return;
 
     inputChatRelatorio.value = "";
-    await enviarMensagemChat(texto);
+
+    ajustarAlturaInputChat();
+
+    await enviarMensagemChat(
+        texto
+    );
 });
+
+inputChatRelatorio.addEventListener(
+    "input",
+    ajustarAlturaInputChat
+);
 
 inputChatRelatorio.addEventListener("keydown", evento => {
     if (evento.key === "Enter" && !evento.shiftKey) {

@@ -735,10 +735,15 @@
                         <div class="chat-avatar"><i class="fa-solid fa-sparkles"></i></div>
                         <div>
                             <h2 data-pt="Conversa com a Bixuco" data-en="Chat with Bixuco">Conversa com a Bixuco</h2>
-                            <p data-pt="Conte como foi o dia naturalmente. Eu organizo as informações no relatório." data-en="Tell me naturally how the day went. I'll organize the information in the report.">Conte como foi o dia naturalmente. Eu organizo as informações no relatório.</p>
+                            <p
+                                data-pt="Pode falar do seu jeito, contar várias coisas de uma vez e corrigir qualquer informação quando quiser."
+                                data-en="Speak naturally, share several things at once, and correct any information whenever you want."
+                            >
+                                Pode falar do seu jeito, contar várias coisas de uma vez e corrigir qualquer informação quando quiser.
+                            </p>
                         </div>
                     </div>
-                    <span id="progressoChat" class="progresso-chat">0 de 11 respondidas</span>
+                    <span id="progressoChat" class="progresso-chat">0 de 11 informações</span>
                 </div>
 
                 <div id="mensagensChatRelatorio" class="chat-mensagens" aria-live="polite"></div>
@@ -753,11 +758,19 @@
                 </div>
 
                 <form id="formChatRelatorio" class="chat-formulario">
-                    <textarea id="inputChatRelatorio" rows="1" maxlength="1000" placeholder="Digite sua resposta..." autocomplete="off"></textarea>
+                    <textarea id="inputChatRelatorio" rows="1" maxlength="1000" placeholder="Conte como foi o dia..." autocomplete="off"></textarea>
                     <button id="btnEnviarChat" type="submit" aria-label="Enviar mensagem"><i class="fa-solid fa-paper-plane"></i></button>
                 </form>
 
-                <p class="chat-aviso" data-pt="A IA ajuda somente no preenchimento do relatório e não realiza diagnósticos." data-en="AI only assists with filling out the report and does not provide diagnoses.">A IA ajuda somente no preenchimento do relatório e não realiza diagnósticos.</p>
+                <p
+                    class="chat-aviso"
+                    data-pt="Errou ou lembrou de algo depois? Diga “na verdade...” e eu corrijo. A IA ajuda no preenchimento e não realiza diagnósticos."
+                    data-en="Made a mistake or remembered something later? Say “actually...” and I’ll correct it. AI assists with filling out the report and does not provide diagnoses."
+                >
+                    Errou ou lembrou de algo depois?
+                    Diga “na verdade...” e eu corrijo.
+                    A IA ajuda no preenchimento e não realiza diagnósticos.
+                </p>
             </section>
 
 
