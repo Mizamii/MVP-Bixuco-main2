@@ -1197,12 +1197,6 @@ async function definirModoRelatorio(modo) {
 
         setTimeout(() => {
 
-            cardChatRelatorio.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-            });
-
-
             if (
                 !inputChatRelatorio.disabled
             ) {

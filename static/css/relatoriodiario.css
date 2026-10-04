@@ -3,9 +3,7 @@
   min-height: 0;
   overflow-y: auto !important;
   overflow-x: hidden;
-  overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
-  scrollbar-gutter: stable;
 }
 
 .cabecalho-relatorio {
@@ -436,17 +434,13 @@ body.tema-escuro #btnProxima {
 }
 
 .chat-mensagens {
-  height: clamp(280px, 46vh, 500px);
-  min-height: 280px;
-  overflow-y: auto;
-  overflow-x: hidden;
+  min-height: 220px;
+  height: auto;
+  overflow: visible;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   padding: 1.25rem 1.35rem;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-gutter: stable;
 }
 
 .chat-mensagem {
@@ -697,8 +691,9 @@ body.tema-escuro #btnProxima {
   }
 
   .chat-mensagens {
-    height: min(52vh, 420px);
-    min-height: 260px;
+    min-height: 200px;
+    height: auto;
+    overflow: visible;
     padding: 1rem;
   }
 
@@ -718,4 +713,16 @@ body.tema-escuro #btnProxima {
   #btnFinalizarChat {
     width: 100%;
   }
+}
+
+.card-chat-relatorio {
+  max-height: none;
+}
+
+#formChatRelatorio {
+  flex-shrink: 0;
+}
+
+.chat-aviso {
+  flex-shrink: 0;
 }
