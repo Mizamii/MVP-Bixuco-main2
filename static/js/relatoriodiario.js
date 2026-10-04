@@ -398,6 +398,11 @@ let enviandoMensagemChat = false;
 
 let inicializandoChat = false;
 
+let timerAutosaveTexto = null;
+
+let filaSalvamentoRascunho =
+    Promise.resolve();
+
 
 // ==========================
 // RASCUNHO DO RELATÓRIO
@@ -499,6 +504,79 @@ async function salvarRascunho() {
     return true;
 }
 
+function enfileirarSalvamentoRascunho() {
+
+    filaSalvamentoRascunho =
+        filaSalvamentoRascunho
+            .catch(() => true)
+            .then(() =>
+                salvarRascunho()
+            );
+
+    return filaSalvamentoRascunho;
+}
+
+
+function removerRespostaPorId(id) {
+
+    respostasUsuario =
+        respostasUsuario.filter(
+            item =>
+                item.id !== id
+        );
+
+}
+
+
+async function salvarRespostaImediata(
+    pergunta,
+    resposta
+) {
+
+    if (
+        !pergunta ||
+        resposta === null ||
+        resposta === undefined ||
+        String(resposta).trim() === ""
+    ) {
+
+        return;
+    }
+
+
+    salvarOuAtualizarResposta({
+
+        id:
+            pergunta.id,
+
+        pergunta:
+            pergunta.pergunta,
+
+        resposta:
+            resposta
+
+    });
+
+
+    try {
+
+        await enfileirarSalvamentoRascunho();
+
+    } catch (erro) {
+
+        console.log(
+            "Erro no salvamento automático:",
+            erro
+        );
+
+        mostrarMensagem(
+            "Não foi possível salvar o progresso. Tente novamente.",
+            "erro"
+        );
+
+    }
+
+}
 
 async function carregarRascunho() {
 
@@ -1651,13 +1729,76 @@ function carregarPergunta(
                         .value
                         .trim();
 
+
                 respostaSelecionada =
                     valor.length > 0
                         ? valor
                         : null;
 
+
                 btnProxima.disabled =
                     valor.length === 0;
+
+
+                clearTimeout(
+                    timerAutosaveTexto
+                );
+
+
+                /*
+                    Atualiza imediatamente a cópia local.
+                    O envio ao servidor acontece após
+                    650ms sem digitação.
+                */
+                if (valor.length > 0) {
+
+                    salvarOuAtualizarResposta({
+
+                        id:
+                            atual.id,
+
+                        pergunta:
+                            atual.pergunta,
+
+                        resposta:
+                            valor
+
+                    });
+
+                } else {
+
+                    /*
+                        Se a pessoa apagar completamente
+                        uma resposta que já estava salva,
+                        removemos também do rascunho.
+                    */
+                    removerRespostaPorId(
+                        atual.id
+                    );
+
+                }
+
+
+                timerAutosaveTexto =
+                    setTimeout(
+                        async () => {
+
+                            try {
+
+                                await enfileirarSalvamentoRascunho();
+
+                            } catch (erro) {
+
+                                console.log(
+                                    "Erro no salvamento automático do texto:",
+                                    erro
+                                );
+
+                            }
+
+                        },
+                        650
+                    );
 
             }
         );
@@ -1691,7 +1832,7 @@ function carregarPergunta(
                 traduzir(opcao);
 
             botao.onclick =
-                () => {
+                async () => {
 
                     document
                         .querySelectorAll(
@@ -1705,15 +1846,24 @@ function carregarPergunta(
 
                         });
 
+
                     botao.classList.add(
                         "selecionada"
                     );
 
+
                     respostaSelecionada =
                         opcao;
 
+
                     btnProxima.disabled =
                         false;
+
+
+                    await salvarRespostaImediata(
+                        atual,
+                        opcao
+                    );
 
                 };
 
@@ -1768,6 +1918,13 @@ btnProxima.addEventListener(
             return;
         }
 
+        clearTimeout(
+            timerAutosaveTexto
+        );
+
+        timerAutosaveTexto =
+            null;
+
         const pergunta =
             perguntas[perguntaAtual];
 
@@ -1795,7 +1952,7 @@ btnProxima.addEventListener(
         try {
 
             const salvou =
-                await salvarRascunho();
+                await enfileirarSalvamentoRascunho();
 
             if (!salvou) {
                 return;
