@@ -5867,117 +5867,466 @@ app.patch(
 
 app.post("/api/relatorio", estaLogado, exigeResponsavel, precisaPlano("medio"), async (req, res) => {
 
+    const usuarioId =
+        req.authUser.id;
+
+    if (!usuarioId) {
+
+        return res.status(401).json({
+            erro: "Não autenticado."
+        });
+
+    }
+
+
+    let cliente = null;
+
+
     try {
 
-        const usuarioId = req.authUser.id;
+        cliente =
+            await db.connect();
 
-        if (!usuarioId) {
-            return res.status(401).json({ erro: "Não autenticado." });
-        }
 
-        const { respostas } = req.body;
-
-        if (!respostas || !Array.isArray(respostas) || respostas.length === 0) {
-            return res.status(400).json({ erro: "Respostas inválidas." });
-        }
-
-        // Mantém o texto original escrito pelo responsável e acrescenta
-        // categorias padronizadas para gráficos/terapeuta.
-        // Se a IA falhar, o relatório continua sendo salvo normalmente.
-        const respostasNormalizadas =
-            await enriquecerRespostasComGatilho(respostas);
-
-        // Impede mais de um relatório por dia
-        const jaTemHoje = await db.query(
-            `SELECT id
-            FROM relatorios
-            WHERE usuario_id = $1
-            AND DATE(
-                data AT TIME ZONE 'UTC'
-                AT TIME ZONE 'America/Sao_Paulo'
-            ) = (NOW() AT TIME ZONE 'America/Sao_Paulo')::date`,
-            [usuarioId]
+        await cliente.query(
+            "BEGIN"
         );
 
-        if (jaTemHoje.rows.length > 0) {
-            return res.status(409).json({
-                erro: "Você já preencheu o relatório de hoje. Volte amanhã!"
+
+        /*
+            O rascunho do banco é a fonte oficial.
+            FOR UPDATE impede que chat/formulário alterem
+            o rascunho enquanto ele está sendo finalizado.
+        */
+        const rascunho =
+            await cliente.query(
+                `
+                SELECT
+                    respostas
+
+                FROM
+                    rascunhos_relatorio
+
+                WHERE
+                    usuario_id = $1
+
+                AND
+                    data_referencia =
+                    (
+                        NOW()
+                        AT TIME ZONE
+                        'America/Sao_Paulo'
+                    )::date
+
+                FOR UPDATE
+                `,
+                [
+                    usuarioId
+                ]
+            );
+
+
+        // Se não existe rascunho, pode ser porque outra aba
+        // já finalizou o relatório enquanto esta ainda estava aberta.
+        if (
+            rascunho.rows.length === 0
+        ) {
+
+            const jaFinalizado =
+                await cliente.query(
+                    `
+                    SELECT id
+
+                    FROM relatorios
+
+                    WHERE usuario_id = $1
+
+                    AND DATE(
+                        data
+                        AT TIME ZONE 'UTC'
+                        AT TIME ZONE 'America/Sao_Paulo'
+                    ) =
+                    (
+                        NOW()
+                        AT TIME ZONE 'America/Sao_Paulo'
+                    )::date
+
+                    LIMIT 1
+                    `,
+                    [
+                        usuarioId
+                    ]
+                );
+
+
+            await cliente.query(
+                "ROLLBACK"
+            );
+
+
+            if (
+                jaFinalizado.rows.length > 0
+            ) {
+
+                return res.status(409).json({
+                    erro:
+                        "Você já preencheu o relatório de hoje. Volte amanhã!"
+                });
+
+            }
+
+
+            return res.status(400).json({
+                erro:
+                    "Não foi encontrado um rascunho para finalizar."
             });
+
         }
 
-        // Salva o relatório.
-        // A data vem do PostgreSQL (timezone America/Sao_Paulo configurado no Pool),
-        // evitando diferença de dia entre navegador e servidor.
-        await db.query(
-            `INSERT INTO relatorios
-            (usuario_id, respostas, data)
-            VALUES ($1, $2, NOW())`,
+
+        let respostas =
+            rascunho.rows[0]?.respostas || [];
+
+
+        if (
+            !Array.isArray(respostas) ||
+            respostas.length === 0
+        ) {
+
+            await cliente.query(
+                "ROLLBACK"
+            );
+
+            return res.status(400).json({
+                erro:
+                    "O relatório ainda não possui respostas para finalizar."
+            });
+
+        }
+
+
+        // Confere se outra aba já finalizou o relatório.
+        const jaTemHoje =
+            await cliente.query(
+                `
+                SELECT id
+
+                FROM relatorios
+
+                WHERE usuario_id = $1
+
+                AND DATE(
+                    data
+                    AT TIME ZONE 'UTC'
+                    AT TIME ZONE 'America/Sao_Paulo'
+                ) =
+                (
+                    NOW()
+                    AT TIME ZONE 'America/Sao_Paulo'
+                )::date
+
+                LIMIT 1
+                `,
+                [
+                    usuarioId
+                ]
+            );
+
+
+        if (
+            jaTemHoje.rows.length > 0
+        ) {
+
+            await cliente.query(
+                "ROLLBACK"
+            );
+
+            return res.status(409).json({
+                erro:
+                    "Você já preencheu o relatório de hoje. Volte amanhã!"
+            });
+
+        }
+
+
+        // Descobre se houve alerta REAL do Bixuco hoje.
+        // Se houve, as duas perguntas extras também são obrigatórias.
+        const eventoHoje =
+            await cliente.query(
+                `
+                SELECT 1
+
+                FROM eventos_bixuco e
+
+                JOIN criancas c
+                    ON c.id = e.crianca_id
+
+                WHERE c.usuario_id = $1
+
+                AND DATE(
+                    e.criado_em
+                    AT TIME ZONE 'UTC'
+                    AT TIME ZONE 'America/Sao_Paulo'
+                ) =
+                (
+                    NOW()
+                    AT TIME ZONE 'America/Sao_Paulo'
+                )::date
+
+                LIMIT 1
+                `,
+                [
+                    usuarioId
+                ]
+            );
+
+
+        const houveAlertaReal =
+            eventoHoje.rows.length > 0;
+
+
+        const idsNecessarios = [
+            "alerta_estresse",
+            ...(houveAlertaReal
+                ? [
+                    "acalmou_facilidade",
+                    "gatilho_principal"
+                ]
+                : []),
+            "desconforto_texturas",
+            "evitou_contato_visual",
+            "comunicacao",
+            "humor",
+            "crises_sensoriais",
+            "sono",
+            "alimentacao",
+            "atividades_propostas",
+            "interacao_social",
+            "avaliacao_dia"
+        ];
+
+
+        const idsRespondidos =
+            new Set(
+                respostas
+                    .filter(
+                        item =>
+                            item &&
+                            item.id &&
+                            String(
+                                item.resposta || ""
+                            ).trim()
+                    )
+                    .map(
+                        item =>
+                            item.id
+                    )
+            );
+
+
+        const faltantes =
+            idsNecessarios.filter(
+                id =>
+                    !idsRespondidos.has(id)
+            );
+
+
+        if (
+            faltantes.length > 0
+        ) {
+
+            await cliente.query(
+                "ROLLBACK"
+            );
+
+            return res.status(400).json({
+                erro:
+                    "Ainda existem informações do relatório que precisam ser preenchidas antes de finalizar.",
+                faltantes
+            });
+
+        }
+
+
+        /*
+            Normaliza somente a cópia MAIS RECENTE que veio
+            do banco. O texto original do responsável continua
+            preservado pela própria função.
+        */
+        const respostasNormalizadas =
+            await enriquecerRespostasComGatilho(
+                respostas
+            );
+
+
+        // Salva o relatório definitivo.
+        await cliente.query(
+            `
+            INSERT INTO relatorios
+            (
+                usuario_id,
+                respostas,
+                data
+            )
+
+            VALUES
+            (
+                $1,
+                $2,
+                NOW()
+            )
+            `,
             [
                 usuarioId,
-                JSON.stringify(respostasNormalizadas)
+                JSON.stringify(
+                    respostasNormalizadas
+                )
             ]
         );
 
-        // O relatório foi finalizado.
-        // O rascunho de hoje não é mais necessário.
-        await db.query(
+
+        // Depois de virar relatório definitivo,
+        // o rascunho de hoje deixa de existir.
+        await cliente.query(
             `
             DELETE FROM rascunhos_relatorio
+
             WHERE usuario_id = $1
+
             AND data_referencia =
             (
                 NOW()
                 AT TIME ZONE 'America/Sao_Paulo'
             )::date
             `,
-            [usuarioId]
+            [
+                usuarioId
+            ]
         );
 
-        // Cria a notificação de sucesso
-        await db.query(
-            `INSERT INTO notificacoes (usuario_id, tipo, mensagem, lida)
-             VALUES ($1, 'relatorio_concluido', $2, FALSE)`,
-            [usuarioId, "Você acabou de finalizar um relatório. Parabéns! 🎉"]
+
+        // Notificação para o responsável.
+        await cliente.query(
+            `
+            INSERT INTO notificacoes
+            (
+                usuario_id,
+                tipo,
+                mensagem,
+                lida
+            )
+
+            VALUES
+            (
+                $1,
+                'relatorio_concluido',
+                $2,
+                FALSE
+            )
+            `,
+            [
+                usuarioId,
+                "Você acabou de finalizar um relatório. Parabéns! 🎉"
+            ]
         );
 
-        // busca o terapeuta vinculado ao responsável
-        const terapeutaVinculado = await db.query(
-            `SELECT u.id, u.nome
-            FROM vinculos v
-            JOIN usuarios u ON u.id = v.terapeuta_id
-            WHERE v.responsavel_id = $1 AND v.ativo = TRUE
-            LIMIT 1`,
-            [usuarioId]
-        );
 
-        // se tiver terapeuta vinculado, notifica ele também
-        if (terapeutaVinculado.rows.length > 0) {
-            const terapeuta = terapeutaVinculado.rows[0];
+        // Busca terapeuta vinculado, se existir.
+        const terapeutaVinculado =
+            await cliente.query(
+                `
+                SELECT
+                    u.id,
+                    u.nome
 
-            const prefTerapeuta = await db.query(
-            `SELECT notif_lembrete
-            FROM preferencias_usuario
-            WHERE usuario_id = $1`,
-            [terapeuta.id]
-        );
+                FROM vinculos v
 
-        const receberRelatorios =
-            prefTerapeuta.rows[0]?.notif_lembrete ?? true;
+                JOIN usuarios u
+                    ON u.id = v.terapeuta_id
 
-            // busca o nome da criança do responsável
-            const crianca = await db.query(
-                `SELECT nome FROM criancas WHERE usuario_id = $1 LIMIT 1`,
-                [usuarioId]
+                WHERE
+                    v.responsavel_id = $1
+                    AND v.ativo = TRUE
+
+                LIMIT 1
+                `,
+                [
+                    usuarioId
+                ]
             );
 
-            const nomeCrianca = crianca.rows[0]?.nome || "A criança";
+
+        if (
+            terapeutaVinculado.rows.length > 0
+        ) {
+
+            const terapeuta =
+                terapeutaVinculado.rows[0];
+
+
+            const prefTerapeuta =
+                await cliente.query(
+                    `
+                    SELECT
+                        notif_lembrete
+
+                    FROM preferencias_usuario
+
+                    WHERE usuario_id = $1
+                    `,
+                    [
+                        terapeuta.id
+                    ]
+                );
+
+
+            const receberRelatorios =
+                prefTerapeuta.rows[0]
+                    ?.notif_lembrete ?? true;
+
 
             if (receberRelatorios) {
 
-                await db.query(
-                    `INSERT INTO notificacoes
-                    (usuario_id, tipo, mensagem, lida)
-                    VALUES ($1, 'relatorio_finalizado', $2, FALSE)`,
+                const crianca =
+                    await cliente.query(
+                        `
+                        SELECT nome
+
+                        FROM criancas
+
+                        WHERE usuario_id = $1
+
+                        LIMIT 1
+                        `,
+                        [
+                            usuarioId
+                        ]
+                    );
+
+
+                const nomeCrianca =
+                    crianca.rows[0]?.nome ||
+                    "A criança";
+
+
+                await cliente.query(
+                    `
+                    INSERT INTO notificacoes
+                    (
+                        usuario_id,
+                        tipo,
+                        mensagem,
+                        lida
+                    )
+
+                    VALUES
+                    (
+                        $1,
+                        'relatorio_finalizado',
+                        $2,
+                        FALSE
+                    )
+                    `,
                     [
                         terapeuta.id,
                         `${nomeCrianca} acabou de finalizar um relatório. Clique para ver.`
@@ -5988,17 +6337,55 @@ app.post("/api/relatorio", estaLogado, exigeResponsavel, precisaPlano("medio"), 
 
         }
 
-        return res.status(201).json({ mensagem: "Relatório salvo com sucesso." });
+
+        await cliente.query(
+            "COMMIT"
+        );
+
+
+        return res.status(201).json({
+            mensagem:
+                "Relatório salvo com sucesso."
+        });
+
 
     } catch (erro) {
 
-        console.log("Erro ao salvar relatório:", erro);
-        res.status(500).json({ erro: "Erro interno ao salvar relatório." });
+        if (cliente) {
+
+            try {
+
+                await cliente.query(
+                    "ROLLBACK"
+                );
+
+            } catch (_) {
+            }
+
+        }
+
+
+        console.log(
+            "Erro ao salvar relatório:",
+            erro
+        );
+
+
+        return res.status(500).json({
+            erro:
+                "Erro interno ao salvar relatório."
+        });
+
+
+    } finally {
+
+        if (cliente) {
+            cliente.release();
+        }
 
     }
 
 });
-
 
 app.post("/api/relatorios/:id/marcar-visto", estaLogado, exigeTerapeuta, async (req, res) => {
     const usuarioId   = req.authUser.id;

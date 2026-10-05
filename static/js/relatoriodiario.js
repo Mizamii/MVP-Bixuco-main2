@@ -2223,23 +2223,20 @@ async function finalizarRelatorio(
 
     try {
 
+        /*
+            O navegador só pede a finalização.
+            As respostas não são mais enviadas daqui,
+            porque o servidor usa o rascunho mais recente
+            salvo no PostgreSQL.
+        */
         const resposta =
             await fetch(
                 "/api/relatorio",
                 {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        respostas:
-                            respostasUsuario
-                    })
+                    method: "POST"
                 }
             );
+
 
         if (
             resposta.status === 401
@@ -2250,6 +2247,7 @@ async function finalizarRelatorio(
 
             return;
         }
+
 
         if (
             resposta.status === 409
@@ -2269,16 +2267,35 @@ async function finalizarRelatorio(
             return;
         }
 
+
         if (!resposta.ok) {
 
+            let mensagemErro =
+                "Erro ao salvar o relatório. Tente novamente.";
+
+            try {
+
+                const dados =
+                    await resposta.json();
+
+                if (dados?.erro) {
+                    mensagemErro =
+                        dados.erro;
+                }
+
+            } catch (_) {
+            }
+
             throw new Error(
-                "Resposta do servidor com erro"
+                mensagemErro
             );
 
         }
 
+
         window.location.href =
             "/Transicao4";
+
 
     } catch (erro) {
 
@@ -2301,13 +2318,12 @@ async function finalizarRelatorio(
                 );
 
         mostrarMensagem(
-            "Erro ao salvar o relatório. Tente novamente.",
+            erro.message ||
+                "Erro ao salvar o relatório. Tente novamente.",
             "erro"
         );
-
     }
 }
-
 
 // ==========================
 // PAINEL DE NOTIFICAÇÕES
