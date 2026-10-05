@@ -5469,6 +5469,398 @@ app.put(
     }
 );
 
+// =========================================
+// PATCH — SALVAR UMA ÚNICA RESPOSTA
+// DO RASCUNHO SEM SOBRESCREVER AS OUTRAS
+// =========================================
+
+app.patch(
+    "/api/relatorio/rascunho/resposta",
+
+    estaLogado,
+    exigeResponsavel,
+    precisaPlano("medio"),
+
+    async (req, res) => {
+
+        const cliente =
+            await db.connect();
+
+        try {
+
+            const usuarioId =
+                req.authUser.id;
+
+
+            const {
+                id,
+                pergunta,
+                resposta,
+                remover
+            } = req.body;
+
+
+            const idsPermitidos =
+                new Set([
+                    "alerta_estresse",
+                    "acalmou_facilidade",
+                    "gatilho_principal",
+                    "desconforto_texturas",
+                    "evitou_contato_visual",
+                    "comunicacao",
+                    "humor",
+                    "crises_sensoriais",
+                    "sono",
+                    "alimentacao",
+                    "atividades_propostas",
+                    "interacao_social",
+                    "avaliacao_dia"
+                ]);
+
+
+            if (
+                !id ||
+                !idsPermitidos.has(id)
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        erro:
+                            "Campo do relatório inválido."
+                    });
+
+            }
+
+
+            const perguntaLimpa =
+                String(
+                    pergunta || ""
+                )
+                    .trim()
+                    .slice(
+                        0,
+                        300
+                    );
+
+
+            const respostaLimpa =
+                String(
+                    resposta || ""
+                )
+                    .trim()
+                    .slice(
+                        0,
+                        500
+                    );
+
+
+            if (
+                !remover &&
+                !respostaLimpa
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        erro:
+                            "Resposta inválida."
+                    });
+
+            }
+
+
+            await cliente.query(
+                "BEGIN"
+            );
+
+
+            // Confere se o relatório já foi
+            // finalizado antes de mexer no rascunho.
+            const relatorioFinalizado =
+                await cliente.query(
+                    `
+                    SELECT id
+
+                    FROM relatorios
+
+                    WHERE usuario_id = $1
+
+                    AND DATE(
+                        data
+                        AT TIME ZONE 'UTC'
+                        AT TIME ZONE
+                        'America/Sao_Paulo'
+                    ) =
+                    (
+                        NOW()
+                        AT TIME ZONE
+                        'America/Sao_Paulo'
+                    )::date
+
+                    LIMIT 1
+                    `,
+                    [
+                        usuarioId
+                    ]
+                );
+
+
+            if (
+                relatorioFinalizado
+                    .rows
+                    .length > 0
+            ) {
+
+                await cliente.query(
+                    "ROLLBACK"
+                );
+
+
+                return res
+                    .status(409)
+                    .json({
+                        erro:
+                            "Você já preencheu o relatório de hoje. Volte amanhã!"
+                    });
+
+            }
+
+
+            // Garante que exista um rascunho
+            // para o dia atual.
+            await cliente.query(
+                `
+                INSERT INTO
+                    rascunhos_relatorio
+                (
+                    usuario_id,
+                    data_referencia,
+                    respostas,
+                    mensagens_chat,
+                    atualizado_em
+                )
+
+                VALUES
+                (
+                    $1,
+                    (
+                        NOW()
+                        AT TIME ZONE
+                        'America/Sao_Paulo'
+                    )::date,
+                    '[]'::jsonb,
+                    '[]'::jsonb,
+                    NOW()
+                )
+
+                ON CONFLICT
+                (
+                    usuario_id,
+                    data_referencia
+                )
+
+                DO NOTHING
+                `,
+                [
+                    usuarioId
+                ]
+            );
+
+
+            /*
+                Bloqueia somente o rascunho deste
+                usuário enquanto fazemos a alteração.
+
+                Se duas abas salvarem ao mesmo tempo,
+                uma espera a outra terminar.
+            */
+            const rascunho =
+                await cliente.query(
+                    `
+                    SELECT
+                        respostas
+
+                    FROM
+                        rascunhos_relatorio
+
+                    WHERE
+                        usuario_id = $1
+
+                    AND
+                        data_referencia =
+                        (
+                            NOW()
+                            AT TIME ZONE
+                            'America/Sao_Paulo'
+                        )::date
+
+                    FOR UPDATE
+                    `,
+                    [
+                        usuarioId
+                    ]
+                );
+
+
+            let respostasAtuais =
+                rascunho
+                    .rows[0]
+                    ?.respostas || [];
+
+
+            if (
+                !Array.isArray(
+                    respostasAtuais
+                )
+            ) {
+
+                respostasAtuais = [];
+
+            }
+
+
+            if (remover) {
+
+                respostasAtuais =
+                    respostasAtuais
+                        .filter(
+                            item =>
+                                item &&
+                                item.id !== id
+                        );
+
+            } else {
+
+                const indice =
+                    respostasAtuais
+                        .findIndex(
+                            item =>
+                                item &&
+                                item.id === id
+                        );
+
+
+                const novaResposta = {
+
+                    id,
+
+                    pergunta:
+                        perguntaLimpa,
+
+                    resposta:
+                        respostaLimpa
+
+                };
+
+
+                if (indice >= 0) {
+
+                    respostasAtuais[indice] = {
+
+                        ...respostasAtuais[
+                            indice
+                        ],
+
+                        ...novaResposta
+
+                    };
+
+                } else {
+
+                    respostasAtuais.push(
+                        novaResposta
+                    );
+
+                }
+
+            }
+
+
+            await cliente.query(
+                `
+                UPDATE
+                    rascunhos_relatorio
+
+                SET
+                    respostas =
+                        $2::jsonb,
+
+                    atualizado_em =
+                        NOW()
+
+                WHERE
+                    usuario_id = $1
+
+                AND
+                    data_referencia =
+                    (
+                        NOW()
+                        AT TIME ZONE
+                        'America/Sao_Paulo'
+                    )::date
+                `,
+                [
+                    usuarioId,
+
+                    JSON.stringify(
+                        respostasAtuais
+                    )
+                ]
+            );
+
+
+            await cliente.query(
+                "COMMIT"
+            );
+
+
+            return res.json({
+
+                sucesso:
+                    true,
+
+                respostas:
+                    respostasAtuais
+
+            });
+
+
+        } catch (erro) {
+
+            try {
+
+                await cliente.query(
+                    "ROLLBACK"
+                );
+
+            } catch (_) {
+            }
+
+
+            console.error(
+                "Erro ao salvar resposta individual do rascunho:",
+                erro
+            );
+
+
+            return res
+                .status(500)
+                .json({
+                    erro:
+                        "Não foi possível salvar a resposta."
+                });
+
+
+        } finally {
+
+            cliente.release();
+
+        }
+
+    }
+);
+
 /* ==========================
    ROTA POST — SALVAR RELATÓRIO DIÁRIO
 ========================== */

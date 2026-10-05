@@ -504,14 +504,137 @@ async function salvarRascunho() {
     return true;
 }
 
-function enfileirarSalvamentoRascunho() {
+function enfileirarSalvamentoResposta(
+    pergunta,
+    resposta
+) {
 
     filaSalvamentoRascunho =
         filaSalvamentoRascunho
-            .catch(() => true)
-            .then(() =>
-                salvarRascunho()
+            .catch(
+                () => true
+            )
+            .then(
+                async () => {
+
+                    const texto =
+                        resposta === null ||
+                        resposta === undefined
+                            ? ""
+                            : String(
+                                resposta
+                            ).trim();
+
+
+                    const remover =
+                        texto.length === 0;
+
+
+                    const respostaServidor =
+                        await fetch(
+                            "/api/relatorio/rascunho/resposta",
+                            {
+                                method:
+                                    "PATCH",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body:
+                                    JSON.stringify({
+
+                                        id:
+                                            pergunta.id,
+
+                                        pergunta:
+                                            pergunta.pergunta,
+
+                                        resposta:
+                                            texto,
+
+                                        remover
+
+                                    })
+                            }
+                        );
+
+
+                    if (
+                        respostaServidor.status ===
+                        401
+                    ) {
+
+                        window.location.href =
+                            "/logar";
+
+                        return false;
+
+                    }
+
+
+                    const dados =
+                        await respostaServidor
+                            .json();
+
+
+                    if (
+                        respostaServidor.status ===
+                        409
+                    ) {
+
+                        mostrarMensagem(
+                            dados.erro ||
+                                "Você já preencheu o relatório de hoje. Volte amanhã!",
+                            "aviso"
+                        );
+
+
+                        bloquearPreenchimentoRelatorio();
+
+
+                        return false;
+
+                    }
+
+
+                    if (
+                        !respostaServidor.ok
+                    ) {
+
+                        throw new Error(
+                            dados.erro ||
+                                "Não foi possível salvar a resposta."
+                        );
+
+                    }
+
+
+                    /*
+                        O servidor devolve a versão
+                        mais atual do rascunho.
+
+                        Isso também sincroniza mudanças
+                        feitas por outra aba.
+                    */
+                    if (
+                        Array.isArray(
+                            dados.respostas
+                        )
+                    ) {
+
+                        respostasUsuario =
+                            dados.respostas;
+
+                    }
+
+
+                    return true;
+
+                }
             );
+
 
     return filaSalvamentoRascunho;
 }
@@ -533,34 +656,52 @@ async function salvarRespostaImediata(
     resposta
 ) {
 
-    if (
-        !pergunta ||
-        resposta === null ||
-        resposta === undefined ||
-        String(resposta).trim() === ""
-    ) {
-
-        return;
+    if (!pergunta) {
+        return false;
     }
 
 
-    salvarOuAtualizarResposta({
+    const texto =
+        resposta === null ||
+        resposta === undefined
+            ? ""
+            : String(
+                resposta
+            ).trim();
 
-        id:
-            pergunta.id,
 
-        pergunta:
-            pergunta.pergunta,
+    if (texto) {
 
-        resposta:
-            resposta
+        salvarOuAtualizarResposta({
 
-    });
+            id:
+                pergunta.id,
+
+            pergunta:
+                pergunta.pergunta,
+
+            resposta:
+                texto
+
+        });
+
+    } else {
+
+        removerRespostaPorId(
+            pergunta.id
+        );
+
+    }
 
 
     try {
 
-        await enfileirarSalvamentoRascunho();
+        return await
+            enfileirarSalvamentoResposta(
+                pergunta,
+                texto
+            );
+
 
     } catch (erro) {
 
@@ -569,10 +710,14 @@ async function salvarRespostaImediata(
             erro
         );
 
+
         mostrarMensagem(
             "Não foi possível salvar o progresso. Tente novamente.",
             "erro"
         );
+
+
+        return false;
 
     }
 
@@ -1785,7 +1930,10 @@ function carregarPergunta(
 
                             try {
 
-                                await enfileirarSalvamentoRascunho();
+                                await salvarRespostaImediata(
+                                    atual,
+                                    valor
+                                );
 
                             } catch (erro) {
 
@@ -1952,7 +2100,10 @@ btnProxima.addEventListener(
         try {
 
             const salvou =
-                await enfileirarSalvamentoRascunho();
+                await salvarRespostaImediata(
+                    pergunta,
+                    respostaSelecionada
+                );
 
             if (!salvou) {
                 return;
