@@ -8412,6 +8412,7 @@ Gere as dicas personalizadas.`;
 
 async function salvarTurnoChatAtomico({
     usuarioId,
+    respostasBase = [],
     novasMensagens = [],
     atualizacoes = [],
     houveAlertaReal = false
@@ -8425,6 +8426,53 @@ async function salvarTurnoChatAtomico({
         await cliente.query(
             "BEGIN"
         );
+
+
+        // Confere novamente se o relatório ainda está aberto.
+        // Isso protege o caso em que outra aba finaliza
+        // enquanto a IA ainda está pensando.
+        const relatorioFinalizado =
+            await cliente.query(
+                `
+                SELECT id
+
+                FROM relatorios
+
+                WHERE usuario_id = $1
+
+                AND DATE(
+                    data
+                    AT TIME ZONE 'UTC'
+                    AT TIME ZONE 'America/Sao_Paulo'
+                ) =
+                (
+                    NOW()
+                    AT TIME ZONE 'America/Sao_Paulo'
+                )::date
+
+                LIMIT 1
+                `,
+                [
+                    usuarioId
+                ]
+            );
+
+
+        if (
+            relatorioFinalizado.rows.length > 0
+        ) {
+
+            await cliente.query(
+                "ROLLBACK"
+            );
+
+            return {
+                finalizado: true,
+                respostas: [],
+                mensagensChat: []
+            };
+
+        }
 
 
         // Garante que exista o rascunho de hoje.
@@ -8467,13 +8515,7 @@ async function salvarTurnoChatAtomico({
         );
 
 
-        /*
-            Trava somente o rascunho deste usuário
-            enquanto juntamos as mudanças.
-
-            Assim, se o formulário salvar algo enquanto
-            a IA responde, nenhuma resposta desaparece.
-        */
+        // Trava o rascunho deste usuário durante a junção.
         const resultado =
             await cliente.query(
                 `
@@ -8501,6 +8543,51 @@ async function salvarTurnoChatAtomico({
                     usuarioId
                 ]
             );
+
+
+        // Confere outra vez depois da trava.
+        const finalizadoDepoisDaTrava =
+            await cliente.query(
+                `
+                SELECT id
+
+                FROM relatorios
+
+                WHERE usuario_id = $1
+
+                AND DATE(
+                    data
+                    AT TIME ZONE 'UTC'
+                    AT TIME ZONE 'America/Sao_Paulo'
+                ) =
+                (
+                    NOW()
+                    AT TIME ZONE 'America/Sao_Paulo'
+                )::date
+
+                LIMIT 1
+                `,
+                [
+                    usuarioId
+                ]
+            );
+
+
+        if (
+            finalizadoDepoisDaTrava.rows.length > 0
+        ) {
+
+            await cliente.query(
+                "ROLLBACK"
+            );
+
+            return {
+                finalizado: true,
+                respostas: [],
+                mensagensChat: []
+            };
+
+        }
 
 
         let respostasAtuais =
@@ -8534,7 +8621,7 @@ async function salvarTurnoChatAtomico({
 
 
         // Se houve alerta real do Bixuco,
-        // mantém essa informação garantida.
+        // essa informação continua garantida.
         if (houveAlertaReal) {
 
             respostasAtuais =
@@ -8557,17 +8644,73 @@ async function salvarTurnoChatAtomico({
         }
 
 
-        /*
-            Aplica SOMENTE os campos realmente
-            atualizados pela conversa.
+        function obterValorResposta(
+            lista,
+            id
+        ) {
 
-            Campos alterados pelo formulário em
-            outra aba permanecem intactos.
+            const item =
+                Array.isArray(lista)
+                    ? lista.find(
+                        atual =>
+                            atual &&
+                            atual.id === id
+                    )
+                    : null;
+
+
+            return String(
+                item?.resposta || ""
+            ).trim();
+
+        }
+
+
+        /*
+            Só aplica os campos que a IA realmente
+            entendeu nesta mensagem.
+
+            Se o MESMO campo mudou no banco enquanto
+            a IA estava pensando, preservamos a mudança
+            mais recente feita pelo usuário.
         */
         for (
             const atualizacao
             of atualizacoes
         ) {
+
+            if (
+                !atualizacao ||
+                !atualizacao.id
+            ) {
+
+                continue;
+
+            }
+
+
+            const valorBase =
+                obterValorResposta(
+                    respostasBase,
+                    atualizacao.id
+                );
+
+
+            const valorAtual =
+                obterValorResposta(
+                    respostasAtuais,
+                    atualizacao.id
+                );
+
+
+            if (
+                valorAtual !== valorBase
+            ) {
+
+                continue;
+
+            }
+
 
             respostasAtuais =
                 atualizarRespostaChat(
@@ -8633,13 +8776,13 @@ async function salvarTurnoChatAtomico({
 
 
         return {
+            finalizado: false,
 
             respostas:
                 respostasAtuais,
 
             mensagensChat:
                 mensagensAtuais
-
         };
 
 
@@ -9002,95 +9145,97 @@ app.post(
                         : `Não consegui entender "${mensagem.slice(0, 30)}" como uma informação do relatório. Pode me explicar com palavras? Se quiser corrigir algo que disse antes, pode falar “na verdade...” e me contar a informação certa.`;
 
 
-                mensagensChat.push(
-                    {
-                        role: "user",
-                        content: mensagem
-                    },
-                    {
-                        role: "assistant",
-                        content: respostaAmbigua
-                    }
-                );
+                const estadoSalvo =
+                await salvarTurnoChatAtomico({
 
+                    usuarioId,
 
-                mensagensChat =
-                    mensagensChat.slice(-40);
-
-
-                await db.query(
-                    `
-                    INSERT INTO
-                        rascunhos_relatorio
-                    (
-                        usuario_id,
-                        data_referencia,
+                    respostasBase:
                         respostas,
-                        mensagens_chat,
-                        atualizado_em
-                    )
 
-                    VALUES
-                    (
-                        $1,
-                        (
-                            NOW()
-                            AT TIME ZONE
-                            'America/Sao_Paulo'
-                        )::date,
-                        $2::jsonb,
-                        $3::jsonb,
-                        NOW()
-                    )
+                    houveAlertaReal,
 
-                    ON CONFLICT
-                    (
-                        usuario_id,
-                        data_referencia
-                    )
+                    atualizacoes: [],
 
-                    DO UPDATE SET
+                    novasMensagens: [
 
-                        respostas =
-                            EXCLUDED.respostas,
+                        {
+                            role: "user",
+                            content: mensagem
+                        },
 
-                        mensagens_chat =
-                            EXCLUDED.mensagens_chat,
+                        {
+                            role: "assistant",
+                            content: respostaAmbigua
+                        }
 
-                        atualizado_em =
-                            NOW()
-                    `,
-                    [
-                        usuarioId,
-
-                        JSON.stringify(
-                            respostas
-                        ),
-
-                        JSON.stringify(
-                            mensagensChat
-                        )
                     ]
-                );
-
-
-                return res.json({
-
-                    mensagem:
-                        respostaAmbigua,
-
-                    respostas,
-
-                    faltantes:
-                        faltantesAntes,
-
-                    completo:
-                        faltantesAntes.length === 0,
-
-                    ignorada:
-                        true
 
                 });
+
+
+            if (
+                estadoSalvo.finalizado
+            ) {
+
+                return res.status(409).json({
+                    erro:
+                        "Você já preencheu o relatório de hoje. Volte amanhã!"
+                });
+
+            }
+
+
+            respostas =
+                estadoSalvo.respostas;
+
+
+            mensagensChat =
+                estadoSalvo.mensagensChat;
+
+
+            const idsRespondidosAmbiguo =
+                new Set(
+                    respostas
+                        .filter(
+                            item =>
+                                item &&
+                                item.id &&
+                                String(
+                                    item.resposta || ""
+                                ).trim()
+                        )
+                        .map(
+                            item =>
+                                item.id
+                        )
+                );
+
+
+            const faltantesAmbiguos =
+                idsNecessarios.filter(
+                    id =>
+                        !idsRespondidosAmbiguo.has(id)
+                );
+
+
+            return res.json({
+
+                mensagem:
+                    respostaAmbigua,
+
+                respostas,
+
+                faltantes:
+                    faltantesAmbiguos,
+
+                completo:
+                    faltantesAmbiguos.length === 0,
+
+                ignorada:
+                    true
+
+            });
 
             }
 
@@ -9488,125 +9633,98 @@ app.post(
 
 
             // =====================================
-            // CALCULA O QUE AINDA FALTA
-            // =====================================
+// SALVA O TURNO SEM SOBRESCREVER
+// ALTERAÇÕES FEITAS EM OUTRA ABA
+// =====================================
 
-            const idsRespondidos =
-                new Set(
-                    respostas
-                        .filter(
-                            item =>
-                                item &&
-                                item.id &&
-                                item.resposta
-                        )
-                        .map(
-                            item =>
-                                item.id
-                        )
-                );
+const estadoSalvo =
+    await salvarTurnoChatAtomico({
 
+        usuarioId,
 
-            const faltantes =
-                idsNecessarios.filter(
-                    id =>
-                        !idsRespondidos.has(id)
-                );
+        respostasBase:
+            respostas,
 
+        houveAlertaReal,
 
-            const completo =
-                faltantes.length === 0;
+        atualizacoes:
+            atualizacoesValidas,
 
+        novasMensagens: [
 
-            // =====================================
-            // GUARDA A CONVERSA
-            // =====================================
-
-            mensagensChat.push({
-
+            {
                 role:
                     "user",
 
                 content:
                     mensagem
+            },
 
-            });
-
-
-            mensagensChat.push({
-
+            {
                 role:
                     "assistant",
 
                 content:
                     respostaIA.mensagem
+            }
 
-            });
+        ]
 
-
-            // Limite defensivo.
-            mensagensChat =
-                mensagensChat.slice(-40);
+    });
 
 
-            // =====================================
-            // SALVA TUDO NO MESMO RASCUNHO
-            // =====================================
+    if (
+        estadoSalvo.finalizado
+    ) {
 
-            await db.query(
-                `
-                INSERT INTO
-                    rascunhos_relatorio
-                (
-                    usuario_id,
-                    data_referencia,
-                    respostas,
-                    mensagens_chat,
-                    atualizado_em
+        return res.status(409).json({
+            erro:
+                "Você já preencheu o relatório de hoje. Volte amanhã!"
+        });
+
+    }
+
+
+    respostas =
+        estadoSalvo.respostas;
+
+
+    mensagensChat =
+        estadoSalvo.mensagensChat;
+
+
+    // =====================================
+    // CALCULA O QUE AINDA FALTA
+    // USANDO O RASCUNHO MAIS RECENTE
+    // =====================================
+
+    const idsRespondidos =
+        new Set(
+            respostas
+                .filter(
+                    item =>
+                        item &&
+                        item.id &&
+                        String(
+                            item.resposta || ""
+                        ).trim()
                 )
-
-                VALUES
-                (
-                    $1,
-                    (
-                        NOW()
-                        AT TIME ZONE
-                        'America/Sao_Paulo'
-                    )::date,
-                    $2::jsonb,
-                    $3::jsonb,
-                    NOW()
+                .map(
+                    item =>
+                        item.id
                 )
+        );
 
-                ON CONFLICT
-                (
-                    usuario_id,
-                    data_referencia
-                )
 
-                DO UPDATE SET
+    const faltantes =
+        idsNecessarios.filter(
+            id =>
+                !idsRespondidos.has(id)
+        );
 
-                    respostas =
-                        EXCLUDED.respostas,
 
-                    mensagens_chat =
-                        EXCLUDED.mensagens_chat,
-
-                    atualizado_em =
-                        NOW()
-                `,
-                [
-                    usuarioId,
-
-                    JSON.stringify(
-                        respostas
-                    ),
-
-                    JSON.stringify(
-                        mensagensChat
-                    )
-                ]
-            );
+    const completo =
+        faltantes.length === 0;
 
 
             return res.json({
