@@ -8410,6 +8410,262 @@ Gere as dicas personalizadas.`;
     return { dicas: dicasGeradas, novo: true };
 }
 
+async function salvarTurnoChatAtomico({
+    usuarioId,
+    novasMensagens = [],
+    atualizacoes = [],
+    houveAlertaReal = false
+}) {
+
+    const cliente =
+        await db.connect();
+
+    try {
+
+        await cliente.query(
+            "BEGIN"
+        );
+
+
+        // Garante que exista o rascunho de hoje.
+        await cliente.query(
+            `
+            INSERT INTO
+                rascunhos_relatorio
+            (
+                usuario_id,
+                data_referencia,
+                respostas,
+                mensagens_chat,
+                atualizado_em
+            )
+
+            VALUES
+            (
+                $1,
+                (
+                    NOW()
+                    AT TIME ZONE
+                    'America/Sao_Paulo'
+                )::date,
+                '[]'::jsonb,
+                '[]'::jsonb,
+                NOW()
+            )
+
+            ON CONFLICT
+            (
+                usuario_id,
+                data_referencia
+            )
+
+            DO NOTHING
+            `,
+            [
+                usuarioId
+            ]
+        );
+
+
+        /*
+            Trava somente o rascunho deste usuário
+            enquanto juntamos as mudanças.
+
+            Assim, se o formulário salvar algo enquanto
+            a IA responde, nenhuma resposta desaparece.
+        */
+        const resultado =
+            await cliente.query(
+                `
+                SELECT
+                    respostas,
+                    mensagens_chat
+
+                FROM
+                    rascunhos_relatorio
+
+                WHERE
+                    usuario_id = $1
+
+                AND
+                    data_referencia =
+                    (
+                        NOW()
+                        AT TIME ZONE
+                        'America/Sao_Paulo'
+                    )::date
+
+                FOR UPDATE
+                `,
+                [
+                    usuarioId
+                ]
+            );
+
+
+        let respostasAtuais =
+            resultado.rows[0]?.respostas || [];
+
+
+        let mensagensAtuais =
+            resultado.rows[0]?.mensagens_chat || [];
+
+
+        if (
+            !Array.isArray(
+                respostasAtuais
+            )
+        ) {
+
+            respostasAtuais = [];
+
+        }
+
+
+        if (
+            !Array.isArray(
+                mensagensAtuais
+            )
+        ) {
+
+            mensagensAtuais = [];
+
+        }
+
+
+        // Se houve alerta real do Bixuco,
+        // mantém essa informação garantida.
+        if (houveAlertaReal) {
+
+            respostasAtuais =
+                atualizarRespostaChat(
+                    respostasAtuais,
+                    {
+                        id:
+                            "alerta_estresse",
+
+                        pergunta:
+                            CAMPOS_RELATORIO_CHAT
+                                .alerta_estresse
+                                .pergunta,
+
+                        resposta:
+                            "Sim"
+                    }
+                );
+
+        }
+
+
+        /*
+            Aplica SOMENTE os campos realmente
+            atualizados pela conversa.
+
+            Campos alterados pelo formulário em
+            outra aba permanecem intactos.
+        */
+        for (
+            const atualizacao
+            of atualizacoes
+        ) {
+
+            respostasAtuais =
+                atualizarRespostaChat(
+                    respostasAtuais,
+                    atualizacao
+                );
+
+        }
+
+
+        mensagensAtuais.push(
+            ...novasMensagens
+        );
+
+
+        mensagensAtuais =
+            mensagensAtuais.slice(-40);
+
+
+        await cliente.query(
+            `
+            UPDATE
+                rascunhos_relatorio
+
+            SET
+                respostas =
+                    $2::jsonb,
+
+                mensagens_chat =
+                    $3::jsonb,
+
+                atualizado_em =
+                    NOW()
+
+            WHERE
+                usuario_id = $1
+
+            AND
+                data_referencia =
+                (
+                    NOW()
+                    AT TIME ZONE
+                    'America/Sao_Paulo'
+                )::date
+            `,
+            [
+                usuarioId,
+
+                JSON.stringify(
+                    respostasAtuais
+                ),
+
+                JSON.stringify(
+                    mensagensAtuais
+                )
+            ]
+        );
+
+
+        await cliente.query(
+            "COMMIT"
+        );
+
+
+        return {
+
+            respostas:
+                respostasAtuais,
+
+            mensagensChat:
+                mensagensAtuais
+
+        };
+
+
+    } catch (erro) {
+
+        try {
+
+            await cliente.query(
+                "ROLLBACK"
+            );
+
+        } catch (_) {
+        }
+
+
+        throw erro;
+
+
+    } finally {
+
+        cliente.release();
+
+    }
+
+}
+
 app.post(
     "/api/relatorio-chat",
 
@@ -9166,6 +9422,8 @@ app.post(
             // VALIDA O QUE A IA TENTOU SALVAR
             // =====================================
 
+            const atualizacoesValidas = [];
+
             const idsPermitidos =
                 new Set(
                     idsNecessarios
@@ -9208,25 +9466,23 @@ app.post(
 
 
                 const campo =
-                    CAMPOS_RELATORIO_CHAT[
-                        atualizacao.id
-                    ];
+                CAMPOS_RELATORIO_CHAT[
+                    atualizacao.id
+                ];
 
 
-                respostas =
-                    atualizarRespostaChat(
-                        respostas,
-                        {
-                            id:
-                                atualizacao.id,
+            atualizacoesValidas.push({
 
-                            pergunta:
-                                campo.pergunta,
+                id:
+                    atualizacao.id,
 
-                            resposta:
-                                respostaLimpa
-                        }
-                    );
+                pergunta:
+                    campo.pergunta,
+
+                resposta:
+                    respostaLimpa
+
+            });
 
             }
 

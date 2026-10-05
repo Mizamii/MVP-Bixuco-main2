@@ -3126,7 +3126,17 @@ async function verificarAlertaHoje() {
 
         try {
 
-            await salvarRascunho();
+            await salvarRespostaImediata(
+                {
+                    id:
+                        "alerta_estresse",
+
+                    pergunta:
+                        "Teve algum alerta de estresse hoje?"
+                },
+
+                "Sim"
+            );
 
         } catch (erro) {
 
