@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+    <title>Bixuco — Criar conta</title>
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"
+    >
+    <link
+        rel="stylesheet"
+        href="/css/criarcontag.css"
+    >
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/publico.css">
+    <script src="/js/deeplink.js"></script>
+
+
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+
+    <link rel="stylesheet" href="/css/termosModal.css">
+</head>
+
+<body class="pagina-publica pagina-auth">
+    <main class="pagina-login">
+
+        <!-- ========================= -->
+        <!-- LADO ESQUERDO -->
+        <!-- ========================= -->
+        <section class="login-esquerda">
+
+            <div class="login-esquerda__geometria"></div>
+            <div class="login-esquerda__overlay"></div>
+
+            <div class="login-esquerda__conteudo">
+                <!-- Logo branca -->
+                <img
+                    src="/img/Logo_Branca.png"
+                    alt="Logo Bixuco"
+                    class="login-esquerda__logo"
+                >
+
+                <!-- Título -->
+                <h1 class="login-esquerda__titulo" data-pt="Crie sua conta" data-en="Create your account">
+                    Crie sua conta
+                </h1>
+
+                <!-- Texto -->
+                <p
+                    class="login-esquerda__slogan"
+                    data-pt="Pais e terapeutas juntos pelo bem-estar da criança."
+                    data-en="Parents and therapists together for the child's well-being."
+                >
+                    Pais e terapeutas juntos pelo
+                    bem-estar da criança.
+                </p>
+            </div>
+
+            <div class="login-esquerda__ilustracao-wrapper">
+                <img
+                    src="/img/familia-bixuco.png"
+                    alt="Família utilizando o Bixuco"
+                    class="login-esquerda__foto"
+                >
+            </div>
+
+        </section>
+
+        <!-- ========================= -->
+        <!-- LADO DIREITO -->
+        <!-- ========================= -->
+        <section class="login-direita">
+
+            <div class="controles-publicos controles-publicos--auth" aria-label="Preferências da página">
+                <button type="button" class="controle-publico controle-publico--icone" id="btnTemaMobile" aria-label="Alternar tema" title="Alternar tema">
+                    <i class="fa-regular fa-sun"></i>
+                </button>
+
+                <button type="button" class="tradutor tradutor--login" id="btnTraduzir">
+                    <i class="fa-solid fa-language"></i>
+                    <span id="textoTradutor">Traduzir para o inglês</span>
+                </button>
+            </div>
+
+            <header class="criarconta-header">
+                <h2 class="criarconta-titulo" data-pt="Criar conta" data-en="Create account">
+                    Criar conta
+                </h2>
+            </header>
+
+            <div class="criarconta-corpo">
+
+                <!-- Barra de progresso (Etapa 2) -->
+                <div class="cadastro-progresso">
+                    <span class="ativo"></span>
+                    <span class="ativo ativo--recente"></span>
+                    <span></span>
+                </div>
+
+                <h3 class="criarconta-pergunta" data-pt="Informações sobre você" data-en="Your information">
+                    Informações sobre você
+                </h3>
+
+                <!-- ========================= -->
+                <!-- FORMULÁRIO -->
+                <!-- ========================= -->
+
+                <!-- Envio via fetch para poder exibir erros do servidor na tela -->
+                <form id="formCadastro" class="cadastro-form" novalidate>
+
+                    <!-- Nome -->
+                    <div class="cadastro-form__grupo">
+                        <label for="nome" class="cadastro-form__label" data-pt="Nome completo" data-en="Full name">
+                            Nome completo
+                        </label>
+                        <input
+                            class="cadastro-form__input"
+                            type="text"
+                            id="nome"
+                            name="nome"
+                            placeholder="Digite seu nome completo"
+                            data-pt-placeholder="Digite seu nome completo"
+                            data-en-placeholder="Enter your full name"
+                            autocomplete="name"
+                            required
+                        >
+                        <span
+                            class="cadastro-form__erro"
+                            id="erro-nome"
+                        ></span>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="cadastro-form__grupo">
+                        <label for="email" class="cadastro-form__label" data-pt="Email" data-en="Email">
+                            Email
+                        </label>
+                        <input
+                            class="cadastro-form__input"
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Digite seu e-mail"
+                            data-pt-placeholder="Digite seu e-mail"
+                            data-en-placeholder="Enter your email"
+                            autocomplete="email"
+                            required
+                        >
+                        <span
+                            class="cadastro-form__erro"
+                            id="erro-email"
+                        ></span>
+                    </div>
+
+                    <!-- Linha telefone + data -->
+                    <div class="cadastro-form__linha">
+
+                        <!-- Telefone -->
+                        <div class="cadastro-form__grupo">
+                            <label for="telefone" class="cadastro-form__label" data-pt="Telefone (opcional)" data-en="Phone (optional)">
+                                Telefone (opcional)
+                            </label>
+                            <input
+                                class="cadastro-form__input"
+                                type="tel"
+                                id="telefone"
+                                name="telefone"
+                                placeholder="(00) 00000-0000"
+                                autocomplete="tel"
+                            >
+                            <span
+                                class="cadastro-form__erro"
+                                id="erro-telefone"
+                            ></span>
+                        </div>
+
+                        <!-- Data de nascimento -->
+                        <div class="cadastro-form__grupo">
+                            <label for="dataNascimento" class="cadastro-form__label" data-pt="Data de nascimento" data-en="Date of birth">
+                                Data de nascimento
+                            </label>
+                            <input
+                                class="cadastro-form__input"
+                                type="date"
+                                id="dataNascimento"
+                                name="dataNascimento"
+                                required
+                            >
+                            <span
+                                class="cadastro-form__erro"
+                                id="erro-dataNascimento"
+                            ></span>
+                        </div>
+
+                    </div>
+
+                    <!-- CPF -->
+                    <div class="cadastro-form__grupo">
+                        <label for="cpf" class="cadastro-form__label" data-pt="CPF" data-en="CPF">
+                            CPF
+                        </label>
+                        <input
+                            class="cadastro-form__input"
+                            type="text"
+                            id="cpf"
+                            name="cpfUser"
+                            placeholder="000.000.000-00"
+                            maxlength="14"
+                            inputmode="numeric"
+                            required
+                        >
+                        <span
+                            class="cadastro-form__erro"
+                            id="erro-cpf"
+                        ></span>
+                    </div>
+
+
+                    <!-- Erro geral do servidor (substitui o sistema de ?erro= na URL) -->
+                    <span
+                        id="erro-geral"
+                        class="cadastro-form__erro cadastro-form__erro--geral"
+                        style="display: none;"
+                    ></span>
+
+                    <button
+                        type="submit"
+                        id="btnContinuar"
+                        class="btn-continuar"
+                        data-pt="Continuar"
+                        data-en="Continue"
+                    >
+                        Continuar
+                    </button>
+
+                </form>
+
+                <!-- Termos -->
+                <p class="cadastro-form__termos">
+                    <span data-pt="Ao criar sua conta você concorda com nossos" data-en="By creating your account you agree to our">Ao criar sua conta você concorda com nossos</span>
+                    <button type="button" id="btnAbrirTermos" class="cadastro-form__link--azul" data-pt="Termos de uso" data-en="Terms of use">
+                        Termos de uso
+                    </button>
+                    <span data-pt="e" data-en="and">e</span>
+                    <button type="button" id="btnAbrirPrivacidade" class="cadastro-form__link--verde" data-pt="Política de privacidade." data-en="Privacy policy.">
+                        Política de privacidade.
+                    </button>
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="/js/CriarContaG.js"></script>
+    
+    <script src="/js/tema.js"></script>
+    <script src="/js/enterProximo.js"></script>
+
+          <script src="/js/termosModal.js"></script>
+
+</body>
+</html>

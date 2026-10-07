@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Bixuco — Bem-vindo
+    </title>
+
+    <!-- Ícones -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+
+    <!-- CSS -->
+    <link
+        rel="stylesheet"
+        href="/css/transicao1.css"
+    >
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/publico.css">
+    <script src="/js/deeplink.js"></script>
+
+
+</head>
+
+<body class="pagina-publica pagina-transicao">
+
+    <div class="controles-publicos controles-publicos--pagina" aria-label="Preferências da página">
+        <button type="button" class="controle-publico controle-publico--icone" id="btnTemaMobile" aria-label="Alternar tema" title="Alternar tema"><i class="fa-regular fa-sun"></i></button>
+        <button type="button" class="controle-publico" id="btnTraduzir"><i class="fa-solid fa-language"></i><span id="textoTradutor">EN</span></button>
+    </div>
+
+    <main id="tela">
+
+        <!-- Botão Pular -->
+
+        <header>
+
+            <a
+                href="/home"
+                class="botao-pular"
+            >
+                <span data-pt="Pular" data-en="Skip">Pular</span>
+            </a>
+
+        </header>
+
+
+        <!-- Conteúdo -->
+
+        <section class="conteudo">
+
+            <img
+                src="/img/logo-bixuco-colorida.png"
+                alt="Logo Bixuco"
+                class="conteudo__logo"
+            >
+
+            <h1 class="conteudo__titulo">
+
+                <span data-pt="Bem-vindo ao Bixuco" data-en="Welcome to Bixuco">Bem-vindo ao Bixuco</span>
+
+            </h1>
+
+            <p class="conteudo__texto">
+
+                <span data-pt="Sua pelúcia inteligente vai ajudar a entender os sinais do seu filho(a) com TPS." data-en="Your smart plush helps you understand your child's sensory signals.">Sua pelúcia inteligente vai ajudar a entender os sinais do seu filho(a) com TPS.</span>
+
+            </p>
+
+        </section>
+
+
+        <!-- Seta -->
+
+        <button
+            id="proximo"
+            class="botao-proximo"
+            data-pt-aria="Próxima tela" data-en-aria="Next screen" aria-label="Próxima tela"
+        >
+
+            <i class="fa-solid fa-chevron-right"></i>
+
+        </button>
+
+
+        <!-- Indicadores -->
+
+        <footer>
+
+            <div class="indicadores">
+
+                <span class="ativo"></span>
+
+                <span></span>
+
+                <span></span>
+
+            </div>
+
+        </footer>
+
+    </main>
+
+
+    
+    <script src="/js/Transicao1.js" ></script>
+    <script src="/js/publico-extra.js"></script>
+<script src="/js/tema.js"></script>
+
+</body>
+
+</html>

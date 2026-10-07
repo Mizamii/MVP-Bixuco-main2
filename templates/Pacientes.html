@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Meus Pacientes</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+      integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+      crossorigin="anonymous" referrerpolicy="no-referrer">
+
+    <!-- favicon -->
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+
+    <!-- CSS externo — o amigo vai ligar aqui -->
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/pacientes.css">
+    <script src="/js/deeplink.js"></script>
+
+
+</head>
+<body class="layout-sidebar-perfil">
+
+<div class="container">
+
+    <!-- ========================= -->
+    <!-- MENU LATERAL -->
+    <!-- ========================= -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <img src="/img/logo_nome.png" alt="Logo Bixuco">
+        </div>
+
+        <nav>
+            <a href="/homeTerapeuta">
+                <i class="fa-solid fa-house"></i>
+                <span data-pt="Início" data-en="Home">Início</span>
+            </a>
+
+            <a href="/relatoriosTerapeutaS">
+                <i class="fa-solid fa-chart-line"></i>
+                <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+            </a>
+
+            <a href="/configuracoesT">
+                <i class="fa-solid fa-gear"></i>
+                <span data-pt="Configurações" data-en="Settings">Configurações</span>
+            </a>
+
+            <a href="/sobreT">
+                <i class="fa-solid fa-circle-info"></i>
+                <span data-pt="Sobre" data-en="About">Sobre</span>
+            </a>
+
+            <a href="/pacientes" class="ativo">
+                <i class="fa-solid fa-user-plus"></i>
+                <span data-pt="Pacientes" data-en="Patients">Pacientes</span>
+            </a>
+        </nav>
+
+        <div class="tema">
+            <button id="btnClaro" class="ativo" type="button">
+                <i class="fa-regular fa-sun"></i>
+                <span data-pt="Claro" data-en="Light">Claro</span>
+            </button>
+            <button id="btnEscuro" type="button">
+                <i class="fa-regular fa-moon"></i>
+                <span data-pt="Escuro" data-en="Dark">Escuro</span>
+            </button>
+        </div>
+
+        <!-- divisor em degradê do amigo -->
+        <div class="sidebar-divisor"></div>
+
+        <a href="/logout" class="logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span data-pt="Sair" data-en="Log out">Sair</span>
+        </a>
+
+        <!-- Perfil + notificações + tradução — só aparece no desktop, substituindo
+             a barra "topo" (ver header.js / layout.css) -->
+        <div class="sidebar-usuario" id="sidebarUsuario"></div>
+
+    </aside>
+
+    <!-- ========================= -->
+    <!-- CONTEÚDO PRINCIPAL -->
+    <!-- ========================= -->
+    <main class="conteudo">
+
+        <!-- TOPO -->
+        <header class="topo" id="topoApp" data-perfil="/PerfilTerapeuta" data-badge-id="badgeNotificacoes" data-nome-id="nomeTerapeuta" data-tipo-pt="Terapeuta" data-tipo-en="Therapist" data-codigo="padrao"></header>
+
+        <!-- conteudo-corpo do amigo — permite scroll interno correto -->
+        <div class="conteudo-corpo">
+
+            <!-- TÍTULO DA PÁGINA -->
+            <h1 class="titulo-pagina" data-pt="Meus pacientes" data-en="My patients">Meus pacientes</h1>
+
+            <!-- BARRA DE BUSCA -->
+            <div class="busca">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input
+                    type="text"
+                    id="inputBusca"
+                    data-pt-placeholder="Buscar pacientes..."
+                    data-en-placeholder="Search patients..."
+                    placeholder="Buscar pacientes..."
+                >
+            </div>
+
+            <!-- ABAS DE FILTRO -->
+            <div class="abas">
+                <button
+                    type="button"
+                    class="aba aba--ativa"
+                    id="abaAtiva"
+                    data-filtro="todos"
+                >
+                    <span data-pt="Todos" data-en="All">Todos</span> <span id="contadorTodos">(0)</span>
+                </button>
+
+                <button
+                    type="button"
+                    class="aba"
+                    data-filtro="ativos"
+                >
+                    <span data-pt="Ativos" data-en="Active">Ativos</span> <span id="contadorAtivos">(0)</span>
+                </button>
+
+                <button
+                    type="button"
+                    class="aba"
+                    data-filtro="alertas"
+                >
+                    <span data-pt="Alertas" data-en="Alerts">Alertas</span> <span id="contadorAlertas">(0)</span>
+                </button>
+            </div>
+
+            <!-- ========================= -->
+            <!-- GRID DE PACIENTES -->
+            <!-- ========================= -->
+            <section class="grid-pacientes">
+
+                <!-- COLUNA ESQUERDA: pacientes com alertas altos -->
+                <div class="coluna">
+                    <h2 class="coluna-titulo" data-pt="Requer atenção" data-en="Requires attention">Requer atenção</h2>
+
+                    <div id="listaAtencao">
+                        <p class="carregando" data-pt="Carregando..." data-en="Loading...">Carregando...</p>
+                    </div>
+
+                    <p id="semAtencao" style="display:none" class="lista-vazia" data-pt="Nenhum paciente requer atenção no momento." data-en="No patients currently need attention.">
+                        Nenhum paciente requer atenção no momento.
+                    </p>
+                </div>
+
+                <!-- COLUNA DIREITA: pacientes em monitoramento normal -->
+                <div class="coluna">
+                    <h2 class="coluna-titulo" data-pt="Monitoramento regular" data-en="Regular monitoring">Monitoramento regular</h2>
+
+                    <div id="listaRegular">
+                        <p class="carregando" data-pt="Carregando..." data-en="Loading...">Carregando...</p>
+                    </div>
+
+                    <p id="semRegular" style="display:none" class="lista-vazia" data-pt="Nenhum paciente em monitoramento regular." data-en="No patients in regular monitoring.">
+                        Nenhum paciente em monitoramento regular.
+                    </p>
+                </div>
+
+            </section>
+
+        </div><!-- fim .conteudo-corpo -->
+
+    </main>
+
+    <!-- ===================== -->
+    <!-- MENU INFERIOR (só mobile) -->
+    <!-- ===================== -->
+    <nav class="bottom-nav">
+
+        <a href="/sobreT">
+            <i class="fa-solid fa-circle-info"></i>
+            <span data-pt="Sobre" data-en="About">Sobre</span>
+        </a>
+
+        <a href="/pacientes" class="ativo">
+            <i class="fa-solid fa-user-plus"></i>
+            <span data-pt="Paciente" data-en="Patient">Paciente</span>
+        </a>
+
+        <a href="/homeTerapeuta">
+            <i class="fa-solid fa-house"></i>
+            <span data-pt="Início" data-en="Home">Início</span>
+        </a>
+
+        <a href="/configuracoesT">
+            <i class="fa-solid fa-gear"></i>
+            <span data-pt="Config" data-en="Settings">Config</span>
+        </a>
+
+        <a href="/relatoriosTerapeutaS">
+            <i class="fa-solid fa-chart-line"></i>
+            <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+        </a>
+
+    </nav>
+
+</div>
+
+
+    <script src="/js/header.js"></script>
+    <script src="/js/Pacientes.js"></script>
+
+
+</body>
+</html>

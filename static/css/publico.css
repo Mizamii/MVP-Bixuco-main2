@@ -1,0 +1,393 @@
+/* ==========================================================
+   CONTROLES PÚBLICOS + TEMA
+   Usado no Index e nas telas de autenticação.
+   ========================================================== */
+
+.controles-publicos {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  z-index: 20;
+}
+
+.controles-publicos--auth {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+}
+
+.controles-publicos--navbar {
+  position: static;
+  flex-shrink: 0;
+}
+
+.controle-publico,
+.controles-publicos .tradutor {
+  position: static !important;
+  inset: auto !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 38px;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid #d9e1e6;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #1d8ec9;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(15, 61, 76, 0.08);
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.controle-publico:hover,
+.controles-publicos .tradutor:hover {
+  background: #f4f8fa;
+  border-color: #bcd5df;
+  transform: translateY(-1px);
+}
+
+.controle-publico--icone {
+  width: 38px;
+  padding: 0;
+}
+
+body.tema-escuro .controle-publico,
+body.tema-escuro .controles-publicos .tradutor {
+  background: #1f2227;
+  border-color: #343a44;
+  color: #67cfff;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+}
+
+body.tema-escuro .controle-publico:hover,
+body.tema-escuro .controles-publicos .tradutor:hover {
+  background: #282d34;
+  border-color: #47505d;
+}
+
+/* =========================
+   INDEX — TEMA ESCURO
+   ========================= */
+body.pagina-index.tema-escuro {
+  --texto: #f5f7fa;
+  --texto-suave: #b8c0ca;
+  --fundo: #16181c;
+  --fundo-suave: #1f2227;
+  --borda: #303640;
+  --petroleo: #eef7fa;
+}
+
+body.pagina-index.tema-escuro .navbar {
+  background: rgba(22, 24, 28, 0.94);
+}
+
+body.pagina-index.tema-escuro .navbar.navbar-scroll {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+}
+
+body.pagina-index.tema-escuro .btn--contorno {
+  background: linear-gradient(var(--fundo), var(--fundo)) padding-box,
+              var(--gradiente) border-box;
+}
+
+body.pagina-index.tema-escuro .btn--contorno:hover {
+  background: linear-gradient(var(--fundo-suave), var(--fundo-suave)) padding-box,
+              var(--gradiente) border-box;
+}
+
+body.pagina-index.tema-escuro .selo,
+body.pagina-index.tema-escuro .navegador {
+  background: var(--fundo);
+}
+
+body.pagina-index.tema-escuro .hero {
+  background: linear-gradient(180deg, var(--fundo-suave), var(--fundo));
+}
+
+body.pagina-index.tema-escuro .navegador__barra {
+  background: #24282e;
+}
+
+body.pagina-index.tema-escuro .navbar__marca img,
+body.pagina-index.tema-escuro .rodape__logo {
+  filter: brightness(0) invert(1);
+}
+
+/* =========================
+   AUTENTICAÇÃO — TEMA ESCURO
+   ========================= */
+body.pagina-auth.tema-escuro {
+  background: #16181c;
+  color: #f5f7fa;
+}
+
+body.pagina-auth.tema-escuro .login-direita,
+body.pagina-auth.tema-escuro .criarconta-header,
+body.pagina-auth.tema-escuro .criarconta-corpo,
+body.pagina-auth.tema-escuro .recuperar-header,
+body.pagina-auth.tema-escuro .recuperar-corpo {
+  background: #16181c !important;
+  color: #f5f7fa;
+  border-color: #303640 !important;
+}
+
+body.pagina-auth.tema-escuro .login-direita__titulo-base,
+body.pagina-auth.tema-escuro .login-direita__titulo--destaque,
+body.pagina-auth.tema-escuro .login-direita__subtitulo,
+body.pagina-auth.tema-escuro .login-form__label,
+body.pagina-auth.tema-escuro .login-divisor__texto,
+body.pagina-auth.tema-escuro .login-criar-conta,
+body.pagina-auth.tema-escuro .criarconta-titulo,
+body.pagina-auth.tema-escuro .criarconta-pergunta,
+body.pagina-auth.tema-escuro .criarconta-ajuda,
+body.pagina-auth.tema-escuro .cadastro-form__label,
+body.pagina-auth.tema-escuro .cadastro-form__termos,
+body.pagina-auth.tema-escuro .login-direita__rodape,
+body.pagina-auth.tema-escuro .recuperar-subtitulo,
+body.pagina-auth.tema-escuro .recuperar-texto,
+body.pagina-auth.tema-escuro .recuperar-form__label {
+  color: #f5f7fa !important;
+  -webkit-text-fill-color: initial;
+}
+
+body.pagina-auth.tema-escuro .login-direita__subtitulo,
+body.pagina-auth.tema-escuro .criarconta-ajuda,
+body.pagina-auth.tema-escuro .cadastro-form__termos,
+body.pagina-auth.tema-escuro .login-direita__rodape,
+body.pagina-auth.tema-escuro .recuperar-texto {
+  color: #b8c0ca !important;
+}
+
+body.pagina-auth.tema-escuro .login-form__input,
+body.pagina-auth.tema-escuro .cadastro-form__input,
+body.pagina-auth.tema-escuro .recuperar-form__input {
+  background: #1f2227 !important;
+  color: #f5f7fa !important;
+  border-color: #3a414c !important;
+}
+
+body.pagina-auth.tema-escuro .login-form__input::placeholder,
+body.pagina-auth.tema-escuro .cadastro-form__input::placeholder,
+body.pagina-auth.tema-escuro .recuperar-form__input::placeholder {
+  color: #818996;
+}
+
+body.pagina-auth.tema-escuro .login-form__toggle-senha,
+body.pagina-auth.tema-escuro .cadastro-form__toggle-senha {
+  color: #aeb6c1;
+}
+
+body.pagina-auth.tema-escuro .login-divisor__linha,
+body.pagina-auth.tema-escuro .recuperar-icone-divisor__linha,
+body.pagina-auth.tema-escuro .cadastro-progresso span {
+  background: #3a414c !important;
+}
+
+body.pagina-auth.tema-escuro .cadastro-progresso span.ativo {
+  background: #0ab7fb !important;
+}
+
+body.pagina-auth.tema-escuro .login-google,
+body.pagina-auth.tema-escuro .tipo-card {
+  background: #1f2227 !important;
+  color: #f5f7fa !important;
+  border-color: #3a414c !important;
+}
+
+body.pagina-auth.tema-escuro .login-google:hover,
+body.pagina-auth.tema-escuro .tipo-card:hover {
+  background: #282d34 !important;
+}
+
+body.pagina-auth.tema-escuro .tipo-card__titulo {
+  color: #f5f7fa !important;
+}
+
+body.pagina-auth.tema-escuro .tipo-card__descricao {
+  color: #b8c0ca !important;
+}
+
+body.pagina-auth.tema-escuro .cadastro-form__input:read-only {
+  background: #2a2e35 !important;
+  color: #aab2bd !important;
+}
+
+body.pagina-auth.tema-escuro .recuperar-voltar-link:hover {
+  background: #1f2227 !important;
+}
+
+/* 2FA */
+body.pagina-auth.tema-escuro .verificacao-card {
+  background: #1f2227;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+}
+
+body.pagina-auth.tema-escuro .verificacao-card h1 {
+  color: #f5f7fa;
+}
+
+body.pagina-auth.tema-escuro .verificacao-card .sub {
+  color: #b8c0ca;
+}
+
+body.pagina-auth.tema-escuro #codigo {
+  background: #16181c;
+  color: #f5f7fa;
+  border-color: #3a414c;
+}
+
+/* Modais de Termos/Privacidade */
+body.tema-escuro .modal-termos__conteudo {
+  background: #1f2227;
+}
+
+body.tema-escuro .modal-termos__header {
+  border-color: #343a44;
+}
+
+body.tema-escuro .modal-termos__header h3,
+body.tema-escuro .modal-termos__corpo h4 {
+  color: #f5f7fa;
+}
+
+body.tema-escuro .modal-termos__corpo,
+body.tema-escuro .modal-termos__fechar {
+  color: #c0c7d0;
+}
+
+@media (max-width: 960px) {
+  .controles-publicos--navbar .controle-publico span {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .controles-publicos--auth {
+    top: 0.85rem;
+    right: 0.85rem;
+    gap: 0.4rem;
+  }
+
+  .controles-publicos--auth .controle-publico,
+  .controles-publicos--auth .tradutor {
+    min-height: 34px;
+    padding: 0.38rem 0.62rem;
+    font-size: 0.74rem;
+  }
+
+  .controles-publicos--auth .controle-publico--icone {
+    width: 34px;
+    padding: 0;
+  }
+}
+
+/* =========================
+   TELAS PÚBLICAS ADICIONAIS
+   ========================= */
+.controles-publicos--pagina {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+}
+
+body.pagina-auth.tema-escuro .cadastro-form__descricao,
+body.pagina-auth.tema-escuro .questionario-progresso,
+body.pagina-auth.tema-escuro #texto-progresso,
+body.pagina-auth.tema-escuro .pergunta-texto,
+body.pagina-auth.tema-escuro .questionario-pergunta,
+body.pagina-auth.tema-escuro .questionario-subtitulo {
+  color: #f5f7fa !important;
+}
+
+body.pagina-auth.tema-escuro .questionario-opcao,
+body.pagina-auth.tema-escuro .opcao-resposta,
+body.pagina-auth.tema-escuro .cadastro-form__foto {
+  background: #1f2227 !important;
+  color: #f5f7fa !important;
+  border-color: #3a414c !important;
+}
+
+body.pagina-auth.tema-escuro select.cadastro-form__input {
+  color-scheme: dark;
+}
+
+body.pagina-pedido-confirmado.tema-escuro {
+  background: #16181c;
+}
+
+body.pagina-pedido-confirmado.tema-escuro #card {
+  background: #1f2227;
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.32);
+}
+
+body.pagina-pedido-confirmado.tema-escuro h1,
+body.pagina-pedido-confirmado.tema-escuro .etapa strong {
+  color: #f5f7fa;
+}
+
+body.pagina-pedido-confirmado.tema-escuro #subtitulo,
+body.pagina-pedido-confirmado.tema-escuro .etapa span,
+body.pagina-pedido-confirmado.tema-escuro #previsao p {
+  color: #b8c0ca;
+}
+
+body.pagina-pedido-confirmado.tema-escuro #mascote {
+  background: #282d34;
+  border-color: #3a414c;
+}
+
+body.pagina-pedido-confirmado.tema-escuro .etapa::before,
+body.pagina-pedido-confirmado.tema-escuro .ponto {
+  background: #3a414c;
+}
+
+body.pagina-pedido-confirmado.tema-escuro #previsao {
+  background: rgba(10, 183, 251, 0.08);
+  border-color: rgba(10, 183, 251, 0.3);
+}
+
+body.pagina-transicao.tema-escuro #tela,
+body.pagina-transicao.tema-escuro #conteudo,
+body.pagina-transicao.tema-escuro .container {
+  background: #16181c;
+}
+
+body.pagina-transicao.tema-escuro .conteudo__titulo,
+body.pagina-transicao.tema-escuro #conteudo > section h1,
+body.pagina-transicao.tema-escuro .container > h1,
+body.pagina-transicao.tema-escuro .card-sequencia .texto-sequencia h3 {
+  color: #f5f7fa;
+}
+
+body.pagina-transicao.tema-escuro .conteudo__texto,
+body.pagina-transicao.tema-escuro #conteudo > section p,
+body.pagina-transicao.tema-escuro .container > .descricao,
+body.pagina-transicao.tema-escuro .botao-pular,
+body.pagina-transicao.tema-escuro .pular,
+body.pagina-transicao.tema-escuro .card-sequencia .texto-sequencia p {
+  color: #b8c0ca;
+}
+
+body.pagina-transicao.tema-escuro .botao-proximo,
+body.pagina-transicao.tema-escuro #conteudo > button,
+body.pagina-transicao.tema-escuro .seta-esquerda,
+body.pagina-transicao.tema-escuro .card-sequencia {
+  background: #1f2227;
+  color: #67cfff;
+}
+
+body.pagina-transicao.tema-escuro .conteudo__logo {
+  filter: brightness(1.05);
+}
+
+@media (max-width: 640px) {
+  .controles-publicos--pagina {
+    top: 0.75rem;
+    right: 0.75rem;
+  }
+}

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Acompanhar pedido</title>
+
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+    >
+
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/acompanharpedido.css">
+
+    <script src="/js/deeplink.js"></script>
+</head>
+
+<body class="layout-sidebar-perfil">
+
+    <div class="container">
+
+        <aside class="sidebar">
+            <div class="logo">
+                <img src="/img/logo_nome.png" alt="Logo Bixuco">
+            </div>
+
+            <button
+                class="btn-relatorio"
+                type="button"
+                id="btnRelatorioDiario"
+                data-pt="Fazer relatório diário"
+                data-en="Fill daily report"
+                onclick="window.location.href='/RelatorioDiario'"
+            >
+                Fazer relatório diário
+            </button>
+
+            <nav>
+                <a href="/home" class="ativo">
+                    <i class="fa-solid fa-house"></i>
+                    <span data-pt="Início" data-en="Home">Início</span>
+                </a>
+
+                <a href="/relatorios">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
+                </a>
+
+                <a href="/perfil">
+                    <i class="fa-solid fa-user"></i>
+                    <span data-pt="Perfil" data-en="Profile">Perfil</span>
+                </a>
+
+                <a href="/configuracoes">
+                    <i class="fa-solid fa-gear"></i>
+                    <span data-pt="Configurações" data-en="Settings">Configurações</span>
+                </a>
+
+                <a href="/sobre">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span data-pt="Sobre" data-en="About">Sobre</span>
+                </a>
+            </nav>
+
+            <div class="tema">
+                <button id="btnClaro" class="ativo" type="button">
+                    <i class="fa-regular fa-sun"></i>
+                    <span data-pt="Claro" data-en="Light">Claro</span>
+                </button>
+
+                <button id="btnEscuro" type="button">
+                    <i class="fa-regular fa-moon"></i>
+                    <span data-pt="Escuro" data-en="Dark">Escuro</span>
+                </button>
+            </div>
+
+            <div class="sidebar-divisor"></div>
+
+            <a href="/logout" class="logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span data-pt="Sair" data-en="Log out">Sair</span>
+            </a>
+        </aside>
+
+        <main class="conteudo">
+            <header class="topo" id="topoApp" data-perfil="/perfil"></header>
+
+            <div class="conteudo-corpo">
+
+                <section class="rastreio-banner">
+                    <i id="banner-icone" class="fa-solid fa-box"></i>
+                    <div>
+                        <strong id="banner-titulo" data-pt="Seu pedido está sendo preparado com muito carinho." data-en="Your order is being prepared with great care.">Seu pedido está sendo preparado com muito carinho.</strong>
+                        <span id="banner-subtitulo" style="display: none;"></span>
+                    </div>
+                </section>
+
+                <section class="card" style="padding: 1.6rem;">
+                    <div style="margin-bottom: 1.4rem;">
+                        <h1 data-pt="Acompanhe seu pedido" data-en="Track your order" style="font-size:1.35rem; margin-bottom:.35rem;">
+                            Acompanhe seu pedido
+                        </h1>
+                        <p data-pt="Veja cada etapa até o Bixuco chegar até você." data-en="Follow each step until your Bixuco arrives." style="font-size:.85rem; opacity:.7;">
+                            Veja cada etapa até o Bixuco chegar até você.
+                        </p>
+                    </div>
+
+                    <div class="rastreio-grid">
+
+                        <div class="rastreio-timeline" id="timeline">
+                            <div class="etapa" data-etapa="0">
+                                <div class="ponto"></div>
+                                <div>
+                                    <strong data-pt="Pedido recebido" data-en="Order received">Pedido recebido</strong>
+                                    <span data-pt="Recebemos seu pedido com sucesso." data-en="We received your order successfully.">Recebemos seu pedido com sucesso.</span>
+                                </div>
+                            </div>
+
+                            <div class="etapa" data-etapa="1">
+                                <div class="ponto"></div>
+                                <div>
+                                    <strong data-pt="Em produção" data-en="In production">Em produção</strong>
+                                    <span data-pt="Seu Bixuco está sendo preparado." data-en="Your Bixuco is being prepared.">Seu Bixuco está sendo preparado.</span>
+                                </div>
+                            </div>
+
+                            <div class="etapa" data-etapa="2">
+                                <div class="ponto"></div>
+                                <div>
+                                    <strong data-pt="Enviado" data-en="Shipped">Enviado</strong>
+                                    <span data-pt="Seu pedido foi enviado para a transportadora." data-en="Your order was sent to the carrier.">Seu pedido foi enviado para a transportadora.</span>
+                                </div>
+                            </div>
+
+                            <div class="etapa" data-etapa="3">
+                                <div class="ponto"></div>
+                                <div>
+                                    <strong data-pt="Em transporte" data-en="In transit">Em transporte</strong>
+                                    <span data-pt="Seu Bixuco está a caminho." data-en="Your Bixuco is on its way.">Seu Bixuco está a caminho.</span>
+                                </div>
+                            </div>
+
+                            <div class="etapa" data-etapa="4">
+                                <div class="ponto"></div>
+                                <div>
+                                    <strong data-pt="Entregue" data-en="Delivered">Entregue</strong>
+                                    <span data-pt="Pedido entregue com sucesso." data-en="Order delivered successfully.">Pedido entregue com sucesso.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="rastreio-lateral">
+                            <h3 data-pt="Código de rastreio" data-en="Tracking code">Código de rastreio</h3>
+
+                            <div class="rastreio-codigo">
+                                <span id="codigo-texto" data-pt="Aguardando código" data-en="Waiting for code">Aguardando código</span>
+                                <i
+                                    id="btn-copiar"
+                                    class="fa-regular fa-copy"
+                                    role="button"
+                                    tabindex="0"
+                                    title="Copiar código"
+                                ></i>
+                            </div>
+
+                            <div class="rastreio-transportadora">
+                                <div>
+                                    <span data-pt="Transportadora" data-en="Carrier">Transportadora</span>
+                                    <strong>Mercado Livre</strong>
+                                </div>
+                                <i class="fa-solid fa-truck-fast"></i>
+                            </div>
+
+                            <button id="btn-acompanhar" type="button">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                <span data-pt="Acompanhar na transportadora" data-en="Track with carrier">Acompanhar na transportadora</span>
+                            </button>
+
+                            <div class="rastreio-previsao">
+                                <span data-pt="PREVISÃO DE ENTREGA" data-en="ESTIMATED DELIVERY">PREVISÃO DE ENTREGA</span>
+                                <strong id="data-previsao" data-pt="Calculando..." data-en="Calculating...">Calculando...</strong>
+                                <p data-pt="A previsão pode ser atualizada durante o transporte." data-en="The estimate may be updated during transit.">
+                                    A previsão pode ser atualizada durante o transporte.
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/header.js"></script>
+    <script src="/js/AcompanharPedido.js"></script>
+
+</body>
+</html>

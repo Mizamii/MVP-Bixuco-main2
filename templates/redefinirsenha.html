@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco — Redefinir senha</title>
+
+    <!-- Biblioteca de ícones -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <!-- Reaproveita o mesmo CSS da tela de criar conta — layout idêntico -->
+    <link
+        rel="stylesheet"
+        href="/css/criarcontasenha.css"
+    >
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/publico.css">
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+    <script src="/js/deeplink.js"></script>
+
+
+</head>
+
+<body class="pagina-publica pagina-auth">
+
+    <main class="pagina-login">
+
+        <!-- ========================= -->
+        <!-- LADO ESQUERDO -->
+        <!-- ========================= -->
+
+        <section class="login-esquerda">
+
+            <div class="login-esquerda__geometria"></div>
+            <div class="login-esquerda__overlay"></div>
+
+            <div class="login-esquerda__conteudo">
+
+                <!-- Logo branca -->
+                <img
+                    src="/img/Logo_Branca.png"
+                    alt="Logo Bixuco"
+                    class="login-esquerda__logo"
+                >
+
+                <!-- Título -->
+                <h1
+                    class="login-esquerda__titulo"
+                    data-pt="Vamos recuperar seu acesso"
+                    data-en="Let's recover your access"
+                >
+                    Vamos recuperar
+                    seu acesso
+                </h1>
+
+                <!-- Texto -->
+                <p
+                    class="login-esquerda__slogan"
+                    data-pt="Crie uma nova senha para continuar cuidando do bem-estar da criança."
+                    data-en="Create a new password to keep caring for the child's well-being."
+                >
+                    Crie uma nova senha para continuar
+                    cuidando do bem-estar da criança.
+                </p>
+
+            </div>
+
+            <!-- Ilustração -->
+            <div class="login-esquerda__ilustracao-wrapper">
+
+                <img
+                    src="/img/familia-bixuco.png"
+                    alt="Família utilizando o Bixuco"
+                    class="login-esquerda__foto"
+                >
+
+            </div>
+
+        </section>
+
+        <!-- ========================= -->
+        <!-- LADO DIREITO -->
+        <!-- ========================= -->
+
+        <section class="login-direita">
+
+            <div class="controles-publicos controles-publicos--auth" aria-label="Preferências da página">
+                <button type="button" class="controle-publico controle-publico--icone" id="btnTemaMobile" aria-label="Alternar tema" title="Alternar tema">
+                    <i class="fa-regular fa-sun"></i>
+                </button>
+
+                <button type="button" class="tradutor tradutor--login" id="btnTraduzir">
+                    <i class="fa-solid fa-language"></i>
+                    <span id="textoTradutor">Traduzir para o inglês</span>
+                </button>
+            </div>
+
+            <header class="criarconta-header">
+
+                <h2 class="criarconta-titulo" data-pt="Redefinir senha" data-en="Reset password">
+                    Redefinir senha
+                </h2>
+
+            </header>
+
+            <div class="criarconta-corpo">
+
+                <!-- ========================= -->
+                <!-- FORMULÁRIO -->
+                <!-- ========================= -->
+
+                <form id="formRedefinir" class="cadastro-form" novalidate>
+
+                    <!-- Nova senha -->
+                    <div class="cadastro-form__grupo">
+
+                        <label for="senha" class="cadastro-form__label" data-pt="Nova senha" data-en="New password">
+                            Nova senha
+                        </label>
+
+                        <div class="cadastro-form__campo-senha">
+
+                            <input
+                                class="cadastro-form__input"
+                                type="password"
+                                id="senha"
+                                name="senha"
+                                placeholder="Digite sua nova senha"
+                                data-pt-placeholder="Digite sua nova senha"
+                                data-en-placeholder="Enter your new password"
+                                autocomplete="new-password"
+                                minlength="6"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="cadastro-form__toggle-senha"
+                                id="btnToggleSenha"
+                                aria-label="Mostrar senha"
+                            >
+                                <i class="fa-solid fa-eye" id="iconeSenha"></i>
+                            </button>
+
+                        </div>
+
+                        <span
+                            class="cadastro-form__erro"
+                            id="erro-senha"
+                        ></span>
+
+                    </div>
+
+                    <!-- Confirmar senha -->
+                    <div class="cadastro-form__grupo">
+
+                        <label for="confirmarSenha" class="cadastro-form__label" data-pt="Confirmar senha" data-en="Confirm password">
+                            Confirmar senha
+                        </label>
+
+                        <div class="cadastro-form__campo-senha">
+
+                            <input
+                                class="cadastro-form__input"
+                                type="password"
+                                id="confirmarSenha"
+                                name="confirmarSenha"
+                                placeholder="Confirme sua nova senha"
+                                data-pt-placeholder="Confirme sua nova senha"
+                                data-en-placeholder="Confirm your new password"
+                                autocomplete="new-password"
+                                minlength="6"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="cadastro-form__toggle-senha"
+                                id="btnToggleConfirmarSenha"
+                                aria-label="Mostrar confirmação de senha"
+                            >
+                                <i class="fa-solid fa-eye" id="iconeConfirmarSenha"></i>
+                            </button>
+
+                        </div>
+
+                        <span
+                            class="cadastro-form__erro"
+                            id="erro-confirmarSenha"
+                        ></span>
+
+                    </div>
+
+                    <!-- Erro/sucesso geral vindo do servidor -->
+                    <span
+                        id="erro-geral"
+                        class="cadastro-form__erro cadastro-form__erro--geral"
+                        style="display: none;"
+                    ></span>
+
+                    <button
+                        type="submit"
+                        id="btnContinuar"
+                        class="btn-continuar"
+                        data-pt="Continuar"
+                        data-en="Continue"
+                    >
+                        Continuar
+                    </button>
+
+                </form>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    
+
+    <script src="/js/redefinirsenha.js"></script>
+    <script src="/js/enterProximo.js"></script>
+    <script src="/js/tema.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Admin: Pedidos</title>
+
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/publico.css">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #F5F7FA;
+            padding: 2rem;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 480px;
+            background: #fff;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            font-size: 1.3rem;
+            color: #141414;
+            margin-bottom: 0.4rem;
+        }
+
+        p.subtitulo {
+            font-size: 0.85rem;
+            color: #5A5A5A;
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #141414;
+            margin-bottom: 0.4rem;
+            margin-top: 1rem;
+        }
+
+        input[type="password"],
+        input[type="email"] {
+            width: 100%;
+            padding: 0.75rem 0.9rem;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-family: inherit;
+        }
+
+        #btnBuscar {
+            width: 100%;
+            margin-top: 1rem;
+            padding: 0.7rem;
+            background: #F5F7FA;
+            border: 1px solid #ddd;
+            color: #141414;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        #resultadoPedido {
+            display: none;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 12px;
+            background: #F5F7FA;
+        }
+
+        #resultadoPedido.visivel { display: block; }
+
+        #resultadoPedido p {
+            font-size: 0.85rem;
+            color: #5A5A5A;
+            margin-bottom: 0.6rem;
+        }
+
+        #resultadoPedido strong { color: #141414; }
+
+        .etapas {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 0.8rem;
+        }
+
+        .etapas button {
+            padding: 0.7rem 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background: #fff;
+            color: #141414;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .etapas button:hover {
+            border-color: #32C26D;
+            color: #32C26D;
+        }
+
+        .etapas button.atual {
+            background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+            border-color: transparent;
+            color: #fff;
+        }
+
+        .etapas button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .status {
+            display: none;
+            margin-top: 1rem;
+            padding: 0.75rem 0.9rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .status.visivel { display: block; }
+
+        .status.sucesso {
+            background: rgba(50, 194, 109, 0.12);
+            color: #1E8E4F;
+        }
+
+        .status.erro {
+            background: rgba(255, 68, 68, 0.1);
+            color: #C0392B;
+        }
+
+        .controles-publicos {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+        }
+
+        body.tema-escuro {
+            background: #16181c;
+            color: #f5f7fa;
+        }
+
+        body.tema-escuro .card {
+            background: #1f2227;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.28);
+        }
+
+        body.tema-escuro h1,
+        body.tema-escuro label,
+        body.tema-escuro #resultadoPedido strong {
+            color: #f5f7fa;
+        }
+
+        body.tema-escuro p.subtitulo,
+        body.tema-escuro #resultadoPedido p {
+            color: #b8c0ca;
+        }
+
+        body.tema-escuro input,
+        body.tema-escuro #btnBuscar,
+        body.tema-escuro .etapas button,
+        body.tema-escuro #resultadoPedido {
+            background: #282d34;
+            border-color: #3a424d;
+            color: #f5f7fa;
+        }
+    </style>
+
+</head>
+<body>
+
+    <div class="controles-publicos" aria-label="Preferências da página">
+        <button type="button" class="controle-publico controle-publico--icone" id="btnTemaMobile" aria-label="Alternar tema" title="Alternar tema">☼</button>
+        <button type="button" class="controle-publico" id="btnTraduzir" aria-label="Alterar idioma">
+            <span id="textoTradutor">EN</span>
+        </button>
+    </div>
+
+    <div class="card">
+
+        <h1 data-pt="Controlar status do pedido" data-en="Manage order status">Controlar status do pedido</h1>
+        <p class="subtitulo" data-pt="Ferramenta temporária para avançar manualmente a etapa de entrega de um pedido enquanto não há rastreamento real integrado." data-en="Temporary tool to manually advance an order delivery stage while real tracking is not integrated.">
+            Ferramenta temporária para avançar manualmente a etapa de entrega de um pedido enquanto não há rastreamento real integrado.
+        </p>
+
+        <label for="emailUsuario" data-pt="E-mail do usuário" data-en="User email">E-mail do usuário</label>
+        <input type="email" id="emailUsuario" required placeholder="responsavel@exemplo.com" data-pt-placeholder="responsavel@exemplo.com" data-en-placeholder="guardian@example.com">
+
+        <button id="btnBuscar" type="button" data-pt="Buscar pedido" data-en="Find order">Buscar pedido</button>
+
+        <div id="resultadoPedido">
+            <p><span data-pt="Pedido de" data-en="Order for">Pedido de</span> <strong id="nomeUsuarioEncontrado"></strong> — <span data-pt="status atual:" data-en="current status:">status atual:</span> <strong id="statusAtual"></strong></p>
+
+            <div class="etapas" id="etapas">
+                <button type="button" data-status="em_producao" data-pt="Em produção" data-en="In production">Em produção</button>
+                <button type="button" data-status="enviado" data-pt="Enviado" data-en="Shipped">Enviado</button>
+                <button type="button" data-status="em_transito" data-pt="Em trânsito" data-en="In transit">Em trânsito</button>
+                <button type="button" data-status="entregue" data-pt="Entregue" data-en="Delivered">Entregue</button>
+            </div>
+        </div>
+
+        <p id="statusEnvio" class="status"></p>
+
+    </div>
+
+    <script src="/js/publico-extra.js"></script>
+    <script src="/js/tema.js"></script>
+    <script src="/js/AdminPedidos.js"></script>
+
+</body>
+</html>

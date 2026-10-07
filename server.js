@@ -1,0 +1,10607 @@
+const express = require('express');
+const path = require('path');
+const fs = require('fs'); 
+const { Pool } = require('pg');
+const bcrypt = require('bcrypt');
+const { cpf } = require('cpf-cnpj-validator');
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const session = require('express-session');
+const crypto = require('crypto');
+const multer = require('multer');
+const cron = require('node-cron');
+const helmet = require('helmet');
+const { MercadoPagoConfig, PreApprovalPlan, PreApproval } = require("mercadopago");
+
+
+const { Brevo, BrevoClient, BrevoEnvironment } = require('@getbrevo/brevo');
+
+const brevoClient = new BrevoClient({
+    apiKey: process.env.BREVO_API_KEY,
+    environment: BrevoEnvironment.Production
+});
+
+// Remetente único para todos os e-mails transacionais.
+// O endereço continua vindo da variável autorizada no Brevo,
+// enquanto o nome exibido ao usuário fica sempre como "Bixuco".
+const BREVO_REMETENTE = {
+    name: "Bixuco",
+    email: process.env.BREVO_FROM_EMAIL || "yasminbertoni7@gmail.com"
+};
+
+
+const mpClient = new MercadoPagoConfig({
+    accessToken: process.env.MP_ACCESS_TOKEN
+});
+
+const app = express();
+
+app.set('trust proxy', 1);
+
+app.use(helmet({
+
+    // O OpenStreetMap precisa receber o domínio de origem
+    // das requisições dos tiles.
+    // O Helmet usa "no-referrer" por padrão, o que causava erro 403.
+    referrerPolicy: {
+        policy: "strict-origin-when-cross-origin"
+    },
+
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+
+            // Scripts: os próprios do site + CDNs usados (Font Awesome, Chart.js,
+            // Leaflet, MapLibre) + o necessário para o login com Google
+            scriptSrc: [
+                "'self'",
+                "https://cdnjs.cloudflare.com",
+                "https://unpkg.com",
+                "https://cdn.jsdelivr.net",   // 🔧 adicionar isso
+                "https://accounts.google.com",
+                "https://www.google.com/recaptcha/",
+                "https://www.gstatic.com/recaptcha/"
+            ],
+
+            workerSrc: [
+                "'self'",
+                "blob:"
+            ],
+
+            // Estilos: os próprios + CDNs de CSS (Font Awesome, Leaflet, MapLibre)
+            // 'unsafe-inline' é necessário porque várias páginas usam <style> inline
+            styleSrc: [
+                "'self'",
+                "'unsafe-inline'",
+                "https://cdnjs.cloudflare.com",
+                "https://unpkg.com"
+            ],
+
+            // Fontes usadas pelo Font Awesome
+            fontSrc: [
+                "'self'",
+                "https://cdnjs.cloudflare.com"
+            ],
+
+            // Imagens: as do próprio site + fotos de perfil em base64 (data:)
+            // + tiles do mapa (OpenFreeMap)
+            imgSrc: [
+                "'self'",
+                "data:",
+                "https://tiles.openfreemap.org",
+                "https://tile.openstreetmap.org"
+            ],
+            // Chamadas fetch/XHR feitas pelo JavaScript da página
+            connectSrc: [
+                "'self'",
+                "https://viacep.com.br",
+                "https://tiles.openfreemap.org",
+                "https://accounts.google.com"
+            ],
+
+            // Necessário para o botão "Continuar com Google" funcionar
+            frameSrc: [
+                "'self'",
+                "https://accounts.google.com",
+                "https://www.google.com/recaptcha/"
+            ],
+
+            // Impede que o site seja carregado dentro de um <iframe> de outro
+            // domínio (proteção contra clickjacking) — equivalente ao antigo
+            // X-Frame-Options, mas via CSP
+            frameAncestors: ["'self'"]
+        }
+    }
+}));
+
+const db = new Pool({
+
+    connectionString: process.env.DATABASE_URL,
+
+    ssl: {
+        rejectUnauthorized: false
+    },
+
+    options: '-c timezone=America/Sao_Paulo'
+
+
+});
+
+async function prepararBancoCompatibilidade() {
+    // Presença real para a área do terapeuta.
+    // IF NOT EXISTS permite subir esta versão tanto em bancos antigos
+    // quanto em bancos novos sem precisar executar SQL manualmente.
+    await db.query(`
+        ALTER TABLE usuarios
+        ADD COLUMN IF NOT EXISTS ultimo_acesso TIMESTAMPTZ
+    `);
+}
+
+const pgSession = require('connect-pg-simple')(session);
+
+app.use(session({
+    store: new pgSession({
+        pool: db,
+        tableName: 'session',
+        createTableIfMissing: true
+    }),
+    secret: (() => {
+    if (!process.env.SESSION_SECRET) {
+        throw new Error("SESSION_SECRET não definida nas variáveis de ambiente.");
+    }
+    return process.env.SESSION_SECRET;
+    })(),
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 dias
+        httpOnly: true,                                    // 🔧 impede que JS no navegador leia o cookie (mitiga roubo via XSS)
+        secure: process.env.NODE_ENV === "production",      // 🔧 só envia o cookie por HTTPS em produção
+        sameSite: "lax"                                     // 🔧 ajuda contra CSRF, sem quebrar navegação normal
+    }
+}));
+
+
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+const upload = multer({
+
+    storage: multer.memoryStorage(),
+
+    limits: {
+        fileSize: 5 * 1024 * 1024 // Limite de 5MB por arquivo
+    },
+
+    fileFilter: (req, file, cb) => {
+
+        // Aceita apenas imagens
+        if (file.mimetype.startsWith("image/")) {
+            cb(null, true);
+        } else {
+            cb(new Error("Apenas imagens são permitidas."), false);
+        }
+
+    }
+
+});
+
+/* 
+   LEMBRETE DIÁRIO DE RELATÓRIO
+ */
+
+cron.schedule('0 19 * * *', async () => {
+
+    try {
+
+        const usuariosParaLembrar = await db.query(`
+            SELECT u.id, u.nome, u.email
+            FROM usuarios u
+            LEFT JOIN preferencias_usuario p ON p.usuario_id = u.id
+            WHERE u.tipo = 'pai'
+            AND COALESCE(p.notif_lembrete, TRUE) = TRUE
+            AND NOT EXISTS (
+                SELECT 1 FROM relatorios r
+                WHERE r.usuario_id = u.id
+                AND DATE(r.data) = CURRENT_DATE
+            )
+            AND NOT EXISTS (
+                SELECT 1 FROM notificacoes n
+                WHERE n.usuario_id = u.id
+                AND n.tipo = 'lembrete_relatorio'
+                AND DATE(n.criado_em) = CURRENT_DATE
+            )
+        `);
+
+        for (const usuario of usuariosParaLembrar.rows) {
+
+            await db.query(
+                `INSERT INTO notificacoes (usuario_id, tipo, mensagem, lida)
+                 VALUES ($1, 'lembrete_relatorio', $2, FALSE)`,
+                [usuario.id, "Não esqueça de preencher o relatório de hoje! 📋"]
+            );
+
+            try {
+                await brevoClient.transactionalEmails.sendTransacEmail({
+                    sender: BREVO_REMETENTE,
+                    to: [{ email: usuario.email }],
+                    subject: "Lembrete: preencha o relatório de hoje — Bixuco",
+                    htmlContent: `
+                        <div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;">
+                            <h2 style="color:#32C26D;">Lembrete do relatório diário</h2>
+                            <p>Olá, <strong>${usuario.nome}</strong>!</p>
+                            <p>Você ainda não preencheu o relatório de hoje. Leva só alguns minutinhos e ajuda muito no acompanhamento.</p>
+                            <a href="${process.env.BASE_URL || 'http://localhost:3000'}/relatoriodiario" style="display:inline-block;background:linear-gradient(135deg,#79D836,#32C26D);color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;margin:16px 0;">
+                                Preencher relatório
+                            </a>
+                        </div>
+                    `
+                });
+            } catch (erroEmail) {
+                console.log(`Erro ao enviar e-mail de lembrete para o usuário ${usuario.id}:`, erroEmail.message || erroEmail);
+            }
+
+        }
+
+        console.log(`Lembretes de relatório enviados para ${usuariosParaLembrar.rows.length} usuário(s).`);
+
+    } catch (erro) {
+
+        console.log("Erro ao enviar lembretes de relatório:", erro);
+
+    }
+
+}, {
+    timezone: "America/Sao_Paulo"
+});
+
+/* 
+   LIMPEZA DE NOTIFICAÇÕES ANTIGAS
+ */
+
+
+cron.schedule('0 4 * * *', async () => {
+
+    try {
+
+        const resultado = await db.query(
+            `DELETE FROM notificacoes
+             WHERE lida = TRUE
+             AND criado_em < NOW() - INTERVAL '30 days'`
+        );
+
+        await db.query(
+            `DELETE FROM tokens_app
+             WHERE usado = TRUE OR expira_em < NOW()`
+        );
+
+        console.log(`Limpeza de notificações: ${resultado.rowCount} removida(s).`);
+
+    } catch (erro) {
+
+        console.log("Erro na limpeza de notificações:", erro);
+
+    }
+
+}, {
+    timezone: "America/Sao_Paulo"
+});
+
+/* 
+   EXCLUSÃO AUTOMÁTICA DE NOTAS CLÍNICAS (retenção de 7 dias)
+   Nota: por decisão do projeto, simplificado para fins de MVP/TCC.
+   Um prontuário real segue a Resolução CFP nº 1/2009 (guarda mínima
+   de 5 anos, ou 20 anos por analogia ao prontuário médico).
+ */
+
+cron.schedule('0 4 * * *', async () => {
+
+    try {
+
+        const resultado = await db.query(
+            `DELETE FROM notas_clinicas
+             WHERE criado_em < NOW() - INTERVAL '7 days'`
+        );
+
+        console.log(`Limpeza de notas clínicas: ${resultado.rowCount} removida(s).`);
+
+    } catch (erro) {
+
+        console.log("Erro na limpeza de notas clínicas:", erro);
+
+    }
+
+}, {
+    timezone: "America/Sao_Paulo"
+});
+
+// GET — busca preferências
+app.get("/api/preferencias", estaLogado, async (req, res) => {
+    try {
+        const usuarioId = req.authUser.id;
+        const resultado = await db.query(
+            `SELECT notif_lembrete, notif_novidades
+             FROM preferencias_usuario
+             WHERE usuario_id = $1`,
+            [usuarioId]
+        );
+
+        const prefs = resultado.rows[0] || {};
+        res.json({
+            lembreteRelatorio: prefs.notif_lembrete  ?? true,
+            novaSolicitacao:   prefs.notif_novidades ?? true
+        });
+    } catch (_) {
+        res.json({ lembreteRelatorio: true, novaSolicitacao: true });
+    }
+});
+
+const PLANOS_MP = {
+    medio: {
+        nome:       "Plano Básico Bixuco",
+        preco:      99.99,
+        planId:     process.env.MP_PLAN_ID_MEDIO    || null,
+        nomeBanco:  "medio"
+    },
+    completo: {
+        nome:       "Plano Premium Bixuco",
+        preco:      119.99,
+        planId:     process.env.MP_PLAN_ID_COMPLETO || null,
+        nomeBanco:  "completo"
+    }
+};
+
+
+async function ativarPlano(usuarioId, nomePlano) {
+
+    await db.query(
+        `UPDATE assinaturas SET ativo = FALSE WHERE usuario_id = $1 AND ativo = TRUE`,
+        [usuarioId]
+    );
+
+    await db.query(
+        `INSERT INTO assinaturas (usuario_id, nome_plano, ativo)
+         VALUES ($1, $2, TRUE)`,
+        [usuarioId, nomePlano]
+    );
+
+    const hierarquia = { gratis: 0, medio: 1, completo: 2 };
+    const nivelNovo = hierarquia[nomePlano] ?? 0;
+
+    if (nivelNovo < hierarquia.completo) {
+
+        const vinculoRemovido = await db.query(
+            `UPDATE vinculos SET ativo = FALSE
+             WHERE responsavel_id = $1 AND ativo = TRUE
+             RETURNING id`,
+            [usuarioId]
+        );
+
+        if (vinculoRemovido.rows.length > 0) {
+            await db.query(
+                `INSERT INTO notificacoes (usuario_id, tipo, mensagem, lida)
+                 VALUES ($1, 'vinculo_removido_plano', $2, FALSE)`,
+                [usuarioId, "Seu vínculo com o terapeuta foi removido porque seu plano atual não inclui esse recurso."]
+            );
+        }
+    }
+}
+
+app.use(express.json());
+
+// POST — salva preferências (terapeuta e pai compartilham a mesma tabela)
+app.post("/api/preferencias", estaLogado, async (req, res) => {
+    try {
+        const usuarioId = req.authUser.id;
+        const { lembreteRelatorio, novaSolicitacao } = req.body;
+
+        if(!req.body){
+            return res.status(400).json({ erro: "corpo da requisição inválido ou ausente" });
+        }
+
+        if (lembreteRelatorio !== undefined) {
+            await db.query(
+                `INSERT INTO preferencias_usuario (usuario_id, notif_lembrete)
+                 VALUES ($1, $2)
+                 ON CONFLICT (usuario_id) DO UPDATE SET notif_lembrete = $2`,
+                [usuarioId, lembreteRelatorio]
+            );
+        }
+
+        if (novaSolicitacao !== undefined) {
+            await db.query(
+                `INSERT INTO preferencias_usuario (usuario_id, notif_novidades)
+                 VALUES ($1, $2)
+                 ON CONFLICT (usuario_id) DO UPDATE SET notif_novidades = $2`,
+                [usuarioId, novaSolicitacao]
+            );
+        }
+
+        res.json({ mensagem: "Preferências salvas." });
+    } catch (erro) {
+        console.log("Erro ao salvar preferências:", erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
+});
+
+
+/* ==========================
+   MIDDLEWARES
+========================== */
+
+app.use(express.static(path.join(__dirname, "static")));
+
+app.use(express.urlencoded({
+    extended: true
+}));
+
+
+
+
+
+/* 
+   MIDDLEWARE DE AUTENTICAÇÃO
+ */
+
+async function estaLogado(req, res, next) {
+
+    try {
+
+        // ID salvo pela sessão normal da Bixuco
+        const idSessao = req.session?.usuarioId
+            ? Number(req.session.usuarioId)
+            : null;
+
+        // ID que pode existir em sessões antigas do Passport/Google
+        const idPassport = req.user?.id
+            ? Number(req.user.id)
+            : null;
+
+
+        // =========================================================
+        // PROTEÇÃO PRINCIPAL:
+        // se os dois mecanismos apontarem para pessoas diferentes,
+        // NÃO escolhemos nenhum deles.
+        // A sessão é encerrada imediatamente.
+        // =========================================================
+
+        if (
+            idSessao &&
+            idPassport &&
+            idSessao !== idPassport
+        ) {
+
+            console.error(
+                "[AUTH] SESSÃO INCONSISTENTE DETECTADA",
+                {
+                    sessionRef: req.sessionID ? req.sessionID.slice(-8) : null,
+                    idSessao,
+                    idPassport,
+                    rota: req.originalUrl
+                }
+            );
+
+            return req.session.destroy(() => {
+
+                if (req.originalUrl.startsWith("/api/")) {
+
+                    return res.status(401).json({
+                        erro:
+                            "Sua sessão ficou inconsistente. Faça login novamente."
+                    });
+
+                }
+
+                return res.redirect(
+                    "/logar?erro=sessao-inconsistente"
+                );
+
+            });
+
+        }
+
+
+        // Enquanto ainda existem sessões antigas do Google,
+        // aceita um dos dois.
+        // Depois vamos fazer novos logins Google usarem somente
+        // req.session.usuarioId.
+        const usuarioId =
+            idSessao || idPassport;
+
+
+        if (!usuarioId) {
+
+            if (req.originalUrl.startsWith("/api/")) {
+
+                return res.status(401).json({
+                    erro: "Não autenticado."
+                });
+
+            }
+
+            return res.redirect("/logar");
+
+        }
+
+
+        // Sempre busca novamente quem é a pessoa no banco.
+        // Assim não confiamos em um "tipo" antigo salvo na sessão.
+        const resultado = await db.query(
+            `
+            SELECT
+                id,
+                email,
+                tipo,
+                versao_sessao,
+                cadastro_completo
+            FROM usuarios
+            WHERE id = $1
+            `,
+            [usuarioId]
+        );
+
+
+        if (resultado.rows.length === 0) {
+
+            return req.session.destroy(() => {
+
+                if (req.originalUrl.startsWith("/api/")) {
+
+                    return res.status(401).json({
+                        erro: "Usuário não encontrado."
+                    });
+
+                }
+
+                return res.redirect("/logar");
+
+            });
+
+        }
+
+
+        const usuario = resultado.rows[0];
+
+
+        // =========================================================
+        // VERIFICA A VERSÃO DA SESSÃO
+        // =========================================================
+
+        if (
+            req.session.versaoSessao !== undefined &&
+            req.session.versaoSessao !== null &&
+            usuario.versao_sessao !== req.session.versaoSessao
+        ) {
+
+            return req.session.destroy(() => {
+
+                if (req.originalUrl.startsWith("/api/")) {
+
+                    return res.status(401).json({
+                        erro:
+                            "Sua sessão expirou. Faça login novamente."
+                    });
+
+                }
+
+                return res.redirect("/logar");
+
+            });
+
+        }
+
+
+        // =========================================================
+        // SINCRONIZA COM O BANCO
+        // =========================================================
+
+        req.session.usuarioId =
+            usuario.id;
+
+        req.session.tipo =
+            usuario.tipo;
+
+        req.session.versaoSessao =
+            usuario.versao_sessao;
+
+
+        // Essa passa a ser a identidade confiável da requisição.
+        req.authUser = usuario;
+
+        // Registra presença real sem escrever no banco a cada requisição.
+        // Enquanto o usuário navega, no máximo uma atualização por minuto.
+        await db.query(
+            `
+            UPDATE usuarios
+            SET ultimo_acesso = NOW()
+            WHERE id = $1
+              AND (
+                    ultimo_acesso IS NULL
+                    OR ultimo_acesso < NOW() - INTERVAL '1 minute'
+                  )
+            `,
+            [usuario.id]
+        );
+
+        // Diagnóstico opcional para os testes de autenticação.
+        // Ative temporariamente com AUTH_DEBUG=true.
+        // Não registra e-mail, cookie nem o ID completo da sessão.
+        if (process.env.AUTH_DEBUG === "true") {
+            console.log("[AUTH DEBUG]", {
+                rota: req.originalUrl,
+                usuarioId: usuario.id,
+                tipo: usuario.tipo,
+                loginMetodo: req.session.loginMetodo || "desconhecido",
+                sessionRef: req.sessionID ? req.sessionID.slice(-8) : null
+            });
+        }
+
+
+        return next();
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao validar autenticação:",
+            erro
+        );
+
+
+        if (req.originalUrl.startsWith("/api/")) {
+
+            return res.status(500).json({
+                erro:
+                    "Erro interno ao validar sessão."
+            });
+
+        }
+
+
+        return res
+            .status(500)
+            .send(
+                "Erro interno. Tente novamente em instantes."
+            );
+
+    }
+
+}
+
+function exigeAdmin(req, res, next) {
+    const tipo = req.authUser?.tipo;
+
+    if (tipo === "admin") {
+        return next();
+    }
+
+    if (req.originalUrl.startsWith("/api/")) {
+        return res.status(403).json({ erro: "Acesso restrito ao administrador." });
+    }
+
+    if (tipo === "psicologo") {
+        return res.redirect("/hometerapeuta");
+    }
+
+    if (tipo === "pai") {
+        return res.redirect("/home");
+    }
+
+    return res.redirect("/logar");
+}
+
+// Autentica o hardware do Bixuco. Sem isso, qualquer pessoa na internet
+// consegue injetar eventos e localizações falsas em qualquer conta.
+function exigeDispositivo(req, res, next) {
+
+    const chave = req.get("x-device-key");
+
+    if (!process.env.DEVICE_API_KEY) {
+        console.log("DEVICE_API_KEY não configurada — bloqueando requisição de dispositivo.");
+        return res.status(503).json({ erro: "Serviço indisponível." });
+    }
+
+    if (!chavesIguaisSeguro(chave, process.env.DEVICE_API_KEY)) {
+        return res.status(401).json({ erro: "Dispositivo não autorizado." });
+    }
+
+    next();
+}
+
+const tentativasAdmin = new Map(); // ip -> { count, resetAt }
+
+function limitarTentativasAdmin(req, res, next) {
+    const ip = req.ip;
+    const agora = Date.now();
+    const registro = tentativasAdmin.get(ip);
+
+    if (!registro || agora > registro.resetAt) {
+        tentativasAdmin.set(ip, { count: 1, resetAt: agora + 15 * 60 * 1000 }); // janela de 15 min
+        return next();
+    }
+
+    if (registro.count >= 5) {
+        return res.status(429).json({ erro: "Muitas tentativas. Tente novamente mais tarde." });
+    }
+
+    registro.count++;
+    next();
+}
+
+
+// Todos os mapas de rate limit ficam registrados aqui pra poderem
+// ser limpos periodicamente (senão crescem pra sempre na memória).
+const mapasDeRateLimit = [];
+
+function criarLimitadorPorIp(limite, janelaMs, mensagem) {
+    const registros = new Map(); // ip -> { count, resetAt }
+    mapasDeRateLimit.push(registros);
+
+    return function (req, res, next) {
+        const ip = req.ip;
+        const agora = Date.now();
+        const registro = registros.get(ip);
+
+        if (!registro || agora > registro.resetAt) {
+            registros.set(ip, { count: 1, resetAt: agora + janelaMs });
+            return next();
+        }
+
+        if (registro.count >= limite) {
+            return res.status(429).json({ erro: mensagem });
+        }
+
+        registro.count++;
+        next();
+    };
+}
+
+// Impede tentar adivinhar o código 2FA por força bruta
+const limitarVerificacao2FA = criarLimitadorPorIp(
+    8,
+    10 * 60 * 1000,
+    "Muitas tentativas. Solicite um novo código."
+);
+
+// Reenvio de código — limitado para não virar canal de spam de e-mail
+const limitarReenvio2FA = criarLimitadorPorIp(
+    3,
+    10 * 60 * 1000,
+    "Muitas solicitações de reenvio. Aguarde um pouco."
+);
+
+// Rate limiting do /login — combina IP + email:
+// impede tanto um atacante mirando UM email de vários IPs
+// quanto um bot varrendo vários emails do MESMO IP
+const tentativasLoginPorChave = new Map(); // "ip|email" -> { count, resetAt }
+
+function limitarTentativasLogin(req, res, next) {
+    const ip    = req.ip;
+    const email = String(req.body?.email || "").toLowerCase().trim();
+    const agora = Date.now();
+    const janela = 15 * 60 * 1000; // 15 min
+    const limite = 5;
+
+    const chave = `${ip}|${email}`;
+    const registroChave = tentativasLoginPorChave.get(chave);
+
+    if (!registroChave || agora > registroChave.resetAt) {
+        tentativasLoginPorChave.set(chave, { count: 1, resetAt: agora + janela });
+    } else {
+        if (registroChave.count >= limite) {
+            return res.status(429).json({ erro: "Muitas tentativas para este e-mail. Tente novamente mais tarde." });
+        }
+        registroChave.count++;
+    }
+
+    next();
+}
+
+// Rate limiting do IP puro no login — cobre bot varrendo vários emails do mesmo lugar
+const limitarLoginPorIp = criarLimitadorPorIp(
+    15, // mais folgado, cobre Wi-Fi compartilhado
+    15 * 60 * 1000,
+    "Muitas tentativas de login. Tente novamente mais tarde."
+);
+
+// Rate limiting da criação de conta — impede testar várias
+// combinações de CPF/CRP/email até uma dar certo
+const limitarCriacaoConta = criarLimitadorPorIp(
+    10,
+    60 * 60 * 1000, // 1 hora
+    "Muitas tentativas de cadastro. Tente novamente mais tarde."
+);
+
+// Rate limiting da recuperação de senha — combina IP + email,
+// mesmo padrão do login: impede tanto alguém martelando o mesmo
+// email quanto um bot varrendo vários emails do mesmo IP
+const tentativasRecuperacaoPorChave = new Map(); // "ip|email" -> { count, resetAt }
+
+function limitarRecuperacaoSenha(req, res, next) {
+    const ip    = req.ip;
+    const email = String(req.body?.email || "").toLowerCase().trim();
+    const agora = Date.now();
+    const janela = 15 * 60 * 1000; // 15 min
+    const limite = 3; // recuperação de senha pode ser mais restrita que login
+
+    const chave = `${ip}|${email}`;
+    const registroChave = tentativasRecuperacaoPorChave.get(chave);
+
+    if (!registroChave || agora > registroChave.resetAt) {
+        tentativasRecuperacaoPorChave.set(chave, { count: 1, resetAt: agora + janela });
+    } else {
+        if (registroChave.count >= limite) {
+            return res.status(429).json({
+                erro: "Muitas solicitações para este e-mail. Tente novamente mais tarde."
+            });
+        }
+        registroChave.count++;
+    }
+
+    next();
+}
+
+// Rate limiting do IP puro na recuperação — cobre bot varrendo vários emails do mesmo lugar
+const limitarRecuperacaoPorIp = criarLimitadorPorIp(
+    10,
+    15 * 60 * 1000,
+    "Muitas solicitações de recuperação de senha. Tente novamente mais tarde."
+);
+
+function exigeTerapeuta(req, res, next) {
+
+    const tipo = req.authUser?.tipo;
+
+    if (tipo === "psicologo") {
+        return next();
+    }
+
+    console.warn(
+        "[AUTH] Acesso bloqueado à área do terapeuta",
+        {
+            usuarioId: req.authUser?.id || null,
+            tipo: tipo || null,
+            rota: req.originalUrl,
+            sessionRef: req.sessionID ? req.sessionID.slice(-8) : null
+        }
+    );
+
+    if (req.originalUrl.startsWith("/api/")) {
+        return res.status(403).json({
+            erro: "Esta área é exclusiva para terapeutas."
+        });
+    }
+
+    if (tipo === "pai") {
+        return res.redirect("/home");
+    }
+
+    if (tipo === "admin") {
+        return res.redirect("/admin");
+    }
+
+    return res.redirect("/logar");
+}
+
+
+function exigeResponsavel(req, res, next) {
+
+    const tipo = req.authUser?.tipo;
+
+    if (tipo === "pai") {
+        return next();
+    }
+
+    console.warn(
+        "[AUTH] Acesso bloqueado à área do responsável",
+        {
+            usuarioId: req.authUser?.id || null,
+            tipo: tipo || null,
+            rota: req.originalUrl,
+            sessionRef: req.sessionID ? req.sessionID.slice(-8) : null
+        }
+    );
+
+    if (req.originalUrl.startsWith("/api/")) {
+        return res.status(403).json({
+            erro: "Esta área é exclusiva para responsáveis."
+        });
+    }
+
+    if (tipo === "psicologo") {
+        return res.redirect("/hometerapeuta");
+    }
+
+    if (tipo === "admin") {
+        return res.redirect("/admin");
+    }
+
+    return res.redirect("/logar");
+}
+
+function chavesIguaisSeguro(chaveRecebida, chaveEsperada) {
+
+    if (!chaveRecebida || !chaveEsperada) return false;
+
+    const bufferRecebido = Buffer.from(String(chaveRecebida));
+    const bufferEsperado = Buffer.from(String(chaveEsperada));
+
+    // timingSafeEqual exige buffers do mesmo tamanho, senão lança erro —
+    // por isso comparamos o tamanho primeiro (não é sigiloso, só o conteúdo importa)
+    if (bufferRecebido.length !== bufferEsperado.length) return false;
+
+    return crypto.timingSafeEqual(bufferRecebido, bufferEsperado);
+
+}
+
+// ─────────────────────────────────────────
+// MIDDLEWARE — verifica plano do usuário
+// ─────────────────────────────────────────
+async function verificarPlano(req, res, next) {
+    const usuarioId = req.authUser?.id;
+    const tipo = req.authUser?.tipo;
+
+    if (!usuarioId) {
+        if (req.originalUrl.startsWith("/api/")) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        return res.redirect("/logar");
+    }
+
+    try {
+        // Endpoint compartilhado /api/meu-plano ainda pode consultar
+        // contas profissionais, mas rotas de responsável são bloqueadas
+        // por exigeResponsavel / precisaPlano.
+        if (tipo === "psicologo" || tipo === "admin") {
+            req.plano = "terapeuta";
+            return next();
+        }
+
+        const resultado = await db.query(
+            `SELECT nome_plano
+             FROM assinaturas
+             WHERE usuario_id = $1
+             AND ativo = TRUE
+             ORDER BY criado_em DESC
+             LIMIT 1`,
+            [usuarioId]
+        );
+
+        req.plano = resultado.rows.length > 0
+            ? resultado.rows[0].nome_plano.toLowerCase()
+            : "gratis";
+
+        return next();
+
+    } catch (erro) {
+        console.error("Erro ao verificar plano:", erro);
+        req.plano = "gratis";
+        return next();
+    }
+}
+
+// exige plano médio ou superior — somente responsável
+function exigeEconomico(req, res, next) {
+    if (req.authUser?.tipo !== "pai") {
+        return res.status(403).json({ erro: "Esta área é exclusiva para responsáveis." });
+    }
+
+    if (["medio", "completo"].includes(req.plano)) {
+        return next();
+    }
+
+    return res.status(403).json({
+        erro: "plano_insuficiente",
+        planoAtual: req.plano
+    });
+}
+
+// exige plano completo — somente responsável
+function exigePremium(req, res, next) {
+    if (req.authUser?.tipo !== "pai") {
+        return res.status(403).json({ erro: "Esta área é exclusiva para responsáveis." });
+    }
+
+    if (req.plano === "completo") {
+        return next();
+    }
+
+    return res.status(403).json({
+        erro: "plano_insuficiente",
+        planoAtual: req.plano
+    });
+}
+
+
+
+/* ==========================
+   ROTAS GET
+========================== */
+
+app.get("/.well-known/assetlinks.json", (req, res) => {
+    const caminho = path.join(__dirname, ".well-known", "assetlinks.json");
+    res.sendFile(caminho, { dotfiles: 'allow' });
+});
+
+// ─────────────────────────────────────────
+// PLANO DO USUÁRIO LOGADO
+// ─────────────────────────────────────────
+app.get("/api/meu-plano", estaLogado, verificarPlano, (req, res) => {
+    res.json({ plano: req.plano });
+});
+
+
+app.get("/relatorios", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
+
+    res.sendFile(path.join(__dirname, "templates", "relatorios.html"));
+
+});
+
+
+app.get("/AdicionarC", estaLogado, exigeResponsavel, (req, res) => {
+
+    res.sendFile(path.join(__dirname, "templates", "AdicionarC.html"));
+
+});
+
+// Detecta se a requisição veio de dentro do app (Capacitor) e não do navegador.
+// O marcador "BixucoApp" é adicionado pelo appendUserAgent do capacitor.config.json.
+function veioDoApp(req) {
+    return String(req.get("user-agent") || "").includes("BixucoApp");
+}
+
+app.get("/", (req, res) => {
+    // Depois do login, a sessão Bixuco é a única fonte persistida
+    // de identidade. Não usamos req.user como fallback aqui.
+    const usuarioId = req.session?.usuarioId || null;
+    const tipo = req.session?.tipo || null;
+
+    if (usuarioId) {
+        if (tipo === "psicologo") return res.redirect("/hometerapeuta");
+        if (tipo === "admin") return res.redirect("/admin");
+        if (tipo === "pai") return res.redirect("/home");
+
+        // Sessão existente, mas com tipo inválido/inesperado.
+        return req.session.destroy(() => res.redirect("/logar"));
+    }
+
+    // Dentro do app não existe "landing page" — quem não está logado
+    // vai direto pro login.
+    if (veioDoApp(req)) {
+        return res.redirect("/logar");
+    }
+
+    return res.sendFile(path.join(__dirname, "templates", "index.html"));
+});
+
+app.get("/pacientes", estaLogado, exigeTerapeuta, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "Pacientes.html"));
+});
+
+app.get("/logar", (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "logar.html"));
+});
+
+
+app.get("/CriarContaS", (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "CriarContaS.html"));
+});
+
+app.get("/CriarContaG", (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "CriarContaG.html"));
+});
+
+app.get("/CriarContaP", (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "CriarContaP.html"));
+});
+
+app.get("/CriarContaSenha", (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "CriarContaSenha.html"));
+});
+
+
+app.get("/QuestionarioP", estaLogado, exigeResponsavel, (req, res) => {
+
+    res.sendFile(path.join(__dirname, "templates", "QuestionarioP.html"));
+
+});
+
+app.get("/relatoriosTerapeutaS", estaLogado, exigeTerapeuta, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "RelatoriosTerapeutaS.html"));
+});
+
+app.get("/relatoriosTerapeuta", estaLogado, exigeTerapeuta, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "RelatoriosTerapeuta.html"));
+});
+
+app.get("/EsqueceuSenha", (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "EsqueceuSenha.html"));
+});
+
+app.get("/sobreT", estaLogado, exigeTerapeuta, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "SobreTerapeuta.html"));
+});
+
+
+app.get("/configuracoesT", estaLogado, exigeTerapeuta, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "ConfiguracoesTerapeuta.html"));
+});
+
+
+
+app.get("/planos", estaLogado, exigeResponsavel, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "planos.html"));
+});
+
+app.get("/sobreSemAssinatura", estaLogado, exigeResponsavel, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "SobreSemAssinatura.html"));
+});
+
+app.get("/configuracoesSemAssinatura", estaLogado, exigeResponsavel, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "ConfiguracoesSemAssinatura.html"));
+});
+
+
+
+app.get("/perfilSemAssinatura", estaLogado, exigeResponsavel, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "PerfilSemAssinatura.html"));
+});
+
+
+app.get("/hometerapeuta", estaLogado, exigeTerapeuta, (req, res) => {
+
+    res.sendFile(path.join(__dirname, "templates", "HomeTerapeuta.html"));
+
+});
+
+app.get("/onboarding-google", estaLogado, (req, res) => {
+
+    res.sendFile(path.join(__dirname, "templates", "onboarding-google.html"));
+
+});
+
+app.get("/FormularioEntrega", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "FormularioEntrega.html"));
+});
+
+app.get("/admin/pedidos", estaLogado, exigeAdmin, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "AdminPedidos.html"));
+});
+
+app.get("/PedidoConfirmado", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "PedidoConfirmado.html"));
+});
+
+app.get("/AcompanharPedido", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "AcompanharPedido.html"));
+});
+
+app.get("/BixucoEntregue", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "BixucoEntregue.html"));
+});
+
+app.get("/VincularIdentidade", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "VincularIdentidade.html"));
+});
+
+app.get("/VincularSucesso", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "VincularSucesso.html"));
+});
+
+
+app.get("/PerfilTerapeuta", estaLogado, exigeTerapeuta, (req, res) => {
+
+    res.sendFile(path.join(__dirname, "templates", "PerfilTerapeuta.html"));
+
+});
+
+
+
+// 🔒 FIX 2 (aplicado): /home agora exige login
+app.get("/home", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "home.html"));
+});
+
+app.get("/Transicao1", estaLogado, exigeResponsavel, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "Transicao1.html"));
+});
+
+app.get("/Transicao2", estaLogado, exigeResponsavel, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "Transicao2.html"));
+});
+
+app.get("/Transicao3", estaLogado, exigeResponsavel, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "Transicao3.html"));
+});
+
+app.get("/Transicao4", estaLogado, exigeResponsavel, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "Transicao4.html"));
+});
+
+/* ==========================
+   BANCO DE DADOS
+========================== */
+
+
+
+/* ==========================
+   LOGIN COM GOOGLE
+========================== */
+
+passport.use(new GoogleStrategy({
+
+    clientID: process.env.GOOGLE_CLIENT_ID,
+
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+
+    callbackURL:
+        `${process.env.BASE_URL || "http://localhost:3000"}/auth/google/callback`
+
+},
+
+async (accessToken, refreshToken, profile, done) => {
+
+    try {
+
+        const email = profile.emails[0].value;
+        const nome  = profile.displayName;
+        const foto  = profile.photos?.[0]?.value || null;
+
+        const resultado = await db.query(
+
+            "SELECT * FROM usuarios WHERE email = $1",
+
+            [email]
+
+        );
+
+        if (resultado.rows.length > 0) {
+
+            // Usuário já existe — retorna direto
+            return done(null, resultado.rows[0]);
+
+        }
+
+        // 🔧 FIX: Usuário novo via Google
+        // NÃO define o tipo ainda — deixa como null
+        // novo_usuario = TRUE → callback vai mandar para o onboarding
+        const novoUsuario = await db.query(
+
+            `INSERT INTO usuarios
+             (nome, email, tipo, senha, foto_perfil, novo_usuario)
+             VALUES ($1, $2, 'pendente', '', $3, TRUE)
+             RETURNING *`,
+
+            [nome, email, foto]
+
+        );
+
+        return done(null, novoUsuario.rows[0]);
+
+    } catch (err) {
+
+        return done(err, null);
+
+    }
+
+}));
+
+passport.serializeUser((usuario, done) => {
+
+    done(null, usuario.id);
+
+});
+
+passport.deserializeUser(async (id, done) => {
+
+    try {
+
+        const resultado = await db.query(
+
+            "SELECT * FROM usuarios WHERE id=$1",
+
+            [id]
+
+        );
+
+        done(null, resultado.rows[0]);
+
+    }
+
+    catch (err) {
+
+        done(err, null);
+
+    }
+
+});
+
+app.get("/auth/google", (req, res, next) => {
+
+    // Em vez de guardar "veio do app?" na sessão (que vimos se perder
+    // no redirecionamento de ida e volta pelo Google), mandamos essa
+    // informação dentro do parâmetro "state" do próprio OAuth — o Google
+    // devolve esse valor sem alteração no callback, então sobrevive ao
+    // redirecionamento mesmo que o cookie de sessão não sobreviva.
+    const origem = req.query.origem === "app" ? "app" : "web";
+
+    passport.authenticate("google", {
+        scope: ["profile", "email"],
+        prompt: "select_account",
+        state: origem
+    })(req, res, next);
+
+});
+
+app.get(
+    "/auth/google/callback",
+
+    passport.authenticate("google", {
+        failureRedirect: "/logar"
+    }),
+
+    async (req, res) => {
+
+        try {
+
+            // Guarda os dados AGORA porque regenerate()
+            // vai apagar a sessão antiga do Passport.
+            const usuarioGoogle = {
+                id: Number(req.user.id),
+                tipo: req.user.tipo,
+                versaoSessao: req.user.versao_sessao,
+                cadastroCompleto: req.user.cadastro_completo
+            };
+
+
+            // Define para onde essa conta deve ir
+            let destino;
+
+            if (
+                !usuarioGoogle.tipo ||
+                usuarioGoogle.tipo === "pendente"
+            ) {
+
+                destino = "/onboarding-google";
+
+            } else if (
+                usuarioGoogle.tipo === "pai" &&
+                !usuarioGoogle.cadastroCompleto
+            ) {
+
+                destino = "/AdicionarC";
+
+            } else if (
+                usuarioGoogle.tipo === "psicologo"
+            ) {
+
+                destino = "/homeTerapeuta";
+
+            } else {
+
+                destino = "/home";
+
+            }
+
+
+            const eraApp =
+                req.query.state === "app";
+
+
+            // =============================================
+            // LOGIN PELO APP
+            // =============================================
+
+            if (eraApp) {
+
+                const token =
+                    crypto.randomBytes(32).toString("hex");
+
+                const expiraEm =
+                    new Date(
+                        Date.now() + 5 * 60 * 1000
+                    );
+
+
+                await db.query(
+                    `
+                    INSERT INTO tokens_app
+                    (
+                        token,
+                        usuario_id,
+                        destino,
+                        expira_em
+                    )
+                    VALUES ($1, $2, $3, $4)
+                    `,
+                    [
+                        token,
+                        usuarioGoogle.id,
+                        destino,
+                        expiraEm
+                    ]
+                );
+
+
+                // O navegador usado para autenticar o app
+                // não precisa permanecer logado.
+                return req.session.destroy(() => {
+
+                    return res.redirect(
+                        `bixuco://auth?token=${token}`
+                    );
+
+                });
+
+            }
+
+
+            // =============================================
+            // LOGIN GOOGLE PELO NAVEGADOR
+            // =============================================
+
+            // Destrói completamente a sessão anterior
+            // e cria uma nova ID de sessão.
+            req.session.regenerate((erroRegen) => {
+
+                if (erroRegen) {
+
+                    console.error(
+                        "Erro ao regenerar sessão Google:",
+                        erroRegen
+                    );
+
+                    return res.redirect(
+                        "/logar?erro=sessao"
+                    );
+
+                }
+
+
+                // A partir daqui, a sessão Bixuco
+                // é a ÚNICA identidade persistida.
+                req.session.usuarioId =
+                    usuarioGoogle.id;
+
+                req.session.tipo =
+                    usuarioGoogle.tipo;
+
+                req.session.versaoSessao =
+                    usuarioGoogle.versaoSessao;
+
+                req.session.loginMetodo =
+                    "google";
+
+
+                // Garante que a sessão chegou no PostgreSQL
+                // ANTES de mandar o navegador para outra página.
+                req.session.save((erroSave) => {
+
+                    if (erroSave) {
+
+                        console.error(
+                            "Erro ao salvar sessão Google:",
+                            erroSave
+                        );
+
+                        return res.redirect(
+                            "/logar?erro=sessao"
+                        );
+
+                    }
+
+
+                    console.log(
+                        "[AUTH] Login Google concluído",
+                        {
+                            usuarioId:
+                                usuarioGoogle.id,
+
+                            tipo:
+                                usuarioGoogle.tipo,
+
+                            sessionID:
+                                req.sessionID
+                        }
+                    );
+
+
+                    return res.redirect(destino);
+
+                });
+
+            });
+
+
+        } catch (erro) {
+
+            console.error(
+                "Erro no callback do Google:",
+                erro
+            );
+
+            return res.redirect(
+                "/logar?erro=google"
+            );
+
+        }
+
+    }
+);
+
+// O app chama esta rota DENTRO da WebView, com o token que recebeu pelo
+// deep link. É aqui que a sessão do app é criada de fato.
+app.get("/auth/app-token", async (req, res) => {
+
+    const { token } = req.query;
+
+    if (!token) return res.redirect("/logar");
+
+    try {
+
+        const resultado = await db.query(
+            `SELECT t.usuario_id, t.destino, u.tipo, u.versao_sessao
+             FROM tokens_app t
+             JOIN usuarios u ON u.id = t.usuario_id
+             WHERE t.token = $1
+             AND t.usado = FALSE
+             AND t.expira_em > NOW()`,
+            [token]
+        );
+
+        if (resultado.rows.length === 0) {
+            return res.redirect("/logar?erro=token-invalido");
+        }
+
+        // Uso único: queima o token imediatamente.
+        await db.query(
+            "UPDATE tokens_app SET usado = TRUE WHERE token = $1",
+            [token]
+        );
+
+        const dados = resultado.rows[0];
+
+        req.session.regenerate((erroRegen) => {
+
+            if (erroRegen) {
+
+                console.error(
+                    "Erro ao regenerar sessão do app:",
+                    erroRegen
+                );
+
+                return res.redirect("/logar");
+
+            }
+
+
+            req.session.usuarioId =
+                Number(dados.usuario_id);
+
+            req.session.tipo =
+                dados.tipo;
+
+            req.session.versaoSessao =
+                dados.versao_sessao;
+
+            req.session.loginMetodo =
+                "app";
+
+
+            req.session.save((erroSave) => {
+
+                if (erroSave) {
+
+                    console.error(
+                        "Erro ao salvar sessão do app:",
+                        erroSave
+                    );
+
+                    return res.redirect("/logar");
+
+                }
+
+
+                return res.redirect(
+                    dados.destino || "/home"
+                );
+
+            });
+
+        });
+
+    } catch (erro) {
+        console.log("Erro ao validar token do app:", erro);
+        return res.redirect("/logar");
+    }
+
+});
+
+app.post("/api/admin/pedido-status", estaLogado, exigeAdmin, limitarTentativasAdmin, async (req, res) => {
+
+    const { email, novoStatus } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ erro: "Informe o e-mail do usuário." });
+    }
+
+    try {
+        const usuario = await db.query(
+            "SELECT id, nome FROM usuarios WHERE email = $1",
+            [email]
+        );
+
+        if (usuario.rows.length === 0) {
+            return res.status(404).json({ erro: "Usuário não encontrado." });
+        }
+
+        const usuarioId = usuario.rows[0].id;
+
+        // Sem novoStatus → só consulta o status atual (usado pelo "Buscar pedido")
+        if (!novoStatus) {
+            const pedido = await db.query(
+                "SELECT status FROM pedidos WHERE usuario_id = $1 ORDER BY id DESC LIMIT 1",
+                [usuarioId]
+            );
+
+            if (pedido.rows.length === 0) {
+                return res.status(404).json({ erro: "Esse usuário ainda não tem pedido." });
+            }
+
+            return res.json({ nome: usuario.rows[0].nome, status: pedido.rows[0].status });
+        }
+
+        const statusesValidos = ["em_producao", "enviado", "em_transito", "entregue"];
+        if (!statusesValidos.includes(novoStatus)) {
+            return res.status(400).json({ erro: "Status inválido." });
+        }
+
+        const atualizado = await db.query(
+            `UPDATE pedidos SET status = $1
+             WHERE id = (SELECT id FROM pedidos WHERE usuario_id = $2 ORDER BY id DESC LIMIT 1)
+             RETURNING id`,
+            [novoStatus, usuarioId]
+        );
+
+        if (atualizado.rows.length === 0) {
+            return res.status(404).json({ erro: "Esse usuário ainda não tem pedido." });
+        }
+
+        res.json({ mensagem: `Status atualizado para "${novoStatus}".` });
+
+    } catch (erro) {
+        console.log("Erro ao atualizar status do pedido:", erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
+});
+
+mapasDeRateLimit.push(tentativasAdmin, tentativasLoginPorChave, tentativasRecuperacaoPorChave);
+
+// Limpa entradas expiradas a cada hora
+setInterval(() => {
+    const agora = Date.now();
+    for (const mapa of mapasDeRateLimit) {
+        for (const [chave, registro] of mapa) {
+            if (agora > registro.resetAt) mapa.delete(chave);
+        }
+    }
+}, 60 * 60 * 1000);
+
+app.post("/api/planos/criar-planos", estaLogado, exigeAdmin, async (req, res) => {
+
+    try {
+
+        const planoMP = new PreApprovalPlan(mpClient);
+
+        // Cria o plano medio
+        const planMedio = await planoMP.create({
+            body: {
+                reason:            "Plano medio Bixuco",
+                auto_recurring: {
+                    frequency:          1,
+                    frequency_type:     "months",
+                    transaction_amount: PLANOS_MP.medio.preco,
+                    currency_id:        "BRL"
+                },
+                back_url: `${process.env.BASE_URL}/pagamento/sucesso`,
+                status:   "active"
+            }
+        });
+
+        // Cria o plano completo
+        const planCompleto = await planoMP.create({
+            body: {
+                reason:            "Plano Completo Bixuco",
+                auto_recurring: {
+                    frequency:          1,
+                    frequency_type:     "months",
+                    transaction_amount: PLANOS_MP.completo.preco,
+                    currency_id:        "BRL"
+                },
+                back_url: `${process.env.BASE_URL}/pagamento/sucesso`,
+                status:   "active"
+            }
+        });
+
+        // Retorna os IDs para você copiar no .env
+        res.json({
+            mensagem:           "Planos criados! Adicione esses IDs no .env do Render:",
+            MP_PLAN_ID_MEDIO:    planMedio.id,
+            MP_PLAN_ID_COMPLETO: planCompleto.id
+        });
+
+    } catch (erro) {
+
+        console.log("Erro ao criar planos no MP:", erro);
+        res.status(500).json({ erro: "Erro ao criar planos no Mercado Pago." });
+
+    }
+
+});
+
+
+app.post("/api/planos/assinar", estaLogado, exigeResponsavel, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.authUser.id;
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        const { plano } = req.body;
+
+        // ===========================
+        // PLANO GRÁTIS
+        // ===========================
+        if (plano === "gratis") {
+
+            await ativarPlano(usuarioId, "gratis");
+
+            await db.query(
+                `UPDATE usuarios SET novo_usuario = FALSE WHERE id = $1`,
+                [usuarioId]
+            );
+
+            return res.json({ destino: "/sobreSemAssinatura" });
+
+        }
+
+        // ===========================
+        // PLANOS PAGOS
+        // ===========================
+        if (!PLANOS_MP[plano]) {
+            return res.status(400).json({ erro: "Plano inválido." });
+        }
+
+        const dadosPlano = PLANOS_MP[plano];
+
+        // Busca email do usuário para o MP
+        const resultadoUsuario = await db.query(
+            `SELECT nome, email FROM usuarios WHERE id = $1`,
+            [usuarioId]
+        );
+
+        const usuario = resultadoUsuario.rows[0];
+
+        // Cria a preferência de pagamento no Checkout Pro do Mercado Pago.
+        // Preference não depende de MP_PLAN_ID_*; basta o Access Token válido.
+        const { Preference } = require("mercadopago");
+        const preference = new Preference(mpClient);
+
+        const pagamento = await preference.create({
+            body: {
+                items: [{
+                    id:          `bixuco-${plano}`,
+                    title:       `Bixuco — Plano ${dadosPlano.nome}`,
+                    quantity:    1,
+                    unit_price:  dadosPlano.preco,
+                    currency_id: "BRL"
+                }],
+                payer: { email: usuario.email },
+                back_urls: {
+                    // O servidor deriva usuário/plano do pagamento consultado no MP.
+                    // Não confiamos em parâmetros de usuário/plano vindos da URL.
+                    success: `${process.env.BASE_URL}/pagamento/sucesso`,
+                    failure: `${process.env.BASE_URL}/pagamento/falha`,
+                    pending: `${process.env.BASE_URL}/pagamento/pendente`
+                },
+                auto_return:        "approved",
+                external_reference: `${usuarioId}|${plano}`,
+                notification_url:   `${process.env.BASE_URL}/api/planos/webhook`
+            }
+        });
+
+        return res.json({ linkPagamento: pagamento.init_point });
+
+    } catch (erro) {
+
+        console.log("Erro ao assinar plano:", JSON.stringify(erro, Object.getOwnPropertyNames(erro)));
+        res.status(500).json({ erro: "Erro ao processar assinatura. Tente novamente." });
+
+    }
+
+});
+
+
+app.post('/api/pedidos/endereco', estaLogado, exigeResponsavel, precisaPlano("medio"), async (req, res) => {
+    const usuarioId = req.authUser.id;
+    const { cep, rua, numero, complemento, bairro, cidade, estado } = req.body;
+
+    try {
+        await db.query(
+            `INSERT INTO pedidos (usuario_id, cep, rua, numero, complemento, bairro, cidade, estado, codigo_rastreio, previsao_entrega)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+            [usuarioId, cep, rua, numero, complemento, bairro, cidade, estado,
+             'BR' + Math.floor(1000000000 + Math.random() * 9000000000),
+             new Date(Date.now() + 15 * 24 * 60 * 60 * 1000)]
+        );
+
+        res.sendStatus(200);
+    } catch (erro) {
+        console.error("Erro ao salvar endereço:", erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
+});
+
+app.get('/api/pedidos/status', estaLogado, exigeResponsavel, precisaPlano("medio"), async (req, res) => {
+    const usuarioId = req.authUser.id;
+
+    try {
+        const resultado = await db.query(
+            'SELECT * FROM pedidos WHERE usuario_id = $1 ORDER BY id DESC LIMIT 1',
+            [usuarioId]
+        );
+
+        if (resultado.rows.length === 0) return res.status(404).json({});
+        res.json(resultado.rows[0]);
+    } catch (erro) {
+        console.error("Erro ao buscar status do pedido:", erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
+});
+
+app.get('/api/bixuco/status', estaLogado, exigeResponsavel, precisaPlano("medio"), async (req, res) => {
+    const usuarioId = req.authUser.id;
+
+    try {
+        const dispositivo = await db.query(
+            'SELECT * FROM dispositivos WHERE usuario_id = $1',
+            [usuarioId]
+        );
+
+        if (dispositivo.rows.length > 0) {
+            return res.json({ estado: 'vinculado' });
+        }
+
+        const pedido = await db.query(
+            'SELECT * FROM pedidos WHERE usuario_id = $1 ORDER BY id DESC LIMIT 1',
+            [usuarioId]
+        );
+
+        if (pedido.rows.length === 0) {
+            return res.json({ estado: 'sem_pedido' });
+        }
+
+        if (pedido.rows[0].status !== 'entregue') {
+            return res.json({ estado: 'em_andamento', ...pedido.rows[0] });
+        }
+
+        return res.json({ estado: 'entregue_nao_vinculado' });
+    } catch (erro) {
+        console.error("Erro ao buscar status do Bixuco:", erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
+});
+
+app.post('/api/dispositivos/vincular', estaLogado, exigeResponsavel, precisaPlano("medio"), async (req, res) => {
+    const usuarioId = req.authUser.id;
+    const { device_id } = req.body;
+
+    if (!device_id || device_id.trim().length === 0) {
+        return res.status(400).json({ mensagem: 'Código do dispositivo é obrigatório.' });
+    }
+
+    try {
+        const dispositivo = await db.query(
+            'SELECT * FROM dispositivos WHERE dispositivo_id = $1',
+            [device_id.trim()]
+        );
+
+        if (dispositivo.rows.length === 0) {
+            return res.status(404).json({ mensagem: 'Código não encontrado.' });
+        }
+
+        if (dispositivo.rows[0].usuario_id && dispositivo.rows[0].usuario_id !== usuarioId) {
+            return res.status(409).json({ mensagem: 'Este Bixuco já está vinculado a outra conta.' });
+        }
+
+        const crianca = await db.query(
+            'SELECT id FROM criancas WHERE usuario_id = $1 LIMIT 1',
+            [usuarioId]
+        );
+
+        if (crianca.rows.length === 0) {
+            return res.status(400).json({ mensagem: 'Cadastre uma criança antes de vincular o Bixuco.' });
+        }
+
+        await db.query(
+            'UPDATE dispositivos SET usuario_id = $1, crianca_id = $2, vinculado_em = NOW() WHERE dispositivo_id = $3',
+            [usuarioId, crianca.rows[0].id, device_id.trim()]
+        );
+
+        res.sendStatus(200);
+    } catch (erro) {
+        console.error('Erro ao vincular dispositivo:', erro);
+        res.status(500).json({ mensagem: 'Erro no servidor. Tente novamente.' });
+    }
+});
+
+
+
+app.get("/pagamento/sucesso", estaLogado, exigeResponsavel, async (req, res) => {
+
+    try {
+        const usuarioId = req.authUser.id;
+        const paymentId = req.query.payment_id || req.query.collection_id;
+
+        // Nunca libera a home apenas porque a URL contém status=approved.
+        // O ID recebido no retorno é consultado diretamente na API do Mercado Pago.
+        if (!paymentId) {
+            return res.redirect("/planos?info=pagamento_pendente");
+        }
+
+        const respostaPagamento = await fetch(
+            `https://api.mercadopago.com/v1/payments/${encodeURIComponent(String(paymentId))}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`
+                }
+            }
+        );
+
+        if (!respostaPagamento.ok) {
+            console.log("Não foi possível confirmar pagamento no MP:", respostaPagamento.status);
+            return res.redirect("/planos?info=pagamento_pendente");
+        }
+
+        const pagamento = await respostaPagamento.json();
+        const referencia = String(pagamento.external_reference || "");
+        const [usuarioReferencia, plano] = referencia.split("|");
+        const dadosPlano = PLANOS_MP[plano];
+
+        // Confere se o pagamento pertence ao usuário logado e a um plano válido.
+        if (Number(usuarioReferencia) !== Number(usuarioId) || !dadosPlano) {
+            console.log("Retorno de pagamento com referência inválida:", referencia);
+            return res.redirect("/planos?erro=pagamento_invalido");
+        }
+
+        // Confere também valor e moeda antes de ativar o plano.
+        const valorCorreto = Number(pagamento.transaction_amount) === Number(dadosPlano.preco);
+        const moedaCorreta = pagamento.currency_id === "BRL";
+
+        if (!valorCorreto || !moedaCorreta) {
+            console.log("Pagamento com valor/moeda divergente para a referência:", referencia);
+            return res.redirect("/planos?erro=pagamento_invalido");
+        }
+
+        // Só aqui, depois da confirmação real pela API do Mercado Pago,
+        // o plano é ativado e o usuário pode seguir para a home.
+        if (pagamento.status === "approved") {
+            const assinaturaAtual = await db.query(
+                `SELECT nome_plano FROM assinaturas
+                 WHERE usuario_id = $1 AND ativo = TRUE
+                 ORDER BY criado_em DESC LIMIT 1`,
+                [usuarioId]
+            );
+
+            const planoAtual = assinaturaAtual.rows[0]?.nome_plano?.toLowerCase();
+            if (planoAtual !== dadosPlano.nomeBanco) {
+                await ativarPlano(usuarioId, dadosPlano.nomeBanco);
+            }
+
+            await db.query(
+                `UPDATE usuarios SET novo_usuario = FALSE WHERE id = $1`,
+                [usuarioId]
+            );
+
+            return res.redirect("/home");
+        }
+
+        // Qualquer estado não aprovado permanece fora da home.
+        if (["rejected", "cancelled", "refunded", "charged_back"].includes(pagamento.status)) {
+            return res.redirect("/planos?erro=pagamento_falhou");
+        }
+
+        return res.redirect("/planos?info=pagamento_pendente");
+
+    } catch (erro) {
+        console.log("Erro no retorno do pagamento:", erro);
+        return res.redirect("/planos?info=pagamento_pendente");
+    }
+
+});
+
+app.get("/pagamento/falha", estaLogado, exigeResponsavel, (req, res) => {
+    res.redirect("/planos?erro=pagamento_falhou");
+});
+
+app.get("/pagamento/pendente", estaLogado, exigeResponsavel, (req, res) => {
+    res.redirect("/planos?info=pagamento_pendente");
+});
+
+
+app.post("/api/planos/webhook", async (req, res) => {
+
+    try {
+
+        const { type, data, action } = req.body;
+
+        console.log("Webhook MP recebido:", type, action, data?.id);
+
+        // Processa notificações de assinatura e pagamento
+        if (type !== "subscription_preapproval" && type !== "payment") {
+            return res.sendStatus(200);
+        }
+
+        const itemId = data?.id;
+        if (!itemId) return res.sendStatus(200);
+
+        // Busca os detalhes no MP
+        const endpoint = type === "payment"
+            ? `https://api.mercadopago.com/v1/payments/${itemId}`
+            : `https://api.mercadopago.com/preapproval/${itemId}`;
+
+        const response = await fetch(endpoint, {
+            headers: { Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}` }
+        });
+
+        const dados = await response.json();
+
+        // Extrai usuarioId e plano da referência externa
+        // Formato: "42|medio" ou "42|completo"
+        const referencia = dados.external_reference || dados.metadata?.external_reference;
+
+        if (!referencia) return res.sendStatus(200);
+
+        const [usuarioId, plano] = referencia.split("|");
+
+        if (!usuarioId || !PLANOS_MP[plano]) return res.sendStatus(200);
+
+        const statusAtual = dados.status;
+
+        // Assinatura ativa ou pagamento aprovado → ativa o plano
+        // Assinatura ativa ou pagamento aprovado → ativa o plano
+        if (statusAtual === "authorized" || statusAtual === "approved") {
+
+            // Mesma checagem de valor/moeda que /pagamento/sucesso já faz.
+            // Sem isso, o webhook é o caminho mais frouxo pra ativar um plano.
+            if (type === "payment") {
+
+                const valorCorreto = Number(dados.transaction_amount) === Number(PLANOS_MP[plano].preco);
+                const moedaCorreta = dados.currency_id === "BRL";
+
+                if (!valorCorreto || !moedaCorreta) {
+                    console.log("Webhook com valor/moeda divergente:", referencia, dados.transaction_amount);
+                    return res.sendStatus(200);
+                }
+            }
+
+            await ativarPlano(parseInt(usuarioId), PLANOS_MP[plano].nomeBanco);
+
+            await db.query(`UPDATE usuarios SET novo_usuario = FALSE WHERE id = $1`, [parseInt(usuarioId)]);
+
+            console.log(`Plano ${PLANOS_MP[plano].nomeBanco} ativado para usuário ${usuarioId}.`);
+        }
+
+        // Assinatura cancelada ou pausada → volta para grátis
+        if (statusAtual === "cancelled" || statusAtual === "paused") {
+
+            await ativarPlano(parseInt(usuarioId), "gratis");
+
+            console.log(`Plano cancelado para usuário ${usuarioId}. Voltando para Grátis.`);
+        }
+
+        return res.sendStatus(200);
+
+    } catch (erro) {
+
+        console.log("Erro no webhook:", erro);
+        return res.sendStatus(500);
+
+    }
+
+});
+
+app.post("/api/notificacoes/:id/marcar-lida", estaLogado, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.authUser.id;
+        const notificacaoId = req.params.id;
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        await db.query(
+            `UPDATE notificacoes SET lida = TRUE WHERE id = $1 AND usuario_id = $2`,
+            [notificacaoId, usuarioId]
+        );
+
+        res.json({ sucesso: true });
+
+    } catch (erro) {
+        console.log("Erro ao marcar notificação como lida:", erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
+
+});
+
+
+// Bloqueia rotas para usuários sem o plano mínimo necessário
+function precisaPlano(planoMinimo) {
+
+    const hierarquia = {
+        gratis: 0,
+        medio: 1,
+        completo: 2
+    };
+
+    return async (req, res, next) => {
+
+        // Defesa extra: nenhuma conta que não seja responsável
+        // pode usar uma rota protegida por plano.
+        if (req.authUser?.tipo !== "pai") {
+
+            if (req.originalUrl.startsWith("/api/")) {
+                return res.status(403).json({
+                    erro: "Esta área é exclusiva para responsáveis."
+                });
+            }
+
+            if (req.authUser?.tipo === "psicologo") {
+                return res.redirect("/hometerapeuta");
+            }
+
+            if (req.authUser?.tipo === "admin") {
+                return res.redirect("/admin");
+            }
+
+            return res.redirect("/logar");
+        }
+
+        await verificarPlano(req, res, async () => {
+
+            const nivelUsuario =
+                hierarquia[(req.plano || "gratis").toLowerCase()] ?? 0;
+
+            const nivelMinimo =
+                hierarquia[(planoMinimo || "medio").toLowerCase()] ?? 1;
+
+            if (nivelUsuario >= nivelMinimo) {
+                return next();
+            }
+
+            if (req.originalUrl.startsWith("/api/")) {
+                return res.status(403).json({
+                    erro: "plano_insuficiente",
+                    planoAtual: req.plano
+                });
+            }
+
+            return res.redirect("/planos");
+        });
+    };
+
+}
+
+
+app.post("/api/onboarding-google", estaLogado, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.authUser.id;
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        const { tipo, crp } = req.body;
+
+        if (!["pai", "psicologo"].includes(tipo)) {
+            return res.status(400).json({ erro: "Tipo inválido." });
+        }
+
+        if (tipo === "psicologo") {
+
+            if (!crp || !validarCRP(crp)) {
+                return res.status(400).json({
+                    erro: "CRP inválido. Use o formato CRP-00/000000."
+                });
+            }
+
+            const crpExistente = await db.query(
+                `SELECT id
+                FROM usuarios
+                WHERE crp = $1
+                AND id <> $2`,
+                [crp, usuarioId]
+            );
+
+            if (crpExistente.rows.length > 0) {
+                return res.status(409).json({
+                    erro: "Este CRP já está cadastrado."
+                });
+            }
+
+        }
+
+        // Salva o tipo e marca que o onboarding foi concluído
+        // marca cadastro_completo; pai ainda precisa passar pelo AdicionarC.
+        if (tipo === "psicologo") {
+
+            const codigoVinculo = await gerarCodigoVinculo();
+
+            await db.query(
+                `UPDATE usuarios
+                SET tipo = 'psicologo',
+                    crp = $1,
+                    codigo_vinculo = $2,
+                    novo_usuario = FALSE,
+                    cadastro_completo = TRUE
+                WHERE id = $3`,
+                [
+                    crp,
+                    codigoVinculo,
+                    usuarioId
+                ]
+            );
+
+        } else {
+
+            await db.query(
+                `UPDATE usuarios
+                SET tipo = 'pai',
+                    novo_usuario = FALSE,
+                    cadastro_completo = FALSE
+                WHERE id = $1`,
+                [usuarioId]
+            );
+
+        }
+
+        // Atualiza a sessão com o tipo correto
+        req.session.tipo = tipo;
+
+        // Define o destino conforme o tipo
+        // Pai → adicionar criança | Terapeuta → home do terapeuta
+        const destino = tipo === "pai" ? "/AdicionarC" : "/homeTerapeuta";
+
+        return res.json({ sucesso: true, destino });
+
+    } catch (erro) {
+
+        console.log("Erro no onboarding Google:", erro);
+        res.status(500).json({ erro: "Erro interno do servidor." });
+
+    }
+
+});
+
+/* ==========================
+   ADMIN — PUBLICAR NOVIDADE
+========================== */
+
+// Página simples para publicar novidades (protegida pela senha admin)
+app.get("/admin/novidades", estaLogado, exigeAdmin, (req, res) => {
+    res.sendFile(path.join(__dirname, "templates", "Adminnovidades.html"));
+});
+
+app.get("/admin", estaLogado, exigeAdmin, (req, res) => {
+    res.send(`
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head><meta charset="UTF-8"><title>Admin — Bixuco</title></head>
+        <body>
+            <h1>Painel Admin</h1>
+            <ul>
+                <li><a href="/admin/pedidos">Pedidos</a></li>
+                <li><a href="/admin/novidades">Publicar novidade</a></li>
+            </ul>
+            <a href="/logout">Sair</a>
+        </body>
+        </html>
+    `);
+});
+
+/* ==========================
+   ROTA — ATUALIZAR CRIANÇA (nome / foto)
+========================== */
+
+app.post("/api/crianca/atualizar", estaLogado, exigeResponsavel, upload.single("fotoCrianca"), async (req, res) => {
+
+    try {
+
+        const usuarioId = req.authUser.id;
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        const criancaResult = await db.query(
+            "SELECT id FROM criancas WHERE usuario_id = $1 LIMIT 1",
+            [usuarioId]
+        );
+
+        if (criancaResult.rows.length === 0) {
+            return res.status(404).json({ erro: "Nenhuma criança cadastrada." });
+        }
+
+        const criancaId = criancaResult.rows[0].id;
+
+        const { nome } = req.body;
+
+        const campos  = [];
+        const valores = [];
+        let indice = 1;
+
+        if (nome !== undefined) {
+
+            const nomeLimpo = nome.trim();
+
+            if (nomeLimpo.length < 2) {
+                return res.status(400).json({ erro: "Nome inválido." });
+            }
+
+            campos.push(`nome = $${indice++}`);
+            valores.push(nomeLimpo);
+
+        }
+
+        // Mesmo padrão de storage usado em /api/perfil/atualizar
+        // Mesmo padrão de storage usado em /api/perfil/atualizar
+        if (req.file) {
+
+            if (!(await validarImagemReal(req.file.buffer))) {
+                return res.status(400).json({ erro: "Arquivo inválido. Envie uma imagem JPEG, PNG ou WebP." });
+            }
+            const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+            campos.push(`foto_url = $${indice++}`);
+            valores.push(base64);
+        }
+
+        if (campos.length === 0) {
+            return res.status(400).json({ erro: "Nada para atualizar." });
+        }
+
+        valores.push(criancaId);
+
+        const atualizado = await db.query(
+            `UPDATE criancas SET ${campos.join(", ")} WHERE id = $${indice}
+             RETURNING nome, foto_url`,
+            valores
+        );
+
+        return res.status(200).json({
+            sucesso: true,
+            nome: atualizado.rows[0].nome,
+            fotoUrl: atualizado.rows[0].foto_url
+        });
+
+    } catch (erro) {
+
+        console.log("Erro ao atualizar criança:", erro);
+        res.status(500).json({ erro: "Erro interno ao atualizar criança." });
+
+    }
+
+});
+
+// Envia a notificação de novidade para todos os usuários
+// que têm "Novidades e dicas" ativado nas configurações
+app.post("/api/admin/novidade", estaLogado, exigeAdmin, limitarTentativasAdmin, async (req, res) => {
+
+    const { mensagem } = req.body;
+
+
+
+    if (!mensagem || mensagem.trim().length < 3) {
+        return res.status(400).json({ erro: "Escreva uma mensagem válida." });
+    }
+
+    try {
+
+        // Busca todos os usuários que têm o toggle "Novidades e dicas" ativado
+        // Quem nunca mexeu no toggle não recebe, já que o padrão do checkbox é desmarcado
+        const usuarios = await db.query(`
+            SELECT u.id
+            FROM usuarios u
+            JOIN preferencias_usuario p ON p.usuario_id = u.id
+            WHERE p.notif_novidades = TRUE
+            AND u.tipo <> 'psicologo'
+        `);
+
+        for (const usuario of usuarios.rows) {
+
+            await db.query(
+                `INSERT INTO notificacoes (usuario_id, tipo, mensagem, lida)
+                 VALUES ($1, 'novidade', $2, FALSE)`,
+                [usuario.id, mensagem.trim()]
+            );
+
+        }
+
+        return res.status(201).json({
+            mensagem: `Novidade enviada para ${usuarios.rows.length} usuário(s).`
+        });
+
+    } catch (erro) {
+
+        console.log("Erro ao publicar novidade:", erro);
+        res.status(500).json({ erro: "Erro interno ao publicar novidade." });
+
+    }
+
+});
+
+// Valida o CONTEÚDO real do arquivo (magic bytes), não o mimetype
+// que o cliente informou no header — esse pode ser falsificado
+// só renomeando a extensão do arquivo.
+const TIPOS_IMAGEM_PERMITIDOS = ["image/jpeg", "image/png", "image/webp"];
+
+async function validarImagemReal(buffer) {
+    const { fileTypeFromBuffer } = await import("file-type");
+    const tipo = await fileTypeFromBuffer(buffer);
+    return !!tipo && TIPOS_IMAGEM_PERMITIDOS.includes(tipo.mime);
+}
+
+/* ==========================
+   FUNÇÃO AUXILIAR
+========================== */
+
+function idadeEntre(data, minima, maxima) {
+
+    if (!data) return false;
+
+    const nascimento =
+        new Date(`${data}T12:00:00`);
+
+    if (Number.isNaN(nascimento.getTime())) {
+        return false;
+    }
+
+    const hoje = new Date();
+
+    if (nascimento > hoje) {
+        return false;
+    }
+
+    let idade =
+        hoje.getFullYear() -
+        nascimento.getFullYear();
+
+    const mes =
+        hoje.getMonth() -
+        nascimento.getMonth();
+
+    if (
+        mes < 0 ||
+        (
+            mes === 0 &&
+            hoje.getDate() < nascimento.getDate()
+        )
+    ) {
+        idade--;
+    }
+
+    return idade >= minima && idade <= maxima;
+}
+
+function validarCRP(crp) {
+
+    return /^CRP-\d{2}\/\d{4,6}$/.test(crp);
+
+}
+
+function senhaAtendeRequisitos(senha) {
+    return typeof senha === "string"
+        && senha.length >= 6
+        && /[A-Z]/.test(senha)
+        && /[!@#$%^&*(),.?":{}|<>_\-\\[\];'/+=]/.test(senha);
+}
+
+// 🔧 Verifica o token do reCAPTCHA v3 com a API do Google.
+// Nota >= 0.5 é o padrão recomendado pelo Google como ponto de partida.
+async function verificarRecaptcha(token, acaoEsperada) {
+
+    if (!token) return { sucesso: false };
+
+    try {
+
+        const resposta = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({
+                secret:   process.env.RECAPTCHA_SECRET_KEY,
+                response: token
+            })
+        });
+
+        const dados = await resposta.json();
+
+        const passou = dados.success === true
+            && dados.action === acaoEsperada
+            && (dados.score ?? 0) >= 0.5;
+
+        return { sucesso: passou, score: dados.score };
+
+    } catch (erro) {
+
+        console.log("Erro ao verificar reCAPTCHA:", erro);
+        return { sucesso: false };
+
+    }
+
+}
+
+const LIMITES_CRISE = {
+    gapAgrupamentoMs:      5 * 60 * 1000, // eventos a até 5 min de distância = mesmo episódio
+    duracaoMinimaCriseMs:  3000,           // 3s de aperto sustentado
+    forcaMinimaCrise:      0.65,            // força máxima que já basta sozinha
+    quantidadeMinimaEventos: 2             // 2+ apertos no mesmo episódio já basta sozinho
+};
+
+function classificarEpisodios(eventos) {
+    // eventos: [{ criado_em, forca, duracao_ms, latitude?, longitude? }], já ordenados por criado_em ASC
+    const episodios = [];
+    let atual = null;
+
+    for (const ev of eventos) {
+        const tempo   = new Date(ev.criado_em).getTime();
+        const forcaEv = parseFloat(ev.forca) || 0;
+
+        if (!atual || tempo - atual.fimMs > LIMITES_CRISE.gapAgrupamentoMs) {
+            if (atual) episodios.push(atual);
+            atual = {
+                inicio: ev.criado_em,
+                fim: ev.criado_em,
+                fimMs: tempo,
+                eventos: [ev],
+                forcaMax: forcaEv,
+                duracaoTotalMs: ev.duracao_ms || 0,
+                latitude:  ev.latitude  ?? null,
+                longitude: ev.longitude ?? null
+            };
+        } else {
+            atual.fim = ev.criado_em;
+            atual.fimMs = tempo;
+            atual.eventos.push(ev);
+
+            // guarda a localização do evento de MAIOR força do episódio
+            if (forcaEv >= atual.forcaMax) {
+                atual.forcaMax  = forcaEv;
+                atual.latitude  = ev.latitude  ?? atual.latitude;
+                atual.longitude = ev.longitude ?? atual.longitude;
+            }
+
+            atual.duracaoTotalMs += (ev.duracao_ms || 0);
+        }
+    }
+    if (atual) episodios.push(atual);
+
+    return episodios.map(ep => {
+        const ehCrise =
+            ep.duracaoTotalMs >= LIMITES_CRISE.duracaoMinimaCriseMs ||
+            ep.forcaMax        >= LIMITES_CRISE.forcaMinimaCrise ||
+            ep.eventos.length  >= LIMITES_CRISE.quantidadeMinimaEventos;
+
+        return {
+            inicio:        ep.inicio,
+            fim:            ep.fim,
+            forcaMax:       ep.forcaMax,
+            duracaoTotalMs: ep.duracaoTotalMs,
+            totalEventos:   ep.eventos.length,
+            latitude:       ep.latitude,
+            longitude:      ep.longitude,
+            classificacao:  ehCrise ? "crise" : "isolado"
+        };
+    });
+}
+function marcarEventosComCrise(eventos) {
+    // Igual ao classificarEpisodios, mas devolve CADA evento individual
+    // com a flag crise (do episódio a que ele pertence) e a flag pico
+    // (true só no evento de MAIOR força do episódio — é o único que
+    // deve aparecer destacado no gráfico, pra não parecer que tem
+    // várias crises quando é uma só, só que longa)
+    const episodios = [];
+    let atual = null;
+
+    for (const ev of eventos) {
+        const tempo   = new Date(ev.criado_em).getTime();
+        const forcaEv = parseFloat(ev.forca) || 0;
+
+        if (!atual || tempo - atual.fimMs > LIMITES_CRISE.gapAgrupamentoMs) {
+            if (atual) episodios.push(atual);
+            atual = {
+                fimMs: tempo,
+                eventos: [ev],
+                forcaMax: forcaEv,
+                duracaoTotalMs: ev.duracao_ms || 0
+            };
+        } else {
+            atual.fimMs = tempo;
+            atual.eventos.push(ev);
+            if (forcaEv > atual.forcaMax) atual.forcaMax = forcaEv;
+            atual.duracaoTotalMs += (ev.duracao_ms || 0);
+        }
+    }
+    if (atual) episodios.push(atual);
+
+    const pontos = [];
+    for (const ep of episodios) {
+        const ehCrise =
+            ep.duracaoTotalMs >= LIMITES_CRISE.duracaoMinimaCriseMs ||
+            ep.forcaMax        >= LIMITES_CRISE.forcaMinimaCrise ||
+            ep.eventos.length  >= LIMITES_CRISE.quantidadeMinimaEventos;
+
+        // Acha o índice do evento de maior força dentro do episódio
+        let indicePico = 0;
+        let maiorForca = -1;
+        ep.eventos.forEach((ev, i) => {
+            const f = parseFloat(ev.forca) || 0;
+            if (f > maiorForca) {
+                maiorForca = f;
+                indicePico = i;
+            }
+        });
+
+        ep.eventos.forEach((ev, i) => {
+            pontos.push({
+                horario: formatarHorarioEvento(ev.criado_em),
+                forca:   parseFloat(ev.forca) || 0,
+                crise:   ehCrise,
+                pico:    ehCrise && i === indicePico
+            });
+        });
+    }
+    return pontos;
+}
+
+app.get("/api/relatorio-diario/grafico", estaLogado, exigeResponsavel, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.authUser.id;
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        const dataParam  = req.query.data;
+        const dataFiltro = dataParam || new Date().toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
+
+        const eventos = await db.query(
+            `SELECT e.criado_em, e.forca, e.duracao_ms
+             FROM eventos_bixuco e
+             JOIN criancas c ON c.id = e.crianca_id
+             WHERE c.usuario_id = $1
+             AND DATE((e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = $2::date
+             ORDER BY e.criado_em ASC`,
+            [usuarioId, dataFiltro]
+        );
+
+                const eventosReais = marcarEventosComCrise(eventos.rows);
+
+        // Gera uma grade fixa cobrindo o dia inteiro (00:00 a 23:00, de hora
+        // em hora), com força zero. Isso garante que o gráfico sempre mostre
+        // as 24h do dia, mesmo quando os eventos reais só existem numa janela
+        // pequena — sem essa grade, o eixo por categoria esmaga os dados
+        // reais lá pra esquerda.
+        const grade = [];
+        for (let h = 0; h < 24; h++) {
+            grade.push({
+                horario: `${String(h).padStart(2, "0")}:00`,
+                forca:   0,
+                crise:   false,
+                pico:    false,
+                ordem:   h * 60
+            });
+        }
+
+        const pontosReaisComOrdem = eventosReais.map(p => {
+            const [hh, mm] = p.horario.split(":").map(Number);
+            return { ...p, ordem: hh * 60 + mm };
+        });
+
+        // Junta a grade fixa com os eventos reais e ordena tudo por horário
+        const pontos = [...grade, ...pontosReaisComOrdem]
+            .sort((a, b) => a.ordem - b.ordem)
+            .map(({ ordem, ...resto }) => resto);
+
+        // Força acima disso já conta como "segurando o Bixuco" (ativo)
+        const LIMIAR_ATIVO = 0.1;
+
+        // Linha do tempo própria: um ponto a cada 5 min, marcado como ativo
+        // só se houve aperto naquele intervalo (evita o bloco "esticado")
+        const TAMANHO_BLOCO_MIN = 5;
+        const totalBlocos = (24 * 60) / TAMANHO_BLOCO_MIN;
+        const blocosAtivos = new Set();
+
+        for (const ev of eventos.rows) {
+            if ((parseFloat(ev.forca) || 0) > LIMIAR_ATIVO) {
+                const d = new Date(ev.criado_em);
+                // O banco já guarda horário de Brasília, então lê direto (UTC)
+                const minutos = d.getUTCHours() * 60 + d.getUTCMinutes();
+                blocosAtivos.add(Math.floor(minutos / TAMANHO_BLOCO_MIN));
+            }
+        }
+
+        const atividade = [];
+        for (let i = 0; i < totalBlocos; i++) {
+            const minTotal = i * TAMANHO_BLOCO_MIN;
+            const hh = String(Math.floor(minTotal / 60)).padStart(2, "0");
+            const mm = String(minTotal % 60).padStart(2, "0");
+            atividade.push({
+                horario: `${hh}:${mm}`,
+                ativo:   blocosAtivos.has(i) ? 1 : 0
+            });
+        }
+
+        res.json({
+            data:      dataFiltro,
+            forca:     pontos,     // [{ horario, forca, crise, pico }]
+            atividade: atividade   // [{ horario, ativo }]
+        });
+
+    } catch (erro) {
+
+        console.log("Erro na rota /api/relatorio-diario/grafico:", erro);
+        res.status(500).json({ erro: "Erro interno do servidor." });
+
+    }
+
+});
+
+async function contarCrisesEIsolados(usuarioId, condicaoSql) {
+    const eventos = await db.query(
+        `SELECT e.criado_em, e.forca, e.duracao_ms
+         FROM eventos_bixuco e
+         JOIN criancas c ON c.id = e.crianca_id
+         WHERE c.usuario_id = $1
+         ${condicaoSql}
+         ORDER BY e.criado_em ASC`,
+        [usuarioId]
+    );
+
+    const episodios = classificarEpisodios(eventos.rows);
+
+    return {
+        crises:   episodios.filter(e => e.classificacao === "crise").length,
+        isolados: episodios.filter(e => e.classificacao === "isolado").length,
+        episodios // guarda os detalhes pra usar na aba de alertas depois
+    };
+}
+
+function mediaDuracaoCrises(episodios) {
+    const crises = episodios.filter(e => e.classificacao === "crise");
+    if (crises.length === 0) return 0;
+    const soma = crises.reduce((acc, e) => acc + e.duracaoTotalMs, 0);
+    return soma / crises.length;
+}
+
+// Classificação VISUAL dos registros do Bixuco.
+// Não é diagnóstico nem classificação clínica.
+// A mesma regra é usada nas telas do responsável e do terapeuta.
+function classificarAtividadeSensorial(totalCrises) {
+    const total = Math.max(0, Number(totalCrises) || 0);
+
+    if (total >= 5) {
+        return {
+            codigo: "elevada",
+            rotulo: "Atividade elevada"
+        };
+    }
+
+    if (total >= 2) {
+        return {
+            codigo: "atencao",
+            rotulo: "Atenção"
+        };
+    }
+
+    return {
+        codigo: "baixa",
+        rotulo: "Baixa atividade"
+    };
+}
+
+// Calcula a sequência REAL de dias consecutivos com relatório.
+// Agrupa dias seguidos em "ilhas" e pega a mais recente, só contando
+// como sequência ativa se o último dia foi hoje ou ontem.
+async function calcularDiasConsecutivos(usuarioId) {
+
+    const resultado = await db.query(
+        `WITH dias AS (
+            SELECT DISTINCT DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') AS dia
+            FROM relatorios
+            WHERE usuario_id = $1
+        ),
+        ilhas AS (
+            SELECT dia,
+                dia - (ROW_NUMBER() OVER (ORDER BY dia))::int AS grupo
+            FROM dias
+        ),
+        ultima_ilha AS (
+            SELECT MAX(dia) AS fim, COUNT(*) AS tamanho
+            FROM ilhas
+            GROUP BY grupo
+            ORDER BY MAX(dia) DESC
+            LIMIT 1
+        )
+        SELECT
+            CASE
+                WHEN fim >= (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '1 day' THEN tamanho
+                ELSE 0
+            END AS total
+        FROM ultima_ilha`,
+        [usuarioId]
+    );
+
+    return resultado.rows.length > 0
+        ? (parseInt(resultado.rows[0].total) || 0)
+        : 0;
+}
+
+// Maior sequência já alcançada (histórico), independente de estar ativa
+async function calcularMaiorOfensiva(usuarioId) {
+
+    const resultado = await db.query(
+        `WITH dias AS (
+            SELECT DISTINCT DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') AS dia
+            FROM relatorios
+            WHERE usuario_id = $1
+        ),
+        ilhas AS (
+            SELECT dia,
+                dia - (ROW_NUMBER() OVER (ORDER BY dia))::int AS grupo
+            FROM dias
+        )
+        SELECT COALESCE(MAX(tamanho), 0) AS total
+        FROM (SELECT COUNT(*) AS tamanho FROM ilhas GROUP BY grupo) t`,
+        [usuarioId]
+    );
+
+    return parseInt(resultado.rows[0].total) || 0;
+}
+
+// Ofensiva = dias seguidos SEM crise (sem limite, igual ao Duolingo).
+// Retorna { atual, maior }. Sem crise nenhuma, conta desde o cadastro da conta.
+async function calcularOfensivaSemCrise(usuarioId) {
+
+    const DIA_MS = 24 * 60 * 60 * 1000;
+
+    const diaLocalBR = (data) => {
+        const d = new Date(data);
+        d.setHours(d.getHours() - 3);
+        return d.toISOString().slice(0, 10); // "YYYY-MM-DD"
+    };
+
+    const somaDias = (dia, n) => {
+        const d = new Date(dia + "T00:00:00Z");
+        d.setUTCDate(d.getUTCDate() + n);
+        return d.toISOString().slice(0, 10);
+    };
+
+    const diferencaDias = (inicio, fim) =>
+        Math.round((new Date(fim + "T00:00:00Z") - new Date(inicio + "T00:00:00Z")) / DIA_MS);
+
+    const hoje = diaLocalBR(new Date());
+
+    const usuario = await db.query(
+        `SELECT criado_em FROM usuarios WHERE id = $1`,
+        [usuarioId]
+    );
+    const inicio = usuario.rows.length > 0 && usuario.rows[0].criado_em
+        ? diaLocalBR(usuario.rows[0].criado_em)
+        : hoje;
+
+    const eventos = await db.query(
+        `SELECT e.criado_em, e.forca, e.duracao_ms
+         FROM eventos_bixuco e
+         JOIN criancas c ON c.id = e.crianca_id
+         WHERE c.usuario_id = $1
+         ORDER BY e.criado_em ASC`,
+        [usuarioId]
+    );
+
+    // Dias em que houve crise real (isolados não quebram a ofensiva)
+    const diasComCrise = [...new Set(
+        classificarEpisodios(eventos.rows)
+            .filter(ep => ep.classificacao === "crise")
+            .map(ep => diaLocalBR(ep.inicio))
+    )].sort();
+
+    // Marcos: "crise virtual" na véspera do cadastro e outra amanhã.
+    // A ofensiva é o espaço (em dias limpos) entre dois marcos seguidos.
+    const marcos = [
+        somaDias(inicio, -1),
+        ...diasComCrise.filter(d => d >= inicio && d <= hoje),
+        somaDias(hoje, 1)
+    ];
+
+    let atual = 0;
+    let maior = 0;
+
+    for (let i = 1; i < marcos.length; i++) {
+        atual = diferencaDias(marcos[i - 1], marcos[i]) - 1;
+        if (atual > maior) maior = atual;
+    }
+
+    return { atual, maior };
+}
+
+function calcularIdade(dataNascimento) {
+    if (!dataNascimento) return 0;
+
+    const hoje = new Date();
+    const nasc = new Date(dataNascimento);
+
+    let idade = hoje.getFullYear() - nasc.getFullYear();
+
+    const mes = hoje.getMonth() - nasc.getMonth();
+    if (mes < 0 || (mes === 0 && hoje.getDate() < nasc.getDate())) {
+        idade--;
+    }
+
+    return idade;
+}
+
+async function gerarCodigoVinculo() {
+
+    // Sem caracteres ambíguos (0/O, 1/I) para facilitar digitar o código
+    const caracteres = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+    let codigo;
+    let existe = true;
+
+    while (existe) {
+
+        codigo = "";
+        for (let i = 0; i < 6; i++) {
+            codigo += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+        }
+
+        const resultado = await db.query(
+            "SELECT id FROM usuarios WHERE codigo_vinculo = $1",
+            [codigo]
+        );
+
+        existe = resultado.rows.length > 0;
+
+    }
+
+    return codigo;
+
+}
+
+async function gerarCodigo2FA() {
+    // 6 dígitos numéricos, com zero à esquerda se precisar
+    return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+async function enviarCodigo2FA(usuario) {
+
+    const codigo = await gerarCodigo2FA();
+    const expiraEm = new Date(Date.now() + 10 * 60 * 1000); // 10 minutos
+
+    // Invalida códigos anteriores ainda não usados desse usuário
+    await db.query(
+        `UPDATE codigos_2fa SET usado = TRUE WHERE usuario_id = $1 AND usado = FALSE`,
+        [usuario.id]
+    );
+
+    await db.query(
+        `INSERT INTO codigos_2fa (usuario_id, codigo, expira_em)
+         VALUES ($1, $2, $3)`,
+        [usuario.id, codigo, expiraEm]
+    );
+
+    await brevoClient.transactionalEmails.sendTransacEmail({
+        sender: BREVO_REMETENTE,
+        to: [{ email: usuario.email }],
+        subject: "Seu código de verificação — Bixuco",
+        htmlContent: `
+            <div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;">
+                <h2 style="color:#32C26D;">Código de verificação</h2>
+                <p>Olá, <strong>${usuario.nome}</strong>!</p>
+                <p>Use o código abaixo para concluir seu login. Ele expira em 10 minutos.</p>
+                <p style="font-size:32px;font-weight:bold;letter-spacing:8px;color:#141414;text-align:center;padding:16px;background:#F5F7FA;border-radius:8px;">
+                    ${codigo}
+                </p>
+                <p style="color:#5A5A5A;font-size:14px;">Se você não tentou fazer login, ignore este e-mail.</p>
+            </div>
+        `
+    });
+
+}
+
+app.post("/api/perfil-sensorial", estaLogado, exigeResponsavel, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.authUser.id;
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        const { respostas } = req.body;
+
+        // Valida se as respostas chegaram corretamente
+        if (!respostas || !Array.isArray(respostas) || respostas.length === 0) {
+            return res.status(400).json({ erro: "Respostas inválidas." });
+        }
+
+        // Busca a criança cadastrada por esse usuário
+        // para associar o perfil sensorial a ela
+        const criancaResult = await db.query(
+            "SELECT id FROM criancas WHERE usuario_id = $1 LIMIT 1",
+            [usuarioId]
+        );
+
+        const criancaId = criancaResult.rows.length > 0
+            ? criancaResult.rows[0].id
+            : null;
+
+        // Verifica se já existe um perfil sensorial para essa criança
+        // Se existir, atualiza em vez de criar um novo
+        if (criancaId) {
+
+            const existente = await db.query(
+                "SELECT id FROM perfil_sensorial WHERE crianca_id = $1",
+                [criancaId]
+            );
+
+            if (existente.rows.length > 0) {
+
+                // Atualiza o perfil existente
+                await db.query(
+                    `UPDATE perfil_sensorial
+                     SET respostas = $1, criado_em = NOW()
+                     WHERE crianca_id = $2`,
+                    [JSON.stringify(respostas), criancaId]
+                );
+
+                return res.status(200).json({ mensagem: "Perfil sensorial atualizado." });
+
+            }
+
+        }
+
+        // Salva o perfil sensorial no banco       // Salva o perfil sensorial no banco
+        await db.query(
+            `INSERT INTO perfil_sensorial
+             (usuario_id, crianca_id, respostas)
+             VALUES ($1, $2, $3)`,
+            [
+                usuarioId,
+                criancaId,
+                JSON.stringify(respostas)
+            ]
+        );
+
+        
+
+        return res.status(201).json({ mensagem: "Perfil sensorial salvo com sucesso." });
+
+    } catch (erro) {
+
+        console.log("Erro ao salvar perfil sensorial:", erro);
+        res.status(500).json({ erro: "Erro interno ao salvar perfil sensorial." });
+
+    }
+
+});
+
+// Retorna as preferências de notificação salvas do usuário
+// Usado para marcar os checkboxes com o estado real ao carregar a página
+app.get("/api/configuracoes/notificacoes", estaLogado, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.authUser.id;
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        const resultado = await db.query(
+            `SELECT notif_lembrete, notif_novidades
+             FROM preferencias_usuario
+             WHERE usuario_id = $1`,
+            [usuarioId]
+        );
+
+        // Se o usuário nunca mexeu nos toggles, não existe linha ainda —
+        // usa os mesmos padrões do HTML original (lembrete ligado, novidades desligado)
+        if (resultado.rows.length === 0) {
+            return res.json({ lembrete: true, novidades: false });
+        }
+
+        const prefs = resultado.rows[0];
+
+        res.set("Cache-Control", "no-store");
+        return res.json({
+            lembrete:  prefs.notif_lembrete  !== null ? prefs.notif_lembrete  : true,
+            novidades: prefs.notif_novidades !== null ? prefs.notif_novidades : false
+        });
+
+    } catch (erro) {
+
+        console.log("Erro ao buscar preferências de notificação:", erro);
+        res.status(500).json({ erro: "Erro interno do servidor." });
+
+    }
+
+});
+
+app.post("/api/adicionar-crianca", estaLogado, exigeResponsavel, upload.single("fotoCrianca"), async (req, res) => {
+
+    try {
+
+        const usuarioId = req.authUser.id;
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        const { nomeCrianca, dataNascimento, sexo, nomePelucia } = req.body;
+
+        // Validações básicas no backend (o frontend já valida, mas nunca confie só no frontend)
+        if (!nomeCrianca || nomeCrianca.trim().length < 2) {
+            return res.status(400).json({
+                campo: "nomeCrianca",
+                erro: "Nome da criança inválido."
+            });
+        }
+
+        if (!dataNascimento) {
+            return res.status(400).json({
+                campo: "dataNascimento",
+                erro: "Data de nascimento inválida."
+            });
+        }
+
+        if (!idadeEntre(dataNascimento, 0, 17)) {
+            return res.status(400).json({
+                campo: "dataNascimento",
+                erro: "Informe uma data de nascimento válida para a criança."
+            });
+        }
+
+        if (!sexo) {
+            return res.status(400).json({
+                campo: "sexo",
+                erro: "Selecione o sexo."
+            });
+        }
+
+        // Verifica se já existe uma criança cadastrada para esse usuário
+        // Ajuste se quiser permitir múltiplas crianças
+        const existente = await db.query(
+            "SELECT id FROM criancas WHERE usuario_id = $1",
+            [usuarioId]
+        );
+
+        if (existente.rows.length > 0) {
+            return res.status(409).json({
+                campo: "nomeCrianca",
+                erro: "Você já possui uma criança cadastrada."
+            });
+        }
+
+        // Processa a foto se foi enviada
+        // Por ora salva null — integre com Cloudinary ou S3 quando quiser
+        // Exemplo de integração com Cloudinary está comentado abaixo
+        // Mesmo padrão de storage usado em /api/perfil/atualizar e /api/crianca/atualizar
+        let fotoUrl = null;
+
+        if (req.file) {
+
+            if (!(await validarImagemReal(req.file.buffer))) {
+                return res.status(400).json({ erro: "Arquivo inválido. Envie uma imagem JPEG, PNG ou WebP." });
+            }
+
+            fotoUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+        }
+
+        // Salva a criança no banco
+        await db.query(
+            `INSERT INTO criancas
+             (usuario_id, nome, data_nascimento, sexo, nome_pelucia, foto_url)
+             VALUES ($1, $2, $3, $4, $5, $6)`,
+            [
+                usuarioId,
+                nomeCrianca.trim(),
+                dataNascimento,
+                sexo,
+                nomePelucia ? nomePelucia.trim() : null,
+                fotoUrl
+            ]
+        );
+
+        await db.query(
+            "UPDATE usuarios SET cadastro_completo = TRUE WHERE id = $1",
+            [usuarioId]
+        );
+
+        // Redireciona para o questionário de perfil sensorial
+        return res.redirect("/QuestionarioP");
+
+    } catch (erro) {
+
+        console.log("Erro ao adicionar criança:", erro);
+        res.status(500).json({ erro: "Erro interno ao salvar criança." });
+
+    }
+
+});
+
+
+// Checa em tempo real (enquanto o usuário digita) se email/cpf/crp já
+// estão em uso — usada pelas telas de cadastro para não deixar o erro
+// só aparecer na etapa seguinte.
+app.post("/api/verificar-disponibilidade", async (req, res) => {
+
+    const { campo, valor } = req.body || {};
+
+    const colunaPorCampo = {
+        email: "email",
+        cpf:   "cpf",
+        crp:   "crp"
+    };
+
+    const coluna = colunaPorCampo[campo];
+
+    if (!coluna || !valor) {
+        return res.json({ disponivel: true });
+    }
+
+    try {
+
+        const resultado = await db.query(
+            `SELECT tipo FROM usuarios WHERE ${coluna} = $1`,
+            [valor]
+        );
+
+        // Contas "pendente" vieram do login com Google e nunca terminaram
+        // o cadastro — elas são assumidas depois, então não bloqueiam aqui.
+        const bloqueado = resultado.rows.some(linha => linha.tipo !== "pendente");
+
+        res.json({ disponivel: !bloqueado });
+
+    } catch (erro) {
+
+        console.log("Erro ao verificar disponibilidade:", erro);
+        // Em caso de erro interno não travamos o usuário — a checagem
+        // definitiva continua acontecendo no envio do formulário.
+        res.json({ disponivel: true });
+
+    }
+
+});
+
+app.post("/continuar-cadastro-psicologo", limitarCriacaoConta, async (req, res) => {
+
+    const {
+        nome,
+        email,
+        telefone,
+        crp,
+        dataNascimento
+    } = req.body;
+
+    const existe = await db.query(
+        `SELECT email, crp
+        FROM usuarios
+        WHERE email = $1 OR crp = $2`,
+        [email, crp]
+    );
+
+    if (existe.rows.length > 0) {
+
+        if (existe.rows[0].email === email) {
+            console.log("Email já cadastrado");
+            return res.status(409).json({
+                campo: "email",
+                erro: "Este e-mail já está cadastrado."
+            });
+        }
+
+        if (existe.rows[0].crp === crp) {
+            console.log("CRP já cadastrado");
+            return res.status(409).json({
+                campo: "crp",
+                erro: "Este CRP já está cadastrado."
+            });
+        }
+
+    }
+
+    // Salva os dados na sessão para usar na etapa final do cadastro
+    req.session.cadastro = {
+
+        tipo: "psicologo",
+
+        nome,
+        email,
+        telefone,
+        crp,
+        dataNascimento
+
+    };
+
+    // Como o frontend usa fetch e trata resposta.redirected,
+    // o redirect funciona normalmente aqui
+    return res.json({
+        sucesso: true,
+        destino: "/CriarContaSenha"
+    });
+
+});
+
+
+/* ==========================
+   PRIMEIRA ETAPA DO CADASTRO
+========================== */
+
+app.post("/continuar-cadastro-pai", limitarCriacaoConta, async (req, res) => {
+
+    const {
+        nome,
+        email,
+        telefone,
+        cpfUser,
+        dataNascimento
+    } = req.body;
+
+
+    // Bloqueia já aqui e-mail/CPF de conta completa (contas "pendente" do Google são assumidas depois)
+    try {
+
+        const existe = await db.query(
+            `SELECT email, cpf, tipo FROM usuarios
+             WHERE email = $1 OR cpf = $2`,
+            [email, cpfUser]
+        );
+
+        const contaCompleta = existe.rows.find(r => r.tipo !== "pendente");
+
+        if (contaCompleta) {
+
+            if (contaCompleta.email === email) {
+                return res.status(409).json({
+                    campo: "email",
+                    erro: "Este e-mail já está cadastrado."
+                });
+            }
+
+            return res.status(409).json({
+                campo: "cpf",
+                erro: "Este CPF já está cadastrado."
+            });
+
+        }
+
+    } catch (erro) {
+
+        console.log("Erro ao verificar duplicidade no cadastro-pai:", erro);
+
+        return res.status(500).json({
+            erro: "Erro ao continuar. Tente novamente."
+        });
+
+    }
+
+    req.session.cadastro = {
+        tipo: "pai",
+        nome,
+        email,
+        telefone,
+        cpfUser,
+        dataNascimento
+    };
+
+    res.redirect("/CriarContaSenha");
+
+});
+
+
+
+
+// Serve a página de redefinição de senha
+// O usuário chega aqui clicando no link do e-mail
+app.get("/redefinir-senha", async (req, res) => {
+
+    const { token } = req.query;
+
+    if (!token) {
+        return res.redirect("/logar");
+    }
+
+    try {
+
+        // Verifica se o token existe, não foi usado e ainda não expirou
+        const resultado = await db.query(
+            `SELECT * FROM tokens_recuperacao
+             WHERE token = $1
+             AND usado = FALSE
+             AND expira_em > NOW()`,
+            [token]
+        );
+
+        if (resultado.rows.length === 0) {
+            // Token inválido ou expirado — redireciona para o login
+            return res.redirect("/logar?erro=token-invalido");
+        }
+
+        // Token válido — serve a página de redefinição de senha
+        // Crie o arquivo templates/redefinirsenha.html com um form de nova senha
+        res.sendFile(path.join(__dirname, "templates", "redefinirsenha.html"));
+
+    } catch (erro) {
+
+        console.log("Erro ao validar token:", erro);
+        res.redirect("/logar");
+
+    }
+
+});
+
+/* ==========================
+   ROTA — ALTERAR SENHA
+========================== */
+
+app.post("/api/alterar-senha", estaLogado, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.authUser.id;
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        const { senhaAtual, novaSenha, confirmarNovaSenha } = req.body;
+
+        if (!senhaAtual || !novaSenha || !confirmarNovaSenha) {
+            return res.status(400).json({ erro: "Preencha todos os campos." });
+        }
+
+        if (novaSenha !== confirmarNovaSenha) {
+            return res.status(400).json({ erro: "As senhas novas não coincidem." });
+        }
+
+        if (!senhaAtendeRequisitos(novaSenha)) {
+            return res.status(400).json({ erro: "A nova senha deve ter pelo menos 6 caracteres, uma letra maiúscula e um caractere especial." });
+        }
+
+        const resultado = await db.query(
+            "SELECT senha FROM usuarios WHERE id = $1",
+            [usuarioId]
+        );
+
+        if (resultado.rows.length === 0) {
+            return res.status(401).json({ erro: "E-mail ou senha inválidos." });
+        }
+
+        const usuario = resultado.rows[0];
+
+        // Contas criadas via Google não têm senha (campo fica vazio)
+        if (!usuario.senha) {
+            return res.status(400).json({
+                erro: "Sua conta usa login do Google e não possui senha cadastrada."
+            });
+        }
+
+        const senhaValida = await bcrypt.compare(senhaAtual, usuario.senha);
+
+        if (!senhaValida) {
+            return res.status(401).json({ erro: "Senha atual incorreta." });
+        }
+
+        const novaSenhaHash = await bcrypt.hash(novaSenha, 10);
+
+        const atualizado = await db.query(
+            `UPDATE usuarios
+             SET senha = $1, versao_sessao = versao_sessao + 1
+             WHERE id = $2
+             RETURNING versao_sessao`,
+            [novaSenhaHash, usuarioId]
+        );
+
+        // Mantém a sessão ATUAL válida — quem trocou a senha não precisa
+        // logar de novo agora. Mas qualquer OUTRA sessão dessa conta,
+        // aberta em outro dispositivo/navegador, é invalidada.
+        req.session.versaoSessao = atualizado.rows[0].versao_sessao;
+
+        return res.status(200).json({ mensagem: "Senha alterada com sucesso!" });
+
+    } catch (erro) {
+
+        console.log("Erro ao alterar senha:", erro);
+        res.status(500).json({ erro: "Erro interno ao alterar senha." });
+
+    }
+
+});
+
+/* ==========================
+   ROTA — REDEFINIR SENHA (POST)
+========================== */
+
+// Processa a nova senha enviada pelo usuário
+app.post("/redefinir-senha", async (req, res) => {
+
+    const { token, senha, confirmarSenha } = req.body;
+
+    if (!token) {
+        return res.status(400).json({ erro: "Token inválido." });
+    }
+
+    if (!senha || !senhaAtendeRequisitos(senha)) {
+        return res.status(400).json({ erro: "A senha deve ter pelo menos 6 caracteres, uma letra maiúscula e um caractere especial." });
+    }
+
+    if (senha !== confirmarSenha) {
+        return res.status(400).json({ erro: "As senhas não coincidem." });
+    }
+
+    try {
+
+        // Verifica novamente se o token ainda é válido
+        const resultado = await db.query(
+            `SELECT * FROM tokens_recuperacao
+             WHERE token = $1
+             AND usado = FALSE
+             AND expira_em > NOW()`,
+            [token]
+        );
+
+        if (resultado.rows.length === 0) {
+            return res.status(400).json({ erro: "Link expirado ou já utilizado. Solicite um novo." });
+        }
+
+        const tokenDados = resultado.rows[0];
+
+        // Gera o hash da nova senha
+        const senhaHash = await bcrypt.hash(senha, 10);
+
+        // Atualiza a senha do usuário no banco
+        await db.query(
+            "UPDATE usuarios SET senha = $1, versao_sessao = versao_sessao + 1 WHERE id = $2",
+            [senhaHash, tokenDados.usuario_id]
+        );
+
+        // Marca o token como usado para que não possa ser reutilizado
+        await db.query(
+            "UPDATE tokens_recuperacao SET usado = TRUE WHERE token = $1",
+            [token]
+        );
+
+        return res.status(200).json({ mensagem: "Senha redefinida com sucesso! Faça login com a nova senha." });
+
+    } catch (erro) {
+
+        console.log("Erro ao redefinir senha:", erro);
+        res.status(500).json({ erro: "Erro interno. Tente novamente." });
+
+    }
+
+});
+
+
+app.get("/RelatorioDiario", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
+
+    res.sendFile(path.join(__dirname, "templates", "relatoriodiario.html"));
+
+});
+
+// 🔧 Rota POST — salva o relatório preenchido pelo usuário
+// O frontend chamava /salvar-relatorio que nunca existiu
+// Agora a rota correta é /api/relatorio
+app.get("/api/relatorios", estaLogado, exigeResponsavel, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.authUser.id;
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        // =====================
+        // CRISES E ISOLADOS — hoje, ontem, mês, mês anterior
+        // Usa classificarEpisodios (agrupamento + critérios de crise real)
+        // em vez de contar qualquer evento como "alerta"
+        // =====================
+
+        const crisesHoje = await contarCrisesEIsolados(usuarioId, `
+            AND DATE((e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = (NOW() AT TIME ZONE 'America/Sao_Paulo')::date
+        `);
+
+        const crisesOntem = await contarCrisesEIsolados(usuarioId, `
+            AND DATE((e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '1 day'
+        `);
+
+        const crisesMes = await contarCrisesEIsolados(usuarioId, `
+            AND EXTRACT(MONTH FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(MONTH FROM NOW() AT TIME ZONE 'America/Sao_Paulo')
+            AND EXTRACT(YEAR  FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(YEAR  FROM NOW() AT TIME ZONE 'America/Sao_Paulo')
+        `);
+
+        const crisesMesAnterior = await contarCrisesEIsolados(usuarioId, `
+            AND EXTRACT(MONTH FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(MONTH FROM (NOW() AT TIME ZONE 'America/Sao_Paulo') - INTERVAL '1 month')
+            AND EXTRACT(YEAR  FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(YEAR  FROM (NOW() AT TIME ZONE 'America/Sao_Paulo') - INTERVAL '1 month')
+        `);
+
+        const totalHoje         = crisesHoje.crises;
+        const isoladosHoje      = crisesHoje.isolados;
+        const totalOntem        = crisesOntem.crises;
+        const totalMes          = crisesMes.crises;
+        const isoladosMes       = crisesMes.isolados;
+        const totalMesAnterior  = crisesMesAnterior.crises;
+
+        const nivelAtividadeMes =
+            classificarAtividadeSensorial(totalMes);
+
+        const nivelAtividadeHoje =
+            classificarAtividadeSensorial(totalHoje);
+
+        const diffDiario  = totalHoje - totalOntem;
+        const diffAlertas = totalMes  - totalMesAnterior;
+
+        const comparativoAlertasDiario = diffDiario === 0
+            ? "igual a ontem"
+            : diffDiario > 0
+                ? `↑ ${diffDiario} comparado a ontem`
+                : `↓ ${Math.abs(diffDiario)} comparado a ontem`;
+
+        const comparativoAlertas = totalMesAnterior === 0
+            ? "registrados este mês"
+            : diffAlertas === 0
+                ? "igual ao mês passado"
+                : diffAlertas > 0
+                    ? `↑ ${diffAlertas} comparado ao mês passado`
+                    : `↓ ${Math.abs(diffAlertas)} comparado ao mês passado`;
+
+        // =====================
+        // TEMPO DE ESTRESSE — média de duração só das CRISES reais
+        // (isolados não entram, pra não inflar a média com toques rápidos)
+        // =====================
+
+        const mediaHojeMs        = mediaDuracaoCrises(crisesHoje.episodios);
+        const mediaMesMs         = mediaDuracaoCrises(crisesMes.episodios);
+        const mediaMesAnteriorMs = mediaDuracaoCrises(crisesMesAnterior.episodios);
+
+        function formatarTempo(ms) {
+            if (ms < 60000) {
+                const segundos = Math.round(ms / 1000);
+                return `${segundos} s`;
+            }
+            const minutos = Math.round(ms / 60000);
+            return `${minutos} min`;
+        }
+
+        const tempoFormatado     = formatarTempo(mediaMesMs);
+        const tempoHojeFormatado = formatarTempo(mediaHojeMs);
+        const diffMinutos        = Math.round((mediaMesMs - mediaMesAnteriorMs) / 60000);
+
+        const comparativoTempo = mediaMesAnteriorMs === 0
+            ? "por episódio"
+            : diffMinutos === 0
+                ? "igual ao mês passado"
+                : diffMinutos > 0
+                    ? `↑ ${diffMinutos} min comparado ao mês passado`
+                    : `↓ ${Math.abs(diffMinutos)} min comparado ao mês passado`;
+
+                // =====================
+        // GRÁFICO DE BARRAS — CRISES E ISOLADOS POR DIA (últimos 7 dias)
+        // Usa a mesma classificação de episódios do cartão de cima,
+        // pra os números baterem
+        // =====================
+
+        function dataLocalBR(data) {
+            // Brasil não usa horário de verão desde 2019, então UTC-3 é seguro aqui
+            const d = new Date(data);
+            d.setHours(d.getHours() - 3);
+            return d.toISOString().slice(0, 10); // "YYYY-MM-DD"
+        }
+
+        const eventosSemana = await db.query(
+            `SELECT e.criado_em, e.forca, e.duracao_ms
+             FROM eventos_bixuco e
+             JOIN criancas c ON c.id = e.crianca_id
+             WHERE c.usuario_id = $1
+             AND e.criado_em >= NOW() - INTERVAL '8 days'
+             ORDER BY e.criado_em ASC`,
+            [usuarioId]
+        );
+
+        const episodiosSemana = classificarEpisodios(eventosSemana.rows);
+
+        const diasSemanaPt = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
+        const diasArray = [];
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setHours(d.getHours() - 3);
+            d.setDate(d.getDate() - i);
+            diasArray.push(d.toISOString().slice(0, 10));
+        }
+
+        const contagemPorDia = {};
+        diasArray.forEach(dia => { contagemPorDia[dia] = { crises: 0, isolados: 0 }; });
+
+        episodiosSemana.forEach(ep => {
+            const diaLocal = dataLocalBR(ep.inicio);
+            if (contagemPorDia[diaLocal]) {
+                if (ep.classificacao === "crise") contagemPorDia[diaLocal].crises++;
+                else contagemPorDia[diaLocal].isolados++;
+            }
+        });
+
+        const labelsEstresse   = diasArray.map(dia => diasSemanaPt[new Date(dia + "T12:00:00").getDay()]);
+        const dadosEstresse    = diasArray.map(dia => contagemPorDia[dia].crises);
+        const dadosIsolados    = diasArray.map(dia => contagemPorDia[dia].isolados);
+
+        // =====================
+        // GRÁFICO — GATILHOS SENSORIAIS PADRONIZADOS (últimos 30 dias)
+        // =====================
+        // O responsável continua escrevendo livremente, mas o gráfico usa
+        // somente categorias fixas. Relatórios antigos, ainda não normalizados,
+        // aparecem como "Histórico não classificado".
+        const gatilhosRaw = await db.query(
+            `WITH respostas_gatilho AS (
+
+                SELECT x
+                FROM relatorios r
+                CROSS JOIN LATERAL
+                    jsonb_array_elements(r.respostas) AS x
+
+                WHERE r.usuario_id = $1
+                AND r.data >= NOW() - INTERVAL '30 days'
+                AND x->>'id' = 'gatilho_principal'
+                AND trim(
+                        COALESCE(
+                            x->>'resposta',
+                            ''
+                        )
+                    ) <> ''
+            ),
+
+            gatilhos AS (
+
+                -- ==========================================
+                -- 1. CATEGORIAS SENSORIAIS IDENTIFICADAS
+                -- ==========================================
+
+                SELECT
+                    categoria AS gatilho
+
+                FROM respostas_gatilho
+
+                CROSS JOIN LATERAL
+                    jsonb_array_elements_text(
+                        CASE
+                            WHEN jsonb_typeof(
+                                x->'categoriasSensoriais'
+                            ) = 'array'
+                            THEN x->'categoriasSensoriais'
+
+                            ELSE '[]'::jsonb
+                        END
+                    ) AS c(categoria)
+
+                WHERE categoria <> 'nao_identificado'
+
+
+                UNION ALL
+
+
+                -- ==========================================
+                -- 2. SE NÃO HÁ CATEGORIA SENSORIAL,
+                --    USA O CONTEXTO COMO GATILHO
+                -- ==========================================
+
+                SELECT
+                    contexto AS gatilho
+
+                FROM respostas_gatilho
+
+                CROSS JOIN LATERAL
+                    jsonb_array_elements_text(
+                        CASE
+                            WHEN jsonb_typeof(
+                                x->'contextos'
+                            ) = 'array'
+                            THEN x->'contextos'
+
+                            ELSE '[]'::jsonb
+                        END
+                    ) AS ctx(contexto)
+
+                WHERE NOT EXISTS (
+
+                    SELECT 1
+
+                    FROM jsonb_array_elements_text(
+                        CASE
+                            WHEN jsonb_typeof(
+                                x->'categoriasSensoriais'
+                            ) = 'array'
+                            THEN x->'categoriasSensoriais'
+
+                            ELSE '[]'::jsonb
+                        END
+                    ) AS c2(categoria)
+
+                    WHERE categoria <> 'nao_identificado'
+                )
+
+
+                UNION ALL
+
+
+                -- ==========================================
+                -- 3. NÃO TEM CATEGORIA NEM CONTEXTO
+                -- ==========================================
+
+                SELECT
+                    'nao_identificado' AS gatilho
+
+                FROM respostas_gatilho
+
+                WHERE NOT EXISTS (
+
+                    SELECT 1
+
+                    FROM jsonb_array_elements_text(
+                        CASE
+                            WHEN jsonb_typeof(
+                                x->'categoriasSensoriais'
+                            ) = 'array'
+                            THEN x->'categoriasSensoriais'
+
+                            ELSE '[]'::jsonb
+                        END
+                    ) AS c3(categoria)
+
+                    WHERE categoria <> 'nao_identificado'
+                )
+
+                AND NOT EXISTS (
+
+                    SELECT 1
+
+                    FROM jsonb_array_elements_text(
+                        CASE
+                            WHEN jsonb_typeof(
+                                x->'contextos'
+                            ) = 'array'
+                            THEN x->'contextos'
+
+                            ELSE '[]'::jsonb
+                        END
+                    ) AS ctx2(contexto)
+                )
+
+            )
+
+            SELECT
+                gatilho AS texto,
+                COUNT(*) AS quantidade
+
+            FROM gatilhos
+
+            GROUP BY gatilho
+
+            ORDER BY
+                quantidade DESC,
+                gatilho ASC`,
+
+            [usuarioId]
+        );
+
+        const ROTULOS_GATILHOS = {
+
+            // Sistemas sensoriais
+            auditivo: "Auditivo",
+            visual: "Visual",
+            tatil: "Tátil",
+            olfativo: "Olfativo",
+            gustativo: "Gustativo",
+            vestibular: "Vestibular",
+            proprioceptivo: "Proprioceptivo",
+            interoceptivo: "Interoceptivo",
+
+            // Contextos
+            ambiente_movimentado:
+                "Ambiente movimentado",
+
+            mudanca_rotina:
+                "Mudança de rotina",
+
+            ambiente_desconhecido:
+                "Ambiente desconhecido",
+
+            interacao_social:
+                "Interação social",
+
+            transicao_atividade:
+                "Transição de atividade",
+
+            espera:
+                "Espera",
+
+            cansaco:
+                "Cansaço",
+
+            fome_sede:
+                "Fome ou sede",
+
+            dor_desconforto:
+                "Dor ou desconforto",
+
+            outro_contexto:
+                "Outro contexto",
+
+            // Somente quando realmente não há informação
+            nao_identificado:
+                "Não identificado"
+        };
+
+        const linhasGatilhos = gatilhosRaw.rows;
+        const totalGatilhos =
+            linhasGatilhos.reduce(
+                (soma, l) => soma + parseInt(l.quantidade),
+                0
+            );
+
+        const PALETA_GATILHOS = [
+            "#32C26D",
+            "#0AB7FB",
+            "#1D8EC9",
+            "#F6AD55",
+            "#C2C2C2"
+        ];
+
+        const TOP_GATILHOS = 4;
+
+        let graficoGatilhos;
+
+        if (totalGatilhos === 0) {
+
+            graficoGatilhos = {
+                labels: ["Sem dados suficientes ainda"],
+                dados: [100],
+                cores: ["#C2C2C2"]
+            };
+
+        } else {
+
+            const principais =
+                linhasGatilhos.slice(0, TOP_GATILHOS);
+
+            const restante =
+                linhasGatilhos
+                    .slice(TOP_GATILHOS)
+                    .reduce(
+                        (soma, l) =>
+                            soma + parseInt(l.quantidade),
+                        0
+                    );
+
+            const labels =
+                principais.map(
+                    l =>
+                        ROTULOS_GATILHOS[l.texto] ||
+                        "Não identificado"
+                );
+
+            const dados =
+                principais.map(
+                    l =>
+                        Math.round(
+                            (
+                                parseInt(l.quantidade) /
+                                totalGatilhos
+                            ) * 100
+                        )
+                );
+
+            if (restante > 0) {
+                labels.push("Outros");
+                dados.push(
+                    Math.round(
+                        (restante / totalGatilhos) * 100
+                    )
+                );
+            }
+
+            graficoGatilhos = {
+                labels,
+                dados,
+                cores:
+                    labels.map(
+                        (_, i) =>
+                            PALETA_GATILHOS[i] ||
+                            "#C2C2C2"
+                    )
+            };
+
+        }
+
+        // =====================
+        // GRÁFICO DE LINHA — EVOLUÇÃO DE CRISES SENSORIAIS (últimos 7 dias)
+        // =====================
+
+        const eventosPorDia = await db.query(
+            `SELECT
+                dia,
+                COALESCE(cnt.total, 0)          AS eventos,
+                COALESCE(cnt.duracao_media, 0)  AS duracao_media,
+                COALESCE(cnt.forca_media, 0)    AS forca_media
+            FROM generate_series(
+                CURRENT_DATE - INTERVAL '6 days',
+                CURRENT_DATE,
+                INTERVAL '1 day'
+            ) AS dia
+            LEFT JOIN (
+                SELECT
+                    DATE(e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') AS dia,
+                    COUNT(*)             AS total,
+                    AVG(e.duracao_ms)    AS duracao_media,
+                    AVG(e.forca)         AS forca_media
+                FROM eventos_bixuco e
+                JOIN criancas c ON c.id = e.crianca_id
+                WHERE c.usuario_id = $1
+                GROUP BY DATE(e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')
+            ) cnt USING (dia)
+            ORDER BY dia`,
+            [usuarioId]
+        );
+
+        const percebidoPorDia = await db.query(
+            `SELECT
+                dia,
+                (
+                    SELECT CASE elem->>'resposta'
+                        WHEN 'Nenhuma'      THEN 0
+                        WHEN 'Poucas'       THEN 1
+                        WHEN 'Algumas'      THEN 2
+                        WHEN 'Sim, várias'  THEN 3
+                        ELSE NULL
+                    END
+                    FROM relatorios r
+                    CROSS JOIN LATERAL jsonb_array_elements(r.respostas) AS elem
+                    WHERE r.usuario_id = $1
+                    AND DATE(r.data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') = dia
+                    AND elem->>'id' = 'crises_sensoriais'
+                    LIMIT 1
+                ) AS nivel
+            FROM generate_series(
+                CURRENT_DATE - INTERVAL '6 days',
+                CURRENT_DATE,
+                INTERVAL '1 day'
+            ) AS dia
+            ORDER BY dia`,
+            [usuarioId]
+        );
+
+        const diasCombinados = eventosPorDia.rows.map((linha, i) => ({
+            dia:           linha.dia,
+            eventos:       parseInt(linha.eventos) || 0,
+            duracaoMedia:  parseFloat(linha.duracao_media) || 0,
+            forcaMedia:    parseFloat(linha.forca_media) || 0,
+            percebido:     percebidoPorDia.rows[i]?.nivel ?? null
+        }));
+
+        function normalizar(valor, max) {
+            if (!max || max <= 0) return 0;
+            return Math.min(valor / max, 1);
+        }
+
+        const maxEventos  = Math.max(...diasCombinados.map(d => d.eventos), 1);
+        const maxDuracao  = Math.max(...diasCombinados.map(d => d.duracaoMedia), 1);
+        const maxForca    = Math.max(...diasCombinados.map(d => d.forcaMedia), 1);
+
+        const dadosEvolucao = diasCombinados.map(d => {
+
+            const eventosNorm   = normalizar(d.eventos, maxEventos);
+            const duracaoNorm   = normalizar(d.duracaoMedia, maxDuracao);
+            const forcaNorm     = normalizar(d.forcaMedia, maxForca);
+            const percebidoNorm = d.percebido !== null ? d.percebido / 3 : 0;
+
+            const indice = (
+                eventosNorm   * 0.4 +
+                duracaoNorm   * 0.3 +
+                forcaNorm     * 0.2 +
+                percebidoNorm * 0.1
+            ) * 10;
+
+            return Math.round(indice * 10) / 10;
+
+        });
+
+        const labelsEvolucao = diasCombinados.map(d => diasSemanaPt[new Date(d.dia).getUTCDay()]);
+
+        // =====================
+        // ÚLTIMO RELATÓRIO DIÁRIO
+        // =====================
+
+        const ultimoRelatorio = await db.query(
+            `SELECT respostas, data
+            FROM relatorios
+            WHERE usuario_id = $1
+            AND DATE(
+                data AT TIME ZONE 'UTC'
+                AT TIME ZONE 'America/Sao_Paulo'
+            ) = (NOW() AT TIME ZONE 'America/Sao_Paulo')::date
+            ORDER BY data DESC
+            LIMIT 1`,
+            [usuarioId]
+        );
+
+        let perguntas    = [];
+        let dataRelatorio = "Nenhum relatório preenchido hoje.";
+
+        if (ultimoRelatorio.rows.length > 0) {
+
+            const row = ultimoRelatorio.rows[0];
+
+            perguntas = typeof row.respostas === "string"
+                ? JSON.parse(row.respostas)
+                : row.respostas;
+
+            const data = new Date(row.data);
+            dataRelatorio = data.toLocaleDateString("pt-BR", {
+                weekday: "long",
+                day:     "numeric",
+                month:   "long",
+                year:    "numeric",
+                timeZone: "America/Sao_Paulo"
+            });
+
+        }
+
+        // =====================
+        // RETORNA TUDO
+        // =====================
+
+        res.json({
+
+            alertas:             totalMes,
+            nivelAtividade:      nivelAtividadeMes,
+            comparativoAlertas,
+            alertasHoje:         totalHoje,
+            nivelAtividadeHoje,
+            comparativoAlertasDiario,
+
+            isoladosMes,
+            isoladosHoje,
+
+            tempo:               tempoFormatado,
+            comparativoTempo,
+            tempoDiario:         tempoHojeFormatado,
+
+            graficoEstresse: {
+                labels:   labelsEstresse,
+                dados:    dadosEstresse,   // crises reais por dia
+                isolados: dadosIsolados    // apertos isolados por dia (opcional pro front mostrar em outra cor)
+            },
+
+            graficoGatilhos,
+
+            graficoEvolucao: {
+                labels: labelsEvolucao,
+                dados:  dadosEvolucao
+            },
+
+            dataRelatorio,
+            perguntas
+
+        });
+
+    } catch (erro) {
+
+        console.log("Erro na rota /api/relatorios:", erro);
+        res.status(500).json({ erro: "Erro interno do servidor." });
+
+    }
+
+});
+
+function formatarHorarioEvento(data) {
+    // O banco já guarda o horário de Brasília (a conexão usa
+    // timezone=America/Sao_Paulo), então NÃO converte de novo.
+    return new Date(data).toLocaleTimeString("pt-BR", {
+        hour:     "2-digit",
+        minute:   "2-digit",
+        hour12:   false,
+        timeZone: "UTC"
+    });
+}
+
+app.get("/api/alertas", estaLogado, exigeResponsavel, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.authUser.id;
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        // Data alvo — se não vier, usa hoje (fuso de Brasília)
+        const dataParam  = req.query.data;
+        const dataFiltro = dataParam || new Date().toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
+
+        const eventos = await db.query(
+            `SELECT e.criado_em, e.forca, e.duracao_ms, e.latitude, e.longitude
+             FROM eventos_bixuco e
+             JOIN criancas c ON c.id = e.crianca_id
+             WHERE c.usuario_id = $1
+             AND DATE((e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = $2::date
+             ORDER BY e.criado_em ASC`,
+            [usuarioId, dataFiltro]
+        );
+
+        const episodios = classificarEpisodios(eventos.rows);
+
+        const crises = episodios
+            .filter(ep => ep.classificacao === "crise")
+            .map(ep => ({
+                horario:   formatarHorarioEvento(ep.inicio),
+                forca:     Math.round(ep.forcaMax * 100) / 100,
+                latitude:  ep.latitude,
+                longitude: ep.longitude
+            }));
+
+        res.json({ data: dataFiltro, crises });
+
+    } catch (erro) {
+
+        console.log("Erro na rota /api/alertas:", erro);
+        res.status(500).json({ erro: "Erro interno do servidor." });
+
+    }
+
+});
+
+/* ==========================
+   CADASTRO FINAL
+========================== */
+
+app.post("/cadastro-finalizar", limitarCriacaoConta, async (req, res) => {
+
+
+    const dados = req.session.cadastro;
+
+
+    if (!dados) {
+        return res.status(400).json({
+            erro: "Sessão expirada. Reinicie o cadastro."
+        });
+    }
+
+    const { senha, confirmarSenha, tokenRecaptcha } = req.body;
+
+    // 🔧 Verifica o reCAPTCHA antes de qualquer outra validação
+    const captcha = await verificarRecaptcha(tokenRecaptcha, "cadastro");
+
+    if (!captcha.sucesso) {
+        return res.status(400).json({
+            erro: "Não conseguimos confirmar que você não é um robô. Tente novamente."
+        });
+    }
+
+    if (senha !== confirmarSenha) {
+        return res.status(400).json({
+            campo: "confirmarSenha",
+            erro: "As senhas não coincidem."
+        });
+    }
+
+    if (!senha || !senhaAtendeRequisitos(senha)) {
+        return res.status(400).json({
+            campo: "senha",
+            erro: "A senha deve ter pelo menos 6 caracteres, uma letra maiúscula e um caractere especial."
+        });
+    }
+
+    try {
+
+        const senhaHash = await bcrypt.hash(senha, 10);
+
+        /* ==========================
+           RESPONSÁVEL
+        ========================== */
+
+        if (!idadeEntre(dados.dataNascimento, 18, 120)) {
+            return res.status(400).json({
+                campo: "dataNascimento",
+                erro: "Informe uma data de nascimento válida."
+            });
+        }
+
+        if (dados.tipo === "pai") {
+
+            if (!cpf.isValid(dados.cpfUser)) {
+                return res.status(400).json({
+                    campo: "cpf",
+                    erro: "CPF inválido."
+                });
+            }
+
+            console.log("Cadastro-finalizar - email:", dados.email, "| cpf:", dados.cpfUser);
+
+            const existe = await db.query(
+                `SELECT id, email, cpf, tipo FROM usuarios
+                WHERE email = $1 OR cpf = $2`,
+                [dados.email, dados.cpfUser]
+            );
+
+            const contaPendente = existe.rows.find(r => r.tipo === 'pendente');
+            const contaCompleta = existe.rows.find(r => r.tipo !== 'pendente');
+
+            if (contaCompleta) {
+                if (contaCompleta.email === dados.email) {
+                    return res.status(409).json({ campo: "email", erro: "Este e-mail já está cadastrado." });
+                }
+                return res.status(409).json({ campo: "cpf", erro: "Este CPF já está cadastrado." });
+            }
+
+            if (contaPendente) {
+                // Conta veio do Google e nunca foi completada — assume ela em vez de bloquear
+                const atualizado = await db.query(
+                    `UPDATE usuarios
+                    SET nome=$1, cpf=$2, senha=$3, data_nascimento=$4, tipo='pai', novo_usuario=FALSE
+                    WHERE id=$5
+                    RETURNING id, tipo, versao_sessao`,
+                    [dados.nome, dados.cpfUser, senhaHash, dados.dataNascimento, contaPendente.id]
+                );
+
+                delete req.session.cadastro;
+                req.session.usuarioId = atualizado.rows[0].id;
+                req.session.tipo = atualizado.rows[0].tipo;
+                req.session.versaoSessao = atualizado.rows[0].versao_sessao;
+
+                // cria assinatura gratuita para conta Google finalizada
+                await db.query(
+                    `INSERT INTO assinaturas (usuario_id, nome_plano, ativo)
+                        VALUES ($1, 'gratis', true)
+                        ON CONFLICT DO NOTHING`,
+                    [atualizado.rows[0].id]
+                );
+                return res.json({ sucesso: true, destino: "/planos" });
+            }
+
+            // nenhuma linha encontrada — segue o INSERT normal que já existe
+
+            const novoUsuario = await db.query(
+                `INSERT INTO usuarios
+                (nome, email, cpf, senha, data_nascimento, tipo)
+                VALUES ($1,$2,$3,$4,$5,'pai')
+                RETURNING id, tipo, versao_sessao`,
+                [
+                    dados.nome,
+                    dados.email,
+                    dados.cpfUser,
+                    senhaHash,
+                    dados.dataNascimento
+                ]
+            );
+
+            delete req.session.cadastro;
+
+            req.session.usuarioId = novoUsuario.rows[0].id;
+            req.session.tipo = novoUsuario.rows[0].tipo;
+            req.session.versaoSessao = novoUsuario.rows[0].versao_sessao;
+
+            // cria assinatura gratuita para novo responsável
+            await db.query(
+                `INSERT INTO assinaturas (usuario_id, nome_plano)
+                VALUES ($1, 'gratis')`,
+                [novoUsuario.rows[0].id]
+            );
+
+            return res.json({
+                sucesso: true,
+                destino: "/AdicionarC"
+            });
+
+
+        }
+
+        /* ==========================
+           PSICÓLOGO
+        ========================== */
+
+        else if (dados.tipo === "psicologo") {
+
+            if (!validarCRP(dados.crp)) {
+                return res.status(400).json({
+                    campo: "crp",
+                    erro: "CRP inválido."
+                });
+            }
+
+            const existe = await db.query(
+                `SELECT id, email, crp, tipo FROM usuarios
+                WHERE email = $1 OR crp = $2`,
+                [dados.email, dados.crp]
+            );
+
+            const contaPendente = existe.rows.find(r => r.tipo === 'pendente');
+            const contaCompleta = existe.rows.find(r => r.tipo !== 'pendente');
+
+            if (contaCompleta) {
+                if (contaCompleta.email === dados.email) {
+                    return res.status(409).json({ campo: "email", erro: "Este e-mail já está cadastrado." });
+                }
+                return res.status(409).json({ campo: "crp", erro: "Este CRP já está cadastrado." });
+            }
+
+            if (contaPendente) {
+                // Conta veio do Google e nunca foi completada — assume ela em vez de bloquear
+                // 🔧 FIX: faltava gerar o codigo_vinculo aqui — esse era o motivo do
+                // código do terapeuta não aparecer na tela de configurações
+                const codigoVinculo = await gerarCodigoVinculo();
+
+                const atualizado = await db.query(
+                    `UPDATE usuarios
+                    SET nome=$1, crp=$2, senha=$3, data_nascimento=$4, tipo='psicologo', novo_usuario=FALSE, codigo_vinculo=$5
+                    WHERE id=$6
+                    RETURNING id, tipo, versao_sessao`,
+                    [dados.nome, dados.crp, senhaHash, dados.dataNascimento, codigoVinculo, contaPendente.id]
+                );
+
+                delete req.session.cadastro;
+                req.session.usuarioId = atualizado.rows[0].id;
+                req.session.tipo = atualizado.rows[0].tipo;
+                req.session.versaoSessao = atualizado.rows[0].versao_sessao;
+
+                return res.json({ sucesso: true, destino: "/hometerapeuta" });
+
+            }
+            // nenhuma linha encontrada — segue o INSERT normal que já existe
+
+            
+            const codigoVinculo = await gerarCodigoVinculo();
+
+            const novoUsuario = await db.query(
+                `INSERT INTO usuarios
+                (nome, email, crp, senha, data_nascimento, tipo, codigo_vinculo)
+                VALUES ($1,$2,$3,$4,$5,'psicologo',$6)
+                RETURNING id, tipo, versao_sessao`,
+                [
+                    dados.nome,
+                    dados.email,
+                    dados.crp,
+                    senhaHash,
+                    dados.dataNascimento,
+                    codigoVinculo
+                ]
+            );
+
+            delete req.session.cadastro;
+
+            req.session.usuarioId = novoUsuario.rows[0].id;
+            req.session.tipo = novoUsuario.rows[0].tipo;
+            req.session.versaoSessao = novoUsuario.rows[0].versao_sessao;
+
+            return res.json({
+                sucesso: true,
+                destino: "/hometerapeuta"
+            });
+
+        }
+
+        else {
+
+            return res.status(400).json({
+                erro: "Tipo de usuário inválido."
+            });
+
+        }
+
+       
+
+    } catch (erro) {
+
+        console.log("Erro no cadastro-finalizar:", erro);
+
+        return res.status(500).json({
+            erro: "Erro interno do servidor. Tente novamente."
+        });
+
+    }
+
+});
+
+
+/* ==========================
+   ROTA GET — DADOS DO HOME TERAPEUTA (API)
+========================== */
+
+// 🔧 FIX 1: Rota /api/home-terapeuta que o frontend chama
+// Retorna nome, foto, contadores, solicitações pendentes e atividade recente
+app.get("/api/home-terapeuta", estaLogado, exigeTerapeuta, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.authUser.id;
+
+        if (!usuarioId) {
+
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        // Dados do terapeuta
+        const resultadoUsuario = await db.query(
+            `SELECT nome, email, foto_perfil, codigo_vinculo FROM usuarios WHERE id = $1`,
+            [usuarioId]
+        );
+
+        if (resultadoUsuario.rows.length === 0) {
+            return res.status(404).json({ erro: "Usuário não encontrado." });
+        }
+
+        const terapeuta = resultadoUsuario.rows[0];
+
+        // Total de pacientes vinculados (vínculos ativos)
+        const totalPacientes = await db.query(
+            `SELECT COUNT(*) AS total
+             FROM vinculos
+             WHERE terapeuta_id = $1 AND ativo = TRUE`,
+            [usuarioId]
+        );
+
+        // Total de solicitações pendentes (vínculos aguardando aprovação)
+        const totalPendentes = await db.query(
+            `SELECT COUNT(*) AS total
+             FROM vinculos
+             WHERE terapeuta_id = $1 AND ativo = FALSE AND recusado = FALSE`,
+            [usuarioId]
+        );
+
+        // Relatórios compartilhados hoje
+        const relatoriosHoje = await db.query(
+            `SELECT COUNT(*) AS total
+             FROM relatorios r
+             JOIN vinculos v ON v.responsavel_id = r.usuario_id
+             WHERE v.terapeuta_id = $1
+             AND v.ativo = TRUE
+             AND DATE(r.data) = CURRENT_DATE`,
+            [usuarioId]
+        );
+
+        // Notificações não lidas
+        const notificacoesNaoLidas = await db.query(
+            `SELECT COUNT(*) AS total
+            FROM notificacoes
+            WHERE usuario_id = $1 AND lida = FALSE`,
+            [usuarioId]
+        );
+
+        // Relatórios não vistos (pendentes de visualização)
+        const relatoriosPendentes = await db.query(
+            `SELECT COUNT(*) AS total
+            FROM relatorios r
+            JOIN vinculos v ON v.responsavel_id = r.usuario_id
+            WHERE v.terapeuta_id = $1
+            AND v.ativo = TRUE
+            AND r.visto_terapeuta = FALSE`,
+            [usuarioId]
+        );
+
+        // Solicitações pendentes com dados do responsável e criança
+        // Ajuste os nomes das tabelas conforme seu banco
+        const solicitacoes = await db.query(
+            `SELECT
+                v.id,
+                u.nome AS nome_responsavel,
+                u.foto_perfil,
+                c.nome AS nome_crianca,
+                EXTRACT(YEAR FROM AGE(c.data_nascimento))::INT AS idade_crianca,
+                TO_CHAR(v.criado_em, 'DD/MM/YYYY') AS tempo
+             FROM vinculos v
+             JOIN usuarios u ON u.id = v.responsavel_id
+             LEFT JOIN criancas c ON c.usuario_id = v.responsavel_id
+             WHERE v.terapeuta_id = $1
+             AND v.ativo = FALSE
+             AND v.recusado = FALSE
+             ORDER BY v.criado_em DESC
+             LIMIT 10`,
+            [usuarioId]
+        );
+
+                // Atividade recente — últimos relatórios dos pacientes vinculados
+        const atividadeRecente = await db.query(
+            `SELECT
+                r.id,
+                r.usuario_id AS responsavel_id,
+                r.visto_terapeuta,
+                TO_CHAR(r.data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM-DD') AS data_iso,
+                c.nome AS nome_crianca,
+                u.nome AS nome_responsavel,
+                TO_CHAR(r.data, 'DD/MM/YYYY HH24:MI') AS tempo
+             FROM relatorios r
+             JOIN usuarios u ON u.id = r.usuario_id
+             JOIN vinculos v ON v.responsavel_id = r.usuario_id
+             LEFT JOIN criancas c ON c.usuario_id = r.usuario_id
+             WHERE v.terapeuta_id = $1
+             AND v.ativo = TRUE
+             ORDER BY r.data DESC
+             LIMIT 8`,
+            [usuarioId]
+        );
+
+        // Alterna entre verde e azul nos ícones da atividade
+                // Alterna entre verde e azul nos ícones da atividade
+                // Alterna entre verde e azul nos ícones da atividade
+                // Alterna entre verde e azul nos ícones da atividade
+        const atividades = atividadeRecente.rows.map((item, i) => ({
+            id:             item.id,
+            responsavelId:  item.responsavel_id,
+            dataISO:        item.data_iso,
+            nomeCrianca:    item.nome_crianca   || "Criança",
+            nomeResponsavel: item.nome_responsavel || "Responsável",
+            tempo:          item.tempo,
+            cor:            i % 2 === 0 ? "verde" : "azul",
+            visto:          item.visto_terapeuta === true
+        }));
+
+        res.json({
+            nome:             terapeuta.nome,
+            email:            terapeuta.email,
+            fotoPerfil:       terapeuta.foto_perfil || null,
+            notificacoes:   parseInt(notificacoesNaoLidas.rows[0].total) || 0,
+            totalPacientes: parseInt(totalPacientes.rows[0].total) || 0,
+            totalPendentes: parseInt(totalPendentes.rows[0].total) || 0,
+            relatoriosHoje: parseInt(relatoriosHoje.rows[0].total) || 0,
+            codigoTerapeuta:     terapeuta.codigo_vinculo || null,
+
+            solicitacoes: solicitacoes.rows.map(s => ({
+                id:              s.id,
+                nomeResponsavel: s.nome_responsavel,
+                fotoPerfil:      s.foto_perfil || null,
+                nomeCrianca:     s.nome_crianca   || "Criança",
+                idadeCrianca:    s.idade_crianca  || 0,
+                tempo:           s.tempo
+            })),
+
+            atividadeRecente: atividades
+        });
+
+    } catch (erro) {
+
+        console.log("Erro na rota /api/homeTerapeuta:", erro);
+        res.status(500).json({ erro: "Erro interno do servidor." });
+
+    }
+
+});
+
+/* ==========================
+   ROTA POST — RESPONDER SOLICITAÇÃO DE VÍNCULO
+========================== */
+
+// 🔧 FIX 2: Rota /api/vinculos/responder que o frontend chama
+// ao clicar em Aceitar ou Recusar nas solicitações pendentes
+app.post("/api/vinculos/responder", estaLogado, exigeTerapeuta, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.authUser.id;
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        const { vinculoId, acao } = req.body;
+
+        if (!vinculoId || !["aceitar", "recusar"].includes(acao)) {
+            return res.status(400).json({ erro: "Dados inválidos." });
+        }
+
+        // Verifica se o vínculo pertence a esse terapeuta
+        const vinculo = await db.query(
+            `SELECT id FROM vinculos
+             WHERE id = $1 AND terapeuta_id = $2 AND ativo = FALSE`,
+            [vinculoId, usuarioId]
+        );
+
+        if (vinculo.rows.length === 0) {
+            return res.status(404).json({ erro: "Solicitação não encontrada." });
+        }
+
+        if (acao === "aceitar") {
+
+            // Ativa o vínculo
+            await db.query(
+                `UPDATE vinculos SET ativo = TRUE WHERE id = $1`,
+                [vinculoId]
+            );
+
+        } else {
+
+            // Marca como recusado — não deleta para manter histórico
+            await db.query(
+                `UPDATE vinculos SET recusado = TRUE WHERE id = $1`,
+                [vinculoId]
+            );
+
+        }
+
+        return res.status(200).json({
+            mensagem: acao === "aceitar"
+                ? "Vínculo aceito com sucesso."
+                : "Solicitação recusada."
+        });
+
+    } catch (erro) {
+
+        console.log("Erro ao responder vínculo:", erro);
+        res.status(500).json({ erro: "Erro interno do servidor." });
+
+    }
+
+});
+
+// ─────────────────────────────────────────
+// VINCULAR TERAPEUTA — enviar pedido
+// ─────────────────────────────────────────
+app.post("/api/vinculos/solicitar", estaLogado, exigeResponsavel, verificarPlano, exigePremium, async (req, res) => {
+    const { codigoTerapeuta } = req.body;
+    const responsavelId = req.authUser.id;
+    
+
+    if (!responsavelId) {
+        return res.status(401).json({ erro: "Não autenticado." });
+    }
+
+    try {
+        const terapeuta = await db.query(
+            "SELECT id, nome FROM usuarios WHERE codigo_vinculo = $1 AND tipo = 'psicologo'",
+            [codigoTerapeuta]
+        );
+
+        if (terapeuta.rows.length === 0)
+            return res.status(404).json({ erro: "Terapeuta não encontrado. Verifique o código." });
+
+        const terapeutaId = terapeuta.rows[0].id;
+
+        const existente = await db.query(
+            "SELECT id, ativo, recusado FROM vinculos WHERE responsavel_id = $1 AND terapeuta_id = $2",
+            [responsavelId, terapeutaId]
+        );
+
+        if (existente.rows.length > 0) {
+            const v = existente.rows[0];
+            if (v.ativo)   return res.status(400).json({ erro: "Você já está vinculado a este terapeuta." });
+            if (!v.ativo && !v.recusado) return res.status(400).json({ erro: "Já existe um pedido pendente." });
+
+            // se foi recusado ou cancelado, reabre o pedido
+            await db.query(
+                "UPDATE vinculos SET ativo = false, recusado = false WHERE id = $1",
+                [v.id]
+            );
+        } else {
+
+            await db.query(
+                `INSERT INTO vinculos
+                (responsavel_id, terapeuta_id, ativo, recusado)
+                VALUES ($1, $2, false, false)`,
+                [responsavelId, terapeutaId]
+            );
+
+        }
+
+        const prefSolicitacao = await db.query(
+            `SELECT notif_novidades
+            FROM preferencias_usuario
+            WHERE usuario_id = $1`,
+            [terapeutaId]
+        );
+
+        const receberSolicitacao =
+            prefSolicitacao.rows[0]?.notif_novidades ?? true;
+
+        if (receberSolicitacao) {
+
+            await db.query(
+                `INSERT INTO notificacoes
+                (usuario_id, tipo, mensagem, lida)
+                VALUES ($1, 'pedido_vinculo', $2, FALSE)`,
+                [
+                    terapeutaId,
+                    "Você recebeu um pedido de vínculo de um novo responsável."
+                ]
+            );
+
+        }
+
+
+        res.json({ sucesso: true, nomeTerapeuta: terapeuta.rows[0].nome });
+
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).json({ erro: "Erro interno ao enviar pedido." });
+    }
+});
+
+
+// ─────────────────────────────────────────
+// CANCELAR PEDIDO PENDENTE
+// ─────────────────────────────────────────
+app.post("/api/vinculos/cancelar", estaLogado, exigeResponsavel, verificarPlano, exigePremium, async (req, res) => {
+    const responsavelId = req.authUser.id;
+
+    if (!responsavelId) {
+        return res.status(401).json({ erro: "Não autenticado." });
+    }
+
+    try {
+        await db.query(
+            "DELETE FROM vinculos WHERE responsavel_id = $1 AND ativo = false AND recusado = false",
+            [responsavelId]
+        );
+        res.json({ sucesso: true });
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).json({ erro: "Erro interno ao cancelar pedido." });
+    }
+});
+
+
+// ─────────────────────────────────────────
+// REMOVER TERAPEUTA VINCULADO
+// ─────────────────────────────────────────
+app.post("/api/vinculos/remover", estaLogado, exigeResponsavel, verificarPlano, exigePremium, async (req, res) => {
+    const responsavelId = req.authUser.id;
+
+    if (!responsavelId) {
+        return res.status(401).json({ erro: "Não autenticado." });
+    }
+
+    try {
+        // Usa ativo = FALSE em vez de DELETE para manter histórico do vínculo
+        const resultado = await db.query(
+            `UPDATE vinculos SET ativo = FALSE WHERE responsavel_id = $1 AND ativo = TRUE`,
+            [responsavelId]
+        );
+
+        if (resultado.rowCount === 0) {
+            return res.status(404).json({ erro: "Nenhum terapeuta vinculado encontrado." });
+        }
+
+        res.json({ sucesso: true });
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).json({ erro: "Erro interno ao remover terapeuta." });
+    }
+});
+
+
+// ─────────────────────────────────────────
+// BUSCAR STATUS DO VÍNCULO ATUAL
+// ─────────────────────────────────────────
+app.get("/api/vinculos/status", estaLogado, exigeResponsavel, async (req, res) => {
+    const responsavelId = req.authUser.id;
+
+    if (!responsavelId) {
+        return res.status(401).json({ erro: "Não autenticado." });
+    }
+
+    try {
+        const resultado = await db.query(
+            `SELECT v.id, v.ativo, v.recusado,
+                    u.nome        AS nome_terapeuta,
+                    u.crp         AS crp_terapeuta,
+                    u.foto_perfil AS foto_terapeuta
+             FROM vinculos v
+             JOIN usuarios u ON u.id = v.terapeuta_id
+             WHERE v.responsavel_id = $1
+             ORDER BY v.criado_em DESC
+             LIMIT 1`,
+            [responsavelId]
+        );
+
+        if (resultado.rows.length === 0)
+            return res.json({ status: "sem_vinculo" });
+
+        const v = resultado.rows[0];
+
+        let status;
+        if (v.ativo)        status = "aceito";
+        else if (v.recusado) status = "recusado";
+        else                 status = "pendente";
+
+        res.json({
+            status,
+            nomeTerapeuta: v.nome_terapeuta,
+            crpTerapeuta:  v.crp_terapeuta,
+            fotoTerapeuta: v.foto_terapeuta
+        });
+
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
+});
+
+/* ==========================
+   LOGIN
+========================== */
+
+// 🔧 FIX: Rota de login atualizada para aceitar tanto JSON (fetch) quanto form (fallback)
+// O frontend agora envia via fetch com Content-Type: application/json
+// então req.body.email e req.body.senha chegam pelo express.json() middleware
+
+app.post('/login', limitarLoginPorIp, limitarTentativasLogin, async (req, res) => {
+
+    const { email, senha } = req.body;
+
+    try {
+
+        const sql = `
+            SELECT *
+            FROM usuarios
+            WHERE email = $1
+        `;
+
+        const resultado = await db.query(sql, [email]);
+
+        if (resultado.rows.length === 0) {
+            // Mesma mensagem do caso "senha errada": não revelamos
+            // se o e-mail existe ou não no sistema.
+            return res.status(401).json({ erro: "E-mail ou senha inválidos." });
+        }
+
+        const usuario = resultado.rows[0];
+
+        // Conta criada via Google não tem senha própria
+        if (!usuario.senha) {
+            return res.status(401).json({
+                erro: "Esta conta usa login com Google. Use o botão 'Continuar com Google'."
+            });
+        }
+
+        const senhaValida = await bcrypt.compare(senha, usuario.senha);
+
+        if (!senhaValida) {
+            return res.status(401).json({ erro: "E-mail ou senha inválidos." });
+        }
+
+        // 🔐 2FA — obrigatório para pai e psicólogo; admin entra direto
+        if (usuario.tipo === "pai" || usuario.tipo === "psicologo") {
+
+            await enviarCodigo2FA(usuario);
+
+            req.session.pendente2FA = {
+                usuarioId: usuario.id,
+                tipo: usuario.tipo,
+                versaoSessao: usuario.versao_sessao   // 🔧 FALTAVA ISSO
+            };
+
+            return res.json({ precisa2fa: true, destino: "/verificar-codigo" });
+
+        }
+
+        // Sem 2FA (admin, ou outros tipos futuros)
+        req.session.regenerate((erroRegen) => {
+            if (erroRegen) {
+                console.log("Erro ao regenerar sessão no login:", erroRegen);
+                return res.status(500).json({ erro: "Erro no servidor. Tente novamente." });
+            }
+
+            req.session.usuarioId = usuario.id;
+            req.session.tipo = usuario.tipo;
+            req.session.versaoSessao = usuario.versao_sessao;
+
+            if (usuario.tipo === "psicologo") {
+                return res.redirect("/homeTerapeuta");
+            }
+            return res.redirect("/home");
+        });
+
+    } catch (erro) {
+
+        console.log(erro);
+        res.status(500).json({ erro: "Erro no servidor. Tente novamente." });
+
+    }
+
+});
+
+/* ==========================
+   VERIFICAÇÃO 2FA
+========================== */
+
+app.get("/verificar-codigo", (req, res) => {
+
+    if (!req.session.pendente2FA) {
+        return res.redirect("/logar");
+    }
+
+    res.sendFile(path.join(__dirname, "templates", "VerificarCodigo.html"));
+
+});
+
+app.post("/api/2fa/verificar", limitarVerificacao2FA, async (req, res) => {
+
+    try {
+
+        const pendente = req.session.pendente2FA;
+
+        if (!pendente) {
+            return res.status(401).json({ erro: "Sessão expirada. Faça login novamente." });
+        }
+
+        const { codigo } = req.body;
+
+        if (!codigo) {
+            return res.status(400).json({ erro: "Digite o código recebido por e-mail." });
+        }
+
+        const resultado = await db.query(
+            `SELECT * FROM codigos_2fa
+             WHERE usuario_id = $1
+             AND usado = FALSE
+             AND expira_em > NOW()
+             ORDER BY criado_em DESC
+             LIMIT 1`,
+            [pendente.usuarioId]
+        );
+
+        if (resultado.rows.length === 0) {
+            return res.status(400).json({ erro: "Código expirado ou inválido. Solicite um novo." });
+        }
+
+        const registro = resultado.rows[0];
+
+        if (!chavesIguaisSeguro(codigo.trim(), registro.codigo)) {
+            return res.status(401).json({ erro: "Código incorreto." });
+        }
+
+        // Marca o código como usado
+        await db.query(
+            "UPDATE codigos_2fa SET usado = TRUE WHERE id = $1",
+            [registro.id]
+        );
+
+        // Agora sim, abre a sessão de verdade
+        const dadosPendente = { ...pendente }; // guarda antes, pois regenerate() limpa a sessão
+
+        req.session.regenerate((erroRegen) => {
+            if (erroRegen) {
+                console.log("Erro ao regenerar sessão no 2FA:", erroRegen);
+                return res.status(500).json({ erro: "Erro interno. Tente novamente." });
+            }
+
+            req.session.usuarioId = dadosPendente.usuarioId;
+            req.session.tipo = dadosPendente.tipo;
+            req.session.versaoSessao = dadosPendente.versaoSessao;
+
+            const destino = dadosPendente.tipo === "psicologo" ? "/homeTerapeuta" : "/home";
+            return res.json({ sucesso: true, destino });
+        });
+
+    } catch (erro) {
+
+        console.log("Erro ao verificar código 2FA:", erro);
+        res.status(500).json({ erro: "Erro interno. Tente novamente." });
+
+    }
+
+});
+
+app.post("/api/2fa/reenviar", limitarReenvio2FA, async (req, res) => {
+
+    try {
+
+        const pendente = req.session.pendente2FA;
+
+        if (!pendente) {
+            return res.status(401).json({ erro: "Sessão expirada. Faça login novamente." });
+        }
+
+        const resultado = await db.query(
+            "SELECT id, nome, email FROM usuarios WHERE id = $1",
+            [pendente.usuarioId]
+        );
+
+        if (resultado.rows.length === 0) {
+            return res.status(404).json({ erro: "Usuário não encontrado." });
+        }
+
+        await enviarCodigo2FA(resultado.rows[0]);
+
+        return res.json({ mensagem: "Novo código enviado!" });
+
+    } catch (erro) {
+
+        console.log("Erro ao reenviar código 2FA:", erro);
+        res.status(500).json({ erro: "Erro interno ao reenviar código." });
+
+    }
+
+});
+
+/* ==================================================
+   ROTAS DO PERFIL — adicione no seu server.js
+   ================================================== */
+
+/* ==========================
+   ROTA GET — PÁGINA DO PERFIL
+========================== */
+
+// 🔧 FIX 7: Rota GET /perfil que não existia no server.js
+app.get("/perfil", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
+
+    res.sendFile(path.join(__dirname, "templates", "perfil.html"));
+
+});
+
+/* ==================================================
+   ROTAS DE CONFIGURAÇÕES — adicione no seu server.js
+   ================================================== */
+
+/* ==========================
+   ROTA GET — PÁGINA DE CONFIGURAÇÕES
+========================== */
+
+// 🔧 Rota GET /configuracoes que não existia no server.js
+app.get("/configuracoes", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
+
+    res.sendFile(path.join(__dirname, "templates", "configuracoes.html"));
+
+});
+
+/* ==========================
+   ROTA POST — SALVAR NOTIFICAÇÕES
+========================== */
+
+// 🔧 FIX 2: Rota /api/configuracoes/notificacoes que o frontend chamava
+// mas nunca existiu no server.js
+app.post("/api/configuracoes/notificacoes", estaLogado, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.authUser.id;
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        const { lembrete, novidades } = req.body;
+
+        // Atualiza as preferências de notificação do usuário
+        // Ajuste o nome da tabela/colunas conforme o seu banco
+        // Se não tiver tabela de preferências ainda, crie:
+        // CREATE TABLE preferencias_usuario (
+        //     usuario_id INTEGER PRIMARY KEY REFERENCES usuarios(id),
+        //     notif_lembrete BOOLEAN DEFAULT TRUE,
+        //     notif_novidades BOOLEAN DEFAULT FALSE
+        // );
+
+        if (lembrete !== undefined) {
+
+            await db.query(
+                `INSERT INTO preferencias_usuario (usuario_id, notif_lembrete)
+                 VALUES ($1, $2)
+                 ON CONFLICT (usuario_id)
+                 DO UPDATE SET notif_lembrete = $2`,
+                [usuarioId, lembrete]
+            );
+
+        }
+
+        if (novidades !== undefined) {
+
+            await db.query(
+                `INSERT INTO preferencias_usuario (usuario_id, notif_novidades)
+                 VALUES ($1, $2)
+                 ON CONFLICT (usuario_id)
+                 DO UPDATE SET notif_novidades = $2`,
+                [usuarioId, novidades]
+            );
+
+        }
+
+        return res.status(200).json({ mensagem: "Preferências salvas." });
+
+    } catch (erro) {
+
+        console.log("Erro ao salvar notificações:", erro);
+        res.status(500).json({ erro: "Erro interno ao salvar preferências." });
+
+    }
+
+});
+
+
+/* ==========================
+   RASCUNHO DO RELATÓRIO DIÁRIO
+========================== */
+
+
+// =========================================
+// GET — BUSCAR RASCUNHO DO DIA
+// =========================================
+
+app.get(
+    "/api/relatorio/rascunho",
+
+    estaLogado,
+    exigeResponsavel,
+    precisaPlano("medio"),
+
+    async (req, res) => {
+
+        try {
+
+            const usuarioId =
+                req.authUser.id;
+
+
+            // Primeiro verifica se o relatório
+            // de hoje já foi FINALIZADO.
+            const relatorioFinalizado =
+                await db.query(
+                    `
+                    SELECT id
+                    FROM relatorios
+                    WHERE usuario_id = $1
+                    AND DATE(
+                        data AT TIME ZONE 'UTC'
+                        AT TIME ZONE 'America/Sao_Paulo'
+                    ) =
+                    (
+                        NOW()
+                        AT TIME ZONE 'America/Sao_Paulo'
+                    )::date
+                    LIMIT 1
+                    `,
+                    [usuarioId]
+                );
+
+
+            if (
+                relatorioFinalizado.rows.length > 0
+            ) {
+
+                return res.json({
+                    finalizado: true,
+                    respostas: [],
+                    mensagensChat: []
+                });
+
+            }
+
+
+            // Busca o rascunho do dia atual
+            const resultado =
+                await db.query(
+                    `
+                    SELECT
+                        respostas,
+                        mensagens_chat,
+                        atualizado_em
+                    FROM rascunhos_relatorio
+                    WHERE usuario_id = $1
+                    AND data_referencia =
+                    (
+                        NOW()
+                        AT TIME ZONE 'America/Sao_Paulo'
+                    )::date
+                    LIMIT 1
+                    `,
+                    [usuarioId]
+                );
+
+
+            // Ainda não começou relatório hoje
+            if (resultado.rows.length === 0) {
+
+                return res.json({
+                    finalizado: false,
+                    respostas: [],
+                    mensagensChat: [],
+                    existeRascunho: false
+                });
+
+            }
+
+
+            const rascunho =
+                resultado.rows[0];
+
+
+            return res.json({
+
+                finalizado: false,
+
+                existeRascunho: true,
+
+                respostas:
+                    rascunho.respostas || [],
+
+                mensagensChat:
+                    rascunho.mensagens_chat || [],
+
+                atualizadoEm:
+                    rascunho.atualizado_em
+
+            });
+
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao buscar rascunho:",
+                erro
+            );
+
+            return res.status(500).json({
+                erro:
+                    "Não foi possível carregar o rascunho."
+            });
+
+        }
+
+    }
+);
+
+
+// =========================================
+// PUT — SALVAR/ATUALIZAR RASCUNHO
+// =========================================
+
+app.put(
+    "/api/relatorio/rascunho",
+
+    estaLogado,
+    exigeResponsavel,
+    precisaPlano("medio"),
+
+    async (req, res) => {
+
+        try {
+
+            const usuarioId =
+                req.authUser.id;
+
+            const {
+                respostas,
+                mensagensChat
+            } = req.body;
+
+
+            if (!Array.isArray(respostas)) {
+
+                return res.status(400).json({
+                    erro:
+                        "As respostas do rascunho são inválidas."
+                });
+
+            }
+
+
+            if (
+                mensagensChat !== undefined &&
+                !Array.isArray(mensagensChat)
+            ) {
+
+                return res.status(400).json({
+                    erro:
+                        "As mensagens do chat são inválidas."
+                });
+
+            }
+
+
+            // Não permite alterar rascunho
+            // depois que o relatório do dia
+            // já foi finalizado.
+            const relatorioFinalizado =
+                await db.query(
+                    `
+                    SELECT id
+                    FROM relatorios
+                    WHERE usuario_id = $1
+                    AND DATE(
+                        data AT TIME ZONE 'UTC'
+                        AT TIME ZONE 'America/Sao_Paulo'
+                    ) =
+                    (
+                        NOW()
+                        AT TIME ZONE 'America/Sao_Paulo'
+                    )::date
+                    LIMIT 1
+                    `,
+                    [usuarioId]
+                );
+
+
+            if (
+                relatorioFinalizado.rows.length > 0
+            ) {
+
+                return res.status(409).json({
+                    erro:
+                        "O relatório de hoje já foi concluído."
+                });
+
+            }
+
+
+            const respostasJson =
+                JSON.stringify(respostas);
+
+            const mensagensJson =
+                Array.isArray(mensagensChat)
+                    ? JSON.stringify(mensagensChat)
+                    : null;
+
+
+            await db.query(
+                `
+                INSERT INTO rascunhos_relatorio
+                (
+                    usuario_id,
+                    data_referencia,
+                    respostas,
+                    mensagens_chat,
+                    atualizado_em
+                )
+
+                VALUES
+                (
+                    $1,
+                    (
+                        NOW()
+                        AT TIME ZONE 'America/Sao_Paulo'
+                    )::date,
+                    $2::jsonb,
+                    COALESCE(
+                        $3::jsonb,
+                        '[]'::jsonb
+                    ),
+                    NOW()
+                )
+
+                ON CONFLICT
+                (
+                    usuario_id,
+                    data_referencia
+                )
+
+                DO UPDATE SET
+
+                    respostas =
+                        EXCLUDED.respostas,
+
+                    mensagens_chat =
+                        COALESCE(
+                            $3::jsonb,
+                            rascunhos_relatorio.mensagens_chat
+                        ),
+
+                    atualizado_em =
+                        NOW()
+                `,
+                [
+                    usuarioId,
+                    respostasJson,
+                    mensagensJson
+                ]
+            );
+
+
+            return res.json({
+                sucesso: true
+            });
+
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao salvar rascunho:",
+                erro
+            );
+
+            return res.status(500).json({
+                erro:
+                    "Não foi possível salvar o rascunho."
+            });
+
+        }
+
+    }
+);
+
+// =========================================
+// PATCH — SALVAR UMA ÚNICA RESPOSTA
+// DO RASCUNHO SEM SOBRESCREVER AS OUTRAS
+// =========================================
+
+app.patch(
+    "/api/relatorio/rascunho/resposta",
+
+    estaLogado,
+    exigeResponsavel,
+    precisaPlano("medio"),
+
+    async (req, res) => {
+
+        const cliente =
+            await db.connect();
+
+        try {
+
+            const usuarioId =
+                req.authUser.id;
+
+
+            const {
+                id,
+                pergunta,
+                resposta,
+                remover
+            } = req.body;
+
+
+            const idsPermitidos =
+                new Set([
+                    "alerta_estresse",
+                    "acalmou_facilidade",
+                    "gatilho_principal",
+                    "desconforto_texturas",
+                    "evitou_contato_visual",
+                    "comunicacao",
+                    "humor",
+                    "crises_sensoriais",
+                    "sono",
+                    "alimentacao",
+                    "atividades_propostas",
+                    "interacao_social",
+                    "avaliacao_dia"
+                ]);
+
+
+            if (
+                !id ||
+                !idsPermitidos.has(id)
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        erro:
+                            "Campo do relatório inválido."
+                    });
+
+            }
+
+
+            const perguntaLimpa =
+                String(
+                    pergunta || ""
+                )
+                    .trim()
+                    .slice(
+                        0,
+                        300
+                    );
+
+
+            const respostaLimpa =
+                String(
+                    resposta || ""
+                )
+                    .trim()
+                    .slice(
+                        0,
+                        500
+                    );
+
+
+            if (
+                !remover &&
+                !respostaLimpa
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        erro:
+                            "Resposta inválida."
+                    });
+
+            }
+
+
+            await cliente.query(
+                "BEGIN"
+            );
+
+
+            // Confere se o relatório já foi
+            // finalizado antes de mexer no rascunho.
+            const relatorioFinalizado =
+                await cliente.query(
+                    `
+                    SELECT id
+
+                    FROM relatorios
+
+                    WHERE usuario_id = $1
+
+                    AND DATE(
+                        data
+                        AT TIME ZONE 'UTC'
+                        AT TIME ZONE
+                        'America/Sao_Paulo'
+                    ) =
+                    (
+                        NOW()
+                        AT TIME ZONE
+                        'America/Sao_Paulo'
+                    )::date
+
+                    LIMIT 1
+                    `,
+                    [
+                        usuarioId
+                    ]
+                );
+
+
+            if (
+                relatorioFinalizado
+                    .rows
+                    .length > 0
+            ) {
+
+                await cliente.query(
+                    "ROLLBACK"
+                );
+
+
+                return res
+                    .status(409)
+                    .json({
+                        erro:
+                            "Você já preencheu o relatório de hoje. Volte amanhã!"
+                    });
+
+            }
+
+
+            // Garante que exista um rascunho
+            // para o dia atual.
+            await cliente.query(
+                `
+                INSERT INTO
+                    rascunhos_relatorio
+                (
+                    usuario_id,
+                    data_referencia,
+                    respostas,
+                    mensagens_chat,
+                    atualizado_em
+                )
+
+                VALUES
+                (
+                    $1,
+                    (
+                        NOW()
+                        AT TIME ZONE
+                        'America/Sao_Paulo'
+                    )::date,
+                    '[]'::jsonb,
+                    '[]'::jsonb,
+                    NOW()
+                )
+
+                ON CONFLICT
+                (
+                    usuario_id,
+                    data_referencia
+                )
+
+                DO NOTHING
+                `,
+                [
+                    usuarioId
+                ]
+            );
+
+
+            /*
+                Bloqueia somente o rascunho deste
+                usuário enquanto fazemos a alteração.
+
+                Se duas abas salvarem ao mesmo tempo,
+                uma espera a outra terminar.
+            */
+            const rascunho =
+                await cliente.query(
+                    `
+                    SELECT
+                        respostas
+
+                    FROM
+                        rascunhos_relatorio
+
+                    WHERE
+                        usuario_id = $1
+
+                    AND
+                        data_referencia =
+                        (
+                            NOW()
+                            AT TIME ZONE
+                            'America/Sao_Paulo'
+                        )::date
+
+                    FOR UPDATE
+                    `,
+                    [
+                        usuarioId
+                    ]
+                );
+
+
+            let respostasAtuais =
+                rascunho
+                    .rows[0]
+                    ?.respostas || [];
+
+
+            if (
+                !Array.isArray(
+                    respostasAtuais
+                )
+            ) {
+
+                respostasAtuais = [];
+
+            }
+
+
+            if (remover) {
+
+                respostasAtuais =
+                    respostasAtuais
+                        .filter(
+                            item =>
+                                item &&
+                                item.id !== id
+                        );
+
+            } else {
+
+                const indice =
+                    respostasAtuais
+                        .findIndex(
+                            item =>
+                                item &&
+                                item.id === id
+                        );
+
+
+                const novaResposta = {
+
+                    id,
+
+                    pergunta:
+                        perguntaLimpa,
+
+                    resposta:
+                        respostaLimpa
+
+                };
+
+
+                if (indice >= 0) {
+
+                    respostasAtuais[indice] = {
+
+                        ...respostasAtuais[
+                            indice
+                        ],
+
+                        ...novaResposta
+
+                    };
+
+                } else {
+
+                    respostasAtuais.push(
+                        novaResposta
+                    );
+
+                }
+
+            }
+
+
+            await cliente.query(
+                `
+                UPDATE
+                    rascunhos_relatorio
+
+                SET
+                    respostas =
+                        $2::jsonb,
+
+                    atualizado_em =
+                        NOW()
+
+                WHERE
+                    usuario_id = $1
+
+                AND
+                    data_referencia =
+                    (
+                        NOW()
+                        AT TIME ZONE
+                        'America/Sao_Paulo'
+                    )::date
+                `,
+                [
+                    usuarioId,
+
+                    JSON.stringify(
+                        respostasAtuais
+                    )
+                ]
+            );
+
+
+            await cliente.query(
+                "COMMIT"
+            );
+
+
+            return res.json({
+
+                sucesso:
+                    true,
+
+                respostas:
+                    respostasAtuais
+
+            });
+
+
+        } catch (erro) {
+
+            try {
+
+                await cliente.query(
+                    "ROLLBACK"
+                );
+
+            } catch (_) {
+            }
+
+
+            console.error(
+                "Erro ao salvar resposta individual do rascunho:",
+                erro
+            );
+
+
+            return res
+                .status(500)
+                .json({
+                    erro:
+                        "Não foi possível salvar a resposta."
+                });
+
+
+        } finally {
+
+            cliente.release();
+
+        }
+
+    }
+);
+
+/* ==========================
+   ROTA POST — SALVAR RELATÓRIO DIÁRIO
+========================== */
+
+app.post("/api/relatorio", estaLogado, exigeResponsavel, precisaPlano("medio"), async (req, res) => {
+
+    const usuarioId =
+        req.authUser.id;
+
+    if (!usuarioId) {
+
+        return res.status(401).json({
+            erro: "Não autenticado."
+        });
+
+    }
+
+
+    let cliente = null;
+
+
+    try {
+
+        cliente =
+            await db.connect();
+
+
+        await cliente.query(
+            "BEGIN"
+        );
+
+
+        /*
+            O rascunho do banco é a fonte oficial.
+            FOR UPDATE impede que chat/formulário alterem
+            o rascunho enquanto ele está sendo finalizado.
+        */
+        const rascunho =
+            await cliente.query(
+                `
+                SELECT
+                    respostas
+
+                FROM
+                    rascunhos_relatorio
+
+                WHERE
+                    usuario_id = $1
+
+                AND
+                    data_referencia =
+                    (
+                        NOW()
+                        AT TIME ZONE
+                        'America/Sao_Paulo'
+                    )::date
+
+                FOR UPDATE
+                `,
+                [
+                    usuarioId
+                ]
+            );
+
+
+        // Se não existe rascunho, pode ser porque outra aba
+        // já finalizou o relatório enquanto esta ainda estava aberta.
+        if (
+            rascunho.rows.length === 0
+        ) {
+
+            const jaFinalizado =
+                await cliente.query(
+                    `
+                    SELECT id
+
+                    FROM relatorios
+
+                    WHERE usuario_id = $1
+
+                    AND DATE(
+                        data
+                        AT TIME ZONE 'UTC'
+                        AT TIME ZONE 'America/Sao_Paulo'
+                    ) =
+                    (
+                        NOW()
+                        AT TIME ZONE 'America/Sao_Paulo'
+                    )::date
+
+                    LIMIT 1
+                    `,
+                    [
+                        usuarioId
+                    ]
+                );
+
+
+            await cliente.query(
+                "ROLLBACK"
+            );
+
+
+            if (
+                jaFinalizado.rows.length > 0
+            ) {
+
+                return res.status(409).json({
+                    erro:
+                        "Você já preencheu o relatório de hoje. Volte amanhã!"
+                });
+
+            }
+
+
+            return res.status(400).json({
+                erro:
+                    "Não foi encontrado um rascunho para finalizar."
+            });
+
+        }
+
+
+        let respostas =
+            rascunho.rows[0]?.respostas || [];
+
+
+        if (
+            !Array.isArray(respostas) ||
+            respostas.length === 0
+        ) {
+
+            await cliente.query(
+                "ROLLBACK"
+            );
+
+            return res.status(400).json({
+                erro:
+                    "O relatório ainda não possui respostas para finalizar."
+            });
+
+        }
+
+
+        // Confere se outra aba já finalizou o relatório.
+        const jaTemHoje =
+            await cliente.query(
+                `
+                SELECT id
+
+                FROM relatorios
+
+                WHERE usuario_id = $1
+
+                AND DATE(
+                    data
+                    AT TIME ZONE 'UTC'
+                    AT TIME ZONE 'America/Sao_Paulo'
+                ) =
+                (
+                    NOW()
+                    AT TIME ZONE 'America/Sao_Paulo'
+                )::date
+
+                LIMIT 1
+                `,
+                [
+                    usuarioId
+                ]
+            );
+
+
+        if (
+            jaTemHoje.rows.length > 0
+        ) {
+
+            await cliente.query(
+                "ROLLBACK"
+            );
+
+            return res.status(409).json({
+                erro:
+                    "Você já preencheu o relatório de hoje. Volte amanhã!"
+            });
+
+        }
+
+
+        // Descobre se houve alerta REAL do Bixuco hoje.
+        // Se houve, as duas perguntas extras também são obrigatórias.
+        const eventoHoje =
+            await cliente.query(
+                `
+                SELECT 1
+
+                FROM eventos_bixuco e
+
+                JOIN criancas c
+                    ON c.id = e.crianca_id
+
+                WHERE c.usuario_id = $1
+
+                AND DATE(
+                    e.criado_em
+                    AT TIME ZONE 'UTC'
+                    AT TIME ZONE 'America/Sao_Paulo'
+                ) =
+                (
+                    NOW()
+                    AT TIME ZONE 'America/Sao_Paulo'
+                )::date
+
+                LIMIT 1
+                `,
+                [
+                    usuarioId
+                ]
+            );
+
+
+        const houveAlertaReal =
+            eventoHoje.rows.length > 0;
+
+
+        const idsNecessarios = [
+            "alerta_estresse",
+            ...(houveAlertaReal
+                ? [
+                    "acalmou_facilidade",
+                    "gatilho_principal"
+                ]
+                : []),
+            "desconforto_texturas",
+            "evitou_contato_visual",
+            "comunicacao",
+            "humor",
+            "crises_sensoriais",
+            "sono",
+            "alimentacao",
+            "atividades_propostas",
+            "interacao_social",
+            "avaliacao_dia"
+        ];
+
+
+        const idsRespondidos =
+            new Set(
+                respostas
+                    .filter(
+                        item =>
+                            item &&
+                            item.id &&
+                            String(
+                                item.resposta || ""
+                            ).trim()
+                    )
+                    .map(
+                        item =>
+                            item.id
+                    )
+            );
+
+
+        const faltantes =
+            idsNecessarios.filter(
+                id =>
+                    !idsRespondidos.has(id)
+            );
+
+
+        if (
+            faltantes.length > 0
+        ) {
+
+            await cliente.query(
+                "ROLLBACK"
+            );
+
+            return res.status(400).json({
+                erro:
+                    "Ainda existem informações do relatório que precisam ser preenchidas antes de finalizar.",
+                faltantes
+            });
+
+        }
+
+
+        /*
+            Normaliza somente a cópia MAIS RECENTE que veio
+            do banco. O texto original do responsável continua
+            preservado pela própria função.
+        */
+        const respostasNormalizadas =
+            await enriquecerRespostasComGatilho(
+                respostas
+            );
+
+
+        // Salva o relatório definitivo.
+        await cliente.query(
+            `
+            INSERT INTO relatorios
+            (
+                usuario_id,
+                respostas,
+                data
+            )
+
+            VALUES
+            (
+                $1,
+                $2,
+                NOW()
+            )
+            `,
+            [
+                usuarioId,
+                JSON.stringify(
+                    respostasNormalizadas
+                )
+            ]
+        );
+
+
+        // Depois de virar relatório definitivo,
+        // o rascunho de hoje deixa de existir.
+        await cliente.query(
+            `
+            DELETE FROM rascunhos_relatorio
+
+            WHERE usuario_id = $1
+
+            AND data_referencia =
+            (
+                NOW()
+                AT TIME ZONE 'America/Sao_Paulo'
+            )::date
+            `,
+            [
+                usuarioId
+            ]
+        );
+
+
+        // Notificação para o responsável.
+        await cliente.query(
+            `
+            INSERT INTO notificacoes
+            (
+                usuario_id,
+                tipo,
+                mensagem,
+                lida
+            )
+
+            VALUES
+            (
+                $1,
+                'relatorio_concluido',
+                $2,
+                FALSE
+            )
+            `,
+            [
+                usuarioId,
+                "Você acabou de finalizar um relatório. Parabéns! 🎉"
+            ]
+        );
+
+
+        // Busca terapeuta vinculado, se existir.
+        const terapeutaVinculado =
+            await cliente.query(
+                `
+                SELECT
+                    u.id,
+                    u.nome
+
+                FROM vinculos v
+
+                JOIN usuarios u
+                    ON u.id = v.terapeuta_id
+
+                WHERE
+                    v.responsavel_id = $1
+                    AND v.ativo = TRUE
+
+                LIMIT 1
+                `,
+                [
+                    usuarioId
+                ]
+            );
+
+
+        if (
+            terapeutaVinculado.rows.length > 0
+        ) {
+
+            const terapeuta =
+                terapeutaVinculado.rows[0];
+
+
+            const prefTerapeuta =
+                await cliente.query(
+                    `
+                    SELECT
+                        notif_lembrete
+
+                    FROM preferencias_usuario
+
+                    WHERE usuario_id = $1
+                    `,
+                    [
+                        terapeuta.id
+                    ]
+                );
+
+
+            const receberRelatorios =
+                prefTerapeuta.rows[0]
+                    ?.notif_lembrete ?? true;
+
+
+            if (receberRelatorios) {
+
+                const crianca =
+                    await cliente.query(
+                        `
+                        SELECT nome
+
+                        FROM criancas
+
+                        WHERE usuario_id = $1
+
+                        LIMIT 1
+                        `,
+                        [
+                            usuarioId
+                        ]
+                    );
+
+
+                const nomeCrianca =
+                    crianca.rows[0]?.nome ||
+                    "A criança";
+
+
+                await cliente.query(
+                    `
+                    INSERT INTO notificacoes
+                    (
+                        usuario_id,
+                        tipo,
+                        mensagem,
+                        lida
+                    )
+
+                    VALUES
+                    (
+                        $1,
+                        'relatorio_finalizado',
+                        $2,
+                        FALSE
+                    )
+                    `,
+                    [
+                        terapeuta.id,
+                        `${nomeCrianca} acabou de finalizar um relatório. Clique para ver.`
+                    ]
+                );
+
+            }
+
+        }
+
+
+        await cliente.query(
+            "COMMIT"
+        );
+
+
+        return res.status(201).json({
+            mensagem:
+                "Relatório salvo com sucesso."
+        });
+
+
+    } catch (erro) {
+
+        if (cliente) {
+
+            try {
+
+                await cliente.query(
+                    "ROLLBACK"
+                );
+
+            } catch (_) {
+            }
+
+        }
+
+
+        console.log(
+            "Erro ao salvar relatório:",
+            erro
+        );
+
+
+        return res.status(500).json({
+            erro:
+                "Erro interno ao salvar relatório."
+        });
+
+
+    } finally {
+
+        if (cliente) {
+            cliente.release();
+        }
+
+    }
+
+});
+
+app.post("/api/relatorios/:id/marcar-visto", estaLogado, exigeTerapeuta, async (req, res) => {
+    const usuarioId   = req.authUser.id;
+    const relatorioId = req.params.id;
+
+    try {
+        await db.query(
+            `UPDATE relatorios SET visto_terapeuta = TRUE
+             WHERE id = $1
+             AND usuario_id IN (
+                 SELECT responsavel_id FROM vinculos
+                 WHERE terapeuta_id = $2 AND ativo = TRUE
+             )`,
+            [relatorioId, usuarioId]
+        );
+        res.json({ sucesso: true });
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
+});
+
+
+/* ==========================
+   ROTA DELETE — EXCLUIR CONTA
+========================== */
+
+// 🔧 FIX 3: Rota /api/excluir-conta que o frontend chamava
+// mas nunca existiu no server.js
+app.delete("/api/excluir-conta", estaLogado, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.authUser.id;
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        // A ordem importa por causa das chaves estrangeiras (foreign keys).
+        // Sempre apaga primeiro quem "aponta para" o usuário/criança,
+        // e só no final apaga o próprio usuário.
+
+        // 🔧 Perfil sensorial referencia tanto usuario_id quanto crianca_id —
+        // precisa ser apagado antes da tabela criancas
+                // A ordem importa por causa das chaves estrangeiras.
+        // Regra: primeiro quem APONTA para criança, depois quem aponta
+        // para usuário, e só no fim o próprio usuário.
+
+        // --- Tudo que referencia a(s) criança(s) do usuário ---
+
+        await db.query(
+            `DELETE FROM eventos_bixuco
+             WHERE crianca_id IN (SELECT id FROM criancas WHERE usuario_id = $1)`,
+            [usuarioId]
+        );
+
+        await db.query(
+            `DELETE FROM localizacoes_bixuco
+             WHERE crianca_id IN (SELECT id FROM criancas WHERE usuario_id = $1)`,
+            [usuarioId]
+        );
+
+        // Dispositivo é hardware físico — não apagamos o registro,
+        // só desvinculamos pra poder ser reaproveitado depois.
+        await db.query(
+            `UPDATE dispositivos
+             SET usuario_id = NULL, crianca_id = NULL, vinculado_em = NULL
+             WHERE usuario_id = $1`,
+            [usuarioId]
+        );
+
+        await db.query(
+            "DELETE FROM perfil_sensorial WHERE usuario_id = $1",
+            [usuarioId]
+        );
+
+        // --- Tudo que referencia o usuário ---
+
+        await db.query(
+            "DELETE FROM relatorios WHERE usuario_id = $1",
+            [usuarioId]
+        );
+
+        await db.query(
+            "DELETE FROM notas_clinicas WHERE paciente_id = $1 OR terapeuta_id = $1",
+            [usuarioId]
+        );
+
+        await db.query(
+            "DELETE FROM vinculos WHERE responsavel_id = $1 OR terapeuta_id = $1",
+            [usuarioId]
+        );
+
+        await db.query(
+            "DELETE FROM tokens_recuperacao WHERE usuario_id = $1",
+            [usuarioId]
+        );
+
+        await db.query(
+            "DELETE FROM codigos_2fa WHERE usuario_id = $1",
+            [usuarioId]
+        );
+
+        await db.query(
+            "DELETE FROM tokens_app WHERE usuario_id = $1",
+            [usuarioId]
+        );
+
+        await db.query(
+            "DELETE FROM dicas_personalizadas WHERE usuario_id = $1",
+            [usuarioId]
+        );
+
+        await db.query(
+            "DELETE FROM pedidos WHERE usuario_id = $1",
+            [usuarioId]
+        );
+
+        await db.query(
+            "DELETE FROM preferencias_usuario WHERE usuario_id = $1",
+            [usuarioId]
+        );
+
+        await db.query(
+            "DELETE FROM notificacoes WHERE usuario_id = $1",
+            [usuarioId]
+        );
+
+        await db.query(
+            "DELETE FROM assinaturas WHERE usuario_id = $1",
+            [usuarioId]
+        );
+
+        // --- Criança e usuário por último ---
+
+        await db.query(
+            "DELETE FROM criancas WHERE usuario_id = $1",
+            [usuarioId]
+        );
+
+        await db.query(
+            "DELETE FROM usuarios WHERE id = $1",
+            [usuarioId]
+        );
+
+        // Encerra a sessão após excluir a conta
+        req.session.destroy((err) => {
+            if (err) console.log("Erro ao destruir sessão:", err);
+        });
+
+        return res.status(200).json({ mensagem: "Conta excluída com sucesso." });
+
+    } catch (erro) {
+
+        console.log("Erro ao excluir conta:", erro);
+        res.status(500).json({ erro: "Erro interno ao excluir conta." });
+
+    }
+
+});
+
+
+/* ==========================
+   ROTA GET — DADOS DO PERFIL (API)
+========================== */
+
+// 🔧 FIX 1: Rota /api/perfil que o frontend chamava como /dados-usuario
+// Retorna todos os dados necessários para montar a página de perfil
+app.get("/api/perfil", estaLogado, async (req, res) => {
+    
+
+    try {
+
+        const usuarioId = req.authUser.id;
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        // Busca os dados do usuário
+        const resultadoUsuario = await db.query(
+            `SELECT id, nome, email, tipo, foto_perfil, codigo_vinculo,
+                    EXTRACT(YEAR FROM criado_em) AS ano_cadastro
+            FROM usuarios
+            WHERE id = $1`,
+            [usuarioId]
+        );
+
+        if (resultadoUsuario.rows.length === 0) {
+            return res.status(404).json({ erro: "Usuário não encontrado." });
+        }
+
+        const usuario = resultadoUsuario.rows[0];
+
+        // Busca a criança vinculada ao responsável
+        // Ajuste o nome da tabela conforme o seu banco
+        const resultadoCrianca = await db.query(
+            `SELECT nome, data_nascimento, foto_url
+             FROM criancas
+             WHERE usuario_id = $1
+             LIMIT 1`,
+            [usuarioId]
+        );
+
+        // Calcula a idade da criança a partir da data de nascimento
+        let criancaDados = null;
+
+        if (resultadoCrianca.rows.length > 0) {
+
+            const crianca = resultadoCrianca.rows[0];
+
+
+            criancaDados = {
+                nome: crianca.nome,
+                idade: calcularIdade(crianca.data_nascimento),
+                foto: crianca.foto_url || null
+            };
+
+        }
+
+        // Busca o terapeuta vinculado ao responsável
+        // Ajuste o nome das tabelas conforme o seu banco
+        const resultadoTerapeuta = await db.query(
+            `SELECT u.nome, u.crp
+             FROM vinculos v
+             JOIN usuarios u ON u.id = v.terapeuta_id
+             WHERE v.responsavel_id = $1
+             AND v.ativo = TRUE
+             LIMIT 1`,
+            [usuarioId]
+        );
+
+        let terapeutaDados = null;
+
+        if (resultadoTerapeuta.rows.length > 0) {
+            terapeutaDados = resultadoTerapeuta.rows[0];
+        }
+
+        // Busca o plano ativo do usuário
+        // Ajuste o nome da tabela conforme o seu banco
+        const resultadoPlano = await db.query(
+            `SELECT nome_plano
+            FROM assinaturas
+            WHERE usuario_id = $1
+            AND ativo = TRUE
+            ORDER BY criado_em DESC
+            LIMIT 1`,
+            [usuarioId]
+        );
+
+        const planoCodigo = resultadoPlano.rows.length > 0
+            ? resultadoPlano.rows[0].nome_plano.toLowerCase()
+            : "gratis";
+
+        // nome bonito pra EXIBIÇÃO na tela
+        const nomesPlanos = {
+            gratis:    "Plano Grátis",
+            medio:     "Plano Básico Bixuco",
+            completo:  "Plano Premium Bixuco"
+        };
+
+        const plano = nomesPlanos[planoCodigo] || "Plano Grátis";
+
+
+        // Busca dias consecutivos de relatório
+        
+
+        const nomesTipoConta = { pai: "Responsável", psicologo: "Terapeuta", admin: "Administrador" };
+        const tipoConta = nomesTipoConta[usuario.tipo] || "Usuário";
+
+        // Monta e retorna o JSON completo para o frontend
+        const ofensiva         = await calcularOfensivaSemCrise(usuarioId);
+        const diasConsecutivos = ofensiva.atual;
+        const maiorOfensiva    = ofensiva.maior;
+
+        res.json({
+            nome: usuario.nome,
+            email: usuario.email,
+            tipoConta,
+            fotoPerfil: usuario.foto_perfil || null,
+            anoCadastro: usuario.ano_cadastro || new Date().getFullYear(),
+            diasConsecutivos,
+            maiorOfensiva: maiorOfensiva,
+            plano,
+            planoCodigo,
+            codigoVinculo: usuario.codigo_vinculo || null,
+            crianca: criancaDados,
+            terapeuta: terapeutaDados
+        });
+
+    } catch (erro) {
+
+        console.log("Erro na rota /api/perfil:", erro);
+        res.status(500).json({ erro: "Erro interno do servidor." });
+
+    }
+
+});
+
+// 🔧 A remoção de terapeuta agora é feita só por /api/vinculos/remover
+// (a rota /api/remover-terapeuta foi removida por ser duplicada e
+// usar DELETE em vez de manter o histórico do vínculo)
+
+/* ==========================
+   ROTA POST — ATUALIZAR PERFIL (nome e/ou foto)
+========================== */
+
+app.post("/api/perfil/atualizar", estaLogado, upload.single("fotoPerfil"), async (req, res) => {
+
+    try {
+
+        const usuarioId = req.authUser.id;
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        const { nome } = req.body;
+
+        // Monta a query dinamicamente — só atualiza os campos que vieram
+        const campos = [];
+        const valores = [];
+        let indice = 1;
+
+        if (nome !== undefined) {
+
+            const nomeLimpo = nome.trim();
+
+            if (nomeLimpo.length < 2) {
+                return res.status(400).json({ erro: "Nome inválido.", campo: "nome" });
+            }
+
+            campos.push(`nome = $${indice++}`);
+            valores.push(nomeLimpo);
+
+        }
+
+        // Se veio uma foto nova, salva no disco (reaproveitando o multer
+        // "upload" já configurado com memoryStorage, igual ao adicionar-crianca)
+        if (req.file) {
+
+            if (!(await validarImagemReal(req.file.buffer))) {
+                return res.status(400).json({ erro: "Arquivo inválido. Envie uma imagem JPEG, PNG ou WebP." });
+            }
+
+            const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+            campos.push(`foto_perfil = $${indice++}`);
+            valores.push(base64);
+        }
+
+        if (campos.length === 0) {
+            return res.status(400).json({ erro: "Nada para atualizar." });
+        }
+
+        valores.push(usuarioId);
+
+        const resultado = await db.query(
+            `UPDATE usuarios
+             SET ${campos.join(", ")}
+             WHERE id = $${indice}
+             RETURNING nome, foto_perfil`,
+            valores
+        );
+
+        if (resultado.rows.length === 0) {
+            return res.status(404).json({ erro: "Usuário não encontrado." });
+        }
+
+        return res.json({
+            sucesso: true,
+            nome: resultado.rows[0].nome,
+            fotoPerfil: resultado.rows[0].foto_perfil
+        });
+
+    } catch (erro) {
+
+        console.log("Erro ao atualizar perfil:", erro);
+        res.status(500).json({ erro: "Erro interno ao salvar perfil." });
+
+    }
+
+});
+
+/* ==================================================
+   ROTA DO SOBRE — adicione no seu server.js
+   ================================================== */
+
+// 🔧 Rota GET /sobre que não existia no server.js
+// Protegida com estaLogado para manter padrão das outras páginas
+app.get("/sobre", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
+
+    res.sendFile(path.join(__dirname, "templates", "sobre.html"));
+
+});
+
+
+/* ==========================
+   LOGOUT
+========================== */
+
+// 🔧 FIX 6: Rota de logout que antes não existia
+// O HTML tinha <a href="/logout"> mas a rota nunca foi criada
+app.get('/logout', (req, res) => {
+
+    req.session.destroy((err) => {
+
+        if (err) {
+            console.log("Erro ao encerrar sessão:", err);
+        }
+
+        res.redirect("/logar");
+
+    });
+
+});
+
+/* ==========================
+   API — DADOS DA HOME
+========================== */
+
+app.get('/api/home', estaLogado, exigeResponsavel, async (req, res) => {
+
+    try {
+
+        // Pega o id do usuário logado — pode vir do Passport (Google) ou do login manual
+        const usuarioId = req.authUser.id;
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        const resultado = await db.query(
+
+            `SELECT id, nome, email, tipo, foto_perfil
+             FROM usuarios
+             WHERE id = $1`,
+
+            [usuarioId]
+
+        );
+
+        if (resultado.rows.length === 0) {
+            return res.status(404).json({ erro: "Usuário não encontrado." });
+        }
+
+        const usuario = resultado.rows[0];
+
+        // 🔧 NOVO: busca o nome da criança cadastrada por esse usuário —
+        // usado na tela "Relatório salvo!" (RelatorioSalvo.html)
+        let nomeCrianca = null;
+        try {
+            const criancaResultado = await db.query(
+                `SELECT nome FROM criancas WHERE usuario_id = $1 LIMIT 1`,
+                [usuarioId]
+            );
+            nomeCrianca = criancaResultado.rows[0]?.nome || null;
+        } catch (_) {
+            // Sem criança cadastrada ainda — segue sem quebrar a home
+        }
+
+        const ofensiva = await calcularOfensivaSemCrise(usuarioId);
+        
+
+        // Busca quantas notificações não lidas o usuário tem
+        // Ajuste conforme sua tabela de notificações
+        let totalNotificacoes = 0;
+        try {
+            const notificacoes = await db.query(
+                `SELECT COUNT(*) AS total
+                FROM notificacoes
+                WHERE usuario_id = $1
+                AND lida = false`,
+                [usuarioId]
+            );
+            totalNotificacoes = parseInt(notificacoes.rows[0].total) || 0;
+        } catch (_) {
+            // Tabela notificacoes ainda não existe — retorna 0 sem quebrar a home
+        }
+
+        // Monta o tipo de conta para exibir na tela
+        const nomesTipoConta = { pai: "Responsável", psicologo: "Terapeuta", admin: "Administrador" };
+        const tipoConta = nomesTipoConta[usuario.tipo] || "Usuário";
+
+        res.json({
+            nome: usuario.nome,
+            tipoConta,
+            fotoPerfil: usuario.foto_perfil || null,
+            notificacoes: totalNotificacoes,
+            diasConsecutivos: ofensiva.atual,
+            maiorOfensiva: ofensiva.maior,
+            nomeBixuco: "Bixuco", // futuramente buscar da tabela de dispositivos vinculados
+            nomeCrianca // 🔧 NOVO — usado em RelatorioSalvo.html
+        });
+
+    } catch (erro) {
+
+        console.log("Erro na rota /api/home:", erro);
+        res.status(500).json({ erro: "Erro interno do servidor." });
+
+    }
+
+});
+
+/* ==========================
+   API — NOTIFICAÇÕES
+========================== */
+
+// Lista as notificações do usuário logado, mais recentes primeiro
+app.get("/api/notificacoes", estaLogado, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.authUser.id;
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        const resultado = await db.query(
+            `SELECT id, tipo, mensagem, lida,
+                    TO_CHAR(criado_em, 'DD/MM/YYYY HH24:MI') AS tempo
+             FROM notificacoes
+             WHERE usuario_id = $1
+             ORDER BY criado_em DESC
+             LIMIT 20`,
+            [usuarioId]
+        );
+
+        res.json({ notificacoes: resultado.rows });
+
+    } catch (erro) {
+
+        console.log("Erro ao buscar notificações:", erro);
+        res.status(500).json({ erro: "Erro interno do servidor." });
+
+    }
+
+});
+
+// Marca todas as notificações do usuário como lidas
+// Chamada quando o usuário abre o painel de notificações
+app.post("/api/notificacoes/marcar-lidas", estaLogado, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.authUser.id;
+
+        if (!usuarioId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        await db.query(
+            `UPDATE notificacoes SET lida = TRUE WHERE usuario_id = $1 AND lida = FALSE`,
+            [usuarioId]
+        );
+
+        res.status(200).json({ mensagem: "Notificações marcadas como lidas." });
+
+    } catch (erro) {
+
+        console.log("Erro ao marcar notificações como lidas:", erro);
+        res.status(500).json({ erro: "Erro interno do servidor." });
+
+    }
+
+});
+
+/* ==========================
+   API — DIAS COM RELATÓRIO (CALENDÁRIO)
+========================== */
+
+// 🔧 FIX 8: Rota para o calendário saber quais dias tiveram relatório
+// O frontend pode chamar /api/relatorios/dias?mes=6&ano=2026
+// e marcar os círculos verdes nos dias corretos
+app.get('/api/relatorios/dias', estaLogado, exigeResponsavel, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.authUser.id;
+
+        const mes = parseInt(req.query.mes) || new Date().getMonth() + 1;
+        const ano = parseInt(req.query.ano) || new Date().getFullYear();
+
+        const resultado = await db.query(
+
+            `SELECT EXTRACT(DAY FROM (data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) AS dia
+            FROM relatorios
+            WHERE usuario_id = $1
+            AND EXTRACT(MONTH FROM (data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = $2
+            AND EXTRACT(YEAR FROM (data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = $3`,
+
+            [usuarioId, mes, ano]
+
+        );
+
+        // Retorna um array com os números dos dias que têm relatório
+        // Ex: [1, 4, 7, 8, 11] → frontend pinta esses dias de verde
+        const diasComRelatorio = resultado.rows.map(r => parseInt(r.dia));
+
+        res.json({ dias: diasComRelatorio });
+
+    } catch (erro) {
+
+        console.log("Erro na rota /api/relatorios/dias:", erro);
+        res.status(500).json({ erro: "Erro interno do servidor." });
+
+    }
+
+});
+
+
+
+
+// ─────────────────────────────────────────
+// LISTA DE PACIENTES COM ÚLTIMO RELATÓRIO
+// usada pela tela de seleção de relatórios do terapeuta
+// ─────────────────────────────────────────
+app.get("/api/pacientes-relatorios", estaLogado, exigeTerapeuta, async (req, res) => {
+    const usuarioId = req.authUser.id;
+
+    try {
+        const resultado = await db.query(
+            `SELECT
+                u.id              AS responsavel_id,
+                u.nome            AS nome_responsavel,
+                c.nome            AS nome_crianca,
+                c.foto_url        AS foto_crianca,
+                MAX(r.data)       AS ultimo_relatorio
+             FROM vinculos v
+             JOIN usuarios u ON u.id = v.responsavel_id
+             LEFT JOIN criancas c ON c.usuario_id = v.responsavel_id
+             LEFT JOIN relatorios r ON r.usuario_id = v.responsavel_id
+             WHERE v.terapeuta_id = $1
+               AND v.ativo = TRUE
+             GROUP BY u.id, u.nome, c.nome, c.foto_url
+             ORDER BY MAX(r.data) DESC NULLS LAST`,
+            [usuarioId]
+        );
+
+        const pacientes = resultado.rows.map(p => ({
+            responsavelId:   p.responsavel_id,
+            nomeResponsavel: p.nome_responsavel,
+            nomeCrianca:     p.nome_crianca     || "Criança",
+            fotoCrianca:     p.foto_crianca     || null,
+            ultimoRelatorio: p.ultimo_relatorio || null
+        }));
+
+        res.json({ pacientes });
+
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
+});
+
+
+app.get("/api/relatorio-paciente", estaLogado, exigeTerapeuta, async (req, res) => {
+
+    try {
+
+        const terapeutaId = req.authUser.id;
+        const pacienteId  = parseInt(req.query.paciente);
+
+        if (!terapeutaId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        if (!pacienteId) {
+            return res.status(400).json({ erro: "ID do paciente inválido." });
+        }
+
+        const vinculo = await db.query(
+            `SELECT id FROM vinculos
+             WHERE terapeuta_id = $1 AND responsavel_id = $2 AND ativo = TRUE`,
+            [terapeutaId, pacienteId]
+        );
+
+        if (vinculo.rows.length === 0) {
+            return res.status(403).json({ erro: "Você não tem vínculo com esse paciente." });
+        }
+
+        const crianca = await db.query(
+            `SELECT c.nome FROM criancas c WHERE c.usuario_id = $1 LIMIT 1`,
+            [pacienteId]
+        );
+
+        const nomePaciente = crianca.rows[0]?.nome || "Paciente";
+
+        function formatarTempo(ms) {
+            if (ms < 60000) return `${Math.round(ms / 1000)} s`;
+            return `${Math.round(ms / 60000)} min`;
+        }
+
+        // =====================
+        // ALERTAS DO MÊS (eventos reais do Bixuco)
+        // =====================
+
+        const crisesMes = await contarCrisesEIsolados(
+            pacienteId,
+            `
+            AND EXTRACT(
+                MONTH FROM (
+                    e.criado_em AT TIME ZONE 'UTC'
+                    AT TIME ZONE 'America/Sao_Paulo'
+                )
+            ) = EXTRACT(
+                MONTH FROM NOW() AT TIME ZONE 'America/Sao_Paulo'
+            )
+
+            AND EXTRACT(
+                YEAR FROM (
+                    e.criado_em AT TIME ZONE 'UTC'
+                    AT TIME ZONE 'America/Sao_Paulo'
+                )
+            ) = EXTRACT(
+                YEAR FROM NOW() AT TIME ZONE 'America/Sao_Paulo'
+            )
+            `
+        );
+
+        const crisesMesAnterior = await contarCrisesEIsolados(
+            pacienteId,
+            `
+            AND EXTRACT(
+                MONTH FROM (
+                    e.criado_em AT TIME ZONE 'UTC'
+                    AT TIME ZONE 'America/Sao_Paulo'
+                )
+            ) = EXTRACT(
+                MONTH FROM (
+                    NOW() AT TIME ZONE 'America/Sao_Paulo'
+                ) - INTERVAL '1 month'
+            )
+
+            AND EXTRACT(
+                YEAR FROM (
+                    e.criado_em AT TIME ZONE 'UTC'
+                    AT TIME ZONE 'America/Sao_Paulo'
+                )
+            ) = EXTRACT(
+                YEAR FROM (
+                    NOW() AT TIME ZONE 'America/Sao_Paulo'
+                ) - INTERVAL '1 month'
+            )
+            `
+        );
+
+        const totalMes = crisesMes.crises;
+        const totalMesAnterior = crisesMesAnterior.crises;
+        const nivelAtividade =
+            classificarAtividadeSensorial(totalMes);
+        const diffAlertas      = totalMes - totalMesAnterior;
+
+        const comparativoAlertas = totalMesAnterior === 0
+            ? "registrados este mês"
+            : diffAlertas === 0
+                ? "igual ao mês passado"
+                : diffAlertas > 0
+                    ? `↑ ${diffAlertas} comparado ao mês passado`
+                    : `↓ ${Math.abs(diffAlertas)} comparado ao mês passado`;
+
+        // =====================
+        // TEMPO DE ESTRESSE DO MÊS
+        // =====================
+
+        const mediaMesMs = mediaDuracaoCrises(
+            crisesMes.episodios
+        );
+
+        const mediaMesAnteriorMs = mediaDuracaoCrises(
+            crisesMesAnterior.episodios
+        );
+
+        
+        const diffMinutos        = Math.round((mediaMesMs - mediaMesAnteriorMs) / 60000);
+
+        const comparativoTempo = mediaMesAnteriorMs === 0
+            ? "por episódio"
+            : diffMinutos === 0
+                ? "igual ao mês passado"
+                : diffMinutos > 0
+                    ? `↑ ${diffMinutos} min comparado ao mês passado`
+                    : `↓ ${Math.abs(diffMinutos)} min comparado ao mês passado`;
+
+
+
+        
+        function dataLocalBR(data) {
+            const d = new Date(data);
+            d.setHours(d.getHours() - 3);
+
+            return d.toISOString().slice(0, 10);
+        }
+
+        const eventosSemana = await db.query(
+            `SELECT
+                e.criado_em,
+                e.forca,
+                e.duracao_ms
+            FROM eventos_bixuco e
+            JOIN criancas c ON c.id = e.crianca_id
+            WHERE c.usuario_id = $1
+            AND e.criado_em >= NOW() - INTERVAL '8 days'
+            ORDER BY e.criado_em ASC`,
+            [pacienteId]
+        );
+
+        const episodiosSemana = classificarEpisodios(
+            eventosSemana.rows
+        );
+
+        const diasSemanaPt = [
+            "Dom",
+            "Seg",
+            "Ter",
+            "Qua",
+            "Qui",
+            "Sex",
+            "Sáb"
+        ];
+
+        const diasArray = [];
+
+        for (let i = 6; i >= 0; i--) {
+
+            const d = new Date();
+
+            d.setHours(d.getHours() - 3);
+
+            d.setDate(
+                d.getDate() - i
+            );
+
+            diasArray.push(
+                d.toISOString().slice(0, 10)
+            );
+        }
+
+        const contagemPorDia = {};
+
+        diasArray.forEach(dia => {
+
+            contagemPorDia[dia] = {
+                crises: 0,
+                isolados: 0
+            };
+
+        });
+
+        episodiosSemana.forEach(ep => {
+
+            const diaLocal = dataLocalBR(ep.inicio);
+
+            if (contagemPorDia[diaLocal]) {
+
+                if (ep.classificacao === "crise") {
+
+                    contagemPorDia[diaLocal].crises++;
+
+                } else {
+
+                    contagemPorDia[diaLocal].isolados++;
+
+                }
+
+            }
+
+        });
+
+        const labelsEstresse = diasArray.map(
+            dia =>
+                diasSemanaPt[
+                    new Date(
+                        dia + "T12:00:00"
+                    ).getDay()
+                ]
+        );
+
+        const dadosEstresse = diasArray.map(
+            dia => contagemPorDia[dia].crises
+        );
+
+        // =====================
+        // GRÁFICO — GATILHOS SENSORIAIS PADRONIZADOS (últimos 30 dias)
+        // =====================
+        // O responsável continua escrevendo livremente, mas o gráfico usa
+        // somente categorias fixas. Relatórios antigos, ainda não normalizados,
+        // aparecem como "Histórico não classificado".
+        const gatilhosRaw = await db.query(
+            `WITH respostas_gatilho AS (
+
+                SELECT x
+                FROM relatorios r
+                CROSS JOIN LATERAL
+                    jsonb_array_elements(r.respostas) AS x
+
+                WHERE r.usuario_id = $1
+                AND r.data >= NOW() - INTERVAL '30 days'
+                AND x->>'id' = 'gatilho_principal'
+                AND trim(
+                        COALESCE(
+                            x->>'resposta',
+                            ''
+                        )
+                    ) <> ''
+            ),
+
+            gatilhos AS (
+
+                -- ==========================================
+                -- 1. CATEGORIAS SENSORIAIS IDENTIFICADAS
+                -- ==========================================
+
+                SELECT
+                    categoria AS gatilho
+
+                FROM respostas_gatilho
+
+                CROSS JOIN LATERAL
+                    jsonb_array_elements_text(
+                        CASE
+                            WHEN jsonb_typeof(
+                                x->'categoriasSensoriais'
+                            ) = 'array'
+                            THEN x->'categoriasSensoriais'
+
+                            ELSE '[]'::jsonb
+                        END
+                    ) AS c(categoria)
+
+                WHERE categoria <> 'nao_identificado'
+
+
+                UNION ALL
+
+
+                -- ==========================================
+                -- 2. SE NÃO HÁ CATEGORIA SENSORIAL,
+                --    USA O CONTEXTO COMO GATILHO
+                -- ==========================================
+
+                SELECT
+                    contexto AS gatilho
+
+                FROM respostas_gatilho
+
+                CROSS JOIN LATERAL
+                    jsonb_array_elements_text(
+                        CASE
+                            WHEN jsonb_typeof(
+                                x->'contextos'
+                            ) = 'array'
+                            THEN x->'contextos'
+
+                            ELSE '[]'::jsonb
+                        END
+                    ) AS ctx(contexto)
+
+                WHERE NOT EXISTS (
+
+                    SELECT 1
+
+                    FROM jsonb_array_elements_text(
+                        CASE
+                            WHEN jsonb_typeof(
+                                x->'categoriasSensoriais'
+                            ) = 'array'
+                            THEN x->'categoriasSensoriais'
+
+                            ELSE '[]'::jsonb
+                        END
+                    ) AS c2(categoria)
+
+                    WHERE categoria <> 'nao_identificado'
+                )
+
+
+                UNION ALL
+
+
+                -- ==========================================
+                -- 3. NÃO TEM CATEGORIA NEM CONTEXTO
+                -- ==========================================
+
+                SELECT
+                    'nao_identificado' AS gatilho
+
+                FROM respostas_gatilho
+
+                WHERE NOT EXISTS (
+
+                    SELECT 1
+
+                    FROM jsonb_array_elements_text(
+                        CASE
+                            WHEN jsonb_typeof(
+                                x->'categoriasSensoriais'
+                            ) = 'array'
+                            THEN x->'categoriasSensoriais'
+
+                            ELSE '[]'::jsonb
+                        END
+                    ) AS c3(categoria)
+
+                    WHERE categoria <> 'nao_identificado'
+                )
+
+                AND NOT EXISTS (
+
+                    SELECT 1
+
+                    FROM jsonb_array_elements_text(
+                        CASE
+                            WHEN jsonb_typeof(
+                                x->'contextos'
+                            ) = 'array'
+                            THEN x->'contextos'
+
+                            ELSE '[]'::jsonb
+                        END
+                    ) AS ctx2(contexto)
+                )
+
+            )
+
+            SELECT
+                gatilho AS texto,
+                COUNT(*) AS quantidade
+
+            FROM gatilhos
+
+            GROUP BY gatilho
+
+            ORDER BY
+                quantidade DESC,
+                gatilho ASC`,
+
+            [pacienteId]
+        );
+
+        const ROTULOS_GATILHOS = {
+
+            // Sistemas sensoriais
+            auditivo: "Auditivo",
+            visual: "Visual",
+            tatil: "Tátil",
+            olfativo: "Olfativo",
+            gustativo: "Gustativo",
+            vestibular: "Vestibular",
+            proprioceptivo: "Proprioceptivo",
+            interoceptivo: "Interoceptivo",
+
+            // Contextos
+            ambiente_movimentado:
+                "Ambiente movimentado",
+
+            mudanca_rotina:
+                "Mudança de rotina",
+
+            ambiente_desconhecido:
+                "Ambiente desconhecido",
+
+            interacao_social:
+                "Interação social",
+
+            transicao_atividade:
+                "Transição de atividade",
+
+            espera:
+                "Espera",
+
+            cansaco:
+                "Cansaço",
+
+            fome_sede:
+                "Fome ou sede",
+
+            dor_desconforto:
+                "Dor ou desconforto",
+
+            outro_contexto:
+                "Outro contexto",
+
+            // Somente quando realmente não há informação
+            nao_identificado:
+                "Não identificado"
+        };
+
+        const linhasGatilhos = gatilhosRaw.rows;
+        const totalGatilhos =
+            linhasGatilhos.reduce(
+                (soma, l) => soma + parseInt(l.quantidade),
+                0
+            );
+
+        const PALETA_GATILHOS = [
+            "#32C26D",
+            "#0AB7FB",
+            "#1D8EC9",
+            "#F6AD55",
+            "#C2C2C2"
+        ];
+
+        const TOP_GATILHOS = 4;
+
+        let graficoGatilhos;
+
+        if (totalGatilhos === 0) {
+
+            graficoGatilhos = {
+                labels: ["Sem dados suficientes ainda"],
+                dados: [100],
+                cores: ["#C2C2C2"]
+            };
+
+        } else {
+
+            const principais =
+                linhasGatilhos.slice(0, TOP_GATILHOS);
+
+            const restante =
+                linhasGatilhos
+                    .slice(TOP_GATILHOS)
+                    .reduce(
+                        (soma, l) =>
+                            soma + parseInt(l.quantidade),
+                        0
+                    );
+
+            const labels =
+                principais.map(
+                    l =>
+                        ROTULOS_GATILHOS[l.texto] ||
+                        "Não identificado"
+                );
+
+            const dados =
+                principais.map(
+                    l =>
+                        Math.round(
+                            (
+                                parseInt(l.quantidade) /
+                                totalGatilhos
+                            ) * 100
+                        )
+                );
+
+            if (restante > 0) {
+                labels.push("Outros");
+                dados.push(
+                    Math.round(
+                        (restante / totalGatilhos) * 100
+                    )
+                );
+            }
+
+            graficoGatilhos = {
+                labels,
+                dados,
+                cores:
+                    labels.map(
+                        (_, i) =>
+                            PALETA_GATILHOS[i] ||
+                            "#C2C2C2"
+                    )
+            };
+
+        }
+        res.json({
+            nomePaciente,
+            alertas: totalMes,
+            nivelAtividade,
+            comparativoAlertas,
+            tempo: formatarTempo(mediaMesMs),
+            comparativoTempo,
+            graficoEstresse: { labels: labelsEstresse, dados: dadosEstresse },
+            graficoGatilhos
+        });
+
+    } catch (erro) {
+        console.log("Erro na rota /api/relatorio-paciente:", erro);
+        res.status(500).json({ erro: "Erro interno do servidor." });
+    }
+
+});
+
+app.get("/api/relatorio-paciente/dias", estaLogado, exigeTerapeuta, async (req, res) => {
+
+    try {
+
+        const terapeutaId = req.authUser.id;
+        const pacienteId  = parseInt(req.query.paciente);
+        const mes         = req.query.mes; // "YYYY-MM"
+
+        if (!terapeutaId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        if (!pacienteId || !mes) {
+            return res.status(400).json({ erro: "Parâmetros inválidos." });
+        }
+
+        const vinculo = await db.query(
+            `SELECT id FROM vinculos
+             WHERE terapeuta_id = $1 AND responsavel_id = $2 AND ativo = TRUE`,
+            [terapeutaId, pacienteId]
+        );
+
+        if (vinculo.rows.length === 0) {
+            return res.status(403).json({ erro: "Você não tem vínculo com esse paciente." });
+        }
+
+        const resultado = await db.query(
+            `SELECT DISTINCT DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') AS dia
+            FROM relatorios
+            WHERE usuario_id = $1
+            AND TO_CHAR(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM') = $2`,
+            [pacienteId, mes]
+        );
+
+        res.json({
+            dias: resultado.rows.map(r => r.dia.toISOString().split("T")[0])
+        });
+
+    } catch (erro) {
+        console.log("Erro na rota /api/relatorio-paciente/dias:", erro);
+        res.status(500).json({ erro: "Erro interno do servidor." });
+    }
+
+});
+
+app.get("/api/relatorio-paciente/dia", estaLogado, exigeTerapeuta, async (req, res) => {
+
+    try {
+
+        const terapeutaId = req.authUser.id;
+        const pacienteId  = parseInt(req.query.paciente);
+        const dataISO     = req.query.data;
+
+        if (!terapeutaId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        if (!pacienteId || !dataISO) {
+            return res.status(400).json({ erro: "Parâmetros inválidos." });
+        }
+
+        const vinculo = await db.query(
+            `SELECT id FROM vinculos
+             WHERE terapeuta_id = $1 AND responsavel_id = $2 AND ativo = TRUE`,
+            [terapeutaId, pacienteId]
+        );
+
+        if (vinculo.rows.length === 0) {
+            return res.status(403).json({ erro: "Você não tem vínculo com esse paciente." });
+        }
+
+        const relatorioDia = await db.query(
+            `SELECT respostas, data FROM relatorios
+             WHERE usuario_id = $1
+             AND DATE(data AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') = $2
+             LIMIT 1`,
+            [pacienteId, dataISO]
+        );
+
+        const temRelatorio = relatorioDia.rows.length > 0;
+        let perguntas = [];
+
+        if (temRelatorio) {
+            const row = relatorioDia.rows[0];
+            perguntas = typeof row.respostas === "string" ? JSON.parse(row.respostas) : row.respostas;
+        }
+
+        const dataFormatada = new Date(dataISO + "T12:00:00").toLocaleDateString("pt-BR", {
+            weekday: "long", day: "numeric", month: "long", year: "numeric"
+        });
+
+        const notaDia = await db.query(
+            `SELECT texto, criado_em FROM notas_clinicas
+             WHERE terapeuta_id = $1 AND paciente_id = $2 AND data_referencia = $3`,
+            [terapeutaId, pacienteId, dataISO]
+        );
+
+        const notaExpiraEm = notaDia.rows[0]
+            ? new Date(new Date(notaDia.rows[0].criado_em).getTime() + 7 * 24 * 60 * 60 * 1000).toISOString()
+            : null;
+
+        res.json({
+            temRelatorio,
+            dataFormatada,
+            perguntas,
+            nota: notaDia.rows[0]?.texto || "",
+            notaExpiraEm
+        });
+
+    } catch (erro) {
+        console.log("Erro na rota /api/relatorio-paciente/dia:", erro);
+        res.status(500).json({ erro: "Erro interno do servidor." });
+    }
+
+});
+
+app.get("/api/pacientes", estaLogado, exigeTerapeuta, async (req, res) => {
+    const usuarioId = req.authUser.id;
+
+    try {
+        const resultado = await db.query(
+            `SELECT
+                u.id                  AS responsavel_id,
+                u.nome                AS nome_responsavel,
+                u.foto_perfil         AS foto_perfil,
+                u.ultimo_acesso       AS ultimo_acesso,
+                c.nome                AS nome_crianca,
+                c.data_nascimento     AS data_nascimento,
+                c.foto_url            AS foto_crianca,
+                COUNT(r.id)           AS total_relatorios_semana,
+                MAX(r.data)           AS ultimo_relatorio
+             FROM vinculos v
+             JOIN usuarios u ON u.id = v.responsavel_id
+             LEFT JOIN criancas c ON c.usuario_id = v.responsavel_id
+             LEFT JOIN relatorios r
+                ON r.usuario_id = v.responsavel_id
+                AND r.data >= NOW() - INTERVAL '7 days'
+             WHERE v.terapeuta_id = $1
+               AND v.ativo = TRUE
+             GROUP BY u.id, u.nome, u.foto_perfil, u.ultimo_acesso, c.nome,
+                      c.data_nascimento, c.foto_url
+             ORDER BY total_relatorios_semana DESC`,
+            [usuarioId]
+        );
+
+        const pacientes = await Promise.all(
+            resultado.rows.map(async p => {
+
+                let idade = 0;
+
+                if (p.data_nascimento) {
+                    const hoje = new Date();
+                    const nasc = new Date(p.data_nascimento);
+
+                    idade = hoje.getFullYear() - nasc.getFullYear();
+
+                    const mes = hoje.getMonth() - nasc.getMonth();
+
+                    if (
+                        mes < 0 ||
+                        (mes === 0 && hoje.getDate() < nasc.getDate())
+                    ) {
+                        idade--;
+                    }
+                }
+
+
+                // Busca as crises reais detectadas pelo Bixuco
+                // nos últimos 7 dias
+                const resumoSemana = await contarCrisesEIsolados(
+                    p.responsavel_id,
+                    `
+                    AND DATE(
+                        e.criado_em AT TIME ZONE 'UTC'
+                        AT TIME ZONE 'America/Sao_Paulo'
+                    )
+                    BETWEEN
+                        (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - 6
+                    AND
+                        (NOW() AT TIME ZONE 'America/Sao_Paulo')::date
+                    `
+                );
+
+
+                // Agora "alertas" representa crises do Bixuco,
+                // e não quantidade de relatórios preenchidos
+                const alertas = resumoSemana.crises;
+
+
+                const nivelAtividade =
+                    classificarAtividadeSensorial(alertas);
+
+                const ultimoAcesso =
+                    p.ultimo_acesso
+                        ? new Date(p.ultimo_acesso)
+                        : null;
+
+                const ativoAgora =
+                    ultimoAcesso &&
+                    (
+                        Date.now() -
+                        ultimoAcesso.getTime()
+                    ) <= 5 * 60 * 1000;
+
+
+                let ultimoRelatorio = "Sem relatórios";
+
+                if (p.ultimo_relatorio) {
+
+                    const diff = Math.floor(
+                        (new Date() - new Date(p.ultimo_relatorio)) /
+                        (1000 * 60 * 60 * 24)
+                    );
+
+                    if (diff === 0) {
+                        ultimoRelatorio = "Hoje";
+                    } else if (diff === 1) {
+                        ultimoRelatorio = "Ontem";
+                    } else {
+                        ultimoRelatorio = `${diff} dias`;
+                    }
+                }
+
+
+                return {
+                    id:              p.responsavel_id,
+                    nomeResponsavel: p.nome_responsavel,
+                    fotoPerfil:      p.foto_perfil || null,
+                    nomeCrianca:     p.nome_crianca || "Criança",
+                    idadeCrianca:    idade,
+                    status:          ativoAgora ? "ativo" : "offline",
+                    ultimoAcesso:     ultimoAcesso ? ultimoAcesso.toISOString() : null,
+                    alertas,
+                    nivelAtividade:   nivelAtividade.codigo,
+                    nivelAtividadeRotulo: nivelAtividade.rotulo,
+                    // Mantido por compatibilidade com versões anteriores do front.
+                    nivelEstresse:    nivelAtividade.rotulo,
+                    ultimoRelatorio
+                };
+
+            })
+        );
+
+        res.json({ pacientes });
+
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
+});
+
+/* ==========================
+   ROTA POST — SALVAR NOTA CLÍNICA
+========================== */
+
+app.post("/api/nota-clinica", estaLogado, exigeTerapeuta, async (req, res) => {
+
+    try {
+
+        const terapeutaId = req.authUser.id;
+
+        if (!terapeutaId) {
+            return res.status(401).json({ erro: "Não autenticado." });
+        }
+
+        const { pacienteId, texto, data } = req.body;
+
+        if (!pacienteId || !texto?.trim() || !data) {
+            return res.status(400).json({ erro: "Dados inválidos." });
+        }
+
+        // Verifica vínculo antes de salvar
+        const vinculo = await db.query(
+            `SELECT id FROM vinculos
+             WHERE terapeuta_id = $1 AND responsavel_id = $2 AND ativo = TRUE`,
+            [terapeutaId, parseInt(pacienteId)]
+        );
+
+        if (vinculo.rows.length === 0) {
+            return res.status(403).json({ erro: "Você não tem vínculo com esse paciente." });
+        }
+
+                await db.query(
+            `INSERT INTO notas_clinicas (terapeuta_id, paciente_id, data_referencia, texto)
+             VALUES ($1, $2, $3, $4)
+             ON CONFLICT (terapeuta_id, paciente_id, data_referencia)
+             DO UPDATE SET texto = EXCLUDED.texto, criado_em = NOW()`,
+            [terapeutaId, parseInt(pacienteId), data, texto.trim()]
+        );
+
+        // A nota fica disponível por 7 dias a partir de agora (retenção
+        // automática) — devolve a data de expiração pro frontend avisar
+        // o terapeuta de quanto tempo falta.
+        const expiraEm = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+        return res.status(201).json({
+            mensagem: "Nota salva com sucesso.",
+            expiraEm: expiraEm.toISOString()
+        });
+
+    } catch (erro) {
+        console.log("Erro ao salvar nota clínica:", erro);
+        res.status(500).json({ erro: "Erro interno ao salvar nota." });
+    }
+
+});
+
+app.post("/esqueceu-senha", limitarRecuperacaoPorIp, limitarRecuperacaoSenha, async (req, res) => {
+    const { email } = req.body;
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return res.status(400).json({ erro: "E-mail inválido." });
+    }
+
+    try {
+        const resultado = await db.query(
+            "SELECT * FROM usuarios WHERE email = $1",
+            [email]
+        );
+
+        if (resultado.rows.length === 0) {
+            return res.status(200).json({
+                mensagem: "Se esse e-mail estiver cadastrado, você receberá o link em breve."
+            });
+        }
+
+        const usuario = resultado.rows[0];
+        const token   = crypto.randomBytes(32).toString("hex");
+        const expiraEm = new Date(Date.now() + 60 * 60 * 1000);
+
+        await db.query(
+            `UPDATE tokens_recuperacao SET usado = TRUE
+             WHERE usuario_id = $1 AND usado = FALSE`,
+            [usuario.id]
+        );
+
+        await db.query(
+            `INSERT INTO tokens_recuperacao (usuario_id, token, expira_em)
+             VALUES ($1, $2, $3)`,
+            [usuario.id, token, expiraEm]
+        );
+
+        const link = `${process.env.BASE_URL || "http://localhost:3000"}/redefinir-senha?token=${token}`;
+
+        
+        await brevoClient.transactionalEmails.sendTransacEmail({
+            sender: BREVO_REMETENTE,
+            to: [{ email }],
+            subject: "Recuperação de senha — Bixuco",
+            htmlContent: `
+                <div style="font-family:Arial,sans-serif;max-width:500px;margin:0 auto;">
+                    <h2 style="color:#32C26D;">Recuperação de senha</h2>
+                    <p>Olá, <strong>${usuario.nome}</strong>!</p>
+                    <p>Clique no botão abaixo para criar uma nova senha. O link expira em 1 hora.</p>
+                    <a href="${link}" style="display:inline-block;background:linear-gradient(135deg,#79D836,#32C26D);color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;margin:16px 0;">
+                        Redefinir senha
+                    </a>
+                    <p style="color:#5A5A5A;font-size:14px;">Se você não solicitou isso, ignore este email.</p>
+                </div>
+            `
+        });
+
+        
+
+        return res.status(200).json({
+            mensagem: "Se esse e-mail estiver cadastrado, você receberá o link em breve."
+        });
+
+    } catch (erro) {
+        console.error("ERRO esqueceu-senha:", erro.message || erro);
+        res.status(500).json({ erro: "Erro interno ao enviar o e-mail." });
+    }
+});
+
+app.post("/api/bixuco/localizacao",exigeDispositivo, async (req, res) => {
+    const { dispositivo_id, latitude, longitude, bateria } = req.body;
+
+    try {
+        const vinculo = await db.query(
+            'SELECT crianca_id FROM dispositivos WHERE dispositivo_id = $1',
+            [dispositivo_id]
+        );
+
+        if (vinculo.rows.length === 0 || !vinculo.rows[0].crianca_id) {
+            return res.sendStatus(202); // dispositivo ainda não vinculado
+        }
+
+        const criancaId = vinculo.rows[0].crianca_id;
+
+        // 🔧 FIX: "bateria || null" transformava 0% em null (0 é "falsy" em JS),
+        // fazendo a bateria não aparecer no badge quando estava descarregada.
+        // "?? null" só cai pra null se o valor for realmente null/undefined.
+        await db.query(
+            `INSERT INTO localizacoes_bixuco (crianca_id, latitude, longitude, bateria, criado_em)
+             VALUES ($1, $2, $3, $4, NOW())`,
+            [criancaId, latitude, longitude, bateria ?? null]
+        );
+
+        res.json({ sucesso: true });
+
+    } catch (erro) {
+        console.error("Erro em POST /api/bixuco/localizacao:", erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
+});
+
+
+app.get("/api/bixuco/eventos-hoje", estaLogado, exigeResponsavel, async (req, res) => {
+    const usuarioId = req.authUser.id;
+
+    try {
+        const resultado = await db.query(
+            `SELECT TO_CHAR(e.criado_em, 'HH24:MI') AS horario, e.forca, e.duracao_ms, e.tipo_evento
+             FROM eventos_bixuco e
+             JOIN criancas c ON c.id = e.crianca_id
+             WHERE c.usuario_id = $1
+               AND DATE(e.criado_em) = CURRENT_DATE
+             ORDER BY e.criado_em ASC
+             LIMIT 1`,
+            [usuarioId]
+        );
+
+        if (resultado.rows.length === 0) {
+            return res.json({ houveAlerta: false });
+        }
+
+        const evento = resultado.rows[0];
+
+        res.json({
+            houveAlerta: true,
+            horario: evento.horario,
+            tipoEvento: evento.tipo_evento
+        });
+
+    } catch (erro) {
+        console.error("Erro em /api/bixuco/eventos-hoje:", erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
+});
+
+app.get("/api/bixuco/localizacao", estaLogado, exigeResponsavel, async (req, res) => {
+    const usuarioId = req.authUser.id;
+
+    try {
+        const resultado = await db.query(
+            `SELECT l.latitude, l.longitude, l.bateria,
+                TO_CHAR(l.criado_em, 'HH24:MI') AS horario,
+                TO_CHAR(l.criado_em, 'DD/MM') AS data_formatada,
+                EXTRACT(EPOCH FROM (NOW() - l.criado_em))::int AS idade_segundos,
+                c.nome_pelucia,
+                c.foto_url
+            FROM localizacoes_bixuco l
+            JOIN criancas c ON c.id = l.crianca_id
+            WHERE c.usuario_id = $1
+            ORDER BY l.criado_em DESC
+            LIMIT 1`,
+            [usuarioId]
+        );
+
+        if (resultado.rows.length === 0) {
+            return res.json({ disponivel: false });
+        }
+
+        const local = resultado.rows[0];
+
+        const idadeSegundos =
+            Math.max(
+                0,
+                parseInt(local.idade_segundos, 10) || 0
+            );
+
+        // Mais de 5 minutos sem nova localização
+        // = posição considerada desatualizada.
+        const desatualizada =
+            idadeSegundos > 5 * 60;
+
+        res.json({
+            disponivel: true,
+            latitude: parseFloat(local.latitude),
+            longitude: parseFloat(local.longitude),
+            bateria: local.bateria,
+            horario: local.horario,
+            dataFormatada: local.data_formatada,
+            idadeSegundos,
+            desatualizada,
+            nomePelucia: local.nome_pelucia,
+            fotoUrl: local.foto_url
+        });
+
+    } catch (erro) {
+        console.error("Erro em /api/bixuco/localizacao:", erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
+});
+
+
+app.post("/api/bixuco/evento", exigeDispositivo, async (req, res) => {
+
+    const { dispositivo_id, evento, forca, duracao_ms, latitude, longitude } = req.body;
+
+    try {
+        const vinculo = await db.query(
+            'SELECT crianca_id FROM dispositivos WHERE dispositivo_id = $1',
+            [dispositivo_id]
+        );
+
+        if (vinculo.rows.length === 0 || !vinculo.rows[0].crianca_id) {
+            return res.sendStatus(202); // dispositivo existe mas ainda não tem dono
+        }
+
+        const criancaId = vinculo.rows[0].crianca_id;
+
+        await db.query(
+            `INSERT INTO eventos_bixuco (crianca_id, forca, latitude, longitude, duracao_ms, tipo_evento, criado_em)
+             VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
+            [criancaId, forca, latitude, longitude, duracao_ms || null, evento || 'aperto_forte']
+        );
+
+        res.json({ sucesso: true });
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
+});
+
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
+
+const GROQ_MODEL =
+    "qwen/qwen3.8-27b";
+
+const CAMPOS_RELATORIO_CHAT = {
+
+    alerta_estresse: {
+
+        id: "alerta_estresse",
+
+        pergunta:
+            "Teve algum alerta de estresse hoje?",
+
+        opcoes: [
+            "Sim",
+            "Não"
+        ]
+
+    },
+
+
+    acalmou_facilidade: {
+
+        id: "acalmou_facilidade",
+
+        pergunta:
+            "Ela conseguiu se acalmar com facilidade?",
+
+        opcoes: [
+            "Sim, rapidamente",
+            "Sim, mas demorou",
+            "Não, precisou de ajuda",
+            "Não se acalmou"
+        ]
+
+    },
+
+
+    gatilho_principal: {
+
+        id: "gatilho_principal",
+
+        pergunta:
+            "Qual foi o principal gatilho do episódio?",
+
+        tipo: "texto"
+
+    },
+
+
+    desconforto_texturas: {
+
+        id: "desconforto_texturas",
+
+        pergunta:
+            "Ela demonstra desconforto com texturas de roupas ou alimentos?",
+
+        opcoes: [
+            "Sempre",
+            "Quase sempre",
+            "Raramente",
+            "Nunca"
+        ]
+
+    },
+
+
+    evitou_contato_visual: {
+
+        id: "evitou_contato_visual",
+
+        pergunta:
+            "Hoje ela evitou contato visual?",
+
+        opcoes: [
+            "Sempre",
+            "Quase sempre",
+            "Raramente",
+            "Nunca"
+        ]
+
+    },
+
+
+    comunicacao: {
+
+        id: "comunicacao",
+
+        pergunta:
+            "Como foi a comunicação hoje?",
+
+        opcoes: [
+            "Muito boa",
+            "Boa",
+            "Pouca",
+            "Nenhuma"
+        ]
+
+    },
+
+
+    humor: {
+
+        id: "humor",
+
+        pergunta:
+            "Como estava o humor durante o dia?",
+
+        opcoes: [
+            "Muito calmo",
+            "Calmo",
+            "Agitado",
+            "Muito agitado"
+        ]
+
+    },
+
+
+    crises_sensoriais: {
+
+        id: "crises_sensoriais",
+
+        pergunta:
+            "Apresentou crises sensoriais?",
+
+        opcoes: [
+            "Sim, várias",
+            "Algumas",
+            "Poucas",
+            "Nenhuma"
+        ]
+
+    },
+
+
+    sono: {
+
+        id: "sono",
+
+        pergunta:
+            "Dormiu bem?",
+
+        opcoes: [
+            "Muito bem",
+            "Bem",
+            "Pouco",
+            "Muito pouco"
+        ]
+
+    },
+
+
+    alimentacao: {
+
+        id: "alimentacao",
+
+        pergunta:
+            "Como foi a alimentação?",
+
+        opcoes: [
+            "Muito boa",
+            "Boa",
+            "Regular",
+            "Ruim"
+        ]
+
+    },
+
+
+    atividades_propostas: {
+
+        id: "atividades_propostas",
+
+        pergunta:
+            "Realizou atividades propostas?",
+
+        opcoes: [
+            "Todas",
+            "Quase todas",
+            "Poucas",
+            "Nenhuma"
+        ]
+
+    },
+
+
+    interacao_social: {
+
+        id: "interacao_social",
+
+        pergunta:
+            "Como foi a interação social?",
+
+        opcoes: [
+            "Excelente",
+            "Boa",
+            "Pouca",
+            "Nenhuma"
+        ]
+
+    },
+
+
+    avaliacao_dia: {
+
+        id: "avaliacao_dia",
+
+        pergunta:
+            "Como você avaliaria o dia de hoje?",
+
+        opcoes: [
+            "Excelente",
+            "Bom",
+            "Regular",
+            "Difícil"
+        ]
+
+    }
+
+};
+
+function atualizarRespostaChat(
+    respostas,
+    novaResposta
+) {
+
+    const indice =
+        respostas.findIndex(
+            item =>
+                item.id === novaResposta.id
+        );
+
+
+    if (indice >= 0) {
+
+        respostas[indice] = {
+
+            ...respostas[indice],
+
+            ...novaResposta
+
+        };
+
+    } else {
+
+        respostas.push(
+            novaResposta
+        );
+
+    }
+
+
+    return respostas;
+
+}
+
+function respostaChatValida(
+    id,
+    resposta
+) {
+
+    const campo =
+        CAMPOS_RELATORIO_CHAT[id];
+
+
+    if (!campo) {
+
+        return false;
+
+    }
+
+
+    if (
+        typeof resposta !== "string"
+    ) {
+
+        return false;
+
+    }
+
+
+    resposta =
+        resposta.trim();
+
+
+    if (!resposta) {
+
+        return false;
+
+    }
+
+
+    // Gatinho é texto livre
+    if (campo.tipo === "texto") {
+
+        return resposta.length <= 300;
+
+    }
+
+
+    // Nas perguntas fechadas,
+    // a IA só pode usar exatamente
+    // uma das alternativas oficiais.
+    return campo.opcoes.includes(
+        resposta
+    );
+
+}
+
+function mensagemChatMuitoAmbigua(mensagem) {
+
+    const texto =
+        String(mensagem || "")
+            .trim()
+            .replace(/\s+/g, " ");
+
+    if (!texto) {
+        return true;
+    }
+
+    // Número isolado, pontuação ou símbolos
+    // não são respostas válidas do relatório.
+    if (/^[\d\s.,;:!?…+\-*/()[\]{}#@%&_=]+$/u.test(texto)) {
+        return true;
+    }
+
+    // Um caractere isolado provavelmente foi
+    // digitado sem querer.
+    // "s" e "n" continuam permitidos para sim/não.
+    if (
+        texto.length === 1 &&
+        !/^[sn]$/i.test(texto)
+    ) {
+        return true;
+    }
+
+    return false;
+}
+
+const CATEGORIAS_SENSORIAIS_GATILHO = new Set([
+    "auditivo",
+    "visual",
+    "tatil",
+    "olfativo",
+    "gustativo",
+    "vestibular",
+    "proprioceptivo",
+    "interoceptivo",
+    "nao_identificado"
+]);
+
+const CONTEXTOS_GATILHO = new Set([
+    "ambiente_movimentado",
+    "mudanca_rotina",
+    "ambiente_desconhecido",
+    "interacao_social",
+    "transicao_atividade",
+    "espera",
+    "cansaco",
+    "fome_sede",
+    "dor_desconforto",
+    "outro_contexto"
+]);
+
+function filtrarValoresPermitidos(valores, permitidos) {
+
+    if (!Array.isArray(valores)) {
+        return [];
+    }
+
+    return [
+        ...new Set(
+            valores
+                .map(v => String(v || "").trim().toLowerCase())
+                .filter(v => permitidos.has(v))
+        )
+    ];
+
+}
+
+
+async function normalizarGatilhoComIA(textoOriginal) {
+
+    const texto =
+        String(textoOriginal || "")
+            .trim()
+            .slice(0, 1000);
+
+    const fallback = {
+        categoriasSensoriais:
+            texto ? ["nao_identificado"] : [],
+        contextos: [],
+        normalizadoPorIA: false
+    };
+
+    if (!texto || !GEMINI_API_KEY) {
+        return fallback;
+    }
+
+    try {
+
+        const prompt = `
+Você classifica APENAS o texto de um responsável sobre um possível gatilho sensorial.
+
+Isto NÃO é diagnóstico e NÃO deve inferir uma causa que não esteja escrita.
+
+Escolha zero, uma ou mais categorias sensoriais SOMENTE desta lista:
+- auditivo
+- visual
+- tatil
+- olfativo
+- gustativo
+- vestibular
+- proprioceptivo
+- interoceptivo
+- nao_identificado
+
+Escolha zero, um ou mais contextos SOMENTE desta lista:
+- ambiente_movimentado
+- mudanca_rotina
+- ambiente_desconhecido
+- interacao_social
+- transicao_atividade
+- espera
+- cansaco
+- fome_sede
+- dor_desconforto
+- outro_contexto
+
+Regras:
+1. Não invente informações.
+2. Se o texto não permitir identificar um sistema sensorial, use "nao_identificado".
+3. Não transforme local em causa sensorial sem evidência.
+4. "Perfume/cheiro" pode indicar olfativo.
+5. "Barulho/som alto" pode indicar auditivo.
+6. "Luz/brilho" pode indicar visual.
+7. "Roupa/toque/textura" pode indicar tatil.
+8. "Balançar/girar/movimento/equilíbrio" pode indicar vestibular.
+9. "Força/pressão/empurrar/apertar" pode indicar proprioceptivo.
+10. "Fome/sede/dor/temperatura/sensação interna" pode indicar interoceptivo.
+11. Um mesmo texto pode possuir mais de uma categoria.
+12. Responda SOMENTE JSON válido, sem explicação.
+
+Formato obrigatório:
+{
+  "categoriasSensoriais": ["..."],
+  "contextos": ["..."]
+}
+
+Texto do responsável:
+${JSON.stringify(texto)}
+        `.trim();
+
+        const respostaIA = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/interactions?key=${GEMINI_API_KEY}`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model:
+                        "models/gemini-3-flash-preview",
+                    input: prompt,
+                    generation_config: {
+                        max_output_tokens: 300,
+                        thinking_level: "low"
+                    }
+                })
+            }
+        );
+
+        const dadosIA =
+            await respostaIA.json();
+
+        if (!respostaIA.ok) {
+            console.log(
+                "Falha ao normalizar gatilho com IA:",
+                dadosIA
+            );
+
+            return fallback;
+        }
+
+        const stepResposta =
+            dadosIA.steps?.find(
+                s => s.type === "model_output"
+            );
+
+        if (!stepResposta) {
+            return fallback;
+        }
+
+        let textoResposta =
+            stepResposta.content
+                ?.map(c => c.text || "")
+                .join("")
+                .trim() || "";
+
+        textoResposta =
+            textoResposta
+                .replace(/```json|```/g, "")
+                .trim();
+
+        const classificacao =
+            JSON.parse(textoResposta);
+
+        let categorias =
+            filtrarValoresPermitidos(
+                classificacao.categoriasSensoriais,
+                CATEGORIAS_SENSORIAIS_GATILHO
+            );
+
+        const contextos =
+            filtrarValoresPermitidos(
+                classificacao.contextos,
+                CONTEXTOS_GATILHO
+            );
+
+        if (categorias.length === 0) {
+            categorias = ["nao_identificado"];
+        }
+
+        return {
+            categoriasSensoriais: categorias,
+            contextos,
+            normalizadoPorIA: true
+        };
+
+    } catch (erro) {
+
+        console.log(
+            "Erro ao normalizar gatilho:",
+            erro.message || erro
+        );
+
+        return fallback;
+    }
+
+}
+
+
+async function enriquecerRespostasComGatilho(respostas) {
+
+    const copia =
+        respostas.map(resposta => ({
+            ...resposta
+        }));
+
+    const indice =
+        copia.findIndex(
+            resposta =>
+                resposta?.id ===
+                "gatilho_principal"
+        );
+
+    if (indice === -1) {
+        return copia;
+    }
+
+    const textoOriginal =
+        String(
+            copia[indice]?.resposta || ""
+        ).trim();
+
+    if (!textoOriginal) {
+
+        copia[indice] = {
+            ...copia[indice],
+            resposta: "",
+            respostaOriginal: "",
+            categoriasSensoriais: [],
+            contextos: [],
+            normalizadoPorIA: false,
+            versaoClassificacao: 1
+        };
+
+        return copia;
+    }
+
+    const classificacao =
+        await normalizarGatilhoComIA(
+            textoOriginal
+        );
+
+    // A resposta original continua intacta.
+    // Os campos abaixo servem somente para análise estruturada.
+    copia[indice] = {
+        ...copia[indice],
+        resposta: textoOriginal,
+        respostaOriginal: textoOriginal,
+        categoriasSensoriais:
+            classificacao.categoriasSensoriais,
+        contextos:
+            classificacao.contextos,
+        normalizadoPorIA:
+            classificacao.normalizadoPorIA,
+        versaoClassificacao: 1
+    };
+
+    return copia;
+}
+
+
+async function gerarDicasInterno(usuarioId) {
+
+    const geracoesRecentes = await db.query(
+        `SELECT dicas FROM dicas_personalizadas
+         WHERE usuario_id = $1
+         AND gerado_em >= NOW() - INTERVAL '7 days'
+         ORDER BY gerado_em DESC`,
+        [usuarioId]
+    );
+
+    if (geracoesRecentes.rows.length >= 1) {
+        return {
+            erro: "ja_gerou_essa_semana",
+            dicas: geracoesRecentes.rows[0].dicas
+        };
+    }
+
+    const dicasAnteriores = await db.query(
+        `SELECT dicas FROM dicas_personalizadas
+         WHERE usuario_id = $1
+         ORDER BY gerado_em DESC
+         LIMIT 4`,
+        [usuarioId]
+    );
+
+    let dicasJaUsadas = "";
+
+    if (dicasAnteriores.rows.length > 0) {
+        const todasAnteriores =
+            dicasAnteriores.rows.flatMap(
+                r => Array.isArray(r.dicas) ? r.dicas : []
+            );
+
+        dicasJaUsadas = todasAnteriores
+            .map(d => `- ${d.titulo}: ${d.texto}`)
+            .join("\n");
+    }
+
+
+    // Relatórios recentes são a fonte mais atual do cotidiano.
+    const relatoriosRecentes = await db.query(
+        `SELECT respostas
+         FROM relatorios
+         WHERE usuario_id = $1
+         AND data >= NOW() - INTERVAL '7 days'
+         ORDER BY data DESC`,
+        [usuarioId]
+    );
+
+
+    // O Perfil Sensorial funciona como contexto inicial.
+    // Assim as primeiras dicas já podem ser personalizadas
+    // antes mesmo de existir um relatório diário.
+    const perfilSensorial = await db.query(
+        `SELECT respostas
+         FROM perfil_sensorial
+         WHERE usuario_id = $1
+         ORDER BY criado_em DESC
+         LIMIT 1`,
+        [usuarioId]
+    );
+
+
+    let resumoPerfil = "";
+
+    if (perfilSensorial.rows.length > 0) {
+
+        let respostasPerfil =
+            perfilSensorial.rows[0].respostas || [];
+
+        if (typeof respostasPerfil === "string") {
+            try {
+                respostasPerfil =
+                    JSON.parse(respostasPerfil);
+            } catch (_) {
+                respostasPerfil = [];
+            }
+        }
+
+        if (Array.isArray(respostasPerfil)) {
+
+            resumoPerfil =
+                respostasPerfil
+                    .filter(
+                        item =>
+                            item &&
+                            item.pergunta &&
+                            item.resposta
+                    )
+                    .map(
+                        item =>
+                            `- ${item.pergunta}: ${item.resposta}`
+                    )
+                    .join("\n");
+
+        }
+
+    }
+
+
+    let resumoRelatorios = "";
+
+    relatoriosRecentes.rows.forEach(
+        (linha, i) => {
+
+            let respostas =
+                linha.respostas || [];
+
+            if (typeof respostas === "string") {
+                try {
+                    respostas =
+                        JSON.parse(respostas);
+                } catch (_) {
+                    respostas = [];
+                }
+            }
+
+            if (!Array.isArray(respostas)) {
+                return;
+            }
+
+            resumoRelatorios +=
+                `\nRelatório ${i + 1}:\n`;
+
+            respostas.forEach(r => {
+
+                if (
+                    r &&
+                    r.pergunta &&
+                    r.resposta
+                ) {
+
+                    resumoRelatorios +=
+                        `- ${r.pergunta}: ${r.resposta}\n`;
+
+                }
+
+            });
+
+        }
+    );
+
+
+    if (
+        !resumoPerfil &&
+        !resumoRelatorios
+    ) {
+
+        return {
+            erro: "sem_dados"
+        };
+
+    }
+
+
+    const instrucaoVariedade =
+        dicasJaUsadas
+            ? `\n\nIMPORTANTE: estas dicas já foram dadas antes. Você pode trabalhar temas parecidos, mas o conselho prático precisa ser diferente. Não repita a mesma sugestão:\n${dicasJaUsadas}`
+            : "";
+
+
+    const fontesContexto = [];
+
+    if (resumoPerfil) {
+        fontesContexto.push(
+            `PERFIL SENSORIAL INICIAL:\n${resumoPerfil}`
+        );
+    }
+
+    if (resumoRelatorios) {
+        fontesContexto.push(
+            `RELATÓRIOS DIÁRIOS RECENTES:\n${resumoRelatorios}`
+        );
+    }
+
+
+    const promptCompleto = `Você é um assistente do Bixuco que ajuda responsáveis a encontrar estratégias práticas de rotina para apoiar uma criança com sensibilidades sensoriais.
+
+Use SOMENTE as informações fornecidas abaixo. Quando houver relatórios diários, dê mais peso ao que aconteceu recentemente; quando ainda não houver relatórios, use o Perfil Sensorial como contexto inicial.
+
+Gere de 2 a 3 dicas práticas, simples e específicas.
+
+REGRAS:
+- Não faça diagnóstico.
+- Não diga que uma característica confirma TPS ou qualquer condição.
+- Não substitua psicólogo, terapeuta ocupacional, médico ou outro profissional.
+- Não invente dificuldades, gatilhos ou preferências que não estejam nos dados.
+- Prefira estratégias de ambiente, comunicação, previsibilidade e rotina.
+- O tom deve ser acolhedor, respeitoso e objetivo.
+${instrucaoVariedade}
+
+Responda APENAS com JSON válido, sem texto antes ou depois, neste formato:
+[
+  { "titulo": "Título curto (3-5 palavras)", "texto": "Explicação prática em 1-2 frases." }
+]
+
+DADOS DISPONÍVEIS:
+${fontesContexto.join("\n\n")}
+
+Gere as dicas personalizadas.`;
+
+
+    const respostaIA = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/interactions?key=${GEMINI_API_KEY}`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                model:
+                    "models/gemini-3-flash-preview",
+
+                input:
+                    promptCompleto,
+
+                generation_config: {
+                    max_output_tokens: 2000,
+                    thinking_level: "low"
+                }
+            })
+        }
+    );
+
+
+    const dadosIA =
+        await respostaIA.json();
+
+
+    if (!respostaIA.ok) {
+
+        console.log(
+            "Erro na API do Gemini:",
+            dadosIA
+        );
+
+        return {
+            erro: "erro_ia"
+        };
+
+    }
+
+
+    const stepResposta =
+        dadosIA.steps?.find(
+            s =>
+                s.type ===
+                "model_output"
+        );
+
+
+    if (!stepResposta) {
+
+        console.log(
+            "Resposta do Gemini sem model_output:",
+            dadosIA
+        );
+
+        return {
+            erro: "erro_ia"
+        };
+
+    }
+
+
+    let textoResposta =
+        stepResposta.content
+            .map(
+                c =>
+                    c.text || ""
+            )
+            .join("")
+            .trim();
+
+
+    textoResposta =
+        textoResposta
+            .replace(
+                /```json|```/g,
+                ""
+            )
+            .trim();
+
+
+    let dicasGeradas;
+
+    try {
+
+        dicasGeradas =
+            JSON.parse(
+                textoResposta
+            );
+
+    } catch (erroParse) {
+
+        console.log(
+            "Erro ao interpretar resposta da IA:",
+            textoResposta
+        );
+
+        return {
+            erro: "erro_ia"
+        };
+
+    }
+
+
+    if (
+        !Array.isArray(dicasGeradas) ||
+        dicasGeradas.length === 0
+    ) {
+
+        return {
+            erro: "erro_ia"
+        };
+
+    }
+
+
+    dicasGeradas =
+        dicasGeradas
+            .slice(0, 3)
+            .filter(
+                dica =>
+                    dica &&
+                    typeof dica.titulo === "string" &&
+                    typeof dica.texto === "string"
+            )
+            .map(
+                dica => ({
+                    titulo:
+                        dica.titulo
+                            .trim()
+                            .slice(0, 80),
+
+                    texto:
+                        dica.texto
+                            .trim()
+                            .slice(0, 500)
+                })
+            );
+
+
+    if (dicasGeradas.length === 0) {
+
+        return {
+            erro: "erro_ia"
+        };
+
+    }
+
+
+    await db.query(
+        `INSERT INTO dicas_personalizadas
+         (usuario_id, dicas)
+         VALUES ($1, $2)`,
+        [
+            usuarioId,
+            JSON.stringify(
+                dicasGeradas
+            )
+        ]
+    );
+
+
+    return {
+        dicas:
+            dicasGeradas,
+
+        novo:
+            true,
+
+        fonte:
+            relatoriosRecentes.rows.length > 0
+                ? (
+                    resumoPerfil
+                        ? "perfil_e_relatorios"
+                        : "relatorios"
+                  )
+                : "perfil_sensorial"
+    };
+
+}
+
+async function salvarTurnoChatAtomico({
+    usuarioId,
+    respostasBase = [],
+    novasMensagens = [],
+    atualizacoes = [],
+    houveAlertaReal = false
+}) {
+
+    const cliente =
+        await db.connect();
+
+    try {
+
+        await cliente.query(
+            "BEGIN"
+        );
+
+
+        // Confere novamente se o relatório ainda está aberto.
+        // Isso protege o caso em que outra aba finaliza
+        // enquanto a IA ainda está pensando.
+        const relatorioFinalizado =
+            await cliente.query(
+                `
+                SELECT id
+
+                FROM relatorios
+
+                WHERE usuario_id = $1
+
+                AND DATE(
+                    data
+                    AT TIME ZONE 'UTC'
+                    AT TIME ZONE 'America/Sao_Paulo'
+                ) =
+                (
+                    NOW()
+                    AT TIME ZONE 'America/Sao_Paulo'
+                )::date
+
+                LIMIT 1
+                `,
+                [
+                    usuarioId
+                ]
+            );
+
+
+        if (
+            relatorioFinalizado.rows.length > 0
+        ) {
+
+            await cliente.query(
+                "ROLLBACK"
+            );
+
+            return {
+                finalizado: true,
+                respostas: [],
+                mensagensChat: []
+            };
+
+        }
+
+
+        // Garante que exista o rascunho de hoje.
+        await cliente.query(
+            `
+            INSERT INTO
+                rascunhos_relatorio
+            (
+                usuario_id,
+                data_referencia,
+                respostas,
+                mensagens_chat,
+                atualizado_em
+            )
+
+            VALUES
+            (
+                $1,
+                (
+                    NOW()
+                    AT TIME ZONE
+                    'America/Sao_Paulo'
+                )::date,
+                '[]'::jsonb,
+                '[]'::jsonb,
+                NOW()
+            )
+
+            ON CONFLICT
+            (
+                usuario_id,
+                data_referencia
+            )
+
+            DO NOTHING
+            `,
+            [
+                usuarioId
+            ]
+        );
+
+
+        // Trava o rascunho deste usuário durante a junção.
+        const resultado =
+            await cliente.query(
+                `
+                SELECT
+                    respostas,
+                    mensagens_chat
+
+                FROM
+                    rascunhos_relatorio
+
+                WHERE
+                    usuario_id = $1
+
+                AND
+                    data_referencia =
+                    (
+                        NOW()
+                        AT TIME ZONE
+                        'America/Sao_Paulo'
+                    )::date
+
+                FOR UPDATE
+                `,
+                [
+                    usuarioId
+                ]
+            );
+
+
+        // Confere outra vez depois da trava.
+        const finalizadoDepoisDaTrava =
+            await cliente.query(
+                `
+                SELECT id
+
+                FROM relatorios
+
+                WHERE usuario_id = $1
+
+                AND DATE(
+                    data
+                    AT TIME ZONE 'UTC'
+                    AT TIME ZONE 'America/Sao_Paulo'
+                ) =
+                (
+                    NOW()
+                    AT TIME ZONE 'America/Sao_Paulo'
+                )::date
+
+                LIMIT 1
+                `,
+                [
+                    usuarioId
+                ]
+            );
+
+
+        if (
+            finalizadoDepoisDaTrava.rows.length > 0
+        ) {
+
+            await cliente.query(
+                "ROLLBACK"
+            );
+
+            return {
+                finalizado: true,
+                respostas: [],
+                mensagensChat: []
+            };
+
+        }
+
+
+        let respostasAtuais =
+            resultado.rows[0]?.respostas || [];
+
+
+        let mensagensAtuais =
+            resultado.rows[0]?.mensagens_chat || [];
+
+
+        if (
+            !Array.isArray(
+                respostasAtuais
+            )
+        ) {
+
+            respostasAtuais = [];
+
+        }
+
+
+        if (
+            !Array.isArray(
+                mensagensAtuais
+            )
+        ) {
+
+            mensagensAtuais = [];
+
+        }
+
+
+        // Se houve alerta real do Bixuco,
+        // essa informação continua garantida.
+        if (houveAlertaReal) {
+
+            respostasAtuais =
+                atualizarRespostaChat(
+                    respostasAtuais,
+                    {
+                        id:
+                            "alerta_estresse",
+
+                        pergunta:
+                            CAMPOS_RELATORIO_CHAT
+                                .alerta_estresse
+                                .pergunta,
+
+                        resposta:
+                            "Sim"
+                    }
+                );
+
+        }
+
+
+        function obterValorResposta(
+            lista,
+            id
+        ) {
+
+            const item =
+                Array.isArray(lista)
+                    ? lista.find(
+                        atual =>
+                            atual &&
+                            atual.id === id
+                    )
+                    : null;
+
+
+            return String(
+                item?.resposta || ""
+            ).trim();
+
+        }
+
+
+        /*
+            Só aplica os campos que a IA realmente
+            entendeu nesta mensagem.
+
+            Se o MESMO campo mudou no banco enquanto
+            a IA estava pensando, preservamos a mudança
+            mais recente feita pelo usuário.
+        */
+        for (
+            const atualizacao
+            of atualizacoes
+        ) {
+
+            if (
+                !atualizacao ||
+                !atualizacao.id
+            ) {
+
+                continue;
+
+            }
+
+
+            const valorBase =
+                obterValorResposta(
+                    respostasBase,
+                    atualizacao.id
+                );
+
+
+            const valorAtual =
+                obterValorResposta(
+                    respostasAtuais,
+                    atualizacao.id
+                );
+
+
+            if (
+                valorAtual !== valorBase
+            ) {
+
+                continue;
+
+            }
+
+
+            respostasAtuais =
+                atualizarRespostaChat(
+                    respostasAtuais,
+                    atualizacao
+                );
+
+        }
+
+
+        mensagensAtuais.push(
+            ...novasMensagens
+        );
+
+
+        mensagensAtuais =
+            mensagensAtuais.slice(-40);
+
+
+        await cliente.query(
+            `
+            UPDATE
+                rascunhos_relatorio
+
+            SET
+                respostas =
+                    $2::jsonb,
+
+                mensagens_chat =
+                    $3::jsonb,
+
+                atualizado_em =
+                    NOW()
+
+            WHERE
+                usuario_id = $1
+
+            AND
+                data_referencia =
+                (
+                    NOW()
+                    AT TIME ZONE
+                    'America/Sao_Paulo'
+                )::date
+            `,
+            [
+                usuarioId,
+
+                JSON.stringify(
+                    respostasAtuais
+                ),
+
+                JSON.stringify(
+                    mensagensAtuais
+                )
+            ]
+        );
+
+
+        await cliente.query(
+            "COMMIT"
+        );
+
+
+        return {
+            finalizado: false,
+
+            respostas:
+                respostasAtuais,
+
+            mensagensChat:
+                mensagensAtuais
+        };
+
+
+    } catch (erro) {
+
+        try {
+
+            await cliente.query(
+                "ROLLBACK"
+            );
+
+        } catch (_) {
+        }
+
+
+        throw erro;
+
+
+    } finally {
+
+        cliente.release();
+
+    }
+
+}
+
+app.post(
+    "/api/relatorio-chat",
+
+    estaLogado,
+    exigeResponsavel,
+    precisaPlano("medio"),
+
+    async (req, res) => {
+
+        try {
+
+            const usuarioId =
+                req.authUser.id;
+
+
+            if (!GROQ_API_KEY) {
+
+                console.error(
+                    "GROQ_API_KEY não configurada."
+                );
+
+                return res.status(503).json({
+                    erro:
+                        "O chat está temporariamente indisponível."
+                });
+
+            }
+
+
+            let mensagem =
+                String(
+                    req.body.mensagem || ""
+                ).trim();
+
+
+            const idioma =
+                req.body.idioma === "en"
+                    ? "en"
+                    : "pt";
+
+
+            if (
+                !mensagem ||
+                mensagem.length > 1000
+            ) {
+
+                return res.status(400).json({
+                    erro:
+                        "Mensagem inválida."
+                });
+
+            }
+
+
+            // =====================================
+            // JÁ FINALIZOU O RELATÓRIO HOJE?
+            // =====================================
+
+            const relatorioFinalizado =
+                await db.query(
+                    `
+                    SELECT id
+
+                    FROM relatorios
+
+                    WHERE usuario_id = $1
+
+                    AND DATE(
+                        data
+                        AT TIME ZONE 'UTC'
+                        AT TIME ZONE
+                        'America/Sao_Paulo'
+                    ) =
+                    (
+                        NOW()
+                        AT TIME ZONE
+                        'America/Sao_Paulo'
+                    )::date
+
+                    LIMIT 1
+                    `,
+                    [usuarioId]
+                );
+
+
+            if (
+                relatorioFinalizado.rows.length > 0
+            ) {
+
+                return res.status(409).json({
+                    erro:
+                        "Você já preencheu o relatório de hoje. Volte amanhã!"
+                });
+
+            }
+
+
+            // =====================================
+            // EXISTIU ALERTA REAL DO BIXUCO?
+            // =====================================
+
+            const eventoHoje =
+                await db.query(
+                    `
+                    SELECT 1
+
+                    FROM eventos_bixuco e
+
+                    JOIN criancas c
+                        ON c.id = e.crianca_id
+
+                    WHERE c.usuario_id = $1
+
+                    AND DATE(
+                        e.criado_em
+                        AT TIME ZONE 'UTC'
+                        AT TIME ZONE
+                        'America/Sao_Paulo'
+                    ) =
+                    (
+                        NOW()
+                        AT TIME ZONE
+                        'America/Sao_Paulo'
+                    )::date
+
+                    LIMIT 1
+                    `,
+                    [usuarioId]
+                );
+
+
+            const houveAlertaReal =
+                eventoHoje.rows.length > 0;
+
+
+            // =====================================
+            // CARREGA O RASCUNHO COMPARTILHADO
+            // =====================================
+
+            const rascunho =
+                await db.query(
+                    `
+                    SELECT
+                        respostas,
+                        mensagens_chat
+
+                    FROM rascunhos_relatorio
+
+                    WHERE usuario_id = $1
+
+                    AND data_referencia =
+                    (
+                        NOW()
+                        AT TIME ZONE
+                        'America/Sao_Paulo'
+                    )::date
+
+                    LIMIT 1
+                    `,
+                    [usuarioId]
+                );
+
+
+            let respostas =
+                rascunho.rows[0]?.respostas || [];
+
+
+            let mensagensChat =
+                rascunho.rows[0]?.mensagens_chat || [];
+
+
+            if (
+                !Array.isArray(respostas)
+            ) {
+
+                respostas = [];
+
+            }
+
+
+            if (
+                !Array.isArray(mensagensChat)
+            ) {
+
+                mensagensChat = [];
+
+            }
+
+
+            // =====================================
+            // SE O BIXUCO REGISTROU ALERTA,
+            // "alerta_estresse" = SIM AUTOMATICAMENTE
+            // =====================================
+
+            if (houveAlertaReal) {
+
+                respostas =
+                    atualizarRespostaChat(
+                        respostas,
+                        {
+                            id:
+                                "alerta_estresse",
+
+                            pergunta:
+                                CAMPOS_RELATORIO_CHAT
+                                    .alerta_estresse
+                                    .pergunta,
+
+                            resposta:
+                                "Sim"
+                        }
+                    );
+
+            }
+
+
+            // =====================================
+            // QUAIS PERGUNTAS SE APLICAM HOJE?
+            // =====================================
+
+            let idsNecessarios;
+
+
+            if (houveAlertaReal) {
+
+                idsNecessarios = [
+
+                    "alerta_estresse",
+
+                    "acalmou_facilidade",
+
+                    "gatilho_principal",
+
+                    "desconforto_texturas",
+
+                    "evitou_contato_visual",
+
+                    "comunicacao",
+
+                    "humor",
+
+                    "crises_sensoriais",
+
+                    "sono",
+
+                    "alimentacao",
+
+                    "atividades_propostas",
+
+                    "interacao_social",
+
+                    "avaliacao_dia"
+
+                ];
+
+            } else {
+
+                idsNecessarios = [
+
+                    "alerta_estresse",
+
+                    "desconforto_texturas",
+
+                    "evitou_contato_visual",
+
+                    "comunicacao",
+
+                    "humor",
+
+                    "crises_sensoriais",
+
+                    "sono",
+
+                    "alimentacao",
+
+                    "atividades_propostas",
+
+                    "interacao_social",
+
+                    "avaliacao_dia"
+
+                ];
+
+            }
+
+
+            const camposHoje =
+                idsNecessarios.map(
+                    id =>
+                        CAMPOS_RELATORIO_CHAT[id]
+                );
+            
+            // =====================================
+            // O QUE JÁ ESTÁ PREENCHIDO / O QUE FALTA
+            // =====================================
+
+            const idsRespondidosAntes =
+                new Set(
+                    respostas
+                        .filter(
+                            item =>
+                                item &&
+                                item.id &&
+                                String(
+                                    item.resposta || ""
+                                ).trim()
+                        )
+                        .map(
+                            item => item.id
+                        )
+                );
+
+
+            const faltantesAntes =
+                idsNecessarios.filter(
+                    id =>
+                        !idsRespondidosAntes.has(id)
+                );
+
+
+            // =====================================
+            // BLOQUEIA MENSAGENS SEM INFORMAÇÃO
+            // =====================================
+
+            if (
+                mensagemChatMuitoAmbigua(
+                    mensagem
+                )
+            ) {
+
+                const respostaAmbigua =
+                    idioma === "en"
+                        ? `I couldn't understand "${mensagem.slice(0, 30)}" as information for the report. Could you explain it in words? If you want to correct something you said before, you can say “actually...” and tell me the new information.`
+                        : `Não consegui entender "${mensagem.slice(0, 30)}" como uma informação do relatório. Pode me explicar com palavras? Se quiser corrigir algo que disse antes, pode falar “na verdade...” e me contar a informação certa.`;
+
+
+                const estadoSalvo =
+                await salvarTurnoChatAtomico({
+
+                    usuarioId,
+
+                    respostasBase:
+                        respostas,
+
+                    houveAlertaReal,
+
+                    atualizacoes: [],
+
+                    novasMensagens: [
+
+                        {
+                            role: "user",
+                            content: mensagem
+                        },
+
+                        {
+                            role: "assistant",
+                            content: respostaAmbigua
+                        }
+
+                    ]
+
+                });
+
+
+            if (
+                estadoSalvo.finalizado
+            ) {
+
+                return res.status(409).json({
+                    erro:
+                        "Você já preencheu o relatório de hoje. Volte amanhã!"
+                });
+
+            }
+
+
+            respostas =
+                estadoSalvo.respostas;
+
+
+            mensagensChat =
+                estadoSalvo.mensagensChat;
+
+
+            const idsRespondidosAmbiguo =
+                new Set(
+                    respostas
+                        .filter(
+                            item =>
+                                item &&
+                                item.id &&
+                                String(
+                                    item.resposta || ""
+                                ).trim()
+                        )
+                        .map(
+                            item =>
+                                item.id
+                        )
+                );
+
+
+            const faltantesAmbiguos =
+                idsNecessarios.filter(
+                    id =>
+                        !idsRespondidosAmbiguo.has(id)
+                );
+
+
+            return res.json({
+
+                mensagem:
+                    respostaAmbigua,
+
+                respostas,
+
+                faltantes:
+                    faltantesAmbiguos,
+
+                completo:
+                    faltantesAmbiguos.length === 0,
+
+                ignorada:
+                    true
+
+            });
+
+            }
+
+
+            // =====================================
+            // CONTEXTO PARA A IA
+            // =====================================
+
+            const promptSistema = `
+                Você é o assistente de preenchimento do relatório diário do Bixuco.
+
+                Seu objetivo é conversar com o responsável de forma natural, leve e acolhedora enquanto organiza, em segundo plano, as informações necessárias para o relatório diário.
+
+                A conversa NÃO deve parecer um formulário ou uma entrevista com uma sequência rígida de perguntas.
+
+                REGRAS DE SEGURANÇA E FIDELIDADE:
+
+                1. Não faça diagnóstico médico, psicológico ou sensorial e não tire conclusões clínicas.
+
+                2. Não invente informações, causas, intensidades ou respostas.
+
+                3. Só adicione uma atualização quando a informação estiver explicitamente presente ou claramente confirmada pelo responsável.
+
+                4. Se a mensagem estiver ambígua, sem relação clara com um campo ou não permitir escolher com segurança uma alternativa, retorne "atualizacoes": [] e peça esclarecimento de forma natural.
+
+                5. NUNCA converta números isolados como "1", "5" ou "10" em alternativas do relatório. As perguntas não usam escala numérica.
+
+                6. Não interprete a posição de uma alternativa como número. Exemplo: "2" NÃO significa a segunda opção.
+
+                7. O responsável pode mencionar várias coisas na mesma mensagem. Extraia todas as informações claras de uma vez.
+
+                8. Se o responsável corrigir algo já registrado usando frases como "na verdade", "corrigindo", "falei errado" ou equivalentes, atualize o mesmo campo com a nova informação e confirme brevemente a correção na conversa.
+
+                9. Se a pessoa disser apenas que quer voltar, corrigir ou mudar uma resposta, mas ainda não disser qual é a informação correta, não altere nenhum campo. Pergunte o que ela deseja corrigir.
+
+                10. Para perguntas de múltipla escolha, o campo "resposta" deve usar EXATAMENTE uma das opções em português fornecidas abaixo.
+
+                11. Mesmo quando a conversa estiver em inglês, os valores estruturados devem continuar em português.
+
+                12. "gatilho_principal" é texto livre. Preserve o sentido do que a pessoa escreveu e não invente uma causa.
+
+                13. Não diga que o relatório foi finalizado. Quando todos os campos estiverem completos, diga apenas que as informações necessárias estão prontas para revisão e finalização.
+
+
+                ESTILO DA CONVERSA:
+
+                14. Fale como uma conversa real, não como um questionário disfarçado.
+
+                15. Antes de perguntar outra coisa, reconheça brevemente o que a pessoa acabou de contar quando isso soar natural.
+
+                16. Evite repetir "Anotado!", "Certo!" ou a mesma estrutura em todas as mensagens. Varie a linguagem sem exagerar.
+
+                17. Não precisa fazer uma pergunta em toda resposta. Você pode acolher o relato e convidar a pessoa a continuar, desde que a conversa continue avançando para os campos ainda faltantes.
+
+                18. Quando precisar de uma informação específica, faça no máximo UMA pergunta principal por mensagem e formule-a de maneira conversacional.
+
+                19. Não repita perguntas de campos que já estão preenchidos, a menos que o responsável esteja corrigindo ou esclarecendo aquele campo.
+
+                20. Se várias informações forem fornecidas de uma vez, reconheça o conjunto de forma curta e depois escolha apenas um ponto ainda faltante para continuar.
+
+                21. Mantenha cada resposta curta: normalmente 1 a 3 frases.
+
+                22. Não use linguagem infantilizada, clínica demais ou robótica.
+
+
+                Exemplo de tom desejado:
+
+                Responsável:
+                "Ela ficou mais calma hoje, conversou bem e comeu normalmente."
+
+                Assistente:
+                "Entendi, hoje ela ficou mais calma e a comunicação e a alimentação foram tranquilas. E o sono, como foi?"
+
+
+                Exemplo de correção:
+
+                Responsável:
+                "Na verdade eu falei errado, ela dormiu pouco."
+
+                Assistente:
+                "Tudo bem, vou considerar que ela dormiu pouco. Me conta também como foi a interação com outras pessoas hoje."
+
+
+                Exemplo de mensagem sem sentido suficiente:
+
+                Responsável:
+                "5"
+
+                Assistente:
+                "Não consegui entender esse número como uma resposta do relatório. Pode me explicar com palavras?"
+
+                Nesse caso, "atualizacoes" deve ser [].
+
+
+                Idioma da conversa:
+                ${idioma === "en" ? "inglês" : "português brasileiro"}
+
+                Campos que fazem parte do relatório de hoje:
+                ${JSON.stringify(camposHoje, null, 2)}
+
+                Respostas já registradas no rascunho:
+                ${JSON.stringify(respostas, null, 2)}
+
+                Campos que ainda faltam preencher:
+                ${JSON.stringify(faltantesAntes, null, 2)}
+                `;
+
+
+            // Só manda um pedaço recente da conversa
+            // para não gastar tokens desnecessariamente.
+            const historicoGroq =
+                mensagensChat
+                    .slice(-14)
+                    .filter(
+                        item =>
+                            item &&
+                            (
+                                item.role === "user" ||
+                                item.role === "assistant"
+                            ) &&
+                            typeof item.content ===
+                                "string"
+                    )
+                    .map(
+                        item => ({
+                            role: item.role,
+                            content:
+                                item.content.slice(
+                                    0,
+                                    1500
+                                )
+                        })
+                    );
+
+
+            const respostaGroq =
+                await fetch(
+                    "https://api.groq.com/openai/v1/chat/completions",
+                    {
+                        method: "POST",
+
+                        headers: {
+
+                            "Authorization":
+                                `Bearer ${GROQ_API_KEY}`,
+
+                            "Content-Type":
+                                "application/json"
+
+                        },
+
+                        body: JSON.stringify({
+
+                            model:
+                                GROQ_MODEL,
+
+                            messages: [
+
+                                {
+                                    role:
+                                        "system",
+
+                                    content:
+                                        promptSistema
+                                },
+
+                                ...historicoGroq,
+
+                                {
+                                    role:
+                                        "user",
+
+                                    content:
+                                        mensagem
+                                }
+
+                            ],
+
+                            reasoning_effort:
+                                "none",
+
+                            temperature:
+                                0.2,
+
+                            max_completion_tokens:
+                                600,
+
+                            response_format: {
+
+                                type:
+                                    "json_schema",
+
+                                json_schema: {
+
+                                    name:
+                                        "resposta_relatorio_bixuco",
+
+                                    strict:
+                                        true,
+
+                                    schema: {
+
+                                        type:
+                                            "object",
+
+                                        properties: {
+
+                                            mensagem: {
+                                                type:
+                                                    "string"
+                                            },
+
+                                            atualizacoes: {
+
+                                                type:
+                                                    "array",
+
+                                                items: {
+
+                                                    type:
+                                                        "object",
+
+                                                    properties: {
+
+                                                        id: {
+                                                            type:
+                                                                "string"
+                                                        },
+
+                                                        resposta: {
+                                                            type:
+                                                                "string"
+                                                        }
+
+                                                    },
+
+                                                    required: [
+                                                        "id",
+                                                        "resposta"
+                                                    ],
+
+                                                    additionalProperties:
+                                                        false
+
+                                                }
+
+                                            }
+
+                                        },
+
+                                        required: [
+                                            "mensagem",
+                                            "atualizacoes"
+                                        ],
+
+                                        additionalProperties:
+                                            false
+
+                                    }
+
+                                }
+
+                            }
+
+                        })
+
+                    }
+                );
+
+
+            if (!respostaGroq.ok) {
+
+                const detalhe =
+                    await respostaGroq.text();
+
+                console.error(
+                    "Erro Groq:",
+                    respostaGroq.status,
+                    detalhe
+                );
+
+
+                if (
+                    respostaGroq.status === 429
+                ) {
+
+                    return res.status(429).json({
+                        erro:
+                            "O chat recebeu muitas mensagens em pouco tempo. Aguarde um momento e tente novamente."
+                    });
+
+                }
+
+
+                return res.status(502).json({
+                    erro:
+                        "Não foi possível obter uma resposta da IA."
+                });
+
+            }
+
+
+            const dadosGroq =
+                await respostaGroq.json();
+
+
+            const conteudo =
+                dadosGroq
+                    ?.choices
+                    ?.[0]
+                    ?.message
+                    ?.content;
+
+
+            if (!conteudo) {
+
+                throw new Error(
+                    "Groq retornou uma resposta vazia."
+                );
+
+            }
+
+
+            const respostaIA =
+                JSON.parse(conteudo);
+
+
+            // =====================================
+            // VALIDA O QUE A IA TENTOU SALVAR
+            // =====================================
+
+            const atualizacoesValidas = [];
+
+            const idsPermitidos =
+                new Set(
+                    idsNecessarios
+                );
+
+
+            for (
+                const atualizacao
+                of respostaIA.atualizacoes
+            ) {
+
+                if (
+                    !atualizacao ||
+                    !idsPermitidos.has(
+                        atualizacao.id
+                    )
+                ) {
+
+                    continue;
+
+                }
+
+
+                const respostaLimpa =
+                    String(
+                        atualizacao.resposta || ""
+                    ).trim();
+
+
+                if (
+                    !respostaChatValida(
+                        atualizacao.id,
+                        respostaLimpa
+                    )
+                ) {
+
+                    continue;
+
+                }
+
+
+                const campo =
+                CAMPOS_RELATORIO_CHAT[
+                    atualizacao.id
+                ];
+
+
+            atualizacoesValidas.push({
+
+                id:
+                    atualizacao.id,
+
+                pergunta:
+                    campo.pergunta,
+
+                resposta:
+                    respostaLimpa
+
+            });
+
+            }
+
+
+            // =====================================
+// SALVA O TURNO SEM SOBRESCREVER
+// ALTERAÇÕES FEITAS EM OUTRA ABA
+// =====================================
+
+const estadoSalvo =
+    await salvarTurnoChatAtomico({
+
+        usuarioId,
+
+        respostasBase:
+            respostas,
+
+        houveAlertaReal,
+
+        atualizacoes:
+            atualizacoesValidas,
+
+        novasMensagens: [
+
+            {
+                role:
+                    "user",
+
+                content:
+                    mensagem
+            },
+
+            {
+                role:
+                    "assistant",
+
+                content:
+                    respostaIA.mensagem
+            }
+
+        ]
+
+    });
+
+
+    if (
+        estadoSalvo.finalizado
+    ) {
+
+        return res.status(409).json({
+            erro:
+                "Você já preencheu o relatório de hoje. Volte amanhã!"
+        });
+
+    }
+
+
+    respostas =
+        estadoSalvo.respostas;
+
+
+    mensagensChat =
+        estadoSalvo.mensagensChat;
+
+
+    // =====================================
+    // CALCULA O QUE AINDA FALTA
+    // USANDO O RASCUNHO MAIS RECENTE
+    // =====================================
+
+    const idsRespondidos =
+        new Set(
+            respostas
+                .filter(
+                    item =>
+                        item &&
+                        item.id &&
+                        String(
+                            item.resposta || ""
+                        ).trim()
+                )
+                .map(
+                    item =>
+                        item.id
+                )
+        );
+
+
+    const faltantes =
+        idsNecessarios.filter(
+            id =>
+                !idsRespondidos.has(id)
+        );
+
+
+    const completo =
+        faltantes.length === 0;
+
+
+            return res.json({
+
+                mensagem:
+                    respostaIA.mensagem,
+
+                respostas,
+
+                faltantes,
+
+                completo
+
+            });
+
+
+        } catch (erro) {
+
+            console.error(
+                "Erro em /api/relatorio-chat:",
+                erro
+            );
+
+
+            return res.status(500).json({
+                erro:
+                    "Não foi possível continuar a conversa."
+            });
+
+        }
+
+    }
+);
+
+app.post("/api/dicas/gerar", estaLogado, exigeResponsavel, async (req, res) => {
+
+    try {
+
+        const usuarioId = req.authUser.id;
+
+        const resultado = await gerarDicasInterno(usuarioId);
+
+        if (resultado.erro === "ja_gerou_essa_semana") {
+            return res.status(429).json({
+                erro: "Já gerou as dicas dessa semana. Espere até a próxima semana.",
+                dicas: resultado.dicas
+            });
+        }
+
+        if (resultado.erro === "sem_dados") {
+            return res.status(404).json({
+                erro: "Preencha o Perfil Sensorial ou um relatório diário para receber dicas personalizadas."
+            });
+        }
+
+        if (resultado.erro === "erro_ia") {
+            return res.status(500).json({ erro: "Erro ao gerar dica. Tente novamente." });
+        }
+
+        res.json(resultado);
+
+    } catch (erro) {
+        console.log("Erro ao gerar dica personalizada:", erro);
+        res.status(500).json({ erro: "Erro interno ao gerar dica." });
+    }
+
+});
+
+app.get("/api/dicas", estaLogado, exigeResponsavel, async (req, res) => {
+
+    try {
+        const usuarioId = req.authUser.id;
+
+        const resultado = await db.query(
+            `SELECT dicas, gerado_em FROM dicas_personalizadas
+             WHERE usuario_id = $1
+             AND gerado_em >= NOW() - INTERVAL '7 days'
+             ORDER BY gerado_em DESC
+             LIMIT 1`,
+            [usuarioId]
+        );
+
+        if (resultado.rows.length === 0) {
+            return res.json({ disponivel: false });
+        }
+
+        res.json({
+            disponivel: true,
+            dicas: resultado.rows[0].dicas,
+            geradoEm: resultado.rows[0].gerado_em
+        });
+
+    } catch (erro) {
+        console.log("Erro ao buscar dicas:", erro);
+        res.status(500).json({ erro: "Erro interno." });
+    }
+
+});
+
+/* ==========================
+   INICIAR SERVIDOR
+========================== */
+
+const PORT = process.env.PORT || 3000;
+
+async function iniciarServidor() {
+
+    try {
+
+        await prepararBancoCompatibilidade();
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao preparar compatibilidade do banco:",
+            erro
+        );
+
+        process.exit(1);
+
+    }
+
+
+    app.listen(PORT, () => {
+
+        console.log(
+            `Servidor rodando na porta ${PORT}`
+        );
+
+    });
+
+}
+
+iniciarServidor();

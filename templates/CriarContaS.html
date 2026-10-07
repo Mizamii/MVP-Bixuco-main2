@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Criar conta</title>
+
+    <!-- Biblioteca de ícones -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"
+    >
+    <script src="/js/deeplink.js"></script>
+
+
+    <!-- CSS da página -->
+    <link
+        rel="stylesheet"
+        href="/css/criarcontas.css"
+    >
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/publico.css">
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+</head>
+
+<body class="pagina-criar-conta pagina-publica pagina-auth">
+    <main class="pagina-login">
+
+        <!-- ========================= -->
+        <!-- LADO ESQUERDO -->
+        <!-- ========================= -->
+        <section class="login-esquerda">
+
+            <div class="login-esquerda__geometria"></div>
+            <div class="login-esquerda__overlay"></div>
+
+            <div class="login-esquerda__conteudo">
+                <img
+                    src="/img/Logo_Branca.png"
+                    alt="Logo Bixuco"
+                    class="login-esquerda__logo"
+                >
+
+                <h1 class="login-esquerda__titulo" data-pt="Crie sua conta" data-en="Create your account">
+                    Crie sua conta
+                </h1>
+
+                <p
+                    class="login-esquerda__slogan"
+                    data-pt="Pais e terapeutas juntos pelo bem-estar da criança."
+                    data-en="Parents and therapists together for the child's well-being."
+                >
+                    Pais e terapeutas juntos pelo bem-estar da criança.
+                </p>
+            </div>
+
+            <!-- Ilustração -->
+            <div class="login-esquerda__ilustracao-wrapper">
+                <img
+                    src="/img/familia-bixuco.png"
+                    alt="Família utilizando o Bixuco"
+                    class="login-esquerda__foto"
+                >
+            </div>
+
+        </section>
+
+        <!-- ========================= -->
+        <!-- LADO DIREITO -->
+        <!-- ========================= -->
+        <section class="login-direita">
+
+            <div class="controles-publicos controles-publicos--auth" aria-label="Preferências da página">
+                <button type="button" class="controle-publico controle-publico--icone" id="btnTemaMobile" aria-label="Alternar tema" title="Alternar tema">
+                    <i class="fa-regular fa-sun"></i>
+                </button>
+
+                <button type="button" class="tradutor tradutor--login" id="btnTraduzir">
+                    <i class="fa-solid fa-language"></i>
+                    <span id="textoTradutor">Traduzir para o inglês</span>
+                </button>
+            </div>
+
+            <!-- Cabeçalho fixo no topo, com linha -->
+            <div class="criarconta-header">
+                <h2 class="criarconta-titulo" data-pt="Criar conta" data-en="Create account">
+                    Criar conta
+                </h2>
+            </div>
+
+            <!-- Corpo centralizado no restante do espaço -->
+            <div class="criarconta-corpo">
+
+                <!-- Barra de progresso (Etapa 1) -->
+                <div class="cadastro-progresso" aria-label="Etapas de criação de conta">
+                    <span class="ativo ativo--recente"></span>
+                    <span></span>
+                    <span></span>
+                </div>
+
+                <h3 class="criarconta-pergunta" data-pt="Como você vai utilizar o Bixuco?" data-en="How will you use Bixuco?">
+                    Como você vai utilizar o Bixuco?
+                </h3>
+
+                <p
+                    class="criarconta-ajuda"
+                    data-pt="Isso vai nos ajudar a personalizar sua experiência."
+                    data-en="This will help us personalize your experience."
+                >
+                    Isso vai nos ajudar a personalizar sua experiência.
+                </p>
+
+                <!-- Cards de seleção -->
+                <div class="tipo-container">
+
+                    <!-- Card responsável -->
+                    <button
+                        id="cardResponsavel"
+                        class="tipo-card"
+                        type="button"
+                        
+                        aria-pressed="false"
+                    >
+                        <div class="tipo-card__conteudo">
+                            <h4 class="tipo-card__titulo" data-pt="Sou responsável" data-en="I'm a parent/guardian">
+                                Sou responsável
+                            </h4>
+
+                            <p
+                                class="tipo-card__descricao"
+                                data-pt="Acompanho o desenvolvimento do meu filho(a)."
+                                data-en="I track my child's development."
+                            >
+                                Acompanho o desenvolvimento do meu filho(a).
+                            </p>
+                        </div>
+                    </button>
+
+                    <!-- Card terapeuta -->
+                    <button
+                        id="cardPsicologo"
+                        class="tipo-card"
+                        type="button"
+                        
+                        aria-pressed="false"
+                    >
+                        <div class="tipo-card__conteudo">
+                            <h4 class="tipo-card__titulo" data-pt="Sou terapeuta" data-en="I'm a therapist">
+                                Sou terapeuta
+                            </h4>
+
+                            <p
+                                class="tipo-card__descricao"
+                                data-pt="Acompanho pacientes profissionalmente."
+                                data-en="I professionally track patients."
+                            >
+                                Acompanho pacientes profissionalmente.
+                            </p>
+
+                            <div class="tag-crp" data-pt="Requer validação de CRP" data-en="Requires CRP validation">
+                                Requer validação de CRP
+                            </div>
+                        </div>
+                    </button>
+
+                </div>
+
+                <!-- Mensagem inline em vez de alert() -->
+                <!-- Aparece só se o usuário clicar em Continuar sem selecionar nada -->
+                <span
+                    id="erro-selecao"
+                    class="erro-selecao"
+                    style="display: none;"
+                    data-pt="Selecione como deseja utilizar o Bixuco."
+                    data-en="Select how you want to use Bixuco."
+                >
+                    Selecione como deseja utilizar o Bixuco.
+                </span>
+
+                <!-- Botão começa desabilitado; fica ativo apenas quando um card é selecionado -->
+                <button
+                    type="button"
+                    id="btnContinuar"
+                    class="btn-continuar"
+                    data-pt="Continuar"
+                    data-en="Continue"
+                    disabled
+                >
+                    Continuar
+                </button>
+
+                <br>
+
+                <!-- Link para login -->
+                <p class="login-direita__rodape">
+                    <span data-pt="Já possui uma conta?" data-en="Already have an account?">Já possui uma conta?</span>
+                    <a href="/logar" class="login-direita__link" data-pt="Fazer login" data-en="Log in">
+                        Fazer login
+                    </a>
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="/js/CriarContaS.js"></script>
+
+    <script src="/js/tema.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bixuco — Admin: Novidades</title>
+
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/publico.css">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #F5F7FA;
+            padding: 2rem;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 460px;
+            background: #fff;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            font-size: 1.3rem;
+            color: #141414;
+            margin-bottom: 0.4rem;
+        }
+
+        p.subtitulo {
+            font-size: 0.85rem;
+            color: #5A5A5A;
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #141414;
+            margin-bottom: 0.4rem;
+            margin-top: 1rem;
+        }
+
+        input[type="password"],
+        textarea {
+            width: 100%;
+            padding: 0.75rem 0.9rem;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        textarea {
+            min-height: 100px;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 1.5rem;
+            padding: 0.85rem;
+            background: linear-gradient(90deg, #79D836 0%, #0AB7FB 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .status {
+            display: none;
+            margin-top: 1rem;
+            padding: 0.75rem 0.9rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .status.visivel { display: block; }
+
+        .status.sucesso {
+            background: rgba(50, 194, 109, 0.12);
+            color: #1E8E4F;
+        }
+
+        .status.erro {
+            background: rgba(255, 68, 68, 0.1);
+            color: #C0392B;
+        }
+
+        .controles-publicos {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+        }
+
+        body.tema-escuro {
+            background: #16181c;
+            color: #f5f7fa;
+        }
+
+        body.tema-escuro .card {
+            background: #1f2227;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.28);
+        }
+
+        body.tema-escuro h1,
+        body.tema-escuro label {
+            color: #f5f7fa;
+        }
+
+        body.tema-escuro p.subtitulo {
+            color: #b8c0ca;
+        }
+
+        body.tema-escuro textarea {
+            background: #282d34;
+            border-color: #3a424d;
+            color: #f5f7fa;
+        }
+    </style>
+
+</head>
+<body>
+
+    <div class="controles-publicos" aria-label="Preferências da página">
+        <button type="button" class="controle-publico controle-publico--icone" id="btnTemaMobile" aria-label="Alternar tema" title="Alternar tema">☼</button>
+        <button type="button" class="controle-publico" id="btnTraduzir" aria-label="Alterar idioma">
+            <span id="textoTradutor">EN</span>
+        </button>
+    </div>
+
+    <div class="card">
+
+        <h1 data-pt="Publicar novidade" data-en="Publish update">Publicar novidade</h1>
+        <p class="subtitulo" data-pt="A mensagem será enviada como notificação para todos os usuários que ativaram &quot;Novidades e dicas&quot; nas configurações." data-en="The message will be sent as a notification to all users who enabled &quot;Updates and tips&quot; in settings.">
+            A mensagem será enviada como notificação para todos os usuários que ativaram "Novidades e dicas" nas configurações.
+        </p>
+
+        <form id="formNovidade">
+
+            <label for="mensagemNovidade" data-pt="Mensagem" data-en="Message">Mensagem</label>
+            <textarea id="mensagemNovidade" required placeholder="Ex: Agora você pode acompanhar o histórico completo de relatórios! 🎉" data-pt-placeholder="Ex: Agora você pode acompanhar o histórico completo de relatórios! 🎉" data-en-placeholder="Example: You can now view the full report history! 🎉"></textarea>
+
+            <button type="submit" id="btnEnviar" data-pt="Publicar novidade" data-en="Publish update">Publicar novidade</button>
+
+        </form>
+
+        <p id="statusEnvio" class="status"></p>
+
+    </div>
+
+    <script src="/js/publico-extra.js"></script>
+    <script src="/js/tema.js"></script>
+    <script src="/js/Adminnovidades.js"></script>
+
+</body>
+</html>

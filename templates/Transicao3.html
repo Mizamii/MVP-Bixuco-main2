@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Bixuco — Introdução</title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/css/transicao3.css"
+    >
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/publico.css">
+
+    <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+    <script src="/js/deeplink.js"></script>
+
+
+</head>
+
+<body class="pagina-publica pagina-transicao">
+
+    <div class="controles-publicos controles-publicos--pagina" aria-label="Preferências da página">
+        <button type="button" class="controle-publico controle-publico--icone" id="btnTemaMobile" aria-label="Alternar tema" title="Alternar tema"><i class="fa-regular fa-sun"></i></button>
+        <button type="button" class="controle-publico" id="btnTraduzir"><i class="fa-solid fa-language"></i><span id="textoTradutor">EN</span></button>
+    </div>
+
+    <main id="conteudo">
+
+        <!-- Botão voltar -->
+
+        <button id="btnVoltar" class="seta-esquerda">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+
+        <!-- Conteúdo -->
+
+        <section>
+
+            <img
+                src="/img/pessoasT.png"
+                alt="Conecte seu terapeuta"
+            >
+
+            <h1>
+
+                <span data-pt="Conecte seu terapeuta" data-en="Connect your therapist">Conecte seu terapeuta</span>
+
+            </h1>
+
+            <p>
+
+                <span data-pt="Compartilhe relatórios e facilite o acompanhamento profissional do seu filho(a)." data-en="Share reports and make professional follow-up easier for your child.">Compartilhe relatórios e facilite o acompanhamento profissional do seu filho(a).</span>
+
+            </p>
+
+            <button id="btnProximo" class="btn-proximo">
+                <span data-pt="Próximo" data-en="Next">Próximo</span>
+            </button>
+
+        </section>
+
+        <!-- Indicadores -->
+
+        <div class="indicadores">
+
+            <span></span>
+
+            <span></span>
+
+            <span class="ativo"></span>
+
+        </div>
+
+    </main>
+
+<script src="/js/Transicao3.js"></script>
+<script src="/js/publico-extra.js"></script>
+<script src="/js/tema.js"></script>
+
+</body>
+
+</html>
