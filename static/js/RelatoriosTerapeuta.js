@@ -24,11 +24,142 @@ const dicionario = {
     notaExpiraPrefixo:            { pt: "Esta nota será excluída automaticamente em",     en: "This note will be automatically deleted in" },
     notaExpiraDia:                  { pt: "dia",                                          en: "day" },
     notaExpiraDias:                  { pt: "dias",                                        en: "days" },
+    paciente:                        { pt: "Paciente",                                    en: "Patient" },
+    alertasLabel:                    { pt: "Alertas",                                     en: "Alerts" },
+    registradosMes:                  { pt: "registrados este mês",                        en: "recorded this month" },
+    igualMesPassado:                 { pt: "igual ao mês passado",                        en: "same as last month" },
+    porEpisodio:                     { pt: "por episódio",                                en: "per episode" },
+    semDados:                        { pt: "Sem dados suficientes ainda",                  en: "Not enough data yet" },
 };
 
 function t(chave) {
     const entrada = dicionario[chave];
     return idiomaAtual === "en" ? entrada.en : entrada.pt;
+}
+function traduzirMensagemNotificacao(item) {
+    const mensagem = String(item?.mensagem || "");
+    if (idiomaAtual !== "en") return mensagem;
+
+    switch (item?.tipo) {
+        case "pedido_vinculo":
+            return "You received a link request from a new guardian.";
+        case "relatorio_concluido":
+            return "You just completed a report. Great job! 🎉";
+        case "lembrete_relatorio":
+            return "Don't forget to complete today's report! 📋";
+        case "vinculo_removido_plano":
+            return "Your therapist link was removed because your current plan does not include this feature.";
+        case "relatorio_finalizado": {
+            const match = mensagem.match(/^(.+?) acabou de finalizar um relatório\. Clique para ver\.$/i);
+            return match
+                ? `${match[1]} just completed a report. Click to view.`
+                : "A patient just completed a report. Click to view.";
+        }
+        default:
+            return mensagem;
+    }
+}
+
+
+function traduzirComparativo(texto) {
+    const valor = String(texto || "").trim();
+    if (idiomaAtual !== "en") return valor;
+
+    if (valor === "registrados este mês") return t("registradosMes");
+    if (valor === "igual ao mês passado") return t("igualMesPassado");
+    if (valor === "por episódio") return t("porEpisodio");
+
+    let match = valor.match(/^([↑↓])\s*(\d+)\s*comparado ao mês passado$/i);
+    if (match) return `${match[1]} ${match[2]} compared with last month`;
+
+    match = valor.match(/^([↑↓])\s*(\d+)\s*min\s*comparado ao mês passado$/i);
+    if (match) return `${match[1]} ${match[2]} min compared with last month`;
+
+    return valor;
+}
+
+const ROTULOS_GATILHOS_EN = {
+    "Auditivo": "Auditory",
+    "Visual": "Visual",
+    "Tátil": "Tactile",
+    "Olfativo": "Olfactory",
+    "Gustativo": "Gustatory",
+    "Vestibular": "Vestibular",
+    "Proprioceptivo": "Proprioceptive",
+    "Interoceptivo": "Interoceptive",
+    "Ambiente movimentado": "Busy environment",
+    "Mudança de rotina": "Routine change",
+    "Ambiente desconhecido": "Unfamiliar environment",
+    "Interação social": "Social interaction",
+    "Transição de atividade": "Activity transition",
+    "Espera": "Waiting",
+    "Cansaço": "Tiredness",
+    "Fome ou sede": "Hunger or thirst",
+    "Dor ou desconforto": "Pain or discomfort",
+    "Outro contexto": "Other context",
+    "Não identificado": "Not identified",
+    "Outros": "Other",
+    "Sem dados suficientes ainda": "Not enough data yet"
+};
+
+function traduzirRotuloGatilho(texto) {
+    const valor = String(texto || "");
+    return idiomaAtual === "en" ? (ROTULOS_GATILHOS_EN[valor] || valor) : valor;
+}
+
+const DIAS_SEMANA_EN = {
+    "Dom": "Sun", "Seg": "Mon", "Ter": "Tue", "Qua": "Wed",
+    "Qui": "Thu", "Sex": "Fri", "Sáb": "Sat"
+};
+
+function traduzirDiaSemana(texto) {
+    const valor = String(texto || "");
+    return idiomaAtual === "en" ? (DIAS_SEMANA_EN[valor] || valor) : valor;
+}
+
+const PERGUNTAS_RELATORIO_EN = {
+    alerta_estresse: "Was there a stress alert today?",
+    acalmou_facilidade: "Was the child able to calm down easily?",
+    gatilho_principal: "What was the main trigger of the episode?",
+    desconforto_texturas: "Did the child show discomfort with clothing or food textures?",
+    evitou_contato_visual: "Did the child avoid eye contact today?",
+    comunicacao: "How was communication today?",
+    humor: "How was the child's mood during the day?",
+    crises_sensoriais: "Were there sensory crises?",
+    sono: "Did the child sleep well?",
+    alimentacao: "How was eating?",
+    atividades_propostas: "Did the child complete the proposed activities?",
+    interacao_social: "How was social interaction?",
+    avaliacao_dia: "How would you rate today?"
+};
+
+const RESPOSTAS_RELATORIO_EN = {
+    "Sim": "Yes", "Não": "No",
+    "Sim, rapidamente": "Yes, quickly",
+    "Sim, mas demorou": "Yes, but it took a while",
+    "Não, precisou de ajuda": "No, help was needed",
+    "Não se acalmou": "Did not calm down",
+    "Excelente": "Excellent", "Boa": "Good", "Bom": "Good",
+    "Regular": "Fair", "Ruim": "Poor", "Difícil": "Difficult",
+    "Muito calmo": "Very calm", "Calmo": "Calm",
+    "Agitado": "Agitated", "Muito agitado": "Very agitated",
+    "Muito boa": "Very good", "Pouca": "Little", "Nenhuma": "None",
+    "Todas": "All", "Quase todas": "Almost all", "Poucas": "Few",
+    "Muito bem": "Very well", "Bem": "Well",
+    "Muito": "A lot", "Pouco": "Little", "Muito pouco": "Very little",
+    "Sempre": "Always", "Quase sempre": "Almost always",
+    "Raramente": "Rarely", "Nunca": "Never",
+    "Sim, várias": "Yes, several", "Algumas": "Some"
+};
+
+function traduzirPerguntaRelatorio(item) {
+    if (idiomaAtual !== "en") return item?.pergunta || item?.id || "";
+    return PERGUNTAS_RELATORIO_EN[item?.id] || item?.pergunta || item?.id || "";
+}
+
+function traduzirRespostaRelatorio(valor) {
+    const texto = String(valor ?? "");
+    return idiomaAtual === "en" ? (RESPOSTAS_RELATORIO_EN[texto] || texto) : texto;
 }
 
 
@@ -144,7 +275,7 @@ async function carregarRelatorio() {
         const dados = await resposta.json();
 
         document.getElementById("nomePaciente").textContent =
-            dados.nomePaciente || "Paciente";
+            dados.nomePaciente || t("paciente");
 
         preencherCards(dados);
         renderizarGraficos(dados);
@@ -160,19 +291,19 @@ async function carregarRelatorio() {
 // =========================
 function usarDadosExemplo() {
 
-    document.getElementById("nomePaciente").textContent = "Paciente";
+    document.getElementById("nomePaciente").textContent = t("paciente");
 
-    const dadosExemplo = {
-        alertas: 18,
-        comparativoAlertas: "↓ 2 comparado ao mês passado",
-        tempo: "120 min",
-        comparativoTempo:   "↑ 1 min comparado ao mês passado",
-        graficoEstresse:    { labels: ["Sex","Sáb","Dom","Seg","Ter","Qua","Qui"], dados: [3,2,5,7,8,4,2] },
-        graficoGatilhos:    { labels: ["Ambientes barulhentos","Locais lotados","Mudanças de rotina","Texturas"], dados: [42,28,18,12], cores: ["#32C26D","#0AB7FB","#1D8EC9","#C2C2C2"] }
+    const dadosSemExemplo = {
+        alertas: 0,
+        comparativoAlertas: "",
+        tempo: "0 min",
+        comparativoTempo: "",
+        graficoEstresse: { labels: [], dados: [] },
+        graficoGatilhos: { labels: [t("semDados")], dados: [100], cores: ["#C2C2C2"] }
     };
 
-    preencherCards(dadosExemplo);
-    renderizarGraficos(dadosExemplo);
+    preencherCards(dadosSemExemplo);
+    renderizarGraficos(dadosSemExemplo);
 }
 
 // =========================
@@ -188,13 +319,13 @@ function preencherCards(dados) {
     alertaEl.innerHTML = `<i class="fa-solid ${seta}"></i> ${dados.alertas ?? 0}`;
 
     document.getElementById("comparativoAlertas").textContent =
-        dados.comparativoAlertas || "";
+        traduzirComparativo(dados.comparativoAlertas) || "";
 
     document.getElementById("tempoEstresse").textContent =
         dados.tempo || "0 min";
 
     document.getElementById("comparativoTempo").textContent =
-        dados.comparativoTempo || "";
+        traduzirComparativo(dados.comparativoTempo) || "";
 }
 
 // =========================
@@ -239,9 +370,9 @@ function criarGraficoEstresse(tipo) {
     graficos.estresse = new Chart(ctx, {
         type: tipo,
         data: {
-            labels: dados?.labels || [],
+            labels: (dados?.labels || []).map(traduzirDiaSemana),
             datasets: [{
-                label:           "Alertas",
+                label:           t("alertasLabel"),
                 data:            dados?.dados  || [],
                 backgroundColor: tipo === "line" ? gradiente : cores,
                 borderColor:     tipo === "line" ? VERDE : cores,
@@ -289,7 +420,7 @@ function criarGraficoGatilhos(tipo) {
     graficos.gatilhos = new Chart(ctx, {
         type: tipo,
         data: {
-            labels: dados?.labels || [],
+            labels: (dados?.labels || []).map(traduzirRotuloGatilho),
             datasets: [{
                 data:            dados?.dados  || [],
                 backgroundColor: dados?.cores  || [VERDE, AZUL, "#1D8EC9", "#C2C2C2"],
@@ -317,7 +448,7 @@ function criarGraficoGatilhos(tipo) {
                 legenda.innerHTML += `
                     <div class="legenda-item">
                         <span class="legenda-cor" style="background:${dados?.cores?.[i] || VERDE}"></span>
-                        <span>${escaparHTML(label)} ${escaparHTML(dados?.dados?.[i])}%</span>
+                        <span>${escaparHTML(traduzirRotuloGatilho(label))} ${escaparHTML(dados?.dados?.[i])}%</span>
                     </div>`;
             });
             legenda.style.display = "flex";
@@ -481,11 +612,14 @@ async function selecionarDia(dataISO) {
         const detalhe = await resposta.json();
 
         document.getElementById("painelDiaTitulo").textContent =
-            detalhe.dataFormatada || new Date(dataISO + "T00:00:00").toLocaleDateString(idiomaAtual === "en" ? "en-US" : "pt-BR");
+            new Date(dataISO + "T12:00:00").toLocaleDateString(
+                idiomaAtual === "en" ? "en-US" : "pt-BR",
+                { weekday: "long", day: "numeric", month: "long", year: "numeric" }
+            );
 
         document.getElementById("painelDiaConteudo").innerHTML = detalhe.temRelatorio
             ? `<ul class="lista-respostas-dia">${(detalhe.perguntas || []).map(p => `
-                <li><strong>${escaparHTML(p.pergunta || p.id)}</strong><span>${escaparHTML(p.resposta)}</span></li>
+                <li><strong>${escaparHTML(traduzirPerguntaRelatorio(p))}</strong><span>${escaparHTML(traduzirRespostaRelatorio(p.resposta))}</span></li>
             `).join("")}</ul>`
             : `<p class="sem-relatorio-dia">${t("semRelatorioDia")}</p>`;
         document.getElementById("notaDoDia").value = detalhe.nota || "";
@@ -560,7 +694,7 @@ async function carregarNotificacoes() {
             ? `<div class="painel-vazio">${t("semNotificacoes")}</div>`
             : itens.map(n => `
                 <div class="item-notificacao ${n.lida ? "" : "nao-lida"}">
-                    ${escaparHTML(n.mensagem)}
+                    ${escaparHTML(traduzirMensagemNotificacao(n))}
                     <span class="tempo-notificacao">${escaparHTML(n.tempo)}</span>
                 </div>`).join("");
     } catch (_) {
@@ -600,6 +734,13 @@ function aplicarIdiomaEstatico() {
         idiomaAtual === "en" ? "Traduzir para português" : "Traduzir para inglês";
 
     document.getElementById("btnSalvarNotaDia").textContent = t("salvarNotaTxt");
+
+    const notaDoDia = document.getElementById("notaDoDia");
+    if (notaDoDia) {
+        notaDoDia.placeholder = idiomaAtual === "en"
+            ? notaDoDia.dataset.enPlaceholder
+            : notaDoDia.dataset.ptPlaceholder;
+    }
 }
 
 document.getElementById("btnTraduzir").addEventListener("click", () => {
@@ -607,7 +748,9 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
     localStorage.setItem("idioma", idiomaAtual);
     aplicarIdiomaEstatico();
     renderizarCalendario(); // atualiza nomes de mês/dias da semana
+    carregarRelatorio();     // atualiza cards e gráficos montados via JS
     if (diaSelecionado) selecionarDia(diaSelecionado); // re-renderiza o dia aberto no novo idioma
+    if (painelNotificacoes.classList.contains("aberto")) carregarNotificacoes();
 });
 
 aplicarIdiomaEstatico();

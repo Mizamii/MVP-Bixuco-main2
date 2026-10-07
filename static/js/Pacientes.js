@@ -29,6 +29,10 @@ const dicionario = {
     nivelMedio:        { pt: "Médio",                  en: "Medium" },
     nivelBaixo:        { pt: "Baixo",                  en: "Low" },
     semNotificacoes:   { pt: "Nenhuma notificação por enquanto.", en: "No notifications yet." },
+    hoje:              { pt: "Hoje",                    en: "Today" },
+    ontem:             { pt: "Ontem",                   en: "Yesterday" },
+    semRelatorios:     { pt: "Sem relatórios",          en: "No reports" },
+    diasAtras:         { pt: (n) => `${n} dias`,         en: (n) => `${n} days` },
     erroCarregarNotif: { pt: "Não foi possível carregar.", en: "Couldn't load notifications." },
 };
 
@@ -37,9 +41,46 @@ function t(chave, ...args) {
     const valor   = idiomaAtual === "en" ? entrada.en : entrada.pt;
     return typeof valor === "function" ? valor(...args) : valor;
 }
+function traduzirMensagemNotificacao(item) {
+    const mensagem = String(item?.mensagem || "");
+    if (idiomaAtual !== "en") return mensagem;
+
+    switch (item?.tipo) {
+        case "pedido_vinculo":
+            return "You received a link request from a new guardian.";
+        case "relatorio_concluido":
+            return "You just completed a report. Great job! 🎉";
+        case "lembrete_relatorio":
+            return "Don't forget to complete today's report! 📋";
+        case "vinculo_removido_plano":
+            return "Your therapist link was removed because your current plan does not include this feature.";
+        case "relatorio_finalizado": {
+            const match = mensagem.match(/^(.+?) acabou de finalizar um relatório\. Clique para ver\.$/i);
+            return match
+                ? `${match[1]} just completed a report. Click to view.`
+                : "A patient just completed a report. Click to view.";
+        }
+        default:
+            return mensagem;
+    }
+}
+
 
 // Mapa dos valores de estresse vindos da API (em português) pra chave do dicionário
 const nivelParaChave = { "Alto": "nivelAlto", "Médio": "nivelMedio", "Baixo": "nivelBaixo" };
+
+function traduzirUltimoRelatorio(valor) {
+    const texto = String(valor || "").trim();
+
+    if (texto === "Hoje") return t("hoje");
+    if (texto === "Ontem") return t("ontem");
+    if (texto === "Sem relatórios") return t("semRelatorios");
+
+    const dias = texto.match(/^(\d+)\s+dias?$/i);
+    if (dias) return t("diasAtras", dias[1]);
+
+    return texto;
+}
 
 
 // =========================
@@ -197,7 +238,7 @@ function criarCard(paciente, temAlerta) {
             </div>
             <div class="metrica">
                 <span>${t("ultimoRelat")}</span>
-                <strong class="metrica-valor metrica-valor--data">${escaparHTML(paciente.ultimoRelatorio)}</strong>
+                <strong class="metrica-valor metrica-valor--data">${escaparHTML(traduzirUltimoRelatorio(paciente.ultimoRelatorio))}</strong>
             </div>
         </div>
 
@@ -281,7 +322,7 @@ async function carregarNotificacoes() {
             ? `<div class="painel-vazio">${t("semNotificacoes")}</div>`
             : itens.map(item => `
                 <div class="item-notificacao ${item.lida ? "" : "nao-lida"}">
-                    <p>${escaparHTML(item.mensagem)}</p>
+                    <p>${escaparHTML(traduzirMensagemNotificacao(item))}</p>
                     <span class="tempo-notificacao">${escaparHTML(item.tempo)}</span>
                 </div>
             `).join("");

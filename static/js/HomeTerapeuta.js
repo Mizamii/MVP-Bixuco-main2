@@ -20,6 +20,7 @@ const dicionario = {
                             en: (nome) => `Are you sure you want to decline ${nome}'s request?` },
     erroProcessar:        { pt: "Erro ao processar. Tente novamente.",     en: "Something went wrong. Please try again." },
     ver:                  { pt: "Ver",                                    en: "View" },
+    relatorioDe:          { pt: "Relatório de",                           en: "Report for" },
     semNotificacoes:      { pt: "Nenhuma notificação por enquanto.",       en: "No notifications yet." },
     erroCarregarNotif:    { pt: "Não foi possível carregar.",              en: "Couldn't load notifications." },
 };
@@ -29,6 +30,30 @@ function t(chave, ...args) {
     const valor   = idiomaAtual === "en" ? entrada.en : entrada.pt;
     return typeof valor === "function" ? valor(...args) : valor;
 }
+function traduzirMensagemNotificacao(item) {
+    const mensagem = String(item?.mensagem || "");
+    if (idiomaAtual !== "en") return mensagem;
+
+    switch (item?.tipo) {
+        case "pedido_vinculo":
+            return "You received a link request from a new guardian.";
+        case "relatorio_concluido":
+            return "You just completed a report. Great job! 🎉";
+        case "lembrete_relatorio":
+            return "Don't forget to complete today's report! 📋";
+        case "vinculo_removido_plano":
+            return "Your therapist link was removed because your current plan does not include this feature.";
+        case "relatorio_finalizado": {
+            const match = mensagem.match(/^(.+?) acabou de finalizar um relatório\. Clique para ver\.$/i);
+            return match
+                ? `${match[1]} just completed a report. Click to view.`
+                : "A patient just completed a report. Click to view.";
+        }
+        default:
+            return mensagem;
+    }
+}
+
 
 
 // =========================
@@ -307,7 +332,7 @@ function renderAtividade(lista) {
 
             <div class="atividade-info">
                 <strong>
-                    Relatório de ${escaparHTML(item.nomeCrianca)}
+                    ${t("relatorioDe")} ${escaparHTML(item.nomeCrianca)}
                     ${!item.visto ? '<span class="bolinha-nao-visto"></span>' : ''}
                 </strong>
                 <span>${escaparHTML(item.nomeResponsavel)} · ${escaparHTML(item.tempo)}</span>
@@ -375,7 +400,7 @@ function formatarItemNotificacao(item) {
             <div class="notificacao-linha">
                 <i class="fa-solid ${icone} notificacao-icone"></i>
                 <div>
-                    <p>${escaparHTML(item.mensagem)}</p>
+                    <p>${escaparHTML(traduzirMensagemNotificacao(item))}</p>
                     <span class="tempo-notificacao">${escaparHTML(item.tempo)}</span>
                 </div>
             </div>
@@ -462,6 +487,7 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
     aplicarIdiomaEstatico();
     // Solicitações e atividade são montadas via JS (t()) — recarrega para refletir o novo idioma
     carregarDados();
+    if (painelNotificacoes.classList.contains("aberto")) carregarNotificacoes();
 });
 
 // Aplica o idioma salvo ao carregar

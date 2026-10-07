@@ -30,6 +30,30 @@ function traduzir(texto) {
     if (idiomaAtual === "pt" || texto == null) return texto;
     return dicionario[texto] || texto;
 }
+function traduzirMensagemNotificacao(item) {
+    const mensagem = String(item?.mensagem || "");
+    if (idiomaAtual !== "en") return mensagem;
+
+    switch (item?.tipo) {
+        case "pedido_vinculo":
+            return "You received a link request from a new guardian.";
+        case "relatorio_concluido":
+            return "You just completed a report. Great job! 🎉";
+        case "lembrete_relatorio":
+            return "Don't forget to complete today's report! 📋";
+        case "vinculo_removido_plano":
+            return "Your therapist link was removed because your current plan does not include this feature.";
+        case "relatorio_finalizado": {
+            const match = mensagem.match(/^(.+?) acabou de finalizar um relatório\. Clique para ver\.$/i);
+            return match
+                ? `${match[1]} just completed a report. Click to view.`
+                : "A patient just completed a report. Click to view.";
+        }
+        default:
+            return mensagem;
+    }
+}
+
 
 function aplicarIdiomaEstatico() {
 
@@ -42,6 +66,13 @@ function aplicarIdiomaEstatico() {
     document.getElementById("textoTradutor").textContent =
         idiomaAtual === "en" ? "Traduzir para português" : "Traduzir para inglês";
 
+    const inputNome = document.getElementById("inputNome");
+    if (inputNome) {
+        inputNome.placeholder = idiomaAtual === "en"
+            ? inputNome.dataset.enPlaceholder
+            : inputNome.dataset.ptPlaceholder;
+    }
+
 }
 
 document.getElementById("btnTraduzir").addEventListener("click", () => {
@@ -53,6 +84,7 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 
     // Reaplica a descrição (que tem texto dinâmico interpolado)
     if (ultimoUsuario) preencherDescricao(ultimoUsuario);
+    if (painelNotificacoes.classList.contains("aberto")) carregarNotificacoes();
 
 });
 
@@ -86,11 +118,11 @@ async function carregarPerfil() {
 
         // Topo
         document.getElementById("nomeUsuario").textContent =
-            usuario.nome || "Terapeuta";
+            usuario.nome || traduzir("Terapeuta");
 
         // Card de perfil
         document.getElementById("perfilNome").textContent =
-            usuario.nome || "Terapeuta";
+            usuario.nome || traduzir("Terapeuta");
 
         preencherDescricao(usuario);
 
@@ -350,11 +382,15 @@ function copiarCodigoGenerico(idCodigo, idIcone, idMensagem) {
 
 document.getElementById("btnNovoPaciente").addEventListener("click", () => {
     const codigo = document.getElementById("codigoVinculo").textContent;
-    const mensagem = encodeURIComponent(
-        "Olá! Venha conhecer o Bixuco, um aplicativo que ajuda no acompanhamento de crianças com hipersensibilidade sensorial. 🐱\n\n" +
-        `Use meu código de vínculo: ${codigo}\n\n` +
-        "https://mvp-bixuco.onrender.com"
-    );
+    const textoCompartilhar = idiomaAtual === "en"
+        ? "Hi! Come meet Bixuco, an app that supports the monitoring of children with sensory hypersensitivity. 🐱\n\n" +
+          `Use my link code: ${codigo}\n\n` +
+          "https://mvp-bixuco.onrender.com"
+        : "Olá! Venha conhecer o Bixuco, um aplicativo que ajuda no acompanhamento de crianças com hipersensibilidade sensorial. 🐱\n\n" +
+          `Use meu código de vínculo: ${codigo}\n\n` +
+          "https://mvp-bixuco.onrender.com";
+
+    const mensagem = encodeURIComponent(textoCompartilhar);
     window.open(`https://wa.me/?text=${mensagem}`, "_blank");
 });
 
@@ -370,7 +406,7 @@ function formatarItemNotificacao(item) {
     const classeExtra = item.lida ? "" : "nao-lida";
     return `
         <div class="item-notificacao ${classeExtra}">
-            ${escaparHTML(item.mensagem)}
+            ${escaparHTML(traduzirMensagemNotificacao(item))}
             <span class="tempo-notificacao">${escaparHTML(item.tempo)}</span>
         </div>
     `;
