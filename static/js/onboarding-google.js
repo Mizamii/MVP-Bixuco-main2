@@ -1,11 +1,10 @@
 let tipoSelecionado = null;
 
-// ==========================
-// SELECIONAR TIPO
-// ==========================
+function t(pt, en) {
+    return localStorage.getItem("idioma") === "en" ? en : pt;
+}
 
 function selecionarTipo(tipo) {
-
     tipoSelecionado = tipo;
 
     const campoCrp = document.getElementById("campoCrpGoogle");
@@ -31,45 +30,34 @@ function selecionarTipo(tipo) {
 
     document.getElementById("btnContinuar").disabled = false;
     document.getElementById("erro-selecao").style.display = "none";
-
 }
 
-// ==========================
-// CONTINUAR
-// ==========================
-
 document.getElementById("btnContinuar").addEventListener("click", async () => {
-
     if (!tipoSelecionado) {
-        document.getElementById("erro-selecao").style.display = "block";
+        const erroEl = document.getElementById("erro-selecao");
+        erroEl.textContent = t("Selecione como deseja utilizar o Bixuco.", "Select how you want to use Bixuco.");
+        erroEl.style.display = "block";
         return;
     }
 
     if (tipoSelecionado === "psicologo") {
-
-        const crp = document
-            .getElementById("inputCrpGoogle")
-            .value
-            .trim();
+        const crp = document.getElementById("inputCrpGoogle").value.trim();
 
         if (!crp) {
             const erroEl = document.getElementById("erro-selecao");
-
-            erroEl.textContent = "Informe seu CRP para continuar.";
+            erroEl.textContent = t("Informe seu CRP para continuar.", "Enter your CRP to continue.");
             erroEl.style.display = "block";
-
             return;
         }
     }
 
     const btn = document.getElementById("btnContinuar");
-    btn.disabled    = true;
-    btn.textContent = "Salvando...";
+    btn.disabled = true;
+    btn.textContent = t("Salvando...", "Saving...");
 
     try {
-
         const resposta = await fetch("/api/onboarding-google", {
-            method:  "POST",
+            method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 tipo: tipoSelecionado,
@@ -82,31 +70,22 @@ document.getElementById("btnContinuar").addEventListener("click", async () => {
         const dados = await resposta.json();
 
         if (!resposta.ok) {
-            throw new Error(dados.erro || "Erro ao salvar.");
+            throw new Error(dados.erro || t("Erro ao salvar.", "Could not save."));
         }
 
-        // Redireciona para o destino retornado pelo backend
-        // pai → /AdicionarC | psicologo → /homeTerapeuta
         window.location.href = dados.destino;
 
     } catch (erro) {
-
         console.log("Erro no onboarding:", erro);
 
         const erroEl = document.getElementById("erro-selecao");
-        erroEl.textContent   = erro.message || "Erro ao continuar. Tente novamente.";
+        erroEl.textContent = erro.message || t("Erro ao continuar. Tente novamente.", "Could not continue. Try again.");
         erroEl.style.display = "block";
 
-        btn.disabled    = false;
-        btn.textContent = "Continuar";
-
+        btn.disabled = false;
+        btn.textContent = t("Continuar", "Continue");
     }
-
 });
-
-// ==========================
-// LIGA OS CARDS (removido o onclick por causa do CSP)
-// ==========================
 
 document.getElementById("cardResponsavel").addEventListener("click", () => {
     selecionarTipo("pai");

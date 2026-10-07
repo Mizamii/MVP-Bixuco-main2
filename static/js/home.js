@@ -31,7 +31,9 @@ const dicionario = {
     "Seu Bixuco está a caminho": "Your Bixuco is on the way",
     "Acompanhe o status da entrega.": "Track your delivery status.",
     "Vincular meu Bixuco": "Link my Bixuco",
-    "Seu Bixuco chegou! Vincule para começar a jornada.": "Your Bixuco has arrived! Link it to start the journey."
+    "Seu Bixuco chegou! Vincule para começar a jornada.": "Your Bixuco has arrived! Link it to start the journey.",
+    "Responsável": "Guardian",
+    "Usuário": "User"
 };
 
 function traduzir(texto) {
@@ -62,6 +64,11 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 
     aplicarIdiomaEstatico();
 
+    const tipoContaHome = document.getElementById("tipoConta");
+    if (tipoContaHome) {
+        tipoContaHome.textContent = traduzir(ultimoTipoContaHome);
+    }
+
     atualizarTextoSequencia(
         diasConsecutivosAtual
     );
@@ -91,6 +98,7 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 // =========================
 
 let diasConsecutivosAtual = 0;
+let ultimoTipoContaHome = "Responsável";
 
 async function carregarDadosUsuario() {
 
@@ -143,10 +151,13 @@ async function carregarDadosUsuario() {
         ).textContent =
             dados.nomeBixuco || "Bixuco";
 
+        ultimoTipoContaHome =
+            dados.tipoConta || "Responsável";
+
         document.getElementById(
             "tipoConta"
         ).textContent =
-            dados.tipoConta || "Responsável";
+            traduzir(ultimoTipoContaHome);
 
         document.getElementById(
             "quantidadeNotificacoes"
@@ -201,10 +212,12 @@ async function carregarDadosUsuario() {
         ).textContent =
             "Bixuco";
 
+        ultimoTipoContaHome = "Responsável";
+
         document.getElementById(
             "tipoConta"
         ).textContent =
-            "Responsável";
+            traduzir(ultimoTipoContaHome);
 
         document.getElementById(
             "quantidadeNotificacoes"

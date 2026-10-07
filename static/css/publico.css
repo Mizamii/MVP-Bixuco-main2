@@ -284,3 +284,110 @@ body.tema-escuro .modal-termos__fechar {
     padding: 0;
   }
 }
+
+/* =========================
+   TELAS PÚBLICAS ADICIONAIS
+   ========================= */
+.controles-publicos--pagina {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+}
+
+body.pagina-auth.tema-escuro .cadastro-form__descricao,
+body.pagina-auth.tema-escuro .questionario-progresso,
+body.pagina-auth.tema-escuro #texto-progresso,
+body.pagina-auth.tema-escuro .pergunta-texto,
+body.pagina-auth.tema-escuro .questionario-pergunta,
+body.pagina-auth.tema-escuro .questionario-subtitulo {
+  color: #f5f7fa !important;
+}
+
+body.pagina-auth.tema-escuro .questionario-opcao,
+body.pagina-auth.tema-escuro .opcao-resposta,
+body.pagina-auth.tema-escuro .cadastro-form__foto {
+  background: #1f2227 !important;
+  color: #f5f7fa !important;
+  border-color: #3a414c !important;
+}
+
+body.pagina-auth.tema-escuro select.cadastro-form__input {
+  color-scheme: dark;
+}
+
+body.pagina-pedido-confirmado.tema-escuro {
+  background: #16181c;
+}
+
+body.pagina-pedido-confirmado.tema-escuro #card {
+  background: #1f2227;
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.32);
+}
+
+body.pagina-pedido-confirmado.tema-escuro h1,
+body.pagina-pedido-confirmado.tema-escuro .etapa strong {
+  color: #f5f7fa;
+}
+
+body.pagina-pedido-confirmado.tema-escuro #subtitulo,
+body.pagina-pedido-confirmado.tema-escuro .etapa span,
+body.pagina-pedido-confirmado.tema-escuro #previsao p {
+  color: #b8c0ca;
+}
+
+body.pagina-pedido-confirmado.tema-escuro #mascote {
+  background: #282d34;
+  border-color: #3a414c;
+}
+
+body.pagina-pedido-confirmado.tema-escuro .etapa::before,
+body.pagina-pedido-confirmado.tema-escuro .ponto {
+  background: #3a414c;
+}
+
+body.pagina-pedido-confirmado.tema-escuro #previsao {
+  background: rgba(10, 183, 251, 0.08);
+  border-color: rgba(10, 183, 251, 0.3);
+}
+
+body.pagina-transicao.tema-escuro #tela,
+body.pagina-transicao.tema-escuro #conteudo,
+body.pagina-transicao.tema-escuro .container {
+  background: #16181c;
+}
+
+body.pagina-transicao.tema-escuro .conteudo__titulo,
+body.pagina-transicao.tema-escuro #conteudo > section h1,
+body.pagina-transicao.tema-escuro .container > h1,
+body.pagina-transicao.tema-escuro .card-sequencia .texto-sequencia h3 {
+  color: #f5f7fa;
+}
+
+body.pagina-transicao.tema-escuro .conteudo__texto,
+body.pagina-transicao.tema-escuro #conteudo > section p,
+body.pagina-transicao.tema-escuro .container > .descricao,
+body.pagina-transicao.tema-escuro .botao-pular,
+body.pagina-transicao.tema-escuro .pular,
+body.pagina-transicao.tema-escuro .card-sequencia .texto-sequencia p {
+  color: #b8c0ca;
+}
+
+body.pagina-transicao.tema-escuro .botao-proximo,
+body.pagina-transicao.tema-escuro #conteudo > button,
+body.pagina-transicao.tema-escuro .seta-esquerda,
+body.pagina-transicao.tema-escuro .card-sequencia {
+  background: #1f2227;
+  color: #67cfff;
+}
+
+body.pagina-transicao.tema-escuro .conteudo__logo {
+  filter: brightness(1.05);
+}
+
+@media (max-width: 640px) {
+  .controles-publicos--pagina {
+    top: 0.75rem;
+    right: 0.75rem;
+  }
+}

@@ -63,7 +63,13 @@ const dicionario = {
     "Ver no mapa":                          "View on map",
     "Não disponível":                       "Not available",
     "Nenhuma crise registrada neste dia.":  "No crisis recorded on this day.",
-    "Não foi possível carregar os alertas.": "Could not load alerts."
+    "Não foi possível carregar os alertas.": "Could not load alerts.",
+    "Responsável": "Guardian",
+    "Usuário": "User",
+    "Índice de crise sensorial": "Sensory crisis index",
+    "Índice": "Index",
+    "Nenhuma notificação por enquanto.": "No notifications for now.",
+    "Não foi possível carregar as notificações.": "Could not load notifications."
 };
 
 function traduzir(texto) {
@@ -92,6 +98,11 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 
     aplicarIdiomaEstatico();
 
+    const tipoContaRelatorios = document.getElementById("tipoConta");
+    if (tipoContaRelatorios) {
+        tipoContaRelatorios.textContent = traduzir(ultimoTipoContaRelatorios);
+    }
+
     if (ultimosDadosRelatorio) {
         preencherCards(ultimosDadosRelatorio);
         renderizarGraficos(ultimosDadosRelatorio);
@@ -103,6 +114,8 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 // ==========================
 // DADOS DO USUÁRIO
 // ==========================
+
+let ultimoTipoContaRelatorios = "Responsável";
 
 async function carregarUsuario() {
     try {
@@ -120,8 +133,11 @@ async function carregarUsuario() {
         document.getElementById("nomeUsuario").textContent =
             usuario.nome || "Usuário";
 
-        document.getElementById("tipoConta").textContent =
+        ultimoTipoContaRelatorios =
             usuario.tipoConta || "Responsável";
+
+        document.getElementById("tipoConta").textContent =
+            traduzir(ultimoTipoContaRelatorios);
 
         if (usuario.fotoPerfil) {
             document.getElementById("fotoUsuario").src = usuario.fotoPerfil;
@@ -491,7 +507,7 @@ function criarGraficoEvolucao(tipo) {
         data: {
             labels: labelsArr,
             datasets: [{
-                label:           "Índice de crise sensorial",
+                label:           traduzir("Índice de crise sensorial"),
                 data:            dadosArr,
                 borderColor:     VERDE,
                 backgroundColor: tipo === "line" ? gradiente : VERDE,
@@ -512,7 +528,7 @@ function criarGraficoEvolucao(tipo) {
                 legend: { display: false },
                 tooltip: {
                     callbacks: {
-                        label: (contexto) => `Índice: ${contexto.parsed.y.toFixed(1)} / 10`
+                        label: (contexto) => `${traduzir("Índice")}: ${contexto.parsed.y.toFixed(1)} / 10`
                     }
                 }
             },
@@ -678,7 +694,7 @@ async function carregarNotificacoes() {
         const itens = dados.notificacoes || [];
 
         listaNotificacoes.innerHTML = itens.length === 0
-            ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+            ? `<div class="painel-vazio">${traduzir("Nenhuma notificação por enquanto.")}</div>`
             : itens.map(formatarItemNotificacao).join("");
 
         const naoLidas = itens.filter(item => !item.lida).length;
@@ -686,7 +702,7 @@ async function carregarNotificacoes() {
 
     } catch (erro) {
         console.log("Erro ao carregar notificações:", erro);
-        listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar as notificações.</div>`;
+        listaNotificacoes.innerHTML = `<div class="painel-vazio">${traduzir("Não foi possível carregar as notificações.")}</div>`;
     }
 }
 

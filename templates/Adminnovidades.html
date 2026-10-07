@@ -7,6 +7,8 @@
     <title>Bixuco — Admin: Novidades</title>
 
     <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/publico.css">
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -104,25 +106,62 @@
             background: rgba(255, 68, 68, 0.1);
             color: #C0392B;
         }
+
+        .controles-publicos {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+        }
+
+        body.tema-escuro {
+            background: #16181c;
+            color: #f5f7fa;
+        }
+
+        body.tema-escuro .card {
+            background: #1f2227;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.28);
+        }
+
+        body.tema-escuro h1,
+        body.tema-escuro label {
+            color: #f5f7fa;
+        }
+
+        body.tema-escuro p.subtitulo {
+            color: #b8c0ca;
+        }
+
+        body.tema-escuro textarea {
+            background: #282d34;
+            border-color: #3a424d;
+            color: #f5f7fa;
+        }
     </style>
 
 </head>
 <body>
 
+    <div class="controles-publicos" aria-label="Preferências da página">
+        <button type="button" class="controle-publico controle-publico--icone" id="btnTemaMobile" aria-label="Alternar tema" title="Alternar tema">☼</button>
+        <button type="button" class="controle-publico" id="btnTraduzir" aria-label="Alterar idioma">
+            <span id="textoTradutor">EN</span>
+        </button>
+    </div>
+
     <div class="card">
 
-        <h1>Publicar novidade</h1>
-        <p class="subtitulo">
-            A mensagem será enviada como notificação para todos os
-            usuários que ativaram "Novidades e dicas" nas configurações.
+        <h1 data-pt="Publicar novidade" data-en="Publish update">Publicar novidade</h1>
+        <p class="subtitulo" data-pt="A mensagem será enviada como notificação para todos os usuários que ativaram &quot;Novidades e dicas&quot; nas configurações." data-en="The message will be sent as a notification to all users who enabled &quot;Updates and tips&quot; in settings.">
+            A mensagem será enviada como notificação para todos os usuários que ativaram "Novidades e dicas" nas configurações.
         </p>
 
         <form id="formNovidade">
 
-            <label for="mensagemNovidade">Mensagem</label>
-            <textarea id="mensagemNovidade" required placeholder="Ex: Agora você pode acompanhar o histórico completo de relatórios! 🎉"></textarea>
+            <label for="mensagemNovidade" data-pt="Mensagem" data-en="Message">Mensagem</label>
+            <textarea id="mensagemNovidade" required placeholder="Ex: Agora você pode acompanhar o histórico completo de relatórios! 🎉" data-pt-placeholder="Ex: Agora você pode acompanhar o histórico completo de relatórios! 🎉" data-en-placeholder="Example: You can now view the full report history! 🎉"></textarea>
 
-            <button type="submit" id="btnEnviar">Publicar novidade</button>
+            <button type="submit" id="btnEnviar" data-pt="Publicar novidade" data-en="Publish update">Publicar novidade</button>
 
         </form>
 
@@ -130,6 +169,8 @@
 
     </div>
 
+    <script src="/js/publico-extra.js"></script>
+    <script src="/js/tema.js"></script>
     <script src="/js/Adminnovidades.js"></script>
 
 </body>

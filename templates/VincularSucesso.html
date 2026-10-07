@@ -8,6 +8,7 @@
       integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
       crossorigin="anonymous" referrerpolicy="no-referrer">
 <link rel="stylesheet" href="/css/tema.css">
+<link rel="stylesheet" href="/css/publico.css">
 <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
 <script src="/js/deeplink.js"></script>
 
@@ -70,6 +71,13 @@
 </head>
 <body>
 
+  <div class="controles-publicos controles-publicos--auth" aria-label="Preferências da página">
+    <button type="button" class="controle-publico controle-publico--icone" id="btnTemaMobile" aria-label="Alternar tema" title="Alternar tema">☼</button>
+    <button type="button" class="controle-publico" id="btnTraduzir" aria-label="Alterar idioma">
+      <span id="textoTradutor">EN</span>
+    </button>
+  </div>
+
   <div id="card">
     <div id="icon-wrap">
       <i class="fa-solid fa-check"></i>
@@ -83,6 +91,8 @@
     <button id="btn-inicio" type="button" data-pt="Ir para o início" data-en="Go to home">Ir para o início</button>
   </div>
 
+<script src="/js/publico-extra.js"></script>
+<script src="/js/tema.js"></script>
 <script src="/js/VincularSucesso.js"></script>
 
 </body>

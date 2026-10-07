@@ -20,13 +20,21 @@ aplicarTema(localStorage.getItem("tema") || "claro");
 // ==========================
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
+let ultimoTipoContaPedido = "Responsável";
+let ultimaPrevisaoEntrega = null;
 
 const dicionario = {
     "Seu Bixuco está a caminho!":                              "Your Bixuco is on its way!",
     "Ele já foi postado e está com a transportadora.":         "It has already been posted and is with the carrier.",
     "Seu pedido está sendo preparado com muito carinho.":      "Your order is being carefully prepared.",
     "Seu Bixuco foi entregue!":                                "Your Bixuco has been delivered!",
-    "Seu pedido chegou. Vamos vinculá-lo?":                    "Your order has arrived. Let's link it?"
+    "Seu pedido chegou. Vamos vinculá-lo?":                    "Your order has arrived. Let's link it?",
+    "Responsável":                                             "Guardian",
+    "Usuário":                                                 "User",
+    "Nenhuma notificação por enquanto.":                       "No notifications for now.",
+    "Não foi possível carregar as notificações.":              "Could not load notifications.",
+    "Aguardando código":                                       "Waiting for code",
+    "Calculando...":                                           "Calculating..."
 };
 
 function traduzir(texto) {
@@ -43,6 +51,15 @@ function aplicarIdiomaEstatico() {
 
     document.getElementById("textoTradutor").textContent =
         idiomaAtual === "en" ? "Traduzir para o português" : "Translate to English";
+
+    const tipoConta = document.getElementById("tipoConta");
+    if (tipoConta) {
+        tipoConta.textContent = traduzir(ultimoTipoContaPedido);
+    }
+
+    if (ultimaPrevisaoEntrega) {
+        atualizarPrevisaoEntrega(ultimaPrevisaoEntrega);
+    }
 }
 
 document.getElementById("btnTraduzir").addEventListener("click", () => {
@@ -76,7 +93,8 @@ async function carregarDadosUsuario() {
         const dados = await resposta.json();
 
         document.getElementById("nomeUsuario").textContent = dados.nome || "Usuário";
-        document.getElementById("tipoConta").textContent   = dados.tipoConta || "Responsável";
+        ultimoTipoContaPedido = dados.tipoConta || "Responsável";
+        document.getElementById("tipoConta").textContent   = traduzir(ultimoTipoContaPedido);
 
         if (dados.fotoPerfil) {
             document.getElementById("fotoUsuario").src = dados.fotoPerfil;
@@ -85,7 +103,8 @@ async function carregarDadosUsuario() {
     } catch (erro) {
         console.log("Erro ao carregar dados do usuário:", erro);
         document.getElementById("nomeUsuario").textContent = "Usuário";
-        document.getElementById("tipoConta").textContent   = "Responsável";
+        ultimoTipoContaPedido = "Responsável";
+        document.getElementById("tipoConta").textContent   = traduzir(ultimoTipoContaPedido);
     }
 }
 
@@ -123,7 +142,7 @@ async function carregarNotificacoes() {
         const itens = dados.notificacoes || [];
 
         listaNotificacoes.innerHTML = itens.length === 0
-            ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+            ? `<div class="painel-vazio">${traduzir("Nenhuma notificação por enquanto.")}</div>`
             : itens.map(formatarItemNotificacao).join("");
 
         const naoLidas = itens.filter(item => !item.lida).length;
@@ -131,7 +150,7 @@ async function carregarNotificacoes() {
 
     } catch (erro) {
         console.log("Erro ao carregar notificações:", erro);
-        listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar as notificações.</div>`;
+        listaNotificacoes.innerHTML = `<div class="painel-vazio">${traduzir("Não foi possível carregar as notificações.")}</div>`;
     }
 }
 
@@ -247,6 +266,21 @@ function atualizarBanner(status) {
     }
 }
 
+function atualizarPrevisaoEntrega(valor) {
+    const data = new Date(valor);
+
+    if (Number.isNaN(data.getTime())) {
+        document.getElementById("data-previsao").textContent = traduzir("Calculando...");
+        return;
+    }
+
+    document.getElementById("data-previsao").textContent =
+        data.toLocaleDateString(
+            idiomaAtual === "en" ? "en-US" : "pt-BR",
+            { day: "numeric", month: "long", year: "numeric" }
+        );
+}
+
 async function carregarStatusPedido() {
     try {
         const resposta = await fetch("/api/pedidos/status");
@@ -267,9 +301,8 @@ async function carregarStatusPedido() {
         }
 
         if (dados.previsao_entrega) {
-            const data = new Date(dados.previsao_entrega);
-            document.getElementById("data-previsao").textContent =
-                data.toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" });
+            ultimaPrevisaoEntrega = dados.previsao_entrega;
+            atualizarPrevisaoEntrega(ultimaPrevisaoEntrega);
         }
 
         atualizarTimeline(ultimoStatus);

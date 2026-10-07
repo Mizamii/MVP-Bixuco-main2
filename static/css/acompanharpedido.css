@@ -163,3 +163,44 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================
+   TEMA ESCURO
+========================== */
+body.tema-escuro .rastreio-banner,
+body.tema-escuro #btn-acompanhar,
+body.tema-escuro .rastreio-previsao {
+  background: #202b31;
+  border-color: #31515e;
+}
+
+body.tema-escuro .rastreio-banner strong,
+body.tema-escuro .rastreio-previsao strong,
+body.tema-escuro #btn-acompanhar {
+  color: #7dddf5;
+}
+
+body.tema-escuro .rastreio-banner i,
+body.tema-escuro .rastreio-previsao span {
+  color: #55cbe9;
+}
+
+body.tema-escuro .rastreio-banner span,
+body.tema-escuro .rastreio-previsao p,
+body.tema-escuro .rastreio-timeline .etapa span,
+body.tema-escuro .rastreio-lateral h3,
+body.tema-escuro .rastreio-transportadora span {
+  color: var(--cor-texto-secundario);
+}
+
+body.tema-escuro .rastreio-timeline .etapa::before,
+body.tema-escuro .rastreio-timeline .ponto {
+  background: var(--cor-borda);
+}
+
+body.tema-escuro .rastreio-timeline .etapa strong,
+body.tema-escuro .rastreio-codigo,
+body.tema-escuro .rastreio-transportadora strong {
+  color: var(--cor-texto-principal);
+}
+

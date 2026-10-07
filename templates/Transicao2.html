@@ -21,6 +21,8 @@
         rel="stylesheet"
         href="/css/transicao2.css"
     >
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/publico.css">
 
     <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
     <script src="/js/deeplink.js"></script>
@@ -28,7 +30,12 @@
 
 </head>
 
-<body>
+<body class="pagina-publica pagina-transicao">
+
+    <div class="controles-publicos controles-publicos--pagina" aria-label="Preferências da página">
+        <button type="button" class="controle-publico controle-publico--icone" id="btnTemaMobile" aria-label="Alternar tema" title="Alternar tema"><i class="fa-regular fa-sun"></i></button>
+        <button type="button" class="controle-publico" id="btnTraduzir"><i class="fa-solid fa-language"></i><span id="textoTradutor">EN</span></button>
+    </div>
 
     <main id="conteudo">
 
@@ -38,7 +45,7 @@
             href="/home"
             class="pular"
         >
-            Pular
+            <span data-pt="Pular" data-en="Skip">Pular</span>
         </a>
 
         <!-- Conteúdo -->
@@ -52,15 +59,13 @@
 
             <h1>
 
-                Relatórios diários
+                <span data-pt="Relatórios diários" data-en="Daily reports">Relatórios diários</span>
 
             </h1>
 
             <p>
 
-                Registre como foi o dia e veja
-                padrões de comportamento ao
-                longo do tempo.
+                <span data-pt="Registre como foi o dia e veja padrões de comportamento ao longo do tempo." data-en="Record how the day went and see behavior patterns over time.">Registre como foi o dia e veja padrões de comportamento ao longo do tempo.</span>
 
             </p>
 
@@ -80,13 +85,13 @@
 
         <!-- Botão voltar -->
 
-        <button id="btnVoltar" aria-label="Voltar">
+        <button id="btnVoltar" data-pt-aria="Voltar" data-en-aria="Back" aria-label="Voltar">
             <i class="fa-solid fa-chevron-left"></i>
         </button>
 
         <!-- Botão avançar -->
 
-        <button id="btnAvancar" aria-label="Próximo">
+        <button id="btnAvancar" data-pt-aria="Próximo" data-en-aria="Next" aria-label="Próximo">
             <i class="fa-solid fa-chevron-right"></i>
         </button>
 
@@ -94,7 +99,8 @@
 
 
     <script src="/js/Transicao2.js" ></script>
-    <script src="/js/tema.js"></script>
+    <script src="/js/publico-extra.js"></script>
+<script src="/js/tema.js"></script>
 
 </body>
 

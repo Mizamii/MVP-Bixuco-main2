@@ -18,7 +18,11 @@ const dicionario = {
     "Usuário":                                "User",
     "Pagamento ainda não aprovado. Aguarde a confirmação do Mercado Pago antes de acessar a home.": "Payment has not been approved yet. Wait for Mercado Pago confirmation before accessing the home page.",
     "Pagamento não aprovado. Tente novamente ou escolha outra forma de pagamento.": "Payment was not approved. Try again or choose another payment method.",
-    "Não foi possível validar esse pagamento. Tente novamente.": "We could not validate this payment. Please try again."
+    "Não foi possível validar esse pagamento. Tente novamente.": "We could not validate this payment. Please try again.",
+    "Grátis": "Free",
+    "Plano Grátis": "Free plan",
+    "Plano Intermediário": "Intermediate plan",
+    "Plano Completo": "Complete plan"
 };
 
 function traduzir(texto) {
@@ -38,6 +42,11 @@ function aplicarIdiomaEstatico() {
 
     // Reaplica textos dinâmicos que dependem do idioma
     document.getElementById("tipoConta").textContent = traduzir(ultimoTipoConta);
+
+    const nomePlanoAtual = document.getElementById("nomePlanoAtual");
+    if (nomePlanoAtual) {
+        nomePlanoAtual.textContent = traduzir(ultimoNomePlanoAtual);
+    }
 }
 
 document.getElementById("btnTraduzir").addEventListener("click", () => {
@@ -58,6 +67,7 @@ let ultimoTipoConta  = "Responsável";
 // decidir a navegação — sidebar e destino da foto/nome de perfil.
 // Começa em "gratis" até a chamada de carregarUsuario() responder.
 let planoCodigoAtual = "gratis";
+let ultimoNomePlanoAtual = "Grátis";
 
 // Aponta o link do perfil (o bloco de conta do menu, montado pelo
 // header.js, e — no desktop — a foto no cantinho da sidebar) pro
@@ -129,7 +139,8 @@ async function carregarUsuario() {
 
         // Mostra o plano atual
         if (dados.plano) {
-            document.getElementById("nomePlanoAtual").textContent = dados.plano;
+            ultimoNomePlanoAtual = dados.plano;
+            document.getElementById("nomePlanoAtual").textContent = traduzir(ultimoNomePlanoAtual);
             document.getElementById("planoAtualInfo").style.display = "block";
         }
 

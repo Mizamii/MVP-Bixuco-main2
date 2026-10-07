@@ -21,6 +21,8 @@
         rel="stylesheet"
         href="/css/transicao3.css"
     >
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/publico.css">
 
     <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
     <script src="/js/deeplink.js"></script>
@@ -28,7 +30,12 @@
 
 </head>
 
-<body>
+<body class="pagina-publica pagina-transicao">
+
+    <div class="controles-publicos controles-publicos--pagina" aria-label="Preferências da página">
+        <button type="button" class="controle-publico controle-publico--icone" id="btnTemaMobile" aria-label="Alternar tema" title="Alternar tema"><i class="fa-regular fa-sun"></i></button>
+        <button type="button" class="controle-publico" id="btnTraduzir"><i class="fa-solid fa-language"></i><span id="textoTradutor">EN</span></button>
+    </div>
 
     <main id="conteudo">
 
@@ -49,20 +56,18 @@
 
             <h1>
 
-                Conecte seu terapeuta
+                <span data-pt="Conecte seu terapeuta" data-en="Connect your therapist">Conecte seu terapeuta</span>
 
             </h1>
 
             <p>
 
-                Compartilhe relatórios e facilite
-                o acompanhamento profissional
-                do seu filho(a).
+                <span data-pt="Compartilhe relatórios e facilite o acompanhamento profissional do seu filho(a)." data-en="Share reports and make professional follow-up easier for your child.">Compartilhe relatórios e facilite o acompanhamento profissional do seu filho(a).</span>
 
             </p>
 
             <button id="btnProximo" class="btn-proximo">
-                Próximo
+                <span data-pt="Próximo" data-en="Next">Próximo</span>
             </button>
 
         </section>
@@ -82,6 +87,7 @@
     </main>
 
 <script src="/js/Transicao3.js"></script>
+<script src="/js/publico-extra.js"></script>
 <script src="/js/tema.js"></script>
 
 </body>

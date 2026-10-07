@@ -705,7 +705,7 @@ if (btnCancelarPedido) {
         } catch (erro) {
 
             console.log("Erro ao cancelar pedido:", erro);
-            alert("Erro ao cancelar pedido. Tente novamente.");
+            alert(traduzir("Erro ao cancelar pedido. Tente novamente."));
 
         }
 
@@ -888,7 +888,10 @@ const dicionario = {
     "Salvar alterações":                         "Save changes",
     "Sim, remover":                              "Yes, remove",
     "Enviar pedido":                              "Send request",
-    "Carregando...":                             "Loading..."
+    "Carregando...":                             "Loading...",
+    "Erro ao cancelar pedido. Tente novamente.":  "Error cancelling request. Please try again.",
+    "Nenhuma notificação por enquanto.":          "No notifications for now.",
+    "Não foi possível carregar as notificações.": "Could not load notifications."
 };
 
 function traduzir(texto) {
@@ -956,7 +959,7 @@ async function carregarNotificacoes() {
         const itens = dados.notificacoes || [];
 
         listaNotificacoes.innerHTML = itens.length === 0
-            ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+            ? `<div class="painel-vazio">${traduzir("Nenhuma notificação por enquanto.")}</div>`
             : itens.map(formatarItemNotificacao).join("");
 
         const naoLidas = itens.filter(item => !item.lida).length;
@@ -964,7 +967,7 @@ async function carregarNotificacoes() {
 
     } catch (erro) {
         console.log("Erro ao carregar notificações:", erro);
-        listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar as notificações.</div>`;
+        listaNotificacoes.innerHTML = `<div class="painel-vazio">${traduzir("Não foi possível carregar as notificações.")}</div>`;
     }
 }
 

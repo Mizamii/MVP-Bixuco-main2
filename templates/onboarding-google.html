@@ -17,12 +17,14 @@
         rel="stylesheet"
         href="/css/criarcontas.css"
     >
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/publico.css">
     <script src="/js/deeplink.js"></script>
 
     <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
 </head>
 
-<body class="pagina-criar-conta">
+<body class="pagina-criar-conta pagina-publica pagina-auth">
     <main class="pagina-login">
 
         <!-- ========================= -->
@@ -41,12 +43,12 @@
                 >
 
                 <h1 class="login-esquerda__titulo">
-                    Bem-vindo(a)
+                    <span data-pt="Bem-vindo(a)" data-en="Welcome"></span>
                     <br>
-                    ao <span>Bixuco!</span>
+                    <span data-pt="ao Bixuco!" data-en="to Bixuco!"></span>
                 </h1>
 
-                <p class="login-esquerda__slogan">
+                <p class="login-esquerda__slogan" data-pt="Pais e terapeutas juntos pelo bem-estar da criança." data-en="Parents and therapists together for the child's well-being.">
                     Pais e terapeutas juntos pelo bem-estar da criança.
                 </p>
             </div>
@@ -67,6 +69,16 @@
         <!-- ========================= -->
         <section class="login-direita">
 
+            <div class="controles-publicos controles-publicos--auth" aria-label="Preferências da página">
+                <button type="button" class="controle-publico controle-publico--icone" id="btnTemaMobile" aria-label="Alternar tema" title="Alternar tema">
+                    <i class="fa-regular fa-sun"></i>
+                </button>
+                <button type="button" class="tradutor tradutor--login" id="btnTraduzir">
+                    <i class="fa-solid fa-language"></i>
+                    <span id="textoTradutor">EN</span>
+                </button>
+            </div>
+
             <!-- Cabeçalho fixo no topo, com linha -->
             <div class="criarconta-header">
                 <img
@@ -76,7 +88,7 @@
                 >
 
                 <h2 class="criarconta-titulo">
-                    Uma última coisa!
+                    <span data-pt="Uma última coisa!" data-en="One last thing!">Uma última coisa!</span>
                 </h2>
             </div>
 
@@ -84,8 +96,7 @@
             <div class="criarconta-corpo">
 
                 <p class="criarconta-ajuda">
-                    Como você vai utilizar o Bixuco?
-                    Isso nos ajuda a personalizar sua experiência.
+                    <span data-pt="Como você vai utilizar o Bixuco? Isso nos ajuda a personalizar sua experiência." data-en="How will you use Bixuco? This helps us personalize your experience.">Como você vai utilizar o Bixuco? Isso nos ajuda a personalizar sua experiência.</span>
                 </p>
 
                 <!-- Cards de seleção — mesmo padrão do CriarContaS.html -->
@@ -100,11 +111,11 @@
                     >
                         <div class="tipo-card__conteudo">
                             <h4 class="tipo-card__titulo">
-                                Sou responsável
+                                <span data-pt="Sou responsável" data-en="I'm a parent/guardian">Sou responsável</span>
                             </h4>
 
                             <p class="tipo-card__descricao">
-                                Acompanho o desenvolvimento do meu filho(a).
+                                <span data-pt="Acompanho o desenvolvimento do meu filho(a)." data-en="I track my child's development.">Acompanho o desenvolvimento do meu filho(a).</span>
                             </p>
                         </div>
                     </button>
@@ -118,15 +129,15 @@
                     >
                         <div class="tipo-card__conteudo">
                             <h4 class="tipo-card__titulo">
-                                Sou terapeuta
+                                <span data-pt="Sou terapeuta" data-en="I'm a therapist">Sou terapeuta</span>
                             </h4>
 
                             <p class="tipo-card__descricao">
-                                Acompanho pacientes profissionalmente.
+                                <span data-pt="Acompanho pacientes profissionalmente." data-en="I professionally track patients.">Acompanho pacientes profissionalmente.</span>
                             </p>
 
                             <div class="tag-crp">
-                                Requer validação de CRP
+                                <span data-pt="Requer validação de CRP" data-en="Requires CRP validation">Requer validação de CRP</span>
                             </div>
                         </div>
                     </button>
@@ -136,7 +147,7 @@
                 <div id="campoCrpGoogle" class="campo-crp-google" style="display: none;">
 
                     <label for="inputCrpGoogle">
-                        Informe seu CRP
+                        <span data-pt="Informe seu CRP" data-en="Enter your CRP">Informe seu CRP</span>
                     </label>
 
                     <input
@@ -148,7 +159,7 @@
                     >
 
                     <small>
-                        Formato: CRP-00/000000
+                        <span data-pt="Formato: CRP-00/000000" data-en="Format: CRP-00/000000">Formato: CRP-00/000000</span>
                     </small>
 
                 </div>
@@ -159,7 +170,7 @@
                     class="erro-selecao"
                     style="display: none;"
                 >
-                    Selecione como deseja utilizar o Bixuco.
+                    <span data-pt="Selecione como deseja utilizar o Bixuco." data-en="Select how you want to use Bixuco.">Selecione como deseja utilizar o Bixuco.</span>
                 </span>
 
                 <!-- Botão começa desabilitado — igual ao CriarContaS -->
@@ -169,7 +180,7 @@
                     class="btn-continuar"
                     disabled
                 >
-                    Continuar
+                    <span data-pt="Continuar" data-en="Continue">Continuar</span>
                 </button>
 
             </div>
@@ -178,6 +189,7 @@
 
     </main>
 
+    <script src="/js/publico-extra.js"></script>
     <script src="/js/tema.js"></script>
     <script src="/js/onboarding-google.js"></script>
 

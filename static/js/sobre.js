@@ -7,6 +7,7 @@ document.getElementById("fotoUsuario").addEventListener("error", function () {
 // ==========================
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
+let ultimoTipoContaSobre = "Responsável";
 
 // ==========================
 // CARREGA DADOS DO USUÁRIO
@@ -32,8 +33,13 @@ async function carregarUsuario() {
         document.getElementById("nomeUsuario").textContent =
             usuario.nome || "Usuário";
 
-        document.getElementById("tipoConta").textContent =
+        ultimoTipoContaSobre =
             usuario.tipoConta || "Responsável";
+
+        document.getElementById("tipoConta").textContent =
+            idiomaAtual === "en"
+                ? (ultimoTipoContaSobre === "Responsável" ? "Guardian" : ultimoTipoContaSobre)
+                : ultimoTipoContaSobre;
 
         if (usuario.fotoPerfil) {
             document.getElementById("fotoUsuario").src = usuario.fotoPerfil;
@@ -738,6 +744,13 @@ function aplicarIdiomaEstatico() {
 
     document.getElementById("textoTradutor").textContent =
         idiomaAtual === "en" ? "Traduzir para o português" : "Traduzir para o inglês";
+
+    const tipoContaSobre = document.getElementById("tipoConta");
+    if (tipoContaSobre) {
+        tipoContaSobre.textContent = idiomaAtual === "en"
+            ? (ultimoTipoContaSobre === "Responsável" ? "Guardian" : ultimoTipoContaSobre)
+            : ultimoTipoContaSobre;
+    }
 
     const fraseFinalEl = document.getElementById("fraseFinalTexto");
     if (fraseFinalEl) {

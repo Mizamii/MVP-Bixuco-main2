@@ -27,12 +27,19 @@
         rel="stylesheet"
         href="/css/transicao1.css"
     >
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/publico.css">
     <script src="/js/deeplink.js"></script>
 
 
 </head>
 
-<body>
+<body class="pagina-publica pagina-transicao">
+
+    <div class="controles-publicos controles-publicos--pagina" aria-label="Preferências da página">
+        <button type="button" class="controle-publico controle-publico--icone" id="btnTemaMobile" aria-label="Alternar tema" title="Alternar tema"><i class="fa-regular fa-sun"></i></button>
+        <button type="button" class="controle-publico" id="btnTraduzir"><i class="fa-solid fa-language"></i><span id="textoTradutor">EN</span></button>
+    </div>
 
     <main id="tela">
 
@@ -44,7 +51,7 @@
                 href="/home"
                 class="botao-pular"
             >
-                Pular
+                <span data-pt="Pular" data-en="Skip">Pular</span>
             </a>
 
         </header>
@@ -62,13 +69,13 @@
 
             <h1 class="conteudo__titulo">
 
-                Bem-vindo ao Bixuco
+                <span data-pt="Bem-vindo ao Bixuco" data-en="Welcome to Bixuco">Bem-vindo ao Bixuco</span>
 
             </h1>
 
             <p class="conteudo__texto">
 
-                Sua pelúcia inteligente vai ajudar a entender os sinais do seu filho(a) com TPS.
+                <span data-pt="Sua pelúcia inteligente vai ajudar a entender os sinais do seu filho(a) com TPS." data-en="Your smart plush helps you understand your child's sensory signals.">Sua pelúcia inteligente vai ajudar a entender os sinais do seu filho(a) com TPS.</span>
 
             </p>
 
@@ -80,7 +87,7 @@
         <button
             id="proximo"
             class="botao-proximo"
-            aria-label="Próxima tela"
+            data-pt-aria="Próxima tela" data-en-aria="Next screen" aria-label="Próxima tela"
         >
 
             <i class="fa-solid fa-chevron-right"></i>
@@ -109,7 +116,8 @@
 
     
     <script src="/js/Transicao1.js" ></script>
-    <script src="/js/tema.js"></script>
+    <script src="/js/publico-extra.js"></script>
+<script src="/js/tema.js"></script>
 
 </body>
 

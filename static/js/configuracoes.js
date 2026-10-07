@@ -31,6 +31,8 @@ aplicarTema(temaSalvo);
 // CARREGA DADOS DO USUÁRIO
 // ==========================
 
+let ultimoTipoContaConfiguracoes = "Responsável";
+
 async function carregarUsuario() {
 
     try {
@@ -51,8 +53,11 @@ async function carregarUsuario() {
         document.getElementById("nomeUsuario").textContent =
             usuario.nome || "Usuário";
 
-        document.getElementById("tipoConta").textContent =
+        ultimoTipoContaConfiguracoes =
             usuario.tipoConta || "Responsável";
+
+        document.getElementById("tipoConta").textContent =
+            traduzir(ultimoTipoContaConfiguracoes);
 
         if (usuario.fotoPerfil) {
             document.getElementById("fotoUsuario").src = usuario.fotoPerfil;
@@ -172,14 +177,14 @@ async function carregarNotificacoes() {
         const itens = dados.notificacoes || [];
 
         if (itens.length === 0) {
-            listaNotificacoes.innerHTML = `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`;
+            listaNotificacoes.innerHTML = `<div class="painel-vazio">${traduzir("Nenhuma notificação por enquanto.")}</div>`;
         } else {
             listaNotificacoes.innerHTML = itens.map(formatarItemNotificacao).join("");
         }
 
     } catch (erro) {
         console.log("Erro ao carregar notificações:", erro);
-        listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar as notificações.</div>`;
+        listaNotificacoes.innerHTML = `<div class="painel-vazio">${traduzir("Não foi possível carregar as notificações.")}</div>`;
     }
 
 }
@@ -247,7 +252,7 @@ function fecharModalSenha() {
     document.body.style.overflow = "";
     statusSenha.className = "status-senha";
     btnEnviarSenha.disabled    = false;
-    btnEnviarSenha.textContent = "Enviar email";
+    btnEnviarSenha.textContent = traduzir("Enviar email");
 }
 
 function mostrarStatusSenha(texto, tipo) {
@@ -271,7 +276,7 @@ document.addEventListener("keydown", (e) => {
 btnEnviarSenha.addEventListener("click", async () => {
 
     btnEnviarSenha.disabled    = true;
-    btnEnviarSenha.textContent = "Enviando...";
+    btnEnviarSenha.textContent = traduzir("Enviando...");
 
     try {
 
@@ -285,14 +290,14 @@ btnEnviarSenha.addEventListener("click", async () => {
 
         if (!resposta.ok) throw new Error();
 
-        mostrarStatusSenha("Email enviado! Confira sua caixa de entrada.", "sucesso");
-        btnEnviarSenha.textContent = "Enviado!";
+        mostrarStatusSenha(traduzir("Email enviado! Confira sua caixa de entrada."), "sucesso");
+        btnEnviarSenha.textContent = traduzir("Enviado!");
 
     } catch (_) {
 
-        mostrarStatusSenha("Erro ao enviar. Tente novamente.", "erro");
+        mostrarStatusSenha(traduzir("Erro ao enviar. Tente novamente."), "erro");
         btnEnviarSenha.disabled    = false;
-        btnEnviarSenha.textContent = "Enviar email";
+        btnEnviarSenha.textContent = traduzir("Enviar email");
 
     }
 
@@ -325,7 +330,7 @@ btnCancelar.addEventListener("click", () => {
 btnConfirmar.addEventListener("click", async () => {
 
     btnConfirmar.disabled    = true;
-    btnConfirmar.textContent = "Excluindo...";
+    btnConfirmar.textContent = traduzir("Excluindo...");
 
     try {
 
@@ -359,6 +364,24 @@ btnConfirmar.addEventListener("click", async () => {
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
+const dicionario = {
+    "Usuário": "User",
+    "Responsável": "Guardian",
+    "Nenhuma notificação por enquanto.": "No notifications for now.",
+    "Não foi possível carregar as notificações.": "Could not load notifications.",
+    "Enviar email": "Send email",
+    "Enviando...": "Sending...",
+    "Email enviado! Confira sua caixa de entrada.": "Email sent! Check your inbox.",
+    "Enviado!": "Sent!",
+    "Erro ao enviar. Tente novamente.": "Error sending. Please try again.",
+    "Excluindo...": "Deleting..."
+};
+
+function traduzir(texto) {
+    if (idiomaAtual === "pt" || texto == null) return texto;
+    return dicionario[texto] || texto;
+}
+
 function aplicarIdiomaEstatico() {
     document.querySelectorAll("[data-pt]").forEach(el => {
         el.textContent = idiomaAtual === "en"
@@ -368,12 +391,25 @@ function aplicarIdiomaEstatico() {
 
     document.getElementById("textoTradutor").textContent =
         idiomaAtual === "en" ? "Traduzir para português" : "Traduzir para inglês";
+
+    const tipoConta = document.getElementById("tipoConta");
+    if (tipoConta) {
+        tipoConta.textContent = traduzir(ultimoTipoContaConfiguracoes);
+    }
+
+    if (!btnEnviarSenha.disabled) {
+        btnEnviarSenha.textContent = traduzir("Enviar email");
+    }
 }
 
 document.getElementById("btnTraduzir").addEventListener("click", () => {
     idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
     localStorage.setItem("idioma", idiomaAtual);
     aplicarIdiomaEstatico();
+
+    if (painelNotificacoes.classList.contains("aberto")) {
+        carregarNotificacoes();
+    }
 });
 
 // Aplica o idioma salvo ao carregar
