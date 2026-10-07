@@ -84,12 +84,24 @@
 
 #alertasEstresse,
 #alertasEstresseDiario {
-  color: #32c26d;
+  transition: color 0.2s ease;
+}
+
+.nivel-atividade--baixa {
+  color: #32c26d !important;
+}
+
+.nivel-atividade--atencao {
+  color: #c97800 !important;
+}
+
+.nivel-atividade--elevada {
+  color: #e24c4c !important;
 }
 
 #tempoEstresse,
 #tempoEstresseDiario {
-  color: #e53e3e;
+  color: #1d8ec9;
 }
 
 .cards-relatorio p {

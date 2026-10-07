@@ -309,14 +309,50 @@ function usarDadosExemplo() {
 // =========================
 // PREENCHER CARDS
 // =========================
+function corAtividade(valor) {
+    const total = Number(valor) || 0;
+    if (total >= 5) return "#E24C4C";
+    if (total >= 2) return "#C97800";
+    return "#32C26D";
+}
+
+function classeAtividade(codigo) {
+    return {
+        baixa: "nivel-atividade--baixa",
+        atencao: "nivel-atividade--atencao",
+        elevada: "nivel-atividade--elevada"
+    }[codigo] || "nivel-atividade--baixa";
+}
+
 function preencherCards(dados) {
 
     const alertaEl = document.getElementById("alertasEstresse");
-    const seta     = dados.alertas > 0 ? "fa-arrow-up" : "fa-arrow-down";
-    const classe   = dados.alertas > 0 ? "negativo" : "positivo";
+    const codigoAtividade = dados.nivelAtividade?.codigo || (
+        (Number(dados.alertas) || 0) >= 5
+            ? "elevada"
+            : (Number(dados.alertas) || 0) >= 2
+                ? "atencao"
+                : "baixa"
+    );
 
-    alertaEl.className = `valor ${classe}`;
-    alertaEl.innerHTML = `<i class="fa-solid ${seta}"></i> ${dados.alertas ?? 0}`;
+    alertaEl.className = `valor ${classeAtividade(codigoAtividade)}`;
+    alertaEl.textContent = dados.alertas ?? 0;
+
+    const rotuloAtividade = dados.nivelAtividade?.rotulo || (
+        codigoAtividade === "elevada"
+            ? "Atividade elevada"
+            : codigoAtividade === "atencao"
+                ? "Atenção"
+                : "Baixa atividade"
+    );
+
+    alertaEl.title = idiomaAtual === "en"
+        ? ({
+            "Atividade elevada": "Elevated activity",
+            "Atenção": "Attention",
+            "Baixa atividade": "Low activity"
+        }[rotuloAtividade] || rotuloAtividade)
+        : rotuloAtividade;
 
     document.getElementById("comparativoAlertas").textContent =
         traduzirComparativo(dados.comparativoAlertas) || "";
@@ -358,10 +394,7 @@ function criarGraficoEstresse(tipo) {
 
     const ctx = document.getElementById("graficoBarras").getContext("2d");
 
-    const cores = (dados?.dados || []).map(v =>
-        v === Math.max(...(dados?.dados || [])) ? "#E53E3E" :
-        v > 5 ? "#F6AD55" : VERDE
-    );
+    const cores = (dados?.dados || []).map(corAtividade);
 
     const gradiente = ctx.createLinearGradient(0, 0, 0, 300);
     gradiente.addColorStop(0,   "rgba(50, 194, 109, 0.35)");
@@ -379,8 +412,7 @@ function criarGraficoEstresse(tipo) {
                 borderWidth:     tipo === "line" ? 2.5 : 0,
                 borderRadius:    tipo === "bar"  ? 6 : 0,
                 pointBackgroundColor: tipo === "line"
-                    ? (dados?.dados || []).map(v =>
-                        v === Math.max(...(dados?.dados || [])) ? "#E53E3E" : VERDE)
+                    ? (dados?.dados || []).map(corAtividade)
                     : undefined,
                 pointRadius:  tipo === "line" ? 5 : undefined,
                 tension:      tipo === "line" ? 0.4 : undefined,

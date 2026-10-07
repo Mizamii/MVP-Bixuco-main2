@@ -66,6 +66,9 @@ const dicionario = {
     "Não foi possível carregar os alertas.": "Could not load alerts.",
     "Responsável": "Guardian",
     "Usuário": "User",
+    "Baixa atividade": "Low activity",
+    "Atenção": "Attention",
+    "Atividade elevada": "Elevated activity",
     "Índice de crise sensorial": "Sensory crisis index",
     "Índice": "Index",
     "Nenhuma notificação por enquanto.": "No notifications for now.",
@@ -184,49 +187,30 @@ async function carregarRelatorios() {
 
 function usarDadosExemplo() {
 
-    const dadosExemplo = {
-        alertas: 18,
-        comparativoAlertas: "↓ 2 comparado ao mês passado",
-        tempo: "120 min",
-        comparativoTempo: "↑ 1 min comparado ao mês passado",
-
-        graficoEstresse: {
-            labels: ["Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui"],
-            dados:  [3, 2, 5, 7, 8, 4, 2]
-        },
-
-        graficoGatilhos: {
-            labels: [
-                "Ambientes barulhentos",
-                "Locais lotados",
-                "Mudanças de rotina",
-                "Texturas de alimentos"
-            ],
-            dados:  [42, 28, 18, 12],
-            cores:  ["#32C26D", "#0AB7FB", "#1D8EC9", "#C2C2C2"]
-        },
-
-        graficoEvolucao: {
-            labels: ["Sex", "Sáb", "Dom", "Seg", "Ter", "Qua", "Qui"],
-            dados:  [2, 3, 4, 5, 8, 4, 2]
-        },
-
-        dataRelatorio: "Hoje, 05 de julho de 2026",
-        perguntas: [
-            { pergunta: "Como a criança se sentiu hoje?",              resposta: "Feliz"      },
-            { pergunta: "Em qual período houve mais desconforto?",      resposta: "Manhã"      },
-            { pergunta: "A pelúcia foi apertada com força?",            resposta: "Sim"        },
-            { pergunta: "A criança conseguiu se acalmar facilmente?",   resposta: "Não"        },
-            { pergunta: "Houve algum fator que causou desconforto?",    resposta: "Barulho"    },
-            { pergunta: "Como foi o comportamento geral?",              resposta: "Tranquilo"  }
-        ]
+    // Em caso de falha da API, nunca inventa métricas.
+    // Exibe estado neutro até a conexão voltar.
+    const dadosVazios = {
+        alertas: 0,
+        nivelAtividade: { codigo: "baixa", rotulo: "Baixa atividade" },
+        comparativoAlertas: "",
+        alertasHoje: 0,
+        nivelAtividadeHoje: { codigo: "baixa", rotulo: "Baixa atividade" },
+        comparativoAlertasDiario: "",
+        tempo: "0 min",
+        comparativoTempo: "",
+        tempoDiario: "0 min",
+        graficoEstresse: { labels: [], dados: [], isolados: [] },
+        graficoGatilhos: { labels: [], dados: [], cores: [] },
+        graficoEvolucao: { labels: [], dados: [] },
+        dataRelatorio: "Nenhum relatório preenchido ainda.",
+        perguntas: []
     };
 
-    ultimosDadosRelatorio = dadosExemplo;
+    ultimosDadosRelatorio = dadosVazios;
 
-    preencherCards(dadosExemplo);
-    renderizarGraficos(dadosExemplo);
-    preencherDiario(dadosExemplo);
+    preencherCards(dadosVazios);
+    renderizarGraficos(dadosVazios);
+    preencherDiario(dadosVazios);
 
 }
 
@@ -235,10 +219,60 @@ function usarDadosExemplo() {
 // PREENCHER CARDS
 // ==========================
 
+function classeAtividade(codigo) {
+    return {
+        baixa: "nivel-atividade--baixa",
+        atencao: "nivel-atividade--atencao",
+        elevada: "nivel-atividade--elevada"
+    }[codigo] || "nivel-atividade--baixa";
+}
+
+function corAtividade(valor) {
+    const total = Number(valor) || 0;
+    if (total >= 5) return "#E24C4C";
+    if (total >= 2) return "#C97800";
+    return "#32C26D";
+}
+
+function aplicarNivelAtividade(elemento, nivel, total) {
+    if (!elemento) return;
+
+    elemento.classList.remove(
+        "nivel-atividade--baixa",
+        "nivel-atividade--atencao",
+        "nivel-atividade--elevada"
+    );
+
+    const codigo = nivel?.codigo || (
+        (Number(total) || 0) >= 5
+            ? "elevada"
+            : (Number(total) || 0) >= 2
+                ? "atencao"
+                : "baixa"
+    );
+
+    elemento.classList.add(classeAtividade(codigo));
+
+    const rotulo = nivel?.rotulo || (
+        codigo === "elevada"
+            ? "Atividade elevada"
+            : codigo === "atencao"
+                ? "Atenção"
+                : "Baixa atividade"
+    );
+
+    elemento.title = traduzir(rotulo);
+}
+
 function preencherCards(dados) {
 
-    document.getElementById("alertasEstresse").textContent =
-        dados.alertas ?? 0;
+    const alertasMesEl = document.getElementById("alertasEstresse");
+    alertasMesEl.textContent = dados.alertas ?? 0;
+    aplicarNivelAtividade(
+        alertasMesEl,
+        dados.nivelAtividade,
+        dados.alertas
+    );
 
     document.getElementById("comparativoAlertas").textContent =
         traduzir(dados.comparativoAlertas || "registrados este mês");
@@ -249,8 +283,13 @@ function preencherCards(dados) {
     document.getElementById("comparativoTempo").textContent =
         traduzir(dados.comparativoTempo || "por episódio");
 
-    document.getElementById("alertasEstresseDiario").textContent =
-        dados.alertasHoje ?? 0;
+    const alertasHojeEl = document.getElementById("alertasEstresseDiario");
+    alertasHojeEl.textContent = dados.alertasHoje ?? 0;
+    aplicarNivelAtividade(
+        alertasHojeEl,
+        dados.nivelAtividadeHoje,
+        dados.alertasHoje
+    );
 
     document.getElementById("comparativoAltasDiario").textContent =
         traduzir(dados.comparativoAlertasDiario || "registrados hoje");
@@ -392,10 +431,7 @@ function criarGraficoEstresse(tipo) {
     const dadosArr = dadosEstresseGlobal?.dados || [];
     const labelsArr = (dadosEstresseGlobal?.labels || []).map(traduzir);
 
-    const cores = dadosArr.map(v =>
-        v === Math.max(...dadosArr) ? "#E53E3E" :
-        v > 5 ? "#F6AD55" : VERDE
-    );
+    const cores = dadosArr.map(corAtividade);
 
     const gradiente = ctx.createLinearGradient(0, 0, 0, 300);
     gradiente.addColorStop(0, "rgba(50, 194, 109, 0.35)");
@@ -413,7 +449,7 @@ function criarGraficoEstresse(tipo) {
                 borderWidth:     tipo === "line" ? 2.5 : 0,
                 borderRadius:    tipo === "bar" ? 6 : 0,
                 pointBackgroundColor: tipo === "line"
-                    ? dadosArr.map(v => v === Math.max(...dadosArr) ? "#E53E3E" : VERDE)
+                    ? dadosArr.map(corAtividade)
                     : undefined,
                 pointRadius: tipo === "line" ? 5 : undefined,
                 tension:     tipo === "line" ? 0.4 : undefined,

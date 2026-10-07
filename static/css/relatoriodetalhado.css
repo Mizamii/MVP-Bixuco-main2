@@ -343,3 +343,8 @@ body * {
     overflow-x: hidden;
   }
 }
+
+/* Classificação visual de atividade do Bixuco — não clínica */
+.nivel-atividade--baixa { color: #32c26d !important; }
+.nivel-atividade--atencao { color: #c97800 !important; }
+.nivel-atividade--elevada { color: #e24c4c !important; }

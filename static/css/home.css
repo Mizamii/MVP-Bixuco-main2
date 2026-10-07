@@ -403,8 +403,10 @@ body.tema-escuro .dias-calendario button.com-relatorio {
   align-items: center;
   gap: 1.1rem;
   background: var(--cor-fundo-card);
+  border: 1px solid rgba(255, 159, 10, 0.18);
   border-radius: 14px;
   padding: 1rem 1.15rem;
+  margin-bottom: 1.1rem;
   box-shadow: var(--sombra-card);
   flex-wrap: wrap;
 }

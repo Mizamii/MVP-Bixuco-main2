@@ -18,16 +18,20 @@ let idiomaAtual = localStorage.getItem("idioma") || "pt";
 const dicionario = {
     crianca:           { pt: "Criança",              en: "Child" },
     anos:              { pt: "anos",                 en: "years old" },
-    ativo:             { pt: "Ativo",                 en: "Active" },
-    inativo:           { pt: "Inativo",               en: "Inactive" },
-    alertasSemana:     { pt: (n) => `${n} alertas esta semana`, en: (n) => `${n} alerts this week` },
-    alertas:           { pt: "Alertas",               en: "Alerts" },
-    estresse:          { pt: "Estresse",              en: "Stress" },
+    ativoAgora:        { pt: "Ativo agora",            en: "Active now" },
+    offline:           { pt: "Offline",                en: "Offline" },
+    vistoMin:          { pt: (n) => `Visto há ${n} min`, en: (n) => `Seen ${n} min ago` },
+    vistoHora:         { pt: (n) => `Visto há ${n} h`,   en: (n) => `Seen ${n} h ago` },
+    vistoDias:         { pt: (n) => n === 1 ? "Visto há 1 dia" : `Visto há ${n} dias`, en: (n) => n === 1 ? "Seen 1 day ago" : `Seen ${n} days ago` },
+    nuncaAcessou:      { pt: "Sem acesso recente",      en: "No recent activity" },
+    alertasSemana:     { pt: (n) => `${n} episódios esta semana`, en: (n) => `${n} episodes this week` },
+    alertas:           { pt: "Episódios",              en: "Episodes" },
+    atividade:         { pt: "Atividade",              en: "Activity" },
     ultimoRelat:       { pt: "Último relat.",          en: "Last report" },
     relatorio:         { pt: "Relatório",              en: "Report" },
-    nivelAlto:         { pt: "Alto",                   en: "High" },
-    nivelMedio:        { pt: "Médio",                  en: "Medium" },
-    nivelBaixo:        { pt: "Baixo",                  en: "Low" },
+    nivelElevado:      { pt: "Atividade elevada",      en: "Elevated activity" },
+    nivelAtencao:      { pt: "Atenção",                en: "Attention" },
+    nivelBaixo:        { pt: "Baixa atividade",        en: "Low activity" },
     semNotificacoes:   { pt: "Nenhuma notificação por enquanto.", en: "No notifications yet." },
     hoje:              { pt: "Hoje",                    en: "Today" },
     ontem:             { pt: "Ontem",                   en: "Yesterday" },
@@ -66,8 +70,28 @@ function traduzirMensagemNotificacao(item) {
 }
 
 
-// Mapa dos valores de estresse vindos da API (em português) pra chave do dicionário
-const nivelParaChave = { "Alto": "nivelAlto", "Médio": "nivelMedio", "Baixo": "nivelBaixo" };
+const nivelParaChave = {
+    elevada: "nivelElevado",
+    atencao: "nivelAtencao",
+    baixa: "nivelBaixo"
+};
+
+function formatarUltimoAcesso(valor, status) {
+    if (status === "ativo") return "";
+    if (!valor) return t("nuncaAcessou");
+
+    const data = new Date(valor);
+    const diffMs = Math.max(0, Date.now() - data.getTime());
+    const minutos = Math.floor(diffMs / 60000);
+
+    if (minutos < 60) return t("vistoMin", Math.max(5, minutos));
+
+    const horas = Math.floor(minutos / 60);
+    if (horas < 24) return t("vistoHora", horas);
+
+    const dias = Math.floor(horas / 24);
+    return t("vistoDias", dias);
+}
 
 function traduzirUltimoRelatorio(valor) {
     const texto = String(valor || "").trim();
@@ -172,8 +196,8 @@ function renderPacientes(lista) {
     listaAtencao.innerHTML = "";
     listaRegular.innerHTML = "";
 
-    const atencao = lista.filter(p => p.alertas >= 3);
-    const regular = lista.filter(p => p.alertas < 3);
+    const atencao = lista.filter(p => p.alertas >= 2);
+    const regular = lista.filter(p => p.alertas < 2);
 
     if (atencao.length === 0) {
         document.getElementById("semAtencao").style.display = "block";
@@ -199,14 +223,19 @@ function criarCard(paciente, temAlerta) {
         ? `<p class="badge-alerta">${escaparHTML(t("alertasSemana", paciente.alertas))}</p>`
         : "";
 
-    const corEstresse = {
-        "Alto":  "estresse--alto",
-        "Médio": "estresse--medio",
-        "Baixo": "estresse--baixo"
-    }[paciente.nivelEstresse] || "";
+    const classeAtividade = {
+        elevada: "atividade--elevada",
+        atencao: "atividade--atencao",
+        baixa: "atividade--baixa"
+    }[paciente.nivelAtividade] || "atividade--baixa";
 
-    const nivelExibido = t(nivelParaChave[paciente.nivelEstresse]) || paciente.nivelEstresse;
-    const statusExibido = paciente.status === "ativo" ? t("ativo") : t("inativo");
+    const chaveNivel =
+        nivelParaChave[paciente.nivelAtividade] ||
+        "nivelBaixo";
+
+    const nivelExibido = t(chaveNivel);
+    const statusExibido = paciente.status === "ativo" ? t("ativoAgora") : t("offline");
+    const vistoExibido = formatarUltimoAcesso(paciente.ultimoAcesso, paciente.status);
 
     card.innerHTML = `
         ${badgeAlerta}
@@ -222,19 +251,22 @@ function criarCard(paciente, temAlerta) {
                 <span>${t("crianca")}: ${escaparHTML(paciente.nomeCrianca)}, ${escaparHTML(paciente.idadeCrianca)} ${t("anos")}</span>
             </div>
 
-            <span class="status-badge status-badge--${paciente.status}">
-                ${escaparHTML(statusExibido)}
-            </span>
+            <div class="status-presenca">
+                <span class="status-badge status-badge--${paciente.status}">
+                    ${escaparHTML(statusExibido)}
+                </span>
+                ${vistoExibido ? `<small>${escaparHTML(vistoExibido)}</small>` : ""}
+            </div>
         </div>
 
         <div class="card-metricas">
             <div class="metrica">
                 <span>${t("alertas")}</span>
-                <strong class="metrica-valor metrica-valor--alerta">${escaparHTML(paciente.alertas)}</strong>
+                <strong class="metrica-valor metrica-valor--alerta ${classeAtividade}">${escaparHTML(paciente.alertas)}</strong>
             </div>
             <div class="metrica">
-                <span>${t("estresse")}</span>
-                <strong class="metrica-valor ${corEstresse}">${escaparHTML(nivelExibido)}</strong>
+                <span>${t("atividade")}</span>
+                <strong class="metrica-valor ${classeAtividade}">${escaparHTML(nivelExibido)}</strong>
             </div>
             <div class="metrica">
                 <span>${t("ultimoRelat")}</span>
@@ -287,11 +319,10 @@ function aplicarFiltros() {
         );
     }
 
-    // Mesmo critério usado em "Requer atenção" (>= 3 alertas) —
-    // antes era > 0, o que fazia a aba "Alertas" e a seção "Requer
-    // atenção" discordarem sobre quem é considerado alerta.
+    // Mesma régua visual do sistema:
+    // 0–1 = baixa atividade; 2–4 = atenção; 5+ = atividade elevada.
     const ativosNaBusca  = lista.filter(p => p.status === "ativo");
-    const alertasNaBusca = lista.filter(p => p.alertas >= 3);
+    const alertasNaBusca = lista.filter(p => p.alertas >= 2);
 
     document.getElementById("contadorTodos").textContent   = `(${lista.length})`;
     document.getElementById("contadorAtivos").textContent  = `(${ativosNaBusca.length})`;
@@ -413,6 +444,11 @@ aplicarTema(temaSalvo);
 aplicarIdiomaEstatico();
 carregarUsuario();
 carregarPacientes();
+
+// Mantém o status Ativo/Offline atualizado mesmo se o terapeuta
+// deixar a tela de Pacientes aberta. A presença no backend usa
+// janela de 5 minutos; aqui atualizamos a visualização a cada minuto.
+setInterval(carregarPacientes, 60 * 1000);
 
 document.getElementById("inputBusca").addEventListener("input", filtrarPacientes);
 document.querySelectorAll(".aba").forEach(botao => {

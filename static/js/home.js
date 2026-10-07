@@ -20,6 +20,10 @@ const dicionario = {
     "Nenhuma notificação por enquanto.": "No notifications for now.",
     "Não foi possível carregar as notificações.": "Could not load notifications.",
     "Erro ao gerar dicas.": "Error generating tips.",
+    "Erro ao gerar dica. Tente novamente.": "Error generating tip. Try again.",
+    "Erro interno ao gerar dica.": "Internal error generating tip.",
+    "Preencha o Perfil Sensorial ou um relatório diário para receber dicas personalizadas.": "Complete the Sensory Profile or a daily report to receive personalized tips.",
+    "Já gerou as dicas dessa semana. Espere até a próxima semana.": "You have already generated this week's tips. Please wait until next week.",
     "Erro de conexão. Tente novamente.": "Connection error. Try again.",
     "Ver dicas personalizadas": "View personalized tips",
     "Gerando...": "Generating...",
@@ -700,7 +704,7 @@ btnGerarDicas.addEventListener(
                 }
 
                 alert(
-                    dados.erro
+                    traduzir(dados.erro)
                 );
 
                 return;
@@ -709,7 +713,7 @@ btnGerarDicas.addEventListener(
             if (!resposta.ok) {
 
                 listaDicas.innerHTML =
-                    `<p class="sem-dados">${dados.erro || traduzir("Erro ao gerar dicas.")}</p>`;
+                    `<p class="sem-dados">${traduzir(dados.erro || "Erro ao gerar dicas.")}</p>`;
 
                 textoBtnDicas.textContent =
                     traduzir(
