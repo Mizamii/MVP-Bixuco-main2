@@ -16,6 +16,7 @@ const dicionario = {
     "Não foi possível carregar a localização": "Could not load location",
     "Rastreamento em tempo real disponível em breve": "Real-time tracking available soon",
     "Atualizado em": "Updated on",
+    "Localização desatualizada": "Location outdated",
     "Nenhuma notificação por enquanto.": "No notifications for now.",
     "Não foi possível carregar as notificações.": "Could not load notifications.",
     "Erro ao gerar dicas.": "Error generating tips.",
@@ -1367,6 +1368,21 @@ function renderizarStatusMapa() {
 
     } else if (
         ultimoStatusMapa.tipo ===
+        "desatualizado"
+    ) {
+
+        el.textContent =
+            `${traduzir("Localização desatualizada")} · ${traduzir("Atualizado em")} ${ultimoStatusMapa.dataFormatada}, ${ultimoStatusMapa.horario}`;
+
+        if (iconeStatus) {
+
+            iconeStatus.style.color =
+                "#C2C2C2";
+
+        }
+
+    } else if (
+        ultimoStatusMapa.tipo ===
         "erro"
     ) {
 
@@ -1476,15 +1492,55 @@ async function carregarLocalizacaoReal() {
             15
         );
 
+        const corMarcador =
+    dados.desatualizada
+        ? "#C2C2C2"
+        : "#32C26D";
 
-        if (!marcador) {
 
-            const iconeBixuco =
-                L.divIcon(
+        const iconeBixuco =
+            dados.fotoUrl
+                ? L.divIcon(
                     {
                         html: `
                             <div style="
-                                background:#32C26D;
+                                width:40px;
+                                height:40px;
+                                border-radius:50%;
+                                border:3px solid ${corMarcador};
+                                box-shadow:0 2px 8px rgba(0,0,0,0.3);
+                                overflow:hidden;
+                                background:#FFFFFF;
+                            ">
+                                <img
+                                    src="${dados.fotoUrl}"
+                                    style="
+                                        width:100%;
+                                        height:100%;
+                                        object-fit:cover;
+                                    "
+                                />
+                            </div>
+                        `,
+
+                        iconSize: [
+                            40,
+                            40
+                        ],
+
+                        iconAnchor: [
+                            20,
+                            20
+                        ],
+
+                        className: ""
+                    }
+                )
+                : L.divIcon(
+                    {
+                        html: `
+                            <div style="
+                                background:${corMarcador};
                                 width:36px;
                                 height:36px;
                                 border-radius:50%;
@@ -1514,6 +1570,8 @@ async function carregarLocalizacaoReal() {
                 );
 
 
+        if (!marcador) {
+
             marcador =
                 L.marker(
                     [
@@ -1538,58 +1596,23 @@ async function carregarLocalizacaoReal() {
                 ]
             );
 
-        }
-
-
-        if (dados.fotoUrl) {
-
-            const iconeComFoto =
-                L.divIcon(
-                    {
-                        html: `
-                            <div style="
-                                width:40px;
-                                height:40px;
-                                border-radius:50%;
-                                border:3px solid #32C26D;
-                                box-shadow:0 2px 8px rgba(0,0,0,0.3);
-                                overflow:hidden;
-                            ">
-                                <img
-                                    src="${dados.fotoUrl}"
-                                    style="
-                                        width:100%;
-                                        height:100%;
-                                        object-fit:cover;
-                                    "
-                                />
-                            </div>
-                        `,
-
-                        iconSize: [
-                            40,
-                            40
-                        ],
-
-                        iconAnchor: [
-                            20,
-                            20
-                        ],
-
-                        className: ""
-                    }
-                );
-
-
             marcador.setIcon(
-                iconeComFoto
+                iconeBixuco
             );
 
         }
 
 
+        
+
+
+
         marcador.setPopupContent(
-            `<b>Bixuco</b><br>${traduzir("Última localização conhecida")}`
+            `<b>Bixuco</b><br>${
+                dados.desatualizada
+                    ? traduzir("Localização desatualizada")
+                    : traduzir("Última localização conhecida")
+            }`
         );
 
 
@@ -1657,7 +1680,9 @@ async function carregarLocalizacaoReal() {
         ultimoStatusMapa = {
 
             tipo:
-                "atualizado",
+                dados.desatualizada
+                    ? "desatualizado"
+                    : "atualizado",
 
             dataFormatada:
                 dados.dataFormatada,

@@ -8004,10 +8004,11 @@ app.get("/api/bixuco/localizacao", estaLogado, exigeResponsavel, async (req, res
     try {
         const resultado = await db.query(
             `SELECT l.latitude, l.longitude, l.bateria,
-                    TO_CHAR(l.criado_em, 'HH24:MI') AS horario,
-                    TO_CHAR(l.criado_em, 'DD/MM') AS data_formatada,
-                    c.nome_pelucia,
-                    c.foto_url
+                TO_CHAR(l.criado_em, 'HH24:MI') AS horario,
+                TO_CHAR(l.criado_em, 'DD/MM') AS data_formatada,
+                EXTRACT(EPOCH FROM (NOW() - l.criado_em))::int AS idade_segundos,
+                c.nome_pelucia,
+                c.foto_url
             FROM localizacoes_bixuco l
             JOIN criancas c ON c.id = l.crianca_id
             WHERE c.usuario_id = $1
@@ -8021,6 +8022,18 @@ app.get("/api/bixuco/localizacao", estaLogado, exigeResponsavel, async (req, res
         }
 
         const local = resultado.rows[0];
+
+        const idadeSegundos =
+            Math.max(
+                0,
+                parseInt(local.idade_segundos, 10) || 0
+            );
+
+        // Mais de 5 minutos sem nova localização
+        // = posição considerada desatualizada.
+        const desatualizada =
+            idadeSegundos > 5 * 60;
+
         res.json({
             disponivel: true,
             latitude: parseFloat(local.latitude),
@@ -8028,6 +8041,8 @@ app.get("/api/bixuco/localizacao", estaLogado, exigeResponsavel, async (req, res
             bateria: local.bateria,
             horario: local.horario,
             dataFormatada: local.data_formatada,
+            idadeSegundos,
+            desatualizada,
             nomePelucia: local.nome_pelucia,
             fotoUrl: local.foto_url
         });
