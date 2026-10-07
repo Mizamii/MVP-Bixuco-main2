@@ -17,8 +17,9 @@ async function carregarUsuario() {
         document.getElementById("nomeUsuario").textContent =
             dados.nome || "Usuário";
 
+        ultimoTipoContaSemAssinatura = dados.tipoConta || "Responsável";
         document.getElementById("tipoConta").textContent =
-            dados.tipoConta || "Responsável";
+            traduzirSemAssinatura(ultimoTipoContaSemAssinatura);
 
         if (dados.fotoPerfil) {
             document.getElementById("fotoUsuario").src = dados.fotoPerfil;
@@ -71,9 +72,12 @@ carregarPreferenciasNotificacao();
 // 🔧 FIX: INDIQUE O BIXUCO (COMPARTILHAR)
 // =========================
 document.getElementById("btnIndicar").addEventListener("click", () => {
+    const mensagemBase = idiomaAtual === "en"
+        ? "Hi! Come discover Bixuco, an app that helps caregivers follow children with sensory hypersensitivity. 🐱\n\n"
+        : "Olá! Venha conhecer o Bixuco, um aplicativo que ajuda no acompanhamento de crianças com hipersensibilidade sensorial. 🐱\n\n";
+
     const mensagem = encodeURIComponent(
-        "Olá! Venha conhecer o Bixuco, um aplicativo que ajuda no acompanhamento de crianças com hipersensibilidade sensorial. 🐱\n\n" +
-        "https://mvp-bixuco.onrender.com"
+        mensagemBase + "https://mvp-bixuco.onrender.com"
     );
     window.open(`https://wa.me/?text=${mensagem}`, "_blank");
 });
@@ -92,7 +96,7 @@ function fecharModalSenha() {
     document.body.style.overflow = "";
     statusSenha.className = "status-senha";
     btnEnviarSenha.disabled    = false;
-    btnEnviarSenha.textContent = "Enviar email";
+    btnEnviarSenha.textContent = traduzirSemAssinatura("Enviar email");
 }
 
 function mostrarStatusSenha(texto, tipo) {
@@ -116,7 +120,7 @@ document.addEventListener("keydown", (e) => {
 btnEnviarSenha.addEventListener("click", async () => {
 
     btnEnviarSenha.disabled    = true;
-    btnEnviarSenha.textContent = "Enviando...";
+    btnEnviarSenha.textContent = traduzirSemAssinatura("Enviando...");
 
     try {
 
@@ -130,12 +134,12 @@ btnEnviarSenha.addEventListener("click", async () => {
 
         if (!resposta.ok) throw new Error();
 
-        mostrarStatusSenha("Email enviado! Confira sua caixa de entrada.", "sucesso");
-        btnEnviarSenha.textContent = "Enviado!";
+        mostrarStatusSenha(traduzirSemAssinatura("Email enviado! Confira sua caixa de entrada."), "sucesso");
+        btnEnviarSenha.textContent = traduzirSemAssinatura("Enviado!");
 
     } catch (_) {
 
-        mostrarStatusSenha("Erro ao enviar. Tente novamente.", "erro");
+        mostrarStatusSenha(traduzirSemAssinatura("Erro ao enviar. Tente novamente."), "erro");
         btnEnviarSenha.disabled    = false;
         btnEnviarSenha.textContent = "Enviar email";
 
@@ -163,7 +167,7 @@ btnCancelar.addEventListener("click", () => {
 
 btnConfirmar.addEventListener("click", async () => {
     btnConfirmar.disabled    = true;
-    btnConfirmar.textContent = "Excluindo...";
+    btnConfirmar.textContent = traduzirSemAssinatura("Excluindo...");
 
     try {
         const resposta = await fetch("/api/excluir-conta", { method: "DELETE" });
@@ -178,9 +182,9 @@ btnConfirmar.addEventListener("click", async () => {
         } else {
             const dados = await resposta.json();
             btnConfirmar.disabled    = false;
-            btnConfirmar.textContent = "Sim, excluir minha conta";
+            btnConfirmar.textContent = traduzirSemAssinatura("Sim, excluir minha conta");
             confirmarExclusao.querySelector("p").textContent =
-                "❌ " + (dados.erro || "Erro ao excluir. Tente novamente.");
+                "❌ " + (dados.erro || traduzirSemAssinatura("Erro ao excluir. Tente novamente."));
         }
 
     } catch (e) {
@@ -224,7 +228,7 @@ async function carregarNotificacoes() {
         const itens = (dados.notificacoes || []).filter(n => n.tipo === "novidade");
 
         listaNotificacoes.innerHTML = itens.length === 0
-            ? `<div class="painel-vazio">Nenhuma promoção por enquanto.</div>`
+            ? `<div class="painel-vazio">${traduzirSemAssinatura("Nenhuma promoção por enquanto.")}</div>`
             : itens.map(formatarItemNotificacao).join("");
 
         const naoLidas = itens.filter(item => !item.lida).length;
@@ -232,7 +236,7 @@ async function carregarNotificacoes() {
 
     } catch (erro) {
         console.log("Erro ao carregar notificações:", erro);
-        listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar.</div>`;
+        listaNotificacoes.innerHTML = `<div class="painel-vazio">${traduzirSemAssinatura("Não foi possível carregar.")}</div>`;
     }
 }
 
@@ -269,6 +273,27 @@ document.addEventListener("click", (e) => {
 // igual ao padrão usado na tela de configurações com assinatura
 // =========================
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
+let ultimoTipoContaSemAssinatura = "Responsável";
+
+const dicionarioSemAssinatura = {
+    "Usuário": "User",
+    "Responsável": "Guardian",
+    "Enviar email": "Send email",
+    "Enviando...": "Sending...",
+    "Email enviado! Confira sua caixa de entrada.": "Email sent! Check your inbox.",
+    "Enviado!": "Sent!",
+    "Erro ao enviar. Tente novamente.": "Could not send. Try again.",
+    "Excluindo...": "Deleting...",
+    "Sim, excluir minha conta": "Yes, delete my account",
+    "Erro ao excluir. Tente novamente.": "Could not delete the account. Try again.",
+    "Nenhuma promoção por enquanto.": "No promotions for now.",
+    "Não foi possível carregar.": "Could not load."
+};
+
+function traduzirSemAssinatura(texto) {
+    if (idiomaAtual === "pt" || texto == null) return texto;
+    return dicionarioSemAssinatura[texto] || texto;
+}
 
 function aplicarIdiomaEstatico() {
     document.querySelectorAll("[data-pt]").forEach(el => {
@@ -285,6 +310,11 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
     idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
     localStorage.setItem("idioma", idiomaAtual);
     aplicarIdiomaEstatico();
+
+    const tipoContaEl = document.getElementById("tipoConta");
+    if (tipoContaEl) {
+        tipoContaEl.textContent = traduzirSemAssinatura(ultimoTipoContaSemAssinatura);
+    }
 });
 
 // =========================

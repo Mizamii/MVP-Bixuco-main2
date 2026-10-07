@@ -21,6 +21,20 @@ aplicarTema(localStorage.getItem("tema") || "claro");
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
+const dicionarioBixucoEntregue = {
+    "Usuário": "User",
+    "Responsável": "Guardian",
+    "Nenhuma notificação por enquanto.": "No notifications for now.",
+    "Não foi possível carregar as notificações.": "Could not load notifications."
+};
+
+function traduzir(texto) {
+    if (idiomaAtual === "pt" || texto == null) return texto;
+    return dicionarioBixucoEntregue[texto] || texto;
+}
+
+let ultimoTipoContaBixucoEntregue = "Responsável";
+
 function aplicarIdiomaEstatico() {
     document.querySelectorAll("[data-pt]").forEach(el => {
         el.textContent = idiomaAtual === "en"
@@ -36,6 +50,15 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
     idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
     localStorage.setItem("idioma", idiomaAtual);
     aplicarIdiomaEstatico();
+
+    const tipoContaEl = document.getElementById("tipoConta");
+    if (tipoContaEl) {
+        tipoContaEl.textContent = traduzir(ultimoTipoContaBixucoEntregue);
+    }
+
+    if (painelNotificacoes?.classList.contains("aberto")) {
+        carregarNotificacoes();
+    }
 });
 
 aplicarIdiomaEstatico();
@@ -57,8 +80,9 @@ async function carregarDadosUsuario() {
 
         const dados = await resposta.json();
 
-        document.getElementById("nomeUsuario").textContent = dados.nome || "Usuário";
-        document.getElementById("tipoConta").textContent   = dados.tipoConta || "Responsável";
+        document.getElementById("nomeUsuario").textContent = dados.nome || traduzir("Usuário");
+        ultimoTipoContaBixucoEntregue = dados.tipoConta || "Responsável";
+        document.getElementById("tipoConta").textContent = traduzir(ultimoTipoContaBixucoEntregue);
 
         if (dados.fotoPerfil) {
             document.getElementById("fotoUsuario").src = dados.fotoPerfil;
@@ -66,8 +90,9 @@ async function carregarDadosUsuario() {
 
     } catch (erro) {
         console.log("Erro ao carregar dados do usuário:", erro);
-        document.getElementById("nomeUsuario").textContent = "Usuário";
-        document.getElementById("tipoConta").textContent   = "Responsável";
+        document.getElementById("nomeUsuario").textContent = traduzir("Usuário");
+        ultimoTipoContaBixucoEntregue = "Responsável";
+        document.getElementById("tipoConta").textContent = traduzir(ultimoTipoContaBixucoEntregue);
     }
 }
 
@@ -105,7 +130,7 @@ async function carregarNotificacoes() {
         const itens = dados.notificacoes || [];
 
         listaNotificacoes.innerHTML = itens.length === 0
-            ? `<div class="painel-vazio">Nenhuma notificação por enquanto.</div>`
+            ? `<div class="painel-vazio">${traduzir("Nenhuma notificação por enquanto.")}</div>`
             : itens.map(formatarItemNotificacao).join("");
 
         const naoLidas = itens.filter(item => !item.lida).length;
@@ -113,7 +138,7 @@ async function carregarNotificacoes() {
 
     } catch (erro) {
         console.log("Erro ao carregar notificações:", erro);
-        listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar as notificações.</div>`;
+        listaNotificacoes.innerHTML = `<div class="painel-vazio">${traduzir("Não foi possível carregar as notificações.")}</div>`;
     }
 }
 

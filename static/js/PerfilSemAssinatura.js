@@ -545,7 +545,7 @@ async function carregarNotificacoes() {
 
     } catch (erro) {
         console.log("Erro ao carregar notificações:", erro);
-        listaNotificacoes.innerHTML = `<div class="painel-vazio">Não foi possível carregar.</div>`;
+        listaNotificacoes.innerHTML = `<div class="painel-vazio">${traduzir("Não foi possível carregar.")}</div>`;
     }
 }
 
