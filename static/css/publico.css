@@ -81,6 +81,12 @@ body.pagina-index.tema-escuro {
   --petroleo: #eef7fa;
 }
 
+/* Bloco final: continua azul-petróleo escuro (fundo fixo em index.css);
+   o filete claro só separa o cartão do fundo preto da página. */
+body.pagina-index.tema-escuro .cta {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
 body.pagina-index.tema-escuro .navbar {
   background: rgba(22, 24, 28, 0.94);
 }

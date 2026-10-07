@@ -4,6 +4,7 @@
     --azul: #0AB7FB;
     --azul-escuro: #1D8EC9;
     --petroleo: #0F3D4C;
+    --fundo-cta: #0F3D4C; /* fundo do bloco final: fixo nos dois temas (--petroleo vira claro no escuro, só serve pra texto) */
     --texto: #1c2b33;
     --texto-suave: #5A6B73;
     --fundo: #ffffff;
@@ -229,7 +230,7 @@ section { padding: 72px 6vw; }
     gap: 24px;
     margin: 0 6vw;
     padding: 56px 5vw;
-    background: var(--petroleo);
+    background: var(--fundo-cta);
     border-radius: 24px;
     overflow: hidden;
 }
