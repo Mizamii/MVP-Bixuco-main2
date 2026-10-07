@@ -7,41 +7,54 @@
 <meta name="description" content="O Bixuco é uma pelúcia conectada com aplicativo e plataforma web que ajuda famílias de crianças com processamento sensorial a acompanhar sinais, gerar relatórios e compartilhar com terapeutas.">
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<link rel="stylesheet" href="css/index.css">
-<link rel="stylesheet" href="css/termosModal.css">
-<link rel="icon" type="image/png" href="img/logo-bixuco-colorida.png">
-
-<!-- Scripts externos: o CSP do helmet bloqueia <script> inline -->
+<link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/css/tema.css">
+<link rel="stylesheet" href="/css/publico.css">
+<link rel="stylesheet" href="/css/termosModal.css">
+<link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
 </head>
 
-<body>
+<body class="pagina-publica pagina-index">
 
 <header class="navbar" id="navbar">
     <a href="#" class="navbar__marca" aria-label="Bixuco">
-        <img src="img/logo_nome.png" alt="Bixuco">
+        <img src="/img/logo_nome.png" alt="Bixuco">
     </a>
 
     <nav class="menu" aria-label="Principal">
-        <a href="#sobre">Sobre</a>
-        <a href="#funcionalidades">Funcionalidades</a>
-        <a href="#como-funciona">Como funciona</a>
-        <a href="#para-quem">Para quem</a>
+        <a href="#sobre" data-pt="Sobre" data-en="About">Sobre</a>
+        <a href="#funcionalidades" data-pt="Funcionalidades" data-en="Features">Funcionalidades</a>
+        <a href="#como-funciona" data-pt="Como funciona" data-en="How it works">Como funciona</a>
+        <a href="#para-quem" data-pt="Para quem" data-en="Who it's for">Para quem</a>
     </nav>
 
     <div class="acoes">
-        <a href="/logar" class="btn btn--contorno">Entrar</a>
-        <a href="/CriarContaS" class="btn btn--primario">Criar conta</a>
+        <div class="controles-publicos controles-publicos--navbar" aria-label="Preferências da página">
+            <button type="button" class="controle-publico controle-publico--icone" id="btnTemaMobile" aria-label="Alternar tema" title="Alternar tema">
+                <i class="fa-regular fa-sun"></i>
+            </button>
+
+            <button type="button" class="controle-publico" id="btnTraduzir" aria-label="Alterar idioma">
+                <i class="fa-solid fa-language"></i>
+                <span id="textoTradutor">EN</span>
+            </button>
+        </div>
+
+        <a href="/logar" class="btn btn--contorno" data-pt="Entrar" data-en="Log in">Entrar</a>
+        <a href="/CriarContaS" class="btn btn--primario" data-pt="Criar conta" data-en="Create account">Criar conta</a>
     </div>
 </header>
 
 <main>
 
-<!-- HERO -->
 <section class="hero">
     <div class="hero__texto">
-        <span class="selo">Tecnologia assistiva</span>
-        <h1>Tecnologia que acompanha, acolhe e conecta.</h1>
-        <p>
+        <span class="selo" data-pt="Tecnologia assistiva" data-en="Assistive technology">Tecnologia assistiva</span>
+        <h1 data-pt="Tecnologia que acompanha, acolhe e conecta." data-en="Technology that supports, welcomes and connects.">Tecnologia que acompanha, acolhe e conecta.</h1>
+        <p
+            data-pt="O Bixuco é uma plataforma completa que apoia crianças com TPS e suas famílias: uma pelúcia conectada, um aplicativo, relatórios e dicas personalizadas com apoio de IA, tudo para entender os sinais da criança antes que virem crises."
+            data-en="Bixuco is a complete platform that supports children with sensory processing challenges and their families: a connected plush toy, an app, reports and personalized AI-assisted tips, all designed to help understand the child's signals before they become crises."
+        >
             O Bixuco é uma plataforma completa que apoia crianças com TPS e suas
             famílias: uma pelúcia conectada, um aplicativo, relatórios e dicas
             personalizadas com apoio de IA, tudo para entender os sinais da criança
@@ -49,9 +62,10 @@
         </p>
         <div class="hero__botoes">
             <a href="/CriarContaS" class="btn btn--primario btn--grande">
-                Criar conta <i class="fa-solid fa-arrow-right"></i>
+                <span data-pt="Criar conta" data-en="Create account">Criar conta</span>
+                <i class="fa-solid fa-arrow-right"></i>
             </a>
-            <a href="#como-funciona" class="btn btn--contorno btn--grande">Conheça o Bixuco</a>
+            <a href="#como-funciona" class="btn btn--contorno btn--grande" data-pt="Conheça o Bixuco" data-en="Discover Bixuco">Conheça o Bixuco</a>
         </div>
     </div>
 
@@ -59,176 +73,179 @@
         <div class="mancha mancha--1"></div>
         <div class="mancha mancha--2"></div>
         <div class="celular">
-            <img src="img/print-app.png" alt="Tela inicial do aplicativo Bixuco">
+            <img src="/img/print-app.png" alt="Tela inicial do aplicativo Bixuco">
         </div>
-        <img class="hero__gato" src="img/logo-bixuco-colorida.png" alt="">
+        <img class="hero__gato" src="/img/logo-bixuco-colorida.png" alt="">
     </div>
 </section>
 
-<!-- FAIXA DE PILARES -->
 <section class="pilares" aria-label="Pilares do Bixuco">
     <div class="pilar">
         <i class="fa-regular fa-heart"></i>
-        <h3>Acompanhamento</h3>
-        <p>Monitore o bem-estar da criança no dia a dia.</p>
+        <h3 data-pt="Acompanhamento" data-en="Monitoring">Acompanhamento</h3>
+        <p data-pt="Monitore o bem-estar da criança no dia a dia." data-en="Monitor the child's well-being day by day.">Monitore o bem-estar da criança no dia a dia.</p>
     </div>
     <div class="pilar">
         <i class="fa-solid fa-people-group"></i>
-        <h3>Conexão</h3>
-        <p>Família, criança e terapeutas mais próximos.</p>
+        <h3 data-pt="Conexão" data-en="Connection">Conexão</h3>
+        <p data-pt="Família, criança e terapeutas mais próximos." data-en="Bring families, children and therapists closer together.">Família, criança e terapeutas mais próximos.</p>
     </div>
     <div class="pilar">
         <i class="fa-solid fa-microchip"></i>
-        <h3>Tecnologia</h3>
-        <p>Pelúcia, app e IA trabalhando juntos.</p>
+        <h3 data-pt="Tecnologia" data-en="Technology">Tecnologia</h3>
+        <p data-pt="Pelúcia, app e IA trabalhando juntos." data-en="Plush toy, app and AI working together.">Pelúcia, app e IA trabalhando juntos.</p>
     </div>
     <div class="pilar">
         <i class="fa-solid fa-lock"></i>
-        <h3>Segurança</h3>
-        <p>Dados protegidos e com privacidade.</p>
+        <h3 data-pt="Segurança" data-en="Security">Segurança</h3>
+        <p data-pt="Dados protegidos e com privacidade." data-en="Protected data with privacy in mind.">Dados protegidos e com privacidade.</p>
     </div>
 </section>
 
-<!-- SOBRE -->
 <section class="sobre" id="sobre">
     <div class="sobre__texto">
-        <span class="rotulo">Sobre o Bixuco</span>
-        <h2>Mais que tecnologia, uma rede de apoio.</h2>
-        <p>
+        <span class="rotulo" data-pt="Sobre o Bixuco" data-en="About Bixuco">Sobre o Bixuco</span>
+        <h2 data-pt="Mais que tecnologia, uma rede de apoio." data-en="More than technology, a support network.">Mais que tecnologia, uma rede de apoio.</h2>
+        <p
+            data-pt="O Bixuco nasceu para apoiar o desenvolvimento de crianças com processamento sensorial atípico, oferecendo suporte, organização e autoconhecimento para famílias e profissionais."
+            data-en="Bixuco was created to support children with atypical sensory processing by offering support, organization and greater understanding for families and professionals."
+        >
             O Bixuco nasceu para apoiar o desenvolvimento de crianças com
             processamento sensorial atípico, oferecendo suporte, organização e
             autoconhecimento para famílias e profissionais.
         </p>
-        <p>
+        <p
+            data-pt="O Bixuco não diagnostica o TPS. Ele ajuda a identificar padrões, acompanhar as sensações e construir estratégias de cuidado junto com quem já acompanha a criança."
+            data-en="Bixuco does not diagnose sensory processing disorder. It helps identify patterns, track sensory experiences and build care strategies together with the professionals who already support the child."
+        >
             O Bixuco não diagnostica o TPS. Ele ajuda a identificar padrões,
             acompanhar as sensações e construir estratégias de cuidado junto com
             quem já acompanha a criança.
         </p>
         <a href="/CriarContaS" class="btn btn--primario">
-            Comece agora <i class="fa-solid fa-arrow-right"></i>
+            <span data-pt="Comece agora" data-en="Get started">Comece agora</span>
+            <i class="fa-solid fa-arrow-right"></i>
         </a>
     </div>
 
     <div class="sobre__visual">
         <div class="navegador">
             <div class="navegador__barra"><span></span><span></span><span></span></div>
-            <img src="img/print-desktop.png" alt="Painel do Bixuco no computador">
+            <img src="/img/print-desktop.png" alt="Painel do Bixuco no computador">
         </div>
     </div>
 </section>
 
-<!-- FUNCIONALIDADES -->
 <section class="funcionalidades" id="funcionalidades">
-    <span class="rotulo">Principais funcionalidades</span>
-    <h2>Tudo o que você precisa, em um só lugar.</h2>
-    <p class="subtitulo">Recursos pensados para facilitar o dia a dia e oferecer mais segurança e autonomia.</p>
+    <span class="rotulo" data-pt="Principais funcionalidades" data-en="Main features">Principais funcionalidades</span>
+    <h2 data-pt="Tudo o que você precisa, em um só lugar." data-en="Everything you need, all in one place.">Tudo o que você precisa, em um só lugar.</h2>
+    <p class="subtitulo" data-pt="Recursos pensados para facilitar o dia a dia e oferecer mais segurança e autonomia." data-en="Features designed to simplify everyday life and provide more confidence and autonomy.">Recursos pensados para facilitar o dia a dia e oferecer mais segurança e autonomia.</p>
 
     <div class="grade grade--4">
         <article class="card">
             <i class="fa-solid fa-wave-square"></i>
-            <h3>Monitoramento em tempo real</h3>
-            <p>A pelúcia detecta apertos e registra a interação, avisando sobre momentos de estresse.</p>
+            <h3 data-pt="Monitoramento em tempo real" data-en="Real-time monitoring">Monitoramento em tempo real</h3>
+            <p data-pt="A pelúcia detecta apertos e registra a interação, avisando sobre momentos de estresse." data-en="The plush toy detects squeezes and records interactions, helping flag moments of stress.">A pelúcia detecta apertos e registra a interação, avisando sobre momentos de estresse.</p>
         </article>
         <article class="card">
             <i class="fa-solid fa-chart-column"></i>
-            <h3>Relatórios e gráficos</h3>
-            <p>Acompanhe a evolução da criança e identifique padrões e gatilhos sensoriais.</p>
+            <h3 data-pt="Relatórios e gráficos" data-en="Reports and charts">Relatórios e gráficos</h3>
+            <p data-pt="Acompanhe a evolução da criança e identifique padrões e gatilhos sensoriais." data-en="Track the child's progress and identify patterns and sensory triggers.">Acompanhe a evolução da criança e identifique padrões e gatilhos sensoriais.</p>
         </article>
         <article class="card">
             <i class="fa-solid fa-wand-magic-sparkles"></i>
-            <h3>Dicas com IA</h3>
-            <p>Sugestões práticas de rotina geradas a partir dos relatórios diários da família.</p>
+            <h3 data-pt="Dicas com IA" data-en="AI-assisted tips">Dicas com IA</h3>
+            <p data-pt="Sugestões práticas de rotina geradas a partir dos relatórios diários da família." data-en="Practical routine suggestions generated from the family's daily reports.">Sugestões práticas de rotina geradas a partir dos relatórios diários da família.</p>
         </article>
         <article class="card">
             <i class="fa-solid fa-user-doctor"></i>
-            <h3>Conexão com profissionais</h3>
-            <p>Compartilhe relatórios com terapeutas e psicólogos de forma simples e segura.</p>
+            <h3 data-pt="Conexão com profissionais" data-en="Connection with professionals">Conexão com profissionais</h3>
+            <p data-pt="Compartilhe relatórios com terapeutas e psicólogos de forma simples e segura." data-en="Share reports with therapists and psychologists simply and securely.">Compartilhe relatórios com terapeutas e psicólogos de forma simples e segura.</p>
         </article>
     </div>
 </section>
 
-<!-- COMO FUNCIONA -->
 <section class="como" id="como-funciona">
     <div class="como__texto">
-        <span class="rotulo">Como funciona</span>
-        <h2>Simples, intuitivo e feito para vocês.</h2>
-        <p>Em poucos passos, o Bixuco entra na rotina da criança e transforma interações em informação útil para o cuidado.</p>
+        <span class="rotulo" data-pt="Como funciona" data-en="How it works">Como funciona</span>
+        <h2 data-pt="Simples, intuitivo e feito para vocês." data-en="Simple, intuitive and made for you.">Simples, intuitivo e feito para vocês.</h2>
+        <p data-pt="Em poucos passos, o Bixuco entra na rotina da criança e transforma interações em informação útil para o cuidado." data-en="In just a few steps, Bixuco becomes part of the child's routine and turns interactions into useful information for care.">Em poucos passos, o Bixuco entra na rotina da criança e transforma interações em informação útil para o cuidado.</p>
 
         <ol class="passos">
-            <li>A criança interage com o Bixuco (aperta, abraça, leva pra onde for).</li>
-            <li>A pelúcia detecta e registra cada interação.</li>
-            <li>O app envia um alerta e monta o relatório do dia.</li>
-            <li>A família pode compartilhar os relatórios com o terapeuta.</li>
+            <li data-pt="A criança interage com o Bixuco (aperta, abraça, leva pra onde for)." data-en="The child interacts with Bixuco by squeezing, hugging and taking it along.">A criança interage com o Bixuco (aperta, abraça, leva pra onde for).</li>
+            <li data-pt="A pelúcia detecta e registra cada interação." data-en="The plush toy detects and records each interaction.">A pelúcia detecta e registra cada interação.</li>
+            <li data-pt="O app envia um alerta e monta o relatório do dia." data-en="The app sends an alert and helps build the daily report.">O app envia um alerta e monta o relatório do dia.</li>
+            <li data-pt="A família pode compartilhar os relatórios com o terapeuta." data-en="The family can share reports with the therapist.">A família pode compartilhar os relatórios com o terapeuta.</li>
         </ol>
     </div>
 
     <div class="como__visual">
         <div class="mancha mancha--3"></div>
-        <img class="como__gato" src="img/logo-bixuco-colorida.png" alt="Mascote do Bixuco">
+        <img class="como__gato" src="/img/logo-bixuco-colorida.png" alt="Mascote do Bixuco">
         <div class="celular celular--pequeno">
-            <img src="img/print-app.png" alt="Aplicativo Bixuco no celular">
+            <img src="/img/print-app.png" alt="Aplicativo Bixuco no celular">
         </div>
     </div>
 </section>
 
-<!-- PARA QUEM -->
 <section class="paraquem" id="para-quem">
-    <span class="rotulo">Para quem é o Bixuco</span>
-    <h2>Um apoio para toda a jornada.</h2>
-    <p class="subtitulo">Para quem cuida, acompanha e acredita no potencial de cada criança.</p>
+    <span class="rotulo" data-pt="Para quem é o Bixuco" data-en="Who Bixuco is for">Para quem é o Bixuco</span>
+    <h2 data-pt="Um apoio para toda a jornada." data-en="Support throughout the journey.">Um apoio para toda a jornada.</h2>
+    <p class="subtitulo" data-pt="Para quem cuida, acompanha e acredita no potencial de cada criança." data-en="For everyone who cares for, supports and believes in every child's potential.">Para quem cuida, acompanha e acredita no potencial de cada criança.</p>
 
     <div class="grade grade--3">
         <div class="publico">
             <i class="fa-solid fa-people-roof"></i>
-            <h3>Responsáveis</h3>
-            <p>Mais tranquilidade no dia a dia e ferramentas para entender melhor as necessidades do seu filho.</p>
+            <h3 data-pt="Responsáveis" data-en="Parents and guardians">Responsáveis</h3>
+            <p data-pt="Mais tranquilidade no dia a dia e ferramentas para entender melhor as necessidades do seu filho." data-en="More confidence in everyday life and tools to better understand your child's needs.">Mais tranquilidade no dia a dia e ferramentas para entender melhor as necessidades do seu filho.</p>
         </div>
         <div class="publico">
             <i class="fa-solid fa-child-reaching"></i>
-            <h3>Crianças</h3>
-            <p>Mais conforto, autonomia e qualidade de vida no processo de desenvolvimento.</p>
+            <h3 data-pt="Crianças" data-en="Children">Crianças</h3>
+            <p data-pt="Mais conforto, autonomia e qualidade de vida no processo de desenvolvimento." data-en="More comfort, autonomy and quality of life throughout development.">Mais conforto, autonomia e qualidade de vida no processo de desenvolvimento.</p>
         </div>
         <div class="publico">
             <i class="fa-solid fa-user-doctor"></i>
-            <h3>Terapeutas e psicólogos</h3>
-            <p>Acesso a relatórios e histórico da criança, facilitando o acompanhamento profissional.</p>
+            <h3 data-pt="Terapeutas e psicólogos" data-en="Therapists and psychologists">Terapeutas e psicólogos</h3>
+            <p data-pt="Acesso a relatórios e histórico da criança, facilitando o acompanhamento profissional." data-en="Access to reports and the child's history to support professional follow-up.">Acesso a relatórios e histórico da criança, facilitando o acompanhamento profissional.</p>
         </div>
     </div>
 </section>
 
-<!-- CTA -->
 <section class="cta">
     <div class="cta__texto">
-        <h2>Tecnologia para apoiar cada etapa.</h2>
-        <p>Crie sua conta gratuitamente e conheça o Bixuco.</p>
+        <h2 data-pt="Tecnologia para apoiar cada etapa." data-en="Technology to support every step.">Tecnologia para apoiar cada etapa.</h2>
+        <p data-pt="Crie sua conta gratuitamente e conheça o Bixuco." data-en="Create your account for free and discover Bixuco.">Crie sua conta gratuitamente e conheça o Bixuco.</p>
         <div class="hero__botoes">
             <a href="/CriarContaS" class="btn btn--primario btn--grande">
-                Criar conta <i class="fa-solid fa-arrow-right"></i>
+                <span data-pt="Criar conta" data-en="Create account">Criar conta</span>
+                <i class="fa-solid fa-arrow-right"></i>
             </a>
-            <a href="/logar" class="btn btn--contorno-claro btn--grande">Já tenho conta</a>
+            <a href="/logar" class="btn btn--contorno-claro btn--grande" data-pt="Já tenho conta" data-en="I already have an account">Já tenho conta</a>
         </div>
     </div>
-    <img class="cta__gato" src="img/logo-bixuco-colorida.png" alt="Mascote do Bixuco">
+    <img class="cta__gato" src="/img/logo-bixuco-colorida.png" alt="Mascote do Bixuco">
 </section>
 
 </main>
 
 <footer class="rodape">
-    <img src="img/logo_nome.png" alt="Bixuco" class="rodape__logo">
+    <img src="/img/logo_nome.png" alt="Bixuco" class="rodape__logo">
 
     <nav class="rodape__links" aria-label="Rodapé">
-        <a href="#sobre">Sobre</a>
-        <a href="#funcionalidades">Funcionalidades</a>
-        <a href="#como-funciona">Como funciona</a>
-        <button type="button" id="btnAbrirPrivacidade" class="rodape__links__botao">Política de Privacidade</button>
-        <button type="button" id="btnAbrirTermos" class="rodape__links__botao">Termos de Uso</button>
+        <a href="#sobre" data-pt="Sobre" data-en="About">Sobre</a>
+        <a href="#funcionalidades" data-pt="Funcionalidades" data-en="Features">Funcionalidades</a>
+        <a href="#como-funciona" data-pt="Como funciona" data-en="How it works">Como funciona</a>
+        <button type="button" id="btnAbrirPrivacidade" class="rodape__links__botao" data-pt="Política de Privacidade" data-en="Privacy Policy">Política de Privacidade</button>
+        <button type="button" id="btnAbrirTermos" class="rodape__links__botao" data-pt="Termos de Uso" data-en="Terms of Use">Termos de Uso</button>
     </nav>
 
-    <p class="rodape__copy">© 2026 Bixuco. Mais inclusão, mais autonomia, mais futuro.</p>
+    <p class="rodape__copy" data-pt="© 2026 Bixuco. Mais inclusão, mais autonomia, mais futuro." data-en="© 2026 Bixuco. More inclusion, more autonomy, more future.">© 2026 Bixuco. Mais inclusão, mais autonomia, mais futuro.</p>
 </footer>
 
-<script src="js/index.js"></script>
-<script src="js/termosModal.js"></script>
+<script src="/js/index.js"></script>
+<script src="/js/termosModal.js"></script>
+<script src="/js/tema.js"></script>
 
 </body>
 </html>

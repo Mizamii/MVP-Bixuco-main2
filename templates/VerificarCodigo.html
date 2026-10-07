@@ -1,9 +1,13 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Verificar código — Bixuco</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link rel="stylesheet" href="/css/tema.css">
+<link rel="stylesheet" href="/css/publico.css">
+<link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
   body {
@@ -13,8 +17,9 @@
     justify-content: center;
     min-height: 100vh;
     padding: 16px;
+    position: relative;
   }
-  .card {
+  .verificacao-card {
     background: #FFFFFF;
     max-width: 400px;
     width: 100%;
@@ -44,9 +49,7 @@
     margin-bottom: 16px;
     outline: none;
   }
-  input#codigo:focus {
-    border-color: #32C26D;
-  }
+  input#codigo:focus { border-color: #32C26D; }
   button#confirmar {
     width: 100%;
     background: #32C26D;
@@ -59,10 +62,7 @@
     cursor: pointer;
     margin-bottom: 12px;
   }
-  button#confirmar:disabled {
-    background: #A8DFC0;
-    cursor: not-allowed;
-  }
+  button#confirmar:disabled { background: #A8DFC0; cursor: not-allowed; }
   button#reenviar {
     background: none;
     border: none;
@@ -71,36 +71,43 @@
     cursor: pointer;
     text-decoration: underline;
   }
-  button#reenviar:disabled {
-    color: #A8A8A8;
-    cursor: not-allowed;
-    text-decoration: none;
-  }
-  #mensagem {
-    margin-top: 12px;
-    font-size: 14px;
-    min-height: 18px;
-  }
+  button#reenviar:disabled { color: #A8A8A8; cursor: not-allowed; text-decoration: none; }
+  #mensagem { margin-top: 12px; font-size: 14px; min-height: 18px; }
   #mensagem.erro { color: #D64545; }
   #mensagem.sucesso { color: #32C26D; }
 </style>
 </head>
-<body>
+<body class="pagina-publica pagina-auth">
 
-  <div class="card">
-    <h1>Verificação de código</h1>
-    <p class="sub">Enviamos um código de 6 dígitos para o seu e-mail. Ele expira em 10 minutos.</p>
+  <div class="controles-publicos controles-publicos--auth" aria-label="Preferências da página">
+    <button type="button" class="controle-publico controle-publico--icone" id="btnTemaMobile" aria-label="Alternar tema" title="Alternar tema">
+      <i class="fa-regular fa-sun"></i>
+    </button>
+
+    <button type="button" class="controle-publico" id="btnTraduzir" aria-label="Alterar idioma">
+      <i class="fa-solid fa-language"></i>
+      <span id="textoTradutor">Traduzir para o inglês</span>
+    </button>
+  </div>
+
+  <div class="verificacao-card">
+    <h1 data-pt="Verificação de código" data-en="Code verification">Verificação de código</h1>
+    <p class="sub"
+       data-pt="Enviamos um código de 6 dígitos para o seu e-mail. Ele expira em 10 minutos."
+       data-en="We sent a 6-digit code to your email. It expires in 10 minutes.">
+      Enviamos um código de 6 dígitos para o seu e-mail. Ele expira em 10 minutos.
+    </p>
 
     <input type="text" id="codigo" inputmode="numeric" maxlength="6" placeholder="000000" autofocus>
 
-    <button id="confirmar">Confirmar</button>
-    <button id="reenviar">Reenviar código</button>
+    <button id="confirmar" data-pt="Confirmar" data-en="Confirm">Confirmar</button>
+    <button id="reenviar" data-pt="Reenviar código" data-en="Resend code">Reenviar código</button>
 
     <div id="mensagem"></div>
   </div>
 
   <script src="/js/verificarCodigo.js"></script>
-
+  <script src="/js/tema.js"></script>
 
 </body>
 </html>

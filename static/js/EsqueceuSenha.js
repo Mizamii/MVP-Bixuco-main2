@@ -10,7 +10,11 @@ const dicionarioRecuperar = {
     "Enviar link": "Send link",
     "Link enviado!": "Link sent!",
     "Erro ao enviar. Tente novamente.": "Error sending. Try again.",
-    "Erro de conexão. Verifique sua internet e tente novamente.": "Connection error. Check your internet and try again."
+    "Erro de conexão. Verifique sua internet e tente novamente.": "Connection error. Check your internet and try again.",
+    "Se esse e-mail estiver cadastrado, você receberá o link em breve.": "If this email is registered, you will receive the link shortly.",
+    "E-mail inválido.": "Invalid email.",
+    "Erro interno ao enviar o e-mail.": "Internal error while sending the email.",
+    "Muitas solicitações para este e-mail. Tente novamente mais tarde.": "Too many requests for this email. Try again later."
 };
 
 function traduzir(texto) {
@@ -33,6 +37,8 @@ function aplicarIdiomaEstatico() {
 
     document.getElementById("textoTradutor").textContent =
         idiomaAtual === "en" ? "Traduzir para o português" : "Traduzir para o inglês";
+
+    document.documentElement.lang = idiomaAtual === "en" ? "en" : "pt-BR";
 }
 
 document.getElementById("btnTraduzir").addEventListener("click", () => {
@@ -148,7 +154,7 @@ document.getElementById("formRecuperar").addEventListener("submit", async (event
 
             // Mostra mensagem de sucesso na tela
             // e desabilita o formulário para evitar reenvio
-            feedback.textContent = "✅ " + dados.mensagem;
+            feedback.textContent = "✅ " + traduzir(dados.mensagem);
             feedback.classList.add("recuperar-form__feedback--sucesso");
             feedback.style.display = "block";
 
@@ -161,7 +167,7 @@ document.getElementById("formRecuperar").addEventListener("submit", async (event
         } else {
 
             // Mostra o erro do servidor na tela
-            feedback.textContent = "❌ " + (dados.erro || traduzir("Erro ao enviar. Tente novamente."));
+            feedback.textContent = "❌ " + (traduzir(dados.erro) || traduzir("Erro ao enviar. Tente novamente."));
             feedback.classList.add("recuperar-form__feedback--erro");
             feedback.style.display = "block";
 

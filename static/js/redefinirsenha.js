@@ -19,7 +19,10 @@ const dicionarioRedefinirSenha = {
     "Senha redefinida com sucesso!": "Password reset successfully!",
     "Redirecionando...": "Redirecting...",
     "Erro ao redefinir a senha. Tente novamente.": "Error resetting password. Try again.",
-    "Erro de conexão. Verifique sua internet e tente novamente.": "Connection error. Check your internet and try again."
+    "Erro de conexão. Verifique sua internet e tente novamente.": "Connection error. Check your internet and try again.",
+    "Senha redefinida com sucesso! Faça login com a nova senha.": "Password reset successfully! Log in with your new password.",
+    "A senha deve ter pelo menos 6 caracteres, uma letra maiúscula e um caractere especial.": "Password must be at least 6 characters long and include an uppercase letter and a special character.",
+    "As senhas não coincidem.": "Passwords do not match."
 };
 
 function traduzir(texto) {
@@ -42,6 +45,8 @@ function aplicarIdiomaEstatico() {
 
     document.getElementById("textoTradutor").textContent =
         idiomaAtual === "en" ? "Traduzir para o português" : "Traduzir para o inglês";
+
+    document.documentElement.lang = idiomaAtual === "en" ? "en" : "pt-BR";
 }
 
 document.getElementById("btnTraduzir").addEventListener("click", () => {

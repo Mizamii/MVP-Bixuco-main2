@@ -25,6 +25,8 @@
         rel="stylesheet"
         href="/css/criarcontap.css"
     >
+    <link rel="stylesheet" href="/css/tema.css">
+    <link rel="stylesheet" href="/css/publico.css">
 
     <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
 
@@ -32,7 +34,7 @@
 
 </head>
 
-<body>
+<body class="pagina-publica pagina-auth">
 
     <main class="pagina-login">
 
@@ -90,10 +92,16 @@
 
         <section class="login-direita">
 
-            <button type="button" class="tradutor tradutor--login" id="btnTraduzir">
-                <i class="fa-solid fa-language"></i>
-                <span id="textoTradutor">Traduzir para o inglês</span>
-            </button>
+            <div class="controles-publicos controles-publicos--auth" aria-label="Preferências da página">
+                <button type="button" class="controle-publico controle-publico--icone" id="btnTemaMobile" aria-label="Alternar tema" title="Alternar tema">
+                    <i class="fa-regular fa-sun"></i>
+                </button>
+
+                <button type="button" class="tradutor tradutor--login" id="btnTraduzir">
+                    <i class="fa-solid fa-language"></i>
+                    <span id="textoTradutor">Traduzir para o inglês</span>
+                </button>
+            </div>
 
             <!-- Cabeçalho -->
             <header class="criarconta-header">

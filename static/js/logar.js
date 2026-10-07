@@ -13,7 +13,11 @@ const dicionarioLogin = {
     "Entrando...": "Logging in...",
     "Entrar": "Log in",
     "Mostrar senha": "Show password",
-    "Esconder senha": "Hide password"
+    "Esconder senha": "Hide password",
+    "E-mail ou senha inválidos.": "Invalid email or password.",
+    "Esta conta usa login com Google. Use o botão 'Continuar com Google'.": "This account uses Google sign-in. Use the 'Continue with Google' button.",
+    "Erro no servidor. Tente novamente.": "Server error. Try again.",
+    "Muitas tentativas para este e-mail. Tente novamente mais tarde.": "Too many attempts for this email. Try again later."
 };
 
 function traduzir(texto) {
@@ -36,6 +40,8 @@ function aplicarIdiomaEstatico() {
 
     document.getElementById("textoTradutor").textContent =
         idiomaAtual === "en" ? "Traduzir para o português" : "Traduzir para o inglês";
+
+    document.documentElement.lang = idiomaAtual === "en" ? "en" : "pt-BR";
 }
 
 document.getElementById("btnTraduzir").addEventListener("click", () => {

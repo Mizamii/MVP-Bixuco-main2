@@ -1,3 +1,63 @@
+// ==========================
+// TRADUÇÃO
+// ==========================
+
+let idiomaAtual = localStorage.getItem("idioma") || "pt";
+
+const dicionarioVerificacao = {
+  "Digite os 6 dígitos do código.": "Enter the 6-digit code.",
+  "Verificando...": "Verifying...",
+  "Código incorreto.": "Incorrect code.",
+  "Código confirmado! Redirecionando...": "Code confirmed! Redirecting...",
+  "Erro ao verificar. Tente novamente.": "Error verifying the code. Try again.",
+  "Enviando novo código...": "Sending a new code...",
+  "Não foi possível reenviar agora.": "Unable to resend the code right now.",
+  "Novo código enviado!": "New code sent!",
+  "Erro ao reenviar código.": "Error resending the code.",
+  "Sessão expirada. Faça login novamente.": "Session expired. Please log in again.",
+  "Digite o código recebido por e-mail.": "Enter the code received by email."
+};
+
+function traduzir(texto) {
+  if (idiomaAtual === "pt" || texto == null) return texto;
+  return dicionarioVerificacao[texto] || texto;
+}
+
+function aplicarIdiomaEstatico() {
+  document.querySelectorAll("[data-pt]").forEach(el => {
+    el.textContent = idiomaAtual === "en"
+      ? (el.dataset.en || el.dataset.pt)
+      : el.dataset.pt;
+  });
+
+  const textoTradutor = document.getElementById("textoTradutor");
+  if (textoTradutor) {
+    textoTradutor.textContent = idiomaAtual === "en"
+      ? "Traduzir para o português"
+      : "Traduzir para o inglês";
+  }
+
+  document.documentElement.lang = idiomaAtual === "en" ? "en" : "pt-BR";
+}
+
+document.getElementById("btnTraduzir").addEventListener("click", () => {
+  idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
+  localStorage.setItem("idioma", idiomaAtual);
+  aplicarIdiomaEstatico();
+
+  if (cooldownReenvio > 0) {
+    btnReenviar.textContent = idiomaAtual === "en"
+      ? `Resend code (${cooldownReenvio}s)`
+      : `Reenviar código (${cooldownReenvio}s)`;
+  }
+});
+
+aplicarIdiomaEstatico();
+
+// ==========================
+// VERIFICAÇÃO 2FA
+// ==========================
+
 const inputCodigo = document.getElementById("codigo");
 const btnConfirmar = document.getElementById("confirmar");
 const btnReenviar = document.getElementById("reenviar");
@@ -7,7 +67,7 @@ let cooldownReenvio = 0;
 let timerReenvio = null;
 
 function mostrarMensagem(texto, tipo) {
-  mensagem.textContent = texto;
+  mensagem.textContent = traduzir(texto);
   mensagem.className = tipo || "";
 }
 
@@ -87,12 +147,16 @@ function iniciarCooldown(segundos) {
 
   timerReenvio = setInterval(() => {
     cooldownReenvio--;
-    btnReenviar.textContent = `Reenviar código (${cooldownReenvio}s)`;
+    btnReenviar.textContent = idiomaAtual === "en"
+      ? `Resend code (${cooldownReenvio}s)`
+      : `Reenviar código (${cooldownReenvio}s)`;
 
     if (cooldownReenvio <= 0) {
       clearInterval(timerReenvio);
       btnReenviar.disabled = false;
-      btnReenviar.textContent = "Reenviar código";
+      btnReenviar.textContent = idiomaAtual === "en"
+        ? "Resend code"
+        : "Reenviar código";
     }
   }, 1000);
 }
