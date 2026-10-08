@@ -11,6 +11,10 @@
     const dentroDoApp = navigator.userAgent.includes("BixucoApp");
     if (!dentroDoApp) return;
 
+    // Marca o <html> pra o CSS poder ter ajustes só do app
+    // (ex.: ordem do menu inferior — ver layout.css)
+    document.documentElement.classList.add("app-bixuco");
+
     // O Capacitor injeta window.Capacitor; se não existir, não há o que fazer
     if (!window.Capacitor || !window.Capacitor.Plugins) return;
 

@@ -815,3 +815,30 @@ body.tema-escuro .dica {
     overflow-x: hidden;
   }
 }
+
+/* ==========================================================
+   MODO ESCURO — ajustes de botões/itens que estavam com a
+   cor do tema claro (só nesta tela)
+   ========================================================== */
+body.tema-escuro .sidebar nav a.ativo {
+  background: rgba(50, 194, 109, 0.16);
+  color: #5fe08f;
+}
+
+body.tema-escuro .sidebar nav a.ativo i {
+  color: #5fe08f;
+}
+
+body.tema-escuro .logout:hover {
+  background: rgba(226, 76, 76, 0.14);
+  color: #ff7a7a;
+}
+
+body.tema-escuro .status-badge--ativo {
+  background: rgba(50, 194, 109, 0.18);
+  color: #5fe08f;
+}
+
+body.tema-escuro .atividade--atencao {
+  color: #ffb340;
+}

@@ -142,6 +142,7 @@ body * {
   gap: 0.4rem;
   font-size: 1.4rem;
   font-weight: 700;
+  color: var(--cor-texto-principal); /* sem isso herdava preto no modo escuro */
 }
 
 .card-resumo .valor i {
@@ -348,3 +349,34 @@ body * {
 .nivel-atividade--baixa { color: #32c26d !important; }
 .nivel-atividade--atencao { color: #c97800 !important; }
 .nivel-atividade--elevada { color: #e24c4c !important; }
+
+/* ==========================================================
+   MODO ESCURO — textos que ficavam escuros demais pra ler
+   ========================================================== */
+body.tema-escuro .card-resumo .valor.positivo {
+  color: #5fe08f;
+}
+
+body.tema-escuro .card-resumo .valor.negativo {
+  color: #ff7a7a;
+}
+
+body.tema-escuro .nivel-atividade--baixa {
+  color: #5fe08f !important;
+}
+
+body.tema-escuro .nivel-atividade--atencao {
+  color: #ffb340 !important;
+}
+
+body.tema-escuro .nivel-atividade--elevada {
+  color: #ff7a7a !important;
+}
+
+body.tema-escuro .btn-tipo-grafico button:hover {
+  background: rgba(50, 194, 109, 0.16);
+}
+
+body.tema-escuro .btn-tipo-grafico button.ativo {
+  color: #fff;
+}

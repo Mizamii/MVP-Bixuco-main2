@@ -261,6 +261,23 @@ body.tema-escuro .card-relatorio {
   margin-bottom: 1.1rem;
 }
 
+/* O layout.css deixa .conteudo com overflow: hidden (página de 100vh).
+   Aqui quem rola no desktop é o próprio .conteudo. No mobile o scroll
+   volta pro body (ver @media abaixo). */
+.conteudo {
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Impede o flexbox de "esmagar" cabeçalho/cards/frase quando o conteúdo
+   é maior que a tela. */
+.conteudo > * {
+  flex-shrink: 0;
+}
+
 .cabecalho {
   display: flex;
   align-items: center;
@@ -519,6 +536,10 @@ body.tema-escuro .card-relatorio {
     height: auto;
     overflow-y: auto;
     overflow-x: hidden;
+  }
+
+  .conteudo {
+    overflow: visible;
   }
 
   .cabecalho {

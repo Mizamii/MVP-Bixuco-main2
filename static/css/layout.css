@@ -527,3 +527,33 @@ body {
     max-height: 65vh;
   }
 }
+
+/* ==========================================================
+   SÓ NO APP (html.app-bixuco, definido em deeplink.js):
+   ordem do menu inferior do responsável →
+   Início, Relatórios, [+], Config, Sobre.
+   No site mobile a ordem continua a do HTML.
+   Escopado em :has(.bottom-nav__relatar) pra não mexer nos
+   menus do terapeuta nem no da tela de planos.
+   ========================================================== */
+@media (max-width: 768px) {
+  html.app-bixuco .bottom-nav:has(.bottom-nav__relatar) > a[href="/home"] {
+    order: 1;
+  }
+
+  html.app-bixuco .bottom-nav:has(.bottom-nav__relatar) > a[href="/relatorios"] {
+    order: 2;
+  }
+
+  html.app-bixuco .bottom-nav:has(.bottom-nav__relatar) > a.bottom-nav__relatar {
+    order: 3;
+  }
+
+  html.app-bixuco .bottom-nav:has(.bottom-nav__relatar) > a[href="/configuracoes"] {
+    order: 4;
+  }
+
+  html.app-bixuco .bottom-nav:has(.bottom-nav__relatar) > a[href="/sobre"] {
+    order: 5;
+  }
+}

@@ -1,4 +1,3 @@
-
 function escaparHTML(texto) {
     const div = document.createElement("div");
     div.textContent = texto ?? "";
@@ -371,7 +370,22 @@ let dadosEstresseGlobal  = null;
 let dadosGatilhosGlobal  = null;
 let graficos             = {};
 
+// Cores de texto/linhas dos gráficos seguem o tema (o padrão do Chart.js é
+// um cinza fixo que some no modo escuro).
+function aplicarCoresGraficos() {
+    if (typeof Chart === "undefined") return;
+
+    const estilo = getComputedStyle(document.body);
+    const texto  = estilo.getPropertyValue("--cor-texto-secundario").trim();
+    const grade  = estilo.getPropertyValue("--cor-borda").trim();
+
+    if (texto) Chart.defaults.color       = texto;
+    if (grade) Chart.defaults.borderColor = grade;
+}
+
 function renderizarGraficos(dados) {
+
+    aplicarCoresGraficos();
 
     Object.values(graficos).forEach(g => g.destroy());
     graficos = {};
@@ -796,6 +810,10 @@ function aplicarTema(tema) {
     document.getElementById("btnClaro").classList.toggle("ativo", tema === "claro");
     document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
     localStorage.setItem("tema", tema);
+
+    // Atualiza o texto dos gráficos já desenhados (mantém o tipo escolhido)
+    aplicarCoresGraficos();
+    Object.values(graficos).forEach(g => g.update());
 }
 
 document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema("claro"));

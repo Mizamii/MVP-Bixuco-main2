@@ -86,25 +86,56 @@ body {
 background: var(--cor-fundo-pagina);
 }
 
-.conteudo-corpo,
-main.conteudo > *:not(.topo) {
-padding: 1.25rem 2rem 2rem;
+/* Um único scroll: o próprio <main class="conteudo"> (desktop).
+   Antes, TODO filho direto do main tinha overflow-y:auto — daí os 3
+   scrolls (título, cards e frase final). */
+main.conteudo {
+min-height: 0;
+overflow-x: hidden;
 overflow-y: auto;
+-webkit-overflow-scrolling: touch;
+}
+
+main.conteudo > * {
+flex-shrink: 0;
 }
 
 main.conteudo > .topo {
 padding: 0.9rem 2rem;
 }
 
-@media (max-width: 768px) {
-.conteudo-corpo,
-main.conteudo > *:not(.topo) {
-padding-bottom: 5.5rem;
+main.conteudo > .cabecalho {
+padding: 1.5rem 2rem 0;
 }
 
+main.conteudo > .cards {
+padding: 0 2rem;
+}
+
+main.conteudo > .frase-final {
+margin: 0 2rem 1.4rem;
+}
+
+@media (max-width: 768px) {
 html, body {
 height: auto;
 overflow: auto;
+}
+
+main.conteudo {
+overflow: visible;
+}
+
+main.conteudo > .cabecalho {
+padding: 1rem 1rem 0;
+}
+
+main.conteudo > .cards {
+padding: 0 1rem;
+}
+
+main.conteudo > .frase-final {
+margin: 0 1rem 5.5rem;
 }
 }
 
