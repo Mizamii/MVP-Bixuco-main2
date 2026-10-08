@@ -452,3 +452,21 @@ body {
     border-radius: 12px;
   }
 }
+
+/* ===== Modo escuro: opções do Perfil Sensorial ===== */
+body.tema-escuro .opcao {
+  background: #1f2227;
+  color: #f5f7fa;
+  border-color: #3a414c;
+}
+
+body.tema-escuro .opcao:hover {
+  border-color: #0ab7fb;
+  background: #262b32;
+}
+
+body.tema-escuro .opcao.selecionada {
+  background: rgba(10, 183, 251, 0.18);
+  color: #ffffff;
+  border-color: #0ab7fb;
+}

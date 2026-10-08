@@ -397,3 +397,19 @@ body.pagina-transicao.tema-escuro .conteudo__logo {
     right: 0.75rem;
   }
 }
+/* ===== Modo escuro: card de tipo de conta selecionado (mais chamativo) ===== */
+body.pagina-auth.tema-escuro .tipo-card.tipo-card--ativo {
+  background: rgba(50, 194, 109, 0.14) !important;
+  border-color: #32c26d !important;
+  box-shadow:
+    0 0 0 2px rgba(50, 194, 109, 0.45),
+    0 0 22px rgba(50, 194, 109, 0.35) !important;
+}
+
+body.pagina-auth.tema-escuro .tipo-card.tipo-card--ativo .tipo-card__titulo {
+  color: #7be3a4 !important;
+}
+
+body.pagina-auth.tema-escuro .tipo-card.tipo-card--ativo:hover {
+  background: rgba(50, 194, 109, 0.2) !important;
+}
