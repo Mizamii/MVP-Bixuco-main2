@@ -79,6 +79,14 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 
     renderizarStatusMapa();
 
+    if (dicasAtuais.length > 0) {
+        renderizarDicas(dicasAtuais);
+
+        if (dicaAberta && modalDica.style.display === "flex") {
+            abrirModalDica(dicaAberta);
+        }
+    }
+
     atualizarTextoBotaoDicas();
 
     if (
@@ -534,7 +542,21 @@ function escaparHTML(texto) {
 }
 
 
+// Dicas atuais na tela (para re-renderizar quando o idioma mudar)
+let dicasAtuais = [];
+let dicaAberta = null;
+
+// Escolhe o idioma da dica. Dicas antigas (sem _en) continuam em português.
+function textoDica(dica, campo) {
+    if (idiomaAtual === "en" && dica[`${campo}_en`]) {
+        return dica[`${campo}_en`];
+    }
+    return dica[campo];
+}
+
 function renderizarDicas(dicas) {
+
+    dicasAtuais = dicas;
 
     listaDicas.innerHTML = "";
 
@@ -555,11 +577,11 @@ function renderizarDicas(dicas) {
 
             <div>
                 <h4>
-                    ${escaparHTML(dica.titulo)}
+                    ${escaparHTML(textoDica(dica, "titulo"))}
                 </h4>
 
                 <p>
-                    ${escaparHTML(dica.texto)}
+                    ${escaparHTML(textoDica(dica, "texto"))}
                 </p>
             </div>
         `;
@@ -586,15 +608,17 @@ function renderizarDicas(dicas) {
 
 function abrirModalDica(dica) {
 
+    dicaAberta = dica;
+
     document.getElementById(
         "modalDicaTitulo"
     ).textContent =
-        dica.titulo;
+        textoDica(dica, "titulo");
 
     document.getElementById(
         "modalDicaTexto"
     ).textContent =
-        dica.texto;
+        textoDica(dica, "texto");
 
     modalDica.style.display =
         "flex";

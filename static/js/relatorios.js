@@ -72,7 +72,29 @@ const dicionario = {
     "Índice de crise sensorial": "Sensory crisis index",
     "Índice": "Index",
     "Nenhuma notificação por enquanto.": "No notifications for now.",
-    "Não foi possível carregar as notificações.": "Could not load notifications."
+    "Não foi possível carregar as notificações.": "Could not load notifications.",
+
+    // Gatilhos (rótulos vindos do servidor em português)
+    "Auditivo": "Auditory",
+    "Visual": "Visual",
+    "Tátil": "Tactile",
+    "Olfativo": "Olfactory",
+    "Gustativo": "Gustatory",
+    "Vestibular": "Vestibular",
+    "Proprioceptivo": "Proprioceptive",
+    "Interoceptivo": "Interoceptive",
+    "Ambiente movimentado": "Busy environment",
+    "Mudança de rotina": "Routine change",
+    "Ambiente desconhecido": "Unfamiliar environment",
+    "Interação social": "Social interaction",
+    "Transição de atividade": "Activity transition",
+    "Espera": "Waiting",
+    "Cansaço": "Tiredness",
+    "Fome ou sede": "Hunger or thirst",
+    "Dor ou desconforto": "Pain or discomfort",
+    "Outro contexto": "Other context",
+    "Não identificado": "Not identified",
+    "Outros": "Other"
 };
 
 function traduzir(texto) {

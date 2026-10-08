@@ -8963,9 +8963,16 @@ REGRAS:
 - O tom deve ser acolhedor, respeitoso e objetivo.
 ${instrucaoVariedade}
 
+Cada dica deve vir em DOIS idiomas: português do Brasil e inglês (o conteúdo das duas versões deve ser o mesmo, apenas traduzido).
+
 Responda APENAS com JSON válido, sem texto antes ou depois, neste formato:
 [
-  { "titulo": "Título curto (3-5 palavras)", "texto": "Explicação prática em 1-2 frases." }
+  {
+    "titulo": "Título curto (3-5 palavras)",
+    "texto": "Explicação prática em 1-2 frases.",
+    "titulo_en": "Short title (3-5 words)",
+    "texto_en": "Practical explanation in 1-2 sentences."
+  }
 ]
 
 DADOS DISPONÍVEIS:
@@ -8989,7 +8996,7 @@ Gere as dicas personalizadas.`;
                     promptCompleto,
 
                 generation_config: {
-                    max_output_tokens: 2000,
+                    max_output_tokens: 3000,
                     thinking_level: "low"
                 }
             })
@@ -9110,7 +9117,19 @@ Gere as dicas personalizadas.`;
                     texto:
                         dica.texto
                             .trim()
-                            .slice(0, 500)
+                            .slice(0, 500),
+
+                    // Versão em inglês (para o site em EN).
+                    // Se a IA não mandar, fica vazio e o site usa o português.
+                    titulo_en:
+                        typeof dica.titulo_en === "string"
+                            ? dica.titulo_en.trim().slice(0, 80)
+                            : "",
+
+                    texto_en:
+                        typeof dica.texto_en === "string"
+                            ? dica.texto_en.trim().slice(0, 500)
+                            : ""
                 })
             );
 
