@@ -8772,6 +8772,153 @@ async function enriquecerRespostasComGatilho(respostas) {
 }
 
 
+// Traduz para inglês as dicas que ainda não têm versão em inglês
+// (dicas geradas antes do site ter o modo inglês).
+// Recebe [{titulo, texto}] e devolve [{titulo_en, texto_en}] na mesma ordem.
+async function traduzirDicasParaIngles(dicas) {
+
+    if (!GEMINI_API_KEY || dicas.length === 0) {
+        return null;
+    }
+
+    const entrada = dicas.map(d => ({
+        titulo: d.titulo,
+        texto: d.texto
+    }));
+
+    const prompt = `Translate the following tips from Brazilian Portuguese to English. Keep the same meaning, a warm and objective tone, and a similar length.
+
+Reply ONLY with a valid JSON array with exactly ${entrada.length} item(s), in the same order, no text before or after, in this format:
+[
+  { "titulo_en": "Short title", "texto_en": "Practical explanation." }
+]
+
+TIPS:
+${JSON.stringify(entrada, null, 2)}`;
+
+    const respostaIA = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/interactions?key=${GEMINI_API_KEY}`,
+        {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                model: "models/gemini-3-flash-preview",
+                input: prompt,
+                generation_config: {
+                    max_output_tokens: 2000,
+                    thinking_level: "low"
+                }
+            })
+        }
+    );
+
+    const dadosIA = await respostaIA.json();
+
+    if (!respostaIA.ok) {
+        console.log("Erro na API do Gemini (tradução de dicas):", dadosIA);
+        return null;
+    }
+
+    const step = dadosIA.steps?.find(s => s.type === "model_output");
+
+    if (!step) {
+        return null;
+    }
+
+    const texto = step.content
+        .map(c => c.text || "")
+        .join("")
+        .replace(/```json|```/g, "")
+        .trim();
+
+    let traducoes;
+
+    try {
+        traducoes = JSON.parse(texto);
+    } catch (erroParse) {
+        console.log("Erro ao interpretar tradução das dicas:", texto);
+        return null;
+    }
+
+    if (
+        !Array.isArray(traducoes) ||
+        traducoes.length !== dicas.length ||
+        traducoes.some(
+            t =>
+                !t ||
+                typeof t.titulo_en !== "string" ||
+                typeof t.texto_en !== "string"
+        )
+    ) {
+        return null;
+    }
+
+    return traducoes.map(t => ({
+        titulo_en: t.titulo_en.trim().slice(0, 80),
+        texto_en: t.texto_en.trim().slice(0, 500)
+    }));
+}
+
+
+// Busca as dicas da semana. Se lang === "en" e alguma dica não tiver
+// versão em inglês, traduz e salva no banco para não traduzir de novo.
+async function obterDicasSalvas(usuarioId, lang) {
+
+    const resultado = await db.query(
+        `SELECT dicas, gerado_em FROM dicas_personalizadas
+         WHERE usuario_id = $1
+         AND gerado_em >= NOW() - INTERVAL '7 days'
+         ORDER BY gerado_em DESC
+         LIMIT 1`,
+        [usuarioId]
+    );
+
+    if (resultado.rows.length === 0) {
+        return null;
+    }
+
+    let { dicas, gerado_em } = resultado.rows[0];
+
+    if (lang === "en" && Array.isArray(dicas)) {
+
+        const faltando = dicas
+            .map((d, i) => ({ d, i }))
+            .filter(({ d }) => !d.titulo_en || !d.texto_en);
+
+        if (faltando.length > 0) {
+
+            try {
+
+                const traducoes = await traduzirDicasParaIngles(
+                    faltando.map(({ d }) => d)
+                );
+
+                if (traducoes) {
+
+                    faltando.forEach(({ i }, pos) => {
+                        dicas[i] = { ...dicas[i], ...traducoes[pos] };
+                    });
+
+                    await db.query(
+                        `UPDATE dicas_personalizadas
+                         SET dicas = $1
+                         WHERE usuario_id = $2
+                         AND gerado_em = $3`,
+                        [JSON.stringify(dicas), usuarioId, gerado_em]
+                    );
+                }
+
+            } catch (erro) {
+                // Se falhar, devolve em português mesmo (o site faz o fallback)
+                console.log("Erro ao traduzir dicas salvas:", erro);
+            }
+        }
+    }
+
+    return { dicas, gerado_em };
+}
+
+
 async function gerarDicasInterno(usuarioId) {
 
     const geracoesRecentes = await db.query(
@@ -10530,12 +10677,23 @@ app.post("/api/dicas/gerar", estaLogado, exigeResponsavel, async (req, res) => {
 
         const usuarioId = req.authUser.id;
 
+        const lang = req.body?.lang === "en" ? "en" : "pt";
+
         const resultado = await gerarDicasInterno(usuarioId);
 
         if (resultado.erro === "ja_gerou_essa_semana") {
+
+            let dicasSemana = resultado.dicas;
+
+            // Se o site está em inglês, devolve as dicas já traduzidas
+            if (lang === "en") {
+                const salvas = await obterDicasSalvas(usuarioId, "en");
+                if (salvas) dicasSemana = salvas.dicas;
+            }
+
             return res.status(429).json({
                 erro: "Já gerou as dicas dessa semana. Espere até a próxima semana.",
-                dicas: resultado.dicas
+                dicas: dicasSemana
             });
         }
 
@@ -10563,23 +10721,19 @@ app.get("/api/dicas", estaLogado, exigeResponsavel, async (req, res) => {
     try {
         const usuarioId = req.authUser.id;
 
-        const resultado = await db.query(
-            `SELECT dicas, gerado_em FROM dicas_personalizadas
-             WHERE usuario_id = $1
-             AND gerado_em >= NOW() - INTERVAL '7 days'
-             ORDER BY gerado_em DESC
-             LIMIT 1`,
-            [usuarioId]
-        );
+        // O front manda ?lang=en quando o botão "Traduzir" está ativo
+        const lang = req.query.lang === "en" ? "en" : "pt";
 
-        if (resultado.rows.length === 0) {
+        const salvas = await obterDicasSalvas(usuarioId, lang);
+
+        if (!salvas) {
             return res.json({ disponivel: false });
         }
 
         res.json({
             disponivel: true,
-            dicas: resultado.rows[0].dicas,
-            geradoEm: resultado.rows[0].gerado_em
+            dicas: salvas.dicas,
+            geradoEm: salvas.gerado_em
         });
 
     } catch (erro) {

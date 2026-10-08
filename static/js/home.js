@@ -27,6 +27,7 @@ const dicionario = {
     "Erro de conexão. Tente novamente.": "Connection error. Try again.",
     "Ver dicas personalizadas": "View personalized tips",
     "Gerando...": "Generating...",
+    "Traduzindo...": "Translating...",
     "Gerar novas dicas": "Generate new tips",
     "Tentar novamente": "Try again",
     "Carregando...": "Loading...",
@@ -88,6 +89,16 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
     }
 
     atualizarTextoBotaoDicas();
+
+    // Passa o idioma para o servidor: se as dicas salvas ainda não
+    // tiverem versão em inglês, ele traduz e salva (sem gastar a
+    // geração semanal).
+    if (
+        idiomaAtual === "en" &&
+        dicasAtuais.some(d => !d.titulo_en || !d.texto_en)
+    ) {
+        carregarDicasSalvas();
+    }
 
     if (
         painelNotificacoes
@@ -661,11 +672,21 @@ modalDica.addEventListener(
 // sem gastar crédito.
 async function carregarDicasSalvas() {
 
+    const traduzindo =
+        idiomaAtual === "en" &&
+        dicasAtuais.length > 0;
+
+    if (traduzindo) {
+        textoBtnDicas.textContent =
+            traduzir("Traduzindo...");
+        btnGerarDicas.disabled = true;
+    }
+
     try {
 
         const resposta =
             await fetch(
-                "/api/dicas"
+                `/api/dicas?lang=${idiomaAtual}`
             );
 
         const dados =
@@ -673,9 +694,23 @@ async function carregarDicasSalvas() {
 
         if (dados.disponivel) {
 
+            const indiceAberta =
+                dicaAberta
+                    ? dicasAtuais.indexOf(dicaAberta)
+                    : -1;
+
             renderizarDicas(
                 dados.dicas
             );
+
+            if (
+                indiceAberta >= 0 &&
+                modalDica.style.display === "flex"
+            ) {
+                abrirModalDica(
+                    dicasAtuais[indiceAberta]
+                );
+            }
 
         }
 
@@ -685,6 +720,13 @@ async function carregarDicasSalvas() {
             "Erro ao carregar dicas salvas:",
             erro
         );
+
+    } finally {
+
+        if (traduzindo) {
+            btnGerarDicas.disabled = false;
+            atualizarTextoBotaoDicas();
+        }
 
     }
 }
@@ -708,7 +750,13 @@ btnGerarDicas.addEventListener(
                 await fetch(
                     "/api/dicas/gerar",
                     {
-                        method: "POST"
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            lang: idiomaAtual
+                        })
                     }
                 );
 
