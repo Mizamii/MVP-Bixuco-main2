@@ -1,4 +1,3 @@
-
 // ==========================
 // TEMA — mesma implementação da relatorios.html
 // ==========================
@@ -55,8 +54,29 @@ function aplicarIdiomaEstatico() {
             : el.dataset.pt;
     });
 
+    // Placeholders dos campos (data-pt-placeholder / data-en-placeholder)
+    document.querySelectorAll("[data-pt-placeholder]").forEach(el => {
+        el.placeholder = idiomaAtual === "en"
+            ? (el.dataset.enPlaceholder || el.dataset.ptPlaceholder)
+            : el.dataset.ptPlaceholder;
+    });
+
+    // Mensagens de erro que já estão na tela mudam de idioma junto
+    document.querySelectorAll(".entrega-form__erro").forEach(el => {
+        const atual = el.textContent.trim();
+        if (!atual) return;
+        el.textContent = traduzirExistente(atual);
+    });
+
     document.getElementById("textoTradutor").textContent =
         idiomaAtual === "en" ? "Traduzir para o português" : "Translate to English";
+}
+
+// Traduz uma mensagem que já pode estar em PT ou EN para o idioma atual
+function traduzirExistente(texto) {
+    if (idiomaAtual === "en") return dicionario[texto] || texto;
+    const chavePt = Object.keys(dicionario).find(k => dicionario[k] === texto);
+    return chavePt || texto;
 }
 
 document.getElementById("btnTraduzir").addEventListener("click", () => {
@@ -351,4 +371,3 @@ document.getElementById("formEndereco").addEventListener("submit", async (evento
 document.getElementById("btnRelatorioDiario").addEventListener("click", () => {
     location.href = "/RelatorioDiario";
 });
-

@@ -126,36 +126,36 @@
                         <div class="entrega-form__linha">
                             <div class="entrega-form__grupo entrega-form__grupo--grande">
                                 <label for="rua" data-pt="Rua" data-en="Street">Rua</label>
-                                <input type="text" id="rua" placeholder="Nome da rua" required>
+                                <input type="text" id="rua" placeholder="Nome da rua" data-pt-placeholder="Nome da rua" data-en-placeholder="Street name" required>
                                 <span class="entrega-form__erro" id="erro-rua"></span>
                             </div>
                             <div class="entrega-form__grupo">
                                 <label for="numero" data-pt="Número" data-en="Number">Número</label>
-                                <input type="text" id="numero" placeholder="Nº" inputmode="numeric" required>
+                                <input type="text" id="numero" placeholder="Nº" data-pt-placeholder="Nº" data-en-placeholder="No." inputmode="numeric" required>
                                 <span class="entrega-form__erro" id="erro-numero"></span>
                             </div>
                         </div>
 
                         <div class="entrega-form__grupo">
                             <label for="complemento" data-pt="Complemento (opcional)" data-en="Additional info (optional)">Complemento (opcional)</label>
-                            <input type="text" id="complemento" placeholder="Apto, bloco, referência...">
+                            <input type="text" id="complemento" placeholder="Apto, bloco, referência..." data-pt-placeholder="Apto, bloco, referência..." data-en-placeholder="Apt, building, landmark...">
                         </div>
 
                         <div class="entrega-form__linha entrega-form__linha--tripla">
                             <div class="entrega-form__grupo">
                                 <label for="bairro" data-pt="Bairro" data-en="Neighborhood">Bairro</label>
-                                <input type="text" id="bairro" placeholder="Bairro" required>
+                                <input type="text" id="bairro" placeholder="Bairro" data-pt-placeholder="Bairro" data-en-placeholder="Neighborhood" required>
                                 <span class="entrega-form__erro" id="erro-bairro"></span>
                             </div>
                             <div class="entrega-form__grupo">
                                 <label for="cidade" data-pt="Cidade" data-en="City">Cidade</label>
-                                <input type="text" id="cidade" placeholder="Cidade" required>
+                                <input type="text" id="cidade" placeholder="Cidade" data-pt-placeholder="Cidade" data-en-placeholder="City" required>
                                 <span class="entrega-form__erro" id="erro-cidade"></span>
                             </div>
                             <div class="entrega-form__grupo">
                                 <label for="estado" data-pt="Estado" data-en="State">Estado</label>
                                 <select id="estado" required>
-                                    <option value="" disabled selected>UF</option>
+                                    <option value="" disabled selected data-pt="UF" data-en="Select">UF</option>
                                     <option value="AC">AC — Acre</option>
                                     <option value="AL">AL — Alagoas</option>
                                     <option value="AP">AP — Amapá</option>
