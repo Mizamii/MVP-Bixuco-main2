@@ -155,6 +155,39 @@
                     
                 </section>
 
+                <!-- DICAS PERSONALIZADAS -->
+                <section class="dicas-card">
+
+                    <div class="dicas-intro">
+                        <div class="icone">
+                            <i class="fa-solid fa-lightbulb"></i>
+                        </div>
+                        <div>
+                            <h3 data-pt="Dicas personalizadas" data-en="Personalized tips">Dicas personalizadas</h3>
+                            <p><span data-pt="Sugestões para o desenvolvimento do" data-en="Suggestions for">Sugestões para o desenvolvimento do</span> <span id="nomeBixucoDicas">Fluffy</span></p>
+                        </div>
+                    </div>
+
+                    <div id="listaDicas" class="lista-dicas"></div>
+
+                    <button class="btn-ver-dicas" type="button" id="btnGerarDicas">
+                        <span id="textoBtnDicas" data-pt="Ver dicas personalizadas" data-en="View personalized tips">Ver dicas personalizadas</span>
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+
+                    <!-- Modal -->
+                    <div id="modalDica" class="modal-dica" style="display:none;">
+                        <div class="modal-dica__conteudo">
+                            <button class="modal-dica__fechar" id="fecharModalDica">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                            <h3 id="modalDicaTitulo"></h3>
+                            <p id="modalDicaTexto"></p>
+                        </div>
+                    </div>
+
+                </section>
+
                 <!-- CALENDÁRIO + MAPA -->
                 <div class="linha-meio">
 
@@ -239,39 +272,6 @@
 
                 </div>
 
-                <!-- DICAS PERSONALIZADAS -->
-                <!-- Conteúdo fixo por enquanto — conectar com a API de IA depois -->
-                <section class="dicas-card">
-
-                    <div class="dicas-intro">
-                        <div class="icone">
-                            <i class="fa-solid fa-lightbulb"></i>
-                        </div>
-                        <div>
-                            <h3 data-pt="Dicas personalizadas" data-en="Personalized tips">Dicas personalizadas</h3>
-                            <p><span data-pt="Sugestões para o desenvolvimento do" data-en="Suggestions for">Sugestões para o desenvolvimento do</span> <span id="nomeBixucoDicas">Fluffy</span></p>
-                        </div>
-                    </div>
-
-                    <div id="listaDicas" class="lista-dicas"></div>
-
-                    <button class="btn-ver-dicas" type="button" id="btnGerarDicas">
-                        <span id="textoBtnDicas" data-pt="Ver dicas personalizadas" data-en="View personalized tips">Ver dicas personalizadas</span>
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </button>
-
-                    <!-- Modal -->
-                    <div id="modalDica" class="modal-dica" style="display:none;">
-                        <div class="modal-dica__conteudo">
-                            <button class="modal-dica__fechar" id="fecharModalDica">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
-                            <h3 id="modalDicaTitulo"></h3>
-                            <p id="modalDicaTexto"></p>
-                        </div>
-                    </div>
-
-                </section>
 
             </div>
 
