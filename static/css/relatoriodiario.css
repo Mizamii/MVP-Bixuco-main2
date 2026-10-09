@@ -77,6 +77,17 @@ body.layout-sidebar-perfil .container {
 
 
 /* =========================================================
+   GRÁFICOS (Força / Status ativo)
+   Mesmo recuo lateral dos outros blocos da página (2rem),
+   para os cards não encostarem nas bordas da tela.
+   ========================================================= */
+
+.linha-graficos {
+  margin: 0 2rem 1.1rem;
+}
+
+
+/* =========================================================
    MENSAGENS DE STATUS
    ========================================================= */
 
@@ -1127,5 +1138,13 @@ body.tema-escuro #btnProxima {
   .chat-aviso {
     padding-right: 1rem;
     padding-left: 1rem;
+  }
+}
+
+
+/* Gráficos: recuo lateral no celular (igual aos outros blocos) */
+@media (max-width: 768px) {
+  .linha-graficos {
+    margin: 0 1.25rem 0.9rem;
   }
 }
