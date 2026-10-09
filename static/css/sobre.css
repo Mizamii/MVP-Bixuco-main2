@@ -133,12 +133,18 @@ body {
   background: linear-gradient(90deg, #32c26d 0%, #1d8ec9 100%);
 }
 
+/* Só a Sobre da versão sem assinatura usa este wrapper (existe só pra
+   fazer a rolagem funcionar). O cabeçalho, os cards e a frase final já
+   têm o próprio recuo lateral, então o wrapper NÃO pode somar padding
+   nem limitar a largura — senão a página fica espremida e centralizada
+   em vez de ocupar a tela toda, como a Sobre normal. */
 .conteudo-corpo {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
-  padding: 1.25rem 2rem 2rem;
-  max-width: 70rem; /* era 1100px */
-  margin: 0 auto;
+  padding: 0;
+  max-width: none;
+  margin: 0;
   width: 100%;
 }
 
@@ -540,6 +546,10 @@ body.tema-escuro .card-relatorio {
 
   .conteudo {
     overflow: visible;
+  }
+
+  .conteudo-corpo {
+    overflow-y: visible;
   }
 
   .cabecalho {
