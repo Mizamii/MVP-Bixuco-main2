@@ -13,11 +13,12 @@ body {
 
 .container {
   display: flex;
-  height: 100vh;
+  height: 100vh; /* fallback */
+  height: 100dvh;
 }
 
 .sidebar {
-  width: 210px;
+  width: 13.5rem; /* era 210px */
   flex-shrink: 0;
   height: 100%;
   background: var(--cor-fundo-card);
@@ -36,7 +37,7 @@ body {
 }
 
 .logo img {
-  width: 108px;
+  width: 6.75rem; /* era 108px */
   height: auto;
   display: block;
 }
@@ -261,8 +262,8 @@ body {
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
-  width: 320px;
-  max-height: 380px;
+  width: 20rem; /* era 320px */
+  max-height: 24rem;
   overflow-y: auto;
   background: var(--cor-fundo-card);
   border-radius: 14px;

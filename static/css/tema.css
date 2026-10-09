@@ -44,3 +44,15 @@ body * {
     color 0.25s ease,
     border-color 0.25s ease;
 }
+
+/* ==========================================================
+   Escala fluida (só desktop): todo o layout usa rem, então
+   mudar o tamanho-base faz a interface inteira se ajustar à tela.
+   14px em telas pequenas -> 18px em telas grandes.
+   No celular (<= 768px) continua 16px, como antes.
+   ========================================================== */
+@media (min-width: 769px) {
+  html {
+    font-size: clamp(14px, 0.55vw + 8px, 18px);
+  }
+}
