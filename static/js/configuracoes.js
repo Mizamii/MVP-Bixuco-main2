@@ -268,9 +268,9 @@ modalSenha.addEventListener("click", (e) => {
 });
 
 document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && modalSenha.classList.contains("aberto")) {
-        fecharModalSenha();
-    }
+    if (e.key !== "Escape") return;
+    if (modalSenha.classList.contains("aberto")) fecharModalSenha();
+    if (modalPlano.classList.contains("aberto")) fecharModalPlano();
 });
 
 btnEnviarSenha.addEventListener("click", async () => {
@@ -303,6 +303,163 @@ btnEnviarSenha.addEventListener("click", async () => {
 
 });
 
+
+// ==========================
+// PLANO E ASSINATURA (MODAL)
+// ==========================
+
+const modalPlano = document.getElementById("modalPlano");
+const btnGerenciarPlano = document.getElementById("btnGerenciarPlano");
+const btnFecharModalPlano = document.getElementById("btnFecharModalPlano");
+const btnCancelarPlanoModal = document.getElementById("btnCancelarPlanoModal");
+const btnConfirmarPlanoModal = document.getElementById("btnConfirmarPlanoModal");
+const statusPlanoModal = document.getElementById("statusPlanoModal");
+const nomePlanoAtualModal = document.getElementById("nomePlanoAtualModal");
+const resumoPlanoAtual = document.getElementById("resumoPlanoAtual");
+const opcoesPlanoModal = [...document.querySelectorAll(".opcao-plano")];
+let planoCodigoAtualModal = null;
+let planoSelecionadoModal = null;
+
+function nomePlanoPorCodigo(codigo) {
+    const nomes = {
+        gratis: "Plano Grátis",
+        medio: "Plano Básico Bixuco",
+        completo: "Plano Premium Bixuco"
+    };
+    return nomes[codigo] || "Plano Grátis";
+}
+
+function renderPlanoAtualModal() {
+    if (!planoCodigoAtualModal) return;
+    const nome = traduzir(nomePlanoPorCodigo(planoCodigoAtualModal));
+    nomePlanoAtualModal.textContent = nome;
+    resumoPlanoAtual.textContent = nome;
+
+    opcoesPlanoModal.forEach(botao => {
+        const atual = botao.dataset.plano === planoCodigoAtualModal;
+        const selecionado = botao.dataset.plano === planoSelecionadoModal;
+        botao.classList.toggle("atual", atual);
+        botao.classList.toggle("selecionado", selecionado);
+        botao.setAttribute("aria-pressed", selecionado ? "true" : "false");
+    });
+
+    btnConfirmarPlanoModal.disabled = !planoSelecionadoModal || planoSelecionadoModal === planoCodigoAtualModal;
+}
+
+function mostrarStatusPlanoModal(texto = "", tipo = "") {
+    statusPlanoModal.textContent = texto;
+    statusPlanoModal.className = `status-plano-modal${texto ? " visivel" : ""}${tipo ? ` ${tipo}` : ""}`;
+}
+
+async function carregarPlanoAtualModal() {
+    nomePlanoAtualModal.textContent = traduzir("Carregando...");
+    mostrarStatusPlanoModal();
+    try {
+        const resposta = await fetch("/api/perfil");
+        if (resposta.status === 401) {
+            window.location.href = "/logar";
+            return false;
+        }
+        const dados = await resposta.json().catch(() => ({}));
+        if (!resposta.ok) throw new Error(dados.erro || "Falha ao carregar plano");
+
+        planoCodigoAtualModal = dados.planoCodigo || "gratis";
+        planoSelecionadoModal = null;
+        renderPlanoAtualModal();
+        return true;
+    } catch (erro) {
+        console.log("Erro ao carregar plano:", erro);
+        nomePlanoAtualModal.textContent = traduzir("Não foi possível carregar");
+        mostrarStatusPlanoModal(traduzir("Não foi possível carregar seu plano agora."), "erro");
+        return false;
+    }
+}
+
+async function abrirModalPlano() {
+    modalPlano.classList.add("aberto");
+    modalPlano.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    await carregarPlanoAtualModal();
+}
+
+function fecharModalPlano() {
+    modalPlano.classList.remove("aberto");
+    modalPlano.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+    planoSelecionadoModal = null;
+    mostrarStatusPlanoModal();
+}
+
+btnGerenciarPlano.addEventListener("click", abrirModalPlano);
+btnFecharModalPlano.addEventListener("click", fecharModalPlano);
+btnCancelarPlanoModal.addEventListener("click", fecharModalPlano);
+modalPlano.addEventListener("click", (e) => {
+    if (e.target === modalPlano) fecharModalPlano();
+});
+
+opcoesPlanoModal.forEach(botao => {
+    botao.addEventListener("click", () => {
+        const codigo = botao.dataset.plano;
+        if (!codigo || codigo === planoCodigoAtualModal) {
+            planoSelecionadoModal = null;
+            mostrarStatusPlanoModal(
+                traduzir("Esse já é o seu plano atual."),
+                "info"
+            );
+        } else {
+            planoSelecionadoModal = codigo;
+            mostrarStatusPlanoModal();
+        }
+        renderPlanoAtualModal();
+    });
+});
+
+btnConfirmarPlanoModal.addEventListener("click", async () => {
+    if (!planoSelecionadoModal || planoSelecionadoModal === planoCodigoAtualModal) return;
+
+    if (planoSelecionadoModal === "gratis") {
+        const confirmar = window.confirm(traduzir(
+            "Ao mudar para o plano Grátis, os recursos pagos do Bixuco deixarão de ficar disponíveis. Deseja continuar?"
+        ));
+        if (!confirmar) return;
+    }
+
+    btnConfirmarPlanoModal.disabled = true;
+    btnConfirmarPlanoModal.textContent = traduzir("Processando...");
+    mostrarStatusPlanoModal();
+
+    try {
+        const resposta = await fetch("/api/planos/assinar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ plano: planoSelecionadoModal })
+        });
+        const dados = await resposta.json().catch(() => ({}));
+        if (resposta.status === 401) {
+            window.location.href = "/logar";
+            return;
+        }
+        if (!resposta.ok) throw new Error(dados.erro || "Erro ao processar assinatura.");
+
+        if (dados.linkPagamento) {
+            window.location.href = dados.linkPagamento;
+            return;
+        }
+        if (dados.destino) {
+            window.location.href = dados.destino;
+            return;
+        }
+
+        mostrarStatusPlanoModal(traduzir("Plano atualizado."), "sucesso");
+        await carregarPlanoAtualModal();
+    } catch (erro) {
+        console.log("Erro ao alterar plano:", erro);
+        mostrarStatusPlanoModal(traduzir(erro.message || "Erro ao processar assinatura."), "erro");
+    } finally {
+        btnConfirmarPlanoModal.textContent = traduzir("Confirmar alteração");
+        renderPlanoAtualModal();
+    }
+});
 
 // ==========================
 // EXCLUIR CONTA
@@ -374,7 +531,19 @@ const dicionario = {
     "Email enviado! Confira sua caixa de entrada.": "Email sent! Check your inbox.",
     "Enviado!": "Sent!",
     "Erro ao enviar. Tente novamente.": "Error sending. Please try again.",
-    "Excluindo...": "Deleting..."
+    "Excluindo...": "Deleting...",
+    "Plano Grátis": "Free plan",
+    "Plano Básico Bixuco": "Bixuco Basic plan",
+    "Plano Premium Bixuco": "Bixuco Premium plan",
+    "Carregando...": "Loading...",
+    "Não foi possível carregar": "Could not load",
+    "Não foi possível carregar seu plano agora.": "Could not load your plan right now.",
+    "Esse já é o seu plano atual.": "This is already your current plan.",
+    "Ao mudar para o plano Grátis, os recursos pagos do Bixuco deixarão de ficar disponíveis. Deseja continuar?": "If you switch to the Free plan, paid Bixuco features will no longer be available. Do you want to continue?",
+    "Processando...": "Processing...",
+    "Confirmar alteração": "Confirm change",
+    "Plano atualizado.": "Plan updated.",
+    "Erro ao processar assinatura.": "Error processing subscription."
 };
 
 function traduzir(texto) {
@@ -399,6 +568,14 @@ function aplicarIdiomaEstatico() {
 
     if (!btnEnviarSenha.disabled) {
         btnEnviarSenha.textContent = traduzir("Enviar email");
+    }
+
+    if (planoCodigoAtualModal) {
+        renderPlanoAtualModal();
+    }
+
+    if (!btnConfirmarPlanoModal.disabled) {
+        btnConfirmarPlanoModal.textContent = traduzir("Confirmar alteração");
     }
 }
 
@@ -429,3 +606,13 @@ fotoUsuarioEl.addEventListener("error", function () {
     this.src = "/img/perfilPadrao.png";
 });
 
+
+
+// Links antigos de gerenciamento de assinatura podem apontar para
+// /configuracoes?abrir=plano. O modal abre sem trocar o contexto da conta.
+if (new URLSearchParams(window.location.search).get("abrir") === "plano") {
+    abrirModalPlano();
+    const urlPlano = new URL(window.location.href);
+    urlPlano.searchParams.delete("abrir");
+    window.history.replaceState({}, "", urlPlano.pathname + urlPlano.search + urlPlano.hash);
+}

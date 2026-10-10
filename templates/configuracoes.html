@@ -75,22 +75,10 @@
                 <i class="fa-solid fa-house"></i>
                 <span data-pt="Início" data-en="Home">Início</span>
             </a>
-
-                        <a href="/assistente">
-                <i class="fa-solid fa-sparkles"></i>
-                <span data-pt="Assistente" data-en="Assistant">Assistente</span>
-            </a>
-
 <a href="/relatorios">
                 <i class="fa-solid fa-chart-line"></i>
                 <span data-pt="Relatórios" data-en="Reports">Relatórios</span>
             </a>
-
-                        <a href="/planos">
-                <i class="fa-regular fa-credit-card"></i>
-                <span data-pt="Planos" data-en="Plans">Planos</span>
-            </a>
-
 <a href="/configuracoes" class="ativo">
                 <i class="fa-solid fa-gear"></i>
                 <span data-pt="Configurações" data-en="Settings">Configurações</span>
@@ -299,6 +287,28 @@
             </section>
 
             <!-- ========================= -->
+            <!-- Plano e assinatura -->
+            <!-- ========================= -->
+
+            <section class="linha">
+                <div class="card plano-assinatura-card">
+                    <div class="card-header-com-icone">
+                        <div class="icone-titulo"><i class="fa-regular fa-credit-card"></i></div>
+                        <h2 data-pt="Plano e assinatura" data-en="Plan and subscription">Plano e assinatura</h2>
+                    </div>
+
+                    <button class="config-btn" type="button" id="btnGerenciarPlano">
+                        <div class="icone azul"><i class="fa-solid fa-layer-group"></i></div>
+                        <div class="texto">
+                            <h3 data-pt="Meu plano" data-en="My plan">Meu plano</h3>
+                            <p id="resumoPlanoAtual" class="resumo-plano" data-pt="Ver plano atual e opções" data-en="See current plan and options">Ver plano atual e opções</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-right seta"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- ========================= -->
             <!-- Segunda linha -->
             <!-- ========================= -->
 
@@ -495,6 +505,59 @@
         </a>
     </nav>
 
+</div>
+
+<!-- ========================= -->
+<!-- MODAL — PLANO E ASSINATURA -->
+<!-- ========================= -->
+
+<div id="modalPlano" class="modal-plano" aria-hidden="true">
+    <div class="modal-plano__conteudo" role="dialog" aria-modal="true" aria-labelledby="tituloModalPlano">
+        <div class="modal-plano__header">
+            <div>
+                <h3 id="tituloModalPlano" data-pt="Plano e assinatura" data-en="Plan and subscription">Plano e assinatura</h3>
+                <p data-pt="Veja seu plano atual e altere somente se desejar." data-en="See your current plan and change it only if you want to.">Veja seu plano atual e altere somente se desejar.</p>
+            </div>
+            <button type="button" id="btnFecharModalPlano" class="btn-fechar-modal" aria-label="Fechar">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="modal-plano__atual">
+            <span data-pt="Plano atual" data-en="Current plan">Plano atual</span>
+            <strong id="nomePlanoAtualModal">Carregando...</strong>
+        </div>
+
+        <div class="modal-plano__opcoes" id="opcoesPlanoModal">
+            <button type="button" class="opcao-plano" data-plano="gratis">
+                <span class="opcao-plano__nome" data-pt="Grátis" data-en="Free">Grátis</span>
+                <span class="opcao-plano__preco" data-pt="Sem mensalidade" data-en="No monthly fee">Sem mensalidade</span>
+                <small data-pt="Áreas públicas e essenciais" data-en="Public and essential areas">Áreas públicas e essenciais</small>
+                <span class="opcao-plano__badge" data-pt="Plano atual" data-en="Current plan">Plano atual</span>
+            </button>
+
+            <button type="button" class="opcao-plano" data-plano="medio">
+                <span class="opcao-plano__nome" data-pt="Básico Bixuco" data-en="Bixuco Basic">Básico Bixuco</span>
+                <span class="opcao-plano__preco">R$ 99,99<span data-pt="/mês" data-en="/month">/mês</span></span>
+                <small data-pt="Pelúcia, IA, relatórios e rastreamento" data-en="Plush, AI, reports and tracking">Pelúcia, IA, relatórios e rastreamento</small>
+                <span class="opcao-plano__badge" data-pt="Plano atual" data-en="Current plan">Plano atual</span>
+            </button>
+
+            <button type="button" class="opcao-plano" data-plano="completo">
+                <span class="opcao-plano__nome" data-pt="Premium Bixuco" data-en="Bixuco Premium">Premium Bixuco</span>
+                <span class="opcao-plano__preco">R$ 119,99<span data-pt="/mês" data-en="/month">/mês</span></span>
+                <small data-pt="Inclui conexão com terapeuta" data-en="Includes therapist connection">Inclui conexão com terapeuta</small>
+                <span class="opcao-plano__badge" data-pt="Plano atual" data-en="Current plan">Plano atual</span>
+            </button>
+        </div>
+
+        <p id="statusPlanoModal" class="status-plano-modal"></p>
+
+        <div class="modal-plano__rodape">
+            <button type="button" id="btnCancelarPlanoModal" class="btn-plano-secundario" data-pt="Fechar" data-en="Close">Fechar</button>
+            <button type="button" id="btnConfirmarPlanoModal" class="btn-plano-principal" disabled data-pt="Confirmar alteração" data-en="Confirm change">Confirmar alteração</button>
+        </div>
+    </div>
 </div>
 
 <!-- ========================= -->

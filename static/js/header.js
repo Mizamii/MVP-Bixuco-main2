@@ -111,17 +111,6 @@
                     <span data-pt="Meu perfil" data-en="My profile">Meu perfil</span>
                 </a>
 
-                ${ehResponsavelAssinante ? `
-                <a class="menu-perfil__item" role="menuitem" href="/assistente">
-                    <i class="fa-solid fa-sparkles"></i>
-                    <span data-pt="Assistente Bixuco" data-en="Bixuco Assistant">Assistente Bixuco</span>
-                </a>
-
-                <a class="menu-perfil__item" role="menuitem" href="/planos">
-                    <i class="fa-regular fa-credit-card"></i>
-                    <span data-pt="Planos" data-en="Plans">Planos</span>
-                </a>` : ""}
-
                 <button type="button" class="menu-perfil__item" role="menuitem" id="btnTraduzir">
                     <i class="fa-solid fa-language"></i>
                     <span id="textoTradutor">Traduzir para o inglês</span>
@@ -144,16 +133,27 @@
             </div>
         </div>
 
-        <div class="notificacoes-wrapper">
-            <button class="notificacoes" type="button" id="btnNotificacoes" aria-label="Notificações">
-                <i class="fa-regular fa-bell"></i>
-                <span id="${idBadge}" class="badge"${idBadge === "badgeNotificacoes" ? ' style="display:none"' : ""}>0</span>
-            </button>
+        <div class="topo-acoes">
+            ${ehResponsavelAssinante ? `
+            <div class="assistente-atalho-wrapper">
+                <button type="button" class="assistente-atalho" id="btnAssistenteTopo"
+                        aria-label="Abrir Assistente Bixuco" aria-expanded="false">
+                    <i class="fa-solid fa-sparkles"></i>
+                </button>
+                <span class="assistente-atalho__dica" data-pt="Tem dúvidas?" data-en="Questions?">Tem dúvidas?</span>
+            </div>` : ""}
 
-            <div class="painel-notificacoes" id="painelNotificacoes">
-                <div class="painel-header" data-pt="${notifPt}" data-en="${notifEn}">${notifPt}</div>
-                <div id="listaNotificacoes">
-                    <div class="painel-vazio" data-pt="Carregando..." data-en="Loading...">Carregando...</div>
+            <div class="notificacoes-wrapper">
+                <button class="notificacoes" type="button" id="btnNotificacoes" aria-label="Notificações">
+                    <i class="fa-regular fa-bell"></i>
+                    <span id="${idBadge}" class="badge"${idBadge === "badgeNotificacoes" ? ' style="display:none"' : ""}>0</span>
+                </button>
+
+                <div class="painel-notificacoes" id="painelNotificacoes">
+                    <div class="painel-header" data-pt="${notifPt}" data-en="${notifEn}">${notifPt}</div>
+                    <div id="listaNotificacoes">
+                        <div class="painel-vazio" data-pt="Carregando..." data-en="Loading...">Carregando...</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -215,6 +215,15 @@
                 <strong id="nomeUsuarioSidebar">Carregando...</strong>
                 <small id="tipoContaSidebar"></small>
             </button>
+
+            ${ehResponsavelAssinante ? `
+            <div class="assistente-atalho-wrapper assistente-atalho-wrapper--sidebar">
+                <button type="button" class="assistente-atalho" id="btnAssistenteSidebar"
+                        aria-label="Abrir Assistente Bixuco" aria-expanded="false">
+                    <i class="fa-solid fa-sparkles"></i>
+                </button>
+                <span class="assistente-atalho__dica" data-pt="Tem dúvidas?" data-en="Questions?">Tem dúvidas?</span>
+            </div>` : ""}
 
             <button type="button" class="notificacoes" id="btnNotificacoesSidebar" aria-label="Notificações">
                 <i class="fa-regular fa-bell"></i>
@@ -392,6 +401,227 @@
             clearTimeout(timerResize);
             timerResize = setTimeout(posicionarPainelNotificacoes, 150);
         });
+    }
+
+    // ==========================================================
+    // ASSISTENTE BIXUCO FLUTUANTE
+    // ==========================================================
+    if (ehResponsavelAssinante) {
+        const painel = document.createElement("section");
+        painel.id = "painelAssistenteBixuco";
+        painel.className = "assistente-painel-flutuante";
+        painel.setAttribute("aria-hidden", "true");
+        painel.innerHTML = `
+            <div class="assistente-painel__cabecalho">
+                <div class="assistente-painel__marca">
+                    <span class="assistente-painel__icone"><i class="fa-solid fa-sparkles"></i></span>
+                    <div>
+                        <strong>Assistente Bixuco</strong>
+                        <small data-pt="Pergunte sobre o Bixuco ou sobre os registros" data-en="Ask about Bixuco or your records">Pergunte sobre o Bixuco ou sobre os registros</small>
+                    </div>
+                </div>
+                <div class="assistente-painel__acoes">
+                    <button type="button" id="btnNovaConversaBixuco" title="Nova conversa" aria-label="Nova conversa">
+                        <i class="fa-regular fa-trash-can"></i>
+                    </button>
+                    <button type="button" id="btnFecharAssistenteBixuco" title="Fechar" aria-label="Fechar">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="assistente-painel__mensagens" id="mensagensAssistenteBixuco" aria-live="polite"></div>
+            <form class="assistente-painel__form" id="formAssistenteBixuco">
+                <textarea id="inputAssistenteBixuco" rows="1" maxlength="1000"
+                          placeholder="Escreva sua dúvida..." aria-label="Mensagem para o Assistente Bixuco"></textarea>
+                <button type="submit" id="btnEnviarAssistenteBixuco" aria-label="Enviar">
+                    <i class="fa-solid fa-arrow-up"></i>
+                </button>
+            </form>
+        `;
+        document.body.appendChild(painel);
+
+        const mensagensEl = painel.querySelector("#mensagensAssistenteBixuco");
+        const form = painel.querySelector("#formAssistenteBixuco");
+        const input = painel.querySelector("#inputAssistenteBixuco");
+        const btnEnviar = painel.querySelector("#btnEnviarAssistenteBixuco");
+        const btnFechar = painel.querySelector("#btnFecharAssistenteBixuco");
+        const btnNova = painel.querySelector("#btnNovaConversaBixuco");
+        const botoesAbrir = [
+            document.getElementById("btnAssistenteTopo"),
+            document.getElementById("btnAssistenteSidebar")
+        ].filter(Boolean);
+        let historicoCarregado = false;
+        let enviando = false;
+
+        const idiomaAssistente = () => localStorage.getItem("idioma") === "en" ? "en" : "pt";
+        const tAssistente = (pt, en) => idiomaAssistente() === "en" ? en : pt;
+
+        function atualizarIdiomaAssistente() {
+            input.placeholder = tAssistente("Escreva sua dúvida...", "Type your question...");
+            input.setAttribute("aria-label", tAssistente("Mensagem para o Assistente Bixuco", "Message to the Bixuco Assistant"));
+            btnNova.title = tAssistente("Nova conversa", "New conversation");
+            btnFechar.title = tAssistente("Fechar", "Close");
+        }
+        atualizarIdiomaAssistente();
+
+        const btnTradutorAssistente = document.getElementById("btnTraduzir");
+        if (btnTradutorAssistente) {
+            btnTradutorAssistente.addEventListener("click", () => {
+                setTimeout(atualizarIdiomaAssistente, 0);
+            });
+        }
+
+        function rolarFimAssistente() {
+            mensagensEl.scrollTop = mensagensEl.scrollHeight;
+        }
+
+        function adicionarBolhaAssistente(role, content, status = "ok") {
+            const linha = document.createElement("div");
+            linha.className = `assistente-painel__linha ${role === "user" ? "usuario" : "bixuco"}${status === "erro" ? " erro" : ""}`;
+            const bolha = document.createElement("div");
+            bolha.className = "assistente-painel__bolha";
+            bolha.textContent = String(content || "");
+            linha.appendChild(bolha);
+            mensagensEl.appendChild(linha);
+            rolarFimAssistente();
+        }
+
+        function mostrarBoasVindasAssistente() {
+            adicionarBolhaAssistente(
+                "assistant",
+                tAssistente(
+                    "Oi! Sou o Assistente Bixuco. Posso consultar os dados do seu Bixuco, responder dúvidas sobre o sistema e ajudar com o relatório. O que você gostaria de saber?",
+                    "Hi! I'm the Bixuco Assistant. I can check your Bixuco data, answer questions about the system, and help with the daily report. What would you like to know?"
+                )
+            );
+        }
+
+        async function carregarHistoricoFlutuante(forcar = false) {
+            if (historicoCarregado && !forcar) return;
+            mensagensEl.innerHTML = `<div class="assistente-painel__carregando">${tAssistente("Carregando conversa...", "Loading conversation...")}</div>`;
+            try {
+                const resposta = await fetch("/api/assistente/historico");
+                if (resposta.status === 401) {
+                    window.location.href = "/logar";
+                    return;
+                }
+                const dados = await resposta.json().catch(() => ({}));
+                if (!resposta.ok) throw new Error(dados.erro || "Falha ao carregar histórico");
+                mensagensEl.innerHTML = "";
+                const mensagens = Array.isArray(dados.mensagens) ? dados.mensagens : [];
+                if (!mensagens.length) mostrarBoasVindasAssistente();
+                else mensagens.forEach(item => adicionarBolhaAssistente(item.role, item.content, item.status));
+                historicoCarregado = true;
+            } catch (erro) {
+                mensagensEl.innerHTML = "";
+                adicionarBolhaAssistente("assistant", tAssistente(
+                    "Não consegui carregar a conversa agora. Você ainda pode tentar enviar uma mensagem.",
+                    "I couldn't load the conversation right now. You can still try sending a message."
+                ), "erro");
+            }
+        }
+
+        function abrirAssistente() {
+            painel.classList.add("aberto");
+            painel.setAttribute("aria-hidden", "false");
+            botoesAbrir.forEach(btn => btn.setAttribute("aria-expanded", "true"));
+            carregarHistoricoFlutuante();
+            setTimeout(() => input.focus(), 80);
+        }
+
+        function fecharAssistente() {
+            painel.classList.remove("aberto");
+            painel.setAttribute("aria-hidden", "true");
+            botoesAbrir.forEach(btn => btn.setAttribute("aria-expanded", "false"));
+        }
+
+        botoesAbrir.forEach(btn => btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            painel.classList.contains("aberto") ? fecharAssistente() : abrirAssistente();
+        }));
+        btnFechar.addEventListener("click", fecharAssistente);
+
+        btnNova.addEventListener("click", async () => {
+            if (!confirm(tAssistente("Começar uma nova conversa? O histórico do chat será limpo, mas seus relatórios e dados do Bixuco não serão apagados.", "Start a new conversation? Chat history will be cleared, but your reports and Bixuco data will not be deleted."))) return;
+            try {
+                const resposta = await fetch("/api/assistente/historico", { method: "DELETE" });
+                if (!resposta.ok) throw new Error();
+                mensagensEl.innerHTML = "";
+                historicoCarregado = true;
+                mostrarBoasVindasAssistente();
+            } catch (_) {
+                adicionarBolhaAssistente("assistant", tAssistente("Não consegui limpar a conversa agora.", "I couldn't clear the conversation right now."), "erro");
+            }
+        });
+
+        async function enviarMensagemAssistente() {
+            const mensagem = input.value.trim();
+            if (!mensagem || enviando) return;
+
+            enviando = true;
+            input.value = "";
+            input.style.height = "auto";
+            btnEnviar.disabled = true;
+            adicionarBolhaAssistente("user", mensagem);
+
+            const pensando = document.createElement("div");
+            pensando.className = "assistente-painel__linha bixuco pensando";
+            pensando.innerHTML = `<div class="assistente-painel__bolha"><span></span><span></span><span></span></div>`;
+            mensagensEl.appendChild(pensando);
+            rolarFimAssistente();
+
+            try {
+                const resposta = await fetch("/api/assistente", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ mensagem, idioma: idiomaAssistente() })
+                });
+                const dados = await resposta.json().catch(() => ({}));
+                pensando.remove();
+                if (!resposta.ok) {
+                    adicionarBolhaAssistente("assistant", dados.erro || tAssistente("Não consegui responder agora.", "I couldn't answer right now."), "erro");
+                } else {
+                    adicionarBolhaAssistente("assistant", dados.mensagem || tAssistente("Não encontrei uma resposta.", "I couldn't find an answer."));
+                }
+                // O servidor sempre é a fonte de verdade do histórico.
+                historicoCarregado = true;
+            } catch (_) {
+                pensando.remove();
+                adicionarBolhaAssistente("assistant", tAssistente(
+                    "Não consegui me comunicar com o servidor. Sua mensagem pode ter sido salva; tente reabrir o chat em instantes.",
+                    "I couldn't reach the server. Your message may have been saved; try reopening the chat in a moment."
+                ), "erro");
+            } finally {
+                enviando = false;
+                btnEnviar.disabled = false;
+                input.focus();
+            }
+        }
+
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+            enviarMensagemAssistente();
+        });
+        input.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                enviarMensagemAssistente();
+            }
+        });
+        input.addEventListener("input", () => {
+            input.style.height = "auto";
+            input.style.height = `${Math.min(input.scrollHeight, 120)}px`;
+        });
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && painel.classList.contains("aberto")) fecharAssistente();
+        });
+
+        if (new URLSearchParams(window.location.search).get("abrirAssistente") === "1") {
+            abrirAssistente();
+            const url = new URL(window.location.href);
+            url.searchParams.delete("abrirAssistente");
+            window.history.replaceState({}, "", url.pathname + url.search + url.hash);
+        }
     }
 
     // ==========================
