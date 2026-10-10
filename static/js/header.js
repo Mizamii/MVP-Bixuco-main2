@@ -218,7 +218,7 @@
 
             ${ehResponsavelAssinante ? `
             <div class="assistente-atalho-wrapper assistente-atalho-wrapper--sidebar">
-                <button type="button" class="assistente-atalho" id="btnAssistenteSidebar"
+                <button type="button" class="assistente-atalho" id="btnAssistenteSidebar" title="Assistente Bixuco — Tem dúvidas?"
                         aria-label="Abrir Assistente Bixuco" aria-expanded="false">
                     <i class="fa-solid fa-sparkles"></i>
                 </button>
@@ -411,32 +411,50 @@
         painel.id = "painelAssistenteBixuco";
         painel.className = "assistente-painel-flutuante";
         painel.setAttribute("aria-hidden", "true");
+        painel.setAttribute("role", "dialog");
+        painel.setAttribute("aria-label", "Conversa com o Assistente Bixuco");
         painel.innerHTML = `
             <div class="assistente-painel__cabecalho">
                 <div class="assistente-painel__marca">
-                    <span class="assistente-painel__icone"><i class="fa-solid fa-sparkles"></i></span>
+                    <span class="assistente-painel__icone"><img src="/img/Bixuco_home.png" alt=""></span>
                     <div>
                         <strong>Assistente Bixuco</strong>
-                        <small data-pt="Pergunte sobre o Bixuco ou sobre os registros" data-en="Ask about Bixuco or your records">Pergunte sobre o Bixuco ou sobre os registros</small>
+                        <small><span class="assistente-painel__status" aria-hidden="true"></span>
+                            <span id="statusAssistenteBixuco" data-pt="Seu apoio no dia a dia" data-en="Here to help every day">Seu apoio no dia a dia</span>
+                        </small>
                     </div>
                 </div>
                 <div class="assistente-painel__acoes">
                     <button type="button" id="btnNovaConversaBixuco" title="Nova conversa" aria-label="Nova conversa">
-                        <i class="fa-regular fa-trash-can"></i>
+                        <i class="fa-solid fa-pen-to-square"></i>
                     </button>
                     <button type="button" id="btnFecharAssistenteBixuco" title="Fechar" aria-label="Fechar">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
             </div>
-            <div class="assistente-painel__mensagens" id="mensagensAssistenteBixuco" aria-live="polite"></div>
-            <form class="assistente-painel__form" id="formAssistenteBixuco">
-                <textarea id="inputAssistenteBixuco" rows="1" maxlength="1000"
-                          placeholder="Escreva sua dúvida..." aria-label="Mensagem para o Assistente Bixuco"></textarea>
-                <button type="submit" id="btnEnviarAssistenteBixuco" aria-label="Enviar">
-                    <i class="fa-solid fa-arrow-up"></i>
+            <div class="assistente-painel__sugestoes" id="sugestoesAssistenteBixuco" aria-label="Perguntas sugeridas">
+                <button type="button" data-pergunta-pt="Quais são as minhas dicas personalizadas desta semana?" data-pergunta-en="What are my personalized tips for this week?">
+                    <i class="fa-regular fa-lightbulb"></i><span data-pt="Minhas dicas" data-en="My tips">Minhas dicas</span>
                 </button>
-            </form>
+                <button type="button" data-pergunta-pt="O que o Bixuco registrou hoje?" data-pergunta-en="What did Bixuco record today?">
+                    <i class="fa-regular fa-calendar"></i><span data-pt="Registros de hoje" data-en="Today's records">Registros de hoje</span>
+                </button>
+                <button type="button" data-pergunta-pt="Meu Bixuco está com comunicação recente?" data-pergunta-en="Has my Bixuco communicated recently?">
+                    <i class="fa-solid fa-wifi"></i><span data-pt="Conexão" data-en="Connection">Conexão</span>
+                </button>
+            </div>
+            <div class="assistente-painel__mensagens" id="mensagensAssistenteBixuco" aria-live="polite" aria-relevant="additions text"></div>
+            <div class="assistente-painel__rodape">
+                <form class="assistente-painel__form" id="formAssistenteBixuco">
+                    <textarea id="inputAssistenteBixuco" rows="1" maxlength="1000"
+                              placeholder="Escreva sua mensagem..." aria-label="Mensagem para o Assistente Bixuco"></textarea>
+                    <button type="submit" id="btnEnviarAssistenteBixuco" aria-label="Enviar mensagem">
+                        <i class="fa-solid fa-arrow-up"></i>
+                    </button>
+                </form>
+                <p class="assistente-painel__aviso" data-pt="O Bixuco não realiza diagnósticos nem substitui um profissional." data-en="Bixuco does not diagnose or replace a professional.">O Bixuco não realiza diagnósticos nem substitui um profissional.</p>
+            </div>
         `;
         document.body.appendChild(painel);
 
@@ -446,21 +464,37 @@
         const btnEnviar = painel.querySelector("#btnEnviarAssistenteBixuco");
         const btnFechar = painel.querySelector("#btnFecharAssistenteBixuco");
         const btnNova = painel.querySelector("#btnNovaConversaBixuco");
+        const sugestoesEl = painel.querySelector("#sugestoesAssistenteBixuco");
+        const botoesSugestao = [...sugestoesEl.querySelectorAll("button")];
         const botoesAbrir = [
             document.getElementById("btnAssistenteTopo"),
             document.getElementById("btnAssistenteSidebar")
         ].filter(Boolean);
         let historicoCarregado = false;
         let enviando = false;
+        let carregandoHistorico = null;
+        let ultimoBotaoAbrir = null;
 
         const idiomaAssistente = () => localStorage.getItem("idioma") === "en" ? "en" : "pt";
         const tAssistente = (pt, en) => idiomaAssistente() === "en" ? en : pt;
 
         function atualizarIdiomaAssistente() {
-            input.placeholder = tAssistente("Escreva sua dúvida...", "Type your question...");
+            input.placeholder = tAssistente("Escreva sua mensagem...", "Type your message...");
             input.setAttribute("aria-label", tAssistente("Mensagem para o Assistente Bixuco", "Message to the Bixuco Assistant"));
             btnNova.title = tAssistente("Nova conversa", "New conversation");
             btnFechar.title = tAssistente("Fechar", "Close");
+            btnNova.setAttribute("aria-label", btnNova.title);
+            btnFechar.setAttribute("aria-label", btnFechar.title);
+            btnEnviar.setAttribute("aria-label", tAssistente("Enviar mensagem", "Send message"));
+            painel.setAttribute("aria-label", tAssistente("Conversa com o Assistente Bixuco", "Chat with Bixuco Assistant"));
+            sugestoesEl.setAttribute("aria-label", tAssistente("Perguntas sugeridas", "Suggested questions"));
+            botoesAbrir.forEach(btn => {
+                btn.setAttribute("aria-label", tAssistente("Abrir Assistente Bixuco", "Open Bixuco Assistant"));
+                if (btn.id === "btnAssistenteSidebar") btn.title = tAssistente("Assistente Bixuco — Tem dúvidas?", "Bixuco Assistant — Questions?");
+            });
+            painel.querySelectorAll("[data-pt][data-en]").forEach(elemento => {
+                elemento.textContent = tAssistente(elemento.dataset.pt, elemento.dataset.en);
+            });
         }
         atualizarIdiomaAssistente();
 
@@ -487,38 +521,52 @@
         }
 
         function mostrarBoasVindasAssistente() {
+            sugestoesEl.hidden = false;
             adicionarBolhaAssistente(
                 "assistant",
                 tAssistente(
-                    "Oi! Sou o Assistente Bixuco. Posso consultar os dados do seu Bixuco, responder dúvidas sobre o sistema e ajudar com o relatório. O que você gostaria de saber?",
-                    "Hi! I'm the Bixuco Assistant. I can check your Bixuco data, answer questions about the system, and help with the daily report. What would you like to know?"
+                    "Olá! 💚 Sou o Assistente Bixuco. Posso ajudar com os registros, as dicas personalizadas e suas dúvidas sobre o Bixuco. Como posso ajudar hoje?",
+                    "Hello! 💚 I'm the Bixuco Assistant. I can help with records, personalized tips, and questions about Bixuco. How can I help today?"
                 )
             );
         }
 
         async function carregarHistoricoFlutuante(forcar = false) {
             if (historicoCarregado && !forcar) return;
-            mensagensEl.innerHTML = `<div class="assistente-painel__carregando">${tAssistente("Carregando conversa...", "Loading conversation...")}</div>`;
-            try {
-                const resposta = await fetch("/api/assistente/historico");
-                if (resposta.status === 401) {
-                    window.location.href = "/logar";
-                    return;
+            if (carregandoHistorico) return carregandoHistorico;
+
+            carregandoHistorico = (async () => {
+                mensagensEl.innerHTML = `<div class="assistente-painel__carregando">${tAssistente("Carregando conversa...", "Loading conversation...")}</div>`;
+                btnEnviar.disabled = true;
+                botoesSugestao.forEach(btn => btn.disabled = true);
+                try {
+                    const resposta = await fetch("/api/assistente/historico");
+                    if (resposta.status === 401) {
+                        window.location.href = "/logar";
+                        return;
+                    }
+                    const dados = await resposta.json().catch(() => ({}));
+                    if (!resposta.ok) throw new Error(dados.erro || "Falha ao carregar histórico");
+                    mensagensEl.innerHTML = "";
+                    const mensagens = Array.isArray(dados.mensagens) ? dados.mensagens : [];
+                    sugestoesEl.hidden = mensagens.length > 0;
+                    if (!mensagens.length) mostrarBoasVindasAssistente();
+                    else mensagens.forEach(item => adicionarBolhaAssistente(item.role, item.content, item.status));
+                    historicoCarregado = true;
+                } catch (erro) {
+                    mensagensEl.innerHTML = "";
+                    sugestoesEl.hidden = false;
+                    adicionarBolhaAssistente("assistant", tAssistente(
+                        "Não consegui carregar a conversa agora. Você ainda pode tentar enviar uma mensagem.",
+                        "I couldn't load the conversation right now. You can still try sending a message."
+                    ), "erro");
+                } finally {
+                    btnEnviar.disabled = enviando;
+                    botoesSugestao.forEach(btn => btn.disabled = enviando);
                 }
-                const dados = await resposta.json().catch(() => ({}));
-                if (!resposta.ok) throw new Error(dados.erro || "Falha ao carregar histórico");
-                mensagensEl.innerHTML = "";
-                const mensagens = Array.isArray(dados.mensagens) ? dados.mensagens : [];
-                if (!mensagens.length) mostrarBoasVindasAssistente();
-                else mensagens.forEach(item => adicionarBolhaAssistente(item.role, item.content, item.status));
-                historicoCarregado = true;
-            } catch (erro) {
-                mensagensEl.innerHTML = "";
-                adicionarBolhaAssistente("assistant", tAssistente(
-                    "Não consegui carregar a conversa agora. Você ainda pode tentar enviar uma mensagem.",
-                    "I couldn't load the conversation right now. You can still try sending a message."
-                ), "erro");
-            }
+            })();
+            try { await carregandoHistorico; }
+            finally { carregandoHistorico = null; }
         }
 
         function abrirAssistente() {
@@ -533,15 +581,18 @@
             painel.classList.remove("aberto");
             painel.setAttribute("aria-hidden", "true");
             botoesAbrir.forEach(btn => btn.setAttribute("aria-expanded", "false"));
+            ultimoBotaoAbrir?.focus();
         }
 
         botoesAbrir.forEach(btn => btn.addEventListener("click", (e) => {
+            ultimoBotaoAbrir = btn;
             e.stopPropagation();
             painel.classList.contains("aberto") ? fecharAssistente() : abrirAssistente();
         }));
         btnFechar.addEventListener("click", fecharAssistente);
 
         btnNova.addEventListener("click", async () => {
+            if (enviando || carregandoHistorico) return;
             if (!confirm(tAssistente("Começar uma nova conversa? O histórico do chat será limpo, mas seus relatórios e dados do Bixuco não serão apagados.", "Start a new conversation? Chat history will be cleared, but your reports and Bixuco data will not be deleted."))) return;
             try {
                 const resposta = await fetch("/api/assistente/historico", { method: "DELETE" });
@@ -558,7 +609,12 @@
             const mensagem = input.value.trim();
             if (!mensagem || enviando) return;
 
+            if (carregandoHistorico) await carregandoHistorico;
+            if (enviando) return;
             enviando = true;
+            sugestoesEl.hidden = true;
+            botoesSugestao.forEach(btn => btn.disabled = true);
+            btnNova.disabled = true;
             input.value = "";
             input.style.height = "auto";
             btnEnviar.disabled = true;
@@ -594,9 +650,17 @@
             } finally {
                 enviando = false;
                 btnEnviar.disabled = false;
-                input.focus();
+                btnNova.disabled = false;
+                botoesSugestao.forEach(btn => btn.disabled = false);
+                if (painel.classList.contains("aberto")) input.focus();
             }
         }
+
+        botoesSugestao.forEach(btn => btn.addEventListener("click", () => {
+            if (enviando || carregandoHistorico) return;
+            input.value = idiomaAssistente() === "en" ? btn.dataset.perguntaEn : btn.dataset.perguntaPt;
+            enviarMensagemAssistente();
+        }));
 
         form.addEventListener("submit", (e) => {
             e.preventDefault();
