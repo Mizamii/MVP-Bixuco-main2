@@ -9533,6 +9533,43 @@ function janelaEventosAssistente(mensagem) {
     return { diasAntigos: 0, diasRecentes: 0, rotulo: "hoje" };
 }
 
+// Perguntas sobre as dicas da própria conta precisam receber os mesmos dados
+// exibidos na Home, sem depender de o modelo de IA interpretar o contexto.
+function perguntaDicasDaContaAssistente(mensagem) {
+    const texto = normalizarTextoAssistente(mensagem);
+    const falaDeDicas = /\b(dicas?|tips?|suggestions?|recomendacoes?)\b/.test(texto);
+    const buscaSuasDicas = /\b(minhas?|meus?|personalizad[ao]s?|para mim|disponiveis?|tenho|esta semana|hoje|hj|my|mine|personalized|available|today|this week|quais?|mostr[ae]|listar?|show|list)\b/.test(texto);
+    return falaDeDicas && buscaSuasDicas;
+}
+
+function respostaDicasDaContaAssistente(salvas, idioma) {
+    const ingles = idioma === "en";
+    const itens = Array.isArray(salvas?.dicas) ? salvas.dicas
+        .slice(0, 5)
+        .map(d => ({
+            titulo: String((ingles ? d?.titulo_en : null) || d?.titulo || "").trim().slice(0, 90),
+            texto: String((ingles ? d?.texto_en : null) || d?.texto || "").trim().slice(0, 350)
+        }))
+        .filter(d => d.titulo || d.texto) : [];
+
+    if (!itens.length) {
+        return ingles
+            ? "I couldn't find personalized tips saved for your account in the last 7 days. Check the Personalized Tips section on your Home page to see whether new tips can be generated."
+            : "Não encontrei dicas personalizadas salvas na sua conta nos últimos 7 dias. Confira a seção Dicas personalizadas da Home para verificar se é possível gerar novas dicas.";
+    }
+
+    const dataGeracao = salvas?.gerado_em ? new Date(salvas.gerado_em) : null;
+    const dataValida = dataGeracao && Number.isFinite(dataGeracao.getTime());
+    const dataFormatada = dataValida ? new Intl.DateTimeFormat(ingles ? "en-US" : "pt-BR", {
+        timeZone: "America/Sao_Paulo", day: "2-digit", month: "2-digit", year: "numeric"
+    }).format(dataGeracao) : "";
+    const cabecalho = ingles
+        ? `These are your saved personalized tips${dataFormatada ? ` (generated on ${dataFormatada})` : ""}:`
+        : `Estas são as suas dicas personalizadas salvas${dataFormatada ? ` (geradas em ${dataFormatada})` : ""}:`;
+    const lista = itens.map((item, i) => `${i + 1}. ${item.titulo || (ingles ? "Tip" : "Dica")} ${item.texto ? `— ${item.texto}` : ""}`);
+    return [cabecalho, "", ...lista].join("\n");
+}
+
 async function montarContextoAssistente(usuarioId, { mensagem = "", historico = [] } = {}) {
     const intencoes = detectarIntencoesAssistente(mensagem, historico);
     const querEventos = intencoes.includes("eventos");
@@ -10634,14 +10671,6 @@ app.post(
         let usuarioFoiSalvo = false;
 
         try {
-            if (!GROQ_API_KEY) {
-                return res.status(503).json({
-                    erro: idioma === "en"
-                        ? "The assistant is temporarily unavailable."
-                        : "O assistente está temporariamente indisponível."
-                });
-            }
-
             if (!mensagem || mensagem.length > 1000) {
                 return res.status(400).json({
                     erro: idioma === "en" ? "Invalid message." : "Mensagem inválida."
@@ -10657,6 +10686,47 @@ app.post(
                 content: mensagem
             });
             usuarioFoiSalvo = true;
+
+            // Dicas da própria conta: busca exatamente o mesmo registro da
+            // Home (/api/dicas), com resposta determinística. Não pede à IA
+            // para inventar ou resumir dados que já existem no banco.
+            if (perguntaDicasDaContaAssistente(mensagem)) {
+                let salvas;
+                try {
+                    salvas = await obterDicasSalvas(usuarioId, idioma);
+                } catch (erroDicas) {
+                    console.error("Erro ao consultar dicas no chat:", erroDicas);
+                    return res.status(503).json({
+                        erro: idioma === "en"
+                            ? "I couldn't access your saved tips right now. Please try again later."
+                            : "Não consegui consultar suas dicas salvas agora. Tente novamente em instantes.",
+                        mensagemSalva: true
+                    });
+                }
+
+                const respostaDicas = respostaDicasDaContaAssistente(salvas, idioma);
+                const novoHistorico = await adicionarMensagemHistoricoAssistente(usuarioId, {
+                    role: "assistant",
+                    content: respostaDicas
+                });
+                return res.json({
+                    mensagem: respostaDicas,
+                    relatorioAtualizado: false,
+                    camposAtualizados: [],
+                    relatorioFinalizado: false,
+                    respostas: [],
+                    historicoTamanho: novoHistorico.length
+                });
+            }
+
+            if (!GROQ_API_KEY) {
+                return res.status(503).json({
+                    erro: idioma === "en"
+                        ? "The assistant is temporarily unavailable."
+                        : "O assistente está temporariamente indisponível.",
+                    mensagemSalva: true
+                });
+            }
 
             const permitirAtualizacoes = mensagemPodeAtualizarRelatorio(mensagem);
 

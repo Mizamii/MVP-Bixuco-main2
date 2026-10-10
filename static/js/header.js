@@ -501,6 +501,7 @@
         let enviando = false;
         let carregandoHistorico = null;
         let ultimoBotaoAbrir = null;
+        let ultimoAvisoLimpeza = null;
 
         const idiomaAssistente = () => localStorage.getItem("idioma") === "en" ? "en" : "pt";
         const tAssistente = (pt, en) => idiomaAssistente() === "en" ? en : pt;
@@ -548,6 +549,7 @@
             linha.appendChild(bolha);
             mensagensEl.appendChild(linha);
             rolarFimAssistente();
+            return linha;
         }
 
         function mostrarBoasVindasAssistente() {
@@ -558,6 +560,49 @@
                     "Olá! 💚 Sou o Assistente Bixuco. Posso ajudar com os registros, as dicas personalizadas e suas dúvidas sobre o Bixuco. Como posso ajudar hoje?",
                     "Hello! 💚 I'm the Bixuco Assistant. I can help with records, personalized tips, and questions about Bixuco. How can I help today?"
                 )
+            );
+        }
+
+        // Distingue HTTP, sessão expirada, servidor fora do ar e JSON inválido.
+        // Evita mostrar a mesma mensagem genérica para causas diferentes.
+        async function lerRespostaAssistente(resposta) {
+            const tipo = resposta.headers?.get?.("content-type") || "";
+            const pareceJson = tipo.includes("json") || !tipo;
+            if (!pareceJson) {
+                throw new Error(tAssistente(
+                    `O servidor retornou uma página em vez de dados do chat (HTTP ${resposta.status}). Verifique o servidor ou a sessão.`,
+                    `The server returned a page instead of chat data (HTTP ${resposta.status}). Check the server or your session.`
+                ));
+            }
+            let dados;
+            try { dados = await resposta.json(); }
+            catch (_) {
+                throw new Error(tAssistente(
+                    `O servidor retornou uma resposta inválida (HTTP ${resposta.status}).`,
+                    `The server returned an invalid response (HTTP ${resposta.status}).`
+                ));
+            }
+            if (!resposta.ok) {
+                const padrao = resposta.status === 401
+                    ? tAssistente("Sua sessão expirou. Entre na conta novamente.", "Your session expired. Please sign in again.")
+                    : resposta.status === 403
+                        ? tAssistente("Seu acesso ao assistente não está autorizado.", "You don't have access to this assistant.")
+                        : resposta.status === 429
+                            ? tAssistente("O assistente atingiu o limite de requisições. Aguarde e tente novamente.", "The assistant reached a rate limit. Please wait and retry.")
+                            : tAssistente("O servidor não conseguiu concluir a operação.", "The server couldn't complete the request.");
+                const erro = new Error(`${dados?.erro || padrao} (HTTP ${resposta.status})`);
+                erro.status = resposta.status;
+                erro.mensagemSalva = Boolean(dados?.mensagemSalva);
+                throw erro;
+            }
+            return dados || {};
+        }
+
+        function mensagemFalhaConexaoAssistente(erro) {
+            if (erro?.message && !(erro instanceof TypeError)) return erro.message;
+            return tAssistente(
+                "Não consegui conectar ao servidor. Verifique sua conexão e se o Bixuco está no ar. Sua mensagem pode ter sido salva; reabra o chat antes de reenviar.",
+                "I couldn't reach the server. Check your connection and the Bixuco service. Your message may have been saved; reopen the chat before resending."
             );
         }
 
@@ -575,8 +620,7 @@
                         window.location.href = "/logar";
                         return;
                     }
-                    const dados = await resposta.json().catch(() => ({}));
-                    if (!resposta.ok) throw new Error(dados.erro || "Falha ao carregar histórico");
+                    const dados = await lerRespostaAssistente(resposta);
                     mensagensEl.innerHTML = "";
                     const mensagens = Array.isArray(dados.mensagens) ? dados.mensagens : [];
                     sugestoesEl.hidden = mensagens.length > 0;
@@ -584,12 +628,10 @@
                     else mensagens.forEach(item => adicionarBolhaAssistente(item.role, item.content, item.status));
                     historicoCarregado = true;
                 } catch (erro) {
+                    console.warn("Falha ao carregar o histórico do assistente:", erro);
                     mensagensEl.innerHTML = "";
                     sugestoesEl.hidden = false;
-                    adicionarBolhaAssistente("assistant", tAssistente(
-                        "Não consegui carregar a conversa agora. Você ainda pode tentar enviar uma mensagem.",
-                        "I couldn't load the conversation right now. You can still try sending a message."
-                    ), "erro");
+                    adicionarBolhaAssistente("assistant", mensagemFalhaConexaoAssistente(erro), "erro");
                 } finally {
                     btnEnviar.disabled = enviando;
                     botoesSugestao.forEach(btn => btn.disabled = enviando);
@@ -645,12 +687,16 @@
             if (!confirm(tAssistente("Começar uma nova conversa? O histórico do chat será limpo, mas seus relatórios e dados do Bixuco não serão apagados.", "Start a new conversation? Chat history will be cleared, but your reports and Bixuco data will not be deleted."))) return;
             try {
                 const resposta = await fetch("/api/assistente/historico", { method: "DELETE" });
-                if (!resposta.ok) throw new Error();
+                await lerRespostaAssistente(resposta);
                 mensagensEl.innerHTML = "";
+                ultimoAvisoLimpeza = null;
                 historicoCarregado = true;
                 mostrarBoasVindasAssistente();
-            } catch (_) {
-                adicionarBolhaAssistente("assistant", tAssistente("Não consegui limpar a conversa agora.", "I couldn't clear the conversation right now."), "erro");
+            } catch (erro) {
+                console.warn("Falha ao iniciar nova conversa:", erro);
+                // Evita empilhar a mesma falha se a pessoa clicar várias vezes.
+                ultimoAvisoLimpeza?.remove();
+                ultimoAvisoLimpeza = adicionarBolhaAssistente("assistant", mensagemFalhaConexaoAssistente(erro), "erro");
             }
         });
 
@@ -681,21 +727,18 @@
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ mensagem, idioma: idiomaAssistente() })
                 });
-                const dados = await resposta.json().catch(() => ({}));
+                const dados = await lerRespostaAssistente(resposta);
                 pensando.remove();
-                if (!resposta.ok) {
-                    adicionarBolhaAssistente("assistant", dados.erro || tAssistente("Não consegui responder agora.", "I couldn't answer right now."), "erro");
-                } else {
-                    adicionarBolhaAssistente("assistant", dados.mensagem || tAssistente("Não encontrei uma resposta.", "I couldn't find an answer."));
-                }
+                adicionarBolhaAssistente("assistant", dados.mensagem || tAssistente("O servidor não enviou uma resposta.", "The server didn't send an answer."));
                 // O servidor sempre é a fonte de verdade do histórico.
                 historicoCarregado = true;
-            } catch (_) {
+            } catch (erro) {
                 pensando.remove();
-                adicionarBolhaAssistente("assistant", tAssistente(
-                    "Não consegui me comunicar com o servidor. Sua mensagem pode ter sido salva; tente reabrir o chat em instantes.",
-                    "I couldn't reach the server. Your message may have been saved; try reopening the chat in a moment."
-                ), "erro");
+                console.warn("Falha ao enviar mensagem do assistente:", erro);
+                adicionarBolhaAssistente("assistant", mensagemFalhaConexaoAssistente(erro), "erro");
+                // Em caso de falha, reconsultar o histórico ao reabrir.
+                // A pergunta pode ter sido salva mesmo quando a rede falhou.
+                historicoCarregado = false;
             } finally {
                 enviando = false;
                 btnEnviar.disabled = false;
