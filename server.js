@@ -9982,6 +9982,23 @@ Retorne JSON no schema solicitado. "atualizacoes" deve ser [] quando não houver
 `.trim();
 }
 
+// Evita salvar uma resposta aparentemente interrompida, mesmo quando a
+// API devolve JSON válido (por exemplo, uma frase que termina em "embora").
+function mensagemAssistenteIncompleta(mensagem) {
+    const texto = String(mensagem || "").trim();
+    if (!texto) return true;
+
+    const final = texto.replace(/[\s💚✨🧸🌿😊🙂📍✅]+$/gu, "").trim();
+    if (!final) return true;
+    if (/[,;:–—-]$/.test(final)) return true;
+    if (/\b(?:embora|mas|porque|pois|entretanto|contudo|apesar|além|que|de|da|do|das|dos|para|com|sem|e|ou|se|em|no|na|nos|nas|ao|aos|à|às|por|quando|como|onde|enquanto|desde|caso)\s*$/i.test(final)) {
+        return true;
+    }
+    // Para respostas explicativas, exigir um encerramento claro. Respostas
+    // curtas ("Sim", "Não encontrei") também continuam sendo permitidas.
+    return final.length > 150 && !/[.!?…)”"']$/.test(final);
+}
+
 async function chamarGroqAssistente({ promptSistema, historico = [], mensagem }) {
     const historicoSeguro = (Array.isArray(historico) ? historico : [])
         .slice(-4)
@@ -9991,72 +10008,105 @@ async function chamarGroqAssistente({ promptSistema, historico = [], mensagem })
             content: item.content.slice(0, 350)
         }));
 
-    const respostaGroq = await fetch(
-        "https://api.groq.com/openai/v1/chat/completions",
-        {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${GROQ_API_KEY}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                model: GROQ_MODEL,
-                messages: [
-                    { role: "system", content: promptSistema },
-                    ...historicoSeguro,
-                    { role: "user", content: String(mensagem || "").slice(0, 1000) }
-                ],
-                reasoning_effort: "none",
-                temperature: 0.15,
-                max_completion_tokens: 650,
-                response_format: {
-                    type: "json_schema",
-                    json_schema: {
-                        name: "resposta_assistente_bixuco",
-                        strict: true,
-                        schema: {
-                            type: "object",
-                            properties: {
-                                mensagem: { type: "string" },
-                                atualizacoes: {
-                                    type: "array",
-                                    items: {
-                                        type: "object",
-                                        properties: {
-                                            id: { type: "string" },
-                                            resposta: { type: "string" }
-                                        },
-                                        required: ["id", "resposta"],
-                                        additionalProperties: false
+    // Tenta novamente somente se a resposta vier interrompida ou inválida.
+    // Não repete falhas HTTP, como 429 (limite de requisições da Groq).
+    for (let tentativa = 0; tentativa < 2; tentativa++) {
+        const repetindo = tentativa === 1;
+        const instrucaoFinal = repetindo
+            ? "\n\nIMPORTANTE: A resposta anterior ficou incompleta. Responda novamente à pergunta inteira, em até 2 parágrafos curtos, sem terminar no meio de uma frase. Preserve os dados reais e as regras de segurança. Termine a última frase com pontuação."
+            : "\n\nEscreva respostas com frases completas e uma conclusão natural. Não termine no meio de uma frase.";
+
+        const respostaGroq = await fetch(
+            "https://api.groq.com/openai/v1/chat/completions",
+            {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${GROQ_API_KEY}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model: GROQ_MODEL,
+                    messages: [
+                        { role: "system", content: promptSistema + instrucaoFinal },
+                        ...historicoSeguro,
+                        { role: "user", content: String(mensagem || "").slice(0, 1000) }
+                    ],
+                    reasoning_effort: "none",
+                    temperature: 0.15,
+                    max_completion_tokens: repetindo ? 1600 : 1100,
+                    response_format: {
+                        type: "json_schema",
+                        json_schema: {
+                            name: "resposta_assistente_bixuco",
+                            strict: true,
+                            schema: {
+                                type: "object",
+                                properties: {
+                                    mensagem: { type: "string" },
+                                    atualizacoes: {
+                                        type: "array",
+                                        items: {
+                                            type: "object",
+                                            properties: {
+                                                id: { type: "string" },
+                                                resposta: { type: "string" }
+                                            },
+                                            required: ["id", "resposta"],
+                                            additionalProperties: false
+                                        }
                                     }
-                                }
-                            },
-                            required: ["mensagem", "atualizacoes"],
-                            additionalProperties: false
+                                },
+                                required: ["mensagem", "atualizacoes"],
+                                additionalProperties: false
+                            }
                         }
                     }
-                }
-            })
-        }
-    );
+                })
+            }
+        );
 
-    if (!respostaGroq.ok) {
-        const detalhe = await respostaGroq.text();
-        const erro = new Error("Falha ao consultar o Assistente Bixuco.");
-        erro.statusGroq = respostaGroq.status;
-        erro.detalheGroq = detalhe;
-        throw erro;
+        if (!respostaGroq.ok) {
+            const detalhe = await respostaGroq.text();
+            const erro = new Error("Falha ao consultar o Assistente Bixuco.");
+            erro.statusGroq = respostaGroq.status;
+            erro.detalheGroq = detalhe;
+            throw erro;
+        }
+
+        const dadosGroq = await respostaGroq.json();
+        const escolha = dadosGroq?.choices?.[0];
+        const motivoFinalizacao = escolha?.finish_reason;
+        let resposta;
+        try {
+            resposta = JSON.parse(escolha?.message?.content || "");
+        } catch (_) {
+            resposta = null;
+        }
+
+        const texto = typeof resposta?.mensagem === "string"
+            ? resposta.mensagem.trim()
+            : "";
+        const finalizacaoPorLimite = motivoFinalizacao === "length" || motivoFinalizacao === "max_tokens";
+        const finalizacaoInesperada = Boolean(motivoFinalizacao && motivoFinalizacao !== "stop");
+        const incompleta = !resposta || mensagemAssistenteIncompleta(texto) || texto.length > 4000;
+
+        if (!finalizacaoPorLimite && !finalizacaoInesperada && !incompleta) {
+            return {
+                mensagem: texto,
+                atualizacoes: Array.isArray(resposta.atualizacoes) ? resposta.atualizacoes : []
+            };
+        }
+
+        // Log técnico sem registrar mensagens nem informações da criança.
+        console.warn("Assistente Bixuco: geração incompleta.", {
+            tentativa: tentativa + 1,
+            motivo: motivoFinalizacao || "conteudo_incompleto",
+            tokensSaida: dadosGroq?.usage?.completion_tokens ?? null
+        });
     }
 
-    const dadosGroq = await respostaGroq.json();
-    const conteudo = dadosGroq?.choices?.[0]?.message?.content;
-    if (!conteudo) throw new Error("Groq retornou uma resposta vazia.");
-
-    const resposta = JSON.parse(conteudo);
-    return {
-        mensagem: String(resposta.mensagem || "").trim().slice(0, 4000),
-        atualizacoes: Array.isArray(resposta.atualizacoes) ? resposta.atualizacoes : []
-    };
+    // Não publica nem grava um texto cortado no histórico.
+    throw new Error("A IA não conseguiu gerar uma resposta completa após duas tentativas.");
 }
 
 function validarAtualizacoesAssistente(atualizacoes, idsPermitidos) {
