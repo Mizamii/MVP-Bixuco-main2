@@ -138,7 +138,7 @@
             <div class="assistente-atalho-wrapper">
                 <button type="button" class="assistente-atalho" id="btnAssistenteTopo"
                         aria-label="Abrir Assistente Bixuco" aria-expanded="false">
-                    <i class="fa-solid fa-sparkles"></i>
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
                 </button>
                 <span class="assistente-atalho__dica" data-pt="Tem dúvidas?" data-en="Questions?">Tem dúvidas?</span>
             </div>` : ""}
@@ -215,15 +215,6 @@
                 <strong id="nomeUsuarioSidebar">Carregando...</strong>
                 <small id="tipoContaSidebar"></small>
             </button>
-
-            ${ehResponsavelAssinante ? `
-            <div class="assistente-atalho-wrapper assistente-atalho-wrapper--sidebar">
-                <button type="button" class="assistente-atalho" id="btnAssistenteSidebar" title="Assistente Bixuco — Tem dúvidas?"
-                        aria-label="Abrir Assistente Bixuco" aria-expanded="false">
-                    <i class="fa-solid fa-sparkles"></i>
-                </button>
-                <span class="assistente-atalho__dica" data-pt="Tem dúvidas?" data-en="Questions?">Tem dúvidas?</span>
-            </div>` : ""}
 
             <button type="button" class="notificacoes" id="btnNotificacoesSidebar" aria-label="Notificações">
                 <i class="fa-regular fa-bell"></i>
@@ -404,21 +395,56 @@
     }
 
     // ==========================================================
-    // ASSISTENTE BIXUCO FLUTUANTE
+    // ASSISTENTE BIXUCO — JANELA CENTRAL
     // ==========================================================
     if (ehResponsavelAssinante) {
+        // Na Home, o acesso fica ao lado do mascote, sem ocupar a sidebar.
+        // Nas demais páginas, um atalho discreto preserva acesso no desktop.
+        // No celular o ícone do cabeçalho continua disponível.
+        const saudacaoHome = document.querySelector(".saudacao");
+        const mascoteHome = saudacaoHome?.querySelector(":scope > img");
+        if (saudacaoHome && mascoteHome) {
+            const botaoHome = document.createElement("button");
+            botaoHome.type = "button";
+            botaoHome.id = "btnAssistenteHome";
+            botaoHome.className = "assistente-acesso-home";
+            botaoHome.setAttribute("aria-haspopup", "dialog");
+            botaoHome.setAttribute("aria-controls", "painelAssistenteBixuco");
+            botaoHome.setAttribute("aria-expanded", "false");
+            botaoHome.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i><span data-pt="Conversar com Bixuco" data-en="Chat with Bixuco">Conversar com Bixuco</span>`;
+            saudacaoHome.insertBefore(botaoHome, mascoteHome);
+        } else {
+            const botaoOutras = document.createElement("button");
+            botaoOutras.type = "button";
+            botaoOutras.id = "btnAssistenteOutras";
+            botaoOutras.className = "assistente-acesso-outras";
+            botaoOutras.setAttribute("aria-haspopup", "dialog");
+            botaoOutras.setAttribute("aria-controls", "painelAssistenteBixuco");
+            botaoOutras.setAttribute("aria-expanded", "false");
+            botaoOutras.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i><span data-pt="Conversar com Bixuco" data-en="Chat with Bixuco">Conversar com Bixuco</span>`;
+            document.body.appendChild(botaoOutras);
+        }
+
+        const fundo = document.createElement("div");
+        fundo.id = "fundoAssistenteBixuco";
+        fundo.className = "assistente-sobreposicao";
+        fundo.hidden = true;
+        document.body.appendChild(fundo);
+
         const painel = document.createElement("section");
         painel.id = "painelAssistenteBixuco";
         painel.className = "assistente-painel-flutuante";
         painel.setAttribute("aria-hidden", "true");
         painel.setAttribute("role", "dialog");
-        painel.setAttribute("aria-label", "Conversa com o Assistente Bixuco");
+        painel.setAttribute("aria-modal", "true");
+        painel.setAttribute("aria-labelledby", "tituloAssistenteBixuco");
+        painel.setAttribute("tabindex", "-1");
         painel.innerHTML = `
             <div class="assistente-painel__cabecalho">
                 <div class="assistente-painel__marca">
                     <span class="assistente-painel__icone"><img src="/img/Bixuco_home.png" alt=""></span>
                     <div>
-                        <strong>Assistente Bixuco</strong>
+                        <strong id="tituloAssistenteBixuco" data-pt="Assistente Bixuco" data-en="Bixuco Assistant">Assistente Bixuco</strong>
                         <small><span class="assistente-painel__status" aria-hidden="true"></span>
                             <span id="statusAssistenteBixuco" data-pt="Seu apoio no dia a dia" data-en="Here to help every day">Seu apoio no dia a dia</span>
                         </small>
@@ -468,7 +494,8 @@
         const botoesSugestao = [...sugestoesEl.querySelectorAll("button")];
         const botoesAbrir = [
             document.getElementById("btnAssistenteTopo"),
-            document.getElementById("btnAssistenteSidebar")
+            document.getElementById("btnAssistenteHome"),
+            document.getElementById("btnAssistenteOutras")
         ].filter(Boolean);
         let historicoCarregado = false;
         let enviando = false;
@@ -489,8 +516,11 @@
             painel.setAttribute("aria-label", tAssistente("Conversa com o Assistente Bixuco", "Chat with Bixuco Assistant"));
             sugestoesEl.setAttribute("aria-label", tAssistente("Perguntas sugeridas", "Suggested questions"));
             botoesAbrir.forEach(btn => {
-                btn.setAttribute("aria-label", tAssistente("Abrir Assistente Bixuco", "Open Bixuco Assistant"));
-                if (btn.id === "btnAssistenteSidebar") btn.title = tAssistente("Assistente Bixuco — Tem dúvidas?", "Bixuco Assistant — Questions?");
+                btn.setAttribute("aria-label", tAssistente("Conversar com Assistente Bixuco", "Chat with Bixuco Assistant"));
+                btn.title = tAssistente("Conversar com Bixuco", "Chat with Bixuco");
+                btn.querySelectorAll("[data-pt][data-en]").forEach(elemento => {
+                    elemento.textContent = tAssistente(elemento.dataset.pt, elemento.dataset.en);
+                });
             });
             painel.querySelectorAll("[data-pt][data-en]").forEach(elemento => {
                 elemento.textContent = tAssistente(elemento.dataset.pt, elemento.dataset.en);
@@ -570,18 +600,36 @@
         }
 
         function abrirAssistente() {
+            if (painel.classList.contains("aberto")) return;
+            // Abriu por URL? Ainda assim devolvemos foco a um atalho visível ao fechar.
+            if (!ultimoBotaoAbrir) {
+                ultimoBotaoAbrir = botoesAbrir.find(btn => btn.getClientRects().length) || null;
+            }
+            fundo.hidden = false;
             painel.classList.add("aberto");
             painel.setAttribute("aria-hidden", "false");
+            document.body.classList.add("assistente-modal-aberto");
             botoesAbrir.forEach(btn => btn.setAttribute("aria-expanded", "true"));
             carregarHistoricoFlutuante();
-            setTimeout(() => input.focus(), 80);
+            setTimeout(() => {
+                if (painel.classList.contains("aberto")) {
+                    input.focus();
+                    rolarFimAssistente();
+                }
+            }, 80);
         }
 
         function fecharAssistente() {
+            if (!painel.classList.contains("aberto")) return;
+            fundo.hidden = true;
             painel.classList.remove("aberto");
             painel.setAttribute("aria-hidden", "true");
+            document.body.classList.remove("assistente-modal-aberto");
             botoesAbrir.forEach(btn => btn.setAttribute("aria-expanded", "false"));
-            ultimoBotaoAbrir?.focus();
+            const destino = ultimoBotaoAbrir?.getClientRects().length
+                ? ultimoBotaoAbrir
+                : botoesAbrir.find(btn => btn.getClientRects().length);
+            destino?.focus();
         }
 
         botoesAbrir.forEach(btn => btn.addEventListener("click", (e) => {
@@ -590,6 +638,7 @@
             painel.classList.contains("aberto") ? fecharAssistente() : abrirAssistente();
         }));
         btnFechar.addEventListener("click", fecharAssistente);
+        fundo.addEventListener("click", fecharAssistente);
 
         btnNova.addEventListener("click", async () => {
             if (enviando || carregandoHistorico) return;
@@ -677,7 +726,33 @@
             input.style.height = `${Math.min(input.scrollHeight, 120)}px`;
         });
         document.addEventListener("keydown", (e) => {
-            if (e.key === "Escape" && painel.classList.contains("aberto")) fecharAssistente();
+            if (!painel.classList.contains("aberto")) return;
+            if (e.key === "Escape") {
+                e.preventDefault();
+                fecharAssistente();
+                return;
+            }
+            // O foco permanece dentro do modal enquanto ele estiver aberto.
+            if (e.key !== "Tab") return;
+            const focaveis = [...painel.querySelectorAll("button:not(:disabled), textarea:not(:disabled)")]
+                .filter(el => el.getClientRects().length > 0);
+            if (!focaveis.length) {
+                e.preventDefault();
+                painel.focus();
+                return;
+            }
+            const primeiro = focaveis[0];
+            const ultimo = focaveis[focaveis.length - 1];
+            if (!painel.contains(document.activeElement)) {
+                e.preventDefault();
+                primeiro.focus();
+            } else if (e.shiftKey && document.activeElement === primeiro) {
+                e.preventDefault();
+                ultimo.focus();
+            } else if (!e.shiftKey && document.activeElement === ultimo) {
+                e.preventDefault();
+                primeiro.focus();
+            }
         });
 
         if (new URLSearchParams(window.location.search).get("abrirAssistente") === "1") {

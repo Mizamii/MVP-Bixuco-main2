@@ -285,8 +285,8 @@
 }
 
 /* ==========================================================
-   ASSISTENTE BIXUCO — chat flutuante, estilo conversa
-   Escopo somente da IA. A sidebar continua com a rolagem original.
+   ASSISTENTE BIXUCO — janela central de conversa
+   A Home mantém toda a área de calendário, mapa e sidebar intacta.
    ========================================================== */
 .topo-acoes { display:flex; align-items:center; gap:.55rem; margin-left:auto; }
 
@@ -321,24 +321,57 @@
    usamos a dica nativa (title), em vez de deixar texto cortado. */
 .assistente-atalho-wrapper--sidebar .assistente-atalho__dica { display:none; }
 
+/* Abre perto do mascote, sem ocupar lugar extra na barra lateral. */
+.saudacao > div:first-child { min-width:0; margin-right:auto; }
+.assistente-acesso-home,
+.assistente-acesso-outras {
+    align-items:center; justify-content:center; gap:9px;
+    padding:11px 17px; border:1px solid rgba(50,194,109,.30);
+    border-radius:999px; background:var(--cor-fundo-card);
+    color:var(--cor-texto-principal); font:inherit; font-size:.82rem; font-weight:700;
+    white-space:nowrap; cursor:pointer;
+    box-shadow:0 3px 12px rgba(19,47,57,.055);
+    transition:background .15s ease,border-color .15s ease,box-shadow .15s ease;
+}
+.assistente-acesso-home { display:inline-flex; margin-left:12px; margin-right:15px; flex:0 0 auto; }
+.assistente-acesso-outras {
+    display:inline-flex; position:fixed; bottom:24px; right:26px; z-index:920;
+    box-shadow:0 9px 22px rgba(19,47,57,.13);
+}
+.assistente-acesso-home i,.assistente-acesso-outras i { color:#32C26D; font-size:1rem; }
+.assistente-acesso-home:hover,.assistente-acesso-outras:hover {
+    background:rgba(50,194,109,.075); border-color:#32C26D;
+    box-shadow:0 6px 16px rgba(19,47,57,.1);
+}
+.assistente-acesso-home:focus-visible,.assistente-acesso-outras:focus-visible {
+    outline:3px solid #0AB7FB; outline-offset:3px;
+}
+.assistente-sobreposicao {
+    position:fixed; inset:0; z-index:10049;
+    background:rgba(18,34,43,.52); backdrop-filter:blur(3px);
+}
+.assistente-sobreposicao[hidden] { display:none!important; }
+body.assistente-modal-aberto .conteudo-corpo { overflow:hidden; }
+
 .assistente-painel-flutuante {
-    position:fixed; right:20px; bottom:20px; top:auto;
+    position:fixed; left:50%; top:50%; right:auto; bottom:auto;
+    transform:translate(-50%,-50%);
     display:none; flex-direction:column;
-    width:min(424px, calc(100vw - 32px));
-    height:min(680px, calc(100dvh - 42px));
-    max-height:calc(100vh - 42px);
+    width:min(652px, calc(100vw - 40px));
+    height:min(724px, calc(100dvh - 60px));
+    max-height:calc(100dvh - 40px);
     min-height:300px;
     overflow:hidden; isolation:isolate;
-    border:1px solid var(--cor-borda); border-radius:22px;
+    border:1px solid var(--cor-borda); border-radius:24px;
     background:var(--cor-fundo-card);
-    box-shadow:0 22px 72px rgba(19,47,57,.21),0 5px 20px rgba(19,47,57,.1);
+    box-shadow:0 34px 92px rgba(10,30,43,.26),0 6px 22px rgba(10,30,43,.1);
     z-index:10050;
     font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
 }
 .assistente-painel-flutuante.aberto { display:flex; }
 .assistente-painel__cabecalho {
     flex:0 0 auto; display:flex; align-items:center; justify-content:space-between;
-    gap:12px; min-height:76px; padding:13px 15px;
+    gap:12px; min-height:78px; padding:14px 21px;
     background:var(--cor-fundo-card); border-bottom:1px solid var(--cor-borda-suave);
 }
 .assistente-painel__marca { display:flex; align-items:center; min-width:0; gap:10px; }
@@ -386,14 +419,14 @@
 
 .assistente-painel__mensagens {
     flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain;
-    display:flex; flex-direction:column; gap:11px; padding:18px 15px 20px;
+    display:flex; flex-direction:column; gap:13px; padding:22px 26px 24px;
     background:var(--cor-fundo-pagina); scroll-behavior:smooth;
 }
 .assistente-painel__linha { display:flex; width:100%; align-items:flex-end; }
 .assistente-painel__linha.usuario { justify-content:flex-end; }
 .assistente-painel__linha.bixuco { justify-content:flex-start; }
 .assistente-painel__bolha {
-    max-width:88%; min-width:0; padding:11px 14px; border-radius:17px;
+    max-width:82%; min-width:0; padding:13px 16px; border-radius:18px;
     color:var(--cor-texto-principal); background:var(--cor-fundo-card);
     border:1px solid var(--cor-borda-suave); font-size:.87rem;
     line-height:1.55; white-space:pre-wrap; overflow-wrap:anywhere;
@@ -424,7 +457,7 @@ body.tema-escuro .assistente-painel__linha.usuario .assistente-painel__bolha {
 .assistente-painel__carregando { margin:auto; color:var(--cor-texto-esmaecido); font-size:.82rem; }
 
 .assistente-painel__rodape { flex:0 0 auto; background:var(--cor-fundo-card); border-top:1px solid var(--cor-borda-suave); }
-.assistente-painel__form { display:flex; align-items:flex-end; gap:9px; padding:13px 13px 6px; }
+.assistente-painel__form { display:flex; align-items:flex-end; gap:9px; padding:16px 20px 7px; }
 .assistente-painel__form textarea {
     flex:1 1 auto; min-width:0; min-height:43px; max-height:120px; resize:none;
     padding:12px 14px; border:1px solid var(--cor-borda); border-radius:18px;
@@ -445,16 +478,27 @@ body.tema-escuro .assistente-painel__linha.usuario .assistente-painel__bolha {
     margin:0; padding:2px 16px 11px; text-align:center; font-size:.67rem;
     color:var(--cor-texto-esmaecido); line-height:1.4;
 }
+@media (min-width:769px) and (max-width:1120px) {
+    .assistente-acesso-home { width:43px; height:43px; padding:0; }
+    .assistente-acesso-home span { display:none; }
+}
 @media (max-width:768px) {
+    /* O botão do cabeçalho é o único atalho no celular. */
+    .assistente-acesso-home,.assistente-acesso-outras { display:none; }
     .assistente-painel-flutuante {
-        left:8px; right:8px; bottom:max(8px, env(safe-area-inset-bottom)); top:8px;
-        width:auto; height:auto; min-height:0; max-height:none; border-radius:18px;
+        left:0; right:0; bottom:0; top:0; transform:none;
+        width:100%; height:100dvh; min-height:0; max-height:none;
+        border:0; border-radius:0;
     }
     .assistente-atalho__dica { display:none; }
     .assistente-painel__marca small { font-size:.67rem; }
+    .assistente-painel__cabecalho { padding-top:max(14px,env(safe-area-inset-top)); }
+    .assistente-painel__mensagens { padding:18px 15px; }
+    .assistente-painel__form { padding:12px 12px 6px; }
+    .assistente-painel__aviso { padding-bottom:max(11px, env(safe-area-inset-bottom)); }
 }
 @media (max-height:520px) and (min-width:769px) {
-    .assistente-painel-flutuante { height:calc(100dvh - 20px); bottom:10px; }
+    .assistente-painel-flutuante { height:calc(100dvh - 20px); max-height:calc(100dvh - 20px); }
 }
 @media (prefers-reduced-motion:reduce) {
     .assistente-painel__linha.pensando span { animation:none; }
