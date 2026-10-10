@@ -9999,114 +9999,168 @@ function mensagemAssistenteIncompleta(mensagem) {
     return final.length > 150 && !/[.!?…)”"']$/.test(final);
 }
 
+// Bloqueio temporário para não ficar solicitando à Groq durante um HTTP 429.
+// É local ao processo Node.js; em múltiplas instâncias, usar controle compartilhado.
+let groqBloqueadoAte = 0;
+
+function segundosEsperaGroq() {
+    return Math.max(0, Math.ceil((groqBloqueadoAte - Date.now()) / 1000));
+}
+
+function interpretarRetryAfterGroq(valor) {
+    if (!valor) return 60; // Fallback conservador se o provedor não informar prazo.
+    const segundos = Number(valor);
+    if (Number.isFinite(segundos) && segundos >= 0) {
+        return Math.min(86400, Math.max(1, Math.ceil(segundos)));
+    }
+    const data = Date.parse(valor);
+    if (Number.isFinite(data)) {
+        return Math.min(86400, Math.max(1, Math.ceil((data - Date.now()) / 1000)));
+    }
+    return 60;
+}
+
+function mensagemLimiteGroq(idioma, segundos, mensagemSalva = false) {
+    const n = Math.max(1, Number(segundos) || 60);
+    const espera = n >= 3600
+        ? `${Math.ceil(n / 3600)} ${idioma === "en" ? "hour(s)" : "hora(s)"}`
+        : n >= 60
+            ? `${Math.ceil(n / 60)} ${idioma === "en" ? "minute(s)" : "minuto(s)"}`
+            : `${n} ${idioma === "en" ? "second(s)" : "segundo(s)"}`;
+    return idioma === "en"
+        ? `The AI service has reached its usage limit. Please wait about ${espera} before trying again. ${mensagemSalva ? "Your question was saved." : "This attempt was not saved."}`
+        : `O serviço de IA atingiu um limite de uso. Aguarde aproximadamente ${espera} antes de tentar novamente. ${mensagemSalva ? "Sua pergunta foi salva." : "Esta tentativa não foi salva."}`;
+}
+
+// Reaproveita SOMENTE frases já concluídas. Não gera texto factual novo e não
+// consome uma segunda requisição quando a resposta termina em "embora", etc.
+function finalizarRespostaParcialAssistente(texto) {
+    const bruto = String(texto || "").trim().slice(0, 4000);
+    let ultimoFim = -1;
+    const pontos = /[.!?](?=\s|$)/g;
+    for (const achado of bruto.matchAll(pontos)) {
+        if (achado.index >= 35) ultimoFim = achado.index + achado[0].length;
+    }
+    if (ultimoFim < 25) return null;
+    const completo = bruto.slice(0, ultimoFim).trim();
+    return completo + "\n\n" + "(Resposta resumida: não foi possível concluir todos os detalhes. Você pode perguntar sobre um relatório específico.)";
+}
+
 async function chamarGroqAssistente({ promptSistema, historico = [], mensagem }) {
-    const historicoSeguro = (Array.isArray(historico) ? historico : [])
-        .slice(-4)
-        .filter(item => item && (item.role === "user" || item.role === "assistant") && typeof item.content === "string")
-        .map(item => ({
-            role: item.role,
-            content: item.content.slice(0, 350)
-        }));
-
-    // Tenta novamente somente se a resposta vier interrompida ou inválida.
-    // Não repete falhas HTTP, como 429 (limite de requisições da Groq).
-    for (let tentativa = 0; tentativa < 2; tentativa++) {
-        const repetindo = tentativa === 1;
-        const instrucaoFinal = repetindo
-            ? "\n\nIMPORTANTE: A resposta anterior ficou incompleta. Responda novamente à pergunta inteira, em até 2 parágrafos curtos, sem terminar no meio de uma frase. Preserve os dados reais e as regras de segurança. Termine a última frase com pontuação."
-            : "\n\nEscreva respostas com frases completas e uma conclusão natural. Não termine no meio de uma frase.";
-
-        const respostaGroq = await fetch(
-            "https://api.groq.com/openai/v1/chat/completions",
-            {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${GROQ_API_KEY}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    model: GROQ_MODEL,
-                    messages: [
-                        { role: "system", content: promptSistema + instrucaoFinal },
-                        ...historicoSeguro,
-                        { role: "user", content: String(mensagem || "").slice(0, 1000) }
-                    ],
-                    reasoning_effort: "none",
-                    temperature: 0.15,
-                    max_completion_tokens: repetindo ? 1600 : 1100,
-                    response_format: {
-                        type: "json_schema",
-                        json_schema: {
-                            name: "resposta_assistente_bixuco",
-                            strict: true,
-                            schema: {
-                                type: "object",
-                                properties: {
-                                    mensagem: { type: "string" },
-                                    atualizacoes: {
-                                        type: "array",
-                                        items: {
-                                            type: "object",
-                                            properties: {
-                                                id: { type: "string" },
-                                                resposta: { type: "string" }
-                                            },
-                                            required: ["id", "resposta"],
-                                            additionalProperties: false
-                                        }
-                                    }
-                                },
-                                required: ["mensagem", "atualizacoes"],
-                                additionalProperties: false
-                            }
-                        }
-                    }
-                })
-            }
-        );
-
-        if (!respostaGroq.ok) {
-            const detalhe = await respostaGroq.text();
-            const erro = new Error("Falha ao consultar o Assistente Bixuco.");
-            erro.statusGroq = respostaGroq.status;
-            erro.detalheGroq = detalhe;
-            throw erro;
-        }
-
-        const dadosGroq = await respostaGroq.json();
-        const escolha = dadosGroq?.choices?.[0];
-        const motivoFinalizacao = escolha?.finish_reason;
-        let resposta;
-        try {
-            resposta = JSON.parse(escolha?.message?.content || "");
-        } catch (_) {
-            resposta = null;
-        }
-
-        const texto = typeof resposta?.mensagem === "string"
-            ? resposta.mensagem.trim()
-            : "";
-        const finalizacaoPorLimite = motivoFinalizacao === "length" || motivoFinalizacao === "max_tokens";
-        const finalizacaoInesperada = Boolean(motivoFinalizacao && motivoFinalizacao !== "stop");
-        const incompleta = !resposta || mensagemAssistenteIncompleta(texto) || texto.length > 4000;
-
-        if (!finalizacaoPorLimite && !finalizacaoInesperada && !incompleta) {
-            return {
-                mensagem: texto,
-                atualizacoes: Array.isArray(resposta.atualizacoes) ? resposta.atualizacoes : []
-            };
-        }
-
-        // Log técnico sem registrar mensagens nem informações da criança.
-        console.warn("Assistente Bixuco: geração incompleta.", {
-            tentativa: tentativa + 1,
-            motivo: motivoFinalizacao || "conteudo_incompleto",
-            tokensSaida: dadosGroq?.usage?.completion_tokens ?? null
-        });
+    const espera = segundosEsperaGroq();
+    if (espera > 0) {
+        const erro = new Error("Aguarde o limite de uso da Groq ser liberado.");
+        erro.statusGroq = 429;
+        erro.retryAfterSegundos = espera;
+        throw erro;
     }
 
-    // Não publica nem grava um texto cortado no histórico.
-    throw new Error("A IA não conseguiu gerar uma resposta completa após duas tentativas.");
+    const perguntaAtual = String(mensagem || "").trim().toLowerCase();
+    const historicoSeguro = (Array.isArray(historico) ? historico : [])
+        .filter(item => item && (item.role === "user" || item.role === "assistant") && typeof item.content === "string" && item.status !== "erro")
+        // Não repete a mesma pergunta que já está salva após tentativas falhadas.
+        .filter(item => item.role !== "user" || item.content.trim().toLowerCase() !== perguntaAtual)
+        .slice(-4)
+        .map(item => ({ role: item.role, content: item.content.slice(0, 240) }));
+
+    // Uma única chamada por pergunta: não dobrar tokens/requisições com um retry.
+    // Prefere respostas curtas e completas para relatórios extensos.
+    const instrucaoFinal = "\n\nResponda objetivamente, preferencialmente em até 130 palavras e no máximo 3 parágrafos. Dê prioridade aos dados e datas que respondem à pergunta. Conclua todas as frases; se faltar espaço, não inicie um novo assunto.";
+
+    const respostaGroq = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+            "Authorization": `Bearer ${GROQ_API_KEY}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            model: GROQ_MODEL,
+            messages: [
+                { role: "system", content: promptSistema + instrucaoFinal },
+                ...historicoSeguro,
+                { role: "user", content: String(mensagem || "").slice(0, 1000) }
+            ],
+            reasoning_effort: "none",
+            temperature: 0.15,
+            max_completion_tokens: 1000,
+            response_format: {
+                type: "json_schema",
+                json_schema: {
+                    name: "resposta_assistente_bixuco",
+                    strict: true,
+                    schema: {
+                        type: "object",
+                        properties: {
+                            mensagem: { type: "string" },
+                            atualizacoes: {
+                                type: "array",
+                                items: {
+                                    type: "object",
+                                    properties: {
+                                        id: { type: "string" },
+                                        resposta: { type: "string" }
+                                    },
+                                    required: ["id", "resposta"],
+                                    additionalProperties: false
+                                }
+                            }
+                        },
+                        required: ["mensagem", "atualizacoes"],
+                        additionalProperties: false
+                    }
+                }
+            }
+        })
+    });
+
+    if (!respostaGroq.ok) {
+        // Consome o corpo do erro sem registrar possíveis detalhes sensíveis.
+        await respostaGroq.text().catch(() => "");
+        const erro = new Error("Falha ao consultar o Assistente Bixuco.");
+        erro.statusGroq = respostaGroq.status;
+        // Evita registrar conteúdo das mensagens, tokens de acesso ou dados pessoais.
+        if (respostaGroq.status === 429) {
+            const segundos = interpretarRetryAfterGroq(respostaGroq.headers?.get?.("retry-after"));
+            groqBloqueadoAte = Math.max(groqBloqueadoAte, Date.now() + segundos * 1000);
+            erro.retryAfterSegundos = segundos;
+            console.warn("Assistente Bixuco: limite de uso Groq.", {
+                retryAfterSegundos: segundos,
+                tokensRestantes: respostaGroq.headers?.get?.("x-ratelimit-remaining-tokens") || null,
+                requisicoesRestantes: respostaGroq.headers?.get?.("x-ratelimit-remaining-requests") || null
+            });
+        } else {
+            console.warn("Assistente Bixuco: erro HTTP Groq.", { status: respostaGroq.status });
+        }
+        throw erro;
+    }
+
+    const dadosGroq = await respostaGroq.json();
+    const escolha = dadosGroq?.choices?.[0];
+    const motivoFinalizacao = escolha?.finish_reason;
+    let resposta;
+    try {
+        resposta = JSON.parse(escolha?.message?.content || "");
+    } catch (_) {
+        resposta = null;
+    }
+
+    const texto = typeof resposta?.mensagem === "string" ? resposta.mensagem.trim() : "";
+    const parcial = motivoFinalizacao !== "stop" || mensagemAssistenteIncompleta(texto) || texto.length > 4000;
+    if (resposta && texto && !parcial) {
+        return { mensagem: texto, atualizacoes: Array.isArray(resposta.atualizacoes) ? resposta.atualizacoes : [] };
+    }
+
+    console.warn("Assistente Bixuco: resposta incompleta.", {
+        motivo: motivoFinalizacao || "conteudo_invalido",
+        tokensSaida: dadosGroq?.usage?.completion_tokens ?? null
+    });
+    // Apenas quando o JSON foi válido e a geração não foi bloqueada.
+    // Ao resumir, NUNCA aplica alterações automáticas no relatório.
+    if (resposta && texto && motivoFinalizacao !== "content_filter") {
+        const completa = finalizarRespostaParcialAssistente(texto);
+        if (completa) return { mensagem: completa, atualizacoes: [] };
+    }
+    throw new Error("A IA não conseguiu produzir uma resposta completa. Tente uma pergunta mais específica.");
 }
 
 function validarAtualizacoesAssistente(atualizacoes, idsPermitidos) {
@@ -10737,6 +10791,18 @@ app.post(
                 });
             }
 
+            // Dicas salvas continuam disponíveis mesmo durante o bloqueio da Groq.
+            const esperaGroq = segundosEsperaGroq();
+            if (esperaGroq > 0 && !perguntaDicasDaContaAssistente(mensagem)) {
+                return res.status(429)
+                    .set("Retry-After", String(esperaGroq))
+                    .json({
+                        erro: mensagemLimiteGroq(idioma, esperaGroq, false),
+                        retryAfterSegundos: esperaGroq,
+                        mensagemSalva: false
+                    });
+            }
+
             const historicoAntes = await carregarHistoricoAssistente(usuarioId);
 
             // Salva a fala do usuário ANTES da IA. Assim, fechar a janela ou uma
@@ -10827,12 +10893,23 @@ app.post(
                 console.error(
                     "Erro Groq no Assistente Bixuco:",
                     erroGroq.statusGroq || erroGroq.message,
-                    erroGroq.detalheGroq || ""
+                    erroGroq.retryAfterSegundos ? `Aguardar ${erroGroq.retryAfterSegundos}s` : ""
                 );
 
+                if (erroGroq.statusGroq === 429) {
+                    const espera = erroGroq.retryAfterSegundos || segundosEsperaGroq() || 60;
+                    return res.status(429)
+                        .set("Retry-After", String(espera))
+                        .json({
+                            erro: mensagemLimiteGroq(idioma, espera, true),
+                            retryAfterSegundos: espera,
+                            mensagemSalva: true
+                        });
+                }
+
                 const textoFalha = idioma === "en"
-                    ? "I couldn't answer right now. Your message was saved; you can try again in a moment."
-                    : "Não consegui responder agora. Sua mensagem ficou salva; você pode tentar novamente em instantes.";
+                    ? "I couldn't answer right now. Your message was saved. Please try a shorter question later."
+                    : "Não consegui concluir a resposta agora. Sua mensagem ficou salva; tente depois com uma pergunta mais específica.";
 
                 await adicionarMensagemHistoricoAssistente(usuarioId, {
                     role: "assistant",
@@ -10840,8 +10917,7 @@ app.post(
                     status: "erro"
                 });
 
-                const status = erroGroq.statusGroq === 429 ? 429 : 502;
-                return res.status(status).json({ erro: textoFalha, mensagemSalva: true });
+                return res.status(502).json({ erro: textoFalha, mensagemSalva: true });
             }
 
             let respostasAtualizadas = estadoRelatorio.respostas;
@@ -11401,7 +11477,7 @@ app.post(
                 console.error(
                     "Erro Groq no chat do relatório:",
                     erroGroq.statusGroq || erroGroq.message,
-                    erroGroq.detalheGroq || ""
+                    erroGroq.retryAfterSegundos ? `Aguardar ${erroGroq.retryAfterSegundos}s` : ""
                 );
 
                 const textoFalhaRelatorio = idioma === "en"
@@ -11424,12 +11500,13 @@ app.post(
                     erroGroq.statusGroq === 429
                 ) {
 
-                    return res.status(429).json({
-                        erro:
-                            idioma === "en"
-                                ? "Too many messages in a short time. Please wait a moment and try again."
-                                : "O chat recebeu muitas mensagens em pouco tempo. Aguarde um momento e tente novamente."
-                    });
+                    const espera = erroGroq.retryAfterSegundos || segundosEsperaGroq() || 60;
+                    return res.status(429)
+                        .set("Retry-After", String(espera))
+                        .json({
+                            erro: mensagemLimiteGroq(idioma, espera, true),
+                            retryAfterSegundos: espera
+                        });
 
                 }
 
