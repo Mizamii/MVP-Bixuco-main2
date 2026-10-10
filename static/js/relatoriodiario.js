@@ -1225,15 +1225,15 @@ async function renderizarHistoricoChat() {
 
         mensagemInicial =
             quantidadeJaRegistrada > 0
-                ? "Hi! I already have some information from today's report. Tell me how the rest of the day went in your own words — you can mention several things at once. If you remember something differently later, just correct me."
-                : "Hi! Let's make today's report feel more like a conversation. Tell me how the day went in your own words — you can mention several things at once. If you remember something differently later, just correct me.";
+                ? "Hi! I'm the Bixuco Assistant. I already have some information from today's report. You can keep telling me about the day, or ask me about Bixuco records linked to your account, the device, the Sensory Profile or how the system works."
+                : "Hi! I'm the Bixuco Assistant. You can tell me how the day went so I can organize the report, or ask me about Bixuco records linked to your account, the device, the Sensory Profile or how the system works.";
 
     } else {
 
         mensagemInicial =
             quantidadeJaRegistrada > 0
-                ? "Oi! Já tenho algumas informações do relatório de hoje. Me conta como foi o restante do dia do seu jeito — pode falar de várias coisas de uma vez. Se lembrar de algo diferente depois, é só me corrigir."
-                : "Oi! Vamos fazer o relatório de hoje de um jeito mais leve. Me conta como foi o dia dela do seu jeito — pode falar de várias coisas de uma vez. Se lembrar de algo diferente depois, é só me corrigir.";
+                ? "Oi! Sou o Assistente Bixuco. Já tenho algumas informações do relatório de hoje. Você pode continuar me contando sobre o dia ou perguntar sobre os registros do Bixuco vinculados à sua conta, o dispositivo, o Perfil Sensorial ou o próprio sistema."
+                : "Oi! Sou o Assistente Bixuco. Você pode me contar como foi o dia para eu organizar o relatório ou perguntar sobre os registros do Bixuco vinculados à sua conta, o dispositivo, o Perfil Sensorial ou o próprio sistema.";
 
     }
 
@@ -1290,8 +1290,8 @@ function atualizarTextosChat() {
 
     inputChatRelatorio.placeholder =
         idiomaAtual === "en"
-            ? "Tell me how the day went..."
-            : "Conte como foi o dia...";
+            ? "Tell me about the day or ask about Bixuco..."
+            : "Conte sobre o dia ou pergunte sobre o Bixuco...";
 
     btnEnviarChat.setAttribute(
         "aria-label",

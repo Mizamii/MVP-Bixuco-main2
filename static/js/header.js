@@ -77,6 +77,7 @@
     const codigo = topo.dataset.codigo || "";
 
     const ehPerfil = paginaAtual === "perfil";
+    const ehResponsavelAssinante = urlPerfil === "/perfil";
 
     // Removido o item separado "Meu perfil": agora é o próprio bloco
     // com foto+nome (menu-perfil__conta, virou um <a>) que leva pro
@@ -109,6 +110,17 @@
                     <i class="fa-regular fa-user"></i>
                     <span data-pt="Meu perfil" data-en="My profile">Meu perfil</span>
                 </a>
+
+                ${ehResponsavelAssinante ? `
+                <a class="menu-perfil__item" role="menuitem" href="/assistente">
+                    <i class="fa-solid fa-sparkles"></i>
+                    <span data-pt="Assistente Bixuco" data-en="Bixuco Assistant">Assistente Bixuco</span>
+                </a>
+
+                <a class="menu-perfil__item" role="menuitem" href="/planos">
+                    <i class="fa-regular fa-credit-card"></i>
+                    <span data-pt="Planos" data-en="Plans">Planos</span>
+                </a>` : ""}
 
                 <button type="button" class="menu-perfil__item" role="menuitem" id="btnTraduzir">
                     <i class="fa-solid fa-language"></i>
