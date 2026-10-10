@@ -2705,7 +2705,7 @@ app.get("/api/relatorio-diario/grafico", estaLogado, exigeResponsavel, async (re
              FROM eventos_bixuco e
              JOIN criancas c ON c.id = e.crianca_id
              WHERE c.usuario_id = $1
-             AND DATE((e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = $2::date
+             AND DATE(e.criado_em) = $2::date
              ORDER BY e.criado_em ASC`,
             [usuarioId, dataFiltro]
         );
@@ -3647,21 +3647,21 @@ app.get("/api/relatorios", estaLogado, exigeResponsavel, async (req, res) => {
         // =====================
 
         const crisesHoje = await contarCrisesEIsolados(usuarioId, `
-            AND DATE((e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = (NOW() AT TIME ZONE 'America/Sao_Paulo')::date
+            AND DATE(e.criado_em) = (NOW() AT TIME ZONE 'America/Sao_Paulo')::date
         `);
 
         const crisesOntem = await contarCrisesEIsolados(usuarioId, `
-            AND DATE((e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '1 day'
+            AND DATE(e.criado_em) = (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - INTERVAL '1 day'
         `);
 
         const crisesMes = await contarCrisesEIsolados(usuarioId, `
-            AND EXTRACT(MONTH FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(MONTH FROM NOW() AT TIME ZONE 'America/Sao_Paulo')
-            AND EXTRACT(YEAR  FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(YEAR  FROM NOW() AT TIME ZONE 'America/Sao_Paulo')
+            AND EXTRACT(MONTH FROM (e.criado_em)) = EXTRACT(MONTH FROM NOW() AT TIME ZONE 'America/Sao_Paulo')
+            AND EXTRACT(YEAR  FROM (e.criado_em)) = EXTRACT(YEAR  FROM NOW() AT TIME ZONE 'America/Sao_Paulo')
         `);
 
         const crisesMesAnterior = await contarCrisesEIsolados(usuarioId, `
-            AND EXTRACT(MONTH FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(MONTH FROM (NOW() AT TIME ZONE 'America/Sao_Paulo') - INTERVAL '1 month')
-            AND EXTRACT(YEAR  FROM (e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = EXTRACT(YEAR  FROM (NOW() AT TIME ZONE 'America/Sao_Paulo') - INTERVAL '1 month')
+            AND EXTRACT(MONTH FROM (e.criado_em)) = EXTRACT(MONTH FROM (NOW() AT TIME ZONE 'America/Sao_Paulo') - INTERVAL '1 month')
+            AND EXTRACT(YEAR  FROM (e.criado_em)) = EXTRACT(YEAR  FROM (NOW() AT TIME ZONE 'America/Sao_Paulo') - INTERVAL '1 month')
         `);
 
         const totalHoje         = crisesHoje.crises;
@@ -4078,14 +4078,14 @@ app.get("/api/relatorios", estaLogado, exigeResponsavel, async (req, res) => {
             ) AS dia
             LEFT JOIN (
                 SELECT
-                    DATE(e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') AS dia,
+                    DATE(e.criado_em) AS dia,
                     COUNT(*)             AS total,
                     AVG(e.duracao_ms)    AS duracao_media,
                     AVG(e.forca)         AS forca_media
                 FROM eventos_bixuco e
                 JOIN criancas c ON c.id = e.crianca_id
                 WHERE c.usuario_id = $1
-                GROUP BY DATE(e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')
+                GROUP BY DATE(e.criado_em)
             ) cnt USING (dia)
             ORDER BY dia`,
             [usuarioId]
@@ -4271,7 +4271,7 @@ app.get("/api/alertas", estaLogado, exigeResponsavel, async (req, res) => {
              FROM eventos_bixuco e
              JOIN criancas c ON c.id = e.crianca_id
              WHERE c.usuario_id = $1
-             AND DATE((e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')) = $2::date
+             AND DATE(e.criado_em) = $2::date
              ORDER BY e.criado_em ASC`,
             [usuarioId, dataFiltro]
         );
@@ -6148,8 +6148,6 @@ app.post("/api/relatorio", estaLogado, exigeResponsavel, precisaPlano("medio"), 
 
                 AND DATE(
                     e.criado_em
-                    AT TIME ZONE 'UTC'
-                    AT TIME ZONE 'America/Sao_Paulo'
                 ) =
                 (
                     NOW()
@@ -7172,8 +7170,7 @@ app.get("/api/relatorio-paciente", estaLogado, exigeTerapeuta, async (req, res) 
             `
             AND EXTRACT(
                 MONTH FROM (
-                    e.criado_em AT TIME ZONE 'UTC'
-                    AT TIME ZONE 'America/Sao_Paulo'
+                    e.criado_em
                 )
             ) = EXTRACT(
                 MONTH FROM NOW() AT TIME ZONE 'America/Sao_Paulo'
@@ -7181,8 +7178,7 @@ app.get("/api/relatorio-paciente", estaLogado, exigeTerapeuta, async (req, res) 
 
             AND EXTRACT(
                 YEAR FROM (
-                    e.criado_em AT TIME ZONE 'UTC'
-                    AT TIME ZONE 'America/Sao_Paulo'
+                    e.criado_em
                 )
             ) = EXTRACT(
                 YEAR FROM NOW() AT TIME ZONE 'America/Sao_Paulo'
@@ -7195,8 +7191,7 @@ app.get("/api/relatorio-paciente", estaLogado, exigeTerapeuta, async (req, res) 
             `
             AND EXTRACT(
                 MONTH FROM (
-                    e.criado_em AT TIME ZONE 'UTC'
-                    AT TIME ZONE 'America/Sao_Paulo'
+                    e.criado_em
                 )
             ) = EXTRACT(
                 MONTH FROM (
@@ -7206,8 +7201,7 @@ app.get("/api/relatorio-paciente", estaLogado, exigeTerapeuta, async (req, res) 
 
             AND EXTRACT(
                 YEAR FROM (
-                    e.criado_em AT TIME ZONE 'UTC'
-                    AT TIME ZONE 'America/Sao_Paulo'
+                    e.criado_em
                 )
             ) = EXTRACT(
                 YEAR FROM (
@@ -7829,8 +7823,7 @@ app.get("/api/pacientes", estaLogado, exigeTerapeuta, async (req, res) => {
                     p.responsavel_id,
                     `
                     AND DATE(
-                        e.criado_em AT TIME ZONE 'UTC'
-                        AT TIME ZONE 'America/Sao_Paulo'
+                        e.criado_em
                     )
                     BETWEEN
                         (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - 6
@@ -9590,6 +9583,11 @@ async function montarContextoAssistente(usuarioId, { mensagem = "", historico = 
 
     // O bloco-base é propositalmente pequeno. Ele cobre perguntas frequentes
     // (plano, status e localização) sem enviar meses de dados a cada mensagem.
+    // O PostgreSQL ja usa America/Sao_Paulo nesta conexao (db Pool.options).
+    // DATE/TO_CHAR sobre criado_em preservam o horario local tanto para
+    // TIMESTAMP local quanto para TIMESTAMPTZ. Nao usar aqui
+    // AT TIME ZONE 'UTC' seguido de AT TIME ZONE 'America/Sao_Paulo':
+    // com um TIMESTAMP local, isso faria 15:22 aparecer como 12:22.
     const [
         agoraResultado,
         criancaResultado,
@@ -9628,8 +9626,8 @@ async function montarContextoAssistente(usuarioId, { mensagem = "", historico = 
             SELECT
                 e.criado_em,
                 e.tipo_evento,
-                TO_CHAR(e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM-DD') AS data_local,
-                TO_CHAR(e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo', 'HH24:MI') AS horario_local,
+                TO_CHAR(e.criado_em, 'YYYY-MM-DD') AS data_local,
+                TO_CHAR(e.criado_em, 'HH24:MI') AS horario_local,
                 GREATEST(0, EXTRACT(EPOCH FROM (NOW() - e.criado_em))::int) AS idade_segundos
             FROM eventos_bixuco e
             JOIN criancas c ON c.id = e.crianca_id
@@ -9642,8 +9640,8 @@ async function montarContextoAssistente(usuarioId, { mensagem = "", historico = 
                 l.latitude,
                 l.longitude,
                 l.bateria,
-                TO_CHAR(l.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM-DD') AS data_local,
-                TO_CHAR(l.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo', 'HH24:MI') AS horario_local,
+                TO_CHAR(l.criado_em, 'YYYY-MM-DD') AS data_local,
+                TO_CHAR(l.criado_em, 'HH24:MI') AS horario_local,
                 GREATEST(0, EXTRACT(EPOCH FROM (NOW() - l.criado_em))::int) AS idade_segundos
             FROM localizacoes_bixuco l
             JOIN criancas c ON c.id = l.crianca_id
@@ -9787,12 +9785,12 @@ async function montarContextoAssistente(usuarioId, { mensagem = "", historico = 
                     e.forca,
                     e.duracao_ms,
                     e.tipo_evento,
-                    TO_CHAR(e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM-DD') AS data_local,
-                    TO_CHAR(e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo', 'HH24:MI') AS horario_local
+                    TO_CHAR(e.criado_em, 'YYYY-MM-DD') AS data_local,
+                    TO_CHAR(e.criado_em, 'HH24:MI') AS horario_local
                 FROM eventos_bixuco e
                 JOIN criancas c ON c.id = e.crianca_id
                 WHERE c.usuario_id = $1
-                  AND DATE(e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo')
+                  AND DATE(e.criado_em)
                       BETWEEN (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - ($2::int)
                           AND (NOW() AT TIME ZONE 'America/Sao_Paulo')::date - ($3::int)
                 ORDER BY e.criado_em DESC
@@ -10176,7 +10174,7 @@ async function obterEstadoRelatorioParaAssistente(usuarioId) {
          FROM eventos_bixuco e
          JOIN criancas c ON c.id = e.crianca_id
          WHERE c.usuario_id = $1
-           AND DATE(e.criado_em AT TIME ZONE 'UTC' AT TIME ZONE 'America/Sao_Paulo') =
+           AND DATE(e.criado_em) =
                (NOW() AT TIME ZONE 'America/Sao_Paulo')::date
          LIMIT 1`,
         [usuarioId]
@@ -10967,9 +10965,6 @@ app.post(
 
                     AND DATE(
                         e.criado_em
-                        AT TIME ZONE 'UTC'
-                        AT TIME ZONE
-                        'America/Sao_Paulo'
                     ) =
                     (
                         NOW()
