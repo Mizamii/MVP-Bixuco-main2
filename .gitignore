@@ -1,13 +1,10 @@
 
-# Node
 node_modules/
 npm-debug.log
 
-# Variáveis de ambiente (nunca subir isso!)
 .env
 .env.bak
 
-# Android
 android/app/build/
 android/build/
 android/.gradle/
@@ -16,10 +13,8 @@ android/capacitor-cordova-android-plugins/build/
 *.apk
 *.aab
 
-# iOS (se um dia adicionar)
 ios/App/Pods/
 ios/App/build/
 
-# Sistema
 .DS_Store
 Thumbs.db

@@ -57,7 +57,7 @@ app.use(helmet({
                 "'self'",
                 "https://cdnjs.cloudflare.com",
                 "https://unpkg.com",
-                "https://cdn.jsdelivr.net",   // 🔧 adicionar isso
+                "https://cdn.jsdelivr.net",
                 "https://accounts.google.com",
                 "https://www.google.com/recaptcha/",
                 "https://www.gstatic.com/recaptcha/"
@@ -166,9 +166,9 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 dias
-        httpOnly: true,                                    // 🔧 impede que JS no navegador leia o cookie (mitiga roubo via XSS)
-        secure: process.env.NODE_ENV === "production",      // 🔧 só envia o cookie por HTTPS em produção
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
         sameSite: "lax"                                                                                          
     }
 }));
