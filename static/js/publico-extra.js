@@ -1,8 +1,8 @@
-// ==========================================================
-// publico-extra.js
-// Tradução genérica para telas públicas que não possuem
-// um JS próprio de idioma.
-// ==========================================================
+                                                             
+                   
+                                                        
+                           
+                                                             
 
 let idiomaPublicoAtual = localStorage.getItem("idioma") || "pt";
 

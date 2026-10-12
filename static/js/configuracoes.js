@@ -1,7 +1,7 @@
 
-// ==========================
-// TEMA
-// ==========================
+                             
+       
+                             
 
 function aplicarTema(tema) {
 
@@ -27,9 +27,9 @@ const temaSalvo = localStorage.getItem("tema") || "claro";
 aplicarTema(temaSalvo);
 
 
-// ==========================
-// CARREGA DADOS DO USUÁRIO
-// ==========================
+                             
+                           
+                             
 
 let ultimoTipoContaConfiguracoes = "Responsável";
 
@@ -74,17 +74,17 @@ async function carregarUsuario() {
 carregarUsuario();
 
 
-// ==========================
-// NOTIFICAÇÕES (TOGGLES)
-// ==========================
+                             
+                         
+                             
 
 const notifRelatorio = document.getElementById("notifRelatorio");
 const notifNovidades = document.getElementById("notifNovidades");
 
-// 🔧 FIX DO BUG: antes os checkboxes tinham o estado fixo no HTML
-// (sempre "checked" no lembrete, sempre desmarcado nas novidades),
-// então nunca refletiam o que estava realmente salvo no banco.
-// Agora buscamos o valor real ao carregar a página.
+                                                                  
+                                                                   
+                                                               
+                                                    
 async function carregarPreferenciasNotificacao() {
 
     try {
@@ -101,7 +101,7 @@ async function carregarPreferenciasNotificacao() {
     } catch (erro) {
 
         console.log("Erro ao carregar preferências de notificação:", erro);
-        // Em caso de erro, mantém os padrões que já estão no HTML
+
 
     }
 
@@ -142,9 +142,9 @@ notifNovidades.addEventListener("change", () => {
 carregarPreferenciasNotificacao();
 
 
-// ==========================
-// PAINEL DE NOTIFICAÇÕES (SININHO)
-// ==========================
+                             
+                                   
+                             
 
 const painelNotificacoes = document.getElementById("painelNotificacoes");
 const listaNotificacoes  = document.getElementById("listaNotificacoes");
@@ -225,9 +225,9 @@ document.addEventListener("click", (e) => {
 });
 
 
-// ==========================
-// COMPARTILHAR TERAPEUTA
-// ==========================
+                             
+                         
+                             
 
 document.getElementById("btnCompartilhar").addEventListener("click", () => {
     const mensagem = encodeURIComponent(
@@ -304,9 +304,9 @@ btnEnviarSenha.addEventListener("click", async () => {
 });
 
 
-// ==========================
-// PLANO E ASSINATURA (MODAL)
-// ==========================
+                             
+                             
+                             
 
 const modalPlano = document.getElementById("modalPlano");
 const btnGerenciarPlano = document.getElementById("btnGerenciarPlano");
@@ -461,9 +461,9 @@ btnConfirmarPlanoModal.addEventListener("click", async () => {
     }
 });
 
-// ==========================
-// EXCLUIR CONTA
-// ==========================
+                             
+                
+                             
 
 const btnExcluir        = document.getElementById("btnExcluirConta");
 const confirmarExclusao = document.getElementById("confirmarExclusao");
@@ -500,14 +500,14 @@ btnConfirmar.addEventListener("click", async () => {
             return;
         }
 
-        // 🔧 FIX: vai para / independente da resposta
-        // pois a sessão é destruída antes do JSON chegar
+                                                      
+                                                         
         window.location.href = "/logar";
 
     } catch (erro) {
 
         console.log("Erro ao excluir conta:", erro);
-        // Mesmo com erro de rede vai para home — a conta já foi excluída
+                                                                         
         window.location.href = "/";
 
     }
@@ -515,9 +515,9 @@ btnConfirmar.addEventListener("click", async () => {
 });
 
 
-// ==========================
-// TRADUÇÃO MANUAL
-// ==========================
+                             
+                  
+                             
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
@@ -589,12 +589,12 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
     }
 });
 
-// Aplica o idioma salvo ao carregar
+                                    
 aplicarIdiomaEstatico();
 
-// ==========================
-// SUBSTITUI OS ONCLICK/ONERROR INLINE (removidos por causa do CSP)
-// ==========================
+                             
+                                                                   
+                             
 
 document.getElementById("btnRelatorioDiario").addEventListener("click", () => {
     location.href = "/RelatorioDiario";
@@ -608,8 +608,8 @@ fotoUsuarioEl.addEventListener("error", function () {
 
 
 
-// Links antigos de gerenciamento de assinatura podem apontar para
-// /configuracoes?abrir=plano. O modal abre sem trocar o contexto da conta.
+                                                                  
+                                                                           
 if (new URLSearchParams(window.location.search).get("abrir") === "plano") {
     abrirModalPlano();
     const urlPlano = new URL(window.location.href);

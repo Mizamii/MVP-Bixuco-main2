@@ -5,9 +5,9 @@ const dicionario = {
     erroNotificacoes: { pt: "Não foi possível carregar as notificações.", en: "Couldn't load notifications." }
 };
 
-// ==========================
-// CONTEÚDO DOS CARDS (PT/EN)
-// ==========================
+                             
+                             
+                             
 
 const conteudo = {
 
@@ -411,9 +411,9 @@ const conteudo = {
 
 };
 
-// ==========================
-// MODAL DOS CARDS
-// ==========================
+                             
+                  
+                             
 
 const modal     = document.getElementById("modal");
 const tituloModal = document.getElementById("tituloModal");
@@ -423,7 +423,7 @@ const fecharBtn = document.getElementById("fecharModal");
 
 let topicoAtual = null;
 
-// resetarFoco = false quando é só uma re-renderização por troca de idioma
+                                                                          
 function abrirModal(id, resetarFoco = true) {
 
     const item = conteudo[id];

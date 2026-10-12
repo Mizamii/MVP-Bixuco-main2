@@ -12,7 +12,7 @@ function proximaPagina(){
 }
 
 
-/*passar o dedo*/
+                 
 
 let touchInicial = 0;
 
@@ -43,7 +43,7 @@ document.addEventListener("touchend",(e)=>{
 });
 
 
-/*passar o mouse*/
+                  
 
 let mousePressionado = false;
 
@@ -84,9 +84,9 @@ document.addEventListener("mouseup",(e)=>{
 });
 
 
-// ==========================
-// ANIMAÇÃO DO INDICADOR
-// ==========================
+                             
+                        
+                             
 
 (function animarIndicador(){
 
@@ -96,8 +96,8 @@ document.addEventListener("mouseup",(e)=>{
 
     if (!isNaN(indexAnterior) && indexAnterior !== indexAtual) {
 
-        const larguraDot = 6;   // tamanho do ponto inativo, em px
-        const gap        = 6.4; // gap entre eles (0.4rem ≈ 6.4px)
+        const larguraDot = 6;                                     
+        const gap        = 6.4;                                   
 
         const deslocamento = (indexAnterior - indexAtual) * (larguraDot + gap);
 

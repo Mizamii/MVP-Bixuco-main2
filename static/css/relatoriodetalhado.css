@@ -142,7 +142,7 @@ body * {
   gap: 0.4rem;
   font-size: 1.4rem;
   font-weight: 700;
-  color: var(--cor-texto-principal); /* sem isso herdava preto no modo escuro */
+  color: var(--cor-texto-principal);                                            
 }
 
 .card-resumo .valor i {
@@ -345,14 +345,14 @@ body * {
   }
 }
 
-/* Classificação visual de atividade do Bixuco — não clínica */
+                                                               
 .nivel-atividade--baixa { color: #32c26d !important; }
 .nivel-atividade--atencao { color: #c97800 !important; }
 .nivel-atividade--elevada { color: #e24c4c !important; }
 
-/* ==========================================================
-   MODO ESCURO — textos que ficavam escuros demais pra ler
-   ========================================================== */
+                                                             
+                                                          
+                                                                
 body.tema-escuro .card-resumo .valor.positivo {
   color: #5fe08f;
 }

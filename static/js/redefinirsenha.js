@@ -1,6 +1,6 @@
-// ==========================
-// TRADUÇÃO MANUAL
-// ==========================
+                             
+                  
+                             
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
@@ -57,25 +57,25 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 
 aplicarIdiomaEstatico();
 
-// ==========================
-// TOKEN DA URL
-// ==========================
-// O link do e-mail chega como /redefinir-senha?token=XXXX.
-// O servidor já validou o token antes de servir esta página —
-// aqui só precisamos reaproveitar o mesmo valor pra mandar
-// junto no POST.
+                             
+               
+                             
+                                                           
+                                                              
+                                                           
+                 
 
 const parametros = new URLSearchParams(window.location.search);
 const token = parametros.get("token");
 
 if (!token) {
-    // Sem token não tem como redefinir nada — volta pro login
+                                                              
     window.location.href = "/logar";
 }
 
-// ==========================
-// MOSTRAR / ESCONDER SENHA
-// ==========================
+                             
+                           
+                             
 
 function toggleSenha(inputId, iconeId) {
 
@@ -101,9 +101,9 @@ function toggleSenha(inputId, iconeId) {
 
 }
 
-// ==========================
-// MOSTRAR / LIMPAR ERROS
-// ==========================
+                             
+                         
+                             
 
 function mostrarErro(inputId, erroId, mensagem, permitirHTML = false) {
 
@@ -159,11 +159,11 @@ function limparErros() {
 
 }
 
-// ==========================
-// VALIDAÇÃO LOCAL
-// ==========================
-// Mesma regra que o backend realmente aplica em POST /redefinir-senha:
-// mínimo 6 caracteres e as duas senhas iguais.
+                             
+                  
+                             
+                                                                       
+                                               
 function validarCampos() {
 
     limparErros();
@@ -204,9 +204,9 @@ function validarCampos() {
 
 }
 
-// ==========================
-// ENVIO DO FORMULÁRIO
-// ==========================
+                             
+                      
+                             
 
 document.getElementById("formRedefinir").addEventListener("submit", async (evento) => {
 
@@ -238,7 +238,7 @@ document.getElementById("formRedefinir").addEventListener("submit", async (event
 
         if (resposta.ok) {
 
-            // Senha realmente trocada no banco — avisa e manda pro login
+                                                                         
             erroGeral.textContent   = traduzir(dados.mensagem) || traduzir("Senha redefinida com sucesso!");
             erroGeral.className     = "cadastro-form__erro cadastro-form__erro--geral cadastro-form__erro--sucesso";
             erroGeral.style.display = "block";

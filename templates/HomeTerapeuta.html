@@ -9,7 +9,7 @@
       integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
       crossorigin="anonymous" referrerpolicy="no-referrer">
 
-    <!-- tema.css precisa vir ANTES do CSS da página -->
+                                                        
     <link rel="stylesheet" href="/css/tema.css">
     <link rel="stylesheet" href="/css/layout.css">
     <link rel="stylesheet" href="/css/header.css">
@@ -19,8 +19,8 @@
     <link rel="icon" type="image/png" href="/img/logo-bixuco-colorida.png">
 
         <style>
-        /* Limita a altura da caixa de atividade recente e cria scroll
-           interno, em vez de deixar o card crescer até estourar a página */
+                                                                      
+                                                                            
         #listaAtividade {
             max-height: 260px;
             overflow-y: auto;
@@ -52,12 +52,12 @@
 
 <div class="container">
 
-    <!-- ========================= -->
-    <!-- MENU LATERAL -->
-    <!-- ========================= -->
+                                      
+                         
+                                      
     <aside class="sidebar">
 
-        <!-- logo_nome.png do amigo (com o nome junto ao logo) -->
+                                                                  
         <div class="logo">
             <img src="/img/logo_nome.png" alt="Logo Bixuco">
         </div>
@@ -102,7 +102,7 @@
             </button>
         </div>
 
-        <!-- Divisor em degradê do amigo — antes do Sair -->
+                                                            
         <div class="sidebar-divisor"></div>
 
         <a href="/logout" class="logout">
@@ -110,26 +110,26 @@
             <span data-pt="Sair" data-en="Log out">Sair</span>
         </a>
 
-        <!-- Perfil + notificações + tradução — só aparece no desktop, substituindo
-             a barra "topo" (ver header.js / layout.css) -->
+                                                                                   
+                                                            
         <div class="sidebar-usuario" id="sidebarUsuario"></div>
 
     </aside>
 
-    <!-- ========================= -->
-    <!-- CONTEÚDO PRINCIPAL -->
-    <!-- ========================= -->
+                                      
+                               
+                                      
     <main class="conteudo">
 
-        <!-- TOPO -->
+                     
         <header class="topo" id="topoApp" data-perfil="/PerfilTerapeuta" data-badge-id="badgeNotificacoes" data-nome-id="nomeTerapeuta" data-tipo-pt="Terapeuta" data-tipo-en="Therapist" data-codigo="padrao"></header>
 
-        <!-- CORPO COM SCROLL INTERNO — do amigo -->
+                                                    
         <div class="conteudo-corpo">
 
-            <!-- ========================= -->
-            <!-- LINHA DE CONTADORES -->
-            <!-- ========================= -->
+                                              
+                                        
+                                              
             <section class="linha-contadores">
 
                 <article class="contador">
@@ -164,12 +164,12 @@
 
             </section>
 
-            <!-- ========================= -->
-            <!-- LINHA PRINCIPAL: solicitações + atividade -->
-            <!-- ========================= -->
+                                              
+                                                              
+                                              
             <section class="linha-principal">
 
-                <!-- SOLICITAÇÕES PENDENTES -->
+                                               
                 <div class="card-solicitacoes">
 
                     <h2 data-pt="Solicitações pendentes" data-en="Pending requests">Solicitações pendentes</h2>
@@ -186,7 +186,7 @@
 
                 </div>
 
-                <!-- ATIVIDADE RECENTE -->
+                                          
                 <div class="card-atividade">
 
                     <h2 data-pt="Atividade recente" data-en="Recent activity">Atividade recente</h2>
@@ -205,10 +205,10 @@
 
             </section>
 
-        </div><!-- fim .conteudo-corpo -->
+        </div>                            
         <br>
 
-        <!-- Modal de confirmação inline (aceitar/recusar solicitações) -->
+                                                                           
         <div id="modalConfirmacao" class="modal-confirmacao" style="display: none;">
 
             <div class="modal-confirmacao__conteudo">
@@ -245,9 +245,9 @@
 
     </main>
 
-    <!-- ===================== -->
-    <!-- MENU INFERIOR (só mobile) -->
-    <!-- ===================== -->
+                                  
+                                      
+                                  
     <nav class="bottom-nav">
         <a href="/homeTerapeuta" class="ativo">
             <i class="fa-solid fa-house"></i>

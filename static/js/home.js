@@ -1,6 +1,6 @@
-// =========================
-// TRADUÇÃO MANUAL
-// =========================
+                            
+                  
+                            
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
@@ -90,9 +90,9 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 
     atualizarTextoBotaoDicas();
 
-    // Passa o idioma para o servidor: se as dicas salvas ainda não
-    // tiverem versão em inglês, ele traduz e salva (sem gastar a
-    // geração semanal).
+                                                                   
+                                                                 
+                        
     if (
         idiomaAtual === "en" &&
         dicasAtuais.some(d => !d.titulo_en || !d.texto_en)
@@ -116,9 +116,9 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 });
 
 
-// =========================
-// CARREGAR DADOS DO USUÁRIO
-// =========================
+                            
+                            
+                            
 
 let diasConsecutivosAtual = 0;
 let ultimoTipoContaHome = "Responsável";
@@ -303,9 +303,9 @@ function atualizarTextoSequencia(dias) {
 }
 
 
-// =========================
-// STATUS DO BIXUCO FÍSICO
-// =========================
+                            
+                          
+                            
 
 let ultimoEstadoBixuco = null;
 
@@ -498,9 +498,9 @@ function renderizarWidgetBixuco(estado) {
 }
 
 
-// =========================
-// DICAS
-// =========================
+                            
+        
+                            
 
 const btnGerarDicas =
     document.getElementById(
@@ -553,11 +553,11 @@ function escaparHTML(texto) {
 }
 
 
-// Dicas atuais na tela (para re-renderizar quando o idioma mudar)
+                                                                  
 let dicasAtuais = [];
 let dicaAberta = null;
 
-// Escolhe o idioma da dica. Dicas antigas (sem _en) continuam em português.
+                                                                            
 function textoDica(dica, campo) {
     if (idiomaAtual === "en" && dica[`${campo}_en`]) {
         return dica[`${campo}_en`];
@@ -668,8 +668,8 @@ modalDica.addEventListener(
 );
 
 
-// Carrega automaticamente ao abrir a página,
-// sem gastar crédito.
+                                             
+                      
 async function carregarDicasSalvas() {
 
     const traduzindo =
@@ -820,14 +820,14 @@ btnGerarDicas.addEventListener(
 );
 
 
-// Chama junto com as outras
-// inicializações da página.
+                            
+                            
 carregarDicasSalvas();
 
 
-// =========================
-// CALENDÁRIO
-// =========================
+                            
+             
+                            
 
 let dataAtual =
     new Date();
@@ -1040,12 +1040,12 @@ document.getElementById(
 };
 
 
-// Tema claro/escuro vem de /js/tema.js.
+                                        
 
 
-// =========================
-// PAINEL DE NOTIFICAÇÕES
-// =========================
+                            
+                         
+                            
 
 const painelNotificacoes =
     document.getElementById(
@@ -1221,9 +1221,9 @@ document.addEventListener(
 );
 
 
-// =========================
-// MAPA DO BIXUCO
-// =========================
+                            
+                 
+                            
 
 let mapaLeaflet = null;
 
@@ -1232,15 +1232,15 @@ let marcador = null;
 let camadaMapa = null;
 
 
-// Usamos Leaflet puro com tiles raster.
-// Isso evita o problema da camada MapLibre
-// aparecer em branco.
+                                        
+                                           
+                      
 const URL_MAPA =
     "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 
 
-// Centro inicial.
-// Não representa a localização do Bixuco.
+                  
+                                          
 let latAtual =
     -14.2350;
 
@@ -1299,8 +1299,8 @@ function iniciarMapa() {
     );
 
 
-    // Quando o layout termina de montar,
-    // recalcula o tamanho real do mapa.
+                                         
+                                        
     setTimeout(
         () => {
 
@@ -1316,8 +1316,8 @@ function iniciarMapa() {
     );
 
 
-    // Recalcula o tamanho caso o card
-    // mude por causa da janela ou zoom.
+                                      
+                                        
     if (
         typeof ResizeObserver !==
         "undefined"
@@ -1358,9 +1358,9 @@ function iniciarMapa() {
 }
 
 
-// tema.js ainda chama esta função.
-// Como não usamos mais MapLibre,
-// só precisamos recalcular o mapa.
+                                   
+                                 
+                                   
 function trocarEstiloMapa() {
 
     if (!mapaLeaflet) {
@@ -1381,9 +1381,9 @@ function trocarEstiloMapa() {
 }
 
 
-// Guarda o último status recebido
-// para a tradução poder atualizar
-// sem fazer uma nova requisição.
+                                  
+                                  
+                                 
 let ultimoStatusMapa = {
     tipo: "inicial"
 };
@@ -1805,9 +1805,9 @@ async function carregarLocalizacaoReal() {
 }
 
 
-// =========================
-// BADGE DE NOTIFICAÇÕES
-// =========================
+                            
+                        
+                            
 
 function atualizarBadgeNotificacoes(
     quantidade
@@ -1875,9 +1875,9 @@ async function carregarContagemInicial() {
 }
 
 
-// =========================
-// CENTRALIZAR MAPA
-// =========================
+                            
+                   
+                            
 
 const btnCentralizar =
     document.getElementById(
@@ -1916,9 +1916,9 @@ if (btnCentralizar) {
 }
 
 
-// =========================
-// INICIALIZAÇÃO
-// =========================
+                            
+                
+                            
 
 aplicarIdiomaEstatico();
 
@@ -1933,9 +1933,9 @@ carregarContagemInicial();
 carregarStatusBixuco();
 
 
-// ==========================
-// LIGA BOTÃO/CARD DE RELATÓRIO
-// ==========================
+                             
+                               
+                             
 
 const btnRelatorioDiario =
     document.getElementById(

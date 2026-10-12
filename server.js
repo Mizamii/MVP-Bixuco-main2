@@ -21,9 +21,9 @@ const brevoClient = new BrevoClient({
     environment: BrevoEnvironment.Production
 });
 
-// Remetente único para todos os e-mails transacionais.
-// O endereço continua vindo da variável autorizada no Brevo,
-// enquanto o nome exibido ao usuário fica sempre como "Bixuco".
+                                                       
+                                                             
+                                                                
 const BREVO_REMETENTE = {
     name: "Bixuco",
     email: process.env.BREVO_FROM_EMAIL || "yasminbertoni7@gmail.com"
@@ -40,9 +40,9 @@ app.set('trust proxy', 1);
 
 app.use(helmet({
 
-    // O OpenStreetMap precisa receber o domínio de origem
-    // das requisições dos tiles.
-    // O Helmet usa "no-referrer" por padrão, o que causava erro 403.
+                                                          
+                                 
+                                                                     
     referrerPolicy: {
         policy: "strict-origin-when-cross-origin"
     },
@@ -51,8 +51,8 @@ app.use(helmet({
         directives: {
             defaultSrc: ["'self'"],
 
-            // Scripts: os próprios do site + CDNs usados (Font Awesome, Chart.js,
-            // Leaflet, MapLibre) + o necessário para o login com Google
+                                                                                  
+                                                                        
             scriptSrc: [
                 "'self'",
                 "https://cdnjs.cloudflare.com",
@@ -68,8 +68,8 @@ app.use(helmet({
                 "blob:"
             ],
 
-            // Estilos: os próprios + CDNs de CSS (Font Awesome, Leaflet, MapLibre)
-            // 'unsafe-inline' é necessário porque várias páginas usam <style> inline
+                                                                                   
+                                                                                     
             styleSrc: [
                 "'self'",
                 "'unsafe-inline'",
@@ -77,21 +77,21 @@ app.use(helmet({
                 "https://unpkg.com"
             ],
 
-            // Fontes usadas pelo Font Awesome
+                                              
             fontSrc: [
                 "'self'",
                 "https://cdnjs.cloudflare.com"
             ],
 
-            // Imagens: as do próprio site + fotos de perfil em base64 (data:)
-            // + tiles do mapa (OpenFreeMap)
+                                                                              
+                                            
             imgSrc: [
                 "'self'",
                 "data:",
                 "https://tiles.openfreemap.org",
                 "https://tile.openstreetmap.org"
             ],
-            // Chamadas fetch/XHR feitas pelo JavaScript da página
+                                                                  
             connectSrc: [
                 "'self'",
                 "https://viacep.com.br",
@@ -99,16 +99,16 @@ app.use(helmet({
                 "https://accounts.google.com"
             ],
 
-            // Necessário para o botão "Continuar com Google" funcionar
+                                                                       
             frameSrc: [
                 "'self'",
                 "https://accounts.google.com",
                 "https://www.google.com/recaptcha/"
             ],
 
-            // Impede que o site seja carregado dentro de um <iframe> de outro
-            // domínio (proteção contra clickjacking) — equivalente ao antigo
-            // X-Frame-Options, mas via CSP
+                                                                              
+                                                                             
+                                           
             frameAncestors: ["'self'"]
         }
     }
@@ -128,18 +128,18 @@ const db = new Pool({
 });
 
 async function prepararBancoCompatibilidade() {
-    // Presença real para a área do terapeuta.
-    // IF NOT EXISTS permite subir esta versão tanto em bancos antigos
-    // quanto em bancos novos sem precisar executar SQL manualmente.
+                                              
+                                                                      
+                                                                    
     await db.query(`
         ALTER TABLE usuarios
         ADD COLUMN IF NOT EXISTS ultimo_acesso TIMESTAMPTZ
     `);
 
-    // Histórico próprio do Assistente Bixuco.
-    // Ele NÃO fica preso ao rascunho do relatório diário: assim o usuário
-    // pode conversar antes/depois de finalizar um relatório sem misturar
-    // dados objetivos do sensor com mensagens da conversa.
+                                              
+                                                                          
+                                                                         
+                                                           
     await db.query(`
         CREATE TABLE IF NOT EXISTS conversas_assistente (
             usuario_id INTEGER PRIMARY KEY REFERENCES usuarios(id) ON DELETE CASCADE,
@@ -169,7 +169,7 @@ app.use(session({
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 dias
         httpOnly: true,                                    // 🔧 impede que JS no navegador leia o cookie (mitiga roubo via XSS)
         secure: process.env.NODE_ENV === "production",      // 🔧 só envia o cookie por HTTPS em produção
-        sameSite: "lax"                                     // 🔧 ajuda contra CSRF, sem quebrar navegação normal
+        sameSite: "lax"                                                                                          
     }
 }));
 
@@ -183,12 +183,12 @@ const upload = multer({
     storage: multer.memoryStorage(),
 
     limits: {
-        fileSize: 5 * 1024 * 1024 // Limite de 5MB por arquivo
+        fileSize: 5 * 1024 * 1024                             
     },
 
     fileFilter: (req, file, cb) => {
 
-        // Aceita apenas imagens
+                                
         if (file.mimetype.startsWith("image/")) {
             cb(null, true);
         } else {
@@ -199,9 +199,9 @@ const upload = multer({
 
 });
 
-/* 
-   LEMBRETE DIÁRIO DE RELATÓRIO
- */
+   
+                               
+   
 
 cron.schedule('0 19 * * *', async () => {
 
@@ -268,9 +268,9 @@ cron.schedule('0 19 * * *', async () => {
     timezone: "America/Sao_Paulo"
 });
 
-/* 
-   LIMPEZA DE NOTIFICAÇÕES ANTIGAS
- */
+   
+                                  
+   
 
 
 cron.schedule('0 4 * * *', async () => {
@@ -300,12 +300,12 @@ cron.schedule('0 4 * * *', async () => {
     timezone: "America/Sao_Paulo"
 });
 
-/* 
-   EXCLUSÃO AUTOMÁTICA DE NOTAS CLÍNICAS (retenção de 7 dias)
-   Nota: por decisão do projeto, simplificado para fins de MVP/TCC.
-   Um prontuário real segue a Resolução CFP nº 1/2009 (guarda mínima
-   de 5 anos, ou 20 anos por analogia ao prontuário médico).
- */
+   
+                                                             
+                                                                   
+                                                                    
+                                                            
+   
 
 cron.schedule('0 4 * * *', async () => {
 
@@ -328,7 +328,7 @@ cron.schedule('0 4 * * *', async () => {
     timezone: "America/Sao_Paulo"
 });
 
-// GET — busca preferências
+                           
 app.get("/api/preferencias", estaLogado, async (req, res) => {
     try {
         const usuarioId = req.authUser.id;
@@ -402,7 +402,7 @@ async function ativarPlano(usuarioId, nomePlano) {
 
 app.use(express.json());
 
-// POST — salva preferências (terapeuta e pai compartilham a mesma tabela)
+                                                                          
 app.post("/api/preferencias", estaLogado, async (req, res) => {
     try {
         const usuarioId = req.authUser.id;
@@ -438,9 +438,9 @@ app.post("/api/preferencias", estaLogado, async (req, res) => {
 });
 
 
-/* ==========================
-   MIDDLEWARES
-========================== */
+                             
+              
+                             
 
 app.use(express.static(path.join(__dirname, "static")));
 
@@ -452,31 +452,31 @@ app.use(express.urlencoded({
 
 
 
-/* 
-   MIDDLEWARE DE AUTENTICAÇÃO
- */
+   
+                             
+   
 
 async function estaLogado(req, res, next) {
 
     try {
 
-        // ID salvo pela sessão normal da Bixuco
+                                                
         const idSessao = req.session?.usuarioId
             ? Number(req.session.usuarioId)
             : null;
 
-        // ID que pode existir em sessões antigas do Passport/Google
+                                                                    
         const idPassport = req.user?.id
             ? Number(req.user.id)
             : null;
 
 
-        // =========================================================
-        // PROTEÇÃO PRINCIPAL:
-        // se os dois mecanismos apontarem para pessoas diferentes,
-        // NÃO escolhemos nenhum deles.
-        // A sessão é encerrada imediatamente.
-        // =========================================================
+                                                                    
+                              
+                                                                   
+                                       
+                                              
+                                                                    
 
         if (
             idSessao &&
@@ -514,10 +514,10 @@ async function estaLogado(req, res, next) {
         }
 
 
-        // Enquanto ainda existem sessões antigas do Google,
-        // aceita um dos dois.
-        // Depois vamos fazer novos logins Google usarem somente
-        // req.session.usuarioId.
+                                                            
+                              
+                                                                
+                                 
         const usuarioId =
             idSessao || idPassport;
 
@@ -537,8 +537,8 @@ async function estaLogado(req, res, next) {
         }
 
 
-        // Sempre busca novamente quem é a pessoa no banco.
-        // Assim não confiamos em um "tipo" antigo salvo na sessão.
+                                                           
+                                                                   
         const resultado = await db.query(
             `
             SELECT
@@ -576,9 +576,9 @@ async function estaLogado(req, res, next) {
         const usuario = resultado.rows[0];
 
 
-        // =========================================================
-        // VERIFICA A VERSÃO DA SESSÃO
-        // =========================================================
+                                                                    
+                                      
+                                                                    
 
         if (
             req.session.versaoSessao !== undefined &&
@@ -604,9 +604,9 @@ async function estaLogado(req, res, next) {
         }
 
 
-        // =========================================================
-        // SINCRONIZA COM O BANCO
-        // =========================================================
+                                                                    
+                                 
+                                                                    
 
         req.session.usuarioId =
             usuario.id;
@@ -618,11 +618,11 @@ async function estaLogado(req, res, next) {
             usuario.versao_sessao;
 
 
-        // Essa passa a ser a identidade confiável da requisição.
+                                                                 
         req.authUser = usuario;
 
-        // Registra presença real sem escrever no banco a cada requisição.
-        // Enquanto o usuário navega, no máximo uma atualização por minuto.
+                                                                          
+                                                                           
         await db.query(
             `
             UPDATE usuarios
@@ -636,9 +636,9 @@ async function estaLogado(req, res, next) {
             [usuario.id]
         );
 
-        // Diagnóstico opcional para os testes de autenticação.
-        // Ative temporariamente com AUTH_DEBUG=true.
-        // Não registra e-mail, cookie nem o ID completo da sessão.
+                                                               
+                                                     
+                                                                   
         if (process.env.AUTH_DEBUG === "true") {
             console.log("[AUTH DEBUG]", {
                 rota: req.originalUrl,
@@ -703,8 +703,8 @@ function exigeAdmin(req, res, next) {
     return res.redirect("/logar");
 }
 
-// Autentica o hardware do Bixuco. Sem isso, qualquer pessoa na internet
-// consegue injetar eventos e localizações falsas em qualquer conta.
+                                                                        
+                                                                    
 function exigeDispositivo(req, res, next) {
 
     const chave = req.get("x-device-key");
@@ -721,7 +721,7 @@ function exigeDispositivo(req, res, next) {
     next();
 }
 
-const tentativasAdmin = new Map(); // ip -> { count, resetAt }
+const tentativasAdmin = new Map();                            
 
 function limitarTentativasAdmin(req, res, next) {
     const ip = req.ip;
@@ -729,7 +729,7 @@ function limitarTentativasAdmin(req, res, next) {
     const registro = tentativasAdmin.get(ip);
 
     if (!registro || agora > registro.resetAt) {
-        tentativasAdmin.set(ip, { count: 1, resetAt: agora + 15 * 60 * 1000 }); // janela de 15 min
+        tentativasAdmin.set(ip, { count: 1, resetAt: agora + 15 * 60 * 1000 });                    
         return next();
     }
 
@@ -742,12 +742,12 @@ function limitarTentativasAdmin(req, res, next) {
 }
 
 
-// Todos os mapas de rate limit ficam registrados aqui pra poderem
-// ser limpos periodicamente (senão crescem pra sempre na memória).
+                                                                  
+                                                                   
 const mapasDeRateLimit = [];
 
 function criarLimitadorPorIp(limite, janelaMs, mensagem) {
-    const registros = new Map(); // ip -> { count, resetAt }
+    const registros = new Map();                            
     mapasDeRateLimit.push(registros);
 
     return function (req, res, next) {
@@ -769,30 +769,30 @@ function criarLimitadorPorIp(limite, janelaMs, mensagem) {
     };
 }
 
-// Impede tentar adivinhar o código 2FA por força bruta
+                                                       
 const limitarVerificacao2FA = criarLimitadorPorIp(
     8,
     10 * 60 * 1000,
     "Muitas tentativas. Solicite um novo código."
 );
 
-// Reenvio de código — limitado para não virar canal de spam de e-mail
+                                                                      
 const limitarReenvio2FA = criarLimitadorPorIp(
     3,
     10 * 60 * 1000,
     "Muitas solicitações de reenvio. Aguarde um pouco."
 );
 
-// Rate limiting do /login — combina IP + email:
-// impede tanto um atacante mirando UM email de vários IPs
-// quanto um bot varrendo vários emails do MESMO IP
-const tentativasLoginPorChave = new Map(); // "ip|email" -> { count, resetAt }
+                                                
+                                                          
+                                                   
+const tentativasLoginPorChave = new Map();                                    
 
 function limitarTentativasLogin(req, res, next) {
     const ip    = req.ip;
     const email = String(req.body?.email || "").toLowerCase().trim();
     const agora = Date.now();
-    const janela = 15 * 60 * 1000; // 15 min
+    const janela = 15 * 60 * 1000;          
     const limite = 5;
 
     const chave = `${ip}|${email}`;
@@ -810,32 +810,32 @@ function limitarTentativasLogin(req, res, next) {
     next();
 }
 
-// Rate limiting do IP puro no login — cobre bot varrendo vários emails do mesmo lugar
+                                                                                      
 const limitarLoginPorIp = criarLimitadorPorIp(
     15, // mais folgado, cobre Wi-Fi compartilhado
     15 * 60 * 1000,
     "Muitas tentativas de login. Tente novamente mais tarde."
 );
 
-// Rate limiting da criação de conta — impede testar várias
-// combinações de CPF/CRP/email até uma dar certo
+                                                           
+                                                 
 const limitarCriacaoConta = criarLimitadorPorIp(
     10,
     60 * 60 * 1000, // 1 hora
     "Muitas tentativas de cadastro. Tente novamente mais tarde."
 );
 
-// Rate limiting da recuperação de senha — combina IP + email,
-// mesmo padrão do login: impede tanto alguém martelando o mesmo
-// email quanto um bot varrendo vários emails do mesmo IP
-const tentativasRecuperacaoPorChave = new Map(); // "ip|email" -> { count, resetAt }
+                                                              
+                                                                
+                                                         
+const tentativasRecuperacaoPorChave = new Map();                                    
 
 function limitarRecuperacaoSenha(req, res, next) {
     const ip    = req.ip;
     const email = String(req.body?.email || "").toLowerCase().trim();
     const agora = Date.now();
-    const janela = 15 * 60 * 1000; // 15 min
-    const limite = 3; // recuperação de senha pode ser mais restrita que login
+    const janela = 15 * 60 * 1000;          
+    const limite = 3;                                                         
 
     const chave = `${ip}|${email}`;
     const registroChave = tentativasRecuperacaoPorChave.get(chave);
@@ -854,7 +854,7 @@ function limitarRecuperacaoSenha(req, res, next) {
     next();
 }
 
-// Rate limiting do IP puro na recuperação — cobre bot varrendo vários emails do mesmo lugar
+                                                                                            
 const limitarRecuperacaoPorIp = criarLimitadorPorIp(
     10,
     15 * 60 * 1000,
@@ -939,17 +939,17 @@ function chavesIguaisSeguro(chaveRecebida, chaveEsperada) {
     const bufferRecebido = Buffer.from(String(chaveRecebida));
     const bufferEsperado = Buffer.from(String(chaveEsperada));
 
-    // timingSafeEqual exige buffers do mesmo tamanho, senão lança erro —
-    // por isso comparamos o tamanho primeiro (não é sigiloso, só o conteúdo importa)
+                                                                         
+                                                                                     
     if (bufferRecebido.length !== bufferEsperado.length) return false;
 
     return crypto.timingSafeEqual(bufferRecebido, bufferEsperado);
 
 }
 
-// ─────────────────────────────────────────
-// MIDDLEWARE — verifica plano do usuário
-// ─────────────────────────────────────────
+                                            
+                                         
+                                            
 async function verificarPlano(req, res, next) {
     const usuarioId = req.authUser?.id;
     const tipo = req.authUser?.tipo;
@@ -963,9 +963,9 @@ async function verificarPlano(req, res, next) {
     }
 
     try {
-        // Endpoint compartilhado /api/meu-plano ainda pode consultar
-        // contas profissionais, mas rotas de responsável são bloqueadas
-        // por exigeResponsavel / precisaPlano.
+                                                                     
+                                                                        
+                                               
         if (tipo === "psicologo" || tipo === "admin") {
             req.plano = "terapeuta";
             return next();
@@ -994,7 +994,7 @@ async function verificarPlano(req, res, next) {
     }
 }
 
-// exige plano médio ou superior — somente responsável
+                                                      
 function exigeEconomico(req, res, next) {
     if (req.authUser?.tipo !== "pai") {
         return res.status(403).json({ erro: "Esta área é exclusiva para responsáveis." });
@@ -1010,7 +1010,7 @@ function exigeEconomico(req, res, next) {
     });
 }
 
-// exige plano completo — somente responsável
+                                             
 function exigePremium(req, res, next) {
     if (req.authUser?.tipo !== "pai") {
         return res.status(403).json({ erro: "Esta área é exclusiva para responsáveis." });
@@ -1028,18 +1028,18 @@ function exigePremium(req, res, next) {
 
 
 
-/* ==========================
-   ROTAS GET
-========================== */
+                             
+            
+                             
 
 app.get("/.well-known/assetlinks.json", (req, res) => {
     const caminho = path.join(__dirname, ".well-known", "assetlinks.json");
     res.sendFile(caminho, { dotfiles: 'allow' });
 });
 
-// ─────────────────────────────────────────
-// PLANO DO USUÁRIO LOGADO
-// ─────────────────────────────────────────
+                                            
+                          
+                                            
 app.get("/api/meu-plano", estaLogado, verificarPlano, (req, res) => {
     res.json({ plano: req.plano });
 });
@@ -1058,15 +1058,15 @@ app.get("/AdicionarC", estaLogado, exigeResponsavel, (req, res) => {
 
 });
 
-// Detecta se a requisição veio de dentro do app (Capacitor) e não do navegador.
-// O marcador "BixucoApp" é adicionado pelo appendUserAgent do capacitor.config.json.
+                                                                                
+                                                                                     
 function veioDoApp(req) {
     return String(req.get("user-agent") || "").includes("BixucoApp");
 }
 
 app.get("/", (req, res) => {
-    // Depois do login, a sessão Bixuco é a única fonte persistida
-    // de identidade. Não usamos req.user como fallback aqui.
+                                                                  
+                                                             
     const usuarioId = req.session?.usuarioId || null;
     const tipo = req.session?.tipo || null;
 
@@ -1075,12 +1075,12 @@ app.get("/", (req, res) => {
         if (tipo === "admin") return res.redirect("/admin");
         if (tipo === "pai") return res.redirect("/home");
 
-        // Sessão existente, mas com tipo inválido/inesperado.
+                                                              
         return req.session.destroy(() => res.redirect("/logar"));
     }
 
-    // Dentro do app não existe "landing page" — quem não está logado
-    // vai direto pro login.
+                                                                     
+                            
     if (veioDoApp(req)) {
         return res.redirect("/logar");
     }
@@ -1173,9 +1173,14 @@ app.get("/hometerapeuta", estaLogado, exigeTerapeuta, (req, res) => {
 });
 
 app.get("/onboarding-google", estaLogado, (req, res) => {
-
-    res.sendFile(path.join(__dirname, "templates", "onboarding-google.html"));
-
+    if (req.authUser.tipo !== "pendente") {
+        if (req.authUser.tipo === "psicologo") return res.redirect("/hometerapeuta");
+        if (req.authUser.tipo === "pai") {
+            return res.redirect(req.authUser.cadastro_completo ? "/home" : "/AdicionarC");
+        }
+        return res.redirect("/logar");
+    }
+    return res.sendFile(path.join(__dirname, "templates", "onboarding-google.html"));
 });
 
 app.get("/FormularioEntrega", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
@@ -1215,7 +1220,7 @@ app.get("/PerfilTerapeuta", estaLogado, exigeTerapeuta, (req, res) => {
 
 
 
-// 🔒 FIX 2 (aplicado): /home agora exige login
+                                               
 app.get("/home", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "home.html"));
 });
@@ -1236,15 +1241,15 @@ app.get("/Transicao4", estaLogado, exigeResponsavel, (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "Transicao4.html"));
 });
 
-/* ==========================
-   BANCO DE DADOS
-========================== */
+                             
+                 
+                             
 
 
 
-/* ==========================
-   LOGIN COM GOOGLE
-========================== */
+                             
+                   
+                             
 
 passport.use(new GoogleStrategy({
 
@@ -1275,14 +1280,14 @@ async (accessToken, refreshToken, profile, done) => {
 
         if (resultado.rows.length > 0) {
 
-            // Usuário já existe — retorna direto
+                                                 
             return done(null, resultado.rows[0]);
 
         }
 
-        // 🔧 FIX: Usuário novo via Google
-        // NÃO define o tipo ainda — deixa como null
-        // novo_usuario = TRUE → callback vai mandar para o onboarding
+                                          
+                                                    
+                                                                      
         const novoUsuario = await db.query(
 
             `INSERT INTO usuarios
@@ -1336,11 +1341,11 @@ passport.deserializeUser(async (id, done) => {
 
 app.get("/auth/google", (req, res, next) => {
 
-    // Em vez de guardar "veio do app?" na sessão (que vimos se perder
-    // no redirecionamento de ida e volta pelo Google), mandamos essa
-    // informação dentro do parâmetro "state" do próprio OAuth — o Google
-    // devolve esse valor sem alteração no callback, então sobrevive ao
-    // redirecionamento mesmo que o cookie de sessão não sobreviva.
+                                                                      
+                                                                     
+                                                                         
+                                                                       
+                                                                   
     const origem = req.query.origem === "app" ? "app" : "web";
 
     passport.authenticate("google", {
@@ -1362,8 +1367,8 @@ app.get(
 
         try {
 
-            // Guarda os dados AGORA porque regenerate()
-            // vai apagar a sessão antiga do Passport.
+                                                        
+                                                      
             const usuarioGoogle = {
                 id: Number(req.user.id),
                 tipo: req.user.tipo,
@@ -1372,7 +1377,7 @@ app.get(
             };
 
 
-            // Define para onde essa conta deve ir
+                                                  
             let destino;
 
             if (
@@ -1406,9 +1411,9 @@ app.get(
                 req.query.state === "app";
 
 
-            // =============================================
-            // LOGIN PELO APP
-            // =============================================
+                                                            
+                             
+                                                            
 
             if (eraApp) {
 
@@ -1441,8 +1446,8 @@ app.get(
                 );
 
 
-                // O navegador usado para autenticar o app
-                // não precisa permanecer logado.
+                                                          
+                                                 
                 return req.session.destroy(() => {
 
                     return res.redirect(
@@ -1454,12 +1459,12 @@ app.get(
             }
 
 
-            // =============================================
-            // LOGIN GOOGLE PELO NAVEGADOR
-            // =============================================
+                                                            
+                                          
+                                                            
 
-            // Destrói completamente a sessão anterior
-            // e cria uma nova ID de sessão.
+                                                      
+                                            
             req.session.regenerate((erroRegen) => {
 
                 if (erroRegen) {
@@ -1476,8 +1481,8 @@ app.get(
                 }
 
 
-                // A partir daqui, a sessão Bixuco
-                // é a ÚNICA identidade persistida.
+                                                  
+                                                   
                 req.session.usuarioId =
                     usuarioGoogle.id;
 
@@ -1491,8 +1496,8 @@ app.get(
                     "google";
 
 
-                // Garante que a sessão chegou no PostgreSQL
-                // ANTES de mandar o navegador para outra página.
+                                                            
+                                                                 
                 req.session.save((erroSave) => {
 
                     if (erroSave) {
@@ -1547,8 +1552,8 @@ app.get(
     }
 );
 
-// O app chama esta rota DENTRO da WebView, com o token que recebeu pelo
-// deep link. É aqui que a sessão do app é criada de fato.
+                                                                        
+                                                          
 app.get("/auth/app-token", async (req, res) => {
 
     const { token } = req.query;
@@ -1571,7 +1576,7 @@ app.get("/auth/app-token", async (req, res) => {
             return res.redirect("/logar?erro=token-invalido");
         }
 
-        // Uso único: queima o token imediatamente.
+                                                   
         await db.query(
             "UPDATE tokens_app SET usado = TRUE WHERE token = $1",
             [token]
@@ -1655,7 +1660,7 @@ app.post("/api/admin/pedido-status", estaLogado, exigeAdmin, limitarTentativasAd
 
         const usuarioId = usuario.rows[0].id;
 
-        // Sem novoStatus → só consulta o status atual (usado pelo "Buscar pedido")
+                                                                                   
         if (!novoStatus) {
             const pedido = await db.query(
                 "SELECT status FROM pedidos WHERE usuario_id = $1 ORDER BY id DESC LIMIT 1",
@@ -1695,7 +1700,7 @@ app.post("/api/admin/pedido-status", estaLogado, exigeAdmin, limitarTentativasAd
 
 mapasDeRateLimit.push(tentativasAdmin, tentativasLoginPorChave, tentativasRecuperacaoPorChave);
 
-// Limpa entradas expiradas a cada hora
+                                       
 setInterval(() => {
     const agora = Date.now();
     for (const mapa of mapasDeRateLimit) {
@@ -1711,7 +1716,7 @@ app.post("/api/planos/criar-planos", estaLogado, exigeAdmin, async (req, res) =>
 
         const planoMP = new PreApprovalPlan(mpClient);
 
-        // Cria o plano medio
+                             
         const planMedio = await planoMP.create({
             body: {
                 reason:            "Plano medio Bixuco",
@@ -1726,7 +1731,7 @@ app.post("/api/planos/criar-planos", estaLogado, exigeAdmin, async (req, res) =>
             }
         });
 
-        // Cria o plano completo
+                                
         const planCompleto = await planoMP.create({
             body: {
                 reason:            "Plano Completo Bixuco",
@@ -1741,7 +1746,7 @@ app.post("/api/planos/criar-planos", estaLogado, exigeAdmin, async (req, res) =>
             }
         });
 
-        // Retorna os IDs para você copiar no .env
+                                                  
         res.json({
             mensagem:           "Planos criados! Adicione esses IDs no .env do Render:",
             MP_PLAN_ID_MEDIO:    planMedio.id,
@@ -1770,9 +1775,9 @@ app.post("/api/planos/assinar", estaLogado, exigeResponsavel, async (req, res) =
 
         const { plano } = req.body;
 
-        // ===========================
-        // PLANO GRÁTIS
-        // ===========================
+                                      
+                       
+                                      
         if (plano === "gratis") {
 
             await ativarPlano(usuarioId, "gratis");
@@ -1786,16 +1791,16 @@ app.post("/api/planos/assinar", estaLogado, exigeResponsavel, async (req, res) =
 
         }
 
-        // ===========================
-        // PLANOS PAGOS
-        // ===========================
+                                      
+                       
+                                      
         if (!PLANOS_MP[plano]) {
             return res.status(400).json({ erro: "Plano inválido." });
         }
 
         const dadosPlano = PLANOS_MP[plano];
 
-        // Busca email do usuário para o MP
+                                           
         const resultadoUsuario = await db.query(
             `SELECT nome, email FROM usuarios WHERE id = $1`,
             [usuarioId]
@@ -1803,8 +1808,8 @@ app.post("/api/planos/assinar", estaLogado, exigeResponsavel, async (req, res) =
 
         const usuario = resultadoUsuario.rows[0];
 
-        // Cria a preferência de pagamento no Checkout Pro do Mercado Pago.
-        // Preference não depende de MP_PLAN_ID_*; basta o Access Token válido.
+                                                                           
+                                                                               
         const { Preference } = require("mercadopago");
         const preference = new Preference(mpClient);
 
@@ -1819,8 +1824,8 @@ app.post("/api/planos/assinar", estaLogado, exigeResponsavel, async (req, res) =
                 }],
                 payer: { email: usuario.email },
                 back_urls: {
-                    // O servidor deriva usuário/plano do pagamento consultado no MP.
-                    // Não confiamos em parâmetros de usuário/plano vindos da URL.
+                                                                                     
+                                                                                  
                     success: `${process.env.BASE_URL}/pagamento/sucesso`,
                     failure: `${process.env.BASE_URL}/pagamento/falha`,
                     pending: `${process.env.BASE_URL}/pagamento/pendente`
@@ -1964,8 +1969,8 @@ app.get("/pagamento/sucesso", estaLogado, exigeResponsavel, async (req, res) => 
         const usuarioId = req.authUser.id;
         const paymentId = req.query.payment_id || req.query.collection_id;
 
-        // Nunca libera a home apenas porque a URL contém status=approved.
-        // O ID recebido no retorno é consultado diretamente na API do Mercado Pago.
+                                                                          
+                                                                                    
         if (!paymentId) {
             return res.redirect("/planos?info=pagamento_pendente");
         }
@@ -1989,13 +1994,13 @@ app.get("/pagamento/sucesso", estaLogado, exigeResponsavel, async (req, res) => 
         const [usuarioReferencia, plano] = referencia.split("|");
         const dadosPlano = PLANOS_MP[plano];
 
-        // Confere se o pagamento pertence ao usuário logado e a um plano válido.
+                                                                                 
         if (Number(usuarioReferencia) !== Number(usuarioId) || !dadosPlano) {
             console.log("Retorno de pagamento com referência inválida:", referencia);
             return res.redirect("/planos?erro=pagamento_invalido");
         }
 
-        // Confere também valor e moeda antes de ativar o plano.
+                                                                
         const valorCorreto = Number(pagamento.transaction_amount) === Number(dadosPlano.preco);
         const moedaCorreta = pagamento.currency_id === "BRL";
 
@@ -2004,8 +2009,8 @@ app.get("/pagamento/sucesso", estaLogado, exigeResponsavel, async (req, res) => 
             return res.redirect("/planos?erro=pagamento_invalido");
         }
 
-        // Só aqui, depois da confirmação real pela API do Mercado Pago,
-        // o plano é ativado e o usuário pode seguir para a home.
+                                                                        
+                                                                 
         if (pagamento.status === "approved") {
             const assinaturaAtual = await db.query(
                 `SELECT nome_plano FROM assinaturas
@@ -2027,7 +2032,7 @@ app.get("/pagamento/sucesso", estaLogado, exigeResponsavel, async (req, res) => 
             return res.redirect("/home");
         }
 
-        // Qualquer estado não aprovado permanece fora da home.
+                                                               
         if (["rejected", "cancelled", "refunded", "charged_back"].includes(pagamento.status)) {
             return res.redirect("/planos?erro=pagamento_falhou");
         }
@@ -2058,7 +2063,7 @@ app.post("/api/planos/webhook", async (req, res) => {
 
         console.log("Webhook MP recebido:", type, action, data?.id);
 
-        // Processa notificações de assinatura e pagamento
+                                                          
         if (type !== "subscription_preapproval" && type !== "payment") {
             return res.sendStatus(200);
         }
@@ -2066,7 +2071,7 @@ app.post("/api/planos/webhook", async (req, res) => {
         const itemId = data?.id;
         if (!itemId) return res.sendStatus(200);
 
-        // Busca os detalhes no MP
+                                  
         const endpoint = type === "payment"
             ? `https://api.mercadopago.com/v1/payments/${itemId}`
             : `https://api.mercadopago.com/preapproval/${itemId}`;
@@ -2077,8 +2082,8 @@ app.post("/api/planos/webhook", async (req, res) => {
 
         const dados = await response.json();
 
-        // Extrai usuarioId e plano da referência externa
-        // Formato: "42|medio" ou "42|completo"
+                                                         
+                                               
         const referencia = dados.external_reference || dados.metadata?.external_reference;
 
         if (!referencia) return res.sendStatus(200);
@@ -2089,12 +2094,12 @@ app.post("/api/planos/webhook", async (req, res) => {
 
         const statusAtual = dados.status;
 
-        // Assinatura ativa ou pagamento aprovado → ativa o plano
-        // Assinatura ativa ou pagamento aprovado → ativa o plano
+                                                                 
+                                                                 
         if (statusAtual === "authorized" || statusAtual === "approved") {
 
-            // Mesma checagem de valor/moeda que /pagamento/sucesso já faz.
-            // Sem isso, o webhook é o caminho mais frouxo pra ativar um plano.
+                                                                           
+                                                                               
             if (type === "payment") {
 
                 const valorCorreto = Number(dados.transaction_amount) === Number(PLANOS_MP[plano].preco);
@@ -2113,7 +2118,7 @@ app.post("/api/planos/webhook", async (req, res) => {
             console.log(`Plano ${PLANOS_MP[plano].nomeBanco} ativado para usuário ${usuarioId}.`);
         }
 
-        // Assinatura cancelada ou pausada → volta para grátis
+                                                              
         if (statusAtual === "cancelled" || statusAtual === "paused") {
 
             await ativarPlano(parseInt(usuarioId), "gratis");
@@ -2158,7 +2163,7 @@ app.post("/api/notificacoes/:id/marcar-lida", estaLogado, async (req, res) => {
 });
 
 
-// Bloqueia rotas para usuários sem o plano mínimo necessário
+                                                             
 function precisaPlano(planoMinimo) {
 
     const hierarquia = {
@@ -2169,8 +2174,8 @@ function precisaPlano(planoMinimo) {
 
     return async (req, res, next) => {
 
-        // Defesa extra: nenhuma conta que não seja responsável
-        // pode usar uma rota protegida por plano.
+                                                               
+                                                  
         if (req.authUser?.tipo !== "pai") {
 
             if (req.originalUrl.startsWith("/api/")) {
@@ -2226,6 +2231,12 @@ app.post("/api/onboarding-google", estaLogado, async (req, res) => {
             return res.status(401).json({ erro: "Não autenticado." });
         }
 
+        if (req.authUser.tipo !== "pendente") {
+            return res.status(409).json({
+                erro: "Esta conta já concluiu o cadastro. Não é possível alterar o perfil por esta etapa."
+            });
+        }
+
         const { tipo, crp } = req.body;
 
         if (!["pai", "psicologo"].includes(tipo)) {
@@ -2256,20 +2267,21 @@ app.post("/api/onboarding-google", estaLogado, async (req, res) => {
 
         }
 
-        // Salva o tipo e marca que o onboarding foi concluído
-        // marca cadastro_completo; pai ainda precisa passar pelo AdicionarC.
+                                                              
+                                                                             
         if (tipo === "psicologo") {
 
             const codigoVinculo = await gerarCodigoVinculo();
 
-            await db.query(
+            const atualizado = await db.query(
                 `UPDATE usuarios
                 SET tipo = 'psicologo',
                     crp = $1,
                     codigo_vinculo = $2,
                     novo_usuario = FALSE,
                     cadastro_completo = TRUE
-                WHERE id = $3`,
+                WHERE id = $3 AND tipo = 'pendente'
+                RETURNING id`,
                 [
                     crp,
                     codigoVinculo,
@@ -2277,24 +2289,33 @@ app.post("/api/onboarding-google", estaLogado, async (req, res) => {
                 ]
             );
 
+            if (atualizado.rowCount !== 1) {
+                return res.status(409).json({ erro: "O cadastro já foi concluído. Faça login novamente." });
+            }
+
         } else {
 
-            await db.query(
+            const atualizado = await db.query(
                 `UPDATE usuarios
                 SET tipo = 'pai',
                     novo_usuario = FALSE,
                     cadastro_completo = FALSE
-                WHERE id = $1`,
+                WHERE id = $1 AND tipo = 'pendente'
+                RETURNING id`,
                 [usuarioId]
             );
 
+            if (atualizado.rowCount !== 1) {
+                return res.status(409).json({ erro: "O cadastro já foi concluído. Faça login novamente." });
+            }
+
         }
 
-        // Atualiza a sessão com o tipo correto
+                                               
         req.session.tipo = tipo;
 
-        // Define o destino conforme o tipo
-        // Pai → adicionar criança | Terapeuta → home do terapeuta
+                                           
+                                                                  
         const destino = tipo === "pai" ? "/AdicionarC" : "/homeTerapeuta";
 
         return res.json({ sucesso: true, destino });
@@ -2308,11 +2329,11 @@ app.post("/api/onboarding-google", estaLogado, async (req, res) => {
 
 });
 
-/* ==========================
-   ADMIN — PUBLICAR NOVIDADE
-========================== */
+                             
+                            
+                             
 
-// Página simples para publicar novidades (protegida pela senha admin)
+                                                                      
 app.get("/admin/novidades", estaLogado, exigeAdmin, (req, res) => {
     res.sendFile(path.join(__dirname, "templates", "Adminnovidades.html"));
 });
@@ -2334,9 +2355,9 @@ app.get("/admin", estaLogado, exigeAdmin, (req, res) => {
     `);
 });
 
-/* ==========================
-   ROTA — ATUALIZAR CRIANÇA (nome / foto)
-========================== */
+                             
+                                         
+                             
 
 app.post("/api/crianca/atualizar", estaLogado, exigeResponsavel, upload.single("fotoCrianca"), async (req, res) => {
 
@@ -2378,8 +2399,8 @@ app.post("/api/crianca/atualizar", estaLogado, exigeResponsavel, upload.single("
 
         }
 
-        // Mesmo padrão de storage usado em /api/perfil/atualizar
-        // Mesmo padrão de storage usado em /api/perfil/atualizar
+                                                                 
+                                                                 
         if (req.file) {
 
             if (!(await validarImagemReal(req.file.buffer))) {
@@ -2417,8 +2438,8 @@ app.post("/api/crianca/atualizar", estaLogado, exigeResponsavel, upload.single("
 
 });
 
-// Envia a notificação de novidade para todos os usuários
-// que têm "Novidades e dicas" ativado nas configurações
+                                                         
+                                                        
 app.post("/api/admin/novidade", estaLogado, exigeAdmin, limitarTentativasAdmin, async (req, res) => {
 
     const { mensagem } = req.body;
@@ -2431,8 +2452,8 @@ app.post("/api/admin/novidade", estaLogado, exigeAdmin, limitarTentativasAdmin, 
 
     try {
 
-        // Busca todos os usuários que têm o toggle "Novidades e dicas" ativado
-        // Quem nunca mexeu no toggle não recebe, já que o padrão do checkbox é desmarcado
+                                                                               
+                                                                                          
         const usuarios = await db.query(`
             SELECT u.id
             FROM usuarios u
@@ -2464,9 +2485,9 @@ app.post("/api/admin/novidade", estaLogado, exigeAdmin, limitarTentativasAdmin, 
 
 });
 
-// Valida o CONTEÚDO real do arquivo (magic bytes), não o mimetype
-// que o cliente informou no header — esse pode ser falsificado
-// só renomeando a extensão do arquivo.
+                                                                  
+                                                               
+                                       
 const TIPOS_IMAGEM_PERMITIDOS = ["image/jpeg", "image/png", "image/webp"];
 
 async function validarImagemReal(buffer) {
@@ -2475,9 +2496,9 @@ async function validarImagemReal(buffer) {
     return !!tipo && TIPOS_IMAGEM_PERMITIDOS.includes(tipo.mime);
 }
 
-/* ==========================
-   FUNÇÃO AUXILIAR
-========================== */
+                             
+                  
+                             
 
 function idadeEntre(data, minima, maxima) {
 
@@ -2530,8 +2551,8 @@ function senhaAtendeRequisitos(senha) {
         && /[!@#$%^&*(),.?":{}|<>_\-\\[\];'/+=]/.test(senha);
 }
 
-// 🔧 Verifica o token do reCAPTCHA v3 com a API do Google.
-// Nota >= 0.5 é o padrão recomendado pelo Google como ponto de partida.
+                                                           
+                                                                        
 async function verificarRecaptcha(token, acaoEsperada) {
 
     if (!token) return { sucesso: false };
@@ -2568,11 +2589,11 @@ const LIMITES_CRISE = {
     gapAgrupamentoMs:      5 * 60 * 1000, // eventos a até 5 min de distância = mesmo episódio
     duracaoMinimaCriseMs:  3000,           // 3s de aperto sustentado
     forcaMinimaCrise:      0.65,            // força máxima que já basta sozinha
-    quantidadeMinimaEventos: 2             // 2+ apertos no mesmo episódio já basta sozinho
+    quantidadeMinimaEventos: 2                                                             
 };
 
 function classificarEpisodios(eventos) {
-    // eventos: [{ criado_em, forca, duracao_ms, latitude?, longitude? }], já ordenados por criado_em ASC
+                                                                                                         
     const episodios = [];
     let atual = null;
 
@@ -2597,7 +2618,7 @@ function classificarEpisodios(eventos) {
             atual.fimMs = tempo;
             atual.eventos.push(ev);
 
-            // guarda a localização do evento de MAIOR força do episódio
+                                                                        
             if (forcaEv >= atual.forcaMax) {
                 atual.forcaMax  = forcaEv;
                 atual.latitude  = ev.latitude  ?? atual.latitude;
@@ -2628,11 +2649,11 @@ function classificarEpisodios(eventos) {
     });
 }
 function marcarEventosComCrise(eventos) {
-    // Igual ao classificarEpisodios, mas devolve CADA evento individual
-    // com a flag crise (do episódio a que ele pertence) e a flag pico
-    // (true só no evento de MAIOR força do episódio — é o único que
-    // deve aparecer destacado no gráfico, pra não parecer que tem
-    // várias crises quando é uma só, só que longa)
+                                                                        
+                                                                      
+                                                                    
+                                                                  
+                                                   
     const episodios = [];
     let atual = null;
 
@@ -2664,7 +2685,7 @@ function marcarEventosComCrise(eventos) {
             ep.forcaMax        >= LIMITES_CRISE.forcaMinimaCrise ||
             ep.eventos.length  >= LIMITES_CRISE.quantidadeMinimaEventos;
 
-        // Acha o índice do evento de maior força dentro do episódio
+                                                                    
         let indicePico = 0;
         let maiorForca = -1;
         ep.eventos.forEach((ev, i) => {
@@ -2712,11 +2733,11 @@ app.get("/api/relatorio-diario/grafico", estaLogado, exigeResponsavel, async (re
 
                 const eventosReais = marcarEventosComCrise(eventos.rows);
 
-        // Gera uma grade fixa cobrindo o dia inteiro (00:00 a 23:00, de hora
-        // em hora), com força zero. Isso garante que o gráfico sempre mostre
-        // as 24h do dia, mesmo quando os eventos reais só existem numa janela
-        // pequena — sem essa grade, o eixo por categoria esmaga os dados
-        // reais lá pra esquerda.
+                                                                             
+                                                                             
+                                                                              
+                                                                         
+                                 
         const grade = [];
         for (let h = 0; h < 24; h++) {
             grade.push({
@@ -2733,16 +2754,16 @@ app.get("/api/relatorio-diario/grafico", estaLogado, exigeResponsavel, async (re
             return { ...p, ordem: hh * 60 + mm };
         });
 
-        // Junta a grade fixa com os eventos reais e ordena tudo por horário
+                                                                            
         const pontos = [...grade, ...pontosReaisComOrdem]
             .sort((a, b) => a.ordem - b.ordem)
             .map(({ ordem, ...resto }) => resto);
 
-        // Força acima disso já conta como "segurando o Bixuco" (ativo)
+                                                                       
         const LIMIAR_ATIVO = 0.1;
 
-        // Linha do tempo própria: um ponto a cada 5 min, marcado como ativo
-        // só se houve aperto naquele intervalo (evita o bloco "esticado")
+                                                                            
+                                                                          
         const TAMANHO_BLOCO_MIN = 5;
         const totalBlocos = (24 * 60) / TAMANHO_BLOCO_MIN;
         const blocosAtivos = new Set();
@@ -2750,7 +2771,7 @@ app.get("/api/relatorio-diario/grafico", estaLogado, exigeResponsavel, async (re
         for (const ev of eventos.rows) {
             if ((parseFloat(ev.forca) || 0) > LIMIAR_ATIVO) {
                 const d = new Date(ev.criado_em);
-                // O banco já guarda horário de Brasília, então lê direto (UTC)
+                                                                               
                 const minutos = d.getUTCHours() * 60 + d.getUTCMinutes();
                 blocosAtivos.add(Math.floor(minutos / TAMANHO_BLOCO_MIN));
             }
@@ -2770,7 +2791,7 @@ app.get("/api/relatorio-diario/grafico", estaLogado, exigeResponsavel, async (re
         res.json({
             data:      dataFiltro,
             forca:     pontos,     // [{ horario, forca, crise, pico }]
-            atividade: atividade   // [{ horario, ativo }]
+            atividade: atividade                          
         });
 
     } catch (erro) {
@@ -2798,7 +2819,7 @@ async function contarCrisesEIsolados(usuarioId, condicaoSql) {
     return {
         crises:   episodios.filter(e => e.classificacao === "crise").length,
         isolados: episodios.filter(e => e.classificacao === "isolado").length,
-        episodios // guarda os detalhes pra usar na aba de alertas depois
+        episodios                                                        
     };
 }
 
@@ -2809,9 +2830,9 @@ function mediaDuracaoCrises(episodios) {
     return soma / crises.length;
 }
 
-// Classificação VISUAL dos registros do Bixuco.
-// Não é diagnóstico nem classificação clínica.
-// A mesma regra é usada nas telas do responsável e do terapeuta.
+                                                
+                                               
+                                                                 
 function classificarAtividadeSensorial(totalCrises) {
     const total = Math.max(0, Number(totalCrises) || 0);
 
@@ -2835,9 +2856,9 @@ function classificarAtividadeSensorial(totalCrises) {
     };
 }
 
-// Calcula a sequência REAL de dias consecutivos com relatório.
-// Agrupa dias seguidos em "ilhas" e pega a mais recente, só contando
-// como sequência ativa se o último dia foi hoje ou ontem.
+                                                               
+                                                                     
+                                                          
 async function calcularDiasConsecutivos(usuarioId) {
 
     const resultado = await db.query(
@@ -2872,7 +2893,7 @@ async function calcularDiasConsecutivos(usuarioId) {
         : 0;
 }
 
-// Maior sequência já alcançada (histórico), independente de estar ativa
+                                                                        
 async function calcularMaiorOfensiva(usuarioId) {
 
     const resultado = await db.query(
@@ -2894,8 +2915,8 @@ async function calcularMaiorOfensiva(usuarioId) {
     return parseInt(resultado.rows[0].total) || 0;
 }
 
-// Ofensiva = dias seguidos SEM crise (sem limite, igual ao Duolingo).
-// Retorna { atual, maior }. Sem crise nenhuma, conta desde o cadastro da conta.
+                                                                      
+                                                                                
 async function calcularOfensivaSemCrise(usuarioId) {
 
     const DIA_MS = 24 * 60 * 60 * 1000;
@@ -2903,7 +2924,7 @@ async function calcularOfensivaSemCrise(usuarioId) {
     const diaLocalBR = (data) => {
         const d = new Date(data);
         d.setHours(d.getHours() - 3);
-        return d.toISOString().slice(0, 10); // "YYYY-MM-DD"
+        return d.toISOString().slice(0, 10);                
     };
 
     const somaDias = (dia, n) => {
@@ -2934,15 +2955,15 @@ async function calcularOfensivaSemCrise(usuarioId) {
         [usuarioId]
     );
 
-    // Dias em que houve crise real (isolados não quebram a ofensiva)
+                                                                     
     const diasComCrise = [...new Set(
         classificarEpisodios(eventos.rows)
             .filter(ep => ep.classificacao === "crise")
             .map(ep => diaLocalBR(ep.inicio))
     )].sort();
 
-    // Marcos: "crise virtual" na véspera do cadastro e outra amanhã.
-    // A ofensiva é o espaço (em dias limpos) entre dois marcos seguidos.
+                                                                     
+                                                                         
     const marcos = [
         somaDias(inicio, -1),
         ...diasComCrise.filter(d => d >= inicio && d <= hoje),
@@ -2978,7 +2999,7 @@ function calcularIdade(dataNascimento) {
 
 async function gerarCodigoVinculo() {
 
-    // Sem caracteres ambíguos (0/O, 1/I) para facilitar digitar o código
+                                                                         
     const caracteres = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
     let codigo;
@@ -3005,16 +3026,16 @@ async function gerarCodigoVinculo() {
 }
 
 async function gerarCodigo2FA() {
-    // 6 dígitos numéricos, com zero à esquerda se precisar
+                                                           
     return String(Math.floor(100000 + Math.random() * 900000));
 }
 
 async function enviarCodigo2FA(usuario) {
 
     const codigo = await gerarCodigo2FA();
-    const expiraEm = new Date(Date.now() + 10 * 60 * 1000); // 10 minutos
+    const expiraEm = new Date(Date.now() + 10 * 60 * 1000);              
 
-    // Invalida códigos anteriores ainda não usados desse usuário
+                                                                 
     await db.query(
         `UPDATE codigos_2fa SET usado = TRUE WHERE usuario_id = $1 AND usado = FALSE`,
         [usuario.id]
@@ -3057,13 +3078,13 @@ app.post("/api/perfil-sensorial", estaLogado, exigeResponsavel, async (req, res)
 
         const { respostas } = req.body;
 
-        // Valida se as respostas chegaram corretamente
+                                                       
         if (!respostas || !Array.isArray(respostas) || respostas.length === 0) {
             return res.status(400).json({ erro: "Respostas inválidas." });
         }
 
-        // Busca a criança cadastrada por esse usuário
-        // para associar o perfil sensorial a ela
+                                                      
+                                                 
         const criancaResult = await db.query(
             "SELECT id FROM criancas WHERE usuario_id = $1 LIMIT 1",
             [usuarioId]
@@ -3073,8 +3094,8 @@ app.post("/api/perfil-sensorial", estaLogado, exigeResponsavel, async (req, res)
             ? criancaResult.rows[0].id
             : null;
 
-        // Verifica se já existe um perfil sensorial para essa criança
-        // Se existir, atualiza em vez de criar um novo
+                                                                      
+                                                       
         if (criancaId) {
 
             const existente = await db.query(
@@ -3084,7 +3105,7 @@ app.post("/api/perfil-sensorial", estaLogado, exigeResponsavel, async (req, res)
 
             if (existente.rows.length > 0) {
 
-                // Atualiza o perfil existente
+                                              
                 await db.query(
                     `UPDATE perfil_sensorial
                      SET respostas = $1, criado_em = NOW()
@@ -3098,7 +3119,7 @@ app.post("/api/perfil-sensorial", estaLogado, exigeResponsavel, async (req, res)
 
         }
 
-        // Salva o perfil sensorial no banco       // Salva o perfil sensorial no banco
+                                                                                       
         await db.query(
             `INSERT INTO perfil_sensorial
              (usuario_id, crianca_id, respostas)
@@ -3123,8 +3144,8 @@ app.post("/api/perfil-sensorial", estaLogado, exigeResponsavel, async (req, res)
 
 });
 
-// Retorna as preferências de notificação salvas do usuário
-// Usado para marcar os checkboxes com o estado real ao carregar a página
+                                                           
+                                                                         
 app.get("/api/configuracoes/notificacoes", estaLogado, async (req, res) => {
 
     try {
@@ -3142,8 +3163,8 @@ app.get("/api/configuracoes/notificacoes", estaLogado, async (req, res) => {
             [usuarioId]
         );
 
-        // Se o usuário nunca mexeu nos toggles, não existe linha ainda —
-        // usa os mesmos padrões do HTML original (lembrete ligado, novidades desligado)
+                                                                         
+                                                                                        
         if (resultado.rows.length === 0) {
             return res.json({ lembrete: true, novidades: false });
         }
@@ -3177,7 +3198,7 @@ app.post("/api/adicionar-crianca", estaLogado, exigeResponsavel, upload.single("
 
         const { nomeCrianca, dataNascimento, sexo, nomePelucia } = req.body;
 
-        // Validações básicas no backend (o frontend já valida, mas nunca confie só no frontend)
+                                                                                                
         if (!nomeCrianca || nomeCrianca.trim().length < 2) {
             return res.status(400).json({
                 campo: "nomeCrianca",
@@ -3206,8 +3227,8 @@ app.post("/api/adicionar-crianca", estaLogado, exigeResponsavel, upload.single("
             });
         }
 
-        // Verifica se já existe uma criança cadastrada para esse usuário
-        // Ajuste se quiser permitir múltiplas crianças
+                                                                         
+                                                       
         const existente = await db.query(
             "SELECT id FROM criancas WHERE usuario_id = $1",
             [usuarioId]
@@ -3220,10 +3241,10 @@ app.post("/api/adicionar-crianca", estaLogado, exigeResponsavel, upload.single("
             });
         }
 
-        // Processa a foto se foi enviada
-        // Por ora salva null — integre com Cloudinary ou S3 quando quiser
-        // Exemplo de integração com Cloudinary está comentado abaixo
-        // Mesmo padrão de storage usado em /api/perfil/atualizar e /api/crianca/atualizar
+                                         
+                                                                          
+                                                                     
+                                                                                          
         let fotoUrl = null;
 
         if (req.file) {
@@ -3235,7 +3256,7 @@ app.post("/api/adicionar-crianca", estaLogado, exigeResponsavel, upload.single("
             fotoUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
         }
 
-        // Salva a criança no banco
+                                   
         await db.query(
             `INSERT INTO criancas
              (usuario_id, nome, data_nascimento, sexo, nome_pelucia, foto_url)
@@ -3255,7 +3276,7 @@ app.post("/api/adicionar-crianca", estaLogado, exigeResponsavel, upload.single("
             [usuarioId]
         );
 
-        // Redireciona para o questionário de perfil sensorial
+                                                              
         return res.redirect("/QuestionarioP");
 
     } catch (erro) {
@@ -3268,9 +3289,9 @@ app.post("/api/adicionar-crianca", estaLogado, exigeResponsavel, upload.single("
 });
 
 
-// Checa em tempo real (enquanto o usuário digita) se email/cpf/crp já
-// estão em uso — usada pelas telas de cadastro para não deixar o erro
-// só aparecer na etapa seguinte.
+                                                                      
+                                                                      
+                                 
 app.post("/api/verificar-disponibilidade", async (req, res) => {
 
     const { campo, valor } = req.body || {};
@@ -3294,17 +3315,13 @@ app.post("/api/verificar-disponibilidade", async (req, res) => {
             [valor]
         );
 
-        // Contas "pendente" vieram do login com Google e nunca terminaram
-        // o cadastro — elas são assumidas depois, então não bloqueiam aqui.
-        const bloqueado = resultado.rows.some(linha => linha.tipo !== "pendente");
-
-        res.json({ disponivel: !bloqueado });
+        res.json({ disponivel: resultado.rows.length === 0 });
 
     } catch (erro) {
 
         console.log("Erro ao verificar disponibilidade:", erro);
-        // Em caso de erro interno não travamos o usuário — a checagem
-        // definitiva continua acontecendo no envio do formulário.
+                                                                      
+                                                                  
         res.json({ disponivel: true });
 
     }
@@ -3348,7 +3365,7 @@ app.post("/continuar-cadastro-psicologo", limitarCriacaoConta, async (req, res) 
 
     }
 
-    // Salva os dados na sessão para usar na etapa final do cadastro
+                                                                    
     req.session.cadastro = {
 
         tipo: "psicologo",
@@ -3361,8 +3378,8 @@ app.post("/continuar-cadastro-psicologo", limitarCriacaoConta, async (req, res) 
 
     };
 
-    // Como o frontend usa fetch e trata resposta.redirected,
-    // o redirect funciona normalmente aqui
+                                                             
+                                           
     return res.json({
         sucesso: true,
         destino: "/CriarContaSenha"
@@ -3371,9 +3388,9 @@ app.post("/continuar-cadastro-psicologo", limitarCriacaoConta, async (req, res) 
 });
 
 
-/* ==========================
-   PRIMEIRA ETAPA DO CADASTRO
-========================== */
+                             
+                             
+                             
 
 app.post("/continuar-cadastro-pai", limitarCriacaoConta, async (req, res) => {
 
@@ -3386,7 +3403,6 @@ app.post("/continuar-cadastro-pai", limitarCriacaoConta, async (req, res) => {
     } = req.body;
 
 
-    // Bloqueia já aqui e-mail/CPF de conta completa (contas "pendente" do Google são assumidas depois)
     try {
 
         const existe = await db.query(
@@ -3395,11 +3411,11 @@ app.post("/continuar-cadastro-pai", limitarCriacaoConta, async (req, res) => {
             [email, cpfUser]
         );
 
-        const contaCompleta = existe.rows.find(r => r.tipo !== "pendente");
+        const contaExistente = existe.rows.find(r => r.email === email) || existe.rows[0];
 
-        if (contaCompleta) {
+        if (contaExistente) {
 
-            if (contaCompleta.email === email) {
+            if (contaExistente.email === email) {
                 return res.status(409).json({
                     campo: "email",
                     erro: "Este e-mail já está cadastrado."
@@ -3439,8 +3455,8 @@ app.post("/continuar-cadastro-pai", limitarCriacaoConta, async (req, res) => {
 
 
 
-// Serve a página de redefinição de senha
-// O usuário chega aqui clicando no link do e-mail
+                                         
+                                                  
 app.get("/redefinir-senha", async (req, res) => {
 
     const { token } = req.query;
@@ -3451,7 +3467,7 @@ app.get("/redefinir-senha", async (req, res) => {
 
     try {
 
-        // Verifica se o token existe, não foi usado e ainda não expirou
+                                                                        
         const resultado = await db.query(
             `SELECT * FROM tokens_recuperacao
              WHERE token = $1
@@ -3461,12 +3477,12 @@ app.get("/redefinir-senha", async (req, res) => {
         );
 
         if (resultado.rows.length === 0) {
-            // Token inválido ou expirado — redireciona para o login
+                                                                    
             return res.redirect("/logar?erro=token-invalido");
         }
 
-        // Token válido — serve a página de redefinição de senha
-        // Crie o arquivo templates/redefinirsenha.html com um form de nova senha
+                                                                
+                                                                                 
         res.sendFile(path.join(__dirname, "templates", "redefinirsenha.html"));
 
     } catch (erro) {
@@ -3478,9 +3494,9 @@ app.get("/redefinir-senha", async (req, res) => {
 
 });
 
-/* ==========================
-   ROTA — ALTERAR SENHA
-========================== */
+                             
+                       
+                             
 
 app.post("/api/alterar-senha", estaLogado, async (req, res) => {
 
@@ -3517,7 +3533,7 @@ app.post("/api/alterar-senha", estaLogado, async (req, res) => {
 
         const usuario = resultado.rows[0];
 
-        // Contas criadas via Google não têm senha (campo fica vazio)
+                                                                     
         if (!usuario.senha) {
             return res.status(400).json({
                 erro: "Sua conta usa login do Google e não possui senha cadastrada."
@@ -3540,9 +3556,9 @@ app.post("/api/alterar-senha", estaLogado, async (req, res) => {
             [novaSenhaHash, usuarioId]
         );
 
-        // Mantém a sessão ATUAL válida — quem trocou a senha não precisa
-        // logar de novo agora. Mas qualquer OUTRA sessão dessa conta,
-        // aberta em outro dispositivo/navegador, é invalidada.
+                                                                         
+                                                                      
+                                                               
         req.session.versaoSessao = atualizado.rows[0].versao_sessao;
 
         return res.status(200).json({ mensagem: "Senha alterada com sucesso!" });
@@ -3556,11 +3572,11 @@ app.post("/api/alterar-senha", estaLogado, async (req, res) => {
 
 });
 
-/* ==========================
-   ROTA — REDEFINIR SENHA (POST)
-========================== */
+                             
+                                
+                             
 
-// Processa a nova senha enviada pelo usuário
+                                             
 app.post("/redefinir-senha", async (req, res) => {
 
     const { token, senha, confirmarSenha } = req.body;
@@ -3579,7 +3595,7 @@ app.post("/redefinir-senha", async (req, res) => {
 
     try {
 
-        // Verifica novamente se o token ainda é válido
+                                                       
         const resultado = await db.query(
             `SELECT * FROM tokens_recuperacao
              WHERE token = $1
@@ -3594,16 +3610,16 @@ app.post("/redefinir-senha", async (req, res) => {
 
         const tokenDados = resultado.rows[0];
 
-        // Gera o hash da nova senha
+                                    
         const senhaHash = await bcrypt.hash(senha, 10);
 
-        // Atualiza a senha do usuário no banco
+                                               
         await db.query(
             "UPDATE usuarios SET senha = $1, versao_sessao = versao_sessao + 1 WHERE id = $2",
             [senhaHash, tokenDados.usuario_id]
         );
 
-        // Marca o token como usado para que não possa ser reutilizado
+                                                                      
         await db.query(
             "UPDATE tokens_recuperacao SET usado = TRUE WHERE token = $1",
             [token]
@@ -3627,9 +3643,9 @@ app.get("/RelatorioDiario", estaLogado, exigeResponsavel, precisaPlano("medio"),
 
 });
 
-// 🔧 Rota POST — salva o relatório preenchido pelo usuário
-// O frontend chamava /salvar-relatorio que nunca existiu
-// Agora a rota correta é /api/relatorio
+                                                           
+                                                         
+                                        
 app.get("/api/relatorios", estaLogado, exigeResponsavel, async (req, res) => {
 
     try {
@@ -3640,11 +3656,11 @@ app.get("/api/relatorios", estaLogado, exigeResponsavel, async (req, res) => {
             return res.status(401).json({ erro: "Não autenticado." });
         }
 
-        // =====================
-        // CRISES E ISOLADOS — hoje, ontem, mês, mês anterior
-        // Usa classificarEpisodios (agrupamento + critérios de crise real)
-        // em vez de contar qualquer evento como "alerta"
-        // =====================
+                                
+                                                             
+                                                                           
+                                                         
+                                
 
         const crisesHoje = await contarCrisesEIsolados(usuarioId, `
             AND DATE(e.criado_em) = (NOW() AT TIME ZONE 'America/Sao_Paulo')::date
@@ -3694,10 +3710,10 @@ app.get("/api/relatorios", estaLogado, exigeResponsavel, async (req, res) => {
                     ? `↑ ${diffAlertas} comparado ao mês passado`
                     : `↓ ${Math.abs(diffAlertas)} comparado ao mês passado`;
 
-        // =====================
-        // TEMPO DE ESTRESSE — média de duração só das CRISES reais
-        // (isolados não entram, pra não inflar a média com toques rápidos)
-        // =====================
+                                
+                                                                   
+                                                                           
+                                
 
         const mediaHojeMs        = mediaDuracaoCrises(crisesHoje.episodios);
         const mediaMesMs         = mediaDuracaoCrises(crisesMes.episodios);
@@ -3724,17 +3740,17 @@ app.get("/api/relatorios", estaLogado, exigeResponsavel, async (req, res) => {
                     ? `↑ ${diffMinutos} min comparado ao mês passado`
                     : `↓ ${Math.abs(diffMinutos)} min comparado ao mês passado`;
 
-                // =====================
-        // GRÁFICO DE BARRAS — CRISES E ISOLADOS POR DIA (últimos 7 dias)
-        // Usa a mesma classificação de episódios do cartão de cima,
-        // pra os números baterem
-        // =====================
+                                        
+                                                                         
+                                                                    
+                                 
+                                
 
         function dataLocalBR(data) {
-            // Brasil não usa horário de verão desde 2019, então UTC-3 é seguro aqui
+                                                                                    
             const d = new Date(data);
             d.setHours(d.getHours() - 3);
-            return d.toISOString().slice(0, 10); // "YYYY-MM-DD"
+            return d.toISOString().slice(0, 10);                
         }
 
         const eventosSemana = await db.query(
@@ -3774,12 +3790,12 @@ app.get("/api/relatorios", estaLogado, exigeResponsavel, async (req, res) => {
         const dadosEstresse    = diasArray.map(dia => contagemPorDia[dia].crises);
         const dadosIsolados    = diasArray.map(dia => contagemPorDia[dia].isolados);
 
-        // =====================
-        // GRÁFICO — GATILHOS SENSORIAIS PADRONIZADOS (últimos 30 dias)
-        // =====================
-        // O responsável continua escrevendo livremente, mas o gráfico usa
-        // somente categorias fixas. Relatórios antigos, ainda não normalizados,
-        // aparecem como "Histórico não classificado".
+                                
+                                                                       
+                                
+                                                                          
+                                                                                
+                                                      
         const gatilhosRaw = await db.query(
             `WITH respostas_gatilho AS (
 
@@ -3934,7 +3950,7 @@ app.get("/api/relatorios", estaLogado, exigeResponsavel, async (req, res) => {
 
         const ROTULOS_GATILHOS = {
 
-            // Sistemas sensoriais
+                                  
             auditivo: "Auditivo",
             visual: "Visual",
             tatil: "Tátil",
@@ -3944,7 +3960,7 @@ app.get("/api/relatorios", estaLogado, exigeResponsavel, async (req, res) => {
             proprioceptivo: "Proprioceptivo",
             interoceptivo: "Interoceptivo",
 
-            // Contextos
+                        
             ambiente_movimentado:
                 "Ambiente movimentado",
 
@@ -3975,7 +3991,7 @@ app.get("/api/relatorios", estaLogado, exigeResponsavel, async (req, res) => {
             outro_contexto:
                 "Outro contexto",
 
-            // Somente quando realmente não há informação
+                                                         
             nao_identificado:
                 "Não identificado"
         };
@@ -4061,9 +4077,9 @@ app.get("/api/relatorios", estaLogado, exigeResponsavel, async (req, res) => {
 
         }
 
-        // =====================
-        // GRÁFICO DE LINHA — EVOLUÇÃO DE CRISES SENSORIAIS (últimos 7 dias)
-        // =====================
+                                
+                                                                            
+                                
 
         const eventosPorDia = await db.query(
             `SELECT
@@ -4155,9 +4171,9 @@ app.get("/api/relatorios", estaLogado, exigeResponsavel, async (req, res) => {
 
         const labelsEvolucao = diasCombinados.map(d => diasSemanaPt[new Date(d.dia).getUTCDay()]);
 
-        // =====================
-        // ÚLTIMO RELATÓRIO DIÁRIO
-        // =====================
+                                
+                                  
+                                
 
         const ultimoRelatorio = await db.query(
             `SELECT respostas, data
@@ -4194,9 +4210,9 @@ app.get("/api/relatorios", estaLogado, exigeResponsavel, async (req, res) => {
 
         }
 
-        // =====================
-        // RETORNA TUDO
-        // =====================
+                                
+                       
+                                
 
         res.json({
 
@@ -4217,7 +4233,7 @@ app.get("/api/relatorios", estaLogado, exigeResponsavel, async (req, res) => {
             graficoEstresse: {
                 labels:   labelsEstresse,
                 dados:    dadosEstresse,   // crises reais por dia
-                isolados: dadosIsolados    // apertos isolados por dia (opcional pro front mostrar em outra cor)
+                isolados: dadosIsolados                                                                         
             },
 
             graficoGatilhos,
@@ -4242,8 +4258,8 @@ app.get("/api/relatorios", estaLogado, exigeResponsavel, async (req, res) => {
 });
 
 function formatarHorarioEvento(data) {
-    // O banco já guarda o horário de Brasília (a conexão usa
-    // timezone=America/Sao_Paulo), então NÃO converte de novo.
+                                                             
+                                                               
     return new Date(data).toLocaleTimeString("pt-BR", {
         hour:     "2-digit",
         minute:   "2-digit",
@@ -4262,7 +4278,7 @@ app.get("/api/alertas", estaLogado, exigeResponsavel, async (req, res) => {
             return res.status(401).json({ erro: "Não autenticado." });
         }
 
-        // Data alvo — se não vier, usa hoje (fuso de Brasília)
+                                                               
         const dataParam  = req.query.data;
         const dataFiltro = dataParam || new Date().toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
 
@@ -4298,9 +4314,9 @@ app.get("/api/alertas", estaLogado, exigeResponsavel, async (req, res) => {
 
 });
 
-/* ==========================
-   CADASTRO FINAL
-========================== */
+                             
+                 
+                             
 
 app.post("/cadastro-finalizar", limitarCriacaoConta, async (req, res) => {
 
@@ -4316,7 +4332,7 @@ app.post("/cadastro-finalizar", limitarCriacaoConta, async (req, res) => {
 
     const { senha, confirmarSenha, tokenRecaptcha } = req.body;
 
-    // 🔧 Verifica o reCAPTCHA antes de qualquer outra validação
+                                                                
     const captcha = await verificarRecaptcha(tokenRecaptcha, "cadastro");
 
     if (!captcha.sucesso) {
@@ -4343,9 +4359,9 @@ app.post("/cadastro-finalizar", limitarCriacaoConta, async (req, res) => {
 
         const senhaHash = await bcrypt.hash(senha, 10);
 
-        /* ==========================
-           RESPONSÁVEL
-        ========================== */
+                                     
+                      
+                                     
 
         if (!idadeEntre(dados.dataNascimento, 18, 120)) {
             return res.status(400).json({
@@ -4363,50 +4379,20 @@ app.post("/cadastro-finalizar", limitarCriacaoConta, async (req, res) => {
                 });
             }
 
-            console.log("Cadastro-finalizar - email:", dados.email, "| cpf:", dados.cpfUser);
-
             const existe = await db.query(
                 `SELECT id, email, cpf, tipo FROM usuarios
                 WHERE email = $1 OR cpf = $2`,
                 [dados.email, dados.cpfUser]
             );
 
-            const contaPendente = existe.rows.find(r => r.tipo === 'pendente');
-            const contaCompleta = existe.rows.find(r => r.tipo !== 'pendente');
+            const contaExistente = existe.rows.find(r => r.email === dados.email) || existe.rows[0];
 
-            if (contaCompleta) {
-                if (contaCompleta.email === dados.email) {
-                    return res.status(409).json({ campo: "email", erro: "Este e-mail já está cadastrado." });
+            if (contaExistente) {
+                if (contaExistente.email === dados.email) {
+                    return res.status(409).json({ campo: "email", erro: "Este e-mail já está cadastrado. Use o login correspondente." });
                 }
                 return res.status(409).json({ campo: "cpf", erro: "Este CPF já está cadastrado." });
             }
-
-            if (contaPendente) {
-                // Conta veio do Google e nunca foi completada — assume ela em vez de bloquear
-                const atualizado = await db.query(
-                    `UPDATE usuarios
-                    SET nome=$1, cpf=$2, senha=$3, data_nascimento=$4, tipo='pai', novo_usuario=FALSE
-                    WHERE id=$5
-                    RETURNING id, tipo, versao_sessao`,
-                    [dados.nome, dados.cpfUser, senhaHash, dados.dataNascimento, contaPendente.id]
-                );
-
-                delete req.session.cadastro;
-                req.session.usuarioId = atualizado.rows[0].id;
-                req.session.tipo = atualizado.rows[0].tipo;
-                req.session.versaoSessao = atualizado.rows[0].versao_sessao;
-
-                // cria assinatura gratuita para conta Google finalizada
-                await db.query(
-                    `INSERT INTO assinaturas (usuario_id, nome_plano, ativo)
-                        VALUES ($1, 'gratis', true)
-                        ON CONFLICT DO NOTHING`,
-                    [atualizado.rows[0].id]
-                );
-                return res.json({ sucesso: true, destino: "/planos" });
-            }
-
-            // nenhuma linha encontrada — segue o INSERT normal que já existe
 
             const novoUsuario = await db.query(
                 `INSERT INTO usuarios
@@ -4428,7 +4414,7 @@ app.post("/cadastro-finalizar", limitarCriacaoConta, async (req, res) => {
             req.session.tipo = novoUsuario.rows[0].tipo;
             req.session.versaoSessao = novoUsuario.rows[0].versao_sessao;
 
-            // cria assinatura gratuita para novo responsável
+                                                             
             await db.query(
                 `INSERT INTO assinaturas (usuario_id, nome_plano)
                 VALUES ($1, 'gratis')`,
@@ -4443,9 +4429,9 @@ app.post("/cadastro-finalizar", limitarCriacaoConta, async (req, res) => {
 
         }
 
-        /* ==========================
-           PSICÓLOGO
-        ========================== */
+
+
+
 
         else if (dados.tipo === "psicologo") {
 
@@ -4462,41 +4448,15 @@ app.post("/cadastro-finalizar", limitarCriacaoConta, async (req, res) => {
                 [dados.email, dados.crp]
             );
 
-            const contaPendente = existe.rows.find(r => r.tipo === 'pendente');
-            const contaCompleta = existe.rows.find(r => r.tipo !== 'pendente');
+            const contaExistente = existe.rows.find(r => r.email === dados.email) || existe.rows[0];
 
-            if (contaCompleta) {
-                if (contaCompleta.email === dados.email) {
-                    return res.status(409).json({ campo: "email", erro: "Este e-mail já está cadastrado." });
+            if (contaExistente) {
+                if (contaExistente.email === dados.email) {
+                    return res.status(409).json({ campo: "email", erro: "Este e-mail já está cadastrado. Use o login correspondente." });
                 }
                 return res.status(409).json({ campo: "crp", erro: "Este CRP já está cadastrado." });
             }
 
-            if (contaPendente) {
-                // Conta veio do Google e nunca foi completada — assume ela em vez de bloquear
-                // 🔧 FIX: faltava gerar o codigo_vinculo aqui — esse era o motivo do
-                // código do terapeuta não aparecer na tela de configurações
-                const codigoVinculo = await gerarCodigoVinculo();
-
-                const atualizado = await db.query(
-                    `UPDATE usuarios
-                    SET nome=$1, crp=$2, senha=$3, data_nascimento=$4, tipo='psicologo', novo_usuario=FALSE, codigo_vinculo=$5
-                    WHERE id=$6
-                    RETURNING id, tipo, versao_sessao`,
-                    [dados.nome, dados.crp, senhaHash, dados.dataNascimento, codigoVinculo, contaPendente.id]
-                );
-
-                delete req.session.cadastro;
-                req.session.usuarioId = atualizado.rows[0].id;
-                req.session.tipo = atualizado.rows[0].tipo;
-                req.session.versaoSessao = atualizado.rows[0].versao_sessao;
-
-                return res.json({ sucesso: true, destino: "/hometerapeuta" });
-
-            }
-            // nenhuma linha encontrada — segue o INSERT normal que já existe
-
-            
             const codigoVinculo = await gerarCodigoVinculo();
 
             const novoUsuario = await db.query(
@@ -4550,12 +4510,12 @@ app.post("/cadastro-finalizar", limitarCriacaoConta, async (req, res) => {
 });
 
 
-/* ==========================
-   ROTA GET — DADOS DO HOME TERAPEUTA (API)
-========================== */
+                             
+                                           
+                             
 
-// 🔧 FIX 1: Rota /api/home-terapeuta que o frontend chama
-// Retorna nome, foto, contadores, solicitações pendentes e atividade recente
+                                                          
+                                                                             
 app.get("/api/home-terapeuta", estaLogado, exigeTerapeuta, async (req, res) => {
 
     try {
@@ -4567,7 +4527,7 @@ app.get("/api/home-terapeuta", estaLogado, exigeTerapeuta, async (req, res) => {
             return res.status(401).json({ erro: "Não autenticado." });
         }
 
-        // Dados do terapeuta
+                             
         const resultadoUsuario = await db.query(
             `SELECT nome, email, foto_perfil, codigo_vinculo FROM usuarios WHERE id = $1`,
             [usuarioId]
@@ -4579,7 +4539,7 @@ app.get("/api/home-terapeuta", estaLogado, exigeTerapeuta, async (req, res) => {
 
         const terapeuta = resultadoUsuario.rows[0];
 
-        // Total de pacientes vinculados (vínculos ativos)
+                                                          
         const totalPacientes = await db.query(
             `SELECT COUNT(*) AS total
              FROM vinculos
@@ -4587,7 +4547,7 @@ app.get("/api/home-terapeuta", estaLogado, exigeTerapeuta, async (req, res) => {
             [usuarioId]
         );
 
-        // Total de solicitações pendentes (vínculos aguardando aprovação)
+                                                                          
         const totalPendentes = await db.query(
             `SELECT COUNT(*) AS total
              FROM vinculos
@@ -4595,7 +4555,7 @@ app.get("/api/home-terapeuta", estaLogado, exigeTerapeuta, async (req, res) => {
             [usuarioId]
         );
 
-        // Relatórios compartilhados hoje
+                                         
         const relatoriosHoje = await db.query(
             `SELECT COUNT(*) AS total
              FROM relatorios r
@@ -4606,7 +4566,7 @@ app.get("/api/home-terapeuta", estaLogado, exigeTerapeuta, async (req, res) => {
             [usuarioId]
         );
 
-        // Notificações não lidas
+                                 
         const notificacoesNaoLidas = await db.query(
             `SELECT COUNT(*) AS total
             FROM notificacoes
@@ -4614,7 +4574,7 @@ app.get("/api/home-terapeuta", estaLogado, exigeTerapeuta, async (req, res) => {
             [usuarioId]
         );
 
-        // Relatórios não vistos (pendentes de visualização)
+                                                            
         const relatoriosPendentes = await db.query(
             `SELECT COUNT(*) AS total
             FROM relatorios r
@@ -4625,8 +4585,8 @@ app.get("/api/home-terapeuta", estaLogado, exigeTerapeuta, async (req, res) => {
             [usuarioId]
         );
 
-        // Solicitações pendentes com dados do responsável e criança
-        // Ajuste os nomes das tabelas conforme seu banco
+                                                                    
+                                                         
         const solicitacoes = await db.query(
             `SELECT
                 v.id,
@@ -4646,7 +4606,7 @@ app.get("/api/home-terapeuta", estaLogado, exigeTerapeuta, async (req, res) => {
             [usuarioId]
         );
 
-                // Atividade recente — últimos relatórios dos pacientes vinculados
+                                                                                  
         const atividadeRecente = await db.query(
             `SELECT
                 r.id,
@@ -4667,10 +4627,10 @@ app.get("/api/home-terapeuta", estaLogado, exigeTerapeuta, async (req, res) => {
             [usuarioId]
         );
 
-        // Alterna entre verde e azul nos ícones da atividade
-                // Alterna entre verde e azul nos ícones da atividade
-                // Alterna entre verde e azul nos ícones da atividade
-                // Alterna entre verde e azul nos ícones da atividade
+                                                             
+                                                                     
+                                                                     
+                                                                     
         const atividades = atividadeRecente.rows.map((item, i) => ({
             id:             item.id,
             responsavelId:  item.responsavel_id,
@@ -4713,12 +4673,12 @@ app.get("/api/home-terapeuta", estaLogado, exigeTerapeuta, async (req, res) => {
 
 });
 
-/* ==========================
-   ROTA POST — RESPONDER SOLICITAÇÃO DE VÍNCULO
-========================== */
+                             
+                                               
+                             
 
-// 🔧 FIX 2: Rota /api/vinculos/responder que o frontend chama
-// ao clicar em Aceitar ou Recusar nas solicitações pendentes
+                                                              
+                                                             
 app.post("/api/vinculos/responder", estaLogado, exigeTerapeuta, async (req, res) => {
 
     try {
@@ -4735,7 +4695,7 @@ app.post("/api/vinculos/responder", estaLogado, exigeTerapeuta, async (req, res)
             return res.status(400).json({ erro: "Dados inválidos." });
         }
 
-        // Verifica se o vínculo pertence a esse terapeuta
+                                                          
         const vinculo = await db.query(
             `SELECT id FROM vinculos
              WHERE id = $1 AND terapeuta_id = $2 AND ativo = FALSE`,
@@ -4748,7 +4708,7 @@ app.post("/api/vinculos/responder", estaLogado, exigeTerapeuta, async (req, res)
 
         if (acao === "aceitar") {
 
-            // Ativa o vínculo
+                              
             await db.query(
                 `UPDATE vinculos SET ativo = TRUE WHERE id = $1`,
                 [vinculoId]
@@ -4756,7 +4716,7 @@ app.post("/api/vinculos/responder", estaLogado, exigeTerapeuta, async (req, res)
 
         } else {
 
-            // Marca como recusado — não deleta para manter histórico
+                                                                     
             await db.query(
                 `UPDATE vinculos SET recusado = TRUE WHERE id = $1`,
                 [vinculoId]
@@ -4779,9 +4739,9 @@ app.post("/api/vinculos/responder", estaLogado, exigeTerapeuta, async (req, res)
 
 });
 
-// ─────────────────────────────────────────
-// VINCULAR TERAPEUTA — enviar pedido
-// ─────────────────────────────────────────
+                                            
+                                     
+                                            
 app.post("/api/vinculos/solicitar", estaLogado, exigeResponsavel, verificarPlano, exigePremium, async (req, res) => {
     const { codigoTerapeuta } = req.body;
     const responsavelId = req.authUser.id;
@@ -4812,7 +4772,7 @@ app.post("/api/vinculos/solicitar", estaLogado, exigeResponsavel, verificarPlano
             if (v.ativo)   return res.status(400).json({ erro: "Você já está vinculado a este terapeuta." });
             if (!v.ativo && !v.recusado) return res.status(400).json({ erro: "Já existe um pedido pendente." });
 
-            // se foi recusado ou cancelado, reabre o pedido
+                                                            
             await db.query(
                 "UPDATE vinculos SET ativo = false, recusado = false WHERE id = $1",
                 [v.id]
@@ -4862,9 +4822,9 @@ app.post("/api/vinculos/solicitar", estaLogado, exigeResponsavel, verificarPlano
 });
 
 
-// ─────────────────────────────────────────
-// CANCELAR PEDIDO PENDENTE
-// ─────────────────────────────────────────
+                                            
+                           
+                                            
 app.post("/api/vinculos/cancelar", estaLogado, exigeResponsavel, verificarPlano, exigePremium, async (req, res) => {
     const responsavelId = req.authUser.id;
 
@@ -4885,9 +4845,9 @@ app.post("/api/vinculos/cancelar", estaLogado, exigeResponsavel, verificarPlano,
 });
 
 
-// ─────────────────────────────────────────
-// REMOVER TERAPEUTA VINCULADO
-// ─────────────────────────────────────────
+                                            
+                              
+                                            
 app.post("/api/vinculos/remover", estaLogado, exigeResponsavel, verificarPlano, exigePremium, async (req, res) => {
     const responsavelId = req.authUser.id;
 
@@ -4896,7 +4856,7 @@ app.post("/api/vinculos/remover", estaLogado, exigeResponsavel, verificarPlano, 
     }
 
     try {
-        // Usa ativo = FALSE em vez de DELETE para manter histórico do vínculo
+                                                                              
         const resultado = await db.query(
             `UPDATE vinculos SET ativo = FALSE WHERE responsavel_id = $1 AND ativo = TRUE`,
             [responsavelId]
@@ -4914,9 +4874,9 @@ app.post("/api/vinculos/remover", estaLogado, exigeResponsavel, verificarPlano, 
 });
 
 
-// ─────────────────────────────────────────
-// BUSCAR STATUS DO VÍNCULO ATUAL
-// ─────────────────────────────────────────
+                                            
+                                 
+                                            
 app.get("/api/vinculos/status", estaLogado, exigeResponsavel, async (req, res) => {
     const responsavelId = req.authUser.id;
 
@@ -4961,13 +4921,13 @@ app.get("/api/vinculos/status", estaLogado, exigeResponsavel, async (req, res) =
     }
 });
 
-/* ==========================
-   LOGIN
-========================== */
+                             
+        
+                             
 
-// 🔧 FIX: Rota de login atualizada para aceitar tanto JSON (fetch) quanto form (fallback)
-// O frontend agora envia via fetch com Content-Type: application/json
-// então req.body.email e req.body.senha chegam pelo express.json() middleware
+                                                                                          
+                                                                      
+                                                                              
 
 app.post('/login', limitarLoginPorIp, limitarTentativasLogin, async (req, res) => {
 
@@ -4984,14 +4944,14 @@ app.post('/login', limitarLoginPorIp, limitarTentativasLogin, async (req, res) =
         const resultado = await db.query(sql, [email]);
 
         if (resultado.rows.length === 0) {
-            // Mesma mensagem do caso "senha errada": não revelamos
-            // se o e-mail existe ou não no sistema.
+                                                                   
+                                                    
             return res.status(401).json({ erro: "E-mail ou senha inválidos." });
         }
 
         const usuario = resultado.rows[0];
 
-        // Conta criada via Google não tem senha própria
+                                                        
         if (!usuario.senha) {
             return res.status(401).json({
                 erro: "Esta conta usa login com Google. Use o botão 'Continuar com Google'."
@@ -5004,7 +4964,7 @@ app.post('/login', limitarLoginPorIp, limitarTentativasLogin, async (req, res) =
             return res.status(401).json({ erro: "E-mail ou senha inválidos." });
         }
 
-        // 🔐 2FA — obrigatório para pai e psicólogo; admin entra direto
+                                                                        
         if (usuario.tipo === "pai" || usuario.tipo === "psicologo") {
 
             await enviarCodigo2FA(usuario);
@@ -5012,14 +4972,14 @@ app.post('/login', limitarLoginPorIp, limitarTentativasLogin, async (req, res) =
             req.session.pendente2FA = {
                 usuarioId: usuario.id,
                 tipo: usuario.tipo,
-                versaoSessao: usuario.versao_sessao   // 🔧 FALTAVA ISSO
+                versaoSessao: usuario.versao_sessao                     
             };
 
             return res.json({ precisa2fa: true, destino: "/verificar-codigo" });
 
         }
 
-        // Sem 2FA (admin, ou outros tipos futuros)
+                                                   
         req.session.regenerate((erroRegen) => {
             if (erroRegen) {
                 console.log("Erro ao regenerar sessão no login:", erroRegen);
@@ -5045,9 +5005,9 @@ app.post('/login', limitarLoginPorIp, limitarTentativasLogin, async (req, res) =
 
 });
 
-/* ==========================
-   VERIFICAÇÃO 2FA
-========================== */
+                             
+                  
+                             
 
 app.get("/verificar-codigo", (req, res) => {
 
@@ -5095,14 +5055,14 @@ app.post("/api/2fa/verificar", limitarVerificacao2FA, async (req, res) => {
             return res.status(401).json({ erro: "Código incorreto." });
         }
 
-        // Marca o código como usado
+                                    
         await db.query(
             "UPDATE codigos_2fa SET usado = TRUE WHERE id = $1",
             [registro.id]
         );
 
-        // Agora sim, abre a sessão de verdade
-        const dadosPendente = { ...pendente }; // guarda antes, pois regenerate() limpa a sessão
+                                              
+        const dadosPendente = { ...pendente };                                                  
 
         req.session.regenerate((erroRegen) => {
             if (erroRegen) {
@@ -5159,42 +5119,42 @@ app.post("/api/2fa/reenviar", limitarReenvio2FA, async (req, res) => {
 
 });
 
-/* ==================================================
-   ROTAS DO PERFIL — adicione no seu server.js
-   ================================================== */
+                                                     
+                                              
+                                                        
 
-/* ==========================
-   ROTA GET — PÁGINA DO PERFIL
-========================== */
+                             
+                              
+                             
 
-// 🔧 FIX 7: Rota GET /perfil que não existia no server.js
+                                                          
 app.get("/perfil", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "perfil.html"));
 
 });
 
-/* ==================================================
-   ROTAS DE CONFIGURAÇÕES — adicione no seu server.js
-   ================================================== */
+                                                     
+                                                     
+                                                        
 
-/* ==========================
-   ROTA GET — PÁGINA DE CONFIGURAÇÕES
-========================== */
+                             
+                                     
+                             
 
-// 🔧 Rota GET /configuracoes que não existia no server.js
+                                                          
 app.get("/configuracoes", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "configuracoes.html"));
 
 });
 
-/* ==========================
-   ROTA POST — SALVAR NOTIFICAÇÕES
-========================== */
+                             
+                                  
+                             
 
-// 🔧 FIX 2: Rota /api/configuracoes/notificacoes que o frontend chamava
-// mas nunca existiu no server.js
+                                                                        
+                                 
 app.post("/api/configuracoes/notificacoes", estaLogado, async (req, res) => {
 
     try {
@@ -5207,14 +5167,14 @@ app.post("/api/configuracoes/notificacoes", estaLogado, async (req, res) => {
 
         const { lembrete, novidades } = req.body;
 
-        // Atualiza as preferências de notificação do usuário
-        // Ajuste o nome da tabela/colunas conforme o seu banco
-        // Se não tiver tabela de preferências ainda, crie:
-        // CREATE TABLE preferencias_usuario (
-        //     usuario_id INTEGER PRIMARY KEY REFERENCES usuarios(id),
-        //     notif_lembrete BOOLEAN DEFAULT TRUE,
-        //     notif_novidades BOOLEAN DEFAULT FALSE
-        // );
+                                                             
+                                                               
+                                                           
+                                              
+                                                                      
+                                                   
+                                                    
+             
 
         if (lembrete !== undefined) {
 
@@ -5252,14 +5212,14 @@ app.post("/api/configuracoes/notificacoes", estaLogado, async (req, res) => {
 });
 
 
-/* ==========================
-   RASCUNHO DO RELATÓRIO DIÁRIO
-========================== */
+                             
+                               
+                             
 
 
-// =========================================
-// GET — BUSCAR RASCUNHO DO DIA
-// =========================================
+                                            
+                               
+                                            
 
 app.get(
     "/api/relatorio/rascunho",
@@ -5276,8 +5236,8 @@ app.get(
                 req.authUser.id;
 
 
-            // Primeiro verifica se o relatório
-            // de hoje já foi FINALIZADO.
+                                               
+                                         
             const relatorioFinalizado =
                 await db.query(
                     `
@@ -5311,7 +5271,7 @@ app.get(
             }
 
 
-            // Busca o rascunho do dia atual
+                                            
             const resultado =
                 await db.query(
                     `
@@ -5332,7 +5292,7 @@ app.get(
                 );
 
 
-            // Ainda não começou relatório hoje
+                                               
             if (resultado.rows.length === 0) {
 
                 return res.json({
@@ -5385,9 +5345,9 @@ app.get(
 );
 
 
-// =========================================
-// PUT — SALVAR/ATUALIZAR RASCUNHO
-// =========================================
+                                            
+                                  
+                                            
 
 app.put(
     "/api/relatorio/rascunho",
@@ -5432,9 +5392,9 @@ app.put(
             }
 
 
-            // Não permite alterar rascunho
-            // depois que o relatório do dia
-            // já foi finalizado.
+                                           
+                                            
+                                 
             const relatorioFinalizado =
                 await db.query(
                     `
@@ -5552,10 +5512,10 @@ app.put(
     }
 );
 
-// =========================================
-// PATCH — SALVAR UMA ÚNICA RESPOSTA
-// DO RASCUNHO SEM SOBRESCREVER AS OUTRAS
-// =========================================
+                                            
+                                    
+                                         
+                                            
 
 app.patch(
     "/api/relatorio/rascunho/resposta",
@@ -5658,8 +5618,8 @@ app.patch(
             );
 
 
-            // Confere se o relatório já foi
-            // finalizado antes de mexer no rascunho.
+                                            
+                                                     
             const relatorioFinalizado =
                 await cliente.query(
                     `
@@ -5710,8 +5670,8 @@ app.patch(
             }
 
 
-            // Garante que exista um rascunho
-            // para o dia atual.
+                                             
+                                
             await cliente.query(
                 `
                 INSERT INTO
@@ -5751,13 +5711,13 @@ app.patch(
             );
 
 
-            /*
-                Bloqueia somente o rascunho deste
-                usuário enquanto fazemos a alteração.
+              
+                                                 
+                                                     
 
-                Se duas abas salvarem ao mesmo tempo,
-                uma espera a outra terminar.
-            */
+                                                     
+                                            
+              
             const rascunho =
                 await cliente.query(
                     `
@@ -5944,9 +5904,9 @@ app.patch(
     }
 );
 
-/* ==========================
-   ROTA POST — SALVAR RELATÓRIO DIÁRIO
-========================== */
+                             
+                                      
+                             
 
 app.post("/api/relatorio", estaLogado, exigeResponsavel, precisaPlano("medio"), async (req, res) => {
 
@@ -5976,11 +5936,11 @@ app.post("/api/relatorio", estaLogado, exigeResponsavel, precisaPlano("medio"), 
         );
 
 
-        /*
-            O rascunho do banco é a fonte oficial.
-            FOR UPDATE impede que chat/formulário alterem
-            o rascunho enquanto ele está sendo finalizado.
-        */
+          
+                                                  
+                                                         
+                                                          
+          
         const rascunho =
             await cliente.query(
                 `
@@ -6009,8 +5969,8 @@ app.post("/api/relatorio", estaLogado, exigeResponsavel, precisaPlano("medio"), 
             );
 
 
-        // Se não existe rascunho, pode ser porque outra aba
-        // já finalizou o relatório enquanto esta ainda estava aberta.
+                                                            
+                                                                      
         if (
             rascunho.rows.length === 0
         ) {
@@ -6088,7 +6048,7 @@ app.post("/api/relatorio", estaLogado, exigeResponsavel, precisaPlano("medio"), 
         }
 
 
-        // Confere se outra aba já finalizou o relatório.
+                                                         
         const jaTemHoje =
             await cliente.query(
                 `
@@ -6132,8 +6092,8 @@ app.post("/api/relatorio", estaLogado, exigeResponsavel, precisaPlano("medio"), 
         }
 
 
-        // Descobre se houve alerta REAL do Bixuco hoje.
-        // Se houve, as duas perguntas extras também são obrigatórias.
+                                                        
+                                                                      
         const eventoHoje =
             await cliente.query(
                 `
@@ -6229,18 +6189,18 @@ app.post("/api/relatorio", estaLogado, exigeResponsavel, precisaPlano("medio"), 
         }
 
 
-        /*
-            Normaliza somente a cópia MAIS RECENTE que veio
-            do banco. O texto original do responsável continua
-            preservado pela própria função.
-        */
+          
+                                                           
+                                                              
+                                           
+          
         const respostasNormalizadas =
             await enriquecerRespostasComGatilho(
                 respostas
             );
 
 
-        // Salva o relatório definitivo.
+                                        
         await cliente.query(
             `
             INSERT INTO relatorios
@@ -6266,8 +6226,8 @@ app.post("/api/relatorio", estaLogado, exigeResponsavel, precisaPlano("medio"), 
         );
 
 
-        // Depois de virar relatório definitivo,
-        // o rascunho de hoje deixa de existir.
+                                                
+                                               
         await cliente.query(
             `
             DELETE FROM rascunhos_relatorio
@@ -6286,7 +6246,7 @@ app.post("/api/relatorio", estaLogado, exigeResponsavel, precisaPlano("medio"), 
         );
 
 
-        // Notificação para o responsável.
+                                          
         await cliente.query(
             `
             INSERT INTO notificacoes
@@ -6312,7 +6272,7 @@ app.post("/api/relatorio", estaLogado, exigeResponsavel, precisaPlano("medio"), 
         );
 
 
-        // Busca terapeuta vinculado, se existir.
+                                                 
         const terapeutaVinculado =
             await cliente.query(
                 `
@@ -6490,12 +6450,12 @@ app.post("/api/relatorios/:id/marcar-visto", estaLogado, exigeTerapeuta, async (
 });
 
 
-/* ==========================
-   ROTA DELETE — EXCLUIR CONTA
-========================== */
+                             
+                              
+                             
 
-// 🔧 FIX 3: Rota /api/excluir-conta que o frontend chamava
-// mas nunca existiu no server.js
+                                                           
+                                 
 app.delete("/api/excluir-conta", estaLogado, async (req, res) => {
 
     try {
@@ -6506,17 +6466,17 @@ app.delete("/api/excluir-conta", estaLogado, async (req, res) => {
             return res.status(401).json({ erro: "Não autenticado." });
         }
 
-        // A ordem importa por causa das chaves estrangeiras (foreign keys).
-        // Sempre apaga primeiro quem "aponta para" o usuário/criança,
-        // e só no final apaga o próprio usuário.
+                                                                            
+                                                                      
+                                                 
 
-        // 🔧 Perfil sensorial referencia tanto usuario_id quanto crianca_id —
-        // precisa ser apagado antes da tabela criancas
-                // A ordem importa por causa das chaves estrangeiras.
-        // Regra: primeiro quem APONTA para criança, depois quem aponta
-        // para usuário, e só no fim o próprio usuário.
+                                                                              
+                                                       
+                                                                     
+                                                                       
+                                                       
 
-        // --- Tudo que referencia a(s) criança(s) do usuário ---
+                                                                 
 
         await db.query(
             `DELETE FROM eventos_bixuco
@@ -6530,8 +6490,8 @@ app.delete("/api/excluir-conta", estaLogado, async (req, res) => {
             [usuarioId]
         );
 
-        // Dispositivo é hardware físico — não apagamos o registro,
-        // só desvinculamos pra poder ser reaproveitado depois.
+                                                                   
+                                                               
         await db.query(
             `UPDATE dispositivos
              SET usuario_id = NULL, crianca_id = NULL, vinculado_em = NULL
@@ -6544,7 +6504,7 @@ app.delete("/api/excluir-conta", estaLogado, async (req, res) => {
             [usuarioId]
         );
 
-        // --- Tudo que referencia o usuário ---
+                                                
 
         await db.query(
             "DELETE FROM relatorios WHERE usuario_id = $1",
@@ -6601,7 +6561,7 @@ app.delete("/api/excluir-conta", estaLogado, async (req, res) => {
             [usuarioId]
         );
 
-        // --- Criança e usuário por último ---
+                                               
 
         await db.query(
             "DELETE FROM criancas WHERE usuario_id = $1",
@@ -6613,7 +6573,7 @@ app.delete("/api/excluir-conta", estaLogado, async (req, res) => {
             [usuarioId]
         );
 
-        // Encerra a sessão após excluir a conta
+                                                
         req.session.destroy((err) => {
             if (err) console.log("Erro ao destruir sessão:", err);
         });
@@ -6630,12 +6590,12 @@ app.delete("/api/excluir-conta", estaLogado, async (req, res) => {
 });
 
 
-/* ==========================
-   ROTA GET — DADOS DO PERFIL (API)
-========================== */
+                             
+                                   
+                             
 
-// 🔧 FIX 1: Rota /api/perfil que o frontend chamava como /dados-usuario
-// Retorna todos os dados necessários para montar a página de perfil
+                                                                        
+                                                                    
 app.get("/api/perfil", estaLogado, async (req, res) => {
     
 
@@ -6647,7 +6607,7 @@ app.get("/api/perfil", estaLogado, async (req, res) => {
             return res.status(401).json({ erro: "Não autenticado." });
         }
 
-        // Busca os dados do usuário
+                                    
         const resultadoUsuario = await db.query(
             `SELECT id, nome, email, tipo, foto_perfil, codigo_vinculo,
                     EXTRACT(YEAR FROM criado_em) AS ano_cadastro
@@ -6662,8 +6622,8 @@ app.get("/api/perfil", estaLogado, async (req, res) => {
 
         const usuario = resultadoUsuario.rows[0];
 
-        // Busca a criança vinculada ao responsável
-        // Ajuste o nome da tabela conforme o seu banco
+                                                   
+                                                       
         const resultadoCrianca = await db.query(
             `SELECT nome, data_nascimento, foto_url
              FROM criancas
@@ -6672,7 +6632,7 @@ app.get("/api/perfil", estaLogado, async (req, res) => {
             [usuarioId]
         );
 
-        // Calcula a idade da criança a partir da data de nascimento
+                                                                    
         let criancaDados = null;
 
         if (resultadoCrianca.rows.length > 0) {
@@ -6688,8 +6648,8 @@ app.get("/api/perfil", estaLogado, async (req, res) => {
 
         }
 
-        // Busca o terapeuta vinculado ao responsável
-        // Ajuste o nome das tabelas conforme o seu banco
+                                                     
+                                                         
         const resultadoTerapeuta = await db.query(
             `SELECT u.nome, u.crp
              FROM vinculos v
@@ -6706,8 +6666,8 @@ app.get("/api/perfil", estaLogado, async (req, res) => {
             terapeutaDados = resultadoTerapeuta.rows[0];
         }
 
-        // Busca o plano ativo do usuário
-        // Ajuste o nome da tabela conforme o seu banco
+                                         
+                                                       
         const resultadoPlano = await db.query(
             `SELECT nome_plano
             FROM assinaturas
@@ -6722,7 +6682,7 @@ app.get("/api/perfil", estaLogado, async (req, res) => {
             ? resultadoPlano.rows[0].nome_plano.toLowerCase()
             : "gratis";
 
-        // nome bonito pra EXIBIÇÃO na tela
+                                           
         const nomesPlanos = {
             gratis:    "Plano Grátis",
             medio:     "Plano Básico Bixuco",
@@ -6732,13 +6692,13 @@ app.get("/api/perfil", estaLogado, async (req, res) => {
         const plano = nomesPlanos[planoCodigo] || "Plano Grátis";
 
 
-        // Busca dias consecutivos de relatório
+                                               
         
 
         const nomesTipoConta = { pai: "Responsável", psicologo: "Terapeuta", admin: "Administrador" };
         const tipoConta = nomesTipoConta[usuario.tipo] || "Usuário";
 
-        // Monta e retorna o JSON completo para o frontend
+                                                          
         const ofensiva         = await calcularOfensivaSemCrise(usuarioId);
         const diasConsecutivos = ofensiva.atual;
         const maiorOfensiva    = ofensiva.maior;
@@ -6767,13 +6727,13 @@ app.get("/api/perfil", estaLogado, async (req, res) => {
 
 });
 
-// 🔧 A remoção de terapeuta agora é feita só por /api/vinculos/remover
-// (a rota /api/remover-terapeuta foi removida por ser duplicada e
-// usar DELETE em vez de manter o histórico do vínculo)
+                                                                       
+                                                                  
+                                                       
 
-/* ==========================
-   ROTA POST — ATUALIZAR PERFIL (nome e/ou foto)
-========================== */
+                             
+                                                
+                             
 
 app.post("/api/perfil/atualizar", estaLogado, upload.single("fotoPerfil"), async (req, res) => {
 
@@ -6787,7 +6747,7 @@ app.post("/api/perfil/atualizar", estaLogado, upload.single("fotoPerfil"), async
 
         const { nome } = req.body;
 
-        // Monta a query dinamicamente — só atualiza os campos que vieram
+                                                                         
         const campos = [];
         const valores = [];
         let indice = 1;
@@ -6805,8 +6765,8 @@ app.post("/api/perfil/atualizar", estaLogado, upload.single("fotoPerfil"), async
 
         }
 
-        // Se veio uma foto nova, salva no disco (reaproveitando o multer
-        // "upload" já configurado com memoryStorage, igual ao adicionar-crianca)
+                                                                         
+                                                                                 
         if (req.file) {
 
             if (!(await validarImagemReal(req.file.buffer))) {
@@ -6851,12 +6811,12 @@ app.post("/api/perfil/atualizar", estaLogado, upload.single("fotoPerfil"), async
 
 });
 
-/* ==================================================
-   ROTA DO SOBRE — adicione no seu server.js
-   ================================================== */
+                                                     
+                                            
+                                                        
 
-// 🔧 Rota GET /sobre que não existia no server.js
-// Protegida com estaLogado para manter padrão das outras páginas
+                                                  
+                                                                 
 app.get("/sobre", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res) => {
 
     res.sendFile(path.join(__dirname, "templates", "sobre.html"));
@@ -6864,12 +6824,12 @@ app.get("/sobre", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res
 });
 
 
-/* ==========================
-   LOGOUT
-========================== */
+                             
+         
+                             
 
-// 🔧 FIX 6: Rota de logout que antes não existia
-// O HTML tinha <a href="/logout"> mas a rota nunca foi criada
+                                                 
+                                                              
 app.get('/logout', (req, res) => {
 
     req.session.destroy((err) => {
@@ -6884,15 +6844,15 @@ app.get('/logout', (req, res) => {
 
 });
 
-/* ==========================
-   API — DADOS DA HOME
-========================== */
+                             
+                      
+                             
 
 app.get('/api/home', estaLogado, exigeResponsavel, async (req, res) => {
 
     try {
 
-        // Pega o id do usuário logado — pode vir do Passport (Google) ou do login manual
+                                                                                         
         const usuarioId = req.authUser.id;
 
         if (!usuarioId) {
@@ -6915,8 +6875,8 @@ app.get('/api/home', estaLogado, exigeResponsavel, async (req, res) => {
 
         const usuario = resultado.rows[0];
 
-        // 🔧 NOVO: busca o nome da criança cadastrada por esse usuário —
-        // usado na tela "Relatório salvo!" (RelatorioSalvo.html)
+                                                                         
+                                                                 
         let nomeCrianca = null;
         try {
             const criancaResultado = await db.query(
@@ -6925,14 +6885,14 @@ app.get('/api/home', estaLogado, exigeResponsavel, async (req, res) => {
             );
             nomeCrianca = criancaResultado.rows[0]?.nome || null;
         } catch (_) {
-            // Sem criança cadastrada ainda — segue sem quebrar a home
+
         }
 
         const ofensiva = await calcularOfensivaSemCrise(usuarioId);
         
 
-        // Busca quantas notificações não lidas o usuário tem
-        // Ajuste conforme sua tabela de notificações
+                                                             
+                                                     
         let totalNotificacoes = 0;
         try {
             const notificacoes = await db.query(
@@ -6944,10 +6904,10 @@ app.get('/api/home', estaLogado, exigeResponsavel, async (req, res) => {
             );
             totalNotificacoes = parseInt(notificacoes.rows[0].total) || 0;
         } catch (_) {
-            // Tabela notificacoes ainda não existe — retorna 0 sem quebrar a home
+
         }
 
-        // Monta o tipo de conta para exibir na tela
+                                                    
         const nomesTipoConta = { pai: "Responsável", psicologo: "Terapeuta", admin: "Administrador" };
         const tipoConta = nomesTipoConta[usuario.tipo] || "Usuário";
 
@@ -6959,7 +6919,7 @@ app.get('/api/home', estaLogado, exigeResponsavel, async (req, res) => {
             diasConsecutivos: ofensiva.atual,
             maiorOfensiva: ofensiva.maior,
             nomeBixuco: "Bixuco", // futuramente buscar da tabela de dispositivos vinculados
-            nomeCrianca // 🔧 NOVO — usado em RelatorioSalvo.html
+            nomeCrianca                                          
         });
 
     } catch (erro) {
@@ -6971,11 +6931,11 @@ app.get('/api/home', estaLogado, exigeResponsavel, async (req, res) => {
 
 });
 
-/* ==========================
-   API — NOTIFICAÇÕES
-========================== */
+                             
+                     
+                             
 
-// Lista as notificações do usuário logado, mais recentes primeiro
+                                                                  
 app.get("/api/notificacoes", estaLogado, async (req, res) => {
 
     try {
@@ -7007,8 +6967,8 @@ app.get("/api/notificacoes", estaLogado, async (req, res) => {
 
 });
 
-// Marca todas as notificações do usuário como lidas
-// Chamada quando o usuário abre o painel de notificações
+                                                    
+                                                         
 app.post("/api/notificacoes/marcar-lidas", estaLogado, async (req, res) => {
 
     try {
@@ -7035,13 +6995,13 @@ app.post("/api/notificacoes/marcar-lidas", estaLogado, async (req, res) => {
 
 });
 
-/* ==========================
-   API — DIAS COM RELATÓRIO (CALENDÁRIO)
-========================== */
+                             
+                                        
+                             
 
-// 🔧 FIX 8: Rota para o calendário saber quais dias tiveram relatório
-// O frontend pode chamar /api/relatorios/dias?mes=6&ano=2026
-// e marcar os círculos verdes nos dias corretos
+                                                                      
+                                                             
+                                                
 app.get('/api/relatorios/dias', estaLogado, exigeResponsavel, async (req, res) => {
 
     try {
@@ -7063,8 +7023,8 @@ app.get('/api/relatorios/dias', estaLogado, exigeResponsavel, async (req, res) =
 
         );
 
-        // Retorna um array com os números dos dias que têm relatório
-        // Ex: [1, 4, 7, 8, 11] → frontend pinta esses dias de verde
+                                                                     
+                                                                    
         const diasComRelatorio = resultado.rows.map(r => parseInt(r.dia));
 
         res.json({ dias: diasComRelatorio });
@@ -7081,10 +7041,10 @@ app.get('/api/relatorios/dias', estaLogado, exigeResponsavel, async (req, res) =
 
 
 
-// ─────────────────────────────────────────
-// LISTA DE PACIENTES COM ÚLTIMO RELATÓRIO
-// usada pela tela de seleção de relatórios do terapeuta
-// ─────────────────────────────────────────
+                                            
+                                          
+                                                        
+                                            
 app.get("/api/pacientes-relatorios", estaLogado, exigeTerapeuta, async (req, res) => {
     const usuarioId = req.authUser.id;
 
@@ -7161,9 +7121,9 @@ app.get("/api/relatorio-paciente", estaLogado, exigeTerapeuta, async (req, res) 
             return `${Math.round(ms / 60000)} min`;
         }
 
-        // =====================
-        // ALERTAS DO MÊS (eventos reais do Bixuco)
-        // =====================
+                                
+                                                   
+                                
 
         const crisesMes = await contarCrisesEIsolados(
             pacienteId,
@@ -7225,9 +7185,9 @@ app.get("/api/relatorio-paciente", estaLogado, exigeTerapeuta, async (req, res) 
                     ? `↑ ${diffAlertas} comparado ao mês passado`
                     : `↓ ${Math.abs(diffAlertas)} comparado ao mês passado`;
 
-        // =====================
-        // TEMPO DE ESTRESSE DO MÊS
-        // =====================
+                                
+                                   
+                                
 
         const mediaMesMs = mediaDuracaoCrises(
             crisesMes.episodios
@@ -7346,12 +7306,12 @@ app.get("/api/relatorio-paciente", estaLogado, exigeTerapeuta, async (req, res) 
             dia => contagemPorDia[dia].crises
         );
 
-        // =====================
-        // GRÁFICO — GATILHOS SENSORIAIS PADRONIZADOS (últimos 30 dias)
-        // =====================
-        // O responsável continua escrevendo livremente, mas o gráfico usa
-        // somente categorias fixas. Relatórios antigos, ainda não normalizados,
-        // aparecem como "Histórico não classificado".
+                                
+                                                                       
+                                
+                                                                          
+                                                                                
+                                                      
         const gatilhosRaw = await db.query(
             `WITH respostas_gatilho AS (
 
@@ -7506,7 +7466,7 @@ app.get("/api/relatorio-paciente", estaLogado, exigeTerapeuta, async (req, res) 
 
         const ROTULOS_GATILHOS = {
 
-            // Sistemas sensoriais
+                                  
             auditivo: "Auditivo",
             visual: "Visual",
             tatil: "Tátil",
@@ -7516,7 +7476,7 @@ app.get("/api/relatorio-paciente", estaLogado, exigeTerapeuta, async (req, res) 
             proprioceptivo: "Proprioceptivo",
             interoceptivo: "Interoceptivo",
 
-            // Contextos
+                        
             ambiente_movimentado:
                 "Ambiente movimentado",
 
@@ -7547,7 +7507,7 @@ app.get("/api/relatorio-paciente", estaLogado, exigeTerapeuta, async (req, res) 
             outro_contexto:
                 "Outro contexto",
 
-            // Somente quando realmente não há informação
+                                                         
             nao_identificado:
                 "Não identificado"
         };
@@ -7656,7 +7616,7 @@ app.get("/api/relatorio-paciente/dias", estaLogado, exigeTerapeuta, async (req, 
 
         const terapeutaId = req.authUser.id;
         const pacienteId  = parseInt(req.query.paciente);
-        const mes         = req.query.mes; // "YYYY-MM"
+        const mes         = req.query.mes;             
 
         if (!terapeutaId) {
             return res.status(401).json({ erro: "Não autenticado." });
@@ -7817,8 +7777,8 @@ app.get("/api/pacientes", estaLogado, exigeTerapeuta, async (req, res) => {
                 }
 
 
-                // Busca as crises reais detectadas pelo Bixuco
-                // nos últimos 7 dias
+                                                               
+                                     
                 const resumoSemana = await contarCrisesEIsolados(
                     p.responsavel_id,
                     `
@@ -7833,8 +7793,8 @@ app.get("/api/pacientes", estaLogado, exigeTerapeuta, async (req, res) => {
                 );
 
 
-                // Agora "alertas" representa crises do Bixuco,
-                // e não quantidade de relatórios preenchidos
+                                                               
+                                                             
                 const alertas = resumoSemana.crises;
 
 
@@ -7884,7 +7844,7 @@ app.get("/api/pacientes", estaLogado, exigeTerapeuta, async (req, res) => {
                     alertas,
                     nivelAtividade:   nivelAtividade.codigo,
                     nivelAtividadeRotulo: nivelAtividade.rotulo,
-                    // Mantido por compatibilidade com versões anteriores do front.
+                                                                                   
                     nivelEstresse:    nivelAtividade.rotulo,
                     ultimoRelatorio
                 };
@@ -7900,9 +7860,9 @@ app.get("/api/pacientes", estaLogado, exigeTerapeuta, async (req, res) => {
     }
 });
 
-/* ==========================
-   ROTA POST — SALVAR NOTA CLÍNICA
-========================== */
+                             
+                                  
+                             
 
 app.post("/api/nota-clinica", estaLogado, exigeTerapeuta, async (req, res) => {
 
@@ -7920,7 +7880,7 @@ app.post("/api/nota-clinica", estaLogado, exigeTerapeuta, async (req, res) => {
             return res.status(400).json({ erro: "Dados inválidos." });
         }
 
-        // Verifica vínculo antes de salvar
+                                           
         const vinculo = await db.query(
             `SELECT id FROM vinculos
              WHERE terapeuta_id = $1 AND responsavel_id = $2 AND ativo = TRUE`,
@@ -7939,9 +7899,9 @@ app.post("/api/nota-clinica", estaLogado, exigeTerapeuta, async (req, res) => {
             [terapeutaId, parseInt(pacienteId), data, texto.trim()]
         );
 
-        // A nota fica disponível por 7 dias a partir de agora (retenção
-        // automática) — devolve a data de expiração pro frontend avisar
-        // o terapeuta de quanto tempo falta.
+                                                                        
+                                                                        
+                                             
         const expiraEm = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
         return res.status(201).json({
@@ -8033,14 +7993,14 @@ app.post("/api/bixuco/localizacao",exigeDispositivo, async (req, res) => {
         );
 
         if (vinculo.rows.length === 0 || !vinculo.rows[0].crianca_id) {
-            return res.sendStatus(202); // dispositivo ainda não vinculado
+            return res.sendStatus(202);                                   
         }
 
         const criancaId = vinculo.rows[0].crianca_id;
 
-        // 🔧 FIX: "bateria || null" transformava 0% em null (0 é "falsy" em JS),
-        // fazendo a bateria não aparecer no badge quando estava descarregada.
-        // "?? null" só cai pra null se o valor for realmente null/undefined.
+                                                                                 
+                                                                              
+                                                                             
         await db.query(
             `INSERT INTO localizacoes_bixuco (crianca_id, latitude, longitude, bateria, criado_em)
              VALUES ($1, $2, $3, $4, NOW())`,
@@ -8120,8 +8080,8 @@ app.get("/api/bixuco/localizacao", estaLogado, exigeResponsavel, async (req, res
                 parseInt(local.idade_segundos, 10) || 0
             );
 
-        // Mais de 5 minutos sem nova localização
-        // = posição considerada desatualizada.
+                                                 
+                                               
         const desatualizada =
             idadeSegundos > 5 * 60;
 
@@ -8156,7 +8116,7 @@ app.post("/api/bixuco/evento", exigeDispositivo, async (req, res) => {
         );
 
         if (vinculo.rows.length === 0 || !vinculo.rows[0].crianca_id) {
-            return res.sendStatus(202); // dispositivo existe mas ainda não tem dono
+            return res.sendStatus(202);                                             
         }
 
         const criancaId = vinculo.rows[0].crianca_id;
@@ -8469,7 +8429,7 @@ function respostaChatValida(
     }
 
 
-    // Gatinho é texto livre
+                            
     if (campo.tipo === "texto") {
 
         return resposta.length <= 300;
@@ -8477,9 +8437,9 @@ function respostaChatValida(
     }
 
 
-    // Nas perguntas fechadas,
-    // a IA só pode usar exatamente
-    // uma das alternativas oficiais.
+                              
+                                   
+                                     
     return campo.opcoes.includes(
         resposta
     );
@@ -8497,15 +8457,15 @@ function mensagemChatMuitoAmbigua(mensagem) {
         return true;
     }
 
-    // Número isolado, pontuação ou símbolos
-    // não são respostas válidas do relatório.
+                                            
+                                              
     if (/^[\d\s.,;:!?…+\-*/()[\]{}#@%&_=]+$/u.test(texto)) {
         return true;
     }
 
-    // Um caractere isolado provavelmente foi
-    // digitado sem querer.
-    // "s" e "n" continuam permitidos para sim/não.
+                                             
+                           
+                                                   
     if (
         texto.length === 1 &&
         !/^[sn]$/i.test(texto)
@@ -8762,8 +8722,8 @@ async function enriquecerRespostasComGatilho(respostas) {
             textoOriginal
         );
 
-    // A resposta original continua intacta.
-    // Os campos abaixo servem somente para análise estruturada.
+                                            
+                                                                
     copia[indice] = {
         ...copia[indice],
         resposta: textoOriginal,
@@ -8781,9 +8741,9 @@ async function enriquecerRespostasComGatilho(respostas) {
 }
 
 
-// Traduz para inglês as dicas que ainda não têm versão em inglês
-// (dicas geradas antes do site ter o modo inglês).
-// Recebe [{titulo, texto}] e devolve [{titulo_en, texto_en}] na mesma ordem.
+                                                                 
+                                                   
+                                                                             
 async function traduzirDicasParaIngles(dicas) {
 
     if (!GEMINI_API_KEY || dicas.length === 0) {
@@ -8869,8 +8829,8 @@ ${JSON.stringify(entrada, null, 2)}`;
 }
 
 
-// Busca as dicas da semana. Se lang === "en" e alguma dica não tiver
-// versão em inglês, traduz e salva no banco para não traduzir de novo.
+                                                                     
+                                                                       
 async function obterDicasSalvas(usuarioId, lang) {
 
     const resultado = await db.query(
@@ -8918,7 +8878,7 @@ async function obterDicasSalvas(usuarioId, lang) {
                 }
 
             } catch (erro) {
-                // Se falhar, devolve em português mesmo (o site faz o fallback)
+                                                                                
                 console.log("Erro ao traduzir dicas salvas:", erro);
             }
         }
@@ -8967,7 +8927,7 @@ async function gerarDicasInterno(usuarioId) {
     }
 
 
-    // Relatórios recentes são a fonte mais atual do cotidiano.
+                                                               
     const relatoriosRecentes = await db.query(
         `SELECT respostas
          FROM relatorios
@@ -8978,9 +8938,9 @@ async function gerarDicasInterno(usuarioId) {
     );
 
 
-    // O Perfil Sensorial funciona como contexto inicial.
-    // Assim as primeiras dicas já podem ser personalizadas
-    // antes mesmo de existir um relatório diário.
+                                                         
+                                                           
+                                                  
     const perfilSensorial = await db.query(
         `SELECT respostas
          FROM perfil_sensorial
@@ -9275,8 +9235,8 @@ Gere as dicas personalizadas.`;
                             .trim()
                             .slice(0, 500),
 
-                    // Versão em inglês (para o site em EN).
-                    // Se a IA não mandar, fica vazio e o site usa o português.
+                                                            
+                                                                               
                     titulo_en:
                         typeof dica.titulo_en === "string"
                             ? dica.titulo_en.trim().slice(0, 80)
@@ -9332,9 +9292,9 @@ Gere as dicas personalizadas.`;
 }
 
 
-// ==========================================================
-// ASSISTENTE BIXUCO — contexto seguro e baseado em dados reais
-// ==========================================================
+                                                             
+                                                               
+                                                             
 
 function jsonArraySeguro(valor) {
     if (Array.isArray(valor)) return valor;
@@ -9450,9 +9410,9 @@ function detectarIntencoesAssistente(mensagem, historico = []) {
     const intencoes = new Set();
     let texto = atual;
 
-    // Só herdamos o assunto anterior em continuações curtas como
-    // "e ontem?" ou "como você sabe?". Assim uma conversa antiga sobre
-    // sensores não faz o servidor consultar eventos em toda nova pergunta.
+                                                                 
+                                                                       
+                                                                           
     const ehContinuacao =
         atual.split(/\s+/).filter(Boolean).length <= 7 &&
         /^(e\b|mas\b|entao\b|e ontem|e hoje|como (voce )?sabe|como (eu|posso) (faco|fazer|aplico)|por que|porque|qual deles|qual delas|fale mais|me explique|explique|detalhe|me de um exemplo|a primeira|a segunda|a terceira|e isso|e esse|e essa|e la|e ai)/.test(atual);
@@ -9474,10 +9434,10 @@ function detectarIntencoesAssistente(mensagem, historico = []) {
     if (/(crise|episod|atividade elevada|registro|aperto|forca|intens|duracao|\bsensor\b|quantos|quantidade|horario|que horas|quando aconteceu|aconteceu.*\d{1,2}h|\b\d{1,2}h\b)/.test(texto)) {
         intencoes.add("eventos");
     }
-    // Bem-estar e resumo da rotina: precisam das evidencias do sensor E dos
-    // relatos preenchidos pelo responsavel. Sem isto, "bem-estar da crianca"
-    // cai em "conversa" e a IA nao recebe os eventos dos ultimos dias.
-    // O sensor e um sinal objetivo de uso, nunca uma medida clinica de emocao.
+                                                                            
+                                                                             
+                                                                       
+                                                                               
     if (/(\bbem[\s-]*estar\b|estado emocional|como (foi|esta|anda|tem sido) (o )?dia\b|como (esta|anda|tem estado) (a |o |minha |meu )?(crianca|filh[ao])\b|dias? (tranquilos?|dif[ií]ceis?)\b)/.test(texto)) {
         intencoes.add("bem_estar");
         intencoes.add("eventos");
@@ -9535,8 +9495,8 @@ function janelaEventosAssistente(mensagem) {
     return { diasAntigos: 0, diasRecentes: 0, rotulo: "hoje" };
 }
 
-// Perguntas sobre as dicas da própria conta precisam receber os mesmos dados
-// exibidos na Home, sem depender de o modelo de IA interpretar o contexto.
+                                                                             
+                                                                           
 function perguntaDicasDaContaAssistente(mensagem) {
     const texto = normalizarTextoAssistente(mensagem);
     const falaDeDicas = /\b(dicas?|tips?|suggestions?|recomendacoes?)\b/.test(texto);
@@ -9544,8 +9504,8 @@ function perguntaDicasDaContaAssistente(mensagem) {
     return falaDeDicas && buscaSuasDicas;
 }
 
-// Perguntas sobre editar o questionário: resposta fixa, pois a navegação
-// atual não oferece um botão de atualização no Perfil. Evita alucinar telas.
+                                                                         
+                                                                             
 function perguntaComoAtualizarPerfilSensorialAssistente(mensagem) {
     const t = normalizarTextoAssistente(mensagem);
     return /(perfil sensorial|questionario(?: sensorial| inicial)?)/.test(t)
@@ -9587,9 +9547,9 @@ function respostaDicasDaContaAssistente(salvas, idioma) {
     return [cabecalho, "", ...lista].join("\n");
 }
 
-// Nunca deduzir qual criança gerou dados de sensor quando a conta tem mais de
-// uma. O nome precisa ter aparecido explicitamente na pergunta ou numa fala
-// recente do responsável; textos da IA não são usados para escolher criança.
+                                                                              
+                                                                            
+                                                                             
 function escolherCriancaAssistente(criancas, mensagem, historico = []) {
     if (!Array.isArray(criancas) || criancas.length === 0) return null;
     if (criancas.length === 1) return criancas[0];
@@ -9602,8 +9562,8 @@ function escolherCriancaAssistente(criancas, mensagem, historico = []) {
         .map(normalizarTextoAssistente);
 
     for (const [indice, texto] of textos.entries()) {
-        // "a outra criança" não deve herdar automaticamente o nome da
-        // conversa anterior, pois poderia trocar a criança sem perceber.
+                                                                      
+                                                                         
         if (indice === 0 && /\b(outr[oa]s?|irmaos?|irmas?)\b/.test(texto)) return null;
         const correspondentes = criancas.filter(crianca => {
             const nome = normalizarTextoAssistente(crianca.nome || "").trim();
@@ -9638,18 +9598,18 @@ async function montarContextoAssistente(usuarioId, { mensagem = "", historico = 
     const criancasDaConta = criancasResultado.rows;
     const crianca = escolherCriancaAssistente(criancasDaConta, mensagem, historico);
     const criancaId = crianca?.id || null;
-    // O assistente geral pede a escolha antes de chamar esta função.
-    // O chat do relatório também usa esta função e NÃO deve quebrar:
-    // sem escolha, as consultas individualizadas retornam dados vazios.
+                                                                     
+                                                                     
+                                                                        
     const selecaoCriancaNecessaria = criancasDaConta.length > 1 && !crianca;
 
-    // O bloco-base é propositalmente pequeno. Ele cobre perguntas frequentes
-    // (plano, status e localização) sem enviar meses de dados a cada mensagem.
-    // O PostgreSQL ja usa America/Sao_Paulo nesta conexao (db Pool.options).
-    // DATE/TO_CHAR sobre criado_em preservam o horario local tanto para
-    // TIMESTAMP local quanto para TIMESTAMPTZ. Nao usar aqui
-    // AT TIME ZONE 'UTC' seguido de AT TIME ZONE 'America/Sao_Paulo':
-    // com um TIMESTAMP local, isso faria 15:22 aparecer como 12:22.
+                                                                             
+                                                                               
+                                                                             
+                                                                        
+                                                             
+                                                                      
+                                                                    
     const [
         agoraResultado,
         planoResultado,
@@ -9771,8 +9731,8 @@ async function montarContextoAssistente(usuarioId, { mensagem = "", historico = 
     }
 
     if (querDicas) {
-        // Usa exclusivamente as dicas da própria conta, já exibidas na Home.
-        // Não gera novas dicas nem inventa conteúdo quando não há dicas válidas.
+                                                                             
+                                                                                 
         try {
             const salvas = await obterDicasSalvas(usuarioId, "pt");
             contexto.dicas_personalizadas = salvas && Array.isArray(salvas.dicas)
@@ -9927,7 +9887,7 @@ function compactarContextoAssistente(contexto, limiteChars = 7000) {
         return JSON.stringify(copia).length;
     }
 
-    // Reduções previsíveis, preservando sempre os dados-base de conta/status.
+                                                                              
     if (Array.isArray(copia.perfil_sensorial) && copia.perfil_sensorial.length > 10) {
         copia.perfil_sensorial = copia.perfil_sensorial.slice(0, 10);
     }
@@ -9949,8 +9909,8 @@ function compactarContextoAssistente(contexto, limiteChars = 7000) {
         }
     }
 
-    // Guarda final: se algum conteúdo textual crescer no futuro, reduz os
-    // blocos mais volumosos em vez de permitir um novo erro 413 da Groq.
+                                                                          
+                                                                         
     while (tamanho() > limiteChars) {
         if (Array.isArray(copia.relatorios_recentes) && copia.relatorios_recentes.length > 1) {
             copia.relatorios_recentes.pop();
@@ -10052,8 +10012,8 @@ Retorne JSON no schema solicitado. "atualizacoes" deve ser [] quando não houver
 `.trim();
 }
 
-// Evita salvar uma resposta aparentemente interrompida, mesmo quando a
-// API devolve JSON válido (por exemplo, uma frase que termina em "embora").
+                                                                       
+                                                                            
 function mensagemAssistenteIncompleta(mensagem) {
     const texto = String(mensagem || "").trim();
     if (!texto) return true;
@@ -10064,13 +10024,13 @@ function mensagemAssistenteIncompleta(mensagem) {
     if (/\b(?:embora|mas|porque|pois|entretanto|contudo|apesar|além|que|de|da|do|das|dos|para|com|sem|e|ou|se|em|no|na|nos|nas|ao|aos|à|às|por|quando|como|onde|enquanto|desde|caso)\s*$/i.test(final)) {
         return true;
     }
-    // Para respostas explicativas, exigir um encerramento claro. Respostas
-    // curtas ("Sim", "Não encontrei") também continuam sendo permitidas.
+                                                                           
+                                                                         
     return final.length > 150 && !/[.!?…)”"']$/.test(final);
 }
 
-// Bloqueio temporário para não ficar solicitando à Groq durante um HTTP 429.
-// É local ao processo Node.js; em múltiplas instâncias, usar controle compartilhado.
+                                                                             
+                                                                                     
 let groqBloqueadoAte = 0;
 
 function segundosEsperaGroq() {
@@ -10078,7 +10038,7 @@ function segundosEsperaGroq() {
 }
 
 function interpretarRetryAfterGroq(valor) {
-    if (!valor) return 60; // Fallback conservador se o provedor não informar prazo.
+    if (!valor) return 60;                                                          
     const segundos = Number(valor);
     if (Number.isFinite(segundos) && segundos >= 0) {
         return Math.min(86400, Math.max(1, Math.ceil(segundos)));
@@ -10102,8 +10062,8 @@ function mensagemLimiteGroq(idioma, segundos, mensagemSalva = false) {
         : `O serviço de IA atingiu um limite de uso. Aguarde aproximadamente ${espera} antes de tentar novamente. ${mensagemSalva ? "Sua pergunta foi salva." : "Esta tentativa não foi salva."}`;
 }
 
-// Reaproveita SOMENTE frases já concluídas. Não gera texto factual novo e não
-// consome uma segunda requisição quando a resposta termina em "embora", etc.
+                                                                              
+                                                                             
 function finalizarRespostaParcialAssistente(texto) {
     const bruto = String(texto || "").trim().slice(0, 4000);
     let ultimoFim = -1;
@@ -10128,17 +10088,17 @@ async function chamarGroqAssistente({ promptSistema, historico = [], mensagem })
     const perguntaAtual = String(mensagem || "").trim().toLowerCase();
     const historicoSeguro = (Array.isArray(historico) ? historico : [])
         .filter(item => item && (item.role === "user" || item.role === "assistant") && typeof item.content === "string" && item.status !== "erro")
-        // Não repete a mesma pergunta que já está salva após tentativas falhadas.
+
         .filter(item => item.role !== "user" || item.content.trim().toLowerCase() !== perguntaAtual)
         .slice(-4)
         .map(item => ({ role: item.role, content: item.content.slice(0, 240) }));
 
-    // Uma única chamada por pergunta: não dobrar tokens/requisições com um retry.
-    // Prefere respostas curtas e completas para relatórios extensos.
+                                                                                  
+                                                                     
     const instrucaoFinal = "\n\nResponda objetivamente, preferencialmente em até 130 palavras e no máximo 3 parágrafos. Dê prioridade aos dados e datas que respondem à pergunta. Conclua todas as frases; se faltar espaço, não inicie um novo assunto.";
 
-    // Limite de espera evita que a interface fique indefinidamente em "pensando"
-    // caso a API demore. Uma falha de tempo não dispara chamada duplicada.
+                                                                                 
+                                                                           
     const respostaGroq = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         signal: typeof AbortSignal !== "undefined" ? AbortSignal.timeout(35000) : undefined,
@@ -10187,11 +10147,11 @@ async function chamarGroqAssistente({ promptSistema, historico = [], mensagem })
     });
 
     if (!respostaGroq.ok) {
-        // Consome o corpo do erro sem registrar possíveis detalhes sensíveis.
+                                                                              
         await respostaGroq.text().catch(() => "");
         const erro = new Error("Falha ao consultar o Assistente Bixuco.");
         erro.statusGroq = respostaGroq.status;
-        // Evita registrar conteúdo das mensagens, tokens de acesso ou dados pessoais.
+                                                                                      
         if (respostaGroq.status === 429) {
             const segundos = interpretarRetryAfterGroq(respostaGroq.headers?.get?.("retry-after"));
             groqBloqueadoAte = Math.max(groqBloqueadoAte, Date.now() + segundos * 1000);
@@ -10227,8 +10187,8 @@ async function chamarGroqAssistente({ promptSistema, historico = [], mensagem })
         motivo: motivoFinalizacao || "conteudo_invalido",
         tokensSaida: dadosGroq?.usage?.completion_tokens ?? null
     });
-    // Apenas quando o JSON foi válido e a geração não foi bloqueada.
-    // Ao resumir, NUNCA aplica alterações automáticas no relatório.
+                                                                     
+                                                                    
     if (resposta && texto && motivoFinalizacao !== "content_filter") {
         const completa = finalizarRespostaParcialAssistente(texto);
         if (completa) return { mensagem: completa, atualizacoes: [] };
@@ -10428,9 +10388,9 @@ async function salvarTurnoChatAtomico({
         );
 
 
-        // Confere novamente se o relatório ainda está aberto.
-        // Isso protege o caso em que outra aba finaliza
-        // enquanto a IA ainda está pensando.
+                                                              
+                                                        
+                                             
         const relatorioFinalizado =
             await cliente.query(
                 `
@@ -10475,7 +10435,7 @@ async function salvarTurnoChatAtomico({
         }
 
 
-        // Garante que exista o rascunho de hoje.
+                                                 
         await cliente.query(
             `
             INSERT INTO
@@ -10515,7 +10475,7 @@ async function salvarTurnoChatAtomico({
         );
 
 
-        // Trava o rascunho deste usuário durante a junção.
+                                                           
         const resultado =
             await cliente.query(
                 `
@@ -10545,7 +10505,7 @@ async function salvarTurnoChatAtomico({
             );
 
 
-        // Confere outra vez depois da trava.
+                                             
         const finalizadoDepoisDaTrava =
             await cliente.query(
                 `
@@ -10620,8 +10580,8 @@ async function salvarTurnoChatAtomico({
         }
 
 
-        // Se houve alerta real do Bixuco,
-        // essa informação continua garantida.
+                                          
+                                              
         if (houveAlertaReal) {
 
             respostasAtuais =
@@ -10666,14 +10626,14 @@ async function salvarTurnoChatAtomico({
         }
 
 
-        /*
-            Só aplica os campos que a IA realmente
-            entendeu nesta mensagem.
+          
+                                                  
+                                    
 
-            Se o MESMO campo mudou no banco enquanto
-            a IA estava pensando, preservamos a mudança
-            mais recente feita pelo usuário.
-        */
+                                                    
+                                                       
+                                            
+          
         for (
             const atualizacao
             of atualizacoes
@@ -10810,9 +10770,9 @@ async function salvarTurnoChatAtomico({
 }
 
 
-// ==========================================================
-// API — ASSISTENTE BIXUCO (chat geral, fora do relatório)
-// ==========================================================
+                                                             
+                                                          
+                                                             
 
 app.get(
     "/api/assistente/historico",
@@ -10864,7 +10824,7 @@ app.post(
                 });
             }
 
-            // Dicas salvas continuam disponíveis mesmo durante o bloqueio da Groq.
+                                                                                   
             const esperaGroq = segundosEsperaGroq();
             if (esperaGroq > 0 && !perguntaDicasDaContaAssistente(mensagem)
                 && !perguntaComoAtualizarPerfilSensorialAssistente(mensagem)) {
@@ -10879,8 +10839,8 @@ app.post(
 
             const historicoAntes = await carregarHistoricoAssistente(usuarioId);
 
-            // Não confundir dados de irmãos: só consultamos registros de uma
-            // criança explicitamente selecionada na mensagem ou no contexto.
+                                                                             
+                                                                             
             if (!perguntaComoAtualizarPerfilSensorialAssistente(mensagem)
                 && perguntaExigeCriancaAssistente(mensagem, historicoAntes)) {
                 const lista = await db.query(
@@ -10897,16 +10857,16 @@ app.post(
                 }
             }
 
-            // Salva a fala do usuário ANTES da IA. Assim, fechar a janela ou uma
-            // falha da Groq nunca apaga a pergunta feita.
+                                                                                 
+                                                          
             await adicionarMensagemHistoricoAssistente(usuarioId, {
                 role: "user",
                 content: mensagem
             });
             usuarioFoiSalvo = true;
 
-            // Informação de navegação confirmada no código: não envia esta
-            // pergunta à IA e não promete botão que ainda não existe.
+                                                                           
+                                                                      
             if (perguntaComoAtualizarPerfilSensorialAssistente(mensagem)) {
                 const textoResposta = respostaComoAtualizarPerfilSensorialAssistente(idioma);
                 const novoHistorico = await adicionarMensagemHistoricoAssistente(usuarioId, {
@@ -10922,9 +10882,9 @@ app.post(
                 });
             }
 
-            // Dicas da própria conta: busca exatamente o mesmo registro da
-            // Home (/api/dicas), com resposta determinística. Não pede à IA
-            // para inventar ou resumir dados que já existem no banco.
+                                                                           
+                                                                            
+                                                                      
             if (perguntaDicasDaContaAssistente(mensagem)) {
                 let salvas;
                 try {
@@ -10963,9 +10923,9 @@ app.post(
                 });
             }
 
-            // Chat geral apenas consulta: não altera o relatório diário com
-            // afirmações casuais. O fluxo dedicado /api/relatorio-chat continua
-            // responsável pelas atualizações explícitas.
+                                                                            
+                                                                                
+                                                         
             const permitirAtualizacoes = false;
 
             const [contexto, estadoRelatorio] = await Promise.all([
@@ -11142,9 +11102,9 @@ app.post(
             }
 
 
-            // =====================================
-            // JÁ FINALIZOU O RELATÓRIO HOJE?
-            // =====================================
+                                                    
+                                             
+                                                    
 
             const relatorioFinalizado =
                 await db.query(
@@ -11185,9 +11145,9 @@ app.post(
             }
 
 
-            // =====================================
-            // EXISTIU ALERTA REAL DO BIXUCO?
-            // =====================================
+                                                    
+                                             
+                                                    
 
             const eventoHoje =
                 await db.query(
@@ -11220,9 +11180,9 @@ app.post(
                 eventoHoje.rows.length > 0;
 
 
-            // =====================================
-            // CARREGA O RASCUNHO COMPARTILHADO
-            // =====================================
+                                                    
+                                               
+                                                    
 
             const rascunho =
                 await db.query(
@@ -11274,10 +11234,10 @@ app.post(
             }
 
 
-            // =====================================
-            // SE O BIXUCO REGISTROU ALERTA,
-            // "alerta_estresse" = SIM AUTOMATICAMENTE
-            // =====================================
+                                                    
+                                            
+                                                      
+                                                    
 
             if (houveAlertaReal) {
 
@@ -11301,9 +11261,9 @@ app.post(
             }
 
 
-            // =====================================
-            // QUAIS PERGUNTAS SE APLICAM HOJE?
-            // =====================================
+                                                    
+                                               
+                                                    
 
             let idsNecessarios;
 
@@ -11377,9 +11337,9 @@ app.post(
                         CAMPOS_RELATORIO_CHAT[id]
                 );
             
-            // =====================================
-            // O QUE JÁ ESTÁ PREENCHIDO / O QUE FALTA
-            // =====================================
+                                                    
+                                                     
+                                                    
 
             const idsRespondidosAntes =
                 new Set(
@@ -11405,9 +11365,9 @@ app.post(
                 );
 
 
-            // =====================================
-            // BLOQUEIA MENSAGENS SEM INFORMAÇÃO
-            // =====================================
+                                                    
+                                                
+                                                    
 
             if (
                 mensagemChatMuitoAmbigua(
@@ -11516,8 +11476,8 @@ app.post(
             }
 
 
-            // Salva a fala do usuário antes de chamar a IA. Se a Groq falhar,
-            // a conversa continua no histórico quando a tela for reaberta.
+                                                                              
+                                                                           
             const estadoAntesDaIA =
                 await salvarTurnoChatAtomico({
                     usuarioId,
@@ -11538,9 +11498,9 @@ app.post(
             respostas = estadoAntesDaIA.respostas;
             mensagensChat = estadoAntesDaIA.mensagensChat;
 
-            // =====================================
-            // CONTEXTO PARA A IA
-            // =====================================
+                                                    
+                                 
+                                                    
 
             const contextoBixuco =
                 await montarContextoAssistente(
@@ -11569,8 +11529,8 @@ app.post(
                 });
 
 
-            // O chamarGroqAssistente já limita o histórico recente
-            // para manter cada requisição bem abaixo do limite de tokens.
+                                                                   
+                                                                          
 
             let respostaIA;
 
@@ -11632,9 +11592,9 @@ app.post(
             }
 
 
-            // =====================================
-            // VALIDA O QUE A IA TENTOU SALVAR
-            // =====================================
+                                                    
+                                              
+                                                    
 
             const atualizacoesValidas = [];
 
@@ -11701,10 +11661,10 @@ app.post(
             }
 
 
-            // =====================================
-// SALVA O TURNO SEM SOBRESCREVER
-// ALTERAÇÕES FEITAS EM OUTRA ABA
-// =====================================
+                                                    
+                                 
+                                 
+                                        
 
 const estadoSalvo =
     await salvarTurnoChatAtomico({
@@ -11751,10 +11711,10 @@ const estadoSalvo =
         estadoSalvo.mensagensChat;
 
 
-    // =====================================
-    // CALCULA O QUE AINDA FALTA
-    // USANDO O RASCUNHO MAIS RECENTE
-    // =====================================
+                                            
+                                
+                                     
+                                            
 
     const idsRespondidos =
         new Set(
@@ -11831,7 +11791,7 @@ app.post("/api/dicas/gerar", estaLogado, exigeResponsavel, async (req, res) => {
 
             let dicasSemana = resultado.dicas;
 
-            // Se o site está em inglês, devolve as dicas já traduzidas
+                                                                       
             if (lang === "en") {
                 const salvas = await obterDicasSalvas(usuarioId, "en");
                 if (salvas) dicasSemana = salvas.dicas;
@@ -11867,7 +11827,7 @@ app.get("/api/dicas", estaLogado, exigeResponsavel, async (req, res) => {
     try {
         const usuarioId = req.authUser.id;
 
-        // O front manda ?lang=en quando o botão "Traduzir" está ativo
+                                                                      
         const lang = req.query.lang === "en" ? "en" : "pt";
 
         const salvas = await obterDicasSalvas(usuarioId, lang);
@@ -11889,9 +11849,9 @@ app.get("/api/dicas", estaLogado, exigeResponsavel, async (req, res) => {
 
 });
 
-/* ==========================
-   INICIAR SERVIDOR
-========================== */
+                             
+                   
+                             
 
 const PORT = process.env.PORT || 3000;
 

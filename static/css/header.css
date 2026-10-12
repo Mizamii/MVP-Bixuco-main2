@@ -1,12 +1,12 @@
-/* ==========================================================
-   header.css
-   Cabeçalho ÚNICO do app (montado pelo /js/header.js).
-   Padrão: foto de perfil no canto superior ESQUERDO (abre o
-   menu da conta) e notificações no canto superior DIREITO.
-   Tradução, tema, perfil e logout ficam dentro do menu.
-   Depende das variáveis de tema.css e das regras de
-   .notificacoes / .painel-notificacoes do layout.css.
-   ========================================================== */
+                                                             
+             
+                                                       
+                                                            
+                                                           
+                                                        
+                                                    
+                                                      
+                                                                
 
 .topo-perfil {
     position: relative;
@@ -14,7 +14,7 @@
     align-items: center;
 }
 
-/* ---------- Botão da foto ---------- */
+                                         
 
 .topo-avatar {
     width: 42px;
@@ -47,7 +47,7 @@
     display: block;
 }
 
-/* ---------- Menu da conta ---------- */
+                                         
 
 .menu-perfil {
     display: none;
@@ -159,7 +159,7 @@
     outline: none;
 }
 
-/* Página atual (ex.: "Meu perfil" quando já está no perfil) */
+                                                               
 .menu-perfil__item.ativo {
     background: rgba(50, 194, 109, 0.12);
     color: #1D8E4F;
@@ -185,8 +185,8 @@
     background: rgba(226, 76, 76, 0.12);
 }
 
-/* No desktop, tema e "Sair" já estão na barra lateral —
-   o menu mostra só tradução e a identificação da conta. */
+                                                        
+                                                           
 @media (min-width: 769px) {
     .menu-perfil__item--so-mobile,
     .menu-perfil__divisor {
@@ -194,14 +194,14 @@
     }
 }
 
-/* ---------- Bloco reduzido de usuário na sidebar (desktop) ----------
-   Só aparece nas páginas com <div id="sidebarUsuario"> dentro da
-   sidebar + <body class="layout-sidebar-perfil"> (ver layout.css,
-   que é quem decide quando ele fica visível e esconde a .topo).
+                                                                       
+                                                                 
+                                                                  
+                                                                
 
-   Foto  → link direto pro perfil (1 clique)
-   Nome  → botão que abre o modal (código, traduzir, tema, sair)
-   Sino  → mesmo painel de notificações de sempre */
+                                            
+                                                                
+                                                    
 
 .sidebar-usuario {
     display: none;
@@ -270,24 +270,24 @@
     flex-shrink: 0;
 }
 
-/* Modal deste cantinho (código, traduzir, tema, sair) — abre pra
-   cima, já que o bloco fica no rodapé da sidebar. */
+                                                                 
+                                                     
 .menu-perfil--sidebar {
     position: fixed;
     top: auto;
     width: 260px;
 }
 
-/* Aqui dentro os itens de tema/sair não são "só mobile" — são os
-   únicos, então ficam visíveis mesmo no desktop. */
+                                                                 
+                                                    
 .menu-perfil--sidebar .menu-perfil__divisor {
     display: block;
 }
 
-/* ==========================================================
-   ASSISTENTE BIXUCO — janela central de conversa
-   A Home mantém toda a área de calendário, mapa e sidebar intacta.
-   ========================================================== */
+                                                             
+                                                 
+                                                                   
+                                                                
 .topo-acoes { display:flex; align-items:center; gap:.55rem; margin-left:auto; }
 
 .assistente-atalho-wrapper { position:relative; display:inline-flex; align-items:center; justify-content:center; }
@@ -316,12 +316,12 @@
 .assistente-atalho:focus-visible + .assistente-atalho__dica {
     opacity:1; visibility:visible; transform:translateY(0);
 }
-/* A sidebar tem overflow-y:auto. Balões saindo da lateral são
-   recortados pelo contêiner mesmo com z-index alto. Nesta posição
-   usamos a dica nativa (title), em vez de deixar texto cortado. */
+                                                              
+                                                                  
+                                                                   
 .assistente-atalho-wrapper--sidebar .assistente-atalho__dica { display:none; }
 
-/* Abre perto do mascote, sem ocupar lugar extra na barra lateral. */
+                                                                     
 .saudacao > div:first-child { min-width:0; margin-right:auto; }
 .assistente-acesso-home,
 .assistente-acesso-outras {
@@ -483,7 +483,7 @@ body.tema-escuro .assistente-painel__linha.usuario .assistente-painel__bolha {
     .assistente-acesso-home span { display:none; }
 }
 @media (max-width:768px) {
-    /* O botão do cabeçalho é o único atalho no celular. */
+                                                           
     .assistente-acesso-home,.assistente-acesso-outras { display:none; }
     .assistente-painel-flutuante {
         left:0; right:0; bottom:0; top:0; transform:none;

@@ -1,6 +1,6 @@
-// =========================
-// INDEX — IDIOMA
-// =========================
+                            
+                 
+                            
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
@@ -33,9 +33,9 @@ if (btnTraduzir) {
 
 aplicarIdiomaIndex();
 
-// =========================
-// SOMBRA NA NAVBAR AO ROLAR
-// =========================
+                            
+                            
+                            
 
 (function () {
     const navbar = document.getElementById("navbar");

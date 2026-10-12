@@ -7,9 +7,9 @@ function escaparHTML(texto) {
 
 
 
-// ==========================
-// ALTERNAR ABAS
-// ==========================
+                             
+                
+                             
 
 const btnVisao  = document.getElementById("btnVisao");
 const btnDiario = document.getElementById("btnDiario");
@@ -34,9 +34,9 @@ btnAlertas.addEventListener("click", () => {
 });
 
 
-// ==========================
-// TRADUÇÃO MANUAL
-// ==========================
+                             
+                  
+                             
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
@@ -74,7 +74,7 @@ const dicionario = {
     "Nenhuma notificação por enquanto.": "No notifications for now.",
     "Não foi possível carregar as notificações.": "Could not load notifications.",
 
-    // Gatilhos (rótulos vindos do servidor em português)
+                                                         
     "Auditivo": "Auditory",
     "Visual": "Visual",
     "Tátil": "Tactile",
@@ -136,9 +136,9 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 });
 
 
-// ==========================
-// DADOS DO USUÁRIO
-// ==========================
+                             
+                   
+                             
 
 let ultimoTipoContaRelatorios = "Responsável";
 
@@ -174,9 +174,9 @@ async function carregarUsuario() {
 }
 
 
-// ==========================
-// DADOS DOS RELATÓRIOS
-// ==========================
+                             
+                       
+                             
 
 let ultimosDadosRelatorio = null;
 
@@ -209,8 +209,8 @@ async function carregarRelatorios() {
 
 function usarDadosExemplo() {
 
-    // Em caso de falha da API, nunca inventa métricas.
-    // Exibe estado neutro até a conexão voltar.
+                                                       
+                                                
     const dadosVazios = {
         alertas: 0,
         nivelAtividade: { codigo: "baixa", rotulo: "Baixa atividade" },
@@ -237,9 +237,9 @@ function usarDadosExemplo() {
 }
 
 
-// ==========================
-// PREENCHER CARDS
-// ==========================
+                             
+                  
+                             
 
 function classeAtividade(codigo) {
     return {
@@ -325,9 +325,9 @@ function preencherCards(dados) {
 }
 
 
-// ==========================
-// GRÁFICOS COM CHART.JS
-// ==========================
+                             
+                        
+                             
 
 let graficos = {};
 let dadosEstresseGlobal = null;
@@ -341,9 +341,9 @@ let tipoAtualEvolucao = "line";
 const VERDE = "#32C26D";
 const AZUL  = "#0AB7FB";
 
-    // ==========================
-// SELETOR DE TIPO DE GRÁFICO (dropdown)
-// ==========================
+                                 
+                                        
+                             
 
 const iconesPorTipo = {
     bar: "fa-chart-column",
@@ -354,7 +354,7 @@ const iconesPorTipo = {
 
 function alternarSeletorTipo(idSeletor) {
 
-    // Fecha qualquer outro seletor aberto antes de abrir este
+                                                              
     document.querySelectorAll(".seletor-tipo").forEach(seletor => {
         if (seletor.id !== idSeletor) {
             seletor.classList.remove("aberto");
@@ -372,7 +372,7 @@ function alternarSeletorTipo(idSeletor) {
 
 }
 
-// Fecha o seletor aberto ao clicar fora dele
+                                             
 document.addEventListener("click", (e) => {
     document.querySelectorAll(".seletor-tipo.aberto").forEach(seletor => {
         if (!seletor.contains(e.target)) {
@@ -410,14 +410,14 @@ function selecionarTipoGrafico(grafico, tipo) {
     const funcaoCriar = mapaFuncoes[grafico];
     if (funcaoCriar) funcaoCriar(tipo);
 
-    // Atualiza o ícone exibido no botão para refletir o tipo escolhido
+                                                                       
     const icone = document.getElementById(mapaIconeId[grafico]);
     if (icone) {
         Object.values(iconesPorTipo).forEach(classe => icone.classList.remove(classe));
         icone.classList.add(iconesPorTipo[tipo]);
     }
 
-    // Fecha o menu depois de escolher
+                                      
     const seletor = document.getElementById(mapaSeletorId[grafico]);
     if (seletor) {
         seletor.classList.remove("aberto");
@@ -607,16 +607,16 @@ function criarGraficoEvolucao(tipo) {
 
     
 
-// Colapsa os cards automaticamente só na primeira carga em telas mobile —
-// não repete a cada atualização automática (setInterval), senão fecharia
-// de novo um card que o usuário tinha aberto manualmente
+                                                                          
+                                                                         
+                                                         
 let colapsoJaAplicado = false;
 
 
 
-// ==========================
-// PREENCHER ABA DIÁRIO
-// ==========================
+                             
+                       
+                             
 
 function preencherDiario(dados) {
 
@@ -657,7 +657,7 @@ function preencherDiario(dados) {
 let dataAlertasSelecionada = new Date();
 
 function formatarDataISO(data) {
-    return data.toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" }); // "YYYY-MM-DD"
+    return data.toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });                
 }
 
 function atualizarLabelDataAlertas() {
@@ -726,9 +726,9 @@ document.getElementById("btnProximoDia").addEventListener("click", () => {
 });
 
 
-// ==========================
-// NOTIFICAÇÕES
-// ==========================
+                             
+               
+                             
 
 const painelNotificacoes = document.getElementById("painelNotificacoes");
 const listaNotificacoes  = document.getElementById("listaNotificacoes");
@@ -794,20 +794,20 @@ document.addEventListener("click", (e) => {
 });
 
 
-// ==========================
-// INICIALIZAÇÃO
-// ==========================
+                             
+                
+                             
 
 aplicarIdiomaEstatico();
 carregarUsuario();
 carregarRelatorios();
 carregarNotificacoes();
 
-// Atualiza os alertas/tempo de estresse automaticamente, sem precisar recarregar a página
-// (útil para acompanhar em tempo real quando o Bixuco físico registra um novo evento)
+                                                                                          
+                                                                                      
 setInterval(carregarRelatorios, 10000);
 
-// Substitui os antigos onclick inline (removidos por causa do CSP)
+                                                                   
 
 document.getElementById("btnRelatorioDiario").addEventListener("click", () => {
     location.href = "/RelatorioDiario";

@@ -1,5 +1,5 @@
 
-// botão próximo
+                
 
 document
 .getElementById("proximo")
@@ -10,7 +10,7 @@ document
 });
 
 
-// arrastar com o dedo
+                      
 
 const tela = document.getElementById("tela");
 
@@ -35,7 +35,7 @@ tela.addEventListener("touchend",(e)=>{
 });
 
 
-// arrastar com o mouse
+                       
 
 let inicioMouse = 0;
 
@@ -58,9 +58,9 @@ tela.addEventListener("mouseup",(e)=>{
 });
 
 
-// ==========================
-// ANIMAÇÃO DO INDICADOR
-// ==========================
+                             
+                        
+                             
 
 (function animarIndicador(){
 
@@ -70,8 +70,8 @@ tela.addEventListener("mouseup",(e)=>{
 
     if (!isNaN(indexAnterior) && indexAnterior !== indexAtual) {
 
-        const larguraDot = 6;   // tamanho do ponto inativo, em px
-        const gap        = 6.4; // gap entre eles (0.4rem ≈ 6.4px)
+        const larguraDot = 6;                                     
+        const gap        = 6.4;                                   
 
         const deslocamento = (indexAnterior - indexAtual) * (larguraDot + gap);
 

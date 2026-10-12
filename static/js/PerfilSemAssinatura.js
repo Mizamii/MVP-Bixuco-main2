@@ -4,17 +4,17 @@ function escaparHTML(texto) {
     return div.innerHTML;
 }
 
-// ==========================
-// ESTADO GLOBAL
-// ==========================
+                             
+                
+                             
 
 let criancaAtual   = null;
 let perfilCarregado = false;
 let ultimoUsuario  = null;
 
-// ==========================
-// TRADUÇÃO MANUAL (mesmo padrão da versão com assinatura)
-// ==========================
+                             
+                                                          
+                             
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
@@ -69,15 +69,15 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 
     aplicarIdiomaEstatico();
 
-    // Reaplica a tradução em cima dos dados já carregados,
-    // sem precisar recarregar a página nem refazer as chamadas
+                                                           
+                                                               
     if (ultimoUsuario) preencherPerfil(ultimoUsuario);
 
 });
 
-// ==========================
-// CARREGAR DADOS DO PERFIL
-// ==========================
+                             
+                           
+                             
 
 async function carregarPerfil() {
 
@@ -127,9 +127,9 @@ function preencherPerfil(usuario) {
         fotoOriginalSrc = usuario.fotoPerfil;
     }
 
-    // 🔧 FIX: bloco "Sobre a conta"
-    // ⚠️ usuario.email só vem preenchido depois de você adicionar
-    // "email: usuario.email," no res.json() da rota /api/perfil no server.js
+                                    
+                                                                  
+                                                                             
     document.getElementById("infoEmail").textContent       = usuario.email || "—";
     document.getElementById("infoTipoConta").textContent   = tipoConta;
     document.getElementById("infoAnoCadastro").textContent = usuario.anoCadastro || "—";
@@ -163,9 +163,9 @@ function preencherPerfil(usuario) {
 
 }
 
-// ==========================
-// FOTO DE PERFIL
-// ==========================
+                             
+                 
+                             
 
 const perfilFotoWrapper = document.getElementById("perfilFotoWrapper");
 const inputFotoPerfil   = document.getElementById("inputFotoPerfil");
@@ -255,9 +255,9 @@ btnSalvarFoto.addEventListener("click", async () => {
 
 });
 
-// ==========================
-// EDITAR NOME
-// ==========================
+                             
+              
+                             
 
 const perfilNomeLinha  = document.getElementById("perfilNomeLinha");
 const perfilNomeEditar = document.getElementById("perfilNomeEditar");
@@ -351,9 +351,9 @@ inputNome.addEventListener("keydown", (e) => {
     }
 });
 
-// ==========================
-// MODAL DA CRIANÇA
-// ==========================
+                             
+                   
+                             
 
 const linkCrianca           = document.getElementById("linkCrianca");
 const modalCrianca          = document.getElementById("modalCrianca");
@@ -368,8 +368,8 @@ const statusCrianca         = document.getElementById("statusCrianca");
 
 let arquivoFotoCrianca = null;
 
-// Bloqueia a navegação padrão e só decide o que fazer depois
-// que os dados do perfil chegarem (evita ir para /AdicionarC por engano)
+                                                             
+                                                                         
 linkCrianca.addEventListener("click", (e) => {
 
     e.preventDefault();
@@ -510,10 +510,10 @@ btnSalvarCrianca.addEventListener("click", async () => {
 
 });
 
-// ==========================
-// PAINEL DE NOTIFICAÇÕES (SININHO)
-// Só mostra notificações do tipo "novidade" (promoções)
-// ==========================
+                             
+                                   
+                                                        
+                             
 
 const painelNotificacoes = document.getElementById("painelNotificacoes");
 const listaNotificacoes  = document.getElementById("listaNotificacoes");
@@ -568,18 +568,18 @@ document.addEventListener("click", (e) => {
     }
 });
 
-// ==========================
-// TEMA
-// ==========================
-// 🔧 A lógica de tema (claro/escuro, incluindo o botão mobile) já vem
-// inteira do /js/tema.js compartilhado — não redefinimos nada aqui.
-// Ter uma segunda cópia era exatamente o que causava o botão mobile
-// "não fazer nada": os dois listeners alternavam o tema em sequência
-// e um cancelava o outro.
+                             
+       
+                             
+                                                                      
+                                                                    
+                                                                    
+                                                                     
+                          
 
-// ==========================
-// INICIAR
-// ==========================
+                             
+          
+                             
 
 aplicarIdiomaEstatico();
 carregarNotificacoes();

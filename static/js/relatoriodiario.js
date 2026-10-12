@@ -1,28 +1,28 @@
-// ==========================
-// TRADUÇÃO MANUAL
-// (mesmo padrão do home.js — idioma salvo no localStorage,
-// aplicado nos textos estáticos via data-pt/data-en e nos
-// textos dinâmicos via traduzir())
-// ==========================
+                             
+                  
+                                                           
+                                                          
+                                   
+                             
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
 const dicionario = {
 
-    // ---- Notificações (mesmas chaves do home.js) ----
+                                                        
     "Carregando...": "Loading...",
 
     "Nenhuma notificação por enquanto.": "No notifications for now.",
 
     "Não foi possível carregar as notificações.": "Could not load notifications.",
 
-    // ---- Contador / barra de progresso ----
+                                              
     "Pergunta": "Question",
 
     "de": "of",
 
     "concluído": "completed",
 
-    // ---- Botão "próxima pergunta" ----
+                                         
     "Próxima pergunta": "Next question",
 
     "Salvando...": "Saving...",
@@ -35,14 +35,14 @@ const dicionario = {
 
         "Could not save your progress. Please try again.",
 
-    // ---- Mensagens de status do envio do relatório ----
+                                                          
     "Você já preencheu o relatório de hoje. Volte amanhã!":
         "You've already filled in today's report. Come back tomorrow!",
 
     "Erro ao salvar o relatório. Tente novamente.":
         "Error saving the report. Please try again.",
 
-    // ---- Tooltips dos gráficos ----
+                                      
     "Sem força registrada": "No strength recorded",
 
     " — pico da crise": " — crisis peak",
@@ -53,7 +53,7 @@ const dicionario = {
 
     "Inativo": "Inactive",
 
-    // ---- Perguntas do questionário ----
+                                          
     "Teve algum alerta de estresse hoje?":
         "Was there a stress alert today?",
 
@@ -99,7 +99,7 @@ const dicionario = {
     "Descreva em poucas palavras (ex: barulho alto, mudança de rotina...)":
         "Describe in a few words (e.g. loud noise, routine change...)",
 
-    // ---- Respostas do questionário ----
+                                          
     "Sim": "Yes",
 
     "Não": "No",
@@ -221,9 +221,9 @@ function aplicarIdiomaEstatico() {
 }
 
 
-// ==========================
-// DADOS DO RELATÓRIO
-// ==========================
+                             
+                     
+                             
 
 let perguntas = [
 
@@ -382,9 +382,9 @@ let perguntas = [
 ];
 
 
-// ==========================
-// VARIÁVEIS
-// ==========================
+                             
+            
+                             
 
 let perguntaAtual = 0;
 
@@ -404,9 +404,9 @@ let filaSalvamentoRascunho =
     Promise.resolve();
 
 
-// ==========================
-// RASCUNHO DO RELATÓRIO
-// ==========================
+                             
+                        
+                             
 
 function buscarRespostaPorId(id) {
 
@@ -611,13 +611,13 @@ function enfileirarSalvamentoResposta(
                     }
 
 
-                    /*
-                        O servidor devolve a versão
-                        mais atual do rascunho.
+                      
+                                                   
+                                               
 
-                        Isso também sincroniza mudanças
-                        feitas por outra aba.
-                    */
+                                                       
+                                             
+                      
                     if (
                         Array.isArray(
                             dados.respostas
@@ -822,9 +822,9 @@ function descobrirPerguntaParaRetomar() {
 }
 
 
-// ==========================
-// ELEMENTOS DA PÁGINA
-// ==========================
+                             
+                      
+                             
 
 const textoPergunta =
     document.getElementById(
@@ -927,9 +927,9 @@ const btnEnviarChat =
     );
 
 
-// ==========================
-// MENSAGEM DE STATUS
-// ==========================
+                             
+                     
+                             
 
 function mostrarMensagem(
     texto,
@@ -948,9 +948,9 @@ function mostrarMensagem(
 }
 
 
-// ==========================
-// CHAT DO RELATÓRIO
-// ==========================
+                             
+                    
+                             
 
 function obterIdsNecessariosHoje() {
 
@@ -1595,9 +1595,9 @@ function ajustarAlturaInputChat() {
 }
 
 
-// ==========================
-// EVENTOS DO CHAT
-// ==========================
+                             
+                  
+                             
 
 btnModoFormulario
     .addEventListener(
@@ -1700,9 +1700,9 @@ btnFinalizarChat
     );
 
 
-// ==========================
-// CRIAR BARRA
-// ==========================
+                             
+              
+                             
 
 function atualizarBarra() {
 
@@ -1749,9 +1749,9 @@ function atualizarBarra() {
 }
 
 
-// ==========================
-// CARREGAR PERGUNTA
-// ==========================
+                             
+                    
+                             
 
 function carregarPergunta(
     respostaAnterior = null
@@ -1823,9 +1823,9 @@ function carregarPergunta(
     listaRespostas.innerHTML =
         "";
 
-    // ======================
-    // TEXTO LIVRE
-    // ======================
+                             
+                  
+                             
 
     if (
         atual.tipo === "texto"
@@ -1890,11 +1890,11 @@ function carregarPergunta(
                 );
 
 
-                /*
-                    Atualiza imediatamente a cópia local.
-                    O envio ao servidor acontece após
-                    650ms sem digitação.
-                */
+                  
+                                                         
+                                                     
+                                        
+                  
                 if (valor.length > 0) {
 
                     salvarOuAtualizarResposta({
@@ -1912,11 +1912,11 @@ function carregarPergunta(
 
                 } else {
 
-                    /*
-                        Se a pessoa apagar completamente
-                        uma resposta que já estava salva,
-                        removemos também do rascunho.
-                    */
+                      
+                                                        
+                                                         
+                                                     
+                      
                     removerRespostaPorId(
                         atual.id
                     );
@@ -1958,9 +1958,9 @@ function carregarPergunta(
         return;
     }
 
-    // ======================
-    // MÚLTIPLA ESCOLHA
-    // ======================
+                             
+                       
+                             
 
     atual.respostas.forEach(
         opcao => {
@@ -2041,9 +2041,9 @@ function carregarPergunta(
 }
 
 
-// ==========================
-// BOTÃO PRÓXIMA
-// ==========================
+                             
+                
+                             
 
 btnProxima.addEventListener(
     "click",
@@ -2152,9 +2152,9 @@ btnProxima.addEventListener(
 );
 
 
-// ==========================
-// BOTÃO VOLTAR
-// ==========================
+                             
+               
+                             
 
 btnVoltar.addEventListener(
     "click",
@@ -2205,9 +2205,9 @@ btnVoltar.addEventListener(
 );
 
 
-// ==========================
-// FINALIZAR RELATÓRIO
-// ==========================
+                             
+                      
+                             
 
 async function finalizarRelatorio(
     botaoOrigem = btnProxima
@@ -2223,12 +2223,12 @@ async function finalizarRelatorio(
 
     try {
 
-        /*
-            O navegador só pede a finalização.
-            As respostas não são mais enviadas daqui,
-            porque o servidor usa o rascunho mais recente
-            salvo no PostgreSQL.
-        */
+          
+                                              
+                                                     
+                                                         
+                                
+          
         const resposta =
             await fetch(
                 "/api/relatorio",
@@ -2325,9 +2325,9 @@ async function finalizarRelatorio(
     }
 }
 
-// ==========================
-// PAINEL DE NOTIFICAÇÕES
-// ==========================
+                             
+                         
+                             
 
 const painelNotificacoes =
     document.getElementById(
@@ -2550,9 +2550,9 @@ if (
 }
 
 
-// ==========================
-// DADOS DO USUÁRIO
-// ==========================
+                             
+                   
+                             
 
 async function carregarUsuario() {
 
@@ -2633,9 +2633,9 @@ async function carregarUsuario() {
 }
 
 
-// ==========================
-// GRÁFICOS DO DIA
-// ==========================
+                             
+                  
+                             
 
 let graficoForcaChart =
     null;
@@ -3041,9 +3041,9 @@ function desenharGraficoAtividade(
 }
 
 
-// ==========================
-// ALERTA REAL DO BIXUCO
-// ==========================
+                             
+                        
+                             
 
 async function verificarAlertaHoje() {
 
@@ -3174,9 +3174,9 @@ async function verificarAlertaHoje() {
 }
 
 
-// ==========================
-// TRADUÇÃO
-// ==========================
+                             
+           
+                             
 
 const btnTraduzir =
     document.getElementById(
@@ -3233,9 +3233,9 @@ if (btnTraduzir) {
 }
 
 
-// ==========================
-// INICIAR
-// ==========================
+                             
+          
+                             
 
 async function iniciarRelatorio() {
 
@@ -3271,19 +3271,19 @@ async function iniciarRelatorio() {
 }
 
 
-// Aplica o idioma salvo antes de montar a tela
+                                               
 aplicarIdiomaEstatico();
 
 
-// Carrega dados do usuário
+                           
 carregarUsuario();
 
 
-// Inicia o relatório
+                     
 iniciarRelatorio();
 
 
-// Foto padrão caso a foto do perfil falhe
+                                          
 const fotoUsuario =
     document.getElementById(
         "fotoUsuario"

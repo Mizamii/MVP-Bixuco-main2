@@ -816,10 +816,10 @@ body.tema-escuro .dica {
   }
 }
 
-/* ==========================================================
-   MODO ESCURO — ajustes de botões/itens que estavam com a
-   cor do tema claro (só nesta tela)
-   ========================================================== */
+                                                             
+                                                          
+                                    
+                                                                
 body.tema-escuro .sidebar nav a.ativo {
   background: rgba(50, 194, 109, 0.16);
   color: #5fe08f;

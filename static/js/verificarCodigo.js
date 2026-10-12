@@ -1,6 +1,6 @@
-// ==========================
-// TRADUÇÃO
-// ==========================
+                             
+           
+                             
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
@@ -54,9 +54,9 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 
 aplicarIdiomaEstatico();
 
-// ==========================
-// VERIFICAÇÃO 2FA
-// ==========================
+                             
+                  
+                             
 
 const inputCodigo = document.getElementById("codigo");
 const btnConfirmar = document.getElementById("confirmar");

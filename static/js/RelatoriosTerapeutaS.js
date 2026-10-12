@@ -5,9 +5,9 @@ function escaparHTML(texto) {
     return div.innerHTML;
 }
 
-// =========================
-// TRADUÇÃO MANUAL — dicionário para textos montados via JS
-// =========================
+                            
+                                                           
+                            
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
@@ -53,9 +53,9 @@ function traduzirMensagemNotificacao(item) {
 
 
 
-// =========================
-// COPIAR CÓDIGO DO TERAPEUTA
-// =========================
+                            
+                             
+                            
 
 function copiarCodigo() {
     const codigo = document.getElementById("codigoTerapeuta").textContent;
@@ -75,9 +75,9 @@ function copiarCodigo() {
 }
 
 
-// =========================
-// CARREGAR DADOS DO TOPO
-// =========================
+                            
+                         
+                            
 async function carregarUsuario() {
     try {
         const resposta = await fetch("/api/home-terapeuta");
@@ -108,9 +108,9 @@ async function carregarUsuario() {
 }
 
 
-// =========================
-// CARREGAR LISTA DE PACIENTES COM ÚLTIMO RELATÓRIO
-// =========================
+                            
+                                                   
+                            
 async function carregarRelatorios() {
     const lista       = document.getElementById("listaRelatorios");
     const semPacientes = document.getElementById("semPacientes");
@@ -142,10 +142,10 @@ async function carregarRelatorios() {
             card.classList.add("card-relatorio");
             card.style.cursor = "pointer";
 
-            // inicial do nome para o avatar
+                                            
             const inicial = (p.nomeCrianca || p.nomeResponsavel || "?").charAt(0).toUpperCase();
 
-            // data do último relatório formatada
+                                                 
             const dataRelatorio = p.ultimoRelatorio
                 ? new Date(p.ultimoRelatorio).toLocaleDateString(idiomaAtual === "en" ? "en-US" : "pt-BR")
                 : t("semRelatorios");
@@ -169,7 +169,7 @@ async function carregarRelatorios() {
                 </button>
             `;
 
-            // ao clicar em qualquer parte do card vai para os relatórios desse paciente
+                                                                                        
             card.addEventListener("click", () => {
                 window.location.href = `/relatoriosTerapeuta?paciente=${p.responsavelId}`;
             });
@@ -195,9 +195,9 @@ async function carregarRelatorios() {
 }
 
 
-// =========================
-// NOTIFICAÇÕES
-// =========================
+                            
+               
+                            
 const painelNotificacoes = document.getElementById("painelNotificacoes");
 const listaNotificacoes  = document.getElementById("listaNotificacoes");
 
@@ -238,9 +238,9 @@ document.addEventListener("click", (e) => {
 });
 
 
-// =========================
-// TRADUÇÃO MANUAL
-// =========================
+                            
+                  
+                            
 
 function aplicarIdiomaEstatico() {
     document.querySelectorAll("[data-pt]").forEach(el => {
@@ -257,18 +257,18 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
     idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
     localStorage.setItem("idioma", idiomaAtual);
     aplicarIdiomaEstatico();
-    // Lista de pacientes é montada via JS (t()) — recarrega pra refletir o novo idioma
+                                                                                       
     carregarRelatorios();
     if (painelNotificacoes.classList.contains("aberto")) carregarNotificacoes();
 });
 
-// Aplica o idioma salvo ao carregar
+                                    
 aplicarIdiomaEstatico();
 
 
-// =========================
-// TEMA
-// =========================
+                            
+       
+                            
 function aplicarTema(tema) {
     document.body.classList.remove("tema-claro", "tema-escuro");
     document.body.classList.add(`tema-${tema}`);
@@ -281,9 +281,9 @@ document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema
 document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
 
 
-// =========================
-// INICIALIZAÇÃO
-// =========================
+                            
+                
+                            
 const temaSalvo = localStorage.getItem("tema") || "claro";
 aplicarTema(temaSalvo);
 carregarUsuario();

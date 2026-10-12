@@ -1,7 +1,7 @@
 
-// ==========================
-// TRADUÇÃO MANUAL
-// ==========================
+                             
+                  
+                             
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
@@ -52,9 +52,9 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 
 aplicarIdiomaEstatico();
 
-// ==========================
-// MOSTRAR / ESCONDER SENHA
-// ==========================
+                             
+                           
+                             
 
 function toggleSenha() {
     const senha = document.getElementById("senha");
@@ -74,9 +74,9 @@ function toggleSenha() {
     }
 }
 
-// ==========================
-// EXIBIR / LIMPAR ERROS
-// ==========================
+                             
+                        
+                             
 
 function mostrarErro(inputId, erroId, mensagem) {
     const input = document.getElementById(inputId);
@@ -106,9 +106,9 @@ function limparErros() {
     if (erroGeral) erroGeral.style.display = "none";
 }
 
-// ==========================
-// VALIDAÇÃO LOCAL
-// ==========================
+                             
+                  
+                             
 
 function validarCampos() {
     limparErros();
@@ -131,9 +131,9 @@ function validarCampos() {
     return valido;
 }
 
-// ==========================
-// VALIDAÇÃO EM TEMPO REAL (some o erro assim que corrigir)
-// ==========================
+                             
+                                                           
+                             
 
 document.getElementById("email").addEventListener("input", () => {
     const email = document.getElementById("email").value.trim();
@@ -144,7 +144,7 @@ document.getElementById("email").addEventListener("input", () => {
         document.getElementById("erro-email").style.display = "none";
     }
 
-    // Some tambem o erro geral (ex: "email ou senha invalidos") ao editar
+                                                                          
     document.getElementById("erro-geral").style.display = "none";
 });
 
@@ -159,9 +159,9 @@ document.getElementById("senha").addEventListener("input", () => {
     document.getElementById("erro-geral").style.display = "none";
 });
 
-// ==========================
-// ENVIO DO FORMULÁRIO
-// ==========================
+                             
+                      
+                             
 
 document.getElementById("formLogin").addEventListener("submit", async (evento) => {
 
@@ -186,7 +186,7 @@ document.getElementById("formLogin").addEventListener("submit", async (evento) =
             })
         });
 
-        // Redirect bem-sucedido (login manual ou Google callback)
+                                                                  
         if (resposta.redirected) {
             window.location.href = resposta.url;
             return;
@@ -215,9 +215,9 @@ document.getElementById("formLogin").addEventListener("submit", async (evento) =
 
 });
 
-// ==========================
-// LOGIN COM GOOGLE
-// ==========================
+                             
+                   
+                             
 
 function loginGoogle() {
     var ehApp = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
@@ -225,6 +225,6 @@ function loginGoogle() {
 }
 
 
-// Substitui os antigos onclick inline (removidos por causa do CSP)
+                                                                   
 document.getElementById("btnToggleSenha").addEventListener("click", toggleSenha);
 document.getElementById("btnLoginGoogle").addEventListener("click", loginGoogle);

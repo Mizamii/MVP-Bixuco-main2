@@ -1,10 +1,10 @@
-// ==========================
-// TRADUÇÃO MANUAL
-// ==========================
+                             
+                  
+                             
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
-// Dicionário para textos fixos (título, botão, erro etc.)
+                                                          
 const dicionarioQuestionarioP = {
     "Finalizar": "Finish",
     "Próxima pergunta": "Next question",
@@ -17,7 +17,7 @@ function traduzir(texto) {
     return dicionarioQuestionarioP[texto] || texto;
 }
 
-// Aplica tradução nos textos estáticos marcados com data-pt/data-en
+                                                                    
 function aplicarIdiomaEstatico() {
     document.querySelectorAll("[data-pt]").forEach(el => {
         el.textContent = idiomaAtual === "en"
@@ -35,8 +35,8 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 
     aplicarIdiomaEstatico();
 
-    // Reaplica os textos gerados dinamicamente (pergunta, contador, opções, botão)
-    // sem resetar a pergunta atual nem a opção já selecionada
+                                                                                   
+                                                              
     atualizarTextoProgresso();
     atualizarTextoPergunta();
     renderOpcoes();
@@ -49,15 +49,15 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 
 aplicarIdiomaEstatico();
 
-// ==========================
-// PERGUNTAS DO QUESTIONÁRIO
-// ==========================
+                             
+                            
+                             
 
-// 🔧 Cada pergunta agora carrega suas próprias alternativas. As duas
-// primeiras têm "id" — são as mesmas que o relatório diário usa
-// (gatilho_principal e crises_sensoriais), pra esse primeiro
-// preenchimento já alimentar os gráficos de relatórios e servir de
-// base pras primeiras dicas geradas pela IA.
+                                                                     
+                                                                
+                                                             
+                                                                   
+                                             
 const perguntasPt = [
 
     {
@@ -105,7 +105,7 @@ const perguntasPt = [
 
 ];
 
-// Apenas para exibição em inglês — nunca é enviado ao backend
+                                                              
 const perguntasEn = [
 
     {
@@ -155,8 +155,8 @@ function textoPergunta(indice) {
     return idiomaAtual === "en" ? perguntasEn[indice].texto : perguntasPt[indice].texto;
 }
 
-// Recebe o índice da PERGUNTA e o índice da ALTERNATIVA dentro dela,
-// já que cada pergunta pode ter opções diferentes
+                                                                     
+                                                  
 function textoAlternativa(indicePergunta, indiceAlternativa) {
     const lista = idiomaAtual === "en"
         ? perguntasEn[indicePergunta].alternativas
@@ -164,23 +164,23 @@ function textoAlternativa(indicePergunta, indiceAlternativa) {
     return lista[indiceAlternativa];
 }
 
-// Variáveis de estado
+                      
 let perguntaAtual    = 0;
-let respostaSelecionada = null; // sempre guarda o valor canônico em PT
+let respostaSelecionada = null;                                        
 
-// 🔧 FIX 1: Array para guardar todas as respostas e enviar ao backend
+                                                                      
 const respostasUsuario = [];
 
-// Referências aos elementos
+                            
 const btnProximo    = document.getElementById("btn-proximo");
 const erroSalvar    = document.getElementById("erro-salvar");
 
-// ==========================
-// BARRA DE PROGRESSO
-// ==========================
+                             
+                     
+                             
 
-// 🔧 FIX 8: Cria a barra uma vez e atualiza só as classes
-// Antes era recriada do zero a cada pergunta
+                                                          
+                                             
 
 function criarBarra() {
 
@@ -217,9 +217,9 @@ function atualizarBarra() {
 
 }
 
-// ==========================
-// TEXTOS TRADUZÍVEIS (pergunta, contador, botão)
-// ==========================
+                             
+                                                 
+                             
 
 function atualizarTextoPergunta() {
     document.getElementById("pergunta-texto").textContent = textoPergunta(perguntaAtual);
@@ -242,11 +242,11 @@ function atualizarTextoBotaoProximo() {
         : traduzir("Próxima pergunta");
 }
 
-// ==========================
-// RENDERIZAR ALTERNATIVAS
-// (preserva a seleção atual — usado tanto ao trocar de pergunta
-// quanto ao trocar de idioma no meio de uma pergunta)
-// ==========================
+                             
+                          
+                                                                
+                                                      
+                             
 
 function renderOpcoes() {
 
@@ -271,63 +271,63 @@ function renderOpcoes() {
 
 }
 
-// ==========================
-// ATUALIZAR PERGUNTA
-// ==========================
+                             
+                     
+                             
 
 function atualizarPergunta() {
 
-    // Atualiza o texto da pergunta e o contador
+                                                
     atualizarTextoPergunta();
     atualizarTextoProgresso();
 
-    // Atualiza a barra de progresso
+                                    
     atualizarBarra();
 
-    // Reseta estado da pergunta (nova pergunta, ninguém selecionou nada ainda)
+                                                                               
     respostaSelecionada   = null;
     renderOpcoes();
 
     btnProximo.disabled   = true;
     erroSalvar.style.display = "none";
 
-    // Muda o texto do botão na última pergunta
+                                               
     atualizarTextoBotaoProximo();
 
 }
 
-// ==========================
-// SELECIONAR OPÇÃO
-// ==========================
+                             
+                   
+                             
 
 function selecionarOpcao(botao, valorCanonico) {
 
-    // Remove seleção anterior
+                              
     document.querySelectorAll(".opcao").forEach(op => {
         op.classList.remove("selecionada");
     });
 
-    // Marca a opção clicada
+                            
     botao.classList.add("selecionada");
 
-    // Sempre guarda o valor canônico em português, independente do idioma exibido
+                                                                                  
     respostaSelecionada = valorCanonico;
     btnProximo.disabled = false;
 
 }
 
-// ==========================
-// PRÓXIMA PERGUNTA
-// ==========================
+                             
+                   
+                             
 
-// 🔧 FIX 5: addEventListener em vez de onclick inline
+                                                      
 btnProximo.addEventListener("click", async () => {
 
     if (respostaSelecionada === null) return;
 
-    // 🔧 FIX 1: Guarda a resposta no array — sempre em português (canônico),
-    // igual ao que o backend já espera receber. Perguntas com "id" (as duas
-    // primeiras) mandam o id junto, pra alimentar os gráficos do relatório.
+                                                                             
+                                                                            
+                                                                            
     const perguntaAtualObj = perguntasPt[perguntaAtual];
 
     respostasUsuario.push({
@@ -336,7 +336,7 @@ btnProximo.addEventListener("click", async () => {
         resposta: respostaSelecionada
     });
 
-    // Se ainda há perguntas, avança para a próxima
+                                                   
     if (perguntaAtual < perguntasPt.length - 1) {
 
         perguntaAtual++;
@@ -344,22 +344,22 @@ btnProximo.addEventListener("click", async () => {
 
     } else {
 
-        // Última pergunta respondida — salva o perfil sensorial
+                                                                
         await finalizarQuestionario();
 
     }
 
 });
 
-// ==========================
-// FINALIZAR E SALVAR
-// ==========================
+                             
+                     
+                             
 
-// 🔧 FIX 1 + 6 + 7: Salva as respostas no backend ao finalizar
-// Antes só redirecionava para /home sem salvar nada
+                                                               
+                                                    
 async function finalizarQuestionario() {
 
-    // 🔧 FIX 6: Desabilita o botão enquanto salva
+                                                  
     btnProximo.disabled    = true;
     btnProximo.textContent = traduzir("Salvando...");
 
@@ -375,7 +375,7 @@ async function finalizarQuestionario() {
             })
         });
 
-        // 🔧 FIX 4: Redireciona para login se não autenticado
+                                                              
         if (resposta.status === 401) {
             window.location.href = "/logar";
             return;
@@ -387,7 +387,7 @@ async function finalizarQuestionario() {
         }
 
         if (resposta.ok) {
-            // Perfil salvo com sucesso — vai para a home
+                                                         
             window.location.href = "/Transicao1";
             return;
         }
@@ -398,7 +398,7 @@ async function finalizarQuestionario() {
 
         console.log("Erro ao salvar perfil sensorial:", erro);
 
-        // 🔧 FIX 7: Mostra o erro e reabilita o botão para tentar de novo
+                                                                          
         erroSalvar.textContent   = traduzir("Erro ao salvar. Tente novamente.");
         erroSalvar.style.display = "block";
 
@@ -409,10 +409,10 @@ async function finalizarQuestionario() {
 
 }
 
-// ==========================
-// INICIALIZAÇÃO
-// ==========================
+                             
+                
+                             
 
-// Cria a barra uma vez e carrega a primeira pergunta
+                                                     
 criarBarra();
 atualizarPergunta();

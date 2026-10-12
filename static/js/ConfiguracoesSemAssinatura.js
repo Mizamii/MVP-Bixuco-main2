@@ -1,6 +1,6 @@
-// =========================
-// CARREGAR USUÁRIO
-// =========================
+                            
+                   
+                            
 async function carregarUsuario() {
     try {
         const resposta = await fetch("/api/home");
@@ -30,11 +30,11 @@ async function carregarUsuario() {
     }
 }
 
-// =========================
-// 🔧 FIX: TOGGLE DE NOTIFICAÇÕES (NOVIDADES/PROMOÇÕES)
-// Reaproveita a mesma rota da versão com assinatura,
-// mas aqui só existe o campo "novidades" (sem lembrete de relatório)
-// =========================
+                            
+                                                       
+                                                     
+                                                                     
+                            
 const notifNovidades = document.getElementById("notifNovidades");
 
 async function carregarPreferenciasNotificacao() {
@@ -68,9 +68,9 @@ notifNovidades.addEventListener("change", () => {
 
 carregarPreferenciasNotificacao();
 
-// =========================
-// 🔧 FIX: INDIQUE O BIXUCO (COMPARTILHAR)
-// =========================
+                            
+                                          
+                            
 document.getElementById("btnIndicar").addEventListener("click", () => {
     const mensagemBase = idiomaAtual === "en"
         ? "Hi! Come discover Bixuco, an app that helps caregivers follow children with sensory hypersensitivity. 🐱\n\n"
@@ -147,9 +147,9 @@ btnEnviarSenha.addEventListener("click", async () => {
 
 });
 
-// =========================
-// EXCLUIR CONTA
-// =========================
+                            
+                
+                            
 const btnExcluir        = document.getElementById("btnExcluirConta");
 const confirmarExclusao = document.getElementById("confirmarExclusao");
 const btnConfirmar      = document.getElementById("btnConfirmarExclusao");
@@ -194,12 +194,12 @@ btnConfirmar.addEventListener("click", async () => {
     }
 });
 
-// =========================
-// 🔧 FIX: PAINEL DE NOTIFICAÇÕES (SININHO)
-// Mesmo padrão da tela de Planos — só mostra notificações
-// do tipo "novidade" (promoções), já que quem não tem
-// assinatura não recebe lembrete de relatório
-// =========================
+                            
+                                           
+                                                          
+                                                      
+                                              
+                            
 const painelNotificacoes = document.getElementById("painelNotificacoes");
 const listaNotificacoes  = document.getElementById("listaNotificacoes");
 
@@ -267,11 +267,11 @@ document.addEventListener("click", (e) => {
     }
 });
 
-// =========================
-// 🔧 FIX: TRADUÇÃO MANUAL (sem Google Translate)
-// Troca o texto de todo elemento com data-pt/data-en,
-// igual ao padrão usado na tela de configurações com assinatura
-// =========================
+                            
+                                                 
+                                                      
+                                                                
+                            
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 let ultimoTipoContaSemAssinatura = "Responsável";
 
@@ -317,23 +317,23 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
     }
 });
 
-// =========================
-// TEMA
-// =========================
-// 🔧 A lógica de tema (claro/escuro, incluindo o botão mobile) já vem
-// inteira do /js/tema.js compartilhado — não redefinimos nada aqui.
-// Ter uma segunda cópia era o que causava o botão mobile "não fazer
-// nada" na tela de Perfil (dois listeners alternando e se cancelando).
+                            
+       
+                            
+                                                                      
+                                                                    
+                                                                    
+                                                                       
 
-// =========================
-// INICIALIZAÇÃO
-// =========================
+                            
+                
+                            
 aplicarIdiomaEstatico();
 carregarUsuario();
 
-// ==========================
-// SUBSTITUI OS ONCLICK/ONERROR INLINE (removidos por causa do CSP)
-// ==========================
+                             
+                                                                   
+                             
 
 const fotoUsuarioEl = document.getElementById("fotoUsuario");
 

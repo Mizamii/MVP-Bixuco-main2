@@ -5,13 +5,13 @@ function escaparHTML(texto) {
     return div.innerHTML;
 }
 
-// =========================
-// TRADUÇÃO MANUAL — dicionário para textos montados via JS
-// =========================
+                            
+                                                           
+                            
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
-// Dicionário de textos usados em template strings (fora do HTML estático)
+                                                                          
 const dicionario = {
     crianca:            { pt: "Criança",                                  en: "Child" },
     anos:               { pt: "anos",                                     en: "years old" },
@@ -56,9 +56,9 @@ function traduzirMensagemNotificacao(item) {
 
 
 
-// =========================
-// COPIAR CÓDIGO DO TERAPEUTA
-// =========================
+                            
+                             
+                            
 
 function copiarCodigo() {
     const codigo = document.getElementById("codigoTerapeuta").textContent;
@@ -78,9 +78,9 @@ function copiarCodigo() {
 }
 
 
-// =========================
-// CARREGAR DADOS DO TERAPEUTA
-// =========================
+                            
+                              
+                            
 
     async function carregarDados(atualizacaoSilenciosa = false) {
 
@@ -126,9 +126,9 @@ function copiarCodigo() {
 
         console.log("Erro ao carregar dados do terapeuta:", erro);
 
-        // Numa atualização silenciosa (polling em segundo plano), não
-        // reseta a tela pra zero por causa de uma falha de rede
-        // passageira — só loga o erro e mantém o que já estava na tela.
+                                                                      
+                                                                
+                                                                        
         if (atualizacaoSilenciosa) return;
 
         document.getElementById("nomeTerapeuta").textContent       = "Terapeuta";
@@ -144,9 +144,9 @@ function copiarCodigo() {
 }
 
 
-// =========================
-// RENDERIZAR SOLICITAÇÕES
-// =========================
+                            
+                          
+                            
 
 function renderSolicitacoes(lista) {
 
@@ -190,7 +190,7 @@ function renderSolicitacoes(lista) {
         btnAceitar.classList.add("btn-aceitar");
         btnAceitar.innerHTML = `<i class="fa-solid fa-check"></i> ${t("aceitar")}`;
 
-        // Aceitar direto — ação positiva, não precisa de confirmação
+                                                                     
         btnAceitar.addEventListener("click", () => {
             responderSolicitacao(item.id, "aceitar", li);
         });
@@ -200,7 +200,7 @@ function renderSolicitacoes(lista) {
         btnRecusar.classList.add("btn-recusar");
         btnRecusar.innerHTML = '<i class="fa-solid fa-xmark"></i>';
 
-        // Recusar pede confirmação inline
+                                          
         btnRecusar.addEventListener("click", () => {
             abrirConfirmacao(
                 t("confirmarRecusa", item.nomeResponsavel),
@@ -221,9 +221,9 @@ function renderSolicitacoes(lista) {
 }
 
 
-// =========================
-// MODAL DE CONFIRMAÇÃO INLINE
-// =========================
+                            
+                              
+                            
 
 let callbackConfirmacao = null;
 
@@ -246,9 +246,9 @@ document.getElementById("modalBtnConfirmar").addEventListener("click", () => {
 document.getElementById("modalBtnCancelar").addEventListener("click", fecharConfirmacao);
 
 
-// =========================
-// ACEITAR OU RECUSAR SOLICITAÇÃO
-// =========================
+                            
+                                 
+                            
 
 async function responderSolicitacao(vinculoId, acao, itemEl) {
 
@@ -298,9 +298,9 @@ async function responderSolicitacao(vinculoId, acao, itemEl) {
 }
 
 
-// =========================
-// RENDERIZAR ATIVIDADE RECENTE
-// =========================
+                            
+                               
+                            
 
 function renderAtividade(lista) {
 
@@ -344,7 +344,7 @@ function renderAtividade(lista) {
             </button>
         `;
 
-        // Anexa o listener em vez de usar onclick inline (evita injeção via atributo)
+                                                                                      
         li.querySelector(".btn-ver").addEventListener("click", () => {
             marcarVistoEAbrir(item.id, item.responsavelId, item.dataISO);
         });
@@ -355,11 +355,11 @@ function renderAtividade(lista) {
 
 }
 
-// Marca o relatório como visto antes de abrir
-        // Marca o relatório como visto antes de abrir, e leva direto
-    // pra tela do paciente certo (não pra seleção)
-        // Marca o relatório como visto antes de abrir, leva direto pro
-    // paciente certo E já no dia certo do calendário
+                                              
+                                                                     
+                                                   
+                                                                       
+                                                     
 async function marcarVistoEAbrir(relatorioId, responsavelId, dataISO) {
     try {
         await fetch(`/api/relatorios/${relatorioId}/marcar-visto`, { method: "POST" });
@@ -368,22 +368,22 @@ async function marcarVistoEAbrir(relatorioId, responsavelId, dataISO) {
 }
 
 
-// =========================
-// NOTIFICAÇÕES
-// =========================
+                            
+               
+                            
 
 const painelNotificacoes = document.getElementById("painelNotificacoes");
 const listaNotificacoesEl = document.getElementById("listaNotificacoes");
 
-// Delegação de clique: como os itens de notificação são recriados toda
-// vez que a lista é montada, o listener fica no container (que sempre
-// existe) em vez de em cada item individual
+                                                                       
+                                                                      
+                                            
 listaNotificacoesEl.addEventListener("click", (e) => {
     const item = e.target.closest(".item-notificacao[data-tipo='relatorio_finalizado']");
     if (item) window.location.href = "/relatoriosTerapeutaS";
 });
 
-// Ícones diferentes por tipo de notificação
+                                            
 function formatarItemNotificacao(item) {
     const classeExtra = item.lida ? "" : "nao-lida";
     const icones = {
@@ -433,7 +433,7 @@ async function carregarNotificacoes() {
     }
 }
 
-// Carrega só o badge sem abrir o painel (chamado na inicialização)
+                                                                   
 async function carregarBadgeNotificacoes() {
     try {
         const resposta = await fetch("/api/notificacoes");
@@ -466,9 +466,9 @@ document.addEventListener("click", (e) => {
 });
 
 
-// =========================
-// TRADUÇÃO MANUAL
-// =========================
+                            
+                  
+                            
 
 function aplicarIdiomaEstatico() {
     document.querySelectorAll("[data-pt]").forEach(el => {
@@ -485,18 +485,18 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
     idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
     localStorage.setItem("idioma", idiomaAtual);
     aplicarIdiomaEstatico();
-    // Solicitações e atividade são montadas via JS (t()) — recarrega para refletir o novo idioma
+                                                                                                 
     carregarDados();
     if (painelNotificacoes.classList.contains("aberto")) carregarNotificacoes();
 });
 
-// Aplica o idioma salvo ao carregar
+                                    
 aplicarIdiomaEstatico();
 
 
-// =========================
-// TEMA CLARO / ESCURO
-// =========================
+                            
+                      
+                            
 
 function aplicarTema(tema) {
     document.body.classList.remove("tema-claro", "tema-escuro");
@@ -509,16 +509,16 @@ function aplicarTema(tema) {
 document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema("claro"));
 document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
 
-// Um único botão (no menu da conta, mobile) que alterna entre os dois
+                                                                      
 document.getElementById("btnTemaMobile").addEventListener("click", () => {
     const atual = document.body.classList.contains("tema-escuro") ? "escuro" : "claro";
     aplicarTema(atual === "claro" ? "escuro" : "claro");
 });
 
 
-// =========================
-// INICIALIZAÇÃO
-// =========================
+                            
+                
+                            
 
 const temaSalvo = localStorage.getItem("tema") || "claro";
 aplicarTema(temaSalvo);
@@ -526,9 +526,9 @@ aplicarTema(temaSalvo);
 carregarDados();
 carregarBadgeNotificacoes();
 
-// Verifica solicitações novas a cada 15s, sem precisar recarregar a
-// página — atualização "silenciosa" (não reseta a tela em caso de
-// falha passageira de rede)
+                                                                    
+                                                                  
+                            
 setInterval(() => carregarDados(true), 15000);
 
 document.getElementById("btnCodigoCopiar").addEventListener("click", copiarCodigo);

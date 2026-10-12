@@ -1,6 +1,6 @@
-// =========================
-// TRADUÇÃO MANUAL
-// =========================
+                            
+                  
+                            
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
@@ -40,7 +40,7 @@ function aplicarIdiomaEstatico() {
     document.getElementById("textoTradutor").textContent =
         idiomaAtual === "en" ? "Traduzir para o português" : "Traduzir para o inglês";
 
-    // Reaplica textos dinâmicos que dependem do idioma
+                                                       
     document.getElementById("tipoConta").textContent = traduzir(ultimoTipoConta);
 
     const nomePlanoAtual = document.getElementById("nomePlanoAtual");
@@ -59,21 +59,21 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
     }
 });
 
-// Plano selecionado pelo usuário (clique no card)
+                                                  
 let planoSelecionado = null;
 let ultimoTipoConta  = "Responsável";
 
-// Plano REAL do usuário (gratis / medio / completo), usado pra
-// decidir a navegação — sidebar e destino da foto/nome de perfil.
-// Começa em "gratis" até a chamada de carregarUsuario() responder.
+                                                               
+                                                                  
+                                                                   
 let planoCodigoAtual = "gratis";
 let ultimoNomePlanoAtual = "Grátis";
 
-// Aponta o link do perfil (o bloco de conta do menu, montado pelo
-// header.js, e — no desktop — a foto no cantinho da sidebar) pro
-// perfil certo dependendo se o usuário tem plano pago ou não. Sem
-// isso, todo mundo (até assinante) era mandado pro perfil da versão
-// sem assinatura.
+                                                                  
+                                                                 
+                                                                  
+                                                                    
+                  
 function atualizarLinkPerfil() {
     const destino = planoCodigoAtual === "gratis" ? "/perfilSemAssinatura" : "/perfil";
 
@@ -84,34 +84,34 @@ function atualizarLinkPerfil() {
     if (fotoSidebar) fotoSidebar.href = destino;
 }
 
-// Troca o sidebar reduzido (sem assinatura) pelo completo quando o
-// usuário já tem um plano pago — pra não deixar assinante preso
-// navegando só entre Planos/ConfiguraçõesSemAssinatura/Sobre.
-// Também controla as duas versões da barra inferior (mobile) do mesmo jeito.
+                                                                   
+                                                                
+                                                              
+                                                                             
 function atualizarSidebar(planoCodigo) {
     const temPlanoPago = planoCodigo === "medio" || planoCodigo === "completo";
 
     document.getElementById("navComPlano").style.display  = temPlanoPago ? "flex" : "none";
     document.getElementById("navSemPlano").style.display  = temPlanoPago ? "none"  : "flex";
 
-    // Aqui NÃO forçamos "flex" — só limpamos o display (deixando o CSS/media
-    // query decidir se aparece) ou forçamos "none" pra esconder de vez.
-    // Assim a barra continua escondida no desktop e só some/aparece
-    // certo dentro do breakpoint mobile do layout.css.
+                                                                             
+                                                                        
+                                                                    
+                                                       
     document.getElementById("bottomNavComPlano").style.display = temPlanoPago ? "" : "none";
     document.getElementById("bottomNavSemPlano").style.display = temPlanoPago ? "none" : "";
 }
 
-// =========================
-// CARREGAR USUÁRIO
-// =========================
+                            
+                   
+                            
 async function carregarUsuario() {
     try {
-        // 🔧 Antes chamava /api/home, que nunca devolveu o campo
-        // "plano" — por isso o card atual nunca era pré-selecionado.
-        // /api/perfil devolve "plano" (nome bonito) e "planoCodigo"
-        // (gratis/medio/completo), que é o que a gente usa pra
-        // decidir tudo aqui.
+                                                                 
+                                                                     
+                                                                    
+                                                               
+                             
         const resposta = await fetch("/api/perfil");
 
         if (resposta.status === 401) {
@@ -137,16 +137,16 @@ async function carregarUsuario() {
         atualizarSidebar(planoCodigoAtual);
         atualizarLinkPerfil();
 
-        // Mostra o plano atual
+                               
         if (dados.plano) {
             ultimoNomePlanoAtual = dados.plano;
             document.getElementById("nomePlanoAtual").textContent = traduzir(ultimoNomePlanoAtual);
             document.getElementById("planoAtualInfo").style.display = "block";
         }
 
-        // Pré-seleciona o card do plano atual usando planoCodigo
-        // diretamente — nada de comparar nome de exibição (que pode
-        // mudar) com um mapa de string, como era feito antes.
+                                                                 
+                                                                    
+                                                              
         const idsPorCodigo = {
             gratis:   "cardGratis",
             medio:    "cardMedio",
@@ -164,26 +164,26 @@ async function carregarUsuario() {
     }
 }
 
-// =========================
-// SELECIONAR CARD
-// =========================
+                            
+                  
+                            
 function selecionarPlano(plano, card) {
-    // Remove seleção anterior
+                              
     document.querySelectorAll(".card-plano").forEach(c => {
         c.classList.remove("card-plano--selecionado");
     });
 
-    // Marca o card clicado
+                           
     card.classList.add("card-plano--selecionado");
     planoSelecionado = plano;
 
-    // Esconde erro se estava visível
+                                     
     document.getElementById("erroPlano").style.display = "none";
 }
 
-// =========================
-// CONFIRMAR PLANO
-// =========================
+                            
+                  
+                            
 async function confirmarPlano() {
 
     if (!planoSelecionado) {
@@ -216,13 +216,13 @@ async function confirmarPlano() {
             throw new Error(dados.erro || "Erro ao processar.");
         }
 
-        // Grátis → vai direto para a home
+                                          
         if (dados.destino) {
             window.location.href = dados.destino;
             return;
         }
 
-        // Pago → redireciona para o Mercado Pago
+                                                 
         if (dados.linkPagamento) {
             window.location.href = dados.linkPagamento;
             return;
@@ -245,9 +245,9 @@ async function confirmarPlano() {
 
 }
 
-// =========================
-// TEMA
-// =========================
+                            
+       
+                            
 function aplicarTema(tema) {
     document.body.classList.remove("tema-claro", "tema-escuro");
     document.body.classList.add(`tema-${tema}`);
@@ -255,7 +255,7 @@ function aplicarTema(tema) {
     document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
     localStorage.setItem("tema", tema);
 
-    // Ícone do botão de tema no mobile (sol quando claro, lua quando escuro)
+                                                                             
     const iconeMobile = document.querySelector("#btnTemaMobile i");
     if (iconeMobile) {
         iconeMobile.className = tema === "claro" ? "fa-regular fa-sun" : "fa-regular fa-moon";
@@ -270,9 +270,9 @@ document.getElementById("btnTemaMobile").addEventListener("click", () => {
     aplicarTema(temaAtual === "claro" ? "escuro" : "claro");
 });
 
-// =========================
-// NOTIFICAÇÕES (só promoções)
-// =========================
+                            
+                              
+                            
 const painelNotificacoes = document.getElementById("painelNotificacoes");
 const listaNotificacoes  = document.getElementById("listaNotificacoes");
 
@@ -339,9 +339,9 @@ document.addEventListener("click", (e) => {
     }
 });
 
-// =========================
-// FEEDBACK DO RETORNO DO MERCADO PAGO
-// =========================
+                            
+                                      
+                            
 function mostrarFeedbackPagamento() {
     const params = new URLSearchParams(window.location.search);
     const info = params.get("info");
@@ -366,20 +366,20 @@ function mostrarFeedbackPagamento() {
     feedback.style.color = cor;
     feedback.style.display = "block";
 
-    // Remove os parâmetros depois de exibir para não repetir a mensagem ao atualizar.
+                                                                                      
     window.history.replaceState({}, document.title, window.location.pathname);
 }
 
-// =========================
-// INICIALIZAÇÃO
-// =========================
+                            
+                
+                            
 aplicarIdiomaEstatico();
 const temaSalvo = localStorage.getItem("tema") || "claro";
 aplicarTema(temaSalvo);
 carregarUsuario();
 mostrarFeedbackPagamento();
 
-// Substitui os antigos onclick/onerror inline (removidos por causa do CSP)
+                                                                           
 
 document.getElementById("fotoUsuario").addEventListener("error", function () {
     this.src = "/img/perfilPadrao.png";

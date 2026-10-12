@@ -1,49 +1,49 @@
-// ==========================================================
-// header.js
-// Monta o cabeçalho ÚNICO do app dentro de <header id="topoApp">
-// (usado no mobile) e, se existir, também dentro de
-// <div id="sidebarUsuario"> na sidebar (usado no desktop).
-//
-//   Esquerda/foto : leva direto pro perfil com 1 clique
-//                   (não abre mais menu nenhum sozinha)
-//   Menu da conta : agora só abre no mobile — tradução, alternar
-//                   tema e sair (perfil deixou de ser um item à
-//                   parte, o bloco de nome/cargo já é o link)
-//   Sininho       : abre o painel de notificações de sempre
-//
-// Como usar na página (antes do JS da própria página):
-//
-//   <link rel="stylesheet" href="/css/header.css">
-//   <header class="topo" id="topoApp"
-//           data-perfil="/perfilSemAssinatura"
-//           data-notif-pt="Promoções" data-notif-en="Promotions"></header>
-//   ...
-//   <script src="/js/header.js"></script>
-//   <script src="/js/MinhaPagina.js"></script>
-//
-// Pra também mostrar o bloco reduzido (foto+nome+sino) na sidebar
-// no desktop, basta colocar em qualquer lugar dentro da <aside
-// class="sidebar">:
-//
-//   <div class="sidebar-usuario" id="sidebarUsuario"></div>
-//
-// e marcar `<body class="layout-sidebar-perfil">` na página — essa
-// classe é o que faz o CSS esconder a barra "topo" a partir de
-// 769px (ver layout.css). Sem essa <div>, a página continua
-// exatamente como era (só a .topo, sem nada na sidebar).
-//
-// Atributos opcionais no <header>:
-//   data-perfil       → URL da tela de perfil
-//   data-pagina       → "perfil" marca o bloco de conta como página atual
-//   data-notif-pt/en  → título do painel de notificações
-//
-// Os IDs abaixo são os MESMOS que os JS das páginas já usam
-// (fotoUsuario, nomeUsuario, tipoConta, btnTraduzir, textoTradutor,
-//  btnTemaMobile, btnNotificacoes, quantidadeNotificacoes,
-//  painelNotificacoes, listaNotificacoes), então a lógica de
-// tradução, tema e notificações de cada página continua funcionando
-// sem precisar mudar nada nos outros arquivos .js.
-// ==========================================================
+                                                             
+            
+                                                                 
+                                                    
+                                                           
+  
+                                                        
+                                                        
+                                                                 
+                                                                
+                                                              
+                                                            
+  
+                                                       
+  
+                                                   
+                                      
+                                               
+                                                                           
+        
+                                          
+                                               
+  
+                                                                  
+                                                               
+                    
+  
+                                                            
+  
+                                                                   
+                                                               
+                                                            
+                                                         
+  
+                                   
+                                              
+                                                                          
+                                                         
+  
+                                                            
+                                                                    
+                                                           
+                                                             
+                                                                    
+                                                   
+                                                             
 (function () {
 
     const topo = document.getElementById("topoApp");
@@ -54,35 +54,35 @@
     const notifPt     = topo.dataset.notifPt || "Notificações";
     const notifEn     = topo.dataset.notifEn || "Notifications";
 
-    // IDs configuráveis — algumas páginas (as do terapeuta) usam
-    // nomes de id diferentes dos padrões (ex.: "nomeTerapeuta" em vez
-    // de "nomeUsuario", "badgeNotificacoes" em vez de
-    // "quantidadeNotificacoes"), então o próprio JS de cada página
-    // continua funcionando sem precisar ser reescrito.
+                                                                 
+                                                                      
+                                                      
+                                                                   
+                                                       
     const idBadge = topo.dataset.badgeId || "quantidadeNotificacoes";
     const idNome  = topo.dataset.nomeId  || "nomeUsuario";
 
-    // Conta cujo tipo é sempre o mesmo (não vem da API) — ex.: as
-    // telas do terapeuta, que nunca chamam algo como
-    // `tipoConta.textContent = dados.tipoConta`.
+                                                                  
+                                                     
+                                                 
     const tipoContaPt = topo.dataset.tipoPt || "";
     const tipoContaEn = topo.dataset.tipoEn || "";
 
-    // Chip do "código do terapeuta" (pra compartilhar com o
-    // responsável) dentro do menu da conta:
-    //   "padrao" → ids btnCodigoCopiar / codigoTerapeuta
-    //   "header" → ids btnCodigoCopiarHeader / codigoTerapeutaHeader / iconeCopiarHeader
-    //              (usado só no PerfilTerapeuta, que já tem outro
-    //              código igual dentro do corpo da página)
+                                                            
+                                            
+                                                         
+                                                                                         
+                                                                  
+                                                           
     const codigo = topo.dataset.codigo || "";
 
     const ehPerfil = paginaAtual === "perfil";
     const ehResponsavelAssinante = urlPerfil === "/perfil";
 
-    // Removido o item separado "Meu perfil": agora é o próprio bloco
-    // com foto+nome (menu-perfil__conta, virou um <a>) que leva pro
-    // perfil com um clique só — em vez de abrir o menu e ainda ter
-    // que clicar em "Meu perfil" depois.
+                                                                     
+                                                                    
+                                                                   
+                                         
     topo.innerHTML = `
         <div class="topo-perfil">
 
@@ -159,9 +159,9 @@
         </div>
     `;
 
-    // Bolinha vermelha do sininho: só aparece quando há notificação.
-    // Some quando o contador é 0 ou vazio (vale pra todas as telas,
-    // porque as páginas só mudam o texto do badge).
+                                                                     
+                                                                    
+                                                    
     const badgeTopo = document.getElementById(idBadge);
     function atualizarBadgeTopo() {
         const qtd = parseInt(badgeTopo.textContent, 10);
@@ -170,38 +170,38 @@
     atualizarBadgeTopo();
     new MutationObserver(atualizarBadgeTopo).observe(badgeTopo, { childList: true, characterData: true, subtree: true });
 
-    // Já está na tela de perfil: o bloco só fecha o menu, sem recarregar.
+                                                                          
     if (ehPerfil) {
         document.getElementById("itemMeuPerfil").addEventListener("click", (e) => e.preventDefault());
         document.getElementById("itemMeuPerfilMobile").addEventListener("click", (e) => e.preventDefault());
     }
 
-    // ==========================================================
-    // BLOCO DO USUÁRIO NA SIDEBAR (só desktop)
-    //
-    // Em páginas com <div id="sidebarUsuario"> dentro da <aside
-    // class="sidebar">, montamos ali uma versão reduzida — que
-    // substitui visualmente a barra "topo" no desktop (o CSS
-    // esconde a .topo a partir de 769px nas páginas marcadas com a
-    // classe "layout-sidebar-perfil" no <body>). No mobile a barra
-    // "topo" de sempre continua 100% igual, sem nenhuma mudança.
-    //
-    //   Foto            → link direto pro perfil (1 clique só)
-    //   Nome/cargo      → abre um modal com código do terapeuta
-    //                     (se a página tiver), Traduzir, Alternar
-    //                     tema e Sair — os mesmos itens que hoje
-    //                     ficam soltos no corpo da sidebar (por
-    //                     isso eles somem de lá no desktop, ver
-    //                     layout.css)
-    //   Sino            → mesmo painel de notificações de sempre,
-    //                     só que abrindo nesse mesmo cantinho
-    //
-    // Nenhum dos botões daqui duplica lógica: cada um só repassa o
-    // clique (.click()) pro elemento original escondido dentro da
-    // .topo, que continua sendo quem de fato busca dados/traduz/
-    // troca tema/sai — e o texto/foto/contador são só espelhados
-    // (MutationObserver) pros elementos novos daqui.
-    // ==========================================================
+                                                                 
+                                               
+      
+                                                                
+                                                               
+                                                             
+                                                                   
+                                                                   
+                                                                 
+      
+                                                               
+                                                                
+                                                                  
+                                                                 
+                                                                
+                                                                
+                                      
+                                                                  
+                                                              
+      
+                                                                   
+                                                                  
+                                                                 
+                                                                 
+                                                     
+                                                                 
     const sidebarUsuario = document.getElementById("sidebarUsuario");
 
     if (sidebarUsuario) {
@@ -247,7 +247,7 @@
             </div>
         `;
 
-        // ---------- espelhar foto / nome / cargo / contador ----------
+                                                                        
 
         function espelhar(origem, destino, tipo) {
             if (!origem || !destino) return;
@@ -295,7 +295,7 @@
             });
         }
 
-        // ---------- repassar cliques pros elementos originais ----------
+                                                                          
 
         function repassar(idNovo, idOriginal) {
             const el = document.getElementById(idNovo);
@@ -312,7 +312,7 @@
             repassar("btnCodigoCopiarSidebar", codigo === "header" ? "btnCodigoCopiarHeader" : "btnCodigoCopiar");
         }
 
-        // ---------- abrir/fechar o modal deste cantinho ----------
+                                                                    
 
         const btnMenuSidebar = document.getElementById("btnMenuPerfilSidebar");
         const menuSidebar    = document.getElementById("menuPerfilSidebar");
@@ -320,9 +320,9 @@
         function abrirMenuSidebar() {
             document.getElementById("painelNotificacoes")?.classList.remove("aberto");
 
-            // A sidebar tem scroll (overflow-y: auto), então um modal
-            // "absolute" ficava cortado por ela. Agora ele é "fixed" e a
-            // posição é calculada na hora de abrir, com base na tela.
+                                                                      
+                                                                         
+                                                                      
             const rect = sidebarUsuario.getBoundingClientRect();
             menuSidebar.style.left = `${rect.left}px`;
             menuSidebar.style.bottom = `${window.innerHeight - rect.top + 10}px`;
@@ -354,15 +354,15 @@
             }
         });
 
-        // O sininho da sidebar fecha esse modal ao abrir, e vice-versa
-        // (o clique real de abrir o painel é repassado pro original
-        // acima; aqui só garante que os dois não ficam abertos juntos).
+                                                                       
+                                                                    
+                                                                        
         document.getElementById("btnNotificacoesSidebar").addEventListener("click", () => {
             fecharMenuSidebar();
 
-            // Mesmo problema do menu do nome: a sidebar tem scroll,
-            // então o painel "absolute" ficava cortado. Agora ele é
-            // "fixed" e a posição é calculada com base na tela.
+                                                                    
+                                                                    
+                                                                
             const painel = document.getElementById("painelNotificacoes");
             if (painel) {
                 const rect = sidebarUsuario.getBoundingClientRect();
@@ -371,11 +371,11 @@
             }
         });
 
-        // O painel de notificações é UM SÓ elemento (#painelNotificacoes),
-        // reaproveitado nos dois lugares — mas como ele é filho da .topo
-        // (que some no desktop) ou do cantinho da sidebar (que some no
-        // mobile), ele precisa fisicamente "morar" no lugar certo pra
-        // não ficar escondido atrás de um pai com display:none.
+                                                                           
+                                                                         
+                                                                       
+                                                                      
+                                                                
         const wrapperNotifTopo = document.querySelector(".notificacoes-wrapper");
         const painelNotif = document.getElementById("painelNotificacoes");
 
@@ -394,13 +394,13 @@
         });
     }
 
-    // ==========================================================
-    // ASSISTENTE BIXUCO — JANELA CENTRAL
-    // ==========================================================
+                                                                 
+                                         
+                                                                 
     if (ehResponsavelAssinante) {
-        // Na Home, o acesso fica ao lado do mascote, sem ocupar a sidebar.
-        // Nas demais páginas, um atalho discreto preserva acesso no desktop.
-        // No celular o ícone do cabeçalho continua disponível.
+                                                                           
+                                                                             
+                                                               
         const saudacaoHome = document.querySelector(".saudacao");
         const mascoteHome = saudacaoHome?.querySelector(":scope > img");
         if (saudacaoHome && mascoteHome) {
@@ -563,8 +563,8 @@
             );
         }
 
-        // Distingue HTTP, sessão expirada, servidor fora do ar e JSON inválido.
-        // Evita mostrar a mesma mensagem genérica para causas diferentes.
+                                                                                
+                                                                          
         async function lerRespostaAssistente(resposta) {
             const tipo = resposta.headers?.get?.("content-type") || "";
             const pareceJson = tipo.includes("json") || !tipo;
@@ -643,7 +643,7 @@
 
         function abrirAssistente() {
             if (painel.classList.contains("aberto")) return;
-            // Abriu por URL? Ainda assim devolvemos foco a um atalho visível ao fechar.
+                                                                                        
             if (!ultimoBotaoAbrir) {
                 ultimoBotaoAbrir = botoesAbrir.find(btn => btn.getClientRects().length) || null;
             }
@@ -694,7 +694,7 @@
                 mostrarBoasVindasAssistente();
             } catch (erro) {
                 console.warn("Falha ao iniciar nova conversa:", erro);
-                // Evita empilhar a mesma falha se a pessoa clicar várias vezes.
+                                                                                
                 ultimoAvisoLimpeza?.remove();
                 ultimoAvisoLimpeza = adicionarBolhaAssistente("assistant", mensagemFalhaConexaoAssistente(erro), "erro");
             }
@@ -730,14 +730,14 @@
                 const dados = await lerRespostaAssistente(resposta);
                 pensando.remove();
                 adicionarBolhaAssistente("assistant", dados.mensagem || tAssistente("O servidor não enviou uma resposta.", "The server didn't send an answer."));
-                // O servidor sempre é a fonte de verdade do histórico.
+                                                                       
                 historicoCarregado = true;
             } catch (erro) {
                 pensando.remove();
                 console.warn("Falha ao enviar mensagem do assistente:", erro);
                 adicionarBolhaAssistente("assistant", mensagemFalhaConexaoAssistente(erro), "erro");
-                // Em caso de falha, reconsultar o histórico ao reabrir.
-                // A pergunta pode ter sido salva mesmo quando a rede falhou.
+                                                                        
+                                                                             
                 historicoCarregado = false;
             } finally {
                 enviando = false;
@@ -775,7 +775,7 @@
                 fecharAssistente();
                 return;
             }
-            // O foco permanece dentro do modal enquanto ele estiver aberto.
+                                                                            
             if (e.key !== "Tab") return;
             const focaveis = [...painel.querySelectorAll("button:not(:disabled), textarea:not(:disabled)")]
                 .filter(el => el.getClientRects().length > 0);
@@ -806,15 +806,15 @@
         }
     }
 
-    // ==========================
-    // ABRIR / FECHAR O MENU
-    // ==========================
+                                 
+                            
+                                 
 
     const btnMenu = document.getElementById("btnMenuPerfil");
     const menu    = document.getElementById("menuPerfil");
 
     function abrirMenu() {
-        // não deixa o painel de notificações aberto ao mesmo tempo
+                                                                   
         const painel = document.getElementById("painelNotificacoes");
         if (painel) painel.classList.remove("aberto");
 
@@ -831,14 +831,14 @@
         menu.classList.contains("aberto") ? fecharMenu() : abrirMenu();
     });
 
-    // Escolheu um item → fecha o menu (o clique do item continua
-    // funcionando normalmente, porque este listener está no pai)
+                                                                 
+                                                                 
     menu.addEventListener("click", (e) => {
         if (e.target.closest(".menu-perfil__item")) fecharMenu();
     });
 
-    // Clique fora fecha. Fase de captura, porque o sininho usa
-    // stopPropagation() e o clique nele nunca chegaria no document.
+                                                               
+                                                                    
     document.addEventListener("click", (e) => {
         if (!menu.classList.contains("aberto")) return;
         if (menu.contains(e.target) || btnMenu.contains(e.target)) return;

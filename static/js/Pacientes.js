@@ -9,9 +9,9 @@ let todosPacientes = [];
 let filtroAtual    = "todos";
 
 
-// =========================
-// TRADUÇÃO MANUAL — dicionário para textos montados via JS
-// =========================
+                            
+                                                           
+                            
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
@@ -107,9 +107,9 @@ function traduzirUltimoRelatorio(valor) {
 }
 
 
-// =========================
-// CARREGAR USUÁRIO (topo)
-// =========================
+                            
+                          
+                            
 async function carregarUsuario() {
     try {
         const resposta = await fetch("/api/home-terapeuta");
@@ -151,9 +151,9 @@ function copiarCodigo() {
 
 document.getElementById("btnCodigoCopiar").addEventListener("click", copiarCodigo);
 
-// =========================
-// CARREGAR PACIENTES
-// =========================
+                            
+                     
+                            
 async function carregarPacientes() {
     try {
         const resposta = await fetch("/api/pacientes");
@@ -169,11 +169,11 @@ async function carregarPacientes() {
 
         todosPacientes = dados.pacientes || [];
 
-        // Contadores e renderização vêm só de aplicarFiltros() agora —
-        // evita ter duas fontes de verdade calculando "alertas" com
-        // critérios diferentes (era isso que fazia o Arthur, com só
-        // 1 alerta, contar na aba "Alertas" mesmo sem aparecer em
-        // "Requer atenção")
+                                                                       
+                                                                    
+                                                                    
+                                                                  
+                            
         aplicarFiltros();
 
     } catch (erro) {
@@ -186,9 +186,9 @@ async function carregarPacientes() {
 }
 
 
-// =========================
-// RENDERIZAR CARDS
-// =========================
+                            
+                   
+                            
 function renderPacientes(lista) {
     const listaAtencao  = document.getElementById("listaAtencao");
     const listaRegular  = document.getElementById("listaRegular");
@@ -293,9 +293,9 @@ function criarCard(paciente, temAlerta) {
 }
 
 
-// =========================
-// FILTRAR POR ABA
-// =========================
+                            
+                  
+                            
 function trocarAba(botao) {
     document.querySelectorAll(".aba").forEach(b => b.classList.remove("aba--ativa"));
     botao.classList.add("aba--ativa");
@@ -319,8 +319,8 @@ function aplicarFiltros() {
         );
     }
 
-    // Mesma régua visual do sistema:
-    // 0–1 = baixa atividade; 2–4 = atenção; 5+ = atividade elevada.
+                                     
+                                                                    
     const ativosNaBusca  = lista.filter(p => p.status === "ativo");
     const alertasNaBusca = lista.filter(p => p.alertas >= 2);
 
@@ -336,9 +336,9 @@ function aplicarFiltros() {
 
     renderPacientes(lista);
 }
-// =========================
-// NOTIFICAÇÕES
-// =========================
+                            
+               
+                            
 const painelNotificacoes = document.getElementById("painelNotificacoes");
 const listaNotificacoes  = document.getElementById("listaNotificacoes");
 
@@ -379,9 +379,9 @@ document.addEventListener("click", (e) => {
 });
 
 
-// =========================
-// TRADUÇÃO MANUAL — texto estático (data-pt/data-en) + placeholder da busca
-// =========================
+                            
+                                                                            
+                            
 
 function aplicarIdiomaEstatico() {
     document.querySelectorAll("[data-pt]").forEach(el => {
@@ -407,7 +407,7 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 
     aplicarIdiomaEstatico();
 
-    // Reaplica os cards (texto montado via JS) e o painel de notificações, se aberto
+                                                                                     
     aplicarFiltros();
     if (painelNotificacoes.classList.contains("aberto")) {
         carregarNotificacoes();
@@ -415,9 +415,9 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 });
 
 
-// =========================
-// TEMA
-// =========================
+                            
+       
+                            
 function aplicarTema(tema) {
     document.body.classList.remove("tema-claro", "tema-escuro");
     document.body.classList.add(`tema-${tema}`);
@@ -429,25 +429,25 @@ function aplicarTema(tema) {
 document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema("claro"));
 document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
 
-// Um único botão (no menu da conta, mobile) que alterna entre os dois
+                                                                      
 document.getElementById("btnTemaMobile").addEventListener("click", () => {
     const atual = document.body.classList.contains("tema-escuro") ? "escuro" : "claro";
     aplicarTema(atual === "claro" ? "escuro" : "claro");
 });
 
 
-// =========================
-// INICIALIZAÇÃO
-// =========================
+                            
+                
+                            
 const temaSalvo = localStorage.getItem("tema") || "claro";
 aplicarTema(temaSalvo);
 aplicarIdiomaEstatico();
 carregarUsuario();
 carregarPacientes();
 
-// Mantém o status Ativo/Offline atualizado mesmo se o terapeuta
-// deixar a tela de Pacientes aberta. A presença no backend usa
-// janela de 5 minutos; aqui atualizamos a visualização a cada minuto.
+                                                                
+                                                               
+                                                                      
 setInterval(carregarPacientes, 60 * 1000);
 
 document.getElementById("inputBusca").addEventListener("input", filtrarPacientes);

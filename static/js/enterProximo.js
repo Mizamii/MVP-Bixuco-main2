@@ -1,5 +1,5 @@
-// Enter avança para o próximo campo do formulário.
-// No último campo, aciona o botão principal (Entrar / Continuar / Enviar).
+                                                   
+                                                                           
 document.addEventListener("keydown", function (e) {
 
     if (e.key !== "Enter" || e.isComposing || e.shiftKey || e.ctrlKey || e.altKey || e.metaKey) return;
@@ -18,7 +18,7 @@ document.addEventListener("keydown", function (e) {
 
     e.preventDefault();
 
-    // Campos que podem receber foco (visíveis, habilitados)
+                                                            
     const campos = Array.from(form.querySelectorAll("input, select, textarea")).filter(function (el) {
         return !el.disabled
             && !el.readOnly
@@ -33,7 +33,7 @@ document.addEventListener("keydown", function (e) {
         return;
     }
 
-    // Último campo: clica no botão principal, se ele não estiver desabilitado
+                                                                              
     const botao = form.querySelector('button[type="submit"], input[type="submit"]');
 
     if (botao && !botao.disabled) {

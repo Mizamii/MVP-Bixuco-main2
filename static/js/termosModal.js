@@ -1,9 +1,9 @@
-// ==========================
-// MODAL COMPARTILHADO — TERMOS DE USO / POLÍTICA DE PRIVACIDADE
-// Usado nas telas CriarContaG, CriarContaP e CriarContaSenha.
-// Cria o modal dinamicamente e liga nos botões #btnAbrirTermos
-// e #btnAbrirPrivacidade, se existirem na página.
-// ==========================
+                             
+                                                                
+                                                              
+                                                               
+                                                  
+                             
 
 
 const textoTermos = {

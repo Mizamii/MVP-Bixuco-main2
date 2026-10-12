@@ -1,12 +1,12 @@
-/* =========================================================
-   RELATÓRIO DIÁRIO
-   ========================================================= */
+                                                            
+                   
+                                                               
 
-/*
-   O layout.css e o home.css trabalham com uma página de 100vh.
-   Nesta tela, quem deve fazer o scroll no desktop é .conteudo.
-   No mobile, a página volta ao scroll normal do body.
-*/
+  
+                                                               
+                                                               
+                                                      
+  
 
 body.layout-sidebar-perfil .container {
   height: 100vh;
@@ -30,19 +30,19 @@ body.layout-sidebar-perfil .container {
   -webkit-overflow-scrolling: touch;
 }
 
-/*
-   Muito importante:
-   impede o Flexbox de "esmagar" os elementos da página
-   quando formulário/chat deixam o conteúdo maior que a tela.
-*/
+  
+                    
+                                                       
+                                                             
+  
 .conteudo > * {
   flex-shrink: 0;
 }
 
 
-/* =========================================================
-   CABEÇALHO
-   ========================================================= */
+                                                            
+            
+                                                               
 
 .cabecalho-relatorio {
   display: flex;
@@ -76,20 +76,20 @@ body.layout-sidebar-perfil .container {
 }
 
 
-/* =========================================================
-   GRÁFICOS (Força / Status ativo)
-   Mesmo recuo lateral dos outros blocos da página (2rem),
-   para os cards não encostarem nas bordas da tela.
-   ========================================================= */
+                                                            
+                                  
+                                                          
+                                                   
+                                                               
 
 .linha-graficos {
   margin: 0 2rem 1.1rem;
 }
 
 
-/* =========================================================
-   MENSAGENS DE STATUS
-   ========================================================= */
+                                                            
+                      
+                                                               
 
 .mensagem-status {
   display: none;
@@ -132,9 +132,9 @@ body.layout-sidebar-perfil .container {
 }
 
 
-/* =========================================================
-   CARD DO QUESTIONÁRIO TRADICIONAL
-   ========================================================= */
+                                                            
+                                   
+                                                               
 
 .card-questionario {
   flex-shrink: 0;
@@ -176,9 +176,9 @@ body.layout-sidebar-perfil .container {
 }
 
 
-/* =========================================================
-   BARRA DE PROGRESSO
-   ========================================================= */
+                                                            
+                     
+                                                               
 
 .barra-progresso {
   display: flex;
@@ -266,9 +266,9 @@ body.layout-sidebar-perfil .container {
 }
 
 
-/* =========================================================
-   PERGUNTAS
-   ========================================================= */
+                                                            
+            
+                                                               
 
 #textoPergunta {
   margin-bottom: 1.4rem;
@@ -355,9 +355,9 @@ body.layout-sidebar-perfil .container {
 }
 
 
-/* =========================================================
-   BOTÕES DO FORMULÁRIO
-   ========================================================= */
+                                                            
+                       
+                                                               
 
 .botoes-relatorio {
   display: flex;
@@ -444,9 +444,9 @@ body.tema-escuro #btnProxima {
 }
 
 
-/* =========================================================
-   ESCOLHA DO MODO
-   ========================================================= */
+                                                            
+                  
+                                                               
 
 .escolha-modo-relatorio {
   flex-shrink: 0;
@@ -578,9 +578,9 @@ body.tema-escuro #btnProxima {
 }
 
 
-/* =========================================================
-   CHAT DO RELATÓRIO
-   ========================================================= */
+                                                            
+                    
+                                                               
 
 .oculto-chat {
   display: none !important;
@@ -602,10 +602,10 @@ body.tema-escuro #btnProxima {
 
   box-shadow: var(--sombra-card);
 
-  /*
-     Não cria um segundo scroll dentro do card.
-     A rolagem pertence à página (.conteudo).
-  */
+    
+                                               
+                                             
+    
   overflow: visible;
 }
 
@@ -686,16 +686,16 @@ body.tema-escuro #btnProxima {
 }
 
 
-/* =========================================================
-   MENSAGENS DO CHAT
-   ========================================================= */
+                                                            
+                    
+                                                               
 
 .chat-mensagens {
-  /*
-     Sem altura fixa e sem overflow próprio.
-     Conforme a conversa cresce, o card cresce e
-     .conteudo continua podendo rolar normalmente.
-  */
+    
+                                            
+                                                
+                                                  
+    
   width: 100%;
 
   min-height: 260px;
@@ -776,9 +776,9 @@ body.tema-escuro #btnProxima {
 }
 
 
-/* =========================================================
-   CAMPO DE MENSAGEM
-   ========================================================= */
+                                                            
+                    
+                                                               
 
 .chat-formulario {
   flex-shrink: 0;
@@ -866,9 +866,9 @@ body.tema-escuro #btnProxima {
 }
 
 
-/* =========================================================
-   AVISO DO CHAT
-   ========================================================= */
+                                                            
+                
+                                                               
 
 .chat-aviso {
   flex-shrink: 0;
@@ -886,9 +886,9 @@ body.tema-escuro #btnProxima {
 }
 
 
-/* =========================================================
-   FINALIZAÇÃO DO CHAT
-   ========================================================= */
+                                                            
+                      
+                                                               
 
 .chat-finalizacao {
   flex-shrink: 0;
@@ -965,16 +965,16 @@ body.tema-escuro #btnProxima {
 }
 
 
-/* =========================================================
-   MOBILE
-   ========================================================= */
+                                                            
+         
+                                                               
 
 @media (max-width: 768px) {
 
-  /*
-     No celular o layout deixa de ficar preso em 100vh.
-     O scroll volta a pertencer à página.
-  */
+    
+                                                       
+                                         
+    
   html,
   body {
     height: auto !important;
@@ -1061,9 +1061,9 @@ body.tema-escuro #btnProxima {
   }
 
 
-  /* ==========================
-     MODO MOBILE
-  ========================== */
+                               
+                
+                               
 
   .escolha-modo-relatorio {
     margin: 0 1.25rem 1rem;
@@ -1079,9 +1079,9 @@ body.tema-escuro #btnProxima {
   }
 
 
-  /* ==========================
-     CHAT MOBILE
-  ========================== */
+                               
+                
+                               
 
   .card-chat-relatorio {
     width: auto;
@@ -1142,7 +1142,7 @@ body.tema-escuro #btnProxima {
 }
 
 
-/* Gráficos: recuo lateral no celular (igual aos outros blocos) */
+                                                                  
 @media (max-width: 768px) {
   .linha-graficos {
     margin: 0 1.25rem 0.9rem;

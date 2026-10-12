@@ -1,5 +1,5 @@
 
-// botões voltar e avançar
+                          
 
 function voltar(){
 
@@ -13,7 +13,7 @@ function proximo(){
 
 }
 
-// arrastar para o lado celular e pc
+                                    
 
 let inicioX = 0;
 let fimX = 0;
@@ -23,14 +23,14 @@ function verificarSwipe(){
 
     const distancia = fimX - inicioX;
 
-    // voltou para a tela 1
+                           
     if(distancia > 80){
 
         window.location.href = "/Transicao1";
 
     }
 
-    // foi para a tela 3
+                        
     if(distancia < -80){
 
         window.location.href = "/Transicao3";
@@ -39,7 +39,7 @@ function verificarSwipe(){
 
 }
 
-//celular
+         
 
 document.addEventListener("touchstart",(e)=>{
 
@@ -59,7 +59,7 @@ document.addEventListener("touchend",()=>{
 
 });
 
-// pc
+     
 
 document.addEventListener("mousedown",(e)=>{
 
@@ -86,7 +86,7 @@ document.addEventListener("mouseup",()=>{
 
 });
 
-// caso solte o mouse fora da janela
+                                    
 document.addEventListener("mouseleave",()=>{
 
     arrastando = false;
@@ -94,9 +94,9 @@ document.addEventListener("mouseleave",()=>{
 });
 
 
-// ==========================
-// ANIMAÇÃO DO INDICADOR
-// ==========================
+                             
+                        
+                             
 
 (function animarIndicador(){
 
@@ -106,8 +106,8 @@ document.addEventListener("mouseleave",()=>{
 
     if (!isNaN(indexAnterior) && indexAnterior !== indexAtual) {
 
-        const larguraDot = 6;   // tamanho do ponto inativo, em px
-        const gap        = 6.4; // gap entre eles (0.4rem ≈ 6.4px)
+        const larguraDot = 6;                                     
+        const gap        = 6.4;                                   
 
         const deslocamento = (indexAnterior - indexAtual) * (larguraDot + gap);
 

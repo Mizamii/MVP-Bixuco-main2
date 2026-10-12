@@ -2,16 +2,16 @@ document.getElementById("fotoUsuario").addEventListener("error", function () {
     this.src = "/img/perfilPadrao.png";
 });
 
-// ==========================
-// IDIOMA
-// ==========================
+                             
+         
+                             
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 let ultimoTipoContaSobre = "Responsável";
 
-// ==========================
-// CARREGA DADOS DO USUÁRIO
-// ==========================
+                             
+                           
+                             
 
 async function carregarUsuario() {
 
@@ -56,9 +56,9 @@ async function carregarUsuario() {
 carregarUsuario();
 
 
-// ==========================
-// CONTEÚDO DOS CARDS (PT/EN)
-// ==========================
+                             
+                             
+                             
 
 const conteudo = {
 
@@ -711,7 +711,7 @@ const conteudo = {
 
 };
 
-// Frase final (contém tags <strong>, por isso fica fora dos data-pt/data-en)
+                                                                             
 const fraseFinal = {
     pt: `
         Mais do que tecnologia, entregamos
@@ -730,9 +730,9 @@ const fraseFinal = {
 };
 
 
-// ==========================
-// APLICAR IDIOMA
-// ==========================
+                             
+                 
+                             
 
 function aplicarIdiomaEstatico() {
 
@@ -766,7 +766,7 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 
     aplicarIdiomaEstatico();
 
-    // Se o modal estiver aberto, atualiza o conteúdo dele também
+                                                                 
     if (modal.classList.contains("mostrar") && topicoAtual) {
         abrirModal(topicoAtual, false);
     }
@@ -778,9 +778,9 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 });
 
 
-// ==========================
-// MODAL
-// ==========================
+                             
+        
+                             
 
 const modal    = document.getElementById("modal");
 const titulo   = document.getElementById("tituloModal");
@@ -790,8 +790,8 @@ const fechar   = document.getElementById("fecharModal");
 
 let topicoAtual = null;
 
-// Abre o modal com o conteúdo do card clicado
-// resetarFoco = false quando é só uma re-renderização por troca de idioma
+                                              
+                                                                          
 function abrirModal(id, resetarFoco = true) {
 
     const item = conteudo[id];
@@ -800,23 +800,23 @@ function abrirModal(id, resetarFoco = true) {
 
     topicoAtual = id;
 
-    // Preenche o ícone, título e texto do modal
+                                                
     iconModal.innerHTML = `<i class="${item.icone}"></i>`;
     titulo.textContent  = idiomaAtual === "en" ? item.titulo.en : item.titulo.pt;
     texto.innerHTML     = idiomaAtual === "en" ? item.texto.en : item.texto.pt;
 
     if (resetarFoco) {
-        // Mostra o modal e trava o scroll da página
+                                                    
         modal.classList.add("mostrar");
         document.body.style.overflow = "hidden";
 
-        // Coloca o foco no botão de fechar para acessibilidade
+                                                               
         fechar.focus();
     }
 
 }
 
-// Fecha o modal e devolve o scroll
+                                   
 function fecharModal() {
 
     modal.classList.remove("mostrar");
@@ -825,7 +825,7 @@ function fecharModal() {
 
 }
 
-// Cada card abre o modal com seu tópico
+                                        
 document.querySelectorAll(".card").forEach(card => {
 
     card.addEventListener("click", () => {
@@ -834,15 +834,15 @@ document.querySelectorAll(".card").forEach(card => {
 
 });
 
-// Botão X fecha o modal
+                        
 fechar.addEventListener("click", fecharModal);
 
-// Clique fora do modal NÃO fecha — só o botão X (pedido do usuário)
+                                                                    
 
 
-// ==========================
-// NOTIFICAÇÕES
-// ==========================
+                             
+               
+                             
 
 const painelNotificacoes = document.getElementById("painelNotificacoes");
 const listaNotificacoes  = document.getElementById("listaNotificacoes");
@@ -913,12 +913,12 @@ document.addEventListener("click", (e) => {
     }
 });
 
-// Tecla Escape não fecha o modal — só o botão X (pedido do usuário)
+                                                                    
 
 
-// ==========================
-// INICIALIZAÇÃO
-// ==========================
+                             
+                
+                             
 
 aplicarIdiomaEstatico();
 carregarNotificacoes();

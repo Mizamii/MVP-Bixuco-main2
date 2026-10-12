@@ -4,19 +4,19 @@ function escaparHTML(texto) {
     return div.innerHTML;
 }
 
-// ==========================
-// ESTADO GLOBAL
-// ==========================
+                             
+                
+                             
 
 let criancaAtual = null;
 let perfilCarregado = false;
 let ultimoUsuario = null;
 let ultimoVinculo = null;
-let planoCodigo = "gratis"; // valor padrão até /api/perfil responder
+let planoCodigo = "gratis";                                          
 
-// ==========================
-// CARREGAR DADOS DO PERFIL
-// ==========================
+                             
+                           
+                             
 
 async function carregarPerfil() {
 
@@ -52,9 +52,9 @@ async function carregarPerfil() {
 
 function preencherPerfil(usuario) {
 
-    // planoCodigo é o valor "cru" (gratis / medio / completo) usado
-    // pra decidir o que mostrar no card do terapeuta — "plano" é
-    // só o nome bonito pra exibir na tela.
+                                                                    
+                                                                 
+                                           
     planoCodigo = usuario.planoCodigo || "gratis";
 
     const nome     = usuario.nome     || traduzir("Usuário");
@@ -122,17 +122,14 @@ function preencherPerfil(usuario) {
 
     }
 
-    // Terapeuta é tratado à parte por carregarVinculo(),
-    // que decide entre os 5 estados (sem vínculo / pendente /
-    // recusado / aceito / bloqueado por plano) usando planoCodigo
-    // já preenchido aqui em cima.
+
 
 }
 
 
-// ==========================
-// FOTO DE PERFIL
-// ==========================
+                             
+                 
+                             
 
 const perfilFotoWrapper = document.getElementById("perfilFotoWrapper");
 const inputFotoPerfil   = document.getElementById("inputFotoPerfil");
@@ -223,9 +220,9 @@ btnSalvarFoto.addEventListener("click", async () => {
 });
 
 
-// ==========================
-// EDITAR NOME
-// ==========================
+                             
+              
+                             
 
 const perfilNomeLinha  = document.getElementById("perfilNomeLinha");
 const perfilNomeEditar = document.getElementById("perfilNomeEditar");
@@ -320,9 +317,9 @@ inputNome.addEventListener("keydown", (e) => {
 });
 
 
-// ==========================
-// MODAL DA CRIANÇA
-// ==========================
+                             
+                   
+                             
 
 const linkCrianca         = document.getElementById("linkCrianca");
 const modalCrianca        = document.getElementById("modalCrianca");
@@ -338,9 +335,9 @@ const statusCrianca       = document.getElementById("statusCrianca");
 let fotoCriancaOriginal = null;
 let arquivoFotoCrianca  = null;
 
-// Sempre bloqueia a navegação padrão e só decide o que fazer
-// depois de sabermos que os dados do perfil já chegaram
-// (evita race condition levando para /adicionar-crianca por engano).
+                                                             
+                                                        
+                                                                     
 linkCrianca.addEventListener("click", (e) => {
     e.preventDefault();
     if (!perfilCarregado) return;
@@ -481,9 +478,9 @@ btnSalvarCrianca.addEventListener("click", async () => {
 });
 
 
-// ==========================
-// VÍNCULO COM TERAPEUTA
-// ==========================
+                             
+                        
+                             
 
 const modalVincular          = document.getElementById("modalVincular");
 const btnAbrirModalVincular  = document.getElementById("btnAbrirModalVincular");
@@ -502,11 +499,11 @@ const estadoBloqueado  = document.getElementById("estadoBloqueado");
 
 async function carregarVinculo() {
 
-    // Vínculo com terapeuta é exclusivo do plano Premium (completo).
-    // O backend já bloqueia /solicitar, /cancelar e /remover pra
-    // quem não tem o plano — isso aqui é só a parte visual, pra
-    // nem mostrar o botão de vincular pra quem não pode usar, e
-    // pra não gastar uma chamada de API à toa.
+                                                                     
+                                                                 
+                                                                
+                                                                
+                                               
     if (!["completo", "terapeuta"].includes(planoCodigo)) {
         ultimoVinculo = { status: "bloqueado" };
         atualizarEstadoVinculo(ultimoVinculo);
@@ -713,9 +710,9 @@ if (btnCancelarPedido) {
 
 }
 
-// ==========================
-// REMOVER TERAPEUTA
-// ==========================
+                             
+                    
+                             
 
 const btnRemover       = document.getElementById("btnRemoverTerapeuta");
 const confirmarRemocao = document.getElementById("confirmarRemocao");
@@ -785,9 +782,9 @@ if (btnConfirmar) {
 
 }
 
-// ==========================
-// MODAL — TERAPEUTA REMOVIDO POR DOWNGRADE
-// ==========================
+                             
+                                           
+                             
 
 const modalTerapeutaRemovido = document.getElementById("modalTerapeutaRemovido");
 const btnFecharModalTerapeutaRemovido = document.getElementById("btnFecharModalTerapeutaRemovido");
@@ -795,9 +792,9 @@ const btnOkTerapeutaRemovido = document.getElementById("btnOkTerapeutaRemovido")
 
 let notificacaoDowngradeId = null;
 
-// Checa se existe uma notificação (não lida) avisando que o
-// vínculo foi removido por causa de um downgrade de plano.
-// Se existir, abre o modal contando isso pro usuário.
+                                                            
+                                                           
+                                                      
 async function verificarRemocaoPorDowngrade() {
 
     try {
@@ -830,8 +827,8 @@ async function fecharModalTerapeutaRemovido() {
     modalTerapeutaRemovido.classList.remove("aberto");
     document.body.style.overflow = "";
 
-    // Marca só essa notificação como lida — não mexe nas outras,
-    // pra não zerar o sininho de notificações por engano.
+                                                                 
+                                                          
     if (notificacaoDowngradeId) {
 
         try {
@@ -855,9 +852,9 @@ modalTerapeutaRemovido.addEventListener("click", (e) => {
     if (e.target === modalTerapeutaRemovido) fecharModalTerapeutaRemovido();
 });
 
-// ==========================
-// TRADUÇÃO MANUAL
-// ==========================
+                             
+                  
+                             
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
@@ -930,8 +927,8 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 
     aplicarIdiomaEstatico();
 
-    // Reaplica a tradução em cima dos dados que já vieram da API,
-    // sem precisar recarregar a página nem refazer as chamadas
+                                                                  
+                                                               
     if (ultimoUsuario)  preencherPerfil(ultimoUsuario);
     if (ultimoVinculo)  atualizarEstadoVinculo(ultimoVinculo);
 
@@ -1001,14 +998,14 @@ document.addEventListener("click", (e) => {
 });
 
 
-// ==========================
-// INICIAR
-// ==========================
+                             
+          
+                             
 
-// carregarPerfil() precisa terminar ANTES de carregarVinculo(),
-// porque é ela que preenche planoCodigo — sem esperar, o card do
-// terapeuta pode decidir com o valor padrão ("gratis") por um
-// instante, mesmo que o usuário seja premium.
+                                                                
+                                                                 
+                                                              
+                                              
 async function iniciarPagina() {
     await carregarPerfil();
     carregarVinculo();
@@ -1019,9 +1016,9 @@ aplicarIdiomaEstatico();
 carregarNotificacoes();
 iniciarPagina();
 
-// ==========================
-// SUBSTITUI OS ONCLICK/ONERROR INLINE (removidos por causa do CSP)
-// ==========================
+                             
+                                                                   
+                             
 
 document.getElementById("btnRelatorioDiario").addEventListener("click", () => {
     location.href = "/RelatorioDiario";

@@ -1,7 +1,7 @@
-/* ==========================================================
-   CONTROLES PÚBLICOS + TEMA
-   Usado no Index e nas telas de autenticação.
-   ========================================================== */
+                                                             
+                            
+                                              
+                                                                
 
 .controles-publicos {
   display: flex;
@@ -69,9 +69,9 @@ body.tema-escuro .controles-publicos .tradutor:hover {
   border-color: #47505d;
 }
 
-/* =========================
-   INDEX — TEMA ESCURO
-   ========================= */
+                            
+                      
+                               
 body.pagina-index.tema-escuro {
   --texto: #f5f7fa;
   --texto-suave: #b8c0ca;
@@ -81,8 +81,8 @@ body.pagina-index.tema-escuro {
   --petroleo: #eef7fa;
 }
 
-/* Bloco final: continua azul-petróleo escuro (fundo fixo em index.css);
-   o filete claro só separa o cartão do fundo preto da página. */
+                                                                        
+                                                                 
 body.pagina-index.tema-escuro .cta {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
@@ -123,9 +123,9 @@ body.pagina-index.tema-escuro .rodape__logo {
   filter: brightness(0) invert(1);
 }
 
-/* =========================
-   AUTENTICAÇÃO — TEMA ESCURO
-   ========================= */
+                            
+                             
+                               
 body.pagina-auth.tema-escuro {
   background: #16181c;
   color: #f5f7fa;
@@ -226,7 +226,7 @@ body.pagina-auth.tema-escuro .recuperar-voltar-link:hover {
   background: #1f2227 !important;
 }
 
-/* 2FA */
+         
 body.pagina-auth.tema-escuro .verificacao-card {
   background: #1f2227;
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
@@ -246,7 +246,7 @@ body.pagina-auth.tema-escuro #codigo {
   border-color: #3a414c;
 }
 
-/* Modais de Termos/Privacidade */
+                                  
 body.tema-escuro .modal-termos__conteudo {
   background: #1f2227;
 }
@@ -291,9 +291,9 @@ body.tema-escuro .modal-termos__fechar {
   }
 }
 
-/* =========================
-   TELAS PÚBLICAS ADICIONAIS
-   ========================= */
+                            
+                            
+                               
 .controles-publicos--pagina {
   position: fixed;
   top: 1rem;
@@ -397,7 +397,7 @@ body.pagina-transicao.tema-escuro .conteudo__logo {
     right: 0.75rem;
   }
 }
-/* ===== Modo escuro: card de tipo de conta selecionado (mais chamativo) ===== */
+                                                                                 
 body.pagina-auth.tema-escuro .tipo-card.tipo-card--ativo {
   background: rgba(50, 194, 109, 0.14) !important;
   border-color: #32c26d !important;
@@ -414,7 +414,7 @@ body.pagina-auth.tema-escuro .tipo-card.tipo-card--ativo:hover {
   background: rgba(50, 194, 109, 0.2) !important;
 }
 
-/* ===== Campo de CRP (onboarding Google) ===== */
+                                                  
 .campo-crp-google {
   width: 100%;
   max-width: 400px;

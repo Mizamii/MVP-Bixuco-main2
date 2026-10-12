@@ -1,11 +1,11 @@
 
-// ==========================
-// TRADUÇÃO MANUAL
-// ==========================
+                             
+                  
+                             
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
-// Textos dinâmicos simples (sem tags internas)
+                                               
 const dicionario = {
     "Responsável":                            "Guardian",
     "Terapeuta":                               "Therapist",
@@ -19,7 +19,7 @@ function traduzir(texto) {
     return dicionario[texto] || texto;
 }
 
-// Textos com formatação interna (<strong>, <em>) — traduzidos via innerHTML
+                                                                            
 const textosFormatados = {
     fraseFinalTexto: {
         pt: `Mais do que tecnologia, entregamos <strong>conexão</strong>, <strong>empatia</strong> e <strong>inteligência</strong> para apoiar o desenvolvimento infantil.`,
@@ -70,9 +70,9 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
     }
 });
 
-// ==========================
-// ABRIR / FECHAR MODAIS
-// ==========================
+                             
+                        
+                             
 
 function abrirModal(id) {
     const modal = document.getElementById(id);
@@ -119,9 +119,9 @@ document.addEventListener("keydown", (e) => {
     }
 });
 
-// ==========================
-// CARREGAR DADOS DO USUÁRIO (topo)
-// ==========================
+                             
+                                   
+                             
 
 async function carregarUsuario() {
     try {
@@ -154,9 +154,9 @@ document.getElementById("fotoUsuario").addEventListener("error", function () {
     this.src = "/img/perfilPadrao.png";
 });
 
-// ==========================
-// PAINEL DE NOTIFICAÇÕES (só promoções)
-// ==========================
+                             
+                                        
+                             
 
 const painelNotificacoes = document.getElementById("painelNotificacoes");
 const listaNotificacoes  = document.getElementById("listaNotificacoes");
@@ -227,12 +227,12 @@ document.addEventListener("click", (e) => {
     }
 });
 
-// ==========================
-// INICIALIZAÇÃO
-// ==========================
+                             
+                
+                             
 
 aplicarIdiomaEstatico();
 carregarUsuario();
 carregarNotificacoes();
 
-// (a foto agora abre o menu da conta — ver /js/header.js)
+                                                          

@@ -1,6 +1,6 @@
-// ==========================
-// TEMA — mesma implementação da relatorios.html
-// ==========================
+                             
+                                                
+                             
 
 function aplicarTema(tema) {
     document.body.classList.remove("tema-claro", "tema-escuro");
@@ -16,9 +16,9 @@ document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema
 const temaSalvo = localStorage.getItem("tema") || "claro";
 aplicarTema(temaSalvo);
 
-// ==========================
-// TRADUÇÃO MANUAL — mesmo sistema da relatorios.html
-// ==========================
+                             
+                                                     
+                             
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
@@ -54,14 +54,14 @@ function aplicarIdiomaEstatico() {
             : el.dataset.pt;
     });
 
-    // Placeholders dos campos (data-pt-placeholder / data-en-placeholder)
+                                                                          
     document.querySelectorAll("[data-pt-placeholder]").forEach(el => {
         el.placeholder = idiomaAtual === "en"
             ? (el.dataset.enPlaceholder || el.dataset.ptPlaceholder)
             : el.dataset.ptPlaceholder;
     });
 
-    // Mensagens de erro que já estão na tela mudam de idioma junto
+                                                                   
     document.querySelectorAll(".entrega-form__erro").forEach(el => {
         const atual = el.textContent.trim();
         if (!atual) return;
@@ -72,7 +72,7 @@ function aplicarIdiomaEstatico() {
         idiomaAtual === "en" ? "Traduzir para o português" : "Translate to English";
 }
 
-// Traduz uma mensagem que já pode estar em PT ou EN para o idioma atual
+                                                                        
 function traduzirExistente(texto) {
     if (idiomaAtual === "en") return dicionario[texto] || texto;
     const chavePt = Object.keys(dicionario).find(k => dicionario[k] === texto);
@@ -94,9 +94,9 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 
 aplicarIdiomaEstatico();
 
-// =========================
-// DADOS DO USUÁRIO NO TOPO
-// =========================
+                            
+                           
+                            
 
 let ultimoTipoContaFormularioEntrega = "Responsável";
 
@@ -131,9 +131,9 @@ async function carregarDadosUsuario() {
 
 carregarDadosUsuario();
 
-// =========================
-// NOTIFICAÇÕES
-// =========================
+                            
+               
+                            
 
 const painelNotificacoes = document.getElementById("painelNotificacoes");
 const listaNotificacoes  = document.getElementById("listaNotificacoes");
@@ -206,9 +206,9 @@ document.addEventListener("click", (e) => {
 
 carregarNotificacoes();
 
-// =========================
-// MÁSCARA E BUSCA DO CEP
-// =========================
+                            
+                         
+                            
 
 function mascaraCEP(valor) {
     valor = valor.replace(/\D/g, "").slice(0, 8);
@@ -248,9 +248,9 @@ campoCep.addEventListener("blur", async () => {
     }
 });
 
-// =========================
-// ERROS
-// =========================
+                            
+        
+                            
 
 function mostrarErro(inputId, erroId, mensagem) {
     const input = document.getElementById(inputId);
@@ -308,9 +308,9 @@ function validarCampos() {
     return valido;
 }
 
-// =========================
-// ENVIO
-// =========================
+                            
+        
+                            
 
 document.getElementById("formEndereco").addEventListener("submit", async (evento) => {
 
@@ -364,9 +364,9 @@ document.getElementById("formEndereco").addEventListener("submit", async (evento
     }
 });
 
-// ==========================
-// LIGA BOTÃO DE RELATÓRIO E ACESSO AO PERFIL
-// ==========================
+                             
+                                             
+                             
 
 document.getElementById("btnRelatorioDiario").addEventListener("click", () => {
     location.href = "/RelatorioDiario";

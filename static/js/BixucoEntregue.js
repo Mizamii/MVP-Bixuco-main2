@@ -1,6 +1,6 @@
-// ==========================
-// TEMA
-// ==========================
+                             
+       
+                             
 
 function aplicarTema(tema) {
     document.body.classList.remove("tema-claro", "tema-escuro");
@@ -15,9 +15,9 @@ document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema
 
 aplicarTema(localStorage.getItem("tema") || "claro");
 
-// ==========================
-// TRADUÇÃO MANUAL
-// ==========================
+                             
+                  
+                             
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
@@ -63,9 +63,9 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 
 aplicarIdiomaEstatico();
 
-// =========================
-// DADOS DO USUÁRIO NO TOPO
-// =========================
+                            
+                           
+                            
 
 async function carregarDadosUsuario() {
     try {
@@ -98,9 +98,9 @@ async function carregarDadosUsuario() {
 
 carregarDadosUsuario();
 
-// =========================
-// NOTIFICAÇÕES
-// =========================
+                            
+               
+                            
 
 const painelNotificacoes = document.getElementById("painelNotificacoes");
 const listaNotificacoes  = document.getElementById("listaNotificacoes");
@@ -173,17 +173,17 @@ document.addEventListener("click", (e) => {
 
 carregarNotificacoes();
 
-// =========================
-// AÇÃO PRINCIPAL
-// =========================
+                            
+                 
+                            
 
 document.getElementById("btn-vincular").addEventListener("click", () => {
     window.location.href = "/VincularIdentidade";
 });
 
-// ==========================
-// SUBSTITUI OS ONCLICK/ONERROR INLINE (removidos por causa do CSP)
-// ==========================
+                             
+                                                                   
+                             
 
 document.getElementById("btnRelatorioDiario").addEventListener("click", () => {
     location.href = "/RelatorioDiario";

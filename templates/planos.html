@@ -22,18 +22,18 @@
 
 <div class="container">
 
-    <!-- ========================= -->
-    <!-- MENU LATERAL -->
-    <!-- ========================= -->
+                                      
+                         
+                                      
     <aside class="sidebar">
 
         <div class="logo">
             <img src="/img/logo_nome.png" alt="Logo Bixuco">
         </div>
 
-        <!-- Sidebar completa — mostrada pra quem já tem plano pago
-             (medio ou completo). Escondida por padrão até sabermos
-             o plano real do usuário (ver carregarUsuario). -->
+                                                                   
+                                                                   
+                                                               
         <nav id="navComPlano" style="display:none;">
             <a href="/home">
                 <i class="fa-solid fa-house"></i>
@@ -60,9 +60,9 @@
             </a>
         </nav>
 
-        <!-- Sidebar reduzida — mostrada pra quem está no plano grátis
-             (nunca assinou ou cancelou), já que /configuracoes, /sobre
-             etc. exigem plano médio+ e redirecionariam de volta pra cá. -->
+                                                                      
+                                                                       
+                                                                            
         <nav id="navSemPlano">
             <a href="/planos" class="ativo">
                 <i class="fa-solid fa-dollar-sign"></i>
@@ -98,22 +98,22 @@
             <span data-pt="Sair" data-en="Log out">Sair</span>
         </a>
 
-        <!-- Perfil + notificações — só aparece no desktop, substituindo
-             a barra "topo" (ver header.js / layout.css) -->
+                                                                        
+                                                            
         <div class="sidebar-usuario" id="sidebarUsuario"></div>
 
     </aside>
 
-    <!-- ========================= -->
-    <!-- CONTEÚDO -->
-    <!-- ========================= -->
+                                      
+                     
+                                      
     <main class="conteudo">
 
         <header class="topo" id="topoApp" data-perfil="/perfilSemAssinatura" data-notif-pt="Promoções" data-notif-en="Promotions"></header>
 
         <div class="conteudo-corpo">
 
-            <!-- Cabeçalho -->
+                              
             <section class="cabecalho-planos">
                 <div>
                     <h1 data-pt="Planos" data-en="Plans">Planos</h1>
@@ -126,16 +126,16 @@
                 >
             </section>
 
-            <!-- Plano atual -->
+                                
             <p id="planoAtualInfo" class="plano-atual-info" style="display:none;">
                 <span data-pt="Você está no" data-en="You're currently on the">Você está no</span>
                 <strong id="nomePlanoAtual">Grátis</strong>.
             </p>
 
-            <!-- Cards de planos -->
+                                    
             <section class="cards-planos">
 
-                <!-- PLANO GRÁTIS -->
+                                     
                 <div
                     class="card-plano"
                     id="cardGratis"
@@ -153,7 +153,7 @@
                     </ul>
                 </div>
 
-                <!-- PLANO BÁSICO -->
+                                     
                 <div
                     class="card-plano"
                     id="cardMedio"
@@ -173,7 +173,7 @@
                     </ul>
                 </div>
 
-                <!-- PLANO PREMIUM -->
+                                      
                 <div
                     class="card-plano"
                     id="cardCompleto"
@@ -191,13 +191,13 @@
                 </div>
             </section>
 
-            <!-- Erro inline -->
+                                
             <span
                 id="erroPlano"
                 style="display:none; color:#E53E3E; font-size:0.9rem; text-align:center; display:block; margin-top:0.5rem;"
             ></span>
 
-            <!-- Botão confirmar -->
+                                    
             <button
                 type="button"
                 id="btnConfirmar"
@@ -210,11 +210,11 @@
 
     </main>
 
-    <!-- ===================== -->
-    <!-- MENU INFERIOR (só mobile) -->
-    <!-- ===================== -->
+                                  
+                                      
+                                  
 
-    <!-- Versão para quem já tem plano pago -->
+                                               
     <nav class="bottom-nav" id="bottomNavComPlano" style="display:none;">
         <a href="/sobre">
             <i class="fa-solid fa-circle-info"></i>
@@ -238,7 +238,7 @@
         </a>
     </nav>
 
-    <!-- Versão para quem está no plano grátis -->
+                                                  
     <nav class="bottom-nav" id="bottomNavSemPlano">
         <a href="/planos" class="ativo">
             <i class="fa-solid fa-dollar-sign"></i>

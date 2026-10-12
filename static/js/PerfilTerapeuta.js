@@ -4,11 +4,11 @@ function escaparHTML(texto) {
     return div.innerHTML;
 }
 
-// ==========================
-// TRADUÇÃO MANUAL — mesmo padrão do resto do app
-// (antes esta página usava Google Translate via cookie + reload;
-// trocado pelo dicionário manual, sem reload e consistente)
-// ==========================
+                             
+                                                 
+                                                                 
+                                                            
+                             
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
@@ -82,16 +82,16 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 
     aplicarIdiomaEstatico();
 
-    // Reaplica a descrição (que tem texto dinâmico interpolado)
+                                                                
     if (ultimoUsuario) preencherDescricao(ultimoUsuario);
     if (painelNotificacoes.classList.contains("aberto")) carregarNotificacoes();
 
 });
 
 
-// ==========================
-// CARREGAR DADOS DO PERFIL
-// ==========================
+                             
+                           
+                             
 
 let ultimoUsuario = null;
 
@@ -116,11 +116,11 @@ async function carregarPerfil() {
         const usuario = await resposta.json();
         ultimoUsuario = usuario;
 
-        // Topo
+               
         document.getElementById("nomeUsuario").textContent =
             usuario.nome || traduzir("Terapeuta");
 
-        // Card de perfil
+                         
         document.getElementById("perfilNome").textContent =
             usuario.nome || traduzir("Terapeuta");
 
@@ -132,12 +132,12 @@ async function carregarPerfil() {
             fotoOriginalSrc = usuario.fotoPerfil;
         }
 
-        // Código de vínculo — no card E no header
+                                                  
         const codigo = usuario.codigoVinculo || "---";
         document.getElementById("codigoVinculo").textContent       = codigo;
         document.getElementById("codigoTerapeutaHeader").textContent = codigo;
 
-        // Badge de notificações
+                                
         const qtd = usuario.notificacoes ?? 0;
         document.getElementById("quantidadeNotificacoes").textContent = qtd;
 
@@ -150,9 +150,9 @@ async function carregarPerfil() {
 }
 
 
-// ==========================
-// FOTO DE PERFIL
-// ==========================
+                             
+                 
+                             
 
 const perfilFotoWrapper = document.getElementById("perfilFotoWrapper");
 const inputFotoPerfil   = document.getElementById("inputFotoPerfil");
@@ -201,7 +201,7 @@ btnSalvarFoto.addEventListener("click", async () => {
         const formData = new FormData();
         formData.append("fotoPerfil", arquivo);
 
-        // Mesma rota do responsável
+                                    
         const resposta = await fetch("/api/perfil/atualizar", {
             method: "POST",
             body: formData
@@ -230,7 +230,7 @@ btnSalvarFoto.addEventListener("click", async () => {
 
         console.log("Erro ao salvar foto:", erro);
 
-        // Mensagem inline em vez de alert()
+                                            
         const msg = document.createElement("p");
         msg.style.color    = "#E53E3E";
         msg.style.fontSize = "0.8rem";
@@ -248,9 +248,9 @@ btnSalvarFoto.addEventListener("click", async () => {
 });
 
 
-// ==========================
-// EDITAR NOME
-// ==========================
+                             
+              
+                             
 
 const perfilNomeLinha  = document.getElementById("perfilNomeLinha");
 const perfilNomeEditar = document.getElementById("perfilNomeEditar");
@@ -341,10 +341,10 @@ inputNome.addEventListener("keydown", (e) => {
 });
 
 
-// ==========================
-// COPIAR CÓDIGO DE VÍNCULO
-// Genérica pra funcionar tanto no botão do header quanto no card
-// ==========================
+                             
+                           
+                                                                 
+                             
 
 function copiarCodigoGenerico(idCodigo, idIcone, idMensagem) {
 
@@ -376,9 +376,9 @@ function copiarCodigoGenerico(idCodigo, idIcone, idMensagem) {
 }
 
 
-// ==========================
-// COMPARTILHAR COM PACIENTE
-// ==========================
+                             
+                            
+                             
 
 document.getElementById("btnNovoPaciente").addEventListener("click", () => {
     const codigo = document.getElementById("codigoVinculo").textContent;
@@ -395,9 +395,9 @@ document.getElementById("btnNovoPaciente").addEventListener("click", () => {
 });
 
 
-// ==========================
-// PAINEL DE NOTIFICAÇÕES
-// ==========================
+                             
+                         
+                             
 
 const painelNotificacoes = document.getElementById("painelNotificacoes");
 const listaNotificacoes  = document.getElementById("listaNotificacoes");
@@ -460,10 +460,10 @@ document.addEventListener("click", (e) => {
 });
 
 
-// ==========================
-// TEMA CLARO / ESCURO
-// (faltava esta parte inteira — por isso os botões não faziam nada)
-// ==========================
+                             
+                      
+                                                                    
+                             
 
 function aplicarTema(tema) {
     document.body.classList.remove("tema-claro", "tema-escuro");
@@ -477,9 +477,9 @@ document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema
 document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
 
 
-// ==========================
-// INICIALIZAR
-// ==========================
+                             
+              
+                             
 
 const temaSalvo = localStorage.getItem("tema") || "claro";
 aplicarTema(temaSalvo);
@@ -488,9 +488,9 @@ aplicarIdiomaEstatico();
 carregarPerfil();
 carregarNotificacoes();
 
-// ==========================
-// LIGA OS BOTÕES DE COPIAR (header e card)
-// ==========================
+                             
+                                           
+                             
 
 document.getElementById("btnCodigoCopiarHeader").addEventListener("click", () => {
     copiarCodigoGenerico("codigoTerapeutaHeader", "iconeCopiarHeader");

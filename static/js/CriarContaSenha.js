@@ -1,6 +1,6 @@
-// ==========================
-// TRADUÇÃO MANUAL
-// ==========================
+                             
+                  
+                             
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
@@ -51,9 +51,9 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 
 aplicarIdiomaEstatico();
 
-// ==========================
-// MOSTRAR / ESCONDER SENHA
-// ==========================
+                             
+                           
+                             
 
 function toggleSenha(inputId, iconeId) {
 
@@ -83,12 +83,12 @@ function toggleSenha(inputId, iconeId) {
 
 }
 
-// ==========================
-// MOSTRAR / LIMPAR ERROS
-// ==========================
+                             
+                         
+                             
 
-// Usa innerHTML (em vez de textContent) para suportar a lista de
-// requisitos da senha com quebras de linha (<br>) — ver validarCampos()
+                                                                 
+                                                                        
 function mostrarErro(inputId, erroId, mensagem, permitirHTML = false) {
 
     const input = document.getElementById(inputId);
@@ -105,9 +105,9 @@ function mostrarErro(inputId, erroId, mensagem, permitirHTML = false) {
 
     input.classList.add("input-erro");
 
-    // Só permite HTML quando explicitamente pedido (lista fixa de requisitos
-    // de senha, escrita pelo próprio código). Qualquer mensagem vinda do
-    // servidor ou de outro lugar usa textContent, sem risco de XSS.
+                                                                             
+                                                                         
+                                                                    
     if (permitirHTML) {
         erro.innerHTML = mensagem;
     } else {
@@ -139,15 +139,15 @@ function limparErros() {
 
     });
 
-    // Limpa o erro geral do servidor
+                                     
     const erroGeral = document.getElementById("erro-geral");
     if (erroGeral) erroGeral.style.display = "none";
 
 }
 
-// ==========================
-// VALIDAÇÃO LOCAL
-// ==========================
+                             
+                  
+                             
 
 function validarCampos() {
 
@@ -183,8 +183,8 @@ function validarCampos() {
 
     }
 
-    // Verifica confirmação só se a senha já passou nas validações acima
-    // Evita mostrar dois erros ao mesmo tempo quando a senha é inválida
+                                                                        
+                                                                        
     if (valido && senha !== confirmarSenha) {
 
         mostrarErro(
@@ -201,9 +201,9 @@ function validarCampos() {
 
 }
 
-// ==========================
-// VALIDAÇÃO EM TEMPO REAL
-// ==========================
+                             
+                          
+                             
 
 const campoSenha = document.getElementById("senha");
 const campoConfirmar = document.getElementById("confirmarSenha");
@@ -218,7 +218,7 @@ campoSenha.addEventListener("input", () => {
     if (senhaEhValida(campoSenha.value)) {
         limparErroCampo("senha", "erro-senha");
     } else {
-        // Se ja tinha passado por validacao (usuario tentou enviar) e agora ficou invalida de novo, mostra erro
+                                                                                                                
         const erroEl = document.getElementById("erro-senha");
         if (erroEl && erroEl.dataset.jaTentou === "true") {
             mostrarErro("senha", "erro-senha", traduzir("A senha ainda não atende aos requisitos."));
@@ -250,14 +250,14 @@ function limparErroCampo(inputId, erroId) {
     }
 }
 
-// ==========================
-// ENVIO DO FORMULÁRIO
-// ==========================
+                             
+                      
+                             
 
-// Intercepta o submit e envia via fetch.
-// O backend responde em JSON com { sucesso, destino } no caso de êxito
-// (destino é /AdicionarC para pai ou /home para psicólogo),
-// ou { erro, campo } no caso de falha.
+                                         
+                                                                       
+                                                            
+                                       
 document.getElementById("formSenha").addEventListener("submit", async (evento) => {
 
     evento.preventDefault();
@@ -267,13 +267,13 @@ document.getElementById("formSenha").addEventListener("submit", async (evento) =
     const btnContinuar = document.getElementById("btnContinuar");
     const erroGeral    = document.getElementById("erro-geral");
 
-    // Desabilita o botão enquanto processa
+                                           
     btnContinuar.disabled    = true;
     btnContinuar.textContent = traduzir("Criando conta...");
 
     try {
 
-        // 🔧 Gera o token do reCAPTCHA v3 — roda em segundo plano, sem desafio visual
+                                                                                      
         const tokenRecaptcha = await new Promise((resolve, reject) => {
             grecaptcha.ready(() => {
                 grecaptcha
@@ -322,7 +322,7 @@ document.getElementById("formSenha").addEventListener("submit", async (evento) =
 
     } finally {
 
-        // Reabilita o botão independente do resultado
+                                                      
         btnContinuar.disabled    = false;
         btnContinuar.textContent = traduzir("Continuar");
 
@@ -330,9 +330,9 @@ document.getElementById("formSenha").addEventListener("submit", async (evento) =
 
 });
 
-// ==========================
-// LIGA OS BOTÕES DE MOSTRAR/ESCONDER SENHA
-// ==========================
+                             
+                                           
+                             
 
 document.getElementById("btnToggleSenha").addEventListener("click", () => {
     toggleSenha("senha", "iconeSenha");

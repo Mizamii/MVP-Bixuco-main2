@@ -1,7 +1,7 @@
 
-// =========================
-// TRADUÇÃO MANUAL — dicionário para textos montados via JS
-// =========================
+                            
+                                                           
+                            
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
@@ -44,9 +44,9 @@ function traduzirMensagemNotificacao(item) {
 
 
 
-// =========================
-// COPIAR CÓDIGO DO TERAPEUTA
-// =========================
+                            
+                             
+                            
 
 function copiarCodigo() {
     const codigo = document.getElementById("codigoTerapeuta").textContent;
@@ -66,9 +66,9 @@ function copiarCodigo() {
 }
 
 
-// =========================
-// CARREGAR DADOS DO TOPO
-// =========================
+                            
+                         
+                            
 async function carregarUsuario() {
     try {
         const resposta = await fetch("/api/home-terapeuta");
@@ -90,9 +90,9 @@ async function carregarUsuario() {
 }
 
 
-// =========================
-// NOTIFICAÇÕES — toggles salvos no backend
-// =========================
+                            
+                                           
+                            
 async function carregarPreferencias() {
     try {
         const resposta = await fetch("/api/preferencias");
@@ -122,9 +122,9 @@ document.getElementById("toggleSolicitacao").addEventListener("change", (e) => {
 });
 
 
-// =========================
-// ALTERAR SENHA
-// =========================
+                            
+                
+                            
 document.getElementById("btnAlterarSenha").addEventListener("click", () => {
     document.getElementById("msgEmailSenha").style.display = "none";
     document.getElementById("modalSenha").style.display = "flex";
@@ -139,7 +139,7 @@ document.getElementById("btnEnviarSenha").addEventListener("click", async () => 
     btn.disabled    = true;
     btn.textContent = t("enviando");
     try {
-        // busca o email do usuário logado e envia o link
+                                                         
         const me = await fetch("/api/home-terapeuta").then(r => r.json());
         await fetch("/esqueceu-senha", {
             method:  "POST",
@@ -161,9 +161,9 @@ function fecharModalSenhaFora(e) {
 }
 
 
-// =========================
-// EXCLUIR CONTA
-// =========================
+                            
+                
+                            
 document.getElementById("btnExcluirConta").addEventListener("click", () => {
     document.getElementById("modalExcluir").style.display = "flex";
 });
@@ -196,9 +196,9 @@ document.addEventListener("keydown", (e) => {
 });
 
 
-// =========================
-// NOTIFICAÇÕES — painel do sininho
-// =========================
+                            
+                                   
+                            
 const painelNotificacoes = document.getElementById("painelNotificacoes");
 const listaNotificacoes  = document.getElementById("listaNotificacoes");
 
@@ -245,9 +245,9 @@ document.addEventListener("click", (e) => {
 });
 
 
-// =========================
-// TRADUÇÃO MANUAL
-// =========================
+                            
+                  
+                            
 
 function aplicarIdiomaEstatico() {
     document.querySelectorAll("[data-pt]").forEach(el => {
@@ -270,9 +270,9 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 aplicarIdiomaEstatico();
 
 
-// =========================
-// TEMA
-// =========================
+                            
+       
+                            
 function aplicarTema(tema) {
     document.body.classList.remove("tema-claro", "tema-escuro");
     document.body.classList.add(`tema-${tema}`);
@@ -285,17 +285,17 @@ document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema
 document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
 
 
-// =========================
-// INICIALIZAÇÃO
-// =========================
+                            
+                
+                            
 const temaSalvo = localStorage.getItem("tema") || "claro";
 aplicarTema(temaSalvo);
 carregarUsuario();
 carregarPreferencias();
 
-// ==========================
-// SUBSTITUI OS ONCLICK/ONERROR INLINE (removidos por causa do CSP)
-// ==========================
+                             
+                                                                   
+                             
 
 const fotoUsuarioEl = document.getElementById("fotoUsuario");
 

@@ -4,9 +4,9 @@ function escaparHTML(texto) {
     return div.innerHTML;
 }
 
-// =========================
-// TRADUÇÃO MANUAL — dicionário para textos montados via JS
-// =========================
+                            
+                                                           
+                            
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
@@ -162,9 +162,9 @@ function traduzirRespostaRelatorio(valor) {
 }
 
 
-// =========================
-// COPIAR CÓDIGO DO TERAPEUTA
-// =========================
+                            
+                             
+                            
 
 function formatarAvisoExpiracaoNota(notaExpiraISO) {
     if (!notaExpiraISO) return "";
@@ -211,21 +211,21 @@ function copiarCodigo() {
 }
 
 
-// =========================
-// PEGA O ID DO PACIENTE DA URL
-// Ex: /relatoriosTerapeuta?paciente=42
-// =========================
+                            
+                               
+                                       
+                            
 const params     = new URLSearchParams(window.location.search);
 const pacienteId = params.get("paciente");
-const dataParam  = params.get("data"); // "YYYY-MM-DD" opcional — abre direto nesse dia
+const dataParam  = params.get("data");                                                 
 
 if (!pacienteId) {
     window.location.href = "/relatoriosTerapeutaS";
 }
 
-// =========================
-// CARREGAR DADOS DO TERAPEUTA (topo)
-// =========================
+                            
+                                     
+                            
 async function carregarTerapeuta() {
     try {
         const resposta = await fetch("/api/home-terapeuta");
@@ -257,9 +257,9 @@ async function carregarTerapeuta() {
     }
 }
 
-// =========================
-// CARREGAR RELATÓRIO DO PACIENTE (cards + gráficos do mês, fixos)
-// =========================
+                            
+                                                                  
+                            
 async function carregarRelatorio() {
     try {
         const resposta = await fetch(`/api/relatorio-paciente?paciente=${pacienteId}`);
@@ -285,9 +285,9 @@ async function carregarRelatorio() {
     }
 }
 
-// =========================
-// DADOS DE EXEMPLO (fallback só em caso de erro de rede/servidor)
-// =========================
+                            
+                                                                  
+                            
 function usarDadosExemplo() {
 
     document.getElementById("nomePaciente").textContent = t("paciente");
@@ -305,9 +305,9 @@ function usarDadosExemplo() {
     renderizarGraficos(dadosSemExemplo);
 }
 
-// =========================
-// PREENCHER CARDS
-// =========================
+                            
+                  
+                            
 function corAtividade(valor) {
     const total = Number(valor) || 0;
     if (total >= 5) return "#E24C4C";
@@ -363,15 +363,15 @@ function preencherCards(dados) {
         traduzirComparativo(dados.comparativoTempo) || "";
 }
 
-// =========================
-// GRÁFICOS COM CHART.JS
-// =========================
+                            
+                        
+                            
 let dadosEstresseGlobal  = null;
 let dadosGatilhosGlobal  = null;
 let graficos             = {};
 
-// Cores de texto/linhas dos gráficos seguem o tema (o padrão do Chart.js é
-// um cinza fixo que some no modo escuro).
+                                                                           
+                                          
 function aplicarCoresGraficos() {
     if (typeof Chart === "undefined") return;
 
@@ -532,9 +532,9 @@ function atualizarBotoesTipo(canvasId, tipoAtivo, iconePorTipo) {
 }
 
 
-// =========================
-// CALENDÁRIO DE RELATÓRIOS POR DIA
-// =========================
+                            
+                                   
+                            
 
 const diasSemanaAbrev = { pt: ["D","S","T","Q","Q","S","S"], en: ["S","M","T","W","T","F","S"] };
 const nomesMeses = {
@@ -549,8 +549,8 @@ if (dataParam) {
 } else {
     mesAtual = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 }
-let diaSelecionado   = null;      // "YYYY-MM-DD"
-let diasComRelatorio = new Set(); // dias do mês atual que têm relatório
+let diaSelecionado   = null;                     
+let diasComRelatorio = new Set();                                       
 
 function formatarDataISO(date) {
     return date.toISOString().split("T")[0];
@@ -724,9 +724,9 @@ async function salvarNotaDoDia() {
 }
 
 
-// =========================
-// PAINEL DE NOTIFICAÇÕES
-// =========================
+                            
+                         
+                            
 const painelNotificacoes = document.getElementById("painelNotificacoes");
 
 async function carregarNotificacoes() {
@@ -765,9 +765,9 @@ document.addEventListener("click", (e) => {
     }
 });
 
-// =========================
-// TRADUÇÃO MANUAL
-// =========================
+                            
+                  
+                            
 
 function aplicarIdiomaEstatico() {
     document.querySelectorAll("[data-pt]").forEach(el => {
@@ -793,17 +793,17 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
     idiomaAtual = idiomaAtual === "pt" ? "en" : "pt";
     localStorage.setItem("idioma", idiomaAtual);
     aplicarIdiomaEstatico();
-    renderizarCalendario(); // atualiza nomes de mês/dias da semana
-    carregarRelatorio();     // atualiza cards e gráficos montados via JS
-    if (diaSelecionado) selecionarDia(diaSelecionado); // re-renderiza o dia aberto no novo idioma
+    renderizarCalendario();                                        
+    carregarRelatorio();                                                 
+    if (diaSelecionado) selecionarDia(diaSelecionado);                                            
     if (painelNotificacoes.classList.contains("aberto")) carregarNotificacoes();
 });
 
 aplicarIdiomaEstatico();
 
-// =========================
-// TEMA
-// =========================
+                            
+       
+                            
 function aplicarTema(tema) {
     document.body.classList.remove("tema-claro", "tema-escuro");
     document.body.classList.add(`tema-${tema}`);
@@ -811,7 +811,7 @@ function aplicarTema(tema) {
     document.getElementById("btnEscuro").classList.toggle("ativo", tema === "escuro");
     localStorage.setItem("tema", tema);
 
-    // Atualiza o texto dos gráficos já desenhados (mantém o tipo escolhido)
+                                                                            
     aplicarCoresGraficos();
     Object.values(graficos).forEach(g => g.update());
 }
@@ -819,15 +819,15 @@ function aplicarTema(tema) {
 document.getElementById("btnClaro").addEventListener("click",  () => aplicarTema("claro"));
 document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema("escuro"));
 
-// Um único botão (no menu da conta, mobile) que alterna entre os dois
+                                                                      
 document.getElementById("btnTemaMobile").addEventListener("click", () => {
     const atual = document.body.classList.contains("tema-escuro") ? "escuro" : "claro";
     aplicarTema(atual === "claro" ? "escuro" : "claro");
 });
 
-// =========================
-// INICIALIZAÇÃO
-// =========================
+                            
+                
+                            
 const temaSalvo = localStorage.getItem("tema") || "claro";
 aplicarTema(temaSalvo);
 
@@ -839,7 +839,7 @@ carregarDiasDoMes().then(() => {
     }
 });
 
-// Substitui os antigos onclick inline (removidos por causa do CSP)
+                                                                   
 
 document.getElementById("btnCodigoCopiar").addEventListener("click", copiarCodigo);
 

@@ -1,6 +1,6 @@
-// ==========================
-// TRADUÇÃO MANUAL
-// ==========================
+                             
+                  
+                             
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
@@ -49,29 +49,29 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 
 aplicarIdiomaEstatico();
 
-// ==========================
-// MÁSCARA DO CRP
-// ==========================
+                             
+                 
+                             
 
 document.getElementById("crp").addEventListener("input", function () {
 
-    // Remove tudo que não for número
+                                     
     let valor = this.value.replace(/\D/g, "").slice(0, 8);
 
-    // Formata conforme o usuário digita
+                                        
     if (valor.length > 2) {
         valor = valor.replace(/^(\d{2})(\d+)/, "$1/$2");
     }
 
     this.value = "CRP-" + valor;
 
-    // Posiciona o cursor sempre no final
+                                         
     const pos = this.value.length;
     this.setSelectionRange(pos, pos);
 
 });
 
-// Impede que o usuário apague o prefixo CRP-
+                                             
 document.getElementById("crp").addEventListener("keydown", function (e) {
 
     if (
@@ -83,7 +83,7 @@ document.getElementById("crp").addEventListener("keydown", function (e) {
 
 });
 
-// Garante que ao focar o campo o cursor vai para o final
+                                                         
 document.getElementById("crp").addEventListener("focus", function () {
 
     if (!this.value) {
@@ -95,9 +95,9 @@ document.getElementById("crp").addEventListener("focus", function () {
 
 });
 
-// ==========================
-// MÁSCARA DO TELEFONE
-// ==========================
+                             
+                      
+                             
 
 document.getElementById("telefone").addEventListener("input", function () {
 
@@ -124,9 +124,9 @@ document.getElementById("telefone").addEventListener("input", function () {
 
 });
 
-// ==========================
-// MOSTRAR / LIMPAR ERROS
-// ==========================
+                             
+                         
+                             
 
 function mostrarErro(inputId, erroId, mensagem) {
 
@@ -167,16 +167,16 @@ function limparErros() {
 
     });
 
-    // Limpa o erro geral
+                         
     const erroGeral = document.getElementById("erro-geral");
     if (erroGeral) erroGeral.style.display = "none";
 
 }
 
-// ==========================
-// LIMPAR ERRO DE UM ÚNICO CAMPO
-// (usado na validação em tempo real, sem precisar dar Enter)
-// ==========================
+                             
+                                
+                                                             
+                             
 
 function limparErroCampo(inputId, erroId) {
 
@@ -192,10 +192,10 @@ function limparErroCampo(inputId, erroId) {
 
 }
 
-// ==========================
-// DEBOUNCE — espera o usuário parar de digitar
-// antes de consultar o servidor
-// ==========================
+                             
+                                               
+                                
+                             
 
 function debounce(funcao, atraso = 600) {
 
@@ -208,9 +208,9 @@ function debounce(funcao, atraso = 600) {
 
 }
 
-// ==========================
-// CHECAR NO SERVIDOR SE EMAIL/CRP JÁ ESTÃO EM USO
-// ==========================
+                             
+                                                  
+                             
 
 async function verificarDisponibilidade(campo, valor) {
 
@@ -230,15 +230,15 @@ async function verificarDisponibilidade(campo, valor) {
     } catch (erro) {
 
         console.log("Erro ao verificar disponibilidade:", erro);
-        return true; // não trava o usuário por erro de conexão
+        return true;                                           
 
     }
 
 }
 
-// ==========================
-// VERIFICAR MAIOR DE IDADE
-// ==========================
+                             
+                           
+                             
 
 function idadeAdultoValida(data) {
 
@@ -252,7 +252,7 @@ function idadeAdultoValida(data) {
 
     const hoje = new Date();
 
-    // Não pode nascer no futuro
+                                
     if (nascimento > hoje) {
         return false;
     }
@@ -278,21 +278,21 @@ function idadeAdultoValida(data) {
     return idade >= 18 && idade <= 120;
 }
 
-// ==========================
-// VALIDAR CRP
-// ==========================
+                             
+              
+                             
 
 function validarCRP(crp) {
 
-    // Formato esperado: CRP-XX/XXXX até CRP-XX/XXXXXX
+                                                      
     const regex = /^CRP-\d{2}\/\d{4,6}$/;
     return regex.test(crp);
 
 }
 
-// ==========================
-// VALIDAÇÃO LOCAL
-// ==========================
+                             
+                  
+                             
 
 function validarCampos() {
 
@@ -339,11 +339,11 @@ function validarCampos() {
 
 }
 
-// ==========================
-// VALIDAÇÃO EM TEMPO REAL
-// (o erro some assim que o campo fica válido — não precisa
-// apertar Enter nem clicar em Continuar)
-// ==========================
+                             
+                          
+                                                           
+                                         
+                             
 
 const campoNome  = document.getElementById("nome");
 const campoEmail = document.getElementById("email");
@@ -358,8 +358,8 @@ campoNome.addEventListener("input", () => {
     if (partes.length >= 2) limparErroCampo("nome", "erro-nome");
 });
 
-// Checa disponibilidade do email só depois que o formato já está
-// válido e o usuário parou de digitar por um instante
+                                                                 
+                                                      
 const checarEmailDisponivel = debounce(async () => {
 
     const valor = campoEmail.value.trim();
@@ -367,7 +367,7 @@ const checarEmailDisponivel = debounce(async () => {
 
     const disponivel = await verificarDisponibilidade("email", valor);
 
-    // se o usuário já mudou o valor enquanto a resposta chegava, ignora
+                                                                        
     if (campoEmail.value.trim() !== valor) return;
 
     if (!disponivel) {
@@ -398,8 +398,8 @@ campoData.addEventListener("input", () => {
     }
 });
 
-// Mesma ideia para o CRP: valida o formato e, se estiver certo,
-// pergunta ao servidor se já está em uso
+                                                                
+                                         
 const checarCRPDisponivel = debounce(async () => {
 
     const valor = campoCRP.value.trim();
@@ -424,13 +424,13 @@ campoCRP.addEventListener("input", () => {
     }
 });
 
-// ==========================
-// ENVIO DO FORMULÁRIO
-// ==========================
+                             
+                      
+                             
 
-// Intercepta o submit e envia via fetch.
-// O backend responde em JSON com { sucesso, destino } no caso de êxito,
-// ou { erro, campo } no caso de falha.
+                                         
+                                                                        
+                                       
 document.getElementById("formCadastro").addEventListener("submit", async (evento) => {
 
     evento.preventDefault();
@@ -440,7 +440,7 @@ document.getElementById("formCadastro").addEventListener("submit", async (evento
     const btnContinuar = document.getElementById("btnContinuar");
     const erroGeral    = document.getElementById("erro-geral");
 
-    // Desabilita o botão enquanto processa
+                                           
     btnContinuar.disabled    = true;
     btnContinuar.textContent = traduzir("Enviando...");
 

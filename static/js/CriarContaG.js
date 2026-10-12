@@ -1,6 +1,6 @@
-// ==========================
-// TRADUÇÃO MANUAL
-// ==========================
+                             
+                  
+                             
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 
@@ -49,9 +49,9 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 
 aplicarIdiomaEstatico();
 
-// ==========================
-// MÁSCARA DO CPF
-// ==========================
+                             
+                 
+                             
 
 function mascaraCPF(input) {
 
@@ -78,9 +78,9 @@ function mascaraCPF(input) {
 
 }
 
-// ==========================
-// MÁSCARA DO TELEFONE
-// ==========================
+                             
+                      
+                             
 
 document.getElementById("telefone").addEventListener("input", function () {
 
@@ -109,9 +109,9 @@ document.getElementById("telefone").addEventListener("input", function () {
 
 
 
-// ==========================
-// MOSTRAR / LIMPAR ERROS
-// ==========================
+                             
+                         
+                             
 
 function mostrarErro(inputId, erroId, mensagem) {
 
@@ -152,16 +152,16 @@ function limparErros() {
 
     });
 
-    // Limpa também o erro geral
+                                
     const erroGeral = document.getElementById("erro-geral");
     if (erroGeral) erroGeral.style.display = "none";
 
 }
 
-// ==========================
-// LIMPAR ERRO DE UM ÚNICO CAMPO
-// (usado na validação em tempo real, sem precisar dar Enter)
-// ==========================
+                             
+                                
+                                                             
+                             
 
 function limparErroCampo(inputId, erroId) {
 
@@ -177,10 +177,10 @@ function limparErroCampo(inputId, erroId) {
 
 }
 
-// ==========================
-// DEBOUNCE — espera o usuário parar de digitar
-// antes de consultar o servidor
-// ==========================
+                             
+                                               
+                                
+                             
 
 function debounce(funcao, atraso = 600) {
 
@@ -193,9 +193,9 @@ function debounce(funcao, atraso = 600) {
 
 }
 
-// ==========================
-// CHECAR NO SERVIDOR SE EMAIL/CPF JÁ ESTÃO EM USO
-// ==========================
+                             
+                                                  
+                             
 
 async function verificarDisponibilidade(campo, valor) {
 
@@ -215,24 +215,24 @@ async function verificarDisponibilidade(campo, valor) {
     } catch (erro) {
 
         console.log("Erro ao verificar disponibilidade:", erro);
-        return true; // não trava o usuário por erro de conexão
+        return true;                                           
 
     }
 
 }
 
-// ==========================
-// FORMATO DO CPF (sem checar dígito verificador —
-// isso o backend já faz com a lib cpf-cnpj-validator)
-// ==========================
+                             
+                                                  
+                                                      
+                             
 
 function cpfFormatoValido(cpfLimpo) {
     return cpfLimpo.length === 11 && !/^(\d)\1{10}$/.test(cpfLimpo);
 }
 
-// ==========================
-// VERIFICAR MAIOR DE IDADE
-// ==========================
+                             
+                           
+                             
 
 function idadeAdultoValida(data) {
 
@@ -246,7 +246,7 @@ function idadeAdultoValida(data) {
 
     const hoje = new Date();
 
-    // Não pode nascer no futuro
+                                
     if (nascimento > hoje) {
         return false;
     }
@@ -271,9 +271,9 @@ function idadeAdultoValida(data) {
 
     return idade >= 18 && idade <= 120;
 }
-// ==========================
-// VALIDAÇÃO LOCAL
-// ==========================
+                             
+                  
+                             
 
 function validarCampos() {
 
@@ -311,9 +311,9 @@ function validarCampos() {
         valido = false;
     }
 
-    // Validação mais descritiva do CPF
-    // O backend tem a validação real com dígitos verificadores
-    // aqui garantimos pelo menos o formato correto
+                                       
+                                                               
+                                                   
     if (!cpfFormatoValido(cpf)) {
         mostrarErro("cpf", "erro-cpf", traduzir("CPF inválido. Verifique os números digitados."));
         valido = false;
@@ -324,11 +324,11 @@ function validarCampos() {
 
 }
 
-// ==========================
-// VALIDAÇÃO EM TEMPO REAL
-// (o erro some assim que o campo fica válido — não precisa
-// apertar Enter nem clicar em Continuar)
-// ==========================
+                             
+                          
+                                                           
+                                         
+                             
 
 const campoNome  = document.getElementById("nome");
 const campoEmail = document.getElementById("email");
@@ -343,8 +343,8 @@ campoNome.addEventListener("input", () => {
     if (partes.length >= 2) limparErroCampo("nome", "erro-nome");
 });
 
-// Checa disponibilidade do email só depois que o formato já está
-// válido e o usuário parou de digitar por um instante
+                                                                 
+                                                      
 const checarEmailDisponivel = debounce(async () => {
 
     const valor = campoEmail.value.trim();
@@ -352,7 +352,7 @@ const checarEmailDisponivel = debounce(async () => {
 
     const disponivel = await verificarDisponibilidade("email", valor);
 
-    // se o usuário já mudou o valor enquanto a resposta chegava, ignora
+                                                                        
     if (campoEmail.value.trim() !== valor) return;
 
     if (!disponivel) {
@@ -383,8 +383,8 @@ campoData.addEventListener("input", () => {
     }
 });
 
-// Mesma ideia para o CPF: valida o formato e, se estiver certo,
-// pergunta ao servidor se já está em uso
+                                                                
+                                         
 const checarCPFDisponivel = debounce(async () => {
 
     const valor   = campoCPF.value.trim();
@@ -411,13 +411,13 @@ campoCPF.addEventListener("input", () => {
     }
 });
 
-// ==========================
-// ENVIO DO FORMULÁRIO
-// ==========================
+                             
+                      
+                             
 
-// Intercepta o submit e envia via fetch
-// Antes o form fazia POST direto e erros chegavam via ?erro= na URL
-// Agora os erros aparecem direto nos campos sem sair da página
+                                        
+                                                                    
+                                                               
 
 document.getElementById("formCadastro").addEventListener("submit", async (evento) => {
 
@@ -428,7 +428,7 @@ document.getElementById("formCadastro").addEventListener("submit", async (evento
     const btnContinuar = document.getElementById("btnContinuar");
     const erroGeral    = document.getElementById("erro-geral");
 
-    // Desabilita o botão enquanto processa
+                                           
     btnContinuar.disabled    = true;
     btnContinuar.textContent = traduzir("Enviando...");
 
@@ -448,18 +448,18 @@ document.getElementById("formCadastro").addEventListener("submit", async (evento
             })
         });
 
-        // Redirecionamento bem-sucedido (backend redireciona para /CriarContaSenha)
+                                                                                    
         if (resposta.redirected) {
             window.location.href = resposta.url;
             return;
         }
 
-        // Exibe erros do servidor direto nos campos
+                                                    
         if (!resposta.ok) {
 
             const dados = await resposta.json();
 
-            // Tenta mostrar no campo específico, senão mostra no geral
+                                                                       
             if (dados.campo) {
                 mostrarErro(dados.campo, "erro-" + dados.campo, traduzir(dados.erro));
             } else {
@@ -478,7 +478,7 @@ document.getElementById("formCadastro").addEventListener("submit", async (evento
 
     } finally {
 
-        // Reabilita o botão independente do resultado
+                                                      
         btnContinuar.disabled    = false;
         btnContinuar.textContent = traduzir("Continuar");
 

@@ -1,6 +1,6 @@
-// ==========================
-// TEMA
-// ==========================
+                             
+       
+                             
 
 function aplicarTema(tema) {
     document.body.classList.remove("tema-claro", "tema-escuro");
@@ -15,9 +15,9 @@ document.getElementById("btnEscuro").addEventListener("click", () => aplicarTema
 
 aplicarTema(localStorage.getItem("tema") || "claro");
 
-// ==========================
-// TRADUÇÃO MANUAL
-// ==========================
+                             
+                  
+                             
 
 let idiomaAtual = localStorage.getItem("idioma") || "pt";
 let ultimoTipoContaPedido = "Responsável";
@@ -71,9 +71,9 @@ document.getElementById("btnTraduzir").addEventListener("click", () => {
 
 aplicarIdiomaEstatico();
 
-// =========================
-// DADOS DO USUÁRIO NO TOPO
-// =========================
+                            
+                           
+                            
 
 document.getElementById("fotoUsuario").addEventListener("error", function () {
     this.src = "/img/perfilPadrao.png";
@@ -110,9 +110,9 @@ async function carregarDadosUsuario() {
 
 carregarDadosUsuario();
 
-// =========================
-// NOTIFICAÇÕES
-// =========================
+                            
+               
+                            
 
 const painelNotificacoes = document.getElementById("painelNotificacoes");
 const listaNotificacoes  = document.getElementById("listaNotificacoes");
@@ -185,9 +185,9 @@ document.addEventListener("click", (e) => {
 
 carregarNotificacoes();
 
-// =========================
-// CÓDIGO DE RASTREIO / ACOMPANHAR
-// =========================
+                            
+                                  
+                            
 
 document.getElementById("btn-copiar").addEventListener("click", () => {
     const codigo = document.getElementById("codigo-texto").textContent;
@@ -198,13 +198,13 @@ document.getElementById("btn-acompanhar").addEventListener("click", () => {
     window.open("https://www.mercadolivre.com.br/gz/tracking", "_blank");
 });
 
-// =========================
-// TIMELINE E BANNER — dinâmicos, de acordo com o status real do pedido
-// =========================
+                            
+                                                                       
+                            
 
 const ORDEM_ETAPAS = ["em_producao", "enviado", "em_transito", "entregue"];
-// índice da etapa da timeline (0 a 4) alcançada por cada status:
-// etapa 0 (Pedido recebido) sempre concluída assim que existe um pedido
+                                                                 
+                                                                        
 const ETAPA_POR_STATUS = {
     em_producao: 1,
     enviado:     2,

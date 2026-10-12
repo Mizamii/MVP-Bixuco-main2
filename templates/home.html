@@ -9,7 +9,7 @@
       integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
       crossorigin="anonymous" referrerpolicy="no-referrer">
 
-    <!-- Leaflet.js para o mapa funcional sem precisar de API key -->
+                                                                     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 
@@ -21,7 +21,7 @@
     <script src="/js/deeplink.js"></script>
 
 
-    <!-- MapLibre GL + plugin para usar vector tiles dentro do Leaflet -->
+                                                                          
     <script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
     <link href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" rel="stylesheet">
     <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet/leaflet-maplibre-gl.js"></script>
@@ -31,9 +31,9 @@
 
     <div class="container">
 
-        <!-- ===================== -->
-        <!-- MENU LATERAL -->
-        <!-- ===================== -->
+                                      
+                             
+                                      
         <aside class="sidebar">
 
             <div class="logo">
@@ -71,7 +71,7 @@
             </nav>
 
 
-            <!-- O tema claro/escuro é aplicado pelo /js/tema.js (compartilhado com todas as páginas) -->
+                                                                                                         
             <div class="tema">
                 <button id="btnClaro" class="ativo" type="button">
                     <i class="fa-regular fa-sun"></i>
@@ -84,31 +84,31 @@
                 </button>
             </div>
 
-            <!-- Divisor em degradê antes do Sair -->
+                                                     
             <div class="sidebar-divisor"></div>
 
             <a href="/logout" class="logout">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 <span data-pt="Sair" data-en="Log out">Sair</span>
             </a>
-            <!-- Perfil + notificações + tradução — só aparece no desktop, substituindo
-                 a barra "topo" (ver header.js / layout.css) -->
+                                                                                       
+                                                                
             <div class="sidebar-usuario" id="sidebarUsuario"></div>
 
         </aside>
 
-        <!-- ===================== -->
-        <!-- CONTEÚDO PRINCIPAL -->
-        <!-- ===================== -->
+                                      
+                                   
+                                      
         <main class="conteudo">
 
-            <!-- TOPO — barra branca fixa, full-width -->
+                                                         
             <header class="topo" id="topoApp" data-perfil="/perfil"></header>
 
-            <!-- CORPO COM SCROLL INTERNO -->
+                                             
             <div class="conteudo-corpo">
 
-                <!-- SAUDAÇÃO -->
+                                 
                 <section class="saudacao">
                     <div>
                         <h1>
@@ -125,14 +125,14 @@
                     <img src="/img/Bixuco_home.png" alt="Mascote Bixuco">
                 </section>
 
-                <!-- STATUS DO BIXUCO FÍSICO -->
-                <!-- Vazio até carregarStatusBixuco() preencher; some sozinho quando já vinculado -->
+                                                
+                                                                                                     
                 <div id="bixuco-widget"></div>
 
-                <!-- CARDS SUPERIORES -->
+                                         
                 <section class="linha-superior">
 
-                    <!-- Card sequência -->
+                                           
                     <article class="card">
                         <div class="icone">
                             <i class="fa-solid fa-fire"></i>
@@ -153,7 +153,7 @@
                     
                 </section>
 
-                <!-- DICAS PERSONALIZADAS -->
+                                             
                 <section class="dicas-card">
 
                     <div class="dicas-intro">
@@ -173,7 +173,7 @@
                         <i class="fa-solid fa-chevron-right"></i>
                     </button>
 
-                    <!-- Modal -->
+                                  
                     <div id="modalDica" class="modal-dica" style="display:none;">
                         <div class="modal-dica__conteudo">
                             <button class="modal-dica__fechar" id="fecharModalDica">
@@ -186,10 +186,10 @@
 
                 </section>
 
-                <!-- CALENDÁRIO + MAPA -->
+                                          
                 <div class="linha-meio">
 
-                    <!-- CALENDÁRIO -->
+                                       
                     <section class="calendario-card">
                         <div class="calendario-header">
 
@@ -221,7 +221,7 @@
 
                         <div id="diasCalendario" class="dias-calendario"></div>
 
-                        <!-- Legenda -->
+                                        
                         <div class="legenda">
                             <span>
                                 <span class="ponto ponto--com-relatorio"></span>
@@ -238,7 +238,7 @@
                         </div>
                     </section>
 
-                    <!-- MAPA — fixo na página, sem precisar clicar -->
+                                                                       
                     <section class="mapa-card">
 
                         <div class="mapa-header">
@@ -275,9 +275,9 @@
 
         </main>
 
-        <!-- ===================== -->
-        <!-- MENU INFERIOR (só mobile) -->
-        <!-- ===================== -->
+                                      
+                                          
+                                      
         <nav class="bottom-nav">
             <a href="/sobre">
                 <i class="fa-solid fa-circle-info"></i>
@@ -309,7 +309,7 @@
     <script src="/js/header.js"></script>
     <script src="/js/home.js"></script>
 
-    <!-- Tema claro/escuro compartilhado — precisa vir depois dos botões #btnClaro/#btnEscuro existirem -->
+                                                                                                           
     <script src="/js/tema.js"></script>
 
 </body>
