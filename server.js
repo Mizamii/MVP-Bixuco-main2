@@ -812,7 +812,7 @@ function limitarTentativasLogin(req, res, next) {
 
                                                                                       
 const limitarLoginPorIp = criarLimitadorPorIp(
-    15, // mais folgado, cobre Wi-Fi compartilhado
+    15, 
     15 * 60 * 1000,
     "Muitas tentativas de login. Tente novamente mais tarde."
 );
@@ -821,7 +821,7 @@ const limitarLoginPorIp = criarLimitadorPorIp(
                                                  
 const limitarCriacaoConta = criarLimitadorPorIp(
     10,
-    60 * 60 * 1000, // 1 hora
+    60 * 60 * 1000, 
     "Muitas tentativas de cadastro. Tente novamente mais tarde."
 );
 
@@ -2586,9 +2586,9 @@ async function verificarRecaptcha(token, acaoEsperada) {
 }
 
 const LIMITES_CRISE = {
-    gapAgrupamentoMs:      5 * 60 * 1000, // eventos a até 5 min de distância = mesmo episódio
-    duracaoMinimaCriseMs:  3000,           // 3s de aperto sustentado
-    forcaMinimaCrise:      0.65,            // força máxima que já basta sozinha
+    gapAgrupamentoMs:      5 * 60 * 1000,
+    duracaoMinimaCriseMs:  3000,          
+    forcaMinimaCrise:      0.65,            
     quantidadeMinimaEventos: 2                                                             
 };
 
@@ -2790,7 +2790,7 @@ app.get("/api/relatorio-diario/grafico", estaLogado, exigeResponsavel, async (re
 
         res.json({
             data:      dataFiltro,
-            forca:     pontos,     // [{ horario, forca, crise, pico }]
+            forca:     pontos,     
             atividade: atividade                          
         });
 
@@ -4232,7 +4232,7 @@ app.get("/api/relatorios", estaLogado, exigeResponsavel, async (req, res) => {
 
             graficoEstresse: {
                 labels:   labelsEstresse,
-                dados:    dadosEstresse,   // crises reais por dia
+                dados:    dadosEstresse,   
                 isolados: dadosIsolados                                                                         
             },
 
@@ -6918,7 +6918,7 @@ app.get('/api/home', estaLogado, exigeResponsavel, async (req, res) => {
             notificacoes: totalNotificacoes,
             diasConsecutivos: ofensiva.atual,
             maiorOfensiva: ofensiva.maior,
-            nomeBixuco: "Bixuco", // futuramente buscar da tabela de dispositivos vinculados
+            nomeBixuco: "Bixuco", 
             nomeCrianca                                          
         });
 
