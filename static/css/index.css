@@ -354,3 +354,57 @@ body.tema-escuro .apoiadores__setas button { background: #293139; border-color: 
     .apoiadores__aba, .apoiadores__setas button { transition: none; }
 }
 
+
+@media (max-width: 760px) {
+    .navbar {
+        display: flex;
+        gap: 10px;
+        padding: 10px 16px;
+        width: 100%;
+        min-height: 68px;
+    }
+    .navbar__marca { flex: 0 0 auto; min-width: 0; }
+    .navbar__marca img { width: clamp(78px, 23vw, 112px); height: auto; max-height: 40px; object-fit: contain; }
+    .navbar .acoes { display: flex; justify-content: flex-end; align-items: center; flex: 1 1 auto; gap: 6px; min-width: 0; }
+    .controles-publicos--navbar { gap: 6px; flex-shrink: 0; }
+    .controles-publicos--navbar .controle-publico { min-width: 36px; min-height: 38px; height: 38px; padding: 0 7px; }
+    .controles-publicos--navbar .controle-publico--icone { width: 36px; padding: 0; }
+    .navbar .acoes > .btn { flex: 0 0 auto; min-height: 38px; border-radius: 22px; padding: 7px 11px; line-height: 1.2; white-space: nowrap; font-size: .78rem; text-align: center; justify-content: center; }
+    .hero { padding-top: 36px; gap: 4px; }
+    .hero__texto h1 { font-size: clamp(1.95rem, 7.7vw, 2.65rem); line-height: 1.15; overflow-wrap: break-word; }
+    .hero__texto p { font-size: 1rem; line-height: 1.6; margin: 16px 0 24px; }
+    .hero__botoes { gap: 10px; }
+    .hero__botoes .btn { padding: 11px 15px; font-size: .88rem; min-height: 44px; }
+    .hero__visual { min-height: 360px; margin-top: 10px; }
+    .hero__visual .celular { width: min(230px, 68vw); }
+    .hero__gato { width: 100px; right: 1%; }
+    .apoiadores__seletor { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .apoiadores__aba, .apoiadores__aba.is-active {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        flex-wrap: nowrap;
+        gap: 4px;
+        padding: 12px 9px;
+        min-height: 91px;
+        min-width: 0;
+        text-align: left;
+        border-width: 1px;
+    }
+    .apoiadores__numero { line-height: 1.2; }
+    .apoiadores__nome { flex: none; width: 100%; font-size: clamp(.8rem, 2.8vw, 1rem); line-height: 1.25; overflow-wrap: anywhere; }
+    .apoiadores__mini { display: none; }
+    .apoiadores__cabecalho .subtitulo { margin: 9px auto 0; }
+    .apoiadores__painel { min-width: 0; }
+    .apoiadores__video-area { max-width: 100%; }
+}
+@media (max-width: 390px) {
+    .navbar { gap: 6px; padding: 9px 10px; }
+    .navbar__marca img { width: 75px; }
+    .navbar .acoes { gap: 4px; }
+    .controles-publicos--navbar { gap: 4px; }
+    .controles-publicos--navbar .controle-publico { min-width: 32px; min-height: 36px; height: 36px; padding: 0 5px; }
+    .controles-publicos--navbar .controle-publico--icone { width: 32px; padding: 0; }
+    .navbar .acoes > .btn { min-height: 36px; padding: 6px 8px; font-size: .73rem; }
+}

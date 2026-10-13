@@ -33,16 +33,24 @@ function atualizarApoiador() {
     video.setAttribute("aria-label", idiomaAtual === "en" ? "Video testimonial by " + nome.textContent : "Depoimento em vídeo de " + nome.textContent);
 }
 
+function atualizarCapturasIndex() {
+    const escuro = document.body.classList.contains("tema-escuro");
+    document.querySelectorAll("img[data-src-pt]").forEach(imagem => {
+        const prefixo = idiomaAtual === "en" ? "srcEn" : "srcPt";
+        const caminho = escuro && imagem.dataset[`${prefixo}Dark`]
+            ? imagem.dataset[`${prefixo}Dark`]
+            : imagem.dataset[prefixo];
+        if (caminho && imagem.getAttribute("src") !== caminho) imagem.src = caminho;
+        imagem.alt = idiomaAtual === "en" ? (imagem.dataset.altEn || "") : (imagem.dataset.altPt || "");
+    });
+}
+
 function aplicarIdiomaIndex() {
     document.querySelectorAll("[data-pt]").forEach(elemento => {
         elemento.textContent = idiomaAtual === "en" ? (elemento.dataset.en || elemento.dataset.pt) : elemento.dataset.pt;
     });
 
-    document.querySelectorAll("img[data-src-pt]").forEach(imagem => {
-        const novaImagem = idiomaAtual === "en" ? imagem.dataset.srcEn : imagem.dataset.srcPt;
-        if (imagem.getAttribute("src") !== novaImagem) imagem.setAttribute("src", novaImagem);
-        imagem.alt = idiomaAtual === "en" ? imagem.dataset.altEn : imagem.dataset.altPt;
-    });
+    atualizarCapturasIndex();
 
     document.querySelectorAll("[data-aria-label-pt]").forEach(elemento => {
         elemento.setAttribute("aria-label", idiomaAtual === "en" ? elemento.dataset.ariaLabelEn : elemento.dataset.ariaLabelPt);
@@ -109,3 +117,9 @@ aplicarIdiomaIndex();
     window.addEventListener("scroll", atualizar, { passive: true });
     atualizar();
 })();
+
+const observadorTemaIndex = new MutationObserver(mutacoes => {
+    if (mutacoes.some(mutacao => mutacao.attributeName === "class")) atualizarCapturasIndex();
+});
+observadorTemaIndex.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+atualizarCapturasIndex();
