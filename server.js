@@ -9497,6 +9497,47 @@ function janelaEventosAssistente(mensagem) {
 
                                                                              
                                                                            
+function perguntaTutorialWifiBixuco(mensagem) {
+    const texto = normalizarTextoAssistente(mensagem);
+    const referenciaRede = /\b(wi[\s-]?fi|wifi|wireless|roteador|hotspot|ssid|internet|rede temporaria|rede propria|ponto de acesso|access point|rede do bixuco|rede da pelucia)\b/.test(texto);
+    const referenciaDispositivo = /\b(bixuco|bichuco|pelucia|dispositivo)\b/.test(texto);
+    const acaoConfiguracao = /\b(conectar|conecto|conecta|conecte|reconectar|reconecto|configur\w*|parear|trocar|mudar|alterar|redefinir|inserir|selecionar|refazer|colocar|connect|reconnect|configure|pair|change|switch|setup|set up)\b/.test(texto);
+    const pedidoDeTutorial = /\b(tutorial|passo a passo|passos|me ensina|me explica|como funciona o wifi|how to|step by step|walkthrough|guide|instructions|steps)\b/.test(texto);
+    const falhaDeConexao = /\b(nao consigo|nao conecta|nao aparece|nao abre|falha ao conectar|sem conectar|can't connect|cannot connect|won't connect|not connecting|does not appear)\b/.test(texto);
+    const primeiraConfiguracao = /\b(primeira vez|primeira configuracao|configuracao inicial|instalar pela primeira vez|acabei de receber|quando receber|quando chegar|first time|initial setup|just received|unbox)\b/.test(texto);
+    return (referenciaRede && (acaoConfiguracao || pedidoDeTutorial || falhaDeConexao))
+        || (referenciaDispositivo && primeiraConfiguracao);
+}
+
+function respostaTutorialWifiBixuco(idioma) {
+    if (idioma === "en") {
+        return [
+            "To connect Bixuco to your home Wi-Fi for the first time:",
+            "",
+            "1. Plug Bixuco into its charger to power it on. An unconfigured device should broadcast its temporary setup Wi-Fi network.",
+            "2. On your phone, open Wi-Fi settings and look for the network named ‘Bichuco Confit’ (name provided by the prototype team; verify the exact spelling on the device).",
+            "3. Connect to that temporary network using its initial password: ‘Bichuco 123’. This is the setup network password, NOT your home's Wi-Fi password.",
+            "4. In the setup page shown by the device, choose your home's Wi-Fi network from the list of available networks.",
+            "5. Enter your HOME Wi-Fi password on that setup page, not in this chat, then confirm the connection.",
+            "6. Wait for the ESP32 to connect to your home network. Reconnect your phone to its usual Wi-Fi and check Bixuco's Home page for recent communication from the device.",
+            "",
+            "If your phone says the temporary network has no internet, stay connected while setting up. If the setup page does not appear, do not guess a web address: ask for the device's setup instructions. If Bixuco was previously configured, resetting Wi-Fi setup depends on the firmware and has not yet been confirmed. Never send your home Wi-Fi password to this chat."
+        ].join("\n");
+    }
+    return [
+        "Para conectar o Bixuco ao Wi-Fi da sua casa pela primeira vez:",
+        "",
+        "1. Conecte o Bixuco ao carregador para ligá-lo. Quando ainda não está configurado, o dispositivo deve criar sua rede Wi-Fi temporária.",
+        "2. No celular, abra as configurações de Wi-Fi e procure a rede chamada ‘Bichuco Confit’ (nome informado pela equipe do protótipo; confira a grafia exata no dispositivo).",
+        "3. Conecte-se a essa rede temporária usando a senha inicial ‘Bichuco 123’. Essa é a senha de CONFIGURAÇÃO do Bixuco, não a senha do Wi-Fi da sua casa.",
+        "4. Na página de configuração apresentada pelo dispositivo, selecione a rede Wi-Fi da sua casa na lista de redes disponíveis.",
+        "5. Digite a senha da SUA REDE DOMÉSTICA diretamente nessa página, nunca nesta conversa, e confirme a conexão.",
+        "6. Aguarde o ESP32 se conectar à internet da casa. Reconecte o celular à sua rede habitual e confira na Home do Bixuco se o dispositivo está enviando dados recentes.",
+        "",
+        "Se o celular avisar que a rede temporária está ‘sem internet’, permaneça nela durante a configuração. Se a página não abrir, não tente endereços aleatórios: consulte as instruções do dispositivo. Para refazer a configuração de um Bixuco já conectado anteriormente, ainda é necessário confirmar com a equipe como reativar o modo de configuração no firmware. Nunca envie a senha do Wi-Fi da sua casa pelo chat."
+    ].join("\n");
+}
+
 function perguntaDicasDaContaAssistente(mensagem) {
     const texto = normalizarTextoAssistente(mensagem);
     const falaDeDicas = /\b(dicas?|tips?|suggestions?|recomendacoes?)\b/.test(texto);
@@ -9870,6 +9911,7 @@ function conhecimentoProdutoAssistente() {
             configuracoes: "/configuracoes",
             sobre: "/sobre",
             assistente: "Na Home, botão Conversar com Bixuco ao lado do mascote; nas outras páginas de responsável, botão flutuante. Abre uma janela central sem deslocar os cards.",
+            configuracao_wifi: "No primeiro uso, ligar o dispositivo no carregador; ele emite a rede temporária chamada Bichuco Confit e, conforme a equipe do protótipo, a senha inicial dessa rede é Bichuco 123 (grafia ainda deve ser confirmada diretamente no firmware). No portal exibido pelo dispositivo, selecionar uma rede doméstica e digitar nela a senha da casa, nunca no chat. Após conectar, conferir sinais recentes na Home. O endereço exato do portal e a maneira de reativar o modo de configuração após o primeiro uso ainda precisam de confirmação no firmware; não inventar esses detalhes nem pedir senhas privadas.",
             planos: "Em Configurações > Plano e assinatura, abre em um modal."
         },
         limites: [
@@ -10827,7 +10869,8 @@ app.post(
                                                                                    
             const esperaGroq = segundosEsperaGroq();
             if (esperaGroq > 0 && !perguntaDicasDaContaAssistente(mensagem)
-                && !perguntaComoAtualizarPerfilSensorialAssistente(mensagem)) {
+                && !perguntaComoAtualizarPerfilSensorialAssistente(mensagem)
+                && !perguntaTutorialWifiBixuco(mensagem)) {
                 return res.status(429)
                     .set("Retry-After", String(esperaGroq))
                     .json({
@@ -10842,6 +10885,7 @@ app.post(
                                                                              
                                                                              
             if (!perguntaComoAtualizarPerfilSensorialAssistente(mensagem)
+                && !perguntaTutorialWifiBixuco(mensagem)
                 && perguntaExigeCriancaAssistente(mensagem, historicoAntes)) {
                 const lista = await db.query(
                     "SELECT id, nome FROM criancas WHERE usuario_id = $1 ORDER BY id ASC LIMIT 30",
@@ -10867,6 +10911,21 @@ app.post(
 
                                                                            
                                                                       
+            if (perguntaTutorialWifiBixuco(mensagem)) {
+                const textoResposta = respostaTutorialWifiBixuco(idioma);
+                const novoHistorico = await adicionarMensagemHistoricoAssistente(usuarioId, {
+                    role: "assistant", content: textoResposta
+                });
+                return res.json({
+                    mensagem: textoResposta,
+                    relatorioAtualizado: false,
+                    camposAtualizados: [],
+                    relatorioFinalizado: false,
+                    respostas: [],
+                    historicoTamanho: novoHistorico.length
+                });
+            }
+
             if (perguntaComoAtualizarPerfilSensorialAssistente(mensagem)) {
                 const textoResposta = respostaComoAtualizarPerfilSensorialAssistente(idioma);
                 const novoHistorico = await adicionarMensagemHistoricoAssistente(usuarioId, {
