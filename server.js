@@ -6830,19 +6830,19 @@ app.get("/sobre", estaLogado, exigeResponsavel, precisaPlano("medio"), (req, res
 
                                                  
                                                               
+
 app.get('/logout', (req, res) => {
-
     req.session.destroy((err) => {
-
         if (err) {
-            console.log("Erro ao encerrar sessão:", err);
+            console.error("Erro ao encerrar sessão:", err);
+            return res.status(500).send("Não foi possível sair. Tente novamente.");
         }
 
-        res.redirect("/logar");
-
+        res.clearCookie("connect.sid", { path: "/" });
+        return res.redirect("/");
     });
-
 });
+
 
                              
                       
