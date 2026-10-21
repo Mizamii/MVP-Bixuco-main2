@@ -16,6 +16,7 @@ body {
 
 body {
   background: var(--cor-fundo-pagina);
+  color: var(--cor-texto-principal);
 }
 
 .btn-relatorio {
@@ -442,6 +443,12 @@ body {
   font-weight: 700;
   color: var(--cor-texto-principal);
 }
+#modalSenha p:not(.status-senha) {
+  color: var(--cor-texto-secundario);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+}
 #modalSenha .btn-fechar-modal {
   background: none;
   border: none;
@@ -577,9 +584,6 @@ body {
   }
 }
 
-                                                             
-                                    
-                                                                
 .plano-assinatura-card {
   width: 100%;
 }
