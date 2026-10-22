@@ -2643,38 +2643,36 @@ let graficoForcaChart =
 let graficoAtividadeChart =
     null;
 
+let carregandoGraficosDiarios = false;
+let assinaturaGraficosDiarios = null;
 
 async function carregarGraficosDiarios() {
+    if (carregandoGraficosDiarios) return;
+    carregandoGraficosDiarios = true;
 
     try {
-
-        const resposta =
-            await fetch(
-                "/api/relatorio-diario/grafico"
-            );
-
-        if (!resposta.ok) {
-            return;
-        }
-
-        const dados =
-            await resposta.json();
-
-        desenharGraficoForca(
-            dados.forca || []
+        const resposta = await fetch(
+            "/api/relatorio-diario/grafico",
+            { cache: "no-store" }
         );
 
-        desenharGraficoAtividade(
-            dados.atividade || []
-        );
+        if (!resposta.ok) return;
 
+        const dados = await resposta.json();
+        const forca = dados.forca || [];
+        const atividade = dados.atividade || [];
+        const assinaturaAtual = JSON.stringify([dados.data, forca, atividade]);
+
+        if (assinaturaAtual === assinaturaGraficosDiarios) return;
+        if (typeof Chart === "undefined") return;
+
+        desenharGraficoForca(forca);
+        desenharGraficoAtividade(atividade);
+        assinaturaGraficosDiarios = assinaturaAtual;
     } catch (erro) {
-
-        console.log(
-            "Erro ao carregar gráficos do dia:",
-            erro
-        );
-
+        console.log("Erro ao carregar gráficos do dia:", erro);
+    } finally {
+        carregandoGraficosDiarios = false;
     }
 }
 
@@ -3281,6 +3279,14 @@ carregarUsuario();
 
                      
 iniciarRelatorio();
+
+setInterval(() => {
+    if (!document.hidden) carregarGraficosDiarios();
+}, 20000);
+
+document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) carregarGraficosDiarios();
+});
 
 
                                           
